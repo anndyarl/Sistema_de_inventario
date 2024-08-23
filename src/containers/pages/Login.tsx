@@ -40,46 +40,28 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, loading }) => {
 
     return (
         <div className="container">
-            <h1 className="form-heading">Sistema de Inventario</h1>
-            <div className="login-form">
-                <div className="main-div">
-                    <div className="panel">
-                        <p>Please enter your usuario and password</p>
-                    </div>
-                    <form id="Login" onSubmit={onSubmit}>
-                        <div className="form-group">
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                id="inputusuario" 
-                                name="usuario" 
-                                value={usuario} 
-                                placeholder="usuario" 
-                                onChange={onChange} 
-                                required 
-                            />
-                        </div>
-                        <div className="form-group">
-                            <input 
-                                type="password" 
-                                className="form-control" 
-                                id="inputPassword" 
-                                name="password" 
-                                value={password} 
-                                placeholder="Password" 
-                                onChange={onChange} 
-                                required 
-                            />
-                        </div>
-                        <div className="forgot">
-                            <Link to="/forgot_password" className="underlineHover">Forgot password?</Link>
-                        </div>
-                        <button type="submit" className="btn btn-primary">Login</button>
-                    </form>
+        <h1 className="form-heading">Sistema de Inventario</h1>
+        <div className="login-form">
+            <div className="main-div">
+                <div className="panel">
+                    <p>Please enter your usuario and password</p>
                 </div>
-                <p className="botto-text">Designed by AndyRL</p>
+                <form id="Login" onSubmit={onSubmit}>
+                    <div className="form-group">
+                        <input type="text" className="form-control" id="inputusuario" name="usuario" value={usuario} placeholder="usuario" onChange={onChange} required />
+                    </div>
+                    <div className="form-group">
+                        <input type="password" className="form-control" id="inputPassword" name="password" value={password} placeholder="Password" onChange={onChange} required />
+                    </div>
+                    <div className="forgot">
+                        <Link to="/forgot_password" className="underlineHover">Forgot password?</Link>
+                    </div>
+                    <button type="submit" className="btn btn-primary">Login</button>
+                </form>
             </div>
+            <p className="botto-text">Designed by AndyRL</p>
         </div>
+    </div>
     );
 };
 

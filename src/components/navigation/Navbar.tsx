@@ -2,6 +2,7 @@ import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de ajustar la ruta al archivo donde defines RootState
 import { Link, NavLink } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css'; // Importa Bootstrap si no lo has hecho ya
 
 // Define una interfaz para las props que el componente podría recibir
 interface NavbarProps extends PropsFromRedux {}
@@ -9,31 +10,33 @@ interface NavbarProps extends PropsFromRedux {}
 // Define el componente Navbar tipado con las props
 const Navbar: React.FC<NavbarProps> = () => {
     return (
-         <nav data-scroll data-scroll-id="hey" id='navbar'  className='w-full py-6 top-0 transition duration-300 ease-in-out z-40 fixed'>
-            <div className="px-4 sm:px-6">
-                <div className="-ml-4 -mt-2 hidden lg:flex flex-wrap items-center justify-between sm:flex-nowrap md:px-14 px-2">
-                    <Link to='/' className="ml-4 mt-2">
-                    {/* <img
-                        src={'https://bafybeiczl4dcxupma2zeyilkukfl4yge64axnhajd722wxgin62mtts6uy.ipfs.w3s.link/murkivamarketing.png'}
-                        width={160}
-                        height={160}
-                        className=""
-                    /> */}
+        <div className="d-flex">
+            <div className="bg-light border-right" id="sidebar">
+                <div className="sidebar-header">
+                    <Link to="/" className="d-flex align-items-center justify-content-center py-4">
+                        {/* Aquí puedes agregar un logo o imagen */}
+                        {/* <img
+                            src={'https://bafybeiczl4dcxupma2zeyilkukfl4yge64axnhajd722wxgin62mtts6uy.ipfs.w3s.link/murkivamarketing.png'}
+                            width={160}
+                            height={160}
+                            className=""
+                        /> */}
                     </Link>
-                    <div className="ml-4 mt-2 flex-shrink-0">
-                    <NavLink to='/Inventario' className="text-lg inline-flex font-medium leading-6 text-gray-900 border-b-2 border-white hover:border-orange-500 transition duration-300 ease-in-out mx-4 bg-orange-200 px-4 py-2 rounded-md">Inventario</NavLink>
-                    <NavLink to='/Traslados' className="text-lg inline-flex font-medium leading-6 text-gray-900 border-b-2 border-white hover:border-orange-500 transition duration-300 ease-in-out mx-4">Traslados</NavLink>
-                    <NavLink to='/Altas' className="text-lg inline-flex font-medium leading-6 text-gray-900 border-b-2 border-white hover:border-orange-500 transition duration-300 ease-in-out mx-4">Altas</NavLink>
-                    <NavLink to='/Bajas' className="text-lg inline-flex font-medium leading-6 text-gray-900 border-b-2 border-white hover:border-orange-500 transition duration-300 ease-in-out mx-4">Bajas</NavLink>
-                    <NavLink to='/Donaciones' className="text-lg inline-flex font-medium leading-6 text-gray-900 border-b-2 border-white hover:border-orange-500 transition duration-300 ease-in-out mx-4">Donaciones</NavLink>
-                    <NavLink to='/Informes' className="text-lg inline-flex font-medium leading-6 text-gray-900 border-b-2 border-white hover:border-orange-500 transition duration-300 ease-in-out mx-4">Informes</NavLink>
-                    <NavLink to='/Configuración' className="text-lg inline-flex font-medium leading-6 text-gray-900 border-b-2 border-white hover:border-orange-500 transition duration-300 ease-in-out mx-4">Configuración</NavLink>
-                                   
-                    </div>
                 </div>
-               
+                <div className="list-group">
+                    <NavLink to="/Inventario" className="list-group-item list-group-item-action">Inventario</NavLink>
+                    <NavLink to="/Traslados" className="list-group-item list-group-item-action">Traslados</NavLink>
+                    <NavLink to="/Altas" className="list-group-item list-group-item-action">Altas</NavLink>
+                    <NavLink to="/Bajas" className="list-group-item list-group-item-action">Bajas</NavLink>
+                    <NavLink to="/Donaciones" className="list-group-item list-group-item-action">Donaciones</NavLink>
+                    <NavLink to="/Informes" className="list-group-item list-group-item-action">Informes</NavLink>
+                    <NavLink to="/Configuracion" className="list-group-item list-group-item-action">Configuración</NavLink>
+                </div>
             </div>
-        </nav>
+            <div className="container-fluid">
+                {/* Aquí iría el contenido principal de tu aplicación */}
+            </div>
+        </div>
     );
 };
 

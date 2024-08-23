@@ -15,6 +15,7 @@ interface AuthState {
     isAuthenticated: boolean | null;
     loading: boolean;
     unidades: any[]; // Añade unidades al estado
+    error: string | null; // Añade error al estado
 }
 
 // Estado inicial
@@ -24,6 +25,7 @@ const initialState: AuthState = {
     isAuthenticated: localStorage.getItem('access') !== null,
     loading: false,
     unidades: [], // Inicializa unidades como un array vacío
+    error: null, // Inicializa error como null
 };
 
 // Define el tipo de acción
@@ -54,8 +56,7 @@ export default function auth(state = initialState, action: Action): AuthState {
                 user: payload.user || null, // Asigna el usuario si está disponible
                 loading: false,
             };
-        case LOGIN_FAIL:
-        case UNIDADES_FAIL:
+        case LOGIN_FAIL:       
         case LOGOUT:
             localStorage.removeItem('access');
             return {
@@ -71,6 +72,7 @@ export default function auth(state = initialState, action: Action): AuthState {
                 ...state,
                 access: payload.token, // Actualiza el token en el estado
             };
+        case UNIDADES_FAIL:    
         case 'REFRESH_UNIDADES': // Asegúrate de que este tipo de acción coincida con el tipo usado en tus acciones
             return {
                 ...state,
