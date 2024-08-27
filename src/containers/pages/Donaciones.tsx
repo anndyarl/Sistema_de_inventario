@@ -4,8 +4,8 @@ import React from "react";
 // import { Link, Navigate } from "react-router-dom";
 // import "../../styles/Login.css"; // Descomentar si tienes un archivo CSS específico
 import Layout from "../../hooks/layout/Layout";
-import Navbar from "../../components/navigation/Navbar";
 import Footer from "../../components/navigation/Footer";
+import Sidebar from "../../components/navigation/Sidebar";
 
 // Define interfaces para props si es necesario
 interface DonacionesProps {
@@ -17,7 +17,7 @@ interface DonacionesProps {
 const Donaciones: React.FC<DonacionesProps> = () => {
     return (
         <Layout>
-            <Navbar />
+            <Sidebar />
             <div>Donaciones</div>
             <Footer />
         </Layout>

@@ -12,13 +12,7 @@ interface Props {
 }
 
 const Login: React.FC<Props> = ({ login, isAuthenticated, loading }) => {
-    // Si se quiere hacer algo al autenticar, se puede añadir en useEffect
-    useEffect(() => {
-        if (isAuthenticated) {
-            // Redirigir o hacer algo cuando el usuario esté autenticado
-        }
-    }, [isAuthenticated]);
-
+   
     const [formData, setFormData] = useState({
         usuario: '',
         password: '',
@@ -71,5 +65,5 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-    login, // Elimina buscar_unidades si no es necesario aquí
+    login, 
 })(Login);

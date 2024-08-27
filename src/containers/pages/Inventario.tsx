@@ -4,8 +4,9 @@ import React from "react";
 // import { Link, Navigate } from "react-router-dom";
 // import "../../styles/Login.css"; // Descomentar si tienes un archivo CSS específico
 import Layout from "../../hooks/layout/Layout";
-import Navbar from "../../components/navigation/Navbar";
+import Sidebar from "../../components/navigation/Sidebar";
 import Footer from "../../components/navigation/Footer";
+import FORM_INVENTARIO from "../../components/Inventario/FORM_INVENTARIO";
 
 // Define interfaces para props si es necesario
 interface InventarioProps {
@@ -17,8 +18,8 @@ interface InventarioProps {
 const Inventario: React.FC<InventarioProps> = () => {
     return (
         <Layout>
-            <Navbar />
-            <div>Inventario</div>
+          <Sidebar />        
+          <FORM_INVENTARIO/>
             <Footer />
         </Layout>
     );

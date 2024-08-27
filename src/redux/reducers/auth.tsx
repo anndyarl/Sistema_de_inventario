@@ -4,9 +4,17 @@ import {
     SET_AUTH_LOADING,
     REMOVE_AUTH_LOADING,
     UNIDADES_SUCCESS,
-    UNIDADES_FAIL,
-    LOGOUT
+    UNIDADES_FAIL,   
+    UNIDADES_REQUEST,
+    LOGOUT,
+    SET_TOKEN
 } from '../actions/auth/types';
+
+
+interface Unidad {
+    idUnidad: number;
+    nombreUnidad: string;
+}
 
 // Define la estructura del estado
 interface AuthState {
@@ -14,8 +22,9 @@ interface AuthState {
     access: string | null;
     isAuthenticated: boolean | null;
     loading: boolean;
-    unidades: any[]; // Añade unidades al estado
+    unidades: Unidad[]; // Añade unidades al estado
     error: string | null; // Añade error al estado
+    token:string | null;   
 }
 
 // Estado inicial
@@ -26,6 +35,7 @@ const initialState: AuthState = {
     loading: false,
     unidades: [], // Inicializa unidades como un array vacío
     error: null, // Inicializa error como null
+    token:null
 };
 
 // Define el tipo de acción
@@ -71,13 +81,26 @@ export default function auth(state = initialState, action: Action): AuthState {
             return {
                 ...state,
                 access: payload.token, // Actualiza el token en el estado
+                loading: false,
+                error: null,
             };
-        case UNIDADES_FAIL:    
-        case 'REFRESH_UNIDADES': // Asegúrate de que este tipo de acción coincida con el tipo usado en tus acciones
+        case UNIDADES_FAIL:  
             return {
                 ...state,
-                unidades: payload, // Actualiza las unidades en el estado
+                loading: false,
+                error: action.payload || 'Error',
+            }; 
+        case UNIDADES_REQUEST:
+            return {
+                ...state,
+                loading: true,
             };
+        case SET_TOKEN:
+             return {
+                ...state,
+                access: payload.token,
+             } 
+      
         default:
             return state;
     }
