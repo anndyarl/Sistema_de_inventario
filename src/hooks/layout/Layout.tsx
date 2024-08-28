@@ -112,7 +112,7 @@ function Layout({ children }: LayoutProps) {
                     <div className="flex-1 overflow-auto pt-3 pb-3">                              
                         <div className="logo-container">
                             <Link to="/" className="m-2 mt-2">
-                            <img src={logoSSMSO} alt="SSMSO LOGO" width={160} height={160} />
+                            <img src="" alt="SSMSO LOGO" width={160} height={160} />
                             </Link>
                         </div>                    
                         <nav className="mt-5">
