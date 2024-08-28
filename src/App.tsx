@@ -3,6 +3,7 @@ import store from './store'; // Asegúrate de que `store` esté tipado correctam
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Provider } from 'react-redux';
 // import './App.css';
+
 import AnimatedRoutes from './hooks/routes/Routes';
 
 const App: React.FC = () => {

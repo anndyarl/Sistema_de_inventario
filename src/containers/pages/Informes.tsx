@@ -1,10 +1,5 @@
 import React from "react";
-// import { connect } from "react-redux"; // Si decides usar connect en el futuro
-// import { LockClosedIcon } from "@heroicons/react/20/solid";
-// import { Link, Navigate } from "react-router-dom";
-// import "../../styles/Login.css"; // Descomentar si tienes un archivo CSS específico
 import Layout from "../../hooks/layout/Layout";
-import Sidebar from "../../components/navigation/Sidebar";
 import Footer from "../../components/navigation/Footer";
 
 // Define interfaces para props si es necesario
@@ -16,10 +11,8 @@ interface InformesProps {
 // Si no hay props, simplemente tipa el componente como FC
 const Informes: React.FC<InformesProps> = () => {
     return (
-        <Layout>
-            <Sidebar />
-            <div>Informes</div>
-            <Footer />
+        <Layout>     
+           <div>Informes</div>  
         </Layout>
     );
 };

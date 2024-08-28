@@ -1,12 +1,10 @@
 import React from "react";
-// import { connect } from "react-redux"; // Si decides usar connect en el futuro
-// import { LockClosedIcon } from "@heroicons/react/20/solid";
-// import { Link, Navigate } from "react-router-dom";
-// import "../../styles/Login.css"; // Descomentar si tienes un archivo CSS específico
 import Layout from "../../hooks/layout/Layout";
-import Sidebar from "../../components/navigation/Sidebar";
 import Footer from "../../components/navigation/Footer";
-import FORM_INVENTARIO from "../../components/Inventario/FORM_INVENTARIO";
+import Datos_inventario from "../../components/Inventario/Datos_inventario";
+import Datos_cuenta from "../../components/Inventario/Datos_cuenta";
+import Datos_activo_fijo from "../../components/Inventario/Datos_activo_fijo";
+
 
 // Define interfaces para props si es necesario
 interface InventarioProps {
@@ -17,10 +15,10 @@ interface InventarioProps {
 // Si no hay props, simplemente tipa el componente como FC
 const Inventario: React.FC<InventarioProps> = () => {
     return (
-        <Layout>
-          <Sidebar />        
-          <FORM_INVENTARIO/>
-            <Footer />
+        <Layout>             
+          <Datos_inventario/>
+          <Datos_cuenta/>
+          <Datos_activo_fijo/>      
         </Layout>
     );
 };

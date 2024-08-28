@@ -1,0 +1,41 @@
+/* Archivo CSS personalizado */
+
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-subtitle {
+    color: #6c757d;
+}
+
+.btn-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.list-group-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+
+.list-group-item .btn-link {
+    margin-right: 0.5rem;
+}
+
+.list-group-item .btn-link.text-danger {
+    color: #dc3545;
+}
+
+.list-group-item .btn-link.text-primary {
+    color: #0d6efd;
+}
+
+.list-group-item .btn-link.text-primary:hover {
+    color: #0b5ed7;
+}
