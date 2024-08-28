@@ -30,13 +30,27 @@ const Sidebar: React.FC = () => {
         </button> 
       </div>  */}
 
-     <nav className="mt-5 px-2">
-      {navigation.map((item) => (
-      <NavLink key={item.name} to={item.href} className={classNames( item.current ? 'bg-light text-dark' : 'text-white', 'd-flex align-items-center py-2 rounded' )}>
-        <item.icon className={classNames( item.current ? 'text-dark' : 'text-white', 'mr-3 flex-shrink-0' )} aria-hidden="true" /> {item.name}
-      </NavLink>
-      ))}
-    </nav>
+<nav className="mt-5 px-4">
+  {navigation.map((item) => (
+    <NavLink
+      key={item.name}
+      to={item.href}
+      className={classNames(
+        item.current ? 'p-1 bg-light text-dark' : 'text-white',
+        'd-flex align-items-center py-2 rounded text-decoration-none'
+      )}
+    >
+      <item.icon
+        className={classNames(
+          item.current ? 'text-dark' : 'text-white',
+          'mr-3 flex-shrink-0'
+        )}
+        aria-hidden="true"
+      />
+      {item.name}
+    </NavLink>
+  ))}
+</nav>
     </div>
   );
 }

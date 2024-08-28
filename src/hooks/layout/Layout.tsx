@@ -4,46 +4,20 @@ import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import Sidebar from "../../components/navigation/Sidebar";
-import { Variants } from 'framer-motion';
 import logoSSMSO from '../../assets/img/logoSSMSO.jpg'
 import user_default from '../../assets/img/user_default.png'
 import Navbar from "../../components/navigation/Navbar";
 
 
-
-// Define el tipo de cada elemento en el menú
-interface NavigationItem {
-    name: string;
-    href: string;
-    current: boolean;
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; // Tipo para el icono SVG
-}
-
-// Definir los elementos del menú
-const navigation: NavigationItem[] = [
-    { name: 'Home', href: '/Home', current: true, icon: Bars3Icon }, // Ejemplo, cambia los iconos y los href según tu caso
-    { name: 'Inventario', href: '/Inventario', current: false, icon: XMarkIcon },
-    // Agrega más elementos aquí
-];
-
 interface LayoutProps {
     children: ReactNode;
-}
-
-const layoutVariants: Variants = {
-    hidden: { opacity: 0, transition: { duration: 0.5 } },
-    visible: { opacity: 1 },
-    exit: { opacity: 0, transition: { duration: 0.5 } },
-};
-
-function classNames(...classes: (string | boolean | undefined | null)[]): string {
-    return classes.filter(Boolean).join(' ');
 }
 
 function Layout({ children }: LayoutProps) {
 
     const [sidebarOpen, setSidebarOpen] = useState(false); // esto es para cuando estas en modo mobile
     const [open, setOpen] = useState(false);
+    
 
     return (
          <>   
@@ -122,7 +96,7 @@ function Layout({ children }: LayoutProps) {
                 </div>  
 
                 {/* Main Content Area */}                                    
-                <div className="flex-1 d-md-flex flex-column ml-md-25">  
+                <div className="flex-1 d-md-flex flex-column  m-auto  ">  
                                  
                     {/* Mobile Sidebar Toggle Button */}
                     <div className="sticky-top bg-white p-3 d-md-none">
@@ -134,7 +108,7 @@ function Layout({ children }: LayoutProps) {
                     </div>
 
                     <main className="flex-1">
-                        <div className="py-6">
+                        <div className="py-4">
                             <div className="container">
                                {/* Aquí renderiza los Componentes*/}    
                                {children} 

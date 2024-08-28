@@ -1,80 +1,84 @@
-import React from "react";
-import { connect, ConnectedProps } from "react-redux";
-import { RootState } from "../../redux/reducers"; // Asegúrate de ajustar la ruta al archivo donde defines RootState
-import 'bootstrap/dist/css/bootstrap.min.css'; // Importa Bootstrap si no lo has hecho ya
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+import React, { useState } from 'react';  
 
-// Define una interfaz para las props que el componente podría recibir
-interface Datos_cuentaProps extends PropsFromRedux {}
+// Define el tipo de props para el componente
+interface Datos_cuentaProps {
+    onNext: (data: any) => void;
+}
 
-// Define el componente Sidebar tipado con las props
-const Datos_cuenta: React.FC<Datos_cuentaProps> = () => {
-     return (            
-       <div className="container my-5">
-    <div className="border p-4 rounded shadow-sm bg-white">
-      <div>
-        <h3 className="form-title">Datos Cuenta</h3>
-        {/* <p className="form-subtitle">Detalles personales y aplicación.</p> */}
-      </div>
-      <div className="mt-4 border-top">
-        <dl className="row">
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext }) => {
+    const [data, setData] = useState({
+        servicio: '',
+        dependencia: '',
+        especie: '',
+        cuenta: '',
+    });
 
-          <div className="col-sm-12 col-md-6 mb-3">
-            <dt className="text-muted">Servicio</dt>
-            <dd className="d-flex align-items-center">
-              <select className="form-select">
-                <option value="backend">Backend Developer</option>
-                <option value="frontend">Frontend Developer</option>
-                <option value="fullstack">Full Stack Developer</option>
-              </select>
-            </dd>
-          </div>    
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setData(prevData => ({ ...prevData, [name]: value }));
+    };
 
-         <div className="col-sm-12 col-md-6 mb-3">
-            <dt className="text-muted">Dependencia</dt>
-            <dd className="d-flex align-items-center">
-              <select className="form-select">
-                <option value="backend">Backend Developer</option>
-                <option value="frontend">Frontend Developer</option>
-                <option value="fullstack">Full Stack Developer</option>
-              </select>
-            </dd>
-          </div>    
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        onNext(data);
+    };
 
-          <div className="col-sm-12 col-md-6 mb-3">
-          <dt className="text-muted">Especie</dt>
-          <dd className="d-flex align-items-center">
-            <input type="file" className="form-control" />
-          </dd>
-        </div>  
-
-          <div className="col-sm-12 col-md-6 mb-3">
-            <dt className="text-muted">Cuenta</dt>
-            <dd className="d-flex align-items-center">
-              <select className="form-select">
-                <option value="backend">Backend Developer</option>
-                <option value="frontend">Frontend Developer</option>
-                <option value="fullstack">Full Stack Developer</option>
-              </select>
-            </dd>
-          </div>         
-        
-        </dl>
-      </div>
-    </div>
-  </div>
-  
-
+    return (
+            <form onSubmit={handleSubmit}>
+                <div className="border-top p-4 rounded shadow-sm bg-white">
+                    <div>
+                        <h3 className="form-title">Datos Cuenta</h3>
+                    </div>
+                    <div className="mt-4 border-top">
+                        <dl className="row">
+                            <div className="col-sm-12 col-md-6 mb-3">
+                                <dt className="text-muted">Servicio</dt>
+                                <dd className="d-flex align-items-center">
+                                    <select name="servicio" className="form-select" onChange={handleChange} value={data.servicio}>
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="backend">Backend Developer</option>
+                                        <option value="frontend">Frontend Developer</option>
+                                        <option value="fullstack">Full Stack Developer</option>
+                                    </select>
+                                </dd>
+                            </div>
+                            <div className="col-sm-12 col-md-6 mb-3">
+                                <dt className="text-muted">Dependencia</dt>
+                                <dd className="d-flex align-items-center">
+                                    <select name="dependencia" className="form-select" onChange={handleChange} value={data.dependencia}>
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="backend">Backend Developer</option>
+                                        <option value="frontend">Frontend Developer</option>
+                                        <option value="fullstack">Full Stack Developer</option>
+                                    </select>
+                                </dd>
+                            </div>
+                            <div className="col-sm-12 col-md-6 mb-3">
+                                <dt className="text-muted">Especie</dt>
+                                <dd className="d-flex align-items-center">
+                                    <input type="file" name="especie" className="form-control" onChange={(e) => handleChange(e as any)} />
+                                </dd>
+                            </div>
+                            <div className="col-sm-12 col-md-6 mb-3">
+                                <dt className="text-muted">Cuenta</dt>
+                                <dd className="d-flex align-items-center">
+                                    <select name="cuenta" className="form-select" onChange={handleChange} value={data.cuenta}>
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="backend">Backend Developer</option>
+                                        <option value="frontend">Frontend Developer</option>
+                                        <option value="fullstack">Full Stack Developer</option>
+                                    </select>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+                <div className=" p-4 rounded shadow-sm bg-white d-flex justify-content-end">              
+                <button type="submit" className="btn btn-primary ">Siguiente</button>                
+                </div>
+            </form>
     );
 };
 
-// Mapea el estado al componente (en este caso vacío)
-const mapStateToProps = (state: RootState) => ({});
-
-// Si tienes funciones que quieres mapear, las añades aquí
-const mapDispatchToProps = {};
-
-// Conecta el componente a Redux y tipa las props correctamente
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-export default connector(Datos_cuenta);
+export default Datos_cuenta;
