@@ -26,7 +26,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext }) => {
 
     return (
             <form onSubmit={handleSubmit}>
-                <div className="border-top p-4 rounded shadow-sm bg-white">
+                <div className="border-top p-1 rounded shadow-sm bg-white">
                     <div>
                         <h3 className="form-title">Datos Cuenta</h3>
                     </div>
@@ -74,7 +74,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext }) => {
                         </dl>
                     </div>
                 </div>
-                <div className=" p-4 rounded shadow-sm bg-white d-flex justify-content-end">              
+                <div className=" p-1 rounded bg-white d-flex justify-content-end ">              
                 <button type="submit" className="btn btn-primary ">Siguiente</button>                
                 </div>
             </form>

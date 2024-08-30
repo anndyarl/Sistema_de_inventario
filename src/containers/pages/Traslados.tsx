@@ -16,7 +16,9 @@ interface TrasladosProps {
 const Traslados: React.FC<TrasladosProps> = () => {
     return (
         <Layout>          
-            <div>Traslados</div>          
+             <div className="container my-5">
+            <p>Traslado</p>
+          </div>      
         </Layout>
     );
 };

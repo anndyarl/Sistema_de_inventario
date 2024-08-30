@@ -11,7 +11,9 @@ interface BajasProps {
 const Bajas: React.FC<BajasProps> = () => {
     return (
         <Layout>          
-            <div>Bajas</div>   
+           <div className="container my-5">
+            <p>Bajas</p>
+          </div>
         </Layout>
     );
 };

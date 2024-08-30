@@ -71,7 +71,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext }) => {
 
   return (   
     <form onSubmit={handleSubmit}>
-      <div className="border-top p-4 rounded shadow-sm bg-white">
+      <div className="border-top p-1 rounded shadow-sm bg-white">
         <div>
           <h3 className="form-title">Datos Activo Fijo</h3>
         </div>
@@ -212,7 +212,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext }) => {
           </dl>
         </div>
       </div>
-      <div className="p-4 rounded shadow-sm bg-white d-flex justify-content-end">              
+      <div className="p-1 rounded bg-white d-flex justify-content-end">              
         <button type="submit" className="btn btn-primary">Agregar y Enviar</button>                
       </div>
     </form>

@@ -13,11 +13,10 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''), // Reescribe la ruta para eliminar el prefijo /api
       },
 
-      '/auth': {
-        target: 'https://auth.example.com', // URL del servidor para la ruta /auth
+      '/claveunica': {
+        target: 'https://sidra.ssmso.cl/wcf_claveunica/?url_solicitud=https://sidra.ssmso.cl/api_erp_inv_qa/api/claveunica/validarportal/', // URL del servidor para la ruta /auth
         changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/auth/, ''),
+        secure: true,    
       },
      
     },

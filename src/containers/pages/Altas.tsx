@@ -12,7 +12,9 @@ interface AltasProps {
 const Altas: React.FC<AltasProps> = () => {
     return (
         <Layout>        
-            <div>Altas</div>   
+          <div className="container my-5">
+            <p>Altas</p>
+          </div>
         </Layout>
     );
 };

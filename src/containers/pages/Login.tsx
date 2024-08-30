@@ -32,23 +32,30 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, loading }) => {
         return <Navigate to='/Home' />;
     }
 
-    return (        
-        <div className="container d-flex justify-content-center align-items-center min-v0">
-            <div className="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
-                <h1 className="form-heading">Sistema de Inventario</h1>
-                <p className="form-heading fs-09em">
-                    Sistema de apoyo en la gestión administrativa, Servicio de Salud Metropolitano Sur Oriente 
-                    Departamento de Informática Unidad de Desarrollo 2020
-                </p>
-                <div className="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
-                    <a href="https://sidra.ssmso.cl/wcf_claveunica/?url_solicitud=https://sidra.ssmso.cl/api_erp_inv_qa/api/claveunica/validarportal/" className="btn btn-primary">
-                        Clave Única
-                    </a>
+    return (
+        <div className="container">
+        <h1 className="form-heading">Sistema de Inventario</h1>
+        <div className="login-form">
+            <div className="main-div">
+                <div className="panel">
+                    <p>Please enter your usuario and password</p>
                 </div>
-                <p className="botto-text">Diseñado por Departamento de Informática - Unidad de Desarrollo 2024</p>
+                <form id="Login" onSubmit={onSubmit}>
+                    <div className="form-group">
+                        <input type="text" className="form-control" id="inputusuario" name="usuario" value={usuario} placeholder="usuario" onChange={onChange} required />
+                    </div>
+                    <div className="form-group">
+                        <input type="password" className="form-control" id="inputPassword" name="password" value={password} placeholder="Password" onChange={onChange} required />
+                    </div>
+                    <div className="forgot">
+                        <Link to="/forgot_password" className="underlineHover">Forgot password?</Link>
+                    </div>
+                    <button type="submit" className="btn btn-primary">Login</button>
+                </form>
             </div>
+            <p className="botto-text">Designed by AndyRL</p>
         </div>
-      
+    </div>
     );
 };
 

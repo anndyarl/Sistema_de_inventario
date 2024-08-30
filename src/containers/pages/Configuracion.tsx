@@ -11,7 +11,9 @@ interface ConfiguracionProps {
 const Configuracion: React.FC<ConfiguracionProps> = () => {
     return (
         <Layout>            
-            <div>Configuracion</div>          
+            <div className="container my-5">
+            <p>Configuracion</p>
+          </div>      
         </Layout>
     );
 };

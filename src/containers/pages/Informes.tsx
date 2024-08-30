@@ -1,6 +1,7 @@
 import React from "react";
 import Layout from "../../hooks/layout/Layout";
 import Footer from "../../components/navigation/Footer";
+import FormularioCompleto from "../../components/Inventario/FormularioCompleto";
 
 // Define interfaces para props si es necesario
 interface InformesProps {
@@ -12,7 +13,9 @@ interface InformesProps {
 const Informes: React.FC<InformesProps> = () => {
     return (
         <Layout>     
-           <div>Informes</div>  
+          <div className="container my-5">
+            <p>Informes</p>
+          </div>
         </Layout>
     );
 };

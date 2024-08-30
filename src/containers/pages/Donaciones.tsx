@@ -12,7 +12,9 @@ interface DonacionesProps {
 const Donaciones: React.FC<DonacionesProps> = () => {
     return (
         <Layout>          
-            <div>Donaciones</div>        
+          <div className="container my-5">
+            <p>Donaciones</p>
+          </div>    
         </Layout>
     );
 };

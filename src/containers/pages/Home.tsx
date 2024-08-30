@@ -24,7 +24,9 @@ const Home: React.FC<PropsFromRedux> = ({ unidades, loading, error, token, busca
 
     return (
         <Layout>
-         <p>Home</p>      
+          <div className="container my-5">
+            <p>Home</p>
+          </div>  
         </Layout>
     );
 };
