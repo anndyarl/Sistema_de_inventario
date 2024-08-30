@@ -1,10 +1,11 @@
 import { BrowserRouter as Router } from 'react-router-dom';
-import store from './store'; // Asegúrate de que `store` esté tipado correctamente
+import { store, persistor } from './store'; // Importa correctamente
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Provider } from 'react-redux';
 // import './App.css';
 
 import AnimatedRoutes from './hooks/routes/Routes';
+import { PersistGate } from 'redux-persist/integration/react';
 
 const App: React.FC = () => {
   return (
@@ -34,9 +35,11 @@ const App: React.FC = () => {
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
       </Helmet>
       <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
         <Router>
           <AnimatedRoutes />
         </Router>
+      </PersistGate>
       </Provider>
     </HelmetProvider>
   );

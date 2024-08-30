@@ -1,4 +1,3 @@
-// FormularioCompleto.tsx
 import React, { useState } from 'react';
 import DatosInventario from '../Inventario/Datos_inventario';
 import DatosCuenta from '../Inventario/Datos_cuenta';
@@ -10,6 +9,15 @@ interface FormData {
   datosCuenta: Record<string, any>;
   datosActivoFijo: Record<string, any>;
 }
+
+// Simula la función `comboTraeOrigen`
+const mockComboTraeOrigen = async (token: string) => {
+  // Aquí simulas la llamada a la API que devuelve los datos esperados
+  return [
+    { codigo: '001', descripcion: 'Presupuesto 1' },
+    { codigo: '002', descripcion: 'Presupuesto 2' }
+  ];
+};
 
 const FormularioCompleto: React.FC = () => {
   const [step, setStep] = useState<number>(0);
@@ -53,7 +61,7 @@ const FormularioCompleto: React.FC = () => {
   return (
     <div>
       <Timeline Formulario_actual={step} /> 
-      {step === 0 && <DatosInventario onNext={handleNext} />}
+      {step === 0 && <DatosInventario onNext={handleNext} comboTraeOrigen={mockComboTraeOrigen} />}
       {step === 1 && <DatosCuenta onNext={handleNext} />}
       {step === 2 && <DatosActivoFijo onNext={handleNext} />}
     </div>

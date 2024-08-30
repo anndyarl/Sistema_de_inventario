@@ -4,9 +4,9 @@ import {
     LOGIN_FAIL,
     SET_AUTH_LOADING,
     REMOVE_AUTH_LOADING,
-    UNIDADES_SUCCESS,
-    UNIDADES_FAIL,
-    UNIDADES_REQUEST,
+    ORIGEN_SUCCESS,
+    ORIGEN_FAIL,
+    ORIGEN_REQUEST,
     SET_TOKEN
     // LOGOUT
 } from './types';
@@ -35,7 +35,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
     });
 
     try {
-        const res = await axios.post('/api/api/data/Login', body, config);
+        const res = await axios.post('/api_inv/api/data/Login', body, config);
 
         // Verifica la respuesta completa en la consola
         console.log('Respuesta del servidor:', res);
@@ -65,7 +65,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
 };
 
 // Acción para obtener unidades
-export const buscar_unidades = (token: string) => async (dispatch: Dispatch) => {
+export const comboTraeOrigen = (token: string) => async (dispatch: Dispatch) => {
     if (token) {    
         const config = {
             headers: {
@@ -74,25 +74,25 @@ export const buscar_unidades = (token: string) => async (dispatch: Dispatch) => 
             },
         };
 
-        dispatch({ type: UNIDADES_REQUEST });
+        dispatch({ type: ORIGEN_REQUEST });
 
         try {
-            const res = await axios.get('/api/api/documento/obtenerUnidades', config);
-            console.log('Respuesta del servidor obtener unidades:', res); // Verifica la respuesta en la consola
+            const res = await axios.get('/api_inv/api/inventario/comboTraeOrigen', config);
+            console.log('Respuesta del servidor obtener origen presupuesto:', res); // Verifica la respuesta en la consola
 
             if (res.status === 200) {
                 dispatch({
-                    type: UNIDADES_SUCCESS,
+                    type: ORIGEN_SUCCESS,
                     payload: res.data
                 }); 
             } else {
-                dispatch({ type: UNIDADES_FAIL });
+                dispatch({ type: ORIGEN_FAIL });
             }
         } catch (err) {
             console.error("Error en la solicitud:", err);
-            dispatch({ type: UNIDADES_FAIL });
+            dispatch({ type: ORIGEN_FAIL });
         }
     } else {
-        dispatch({ type: UNIDADES_FAIL });
+        dispatch({ type: ORIGEN_FAIL });
     }
 };

@@ -1,36 +1,72 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+// Define el tipo de los datos que se manejarán en el componente
+interface Data {
+  nRecepcion: string;
+  fechaRecepcion: string;
+  nOrdenCompra: string;
+  horaRecepcion: string;
+  nFactura: string;
+  origenPresupuesto: string;
+  montoRecepcion: string;
+  fechaFactura: string;
+  rutProveedor: string;
+  nombreProvedor: string;
+}
 
+// Define el tipo de los elementos del combo `origenPresupuesto`
+interface OrigenPresupuesto {
+  codigo: string;
+  descripcion: string;
+}
 
 // Define el tipo de props para el componente
 interface Datos_inventarioProps {
-  onNext: (data: any) => void;
+  onNext: (data: Data) => void; // Cambia 'any' por el tipo específico 'Data'
+  comboTraeOrigen: (token: string) => Promise<OrigenPresupuesto[]>; // Cambia el tipo según el retorno esperado
+  
 }
 
-// Define el componente Sidebar tipado con las props
-const Datos_inventario: React.FC<Datos_inventarioProps> = ({onNext}) => {
-      const [data, setData] = useState({      
-        nRecepcion: '',
-        fechaRecepcion: '',
-        nOrdenCompra: '',
-        horaRecepcion: '',
-        nFactura: '',
-        origenPresupuesto: '',
-        montoRecepcion: '',
-        fechaFactura: '',
-        rutProveedor: '',
-        nombreProvedor: '',
-    });
+// Define el componente `Datos_inventario` tipado con las props
+const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, comboTraeOrigen }) => {
+  const [data, setData] = useState<Data>({
+    nRecepcion: '',
+    fechaRecepcion: '',
+    nOrdenCompra: '',
+    horaRecepcion: '',
+    nFactura: '',
+    origenPresupuesto: '',
+    montoRecepcion: '',
+    fechaFactura: '',
+    rutProveedor: '',
+    nombreProvedor: '',
+  });
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setData(prevData => ({ ...prevData, [name]: value }));
-    };
+  const [origenes, setOrigenes] = useState<OrigenPresupuesto[]>([]); // Estado para guardar los datos de origenes
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        onNext(data);
-    };
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setData(prevData => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onNext(data);
+  };
+
+  useEffect(() => {
+    // Obtén el token desde localStorage 
+    const localStorageToken = localStorage.getItem('access');
+
+    // Llama a comboTraeOrigen con el token y actualiza el estado con los resultados
+    if (localStorageToken) {
+      comboTraeOrigen(localStorageToken).then((origenesData) => {
+        setOrigenes(origenesData); // Actualiza el estado con los datos recibidos
+        console.log('Token :', localStorageToken); 
+      });
+    }
+  }, [comboTraeOrigen]);
+   
 
      return (   
           <form onSubmit={handleSubmit}>
@@ -78,15 +114,18 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({onNext}) => {
                   </div>
           
                   <div className="col-sm-12 col-md-6 mb-3">
-                    <dt className="text-muted">Origen Presupuesto</dt>
-                    <dd className="d-flex align-items-center">
-                      <select className="form-select" name="origenPresupuesto" onChange={handleChange} value={data.origenPresupuesto}>
-                          <option value="backend">Backend Developer</option>
-                          <option value="frontend">Frontend Developer</option>
-                          <option value="fullstack">Full Stack Developer</option>
-                        </select>
-                    </dd>
-                  </div>   
+                  <dt className="text-muted">Origen Presupuesto</dt>
+                  <dd className="d-flex align-items-center">
+                    <select className="form-select" name="origenPresupuesto" onChange={handleChange}>
+                      <option value="">Seleccione un origen</option> {/* Opción por defecto */}
+                      {origenes.map((origen) => (
+                        <option key={origen.codigo} value={origen.codigo}>
+                          {origen.descripcion} {/* Muestra el nombre del origen */}
+                        </option>
+                      ))}
+                    </select>
+                  </dd>
+                </div> 
           
                   <div className="col-sm-12 col-md-6 mb-3">
                     <dt className="text-muted">Monto Recepción</dt>
@@ -123,5 +162,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({onNext}) => {
           </form>      
     );
 };
+
 
 export default Datos_inventario;

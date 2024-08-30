@@ -9,12 +9,12 @@ import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
 
 // Define los tipos de las props que esperas en el componente Navbar
-type NavbarProps = {
-    utm: string;
-    userName: string;
-};
+// type NavbarProps = {
+//     utm: string;
+//     userName: string;
+// };
 
-function Navbar({ utm, userName }: NavbarProps) {
+function Navbar() {
    const [sidebarOpen, setSidebarOpen] = useState(false); // esto es para cuando estas en modo mobile
     const [open, setOpen] = useState(false);
 
@@ -35,18 +35,18 @@ function Navbar({ utm, userName }: NavbarProps) {
     }, []);
 
     return (
-   <nav id="navbar" className="navbar navbar-expand-lg navbar-light bg-light w-100 fixed-top">
+   <nav id="navbar" className="navbar navbar-expand-lg navbar-light bg-light w-100 ">
     <div className="container">
         {/* Navbar Links and User Info */}
         <div className="collapse navbar-collapse" id="navbarNav">
             <div className="d-flex align-items-center ml-auto">
                 {/* UTm Paragraph */}
-                <p className="mb-0 mr-3">UTM: {utm}</p>
+                <p className="mb-0 mr-3">UTM: {/*utm*/}</p>
                 
                 {/* User Info Button */}
                 <button className="btn btn-light d-flex align-items-center p-1  ">
                     <div className="ml-3">
-                        <p className="mb-0 font-weight-bold text-dark">Andy Riquelme {userName}</p>
+                        <p className="mb-0 font-weight-bold text-dark">Andy Riquelme {/*userName*/}</p>
                     </div>
                 </button>
             </div>

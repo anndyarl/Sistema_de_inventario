@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { House, Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText, Gear } from 'react-bootstrap-icons';
+import Navbar from './Navbar';
 
 // Función para combinar clases condicionalmente
 function classNames(...classes: (string | undefined)[]): string {
@@ -23,6 +24,10 @@ const Sidebar: React.FC = () => {
     ];
 
    return (
+      
+     
+    
+
     <div> 
       {/* <div className="ml-4 mt-2 flex-shrink-0"> 
         <button type="button" className="btn btn-warning text-white shadow-sm" style={{backgroundColor: '#ff6600', borderColor: 'transparent'}}> 

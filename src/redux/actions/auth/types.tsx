@@ -3,9 +3,9 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
 
 // Acción de carga de unidades (refresco de token)
-export const UNIDADES_SUCCESS = 'UNIDADES_SUCCESS';
-export const UNIDADES_FAIL = 'UNIDADES_FAIL';
-export const UNIDADES_REQUEST = 'UNIDADES_REQUEST';
+export const ORIGEN_SUCCESS = 'ORIGEN_SUCCESS';
+export const ORIGEN_FAIL = 'ORIGEN_FAIL';
+export const ORIGEN_REQUEST = 'ORIGEN_REQUEST';
 
 // Acciones de carga de autenticación
 export const SET_AUTH_LOADING = 'SET_AUTH_LOADING';

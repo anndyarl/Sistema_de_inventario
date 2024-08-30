@@ -1,26 +1,23 @@
 import React, { useEffect } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../../redux/reducers';
-import { buscar_unidades, setToken } from '../../redux/actions/auth/auth';
 import Layout from '../../hooks/layout/Layout';
+import { setToken } from '../../redux/actions/auth/auth'; // Asegúrate de que la acción esté importada correctamente
  
 
-const Home: React.FC<PropsFromRedux> = ({ unidades, loading, error, token, buscarUnidades, setToken }) => {
-    useEffect(() => {
-        // Obtén el token desde localStorage 
-        const localStorageToken = localStorage.getItem('access');
-        
-        if (!token && localStorageToken) {
-            setToken(localStorageToken); // Configura el token en el estado global
-            console.log('Token Local :', localStorageToken); // Verifica el token  en la consola
-        }
 
-        // Utiliza el estado actualizado para buscar unidades
-        if (localStorageToken) {
-            buscarUnidades(localStorageToken);
-            console.log('Token :', localStorageToken); 
-        }
-    }, [buscarUnidades, setToken]);
+const Home: React.FC<PropsFromRedux> = ({token, setToken}) => {
+   
+  useEffect(() => {
+    // Obtén el token desde localStorage 
+    const localStorageToken = localStorage.getItem('access');
+    
+    if (!token && localStorageToken) {
+      setToken(localStorageToken); // Configura el token en el estado global
+      console.log('Token Local :', localStorageToken); // Verifica el token en la consola
+    }
+    
+  }, [token, setToken]); // Asegúrate de incluir 'token' en las dependencias para evitar advertencias de dependencias faltantes
 
     return (
         <Layout>
@@ -31,19 +28,20 @@ const Home: React.FC<PropsFromRedux> = ({ unidades, loading, error, token, busca
     );
 };
 
+
+// Conecta el componente con Redux
 const mapStateToProps = (state: RootState) => ({
-    unidades: state.auth.unidades,
-    loading: state.auth.loading,
-    error: state.auth.error,
-    token: state.auth.token, // Token del estado global
+  isAuthenticated: state.auth.isAuthenticated,
+  token: state.auth.token, // Token del estado global
 });
 
-const mapDispatchToProps = {
-    buscarUnidades: buscar_unidades,
-    setToken: setToken
+const mapDispatchToProps = { 
+  setToken,
 };
 
+// Conector de Redux
 const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
+// Exporta el componente conectado
 export default connector(Home);

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 
 // Define la interfaz para el estado `data`
 interface ActivoFijoData {
-  nRecepcion: string;
   vidaUtil: string;
   fechaIngreso: string;
   marca: string;
@@ -21,8 +20,7 @@ interface Datos_activo_fijoProps {
 
 // Define el componente Datos_activo_fijo tipado con las props
 const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext }) => {
-  const [data, setData] = useState<ActivoFijoData>({
-    nRecepcion: '',
+  const [data, setData] = useState<ActivoFijoData>({   
     vidaUtil: '',
     fechaIngreso: '',
     marca: '',
@@ -41,10 +39,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext }) => {
   };
 
   const validate = () => {
-    let tempErrors: Partial<ActivoFijoData> = {};
-    if (!data.nRecepcion) tempErrors.nRecepcion = "N° de Recepción es obligatorio.";
-    if (!/^\d+$/.test(data.nRecepcion)) tempErrors.nRecepcion = "N° de Recepción debe ser un número.";
-
+    let tempErrors: Partial<ActivoFijoData> = {};   
     if (!data.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria.";
     if (!/^\d+$/.test(data.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número.";
 
@@ -76,22 +71,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext }) => {
           <h3 className="form-title">Datos Activo Fijo</h3>
         </div>
         <div className="mt-4 border-top">
-          <dl className="row">
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">N° de Recepción</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="text" 
-                  className={`form-control ${errors.nRecepcion ? 'is-invalid' : ''}`} 
-                  name="nRecepcion" 
-                  onChange={handleChange} 
-                  value={data.nRecepcion}
-                  
-                  pattern="^\d+$"
-                />
-                {errors.nRecepcion && <div className="invalid-feedback m-1">{errors.nRecepcion}</div>}
-              </dd>
-            </div>
+          <dl className="row">           
 
             <div className="col-sm-12 col-md-6 mb-3">
               <dt className="text-muted">Vida ütil</dt>

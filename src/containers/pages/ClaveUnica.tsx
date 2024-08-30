@@ -7,7 +7,7 @@ interface Props {
 const ClaveUnica: React.FC<Props> = ({}) => {
 
     return (        
-        <div className="container d-flex justify-content-center align-items-center min-v0">
+        <div className="container d-flex justify-content-center align-items-center vh-100">
             <div className="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
                 <h1 className="form-heading">Sistema de Inventario</h1>
                 <p className="form-heading fs-09em">

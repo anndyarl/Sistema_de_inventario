@@ -3,17 +3,17 @@ import {
     LOGIN_FAIL,
     SET_AUTH_LOADING,
     REMOVE_AUTH_LOADING,
-    UNIDADES_SUCCESS,
-    UNIDADES_FAIL,   
-    UNIDADES_REQUEST,
+    ORIGEN_SUCCESS,
+    ORIGEN_FAIL,   
+    ORIGEN_REQUEST,
     LOGOUT,
     SET_TOKEN
 } from '../actions/auth/types';
 
 
-interface Unidad {
-    idUnidad: number;
-    nombreUnidad: string;
+interface Origen {
+    codigo: number;
+    descripcion: string;
 }
 
 // Define la estructura del estado
@@ -22,7 +22,7 @@ interface AuthState {
     access: string | null;
     isAuthenticated: boolean | null;
     loading: boolean;
-    unidades: Unidad[]; // Añade unidades al estado
+    origen: Origen[]; // Añade unidades al estado
     error: string | null; // Añade error al estado
     token:string | null;   
 }
@@ -33,7 +33,7 @@ const initialState: AuthState = {
     access: localStorage.getItem('access'),
     isAuthenticated: localStorage.getItem('access') !== null,
     loading: false,
-    unidades: [], // Inicializa unidades como un array vacío
+    origen: [], // Inicializa unidades como un array vacío
     error: null, // Inicializa error como null
     token:null
 };
@@ -77,20 +77,21 @@ export default function auth(state = initialState, action: Action): AuthState {
                 unidades: [], // Limpia las unidades en el estado
                 loading: false,
             };
-        case UNIDADES_SUCCESS:
+        case ORIGEN_SUCCESS:
             return {
                 ...state,
                 access: payload.token, // Actualiza el token en el estado
                 loading: false,
                 error: null,
+                origen: []
             };
-        case UNIDADES_FAIL:  
+        case ORIGEN_FAIL:  
             return {
                 ...state,
                 loading: false,
                 error: action.payload || 'Error',
             }; 
-        case UNIDADES_REQUEST:
+        case ORIGEN_REQUEST:
             return {
                 ...state,
                 loading: true,
