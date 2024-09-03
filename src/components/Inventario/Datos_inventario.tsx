@@ -1,6 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
 // Define el tipo de los datos que se manejarán en el componente
+
 interface Data {
   nRecepcion: string;
   fechaRecepcion: string;
@@ -15,20 +17,20 @@ interface Data {
 }
 
 // Define el tipo de los elementos del combo `origenPresupuesto`
-interface OrigenPresupuesto {
+export interface OrigenPresupuesto {
   codigo: string;
   descripcion: string;
 }
 
 // Define el tipo de props para el componente
 interface Datos_inventarioProps {
-  onNext: (data: Data) => void; // Cambia 'any' por el tipo específico 'Data'
-  comboTraeOrigen: (token: string) => Promise<OrigenPresupuesto[]>; // Cambia el tipo según el retorno esperado
+  onNext: (data: Data) => void; 
+  origenes: OrigenPresupuesto[];   
   
 }
 
-// Define el componente `Datos_inventario` tipado con las props
-const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, comboTraeOrigen }) => {
+// Define el componente `Datos_inventario` del props
+const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes }) => {
   const [data, setData] = useState<Data>({
     nRecepcion: '',
     fechaRecepcion: '',
@@ -42,7 +44,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, comboTraeOr
     nombreProvedor: '',
   });
 
-  const [origenes, setOrigenes] = useState<OrigenPresupuesto[]>([]); // Estado para guardar los datos de origenes
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,20 +54,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, comboTraeOr
     e.preventDefault();
     onNext(data);
   };
-
-  useEffect(() => {
-    // Obtén el token desde localStorage 
-    const localStorageToken = localStorage.getItem('access');
-
-    // Llama a comboTraeOrigen con el token y actualiza el estado con los resultados
-    if (localStorageToken) {
-      comboTraeOrigen(localStorageToken).then((origenesData) => {
-        setOrigenes(origenesData); // Actualiza el estado con los datos recibidos
-        console.log('Token :', localStorageToken); 
-      });
-    }
-  }, [comboTraeOrigen]);
-   
 
      return (   
           <form onSubmit={handleSubmit}>
@@ -117,15 +104,15 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, comboTraeOr
                   <dt className="text-muted">Origen Presupuesto</dt>
                   <dd className="d-flex align-items-center">
                     <select className="form-select" name="origenPresupuesto" onChange={handleChange}>
-                      <option value="">Seleccione un origen</option> {/* Opción por defecto */}
+                      <option value="">Seleccione un origen</option>
                       {origenes.map((origen) => (
                         <option key={origen.codigo} value={origen.codigo}>
-                          {origen.descripcion} {/* Muestra el nombre del origen */}
+                          {origen.descripcion} 
                         </option>
                       ))}
                     </select>
                   </dd>
-                </div> 
+                  </div> 
           
                   <div className="col-sm-12 col-md-6 mb-3">
                     <dt className="text-muted">Monto Recepción</dt>
@@ -162,6 +149,5 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, comboTraeOr
           </form>      
     );
 };
-
 
 export default Datos_inventario;

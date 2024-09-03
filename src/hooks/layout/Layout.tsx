@@ -3,7 +3,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../../redux/reducers';
 import Sidebar from "../../components/navigation/Sidebar";
 import Navbar from "../../components/navigation/Navbar";
-import { setToken } from '../../redux/actions/auth/auth'; // Asegúrate de que la acción esté importada correctamente
+// import { setToken } from '../../redux/actions/auth/auth'; // Asegúrate de que la acción esté importada correctamente
 import { Link } from "react-router-dom";
 
 interface OwnProps {
@@ -34,8 +34,7 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
                 </div>       
     }
     return (
-        <>   
-                     
+        <>                        
                 {/* Layout Container */}              
                 <div className="d-flex">    
                
@@ -72,20 +71,19 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
 };
 
 
-
 // Define la función mapStateToProps que mapea el estado global de Redux a las props del componente
 const mapStateToProps = (state: RootState) => ({
   // Mapea la propiedad isAuthenticated desde el estado de autenticación a las props del componente
   isAuthenticated: state.auth.isAuthenticated,
 
   // Mapea el token desde el estado de autenticación a las props del componente
-  token: state.auth.token, 
+//   token: state.auth.token, 
 });
 
 // Define la función mapDispatchToProps para despachar acciones a Redux desde el componente
 const mapDispatchToProps = { 
   // Asocia la acción setToken con las props del componente para poder actualizar el token en el estado global
-  setToken,
+//   setToken,
 };
 
 // Conecta el componente a Redux utilizando las funciones mapStateToProps y mapDispatchToProps

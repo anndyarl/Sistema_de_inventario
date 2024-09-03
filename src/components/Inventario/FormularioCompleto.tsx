@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
+// FormularioCompleto.tsx
+import React, { useState, useEffect } from 'react';
 import DatosInventario from '../Inventario/Datos_inventario';
 import DatosCuenta from '../Inventario/Datos_cuenta';
 import DatosActivoFijo from '../Inventario/Datos_activo_fijo';
-import Timeline from './Timeline'; // Asegúrate de importar el componente Timeline
+import Timeline from './Timeline';
+
+// Redux
+import { connect } from 'react-redux';
+import { comboTraeOrigen } from '../../redux/actions/combos/comboTraeOrigenActions'; 
+import { comboTraeServicio } from '../../redux/actions/combos/comboTraeServicioActions'; 
+import { RootState } from '../../redux/reducers'; 
+
+// Importa la interfaz OrigenPresupuesto desde Datos_inventario.tsx
+import { OrigenPresupuesto } from '../../components/Inventario/Datos_inventario';
+import { Servicio } from '../../components/Inventario/Datos_cuenta';
 
 interface FormData {
   datosInventario: Record<string, any>;
@@ -10,22 +21,39 @@ interface FormData {
   datosActivoFijo: Record<string, any>;
 }
 
-// Simula la función `comboTraeOrigen`
-const mockComboTraeOrigen = async (token: string) => {
-  // Aquí simulas la llamada a la API que devuelve los datos esperados
-  return [
-    { codigo: '001', descripcion: 'Presupuesto 1' },
-    { codigo: '002', descripcion: 'Presupuesto 2' }
-  ];
-};
+interface FormularioCompletoProps {
+  origenes: OrigenPresupuesto[];  
+  comboTraeOrigen: (token: string) => void;
 
-const FormularioCompleto: React.FC = () => {
+  servicios: Servicio[];  
+  comboTraeServicio: (token: string) => void
+  token: string | null; 
+}
+
+const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servicios, comboTraeOrigen, comboTraeServicio, token }) => {
   const [step, setStep] = useState<number>(0);
   const [formData, setFormData] = useState<FormData>({
     datosInventario: {},
     datosCuenta: {},
     datosActivoFijo: {},
   });
+
+  useEffect(() => {
+       // Llama a la API comboTraeOrigen solo si está vacío
+    if (token && origenes.length === 0) {
+      comboTraeOrigen(token);
+      console.log("Token local:", token)      
+      console.log("origenes", origenes);      
+      }
+
+      if (token && servicios.length === 0) {
+        comboTraeServicio(token)
+        console.log("Token local:", token)      
+        console.log("servicios", servicios);      
+        }
+  }, [comboTraeOrigen, comboTraeServicio]);
+  
+ 
 
   const handleNext = (data: Record<string, any>) => {
     // Guardar los datos del formulario actual
@@ -61,11 +89,22 @@ const FormularioCompleto: React.FC = () => {
   return (
     <div>
       <Timeline Formulario_actual={step} /> 
-      {step === 0 && <DatosInventario onNext={handleNext} comboTraeOrigen={mockComboTraeOrigen} />}
-      {step === 1 && <DatosCuenta onNext={handleNext} />}
+      {step === 0 && <DatosInventario onNext={handleNext} origenes={origenes} />}
+      {step === 1 && <DatosCuenta onNext={handleNext} servicios={servicios} />}
       {step === 2 && <DatosActivoFijo onNext={handleNext} />}
     </div>
   );
 };
 
-export default FormularioCompleto;
+//mapea los valores del estado global de Redux 
+const mapStateToProps = (state: RootState) => ({
+  origenes: state.origenPresupuestoReducer.origenes,
+  servicios: state.servicioReducer.servicios,
+  token: state.auth.token, 
+});
+
+export default connect(mapStateToProps,
+   {
+     comboTraeOrigen, 
+     comboTraeServicio 
+    })(FormularioCompleto);

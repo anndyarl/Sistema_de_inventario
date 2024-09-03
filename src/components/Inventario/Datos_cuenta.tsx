@@ -1,12 +1,20 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import React, { useState } from 'react';  
 
+// Define el tipo de los elementos del combo `servicio`
+export interface Servicio {
+    codigo: string;
+    nombrE_ORD: string;
+    descripcion: string;
+  }
+
 // Define el tipo de props para el componente
 interface Datos_cuentaProps {
     onNext: (data: any) => void;
+    servicios: Servicio[]; 
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext }) => {
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, servicios }) => {
     const [data, setData] = useState({
         servicio: '',
         dependencia: '',
@@ -31,18 +39,20 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext }) => {
                         <h3 className="form-title">Datos Cuenta</h3>
                     </div>
                     <div className="mt-4 border-top">
-                        <dl className="row">
+                        <dl className="row">                           
                             <div className="col-sm-12 col-md-6 mb-3">
-                                <dt className="text-muted">Servicio</dt>
-                                <dd className="d-flex align-items-center">
-                                    <select name="servicio" className="form-select" onChange={handleChange} value={data.servicio}>
-                                        <option value="">Selecciona una opción</option>
-                                        <option value="backend">Backend Developer</option>
-                                        <option value="frontend">Frontend Developer</option>
-                                        <option value="fullstack">Full Stack Developer</option>
-                                    </select>
-                                </dd>
-                            </div>
+                            <dt className="text-muted">Servicio</dt>
+                            <dd className="d-flex align-items-center">
+                                <select className="form-select" name="servicio" onChange={handleChange}>
+                                <option value="">Seleccione un origen</option>
+                                {servicios.map((servicio) => (
+                                    <option key={servicio.codigo} value={servicio.codigo}>
+                                    {servicio.nombrE_ORD} 
+                                    </option>
+                                ))}
+                                </select>
+                            </dd>
+                            </div> 
                             <div className="col-sm-12 col-md-6 mb-3">
                                 <dt className="text-muted">Dependencia</dt>
                                 <dd className="d-flex align-items-center">
@@ -70,7 +80,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext }) => {
                                         <option value="fullstack">Full Stack Developer</option>
                                     </select>
                                 </dd>
-                            </div>
+                            </div>                           
                         </dl>
                     </div>
                 </div>

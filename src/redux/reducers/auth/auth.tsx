@@ -2,27 +2,18 @@ import {
     LOGIN_SUCCESS,
     LOGIN_FAIL,
     SET_AUTH_LOADING,
-    REMOVE_AUTH_LOADING,
-    ORIGEN_SUCCESS,
-    ORIGEN_FAIL,   
-    ORIGEN_REQUEST,
+    REMOVE_AUTH_LOADING,   
     LOGOUT,
     SET_TOKEN
-} from '../actions/auth/types';
+} from '../../actions/types';
 
-
-interface Origen {
-    codigo: number;
-    descripcion: string;
-}
 
 // Define la estructura del estado
 interface AuthState {
     user: any; // Define el tipo de usuario si lo conoces
     access: string | null;
     isAuthenticated: boolean | null;
-    loading: boolean;
-    origen: Origen[]; // Añade unidades al estado
+    loading: boolean;  
     error: string | null; // Añade error al estado
     token:string | null;   
 }
@@ -32,8 +23,7 @@ const initialState: AuthState = {
     user: null,
     access: localStorage.getItem('access'),
     isAuthenticated: localStorage.getItem('access') !== null,
-    loading: false,
-    origen: [], // Inicializa unidades como un array vacío
+    loading: false,   
     error: null, // Inicializa error como null
     token:null
 };
@@ -61,47 +51,33 @@ export default function auth(state = initialState, action: Action): AuthState {
         case LOGIN_SUCCESS:
             return {
                 ...state,
-                isAuthenticated: true,
-                access: payload.token, // Asigna el token recibido al estado
-                user: payload.user || null, // Asigna el usuario si está disponible
+                isAuthenticated: true,               
+                user: payload.user || null, 
                 loading: false,
+                token: payload.access_token, 
             };
-        case LOGIN_FAIL:       
+        case LOGIN_FAIL: 
+            return {
+                ...state,
+                isAuthenticated: false,
+                token: null,
+                loading: false,
+                error: payload,
+            };   
         case LOGOUT:
             localStorage.removeItem('access');
             return {
                 ...state,
-                access: null,
+                token: null,
                 isAuthenticated: false,
-                user: null,
-                unidades: [], // Limpia las unidades en el estado
+                user: null,               
                 loading: false,
-            };
-        case ORIGEN_SUCCESS:
-            return {
-                ...state,
-                access: payload.token, // Actualiza el token en el estado
-                loading: false,
-                error: null,
-                origen: []
-            };
-        case ORIGEN_FAIL:  
-            return {
-                ...state,
-                loading: false,
-                error: action.payload || 'Error',
-            }; 
-        case ORIGEN_REQUEST:
-            return {
-                ...state,
-                loading: true,
-            };
+            };       
         case SET_TOKEN:
              return {
                 ...state,
-                access: payload.token,
-             } 
-      
+                token: payload,               
+             }       
         default:
             return state;
     }

@@ -3,20 +3,11 @@ import {
     LOGIN_SUCCESS,
     LOGIN_FAIL,
     SET_AUTH_LOADING,
-    REMOVE_AUTH_LOADING,
-    ORIGEN_SUCCESS,
-    ORIGEN_FAIL,
-    ORIGEN_REQUEST,
+    REMOVE_AUTH_LOADING,   
     SET_TOKEN
     // LOGOUT
-} from './types';
+} from '../types';
 import { Dispatch } from 'redux';
-
-// Acción para establecer el token
-export const setToken = (token: string) => ({
-    type: SET_TOKEN,
-    payload: token,
-});
 
 export const login = (usuario: string, password: string) => async (dispatch: Dispatch) => {
     dispatch({
@@ -43,9 +34,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
         if (res.status === 200) {
             // Asegúrate de que `res.data` contiene `access_token`
             const token = res.data.access_token;  // Usa `access_token` en lugar de `token`
-            if (token) {
-                localStorage.setItem('access', token); // Guarda el token en localStorage
-                dispatch(setToken(token)); // Guarda el token en el estado global
+            if (token) {               
                 dispatch({ type: LOGIN_SUCCESS, payload: res.data });
                 dispatch({ type: SET_TOKEN, payload: token });
             } else {
@@ -61,38 +50,5 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
         dispatch({ type: LOGIN_FAIL });
     } finally {
         dispatch({ type: REMOVE_AUTH_LOADING });
-    }
-};
-
-// Acción para obtener unidades
-export const comboTraeOrigen = (token: string) => async (dispatch: Dispatch) => {
-    if (token) {    
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            },
-        };
-
-        dispatch({ type: ORIGEN_REQUEST });
-
-        try {
-            const res = await axios.get('/api_inv/api/inventario/comboTraeOrigen', config);
-            console.log('Respuesta del servidor obtener origen presupuesto:', res); // Verifica la respuesta en la consola
-
-            if (res.status === 200) {
-                dispatch({
-                    type: ORIGEN_SUCCESS,
-                    payload: res.data
-                }); 
-            } else {
-                dispatch({ type: ORIGEN_FAIL });
-            }
-        } catch (err) {
-            console.error("Error en la solicitud:", err);
-            dispatch({ type: ORIGEN_FAIL });
-        }
-    } else {
-        dispatch({ type: ORIGEN_FAIL });
     }
 };

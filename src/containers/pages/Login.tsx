@@ -1,6 +1,6 @@
 import React, { useState} from 'react';
 import { connect } from 'react-redux';
-import { Link, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { login } from '../../redux/actions/auth/auth'; // Elimina buscar_unidades si no se usa aquí
 import { RootState } from '../../redux/reducers'; // Asegúrate de tener este tipo definido correctamente
 import '../../styles/Login.css';
