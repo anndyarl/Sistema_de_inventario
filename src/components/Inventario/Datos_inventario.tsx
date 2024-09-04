@@ -26,10 +26,12 @@ export interface OrigenPresupuesto {
 
 // Define el tipo de props para el componente
 interface Datos_inventarioProps {
-  onNext: (data: InventarioProps) => void; 
+  onNext: (data: InventarioProps) => void;  
   origenes: OrigenPresupuesto[];   
   
 }
+
+
 
 // Define el componente `Datos_inventario` del props
 const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes }) => {
@@ -60,8 +62,11 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes })
     onNext(data);
   };
 
+  
+ 
+
      return (   
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} >
             <div className="border-top p-1 rounded shadow-sm bg-white">
               <div>
                 <h3 className="form-title">Datos Inventario</h3> {/*
@@ -148,6 +153,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes })
                 </dl>
               </div>
             </div>
+          
             <div className="p-1 rounded bg-white d-flex justify-content-end ">              
                 <button type="submit" className="btn btn-primary ">Siguiente</button>                
             </div>

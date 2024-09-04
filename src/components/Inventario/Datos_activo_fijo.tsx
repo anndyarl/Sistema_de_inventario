@@ -264,6 +264,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
                     {errors.precio && <div className="invalid-feedback">{errors.precio}</div>}
                   </div>
                 </Col>
+                
                 <Col md={6}>
                   <div className="mb-3">
                     <label htmlFor="cantidad" className="form-label">Cantidad</label>
@@ -273,7 +274,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
 
                   <div className="mb-3">
                     <label htmlFor="observaciones" className="form-label">Observaciones</label>
-                    <textarea className="form-control" id="observaciones" name="observaciones" rows={4} style={{ minHeight: '100px', resize: 'vertical' }} onChange={handleChange} value={currentActivo.observaciones} />
+                    <textarea className="form-control" id="observaciones" name="observaciones" rows={15} style={{ minHeight: '382px', resize: 'none' }} onChange={handleChange} value={currentActivo.observaciones} />
                   </div>
                 </Col>
               </Row>

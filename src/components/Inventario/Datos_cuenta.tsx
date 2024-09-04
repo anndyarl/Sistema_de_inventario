@@ -11,10 +11,11 @@ export interface Servicio {
 // Define el tipo de props para el componente
 interface Datos_cuentaProps {
     onNext: (data: any) => void;
+    onBack: () => void; 
     servicios: Servicio[]; 
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, servicios }) => {
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }) => {
     const [data, setData] = useState({
         servicio: '',
         dependencia: '',
@@ -31,6 +32,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, servicios }) => {
         e.preventDefault();
         onNext(data);
     };
+
+    const handleBack = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();   
+        onBack();
+      };
 
     return (
             <form onSubmit={handleSubmit}>
@@ -84,8 +90,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, servicios }) => {
                         </dl>
                     </div>
                 </div>
-                <div className=" p-1 rounded bg-white d-flex justify-content-end ">              
-                <button type="submit" className="btn btn-primary ">Siguiente</button>                
+                <div className="p-1 rounded bg-white d-flex justify-content-end ">              
+                      <button onClick={handleBack} className="btn btn-primary m-1">Volver</button>                
+                                               
+                      <button type="submit" className="btn btn-primary m-1">Siguiente</button>                
                 </div>
             </form>
     );

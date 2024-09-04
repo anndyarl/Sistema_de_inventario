@@ -86,6 +86,12 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
     }
   };
 
+  const handleBack = () => {
+    if (step > 0) {
+      setStep(step - 1);
+    }
+  };
+
   const handleSubmit = () => {
     // Manejar el envío del formulario a la API aquí
     console.log('Enviando datos:', formData);
@@ -96,8 +102,8 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
   return (
     <div>
       <Timeline Formulario_actual={step} /> 
-      {step === 0 && <DatosInventario onNext={handleNext} origenes={origenes}   />}
-      {step === 1 && <DatosCuenta onNext={handleNext} servicios={servicios} />}
+      {step === 0 && <DatosInventario onNext={handleNext}  origenes={origenes}   />}
+      {step === 1 && <DatosCuenta onNext={handleNext} onBack={handleBack} servicios={servicios} />}
       {step === 2 && <DatosActivoFijo onNext={handleNext} nRecepcion={nRecepcion}/>}
     </div>
   );
