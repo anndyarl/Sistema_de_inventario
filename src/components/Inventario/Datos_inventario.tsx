@@ -1,9 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setNRecepcion } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 // Define el tipo de los datos que se manejarán en el componente
 
-interface Data {
+export interface InventarioProps {
   nRecepcion: string;
   fechaRecepcion: string;
   nOrdenCompra: string;
@@ -24,14 +26,15 @@ export interface OrigenPresupuesto {
 
 // Define el tipo de props para el componente
 interface Datos_inventarioProps {
-  onNext: (data: Data) => void; 
+  onNext: (data: InventarioProps) => void; 
   origenes: OrigenPresupuesto[];   
   
 }
 
 // Define el componente `Datos_inventario` del props
 const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes }) => {
-  const [data, setData] = useState<Data>({
+ 
+  const [data, setData] = useState<InventarioProps>({
     nRecepcion: '',
     fechaRecepcion: '',
     nOrdenCompra: '',
@@ -50,8 +53,10 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes })
     setData(prevData => ({ ...prevData, [name]: value }));
   };
 
+   const dispatch = useDispatch();
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    dispatch(setNRecepcion(data.nRecepcion)); // Despachar la acción para actualizar `nRecepcion`
     onNext(data);
   };
 

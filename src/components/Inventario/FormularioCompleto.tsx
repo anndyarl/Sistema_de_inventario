@@ -10,10 +10,12 @@ import { connect } from 'react-redux';
 import { comboTraeOrigen } from '../../redux/actions/combos/comboTraeOrigenActions'; 
 import { comboTraeServicio } from '../../redux/actions/combos/comboTraeServicioActions'; 
 import { RootState } from '../../redux/reducers'; 
+import { setNRecepcion } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 // Importa la interfaz OrigenPresupuesto desde Datos_inventario.tsx
 import { OrigenPresupuesto } from '../../components/Inventario/Datos_inventario';
 import { Servicio } from '../../components/Inventario/Datos_cuenta';
+import { InventarioProps } from '../../components/Inventario/Datos_inventario';
 
 interface FormData {
   datosInventario: Record<string, any>;
@@ -22,15 +24,20 @@ interface FormData {
 }
 
 interface FormularioCompletoProps {
+  //Trae props OrigenPresupuesto de Datos_inventario(formulario 1) 
   origenes: OrigenPresupuesto[];  
   comboTraeOrigen: (token: string) => void;
 
+  //Trae props Servicio de Datos_cuenta(formulario 2)
   servicios: Servicio[];  
   comboTraeServicio: (token: string) => void
   token: string | null; 
+ 
+  //trae props InventarioProps de Datos_inventario(formulario 1) 
+  nRecepcion: string;
 }
 
-const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servicios, comboTraeOrigen, comboTraeServicio, token }) => {
+const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servicios, comboTraeOrigen, comboTraeServicio, nRecepcion, token }) => {
   const [step, setStep] = useState<number>(0);
   const [formData, setFormData] = useState<FormData>({
     datosInventario: {},
@@ -89,9 +96,9 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
   return (
     <div>
       <Timeline Formulario_actual={step} /> 
-      {step === 0 && <DatosInventario onNext={handleNext} origenes={origenes} />}
+      {step === 0 && <DatosInventario onNext={handleNext} origenes={origenes}   />}
       {step === 1 && <DatosCuenta onNext={handleNext} servicios={servicios} />}
-      {step === 2 && <DatosActivoFijo onNext={handleNext} />}
+      {step === 2 && <DatosActivoFijo onNext={handleNext} nRecepcion={nRecepcion}/>}
     </div>
   );
 };
@@ -100,11 +107,13 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
 const mapStateToProps = (state: RootState) => ({
   origenes: state.origenPresupuestoReducer.origenes,
   servicios: state.servicioReducer.servicios,
-  token: state.auth.token, 
+  token: state.auth.token,
+  nRecepcion: state.datos_inventarioReducer.nRecepcion
 });
 
 export default connect(mapStateToProps,
    {
      comboTraeOrigen, 
-     comboTraeServicio 
+     comboTraeServicio,
+     setNRecepcion 
     })(FormularioCompleto);

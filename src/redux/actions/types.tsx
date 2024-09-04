@@ -22,3 +22,7 @@ export const SET_TOKEN = 'SET_TOKEN';
 
 // Acción de cierre de sesión
 export const LOGOUT = 'LOGOUT';
+
+
+//Datos_inventario
+export const SET_N_RECEPCION = 'SET_N_RECEPCION';

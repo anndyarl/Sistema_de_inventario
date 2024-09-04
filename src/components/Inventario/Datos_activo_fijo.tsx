@@ -1,8 +1,12 @@
-import 'bootstrap/dist/css/bootstrap.min.css'; 
-import React, { useState } from 'react';  
+'use client'
 
-// Define la interfaz para el estado `data`
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useMemo } from 'react';
+import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
+import { InventarioProps } from "../../components/Inventario/Datos_inventario";
+
 interface ActivoFijoData {
+  id: string;
   vidaUtil: string;
   fechaIngreso: string;
   marca: string;
@@ -11,48 +15,82 @@ interface ActivoFijoData {
   observaciones: string;
   serie: string;
   precio: string;
+
 }
 
-// Define el tipo de props para el componente
 interface Datos_activo_fijoProps {
-  onNext: (data: ActivoFijoData) => void;
+  onNext: (data: ActivoFijoData[]) => void;
+  nRecepcion: string;
 }
 
-// Define el componente Datos_activo_fijo tipado con las props
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext }) => {
-  const [data, setData] = useState<ActivoFijoData>({   
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcion }) => {
+  const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);
+  const [currentActivo, setCurrentActivo] = useState<ActivoFijoData>({
+    id: '',
     vidaUtil: '',
     fechaIngreso: '',
     marca: '',
-    cantidad: '',
+    cantidad: '1',
     modelo: '',
     observaciones: '',
     serie: '',
     precio: '',
   });
-
   const [errors, setErrors] = useState<Partial<ActivoFijoData>>({});
+  const [showModal, setShowModal] = useState(false);
+  const [editingSerie, setEditingSerie] = useState<string | null>(null);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
 
+  //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setData(prevData => ({ ...prevData, [name]: value }));
+    setCurrentActivo(prevData => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSerieChange = (index: number, newSerie: string) => {
+    setActivosFijos(prevActivos => 
+      prevActivos.map((activo, i) => 
+        i === index ? { ...activo, serie: newSerie } : activo
+      )
+    );
+  };
+
+  const handleSerieBlur = () => {
+    setEditingSerie(null);
+  };
+
+  const handleRowSelect = (index: number) => {
+    setSelectedRows(prev => 
+      prev.includes(index.toString()) ? prev.filter(rowIndex => rowIndex !== index.toString()) : [...prev, index.toString()]
+    );
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedRows(currentItems.map((_, index) => (indexOfFirstItem + index).toString()));
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    const selectedIndices = selectedRows.map(Number);
+    setActivosFijos(prev => prev.filter((_, index) => !selectedIndices.includes(index)));
+    setSelectedRows([]);
   };
 
   const validate = () => {
-    let tempErrors: Partial<ActivoFijoData> = {};   
-    if (!data.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria.";
-    if (!/^\d+$/.test(data.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número.";
-
-    if (!data.fechaIngreso) tempErrors.fechaIngreso = "Fecha de Ingreso es obligatoria.";
-
-    if (!data.marca) tempErrors.marca = "Marca es obligatoria.";
-
-    if (!data.cantidad) tempErrors.cantidad = "Cantidad es obligatoria.";
-    if (!/^\d+$/.test(data.cantidad)) tempErrors.cantidad = "Cantidad debe ser un número.";
-
-    if (!data.precio) tempErrors.precio = "Precio es obligatorio.";
-    if (!/^\d+(\.\d{1,2})?$/.test(data.precio)) tempErrors.precio = "Precio debe ser un número válido con hasta dos decimales.";
-
+    let tempErrors: Partial<ActivoFijoData> = {};
+    if (!currentActivo.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria.";
+    if (!/^\d+$/.test(currentActivo.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número.";
+    if (!currentActivo.fechaIngreso) tempErrors.fechaIngreso = "Fecha de Ingreso es obligatoria.";
+    if (!currentActivo.marca) tempErrors.marca = "Marca es obligatoria.";
+    if (!currentActivo.cantidad) tempErrors.cantidad = "Cantidad es obligatoria.";
+    if (!/^\d+$/.test(currentActivo.cantidad)) tempErrors.cantidad = "Cantidad debe ser un número.";
+    if (!currentActivo.precio) tempErrors.precio = "Precio es obligatorio.";
+    if (!/^\d+(\.\d{1,2})?$/.test(currentActivo.precio)) tempErrors.precio = "Precio debe ser un número válido con hasta dos decimales.";
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -60,142 +98,187 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      onNext(data);
+      const cantidad = parseInt(currentActivo.cantidad, 10);
+      const newActivos = Array.from({ length: cantidad }, () => ({
+        ...currentActivo,
+        id: nRecepcion, // Mismo ID para todos los activos
+      }));
+      setActivosFijos(prev => [...prev, ...newActivos]);
+      setCurrentActivo({
+        id: '',
+        vidaUtil: '',
+        fechaIngreso: '',
+        marca: '',
+        cantidad: '1',
+        modelo: '',
+        observaciones: '',
+        serie: '',
+        precio: '',
+      });
+      setShowModal(false);
     }
   };
 
-  return (   
-    <form onSubmit={handleSubmit}>
-      <div className="border-top p-1 rounded shadow-sm bg-white">
-        <div>
-          <h3 className="form-title">Datos Activo Fijo</h3>
+  // const handleClone = (activo: ActivoFijoData) => {
+  //   const clonedActivo = { ...activo };
+  //   setActivosFijos(prev => [...prev, clonedActivo]);
+  // };
+
+  const handleDelete = (index: number) => {
+    setActivosFijos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFinalSubmit = () => {
+    onNext(activosFijos);
+  };
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = useMemo(() => activosFijos.slice(indexOfFirstItem, indexOfLastItem), [activosFijos, indexOfFirstItem, indexOfLastItem]);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  const totalPages = Math.ceil(activosFijos.length / itemsPerPage);
+  console.log('nRecepcion en Datos_activo_fijo:', nRecepcion);
+  return (
+      <div className="container">
+        <h3 className="form-title mb-4">Datos Activo Fijo</h3>
+
+        <Button variant="primary" onClick={() => setShowModal(true)} className="mb-3 me-2">
+          + Agregar Activo Fijo
+        </Button> 
+        {selectedRows.length > 0 && (
+          <Button variant="danger" onClick={handleDeleteSelected} className="mb-3">
+            Eliminar Seleccionados
+          </Button>
+        )}
+
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>
+                <Form.Check type="checkbox" onChange={handleSelectAll} checked={selectedRows.length === currentItems.length && currentItems.length > 0} />
+              </th>
+              <th>Vida Útil</th>
+              <th>Fecha Ingreso</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Serie</th>
+              <th>Precio</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.map((activo, index) => (
+              <tr key={indexOfFirstItem + index}>
+                <td>
+                  <Form.Check type="checkbox" onChange={() => handleRowSelect(indexOfFirstItem + index)} checked={selectedRows.includes((indexOfFirstItem + index).toString())} />
+                </td>
+                <td>{activo.vidaUtil}</td>
+                <td>{activo.fechaIngreso}</td>
+                <td>{activo.marca}</td>
+                <td>{activo.modelo}</td>
+                <td onClick={() => setEditingSerie((indexOfFirstItem + index).toString())}>
+                  {editingSerie === (indexOfFirstItem + index).toString() ? (
+                    <Form.Control type="text" value={activo.serie} onChange={(e) => handleSerieChange(indexOfFirstItem + index, e.target.value)} onBlur={handleSerieBlur} autoFocus />
+                  ) : (
+                    activo.serie || 'Click para editar'
+                  )}
+                </td>
+                <td>{activo.precio}</td>
+                <td>
+                  {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
+                    Clonar
+                  </Button> */}
+                  <Button variant="outline-danger" size="sm" onClick={() => handleDelete(indexOfFirstItem + index)}>
+                    Eliminar
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+
+        <Pagination>
+          <Pagination.First onClick={() => paginate(1)} disabled={currentPage === 1} />
+          <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
+          {Array.from({ length: totalPages }, (_, i) => (
+            <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => paginate(i + 1)}>
+              {i + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
+          <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
+        </Pagination>
+
+        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>Agregar Activo Fijo</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={handleSubmit}>
+              <Row>
+                <div className="d-flex justify-content-end ">
+                  <Button type="submit">Agregar</Button>
+                </div>
+                <Col md={6}>
+
+                  <div className="mb-3">
+                    <label htmlFor="vidaUtil" className="form-label">Vida Útil</label>
+                    <input type="text" className={`form-control ${errors.vidaUtil ? 'is-invalid' : ''}`} id="vidaUtil" name="vidaUtil" onChange={handleChange} value={currentActivo.vidaUtil} />
+                    {errors.vidaUtil && <div className="invalid-feedback">{errors.vidaUtil}</div>}
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="fechaIngreso" className="form-label">Fecha Ingreso</label>
+                    <input type="date" className={`form-control ${errors.fechaIngreso ? 'is-invalid' : ''}`} id="fechaIngreso" name="fechaIngreso" onChange={handleChange} value={currentActivo.fechaIngreso} />
+                    {errors.fechaIngreso && <div className="invalid-feedback">{errors.fechaIngreso}</div>}
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="marca" className="form-label">Marca</label>
+                    <input type="text" className={`form-control ${errors.marca ? 'is-invalid' : ''}`} id="marca" name="marca" onChange={handleChange} value={currentActivo.marca} />
+                    {errors.marca && <div className="invalid-feedback">{errors.marca}</div>}
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="modelo" className="form-label">Modelo</label>
+                    <input type="text" className="form-control" id="modelo" name="modelo" onChange={handleChange} value={currentActivo.modelo} />
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="serie" className="form-label">Serie</label>
+                    <input type="text" className="form-control" id="serie" name="serie" onChange={handleChange} value={currentActivo.serie} />
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="precio" className="form-label">Precio</label>
+                    <input type="text" className={`form-control ${errors.precio ? 'is-invalid' : ''}`} id="precio" name="precio" onChange={handleChange} value={currentActivo.precio} />
+                    {errors.precio && <div className="invalid-feedback">{errors.precio}</div>}
+                  </div>
+                </Col>
+                <Col md={6}>
+                  <div className="mb-3">
+                    <label htmlFor="cantidad" className="form-label">Cantidad</label>
+                    <input type="text" className={`form-control ${errors.cantidad ? 'is-invalid' : ''}`} id="cantidad" name="cantidad" onChange={handleChange} value={currentActivo.cantidad} />
+                    {errors.cantidad && <div className="invalid-feedback">{errors.cantidad}</div>}
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="observaciones" className="form-label">Observaciones</label>
+                    <textarea className="form-control" id="observaciones" name="observaciones" rows={4} style={{ minHeight: '100px', resize: 'vertical' }} onChange={handleChange} value={currentActivo.observaciones} />
+                  </div>
+                </Col>
+              </Row>
+            </form>
+          </Modal.Body>
+        </Modal>
+
+        <div className="d-flex justify-content-end mt-3">
+          <Button variant="primary" onClick={handleFinalSubmit}>Agregar y Enviar</Button>
         </div>
-        <div className="mt-4 border-top">
-          <dl className="row">           
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Vida ütil</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="text" 
-                  className={`form-control ${errors.vidaUtil ? 'is-invalid' : ''}`} 
-                  name="vidaUtil" 
-                  onChange={handleChange} 
-                  value={data.vidaUtil}
-                  
-                  pattern="^\d+$"
-                />
-                {errors.vidaUtil && <div className="invalid-feedback m-1">{errors.vidaUtil}</div>}
-              </dd>
-            </div>
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Fecha Ingreso</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="date" 
-                  className={`form-control ${errors.fechaIngreso ? 'is-invalid' : ''}`} 
-                  name="fechaIngreso" 
-                  onChange={handleChange} 
-                  value={data.fechaIngreso}
-                  required
-                />
-                {errors.fechaIngreso && <div className="invalid-feedback m-1">{errors.fechaIngreso}</div>}
-              </dd>
-            </div>    
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Marca</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="text" 
-                  className={`form-control ${errors.marca ? 'is-invalid' : ''}`} 
-                  name="marca" 
-                  onChange={handleChange} 
-                  value={data.marca}
-                  required
-                />
-                {errors.marca && <div className="invalid-feedback m-1">{errors.marca}</div>}
-              </dd>
-            </div>
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Cantidad</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="text" 
-                  className={`form-control ${errors.cantidad ? 'is-invalid' : ''}`} 
-                  name="cantidad" 
-                  onChange={handleChange} 
-                  value={data.cantidad}
-                  required
-                  pattern="^\d+$"
-                />
-                {errors.cantidad && <div className="invalid-feedback m-1">{errors.cantidad}</div>}
-              </dd>
-            </div>
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Modelo</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  name="modelo" 
-                  onChange={handleChange} 
-                  value={data.modelo}
-                />
-              </dd>
-            </div>
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Observaciones</dt>
-              <dd className="d-flex align-items-center">
-                <textarea 
-                  className="form-control" 
-                  rows={2} 
-                  name="observaciones" 
-                  onChange={handleChange} 
-                  value={data.observaciones}
-                />
-              </dd>
-            </div>
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Serie</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  name="serie" 
-                  onChange={handleChange} 
-                  value={data.serie}
-                />
-              </dd>
-            </div>
-
-            <div className="col-sm-12 col-md-6 mb-3">
-              <dt className="text-muted">Precio</dt>
-              <dd className="d-flex align-items-center">
-                <input 
-                  type="text" 
-                  className={`form-control ${errors.precio ? 'is-invalid' : ''}`} 
-                  name="precio" 
-                  onChange={handleChange} 
-                  value={data.precio}
-                  required
-                  pattern="^\d+(\.\d{1,2})?$"
-                />
-                {errors.precio && <div className="invalid-feedback m-1">{errors.precio}</div>}
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-      <div className="p-1 rounded bg-white d-flex justify-content-end">              
-        <button type="submit" className="btn btn-primary">Agregar y Enviar</button>                
-      </div>
-    </form>
+      </div> 
   );
 };
 

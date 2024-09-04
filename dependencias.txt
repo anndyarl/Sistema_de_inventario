@@ -12,3 +12,4 @@ axios@1.7.4
 types/node@22.5.0
 headlessui/react@^1.7.4
 heroicons/react": "^2.1.5
+redux-persist": "^6.0.0
