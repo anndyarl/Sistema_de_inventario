@@ -19,10 +19,11 @@ interface ActivoFijoData {
 
 interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijoData[]) => void;
+  onBack: () => void; 
   nRecepcion: string;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcion }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, nRecepcion }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijoData>({
     id: '',
@@ -37,6 +38,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
   });
   const [errors, setErrors] = useState<Partial<ActivoFijoData>>({});
   const [showModal, setShowModal] = useState(false);
+  const [showModalConfirmar, setShowModalConfirmar] = useState(false);
   const [editingSerie, setEditingSerie] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -114,7 +116,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
         serie: '',
         precio: '',
       });
-      setShowModal(false);
+      setShowModal(false);   
     }
   };
 
@@ -130,6 +132,16 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
   const handleFinalSubmit = () => {
     onNext(activosFijos);
   };
+
+  const handleBack = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();   
+    onBack();
+  };
+ 
+  const handleShowModal = () => {
+    setShowModalConfirmar(true); 
+  };
+
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -212,7 +224,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
           <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
         </Pagination>
 
-        {/* Modal  ormulario ACtivos Fijo*/}    
+        {/* Modal formulario ACtivos Fijo*/}    
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
           <Modal.Header closeButton>
             <Modal.Title>Agregar Activo Fijo</Modal.Title>
@@ -281,10 +293,42 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
             </form>
           </Modal.Body>
         </Modal>
+        
 
-        <div className="d-flex justify-content-end mt-3">
-          <Button variant="primary" onClick={handleFinalSubmit}>Agregar y Enviar</Button>
+          {/* Modal  Confirmar */}    
+          <Modal show={showModalConfirmar} onHide={() => setShowModalConfirmar(false)} size="xl">
+          <Modal.Header closeButton>
+            <Modal.Title>
+            <svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" fill="currentColor" className="bi bi-exclamation-circle mr-1 mb-1" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+          </svg>
+              </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+           
+                <p className="form-heading fs-09em">
+                  Confirmar el envio del formualrio completo
+                </p>              
+                <form  onSubmit={handleSubmit}>   
+                   <div className="form-group d-flex justify-content-center">                                  
+                   <div className="form-group d-flex justify-content-center">   
+                      <Button variant="btn btn-primary m-1" onClick={handleFinalSubmit}>Confirmar y Enviar</Button>
+                      <Button variant="btn btn-secondary m-1" onClick={() => setShowModalConfirmar(false)} className="me-2">Cancelar</Button>      
+                    </div>  
+                    </div>
+                </form>              
+      
+          </Modal.Body>
+        </Modal>
+
+
+        <div className="d-flex justify-content-end mt-3 justify-content-end">
+           <button onClick={handleBack} className="btn btn-primary m-1">Volver</button>          
+          <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
         </div>
+
+       
       </div> 
   );
 };

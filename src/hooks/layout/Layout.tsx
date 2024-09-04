@@ -11,6 +11,7 @@ interface OwnProps {
 }
 
 const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated }) => {
+ 
   if (!isAuthenticated) {
     return (
       <div className="container d-flex justify-content-center align-items-center vh-100">

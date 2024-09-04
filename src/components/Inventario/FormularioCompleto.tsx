@@ -104,7 +104,7 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
       <Timeline Formulario_actual={step} /> 
       {step === 0 && <DatosInventario onNext={handleNext}  origenes={origenes}   />}
       {step === 1 && <DatosCuenta onNext={handleNext} onBack={handleBack} servicios={servicios} />}
-      {step === 2 && <DatosActivoFijo onNext={handleNext} nRecepcion={nRecepcion}/>}
+      {step === 2 && <DatosActivoFijo onNext={handleNext} onBack={handleBack} nRecepcion={nRecepcion}/>}
     </div>
   );
 };
