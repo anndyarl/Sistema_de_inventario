@@ -3,7 +3,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useMemo } from 'react';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
-import { InventarioProps } from "../../components/Inventario/Datos_inventario";
 
 interface ActivoFijoData {
   id: string;
@@ -146,7 +145,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
         <h3 className="form-title mb-4">Datos Activo Fijo</h3>
 
         <Button variant="primary" onClick={() => setShowModal(true)} className="mb-3 me-2">
-          + Agregar Activo Fijo
+          + 
         </Button> 
         {selectedRows.length > 0 && (
           <Button variant="danger" onClick={handleDeleteSelected} className="mb-3">
@@ -183,7 +182,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
                   {editingSerie === (indexOfFirstItem + index).toString() ? (
                     <Form.Control type="text" value={activo.serie} onChange={(e) => handleSerieChange(indexOfFirstItem + index, e.target.value)} onBlur={handleSerieBlur} autoFocus />
                   ) : (
-                    activo.serie || 'Click para editar'
+                    activo.serie || 'editar'
                   )}
                 </td>
                 <td>{activo.precio}</td>
@@ -220,7 +219,12 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
             <form onSubmit={handleSubmit}>
               <Row>
                 <div className="d-flex justify-content-end ">
-                  <Button type="submit">Agregar</Button>
+                <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
+              Cancelar
+            </Button>
+            <Button type="submit" variant="primary">
+              Agregar
+            </Button>
                 </div>
                 <Col md={6}>
 

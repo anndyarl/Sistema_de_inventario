@@ -21,8 +21,8 @@ interface AuthState {
 // Estado inicial
 const initialState: AuthState = {
     user: null,
-    access: localStorage.getItem('access'),
-    isAuthenticated: localStorage.getItem('access') !== null,
+    access: null,
+    isAuthenticated: false,
     loading: false,   
     error: null, // Inicializa error como null
     token:null
@@ -49,12 +49,14 @@ export default function auth(state = initialState, action: Action): AuthState {
                 loading: false,
             };
         case LOGIN_SUCCESS:
+            localStorage.setItem('access', payload.access); // Guarda el token solo al login exitoso
             return {
                 ...state,
-                isAuthenticated: true,               
-                user: payload.user || null, 
+                isAuthenticated: true,
+                access: payload.access || null,
+                user: payload.user || null,
                 loading: false,
-                token: payload.access_token, 
+                token: payload.access_token 
             };
         case LOGIN_FAIL: 
             return {

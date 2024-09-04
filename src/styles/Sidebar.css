@@ -1,0 +1,36 @@
+/* Sidebar */
+.sidebar {
+    width: 250px; /* Ancho fijo del sidebar */
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-color: #343a40; /* Color de fondo */
+  }
+  
+  /* Botón de Usuario */
+  .sidebar-user {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Línea divisoria */
+    background-color: #495057; /* Fondo del botón */
+    text-align: center;
+  }
+  
+  /* Navegación */
+  .sidebar nav {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  /* Estilos del botón de usuario */
+  .sidebar-user button {
+    width: 100%;
+    padding: 0.5rem;
+    color: white;
+    background-color: #495057;
+    border: none;
+    border-radius: 4px;
+  }
+  

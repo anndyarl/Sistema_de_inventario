@@ -15,7 +15,6 @@ import { setNRecepcion } from '../../redux/actions/Inventario/Datos_inventariosA
 // Importa la interfaz OrigenPresupuesto desde Datos_inventario.tsx
 import { OrigenPresupuesto } from '../../components/Inventario/Datos_inventario';
 import { Servicio } from '../../components/Inventario/Datos_cuenta';
-import { InventarioProps } from '../../components/Inventario/Datos_inventario';
 
 interface FormData {
   datosInventario: Record<string, any>;
