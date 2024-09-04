@@ -68,13 +68,7 @@ export default function auth(state = initialState, action: Action): AuthState {
             };   
         case LOGOUT:
             localStorage.removeItem('access');
-            return {
-                ...state,
-                token: null,
-                isAuthenticated: false,
-                user: null,               
-                loading: false,
-            };       
+            return initialState;
         case SET_TOKEN:
              return {
                 ...state,

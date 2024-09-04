@@ -40,7 +40,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
   const [editingSerie, setEditingSerie] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -118,14 +118,14 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
     }
   };
 
-  // const handleClone = (activo: ActivoFijoData) => {
-  //   const clonedActivo = { ...activo };
-  //   setActivosFijos(prev => [...prev, clonedActivo]);
-  // };
-
-  const handleDelete = (index: number) => {
-    setActivosFijos(prev => prev.filter((_, i) => i !== index));
+  const handleClone = (activo: ActivoFijoData) => {
+    const clonedActivo = { ...activo };
+    setActivosFijos(prev => [...prev, clonedActivo]);
   };
+
+  // const handleDelete = (index: number) => {
+  //   setActivosFijos(prev => prev.filter((_, i) => i !== index));
+  // };
 
   const handleFinalSubmit = () => {
     onNext(activosFijos);
@@ -187,19 +187,20 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
                 </td>
                 <td>{activo.precio}</td>
                 <td>
-                  {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
+                  <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                     Clonar
-                  </Button> */}
-                  <Button variant="outline-danger" size="sm" onClick={() => handleDelete(indexOfFirstItem + index)}>
-                    Eliminar
                   </Button>
+                  {/* <Button variant="outline-danger" size="sm" onClick={() => handleDelete(indexOfFirstItem + index)}>
+                    Eliminar
+                  </Button> */}
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
 
-        <Pagination>
+         {/* Paginador*/}    
+       <Pagination>
           <Pagination.First onClick={() => paginate(1)} disabled={currentPage === 1} />
           <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
           {Array.from({ length: totalPages }, (_, i) => (
@@ -211,6 +212,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, nRecepcio
           <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
         </Pagination>
 
+        {/* Modal  ormulario ACtivos Fijo*/}    
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
           <Modal.Header closeButton>
             <Modal.Title>Agregar Activo Fijo</Modal.Title>

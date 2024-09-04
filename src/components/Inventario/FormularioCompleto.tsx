@@ -1,4 +1,4 @@
-// FormularioCompleto.tsx
+// Importa componentes al FormularioCompleto.tsx
 import React, { useState, useEffect } from 'react';
 import DatosInventario from '../Inventario/Datos_inventario';
 import DatosCuenta from '../Inventario/Datos_cuenta';
@@ -6,10 +6,11 @@ import DatosActivoFijo from '../Inventario/Datos_activo_fijo';
 import Timeline from './Timeline';
 
 // Redux
+import { RootState } from '../../redux/reducers'; 
 import { connect } from 'react-redux';
+//Actions redux
 import { comboTraeOrigen } from '../../redux/actions/combos/comboTraeOrigenActions'; 
 import { comboTraeServicio } from '../../redux/actions/combos/comboTraeServicioActions'; 
-import { RootState } from '../../redux/reducers'; 
 import { setNRecepcion } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 // Importa la interfaz OrigenPresupuesto desde Datos_inventario.tsx

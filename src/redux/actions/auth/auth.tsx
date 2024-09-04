@@ -4,8 +4,8 @@ import {
     LOGIN_FAIL,
     SET_AUTH_LOADING,
     REMOVE_AUTH_LOADING,   
-    SET_TOKEN
-    // LOGOUT
+    SET_TOKEN,
+    LOGOUT,
 } from '../types';
 import { Dispatch } from 'redux';
 
@@ -52,3 +52,9 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
         dispatch({ type: REMOVE_AUTH_LOADING });
     }
 };
+
+export const logout = () => {
+    return {
+      type: LOGOUT,
+    };
+  };
