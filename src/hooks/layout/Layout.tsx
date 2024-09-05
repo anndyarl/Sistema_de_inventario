@@ -1,198 +1,148 @@
-import React, { ReactNode, Fragment, useState } from "react";
-import { connect, ConnectedProps } from "react-redux";
-import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
+import React, { ReactNode, useState, useEffect } from "react";
+import { connect, ConnectedProps } from 'react-redux';
+import { RootState } from '../../redux/reducers';
 import Sidebar from "../../components/navigation/Sidebar";
-import { Variants } from 'framer-motion';
-import logoSSMSO from '../../assets/img/logoSSMSO.jpg'
-import user_default from '../../assets/img/user_default.png'
 import Navbar from "../../components/navigation/Navbar";
+import Logout from "../../components/navigation/Logout";
+import { List, X } from 'react-bootstrap-icons';
 
+import '../../styles/Layout.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '../../styles/Layout.css'
 
-
-// Define el tipo de cada elemento en el menú
-interface NavigationItem {
-    name: string;
-    href: string;
-    current: boolean;
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; // Tipo para el icono SVG
+interface OwnProps {
+  children: ReactNode;
 }
 
-// Definir los elementos del menú
-const navigation: NavigationItem[] = [
-    { name: 'Home', href: '/Home', current: true, icon: Bars3Icon }, // Ejemplo, cambia los iconos y los href según tu caso
-    { name: 'Inventario', href: '/Inventario', current: false, icon: XMarkIcon },
-    // Agrega más elementos aquí
-];
+const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
-interface LayoutProps {
-    children: ReactNode;
-}
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
 
-const layoutVariants: Variants = {
-    hidden: { opacity: 0, transition: { duration: 0.5 } },
-    visible: { opacity: 1 },
-    exit: { opacity: 0, transition: { duration: 0.5 } },
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isDesktop) {
+      setSidebarOpen(true);
+    } else {
+      setSidebarOpen(false);
+    }
+  }, [isDesktop]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container d-flex justify-content-center align-items-center vh-100 fixed">
+        <div className="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
+          <h1 className="form-heading">Sesión expirada</h1>
+          <p className="form-heading fs-09em">
+            No está autenticado. Por favor, inicie sesión nuevamente.
+          </p>
+          <div className="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
+            <a href="/Login" className="btn btn-primary">
+              Clave Única
+            </a>
+          </div>
+          <p className="botto-text">Diseñado por Departamento de Informática - Unidad de Desarrollo 2024</p>
+        </div>
+      </div>
+    );
+  }
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  return (
+    <div className="d-flex flex-column min-vh-100">
+      {/* Mobile Navbar */}
+      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none">
+        <div className="container-fluid">
+          <button className="navbar-toggler border-0" type="button" onClick={toggleSidebar}>
+            <List size={24} />
+          </button>
+          <a className="navbar-brand" href="#">SSMSO</a>
+        </div>
+      </nav>
+
+      <div className="d-flex flex-grow-1">
+        {/* Sidebar */}
+        <div 
+          className={`bg-color ${sidebarOpen ? 'd-block' : 'd-none'} d-md-block`} 
+          style={{
+            width: '250px', 
+            minWidth: '250px',
+            maxWidth: '250px',
+            transition: 'all 0.3s',
+            position: isDesktop ? 'relative' : 'fixed',
+            top: 0,
+            bottom: 0,
+            left: isDesktop ? '0' : (sidebarOpen ? '0' : '-250px'),
+            zIndex: 1000
+          }}
+        >         
+          <div className="d-flex flex-column h-100">
+            <div className="p-3">
+              <div className="d-flex justify-content-between align-items-center">
+
+                {/*Logout */}
+                <div className="dropdown">
+                  <a
+                    className="btn btn-border-none text-white outline-none dropdown-toggle"
+                    type="button"
+                    id="userDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i className="fa fa-user"></i>
+                    <span className="fs-6">Andy Riquelme</span>
+                  </a>
+                  <div className="dropdown-menu" aria-labelledby="userDropdown">                 
+                  <Logout /> 
+                  </div>
+                </div>
+
+                <button className="btn btn-link text-white d-md-none" onClick={toggleSidebar}>
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+            <div className="flex-grow-1 overflow-auto">
+              <Sidebar />
+            </div>          
+          </div>
+          
+        </div>
+       
+        <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: isDesktop ? '0' : (sidebarOpen ? '250px' : '0'), transition: 'margin-left 0.3s' }}>
+          {/* Desktop Navbar */}
+          <div className="d-none d-md-block ">
+            <Navbar />
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-grow-1 p-3 overflow-auto">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-function classNames(...classes: (string | boolean | undefined | null)[]): string {
-    return classes.filter(Boolean).join(' ');
-}
-
-function Layout({ children }: LayoutProps) {
-
-    const [sidebarOpen, setSidebarOpen] = useState(false); // esto es para cuando estas en modo mobile
-    const [open, setOpen] = useState(false);
-
-    return (
-         <>   
-            {/* Mobile Sidebar */}
-            <Transition.Root show={sidebarOpen} as={Fragment}>
-                <Dialog as="div" className="modal" onClose={setSidebarOpen}>
-                    <Transition.Child as={Fragment} enter="modal-fade-in" enterFrom="opacity-0" enterTo="opacity-100" leave="modal-fade-out" leaveFrom="opacity-100" leaveTo="opacity-0">
-                        <div className="modal-backdrop" />
-                    </Transition.Child>
-
-                    <div className="modal-dialog modal-side">
-                        <Transition.Child as={Fragment} enter="modal-slide-in" enterFrom="-translate-x-full" enterTo="translate-x-0" leave="modal-slide-out" leaveFrom="translate-x-0" leaveTo="-translate-x-full">
-                            <Dialog.Panel className="sidebar-mobile bg-white">
-                                <Transition.Child as={Fragment} enter="modal-fade-in" enterFrom="opacity-0" enterTo="opacity-100" leave="modal-fade-out" leaveFrom="opacity-100" leaveTo="opacity-0">
-                                    <div className="sidebar-close-button">
-                                        <button type="button" className="btn-close" aria-label="Close" onClick={()=> setSidebarOpen(false)}
-                                                    >
-                                                        <span className="sr-only">Close sidebar</span>
-                                                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                                                    </button>
-                                    </div>
-                                </Transition.Child>
-
-                                <div className="sidebar-content">
-                                    <div className="logo-container">
-                                        <Link to="/" className="ml-4 mt-2">
-                                        <img src={logoSSMSO} alt="SSMSO LOGO" width={160} height={160} />
-                                        </Link>
-                                    </div>
-                                    <nav className="mt-5">
-                                        <Sidebar />
-                                    </nav>
-                                </div>
-
-                                <div className="sidebar-footer p-2 border-top">
-                                    <button onClick={()=> setOpen(true)} className="w-100">
-                                                    <div className="d-flex align-items-center">
-                                                        <div>
-                                                            <img
-                                                                className="rounded-circle"
-                                                                src={user_default}
-                                                                alt="Profile"
-                                                                width={30}
-                                                                height={30}
-                                                            />
-                                                        </div>
-                                                        <div className="ml-3">
-                                                            <p className="font-weight-medium text-dark">Andy Riquelme</p>
-                                                            {/* <p className="text-muted">View profile</p> */}
-                                                        </div>
-                                                    </div>
-                                                </button>
-                                </div>
-                            </Dialog.Panel>
-                        </Transition.Child>
-                        <div className="w-14 flex-shrink-0"></div>
-                    </div>
-                </Dialog>
-            </Transition.Root>
-
-             <Navbar/>    
-            {/* Layout Container */}              
-            <div className="d-flex">  
-                {/* Static Sidebar for Desktop */}
-                <div className="d-none d-md-flex flex-column fixed-left w-20 h-botton border-right bg-color z-index-1">                  
-                    <div className="flex-1 overflow-auto pt-3 pb-3">                              
-                        <div className="logo-container">
-                            <Link to="/" className="m-2 mt-2">
-                            <img src="" alt="SSMSO LOGO" width={160} height={160} />
-                            </Link>
-                        </div>                    
-                        <nav className="mt-5">
-                            <Sidebar />
-                        </nav>
-                    </div>
-                </div>  
-
-                {/* Main Content Area */}                                    
-                <div className="flex-1 d-md-flex flex-column ml-md-25">  
-                                 
-                    {/* Mobile Sidebar Toggle Button */}
-                    <div className="sticky-top bg-white p-3 d-md-none">
-                        <button type="button" className="btn btn-outline-secondary" onClick={()=> setSidebarOpen(true)}
-                                    >
-                                        <span className="sr-only">Open sidebar</span>
-                                        <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-                                    </button>
-                    </div>
-
-                    <main className="flex-1">
-                        <div className="py-6">
-                            <div className="container">
-                               {/* Aquí renderiza los Componentes*/}    
-                               {children} 
-                            </div>
-                        </div>
-                    </main>
-                </div>
-            </div>
-
-            {/* Logout Confirmation Dialog */}
-            <Transition.Root show={open} as={Fragment}>
-                <Dialog as="div" className="modal" onClose={setOpen}>
-                    <Transition.Child as={Fragment} enter="modal-fade-in" enterFrom="opacity-0" enterTo="opacity-100" leave="modal-fade-out" leaveFrom="opacity-100" leaveTo="opacity-0">
-                        <div className="modal-backdrop" />
-                    </Transition.Child>
-
-                    <div className="modal-dialog">
-                        <Transition.Child as={Fragment} enter="modal-slide-in" enterFrom="opacity-0 translate-y-4" enterTo="opacity-100 translate-y-0" leave="modal-slide-out" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-4">
-                            <Dialog.Panel className="modal-content bg-white rounded-lg shadow">
-                                <div className="modal-header justify-content-center">
-                                    <div className="rounded-circle bg-light p-2">
-                                        <img className="rounded-circle" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Profile" width={40} height={40} />
-                                    </div>
-                                </div>
-                                <div className="modal-body text-center">
-                                    <Dialog.Title as="h3" className="text-lg font-weight-medium">
-                                        Confirm logout
-                                    </Dialog.Title>
-                                    <div className="mt-2">
-                                        <p className="text-muted">
-                                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur amet labore.
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button type="button" className="btn btn-success w-100" onClick={()=> setOpen(false)}
-                                                >
-                                                    Logout
-                            </button>
-                                    <button type="button" className="btn btn-secondary w-100 mt-2" onClick={()=> setOpen(false)}
-                                                >
-                                                    Cancel
-                                                </button>
-                                </div>
-                            </Dialog.Panel>
-                        </Transition.Child>
-                    </div>
-                </Dialog>
-            </Transition.Root>
-        </>
-    );
-}
-
-const mapStateToProps = (state: any) => ({   
+const mapStateToProps = (state: RootState) => ({
+  isAuthenticated: state.auth.isAuthenticated,
 });
 
-// Tipos de las props conectadas con `connect`
-const connector = connect(mapStateToProps);
+const mapDispatchToProps = {
+  // Add your actions here if needed
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(Layout);

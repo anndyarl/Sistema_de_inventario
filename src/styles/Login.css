@@ -96,6 +96,13 @@ body#LoginForm {
     text-decoration: none;
 }
 
+.fs-09em {
+    font-size: 1em;
+    text-align: center;
+}
+.w-39 {
+    width: 39% !important;
+}
 /* Estilos Responsivos */
 @media (max-width: 768px) {
     .main-div {
@@ -129,7 +136,7 @@ body#LoginForm {
 
     .botto-text {
         font-size: 13px;
-    }
+    }  
 }
 
 @media (max-width: 480px) {

@@ -1,43 +1,44 @@
-import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { House, Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText, Gear } from 'react-bootstrap-icons';
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import { House, Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText, Gear} from 'react-bootstrap-icons';
 
-// Función para combinar clases condicionalmente
-function classNames(...classes: (string | undefined)[]): string {
-    return classes.filter(Boolean).join(' ');
+// Function to combine classes conditionally
+const classNames = (...classes: (string | boolean | undefined)[]): string => {
+  return classes.filter(Boolean).join(' ');
+};
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  
 }
 
-// Componente Sidebar
-const Sidebar: React.FC = () => {
-    const location = useLocation();
-    
-        const navigation = [
-      { name: 'Home', href: '/Home', icon: House, current: location.pathname === '/Home' },
-      { name: 'Inventario', href: '/Inventario', icon: Box, current: location.pathname === '/Inventario' },  
-      { name: 'Traslados', href: '/Traslados', icon: ArrowsMove, current: location.pathname === '/Traslados' }, 
-      { name: 'Altas', href: '/Altas', icon: PlusCircle, current: location.pathname === '/Altas' }, 
-      { name: 'Bajas', href: '/Bajas', icon: DashCircle, current: location.pathname === '/Bajas' }, 
-      { name: 'Donaciones', href: '/Donaciones', icon: Heart, current: location.pathname === '/Donaciones' }, 
-      { name: 'Informes', href: '/Informes', icon: FileText, current: location.pathname === '/Informes' }, 
-      { name: 'Configuracion', href: '/Configuracion', icon: Gear, current: location.pathname === '/Configuracion' }
-    ];
+const Sidebar: React.FC = () => {  
+  const [isOpen, setIsOpen] = useState(false);
 
-   return (
-    <div> 
-      {/* <div className="ml-4 mt-2 flex-shrink-0"> 
-        <button type="button" className="btn btn-warning text-white shadow-sm" style={{backgroundColor: '#ff6600', borderColor: 'transparent'}}> 
-         boton
-        </button> 
-      </div>  */}
+  const navigation: NavItem[] = [
+    { name: 'Home', href: '/Home', icon: House },
+    { name: 'Inventario', href: '/Inventario', icon: Box },
+    { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
+    { name: 'Altas', href: '/Altas', icon: PlusCircle },
+    { name: 'Bajas', href: '/Bajas', icon: DashCircle },
+    { name: 'Donaciones', href: '/Donaciones', icon: Heart },
+    { name: 'Informes', href: '/Informes', icon: FileText },
+    { name: 'Configuración', href: '/Configuracion', icon: Gear }
+  ];
 
-     <nav className="mt-5 px-2">
+  return (
+    <>     
+     <nav className="flex-grow-1">
       {navigation.map((item) => (
-      <NavLink key={item.name} to={item.href} className={classNames( item.current ? 'bg-light text-dark' : 'text-white', 'd-flex align-items-center py-2 rounded' )}>
-        <item.icon className={classNames( item.current ? 'text-dark' : 'text-white', 'mr-3 flex-shrink-0' )} aria-hidden="true" /> {item.name}
+      <NavLink key={item.name} to={item.href} className={({ isActive })=> classNames( isActive ? 'bg-light text-dark ' : 'text-white',
+       'd-flex align-items-center py-2 px-3 mb-2 rounded text-decoration-none ' )} onClick={() => setIsOpen(false)} >
+        <item.icon className={classNames( 'me-3 flex-shrink-0', 'h-5 w-5', )} aria-hidden="true" /> {item.name}
       </NavLink>
       ))}
     </nav>
-    </div>
+    </>
   );
 }
 

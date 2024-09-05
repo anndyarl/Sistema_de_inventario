@@ -10,6 +10,7 @@ import Bajas from '../../containers/pages/Bajas';
 import Donaciones from '../../containers/pages/Donaciones';
 import Informes from '../../containers/pages/Informes';
 import Configuracion from '../../containers/pages/Configuracion';
+import ClaveUnica from '../../containers/pages/ClaveUnica';
 
 
 const AnimatedRoutes: React.FC = () => {
@@ -22,7 +23,8 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="*" element={<Error404 />} />
 
                 {/* Login Display */}
-                <Route path="/" element={<Login/>} />
+                <Route path="/" element={<ClaveUnica/>} />
+                <Route path="/Login" element={<Login/>} />
                 <Route path="/Home" element={<Home/>} />
                 <Route path="/Inventario" element={<Inventario/>} />
                 <Route path="/Traslados" element={<Traslados/>} />

@@ -1,13 +1,8 @@
-import { useEffect } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
-import { RootState } from '../../redux/reducers'; // Asegúrate de tener este tipo definido correctamente
-// Define los tipos de las props que esperas en el componente Navbar
-type NavbarProps = {
-    utm: string;
-    userName: string;
-};
+import React, { useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 
-function Navbar({ utm, userName }: NavbarProps) {
+
+function Navbar() {
 
     useEffect(() => {
         const handleScroll = () => {
@@ -25,37 +20,31 @@ function Navbar({ utm, userName }: NavbarProps) {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+
     return (
-      <nav id="navbar" className="navbar navbar-expand-lg navbar-light bg-light w-100 fixed-top">
-    <div className="container">
-        {/* Navbar Links and User Info */}
-        <div className="collapse navbar-collapse" id="navbarNav">
-            <div className="d-flex align-items-center ml-auto">
-                {/* UTm Paragraph */}
-                <p className="mb-0 mr-3">UTM: {utm}</p>
-                
-                {/* User Info Button */}
-                <button className="btn btn-light d-flex align-items-center p-1 rounded shadow-sm border">
-                    <div className="ml-3">
-                        <p className="mb-0 font-weight-bold text-dark">Andy Riquelme {userName}</p>
-                    </div>
+        <nav id="navbar" className="navbar navbar-expand-lg navbar-light ">
+            <div className="container-fluid">
+                <NavLink className="navbar-brand" to="/">SSMSO</NavLink>
+                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
                 </button>
+                <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <div className="navbar-nav mb-2 mb-lg-0 me-3">                       
+                        <p className="nav-item nav-link mb-0">
+                            <strong>UTM:</strong> $47.396
+                        </p>
+                        <p className="nav-item nav-link mb-0">
+                            <strong>Dependencia:</strong> Finanzas
+                        </p>
+                        <p className="nav-item nav-link mb-0">
+                            <strong>Establecimiento:</strong> Hopital San jose de Maipo
+                        </p>
+                    </div>
+                   
+                </div>
             </div>
-        </div>
-    </div>
-</nav>
-
-
+        </nav>
     );
 }
 
-// Define el tipo del estado global
-const mapStateToProps = (state: RootState) => ({
-    // utm: state.utm, // Asegúrate de que 'utm' esté en tu estado global
-    // userName: state.userName, // Asegúrate de que 'userName' esté en tu estado global
-});
-
-const connector = connect(mapStateToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-export default connector(Navbar);
+export default Navbar;
