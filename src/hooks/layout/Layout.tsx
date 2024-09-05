@@ -8,6 +8,7 @@ import { List, X } from 'react-bootstrap-icons';
 
 import '../../styles/Layout.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '../../styles/Layout.css'
 
 interface OwnProps {
   children: ReactNode;
@@ -97,11 +98,11 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
                     aria-haspopup="true"
                     aria-expanded="false"
                   >
-                    <i className="fa fa-user me-2"></i>
+                    <i className="fa fa-user"></i>
                     <span className="fs-6">Andy Riquelme</span>
                   </a>
-                  <div className="dropdown-menu bg-color" aria-labelledby="userDropdown">
-                    <Logout />
+                  <div className="dropdown-menu" aria-labelledby="userDropdown">                 
+                  <Logout /> 
                   </div>
                 </div>
 
@@ -119,7 +120,7 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
        
         <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: isDesktop ? '0' : (sidebarOpen ? '250px' : '0'), transition: 'margin-left 0.3s' }}>
           {/* Desktop Navbar */}
-          <div className="d-none d-md-block">
+          <div className="d-none d-md-block ">
             <Navbar />
           </div>
 

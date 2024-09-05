@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Sun, Moon } from 'react-bootstrap-icons';
+
 
 function Navbar() {
-    const [darkMode, setDarkMode] = useState(false);
-    const [utm, setUtm] = useState('50.000');
-  
 
     useEffect(() => {
         const handleScroll = () => {
@@ -23,20 +20,9 @@ function Navbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    useEffect(() => {
-        if (darkMode) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-    }, [darkMode]);
-
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-    };
 
     return (
-        <nav id="navbar" className="navbar navbar-expand-lg navbar-light">
+        <nav id="navbar" className="navbar navbar-expand-lg navbar-light ">
             <div className="container-fluid">
                 <NavLink className="navbar-brand" to="/">SSMSO</NavLink>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,13 +31,13 @@ function Navbar() {
                 <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
                     <div className="navbar-nav mb-2 mb-lg-0 me-3">                       
                         <p className="nav-item nav-link mb-0">
-                            <strong>UTM:</strong> {utm}
+                            <strong>UTM:</strong> $47.396
                         </p>
                         <p className="nav-item nav-link mb-0">
-                            <strong>UTM:</strong> {utm}
+                            <strong>Dependencia:</strong> Finanzas
                         </p>
                         <p className="nav-item nav-link mb-0">
-                            <strong>UTM:</strong> {utm}
+                            <strong>Establecimiento:</strong> Hopital San jose de Maipo
                         </p>
                     </div>
                    

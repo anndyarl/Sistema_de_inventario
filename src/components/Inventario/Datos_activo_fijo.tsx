@@ -153,7 +153,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, n
   const totalPages = Math.ceil(activosFijos.length / itemsPerPage);
   console.log('nRecepcion en Datos_activo_fijo:', nRecepcion);
   return (
-      <div className="container">
+      <div className="border-top p-1 rounded">
         <h3 className="form-title mb-4">Datos Activo Fijo</h3>
 
         <Button variant="primary" onClick={() => setShowModal(true)} className="mb-3 me-2">
@@ -224,7 +224,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, n
           <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
         </Pagination>
 
-        {/* Modal formulario ACtivos Fijo*/}    
+   
+
+        <div className="d-flex mt-3 justify-content-between">
+           <button onClick={handleBack} className="btn btn-primary m-1">Volver</button>          
+          <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
+        </div>     
+
+
+         {/* Modal formulario Activos Fijo*/}    
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
           <Modal.Header closeButton>
             <Modal.Title>Agregar Activo Fijo</Modal.Title>
@@ -292,8 +300,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, n
               </Row>
             </form>
           </Modal.Body>
-        </Modal>
-        
+        </Modal>        
 
           {/* Modal  Confirmar */}    
           <Modal show={showModalConfirmar} onHide={() => setShowModalConfirmar(false)} size="xl">
@@ -321,14 +328,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, n
       
           </Modal.Body>
         </Modal>
-
-
-        <div className="d-flex justify-content-end mt-3 justify-content-end">
-           <button onClick={handleBack} className="btn btn-primary m-1">Volver</button>          
-          <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
-        </div>
-
-       
+  
       </div> 
   );
 };

@@ -1,25 +1,14 @@
-import React from "react";
+import React from "react"
 import Layout from "../../hooks/layout/Layout";
-import Footer from "../../components/navigation/Footer";
-import FormularioCompleto from "../../components/Inventario/FormularioCompleto";
 
-// Define interfaces para props si es necesario
-interface InformesProps {
-    // Si hay props, define sus tipos aquí
-    // ejemplo: isAuthenticated: boolean;
-}
-
-// Si no hay props, simplemente tipa el componente como FC
-const Informes: React.FC<InformesProps> = () => {
+const Informes: React.FC = () => {
     return (
-        <Layout>     
-          <div className="container my-5">
+        <Layout>          
+             <div className="container my-1">
             <p>Informes</p>
-          </div>
+          </div>      
         </Layout>
     );
 };
 
-// Si necesitas conectar con Redux, agrega la función connect
-// export default connect(mapStateToProps, mapDispatchToProps)(Login);
 export default Informes;
