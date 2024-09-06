@@ -1,4 +1,4 @@
-// reducers/origenPresupuestoReducer.ts
+// reducers/origenPresupuestoReducer.tsx
 import {
    ORIGEN_REQUEST,
    ORIGEN_SUCCESS,

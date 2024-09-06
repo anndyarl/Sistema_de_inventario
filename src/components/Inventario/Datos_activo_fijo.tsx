@@ -1,4 +1,3 @@
-'use client'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useMemo } from 'react';
@@ -20,10 +19,10 @@ interface ActivoFijoData {
 interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijoData[]) => void;
   onBack: () => void; 
-  nRecepcion: string;
+
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, nRecepcion }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijoData>({
     id: '',
@@ -102,7 +101,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, n
       const cantidad = parseInt(currentActivo.cantidad, 10);
       const newActivos = Array.from({ length: cantidad }, () => ({
         ...currentActivo,
-        id: nRecepcion, // Mismo ID para todos los activos
+        id: '1', // Mismo ID para todos los activos
       }));
       setActivosFijos(prev => [...prev, ...newActivos]);
       setCurrentActivo({
@@ -151,7 +150,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, n
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const totalPages = Math.ceil(activosFijos.length / itemsPerPage);
-  console.log('nRecepcion en Datos_activo_fijo:', nRecepcion);
+ 
   return (
       <div className="border-top p-1 rounded">
         <h3 className="form-title mb-4">Datos Activo Fijo</h3>

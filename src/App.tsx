@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from 'react-router-dom';
-import { store, persistor } from './store'; // Importa correctamente
+import { store, persistor } from './store'; 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Provider } from 'react-redux';
 // import './App.css';

@@ -1,5 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
-import React, { useState } from 'react';  
+
+import React, { useState } from 'react'; 
+
 
 // Define el tipo de los elementos del combo `servicio`
 export interface Servicio {
@@ -12,7 +14,7 @@ export interface Servicio {
 interface Datos_cuentaProps {
     onNext: (data: any) => void;
     onBack: () => void; 
-    servicios: Servicio[]; 
+    servicios: Servicio[];   
 }
 
 const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }) => {
@@ -38,8 +40,12 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
         onBack();
       };
 
+
+  
+
     return (
             <form onSubmit={handleSubmit}>
+                
                 <div className="border-top p-1 rounded">
                     <div>
                         <h3 className="form-title">Datos Cuenta</h3>
@@ -99,4 +105,6 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
     );
 };
 
-export default Datos_cuenta;
+
+
+export default (Datos_cuenta);

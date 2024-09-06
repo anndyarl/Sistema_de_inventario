@@ -11,7 +11,6 @@ import { connect } from 'react-redux';
 //Actions redux
 import { comboTraeOrigen } from '../../redux/actions/combos/comboTraeOrigenActions'; 
 import { comboTraeServicio } from '../../redux/actions/combos/comboTraeServicioActions'; 
-import { setNRecepcion } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 // Importa la interfaz OrigenPresupuesto desde Datos_inventario.tsx
 import { OrigenPresupuesto } from '../../components/Inventario/Datos_inventario';
@@ -31,13 +30,10 @@ interface FormularioCompletoProps {
   //Trae props Servicio de Datos_cuenta(formulario 2)
   servicios: Servicio[];  
   comboTraeServicio: (token: string) => void
-  token: string | null; 
- 
-  //trae props InventarioProps de Datos_inventario(formulario 1) 
-  nRecepcion: string;
+  token: string | null;
 }
 
-const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servicios, comboTraeOrigen, comboTraeServicio, nRecepcion, token }) => {
+const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servicios, comboTraeOrigen, comboTraeServicio, token }) => {
   const [step, setStep] = useState<number>(0);
   const [formData, setFormData] = useState<FormData>({
     datosInventario: {},
@@ -104,7 +100,7 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
       <Timeline Formulario_actual={step} /> 
       {step === 0 && <DatosInventario onNext={handleNext}  origenes={origenes}   />}
       {step === 1 && <DatosCuenta onNext={handleNext} onBack={handleBack} servicios={servicios} />}
-      {step === 2 && <DatosActivoFijo onNext={handleNext} onBack={handleBack} nRecepcion={nRecepcion}/>}
+      {step === 2 && <DatosActivoFijo onNext={handleNext} onBack={handleBack}/>}
     </div>
   );
 };
@@ -113,13 +109,11 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
 const mapStateToProps = (state: RootState) => ({
   origenes: state.origenPresupuestoReducer.origenes,
   servicios: state.servicioReducer.servicios,
-  token: state.auth.token,
-  nRecepcion: state.datos_inventarioReducer.nRecepcion
+  token: state.auth.token
 });
 
 export default connect(mapStateToProps,
    {
      comboTraeOrigen, 
-     comboTraeServicio,
-     setNRecepcion 
+     comboTraeServicio,      
     })(FormularioCompleto);

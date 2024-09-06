@@ -1,11 +1,21 @@
-import 'bootstrap/dist/css/bootstrap.min.css'; 
-import React, { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { setNRecepcion } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { 
+  setNRecepcion,
+  setFechaRecepcion,
+  setNOrdenCompra,
+  setHoraRecepcion,
+  setNFactura,
+  setOrigenPresupuesto,
+  setMontoRecepcion,
+  setFechaFactura,
+  setRutProveedor,
+  setnombreProveedor,
+ } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { RootState } from '../../store';
 
 // Define el tipo de los datos que se manejarán en el componente
-
 export interface InventarioProps {
   nRecepcion: string;
   fechaRecepcion: string;
@@ -16,7 +26,7 @@ export interface InventarioProps {
   montoRecepcion: string;
   fechaFactura: string;
   rutProveedor: string;
-  nombreProvedor: string;
+  nombreProveedor: string;
 }
 
 // Define el tipo de los elementos del combo `origenPresupuesto`
@@ -27,15 +37,36 @@ export interface OrigenPresupuesto {
 
 // Define el tipo de props para el componente
 interface Datos_inventarioProps {
-  onNext: (data: InventarioProps) => void;  
-  origenes: OrigenPresupuesto[];   
-  nRecepcion: string;  // Recibe nRecepcion desde Redux
+  onNext: (data: InventarioProps) => void;
+  origenes: OrigenPresupuesto[];
+
+  nRecepcion: string; // Recibir nRecepcion desde Redux
+  fechaRecepcion: string;
+  nOrdenCompra: string;
+  horaRecepcion: string;
+  nFactura: string;
+  origenPresupuesto: string;
+  montoRecepcion: string;
+  fechaFactura: string;
+  rutProveedor: string;
+  nombreProveedor: string;
 }
 
-
 // Define el componente `Datos_inventario` del props
-const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes, nRecepcion }) => {
- 
+const Datos_inventario: React.FC<Datos_inventarioProps> = ({ 
+  onNext,
+   origenes, 
+   nRecepcion,
+   fechaRecepcion,
+   nOrdenCompra,
+   horaRecepcion,
+   nFactura,   
+   montoRecepcion,
+   fechaFactura,
+   rutProveedor,
+   nombreProveedor,
+
+  }) => {
   const [data, setData] = useState<InventarioProps>({
     nRecepcion: '',
     fechaRecepcion: '',
@@ -46,18 +77,56 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes, n
     montoRecepcion: '',
     fechaFactura: '',
     rutProveedor: '',
-    nombreProvedor: '',
+    nombreProveedor: ''
   });
+
+  const dispatch = useDispatch();
+
+//  useEffect(() => {
+ 
+//   setData(prevData => ({
+//     ...prevData,         /
+//     nRecepcion: nRecepcion, 
+//   }));
+// }, [nRecepcion]);
+
+useEffect(() => {
+   // Sincroniza el estado local con el valor de Redux
+  setData((prevData) => ({
+    ...prevData, // Copia todos los valores anteriores del estado
+    nRecepcion: nRecepcion,    // Actualiza los valores
+    fechaRecepcion: fechaRecepcion,
+    nOrdenCompra: nOrdenCompra,
+    horaRecepcion: horaRecepcion,
+    nFactura: nFactura,    
+    montoRecepcion: montoRecepcion,
+    fechaFactura: fechaFactura,
+    rutProveedor: rutProveedor,
+    nombreProveedor: nombreProveedor,
+    origenes: origenes
+  }));
+}, [nRecepcion, fechaRecepcion, nOrdenCompra, horaRecepcion, nFactura, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, origenes]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     setData(prevData => ({ ...prevData, [name]: value }));
   };
 
-   const dispatch = useDispatch();
+  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+     // Despachar todas las acciones necesarias
     dispatch(setNRecepcion(data.nRecepcion)); // Despachar la acción para actualizar `nRecepcion`
+    dispatch(setFechaRecepcion(data.fechaRecepcion));
+    dispatch(setNOrdenCompra(data.nOrdenCompra));
+    dispatch(setHoraRecepcion(data.horaRecepcion));
+    dispatch(setNFactura(data.nFactura));
+    dispatch(setOrigenPresupuesto(data.origenPresupuesto));
+    dispatch(setMontoRecepcion(data.montoRecepcion));
+    dispatch(setFechaFactura(data.fechaFactura));
+    dispatch(setRutProveedor(data.rutProveedor));
+    dispatch(setnombreProveedor(data.nombreProveedor));
     onNext(data);
   };
 
@@ -108,7 +177,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes, n
                   <div className="col-sm-12 col-md-3 mb-3">
                   <dt className="text-muted">Origen Presupuesto</dt>
                   <dd className="d-flex align-items-center">
-                    <select className="form-select" name="origenPresupuesto" onChange={handleChange}>
+                    <select className="form-select" name="origenPresupuesto" onChange={handleChange} value={data.origenPresupuesto}>
                       <option value="">Seleccione un origen</option>
                       {origenes.map((origen) => (
                         <option key={origen.codigo} value={origen.codigo}>
@@ -142,7 +211,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes, n
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">Nombre Proveedor</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="nombreProvedor" onChange={handleChange} value={data.nombreProvedor}/>
+                      <input type="text" className="form-control" name="nombreProveedor" onChange={handleChange} value={data.nombreProveedor}/>
                     </dd>
                   </div>
                 </dl>
@@ -157,11 +226,29 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({ onNext, origenes, n
 
 //mapea los valores del estado global de Redux 
 const mapStateToProps = (state: RootState) => ({ 
-  nRecepcion: state.datos_inventarioReducer.nRecepcion
+  nRecepcion: state.datos_inventarioReducer.nRecepcion,
+  fechaRecepcion: state.datos_inventarioReducer.fechaRecepcion,
+  nOrdenCompra: state.datos_inventarioReducer.nOrdenCompra,
+  horaRecepcion: state.datos_inventarioReducer.horaRecepcion,
+  nFactura: state.datos_inventarioReducer.nFactura,
+  origenPresupuesto: state.datos_inventarioReducer.origenPresupuesto,
+  montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
+  fechaFactura: state.datos_inventarioReducer.fechaFactura,
+  rutProveedor: state.datos_inventarioReducer.rutProveedor,
+  nombreProveedor: state.datos_inventarioReducer.nombreProveedor,
 });
 
 export default connect(mapStateToProps,
    {  
-     setNRecepcion 
+    setNRecepcion,
+    setFechaRecepcion,
+    setNOrdenCompra,
+    setHoraRecepcion,
+    setNFactura,
+    setOrigenPresupuesto,
+    setMontoRecepcion,
+    setFechaFactura,
+    setRutProveedor,
+    setnombreProveedor,
     })(Datos_inventario);
 
