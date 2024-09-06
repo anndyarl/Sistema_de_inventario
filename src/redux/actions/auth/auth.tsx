@@ -37,9 +37,11 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
             if (token) {               
                 dispatch({ type: LOGIN_SUCCESS, payload: res.data });
                 dispatch({ type: SET_TOKEN, payload: token });
+            
             } else {
                 console.error('Token no encontrado en la respuesta del servidor');
                 dispatch({ type: LOGIN_FAIL });
+                dispatch({ type: REMOVE_AUTH_LOADING });
             }
         } else {
             console.error('Error en la respuesta del servidor:', res.status);

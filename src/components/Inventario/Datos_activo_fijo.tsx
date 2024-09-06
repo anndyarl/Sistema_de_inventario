@@ -1,7 +1,10 @@
+'use client'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useMemo } from 'react';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
+
+import { PencilFill } from 'react-bootstrap-icons';
 
 interface ActivoFijoData {
   id: string;
@@ -19,10 +22,9 @@ interface ActivoFijoData {
 interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijoData[]) => void;
   onBack: () => void; 
-
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijoData>({
     id: '',
@@ -124,9 +126,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
     setActivosFijos(prev => [...prev, clonedActivo]);
   };
 
-  // const handleDelete = (index: number) => {
-  //   setActivosFijos(prev => prev.filter((_, i) => i !== index));
-  // };
+  const handleDelete = (index: number) => {
+    setActivosFijos(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleFinalSubmit = () => {
     onNext(activosFijos);
@@ -150,9 +152,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const totalPages = Math.ceil(activosFijos.length / itemsPerPage);
- 
+
   return (
-      <div className="border-top p-1 rounded">
+      <div className="container">
         <h3 className="form-title mb-4">Datos Activo Fijo</h3>
 
         <Button variant="primary" onClick={() => setShowModal(true)} className="mb-3 me-2">
@@ -163,8 +165,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
             Eliminar Seleccionados
           </Button>
         )}
-
-        <Table striped bordered hover>
+      
+        <Table striped bordered hover >
           <thead>
             <tr>
               <th>
@@ -189,11 +191,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
                 <td>{activo.fechaIngreso}</td>
                 <td>{activo.marca}</td>
                 <td>{activo.modelo}</td>
-                <td onClick={() => setEditingSerie((indexOfFirstItem + index).toString())}>
+                <td  className='fixed-width' onClick={() => setEditingSerie((indexOfFirstItem + index).toString())}>
                   {editingSerie === (indexOfFirstItem + index).toString() ? (
-                    <Form.Control type="text" value={activo.serie} onChange={(e) => handleSerieChange(indexOfFirstItem + index, e.target.value)} onBlur={handleSerieBlur} autoFocus />
+                    <Form.Control type="text"  value={activo.serie} onChange={(e) => handleSerieChange(indexOfFirstItem + index, e.target.value)} onBlur={handleSerieBlur} autoFocus maxLength={10} // Restringe a 10 caracteres
+                    pattern="\d*"  />
                   ) : (
-                    activo.serie || 'editar'
+                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                      {activo.serie || 'editar'}
+                      <PencilFill style={{ marginLeft: '8px', color: '#6c757d' }} /> {/* Ícono de lápiz */}
+                    </span>
                   )}
                 </td>
                 <td>{activo.precio}</td>
@@ -201,9 +207,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
                   <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                     Clonar
                   </Button>
-                  {/* <Button variant="outline-danger" size="sm" onClick={() => handleDelete(indexOfFirstItem + index)}>
+                  <Button variant="outline-danger" size="sm" onClick={() => handleDelete(indexOfFirstItem + index)}>
                     Eliminar
-                  </Button> */}
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -223,15 +229,13 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
           <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
         </Pagination>
 
-   
 
-        <div className="d-flex mt-3 justify-content-between">
+        <div className="d-flex justify-content-end mt-3 justify-content-between">
            <button onClick={handleBack} className="btn btn-primary m-1">Volver</button>          
           <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
-        </div>     
+        </div>
 
-
-         {/* Modal formulario Activos Fijo*/}    
+        {/* Modal formulario ACtivos Fijo*/}    
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
           <Modal.Header closeButton>
             <Modal.Title>Agregar Activo Fijo</Modal.Title>
@@ -299,7 +303,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
               </Row>
             </form>
           </Modal.Body>
-        </Modal>        
+        </Modal>
+        
 
           {/* Modal  Confirmar */}    
           <Modal show={showModalConfirmar} onHide={() => setShowModalConfirmar(false)} size="xl">
@@ -316,18 +321,16 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack })
                 <p className="form-heading fs-09em">
                   Confirmar el envio del formualrio completo
                 </p>              
-                <form  onSubmit={handleSubmit}>   
-                   <div className="form-group d-flex justify-content-center">                                  
+                <form  onSubmit={handleSubmit}>                                                   
                    <div className="form-group d-flex justify-content-center">   
                       <Button variant="btn btn-primary m-1" onClick={handleFinalSubmit}>Confirmar y Enviar</Button>
                       <Button variant="btn btn-secondary m-1" onClick={() => setShowModalConfirmar(false)} className="me-2">Cancelar</Button>      
-                    </div>  
-                    </div>
+                    </div>                   
                 </form>              
       
           </Modal.Body>
         </Modal>
-  
+       
       </div> 
   );
 };

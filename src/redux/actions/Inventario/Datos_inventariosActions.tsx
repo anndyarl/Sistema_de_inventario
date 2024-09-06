@@ -15,10 +15,10 @@ export const setNOrdenCompra = (nOrdenCompra: string) => ({
   payload: nOrdenCompra,
 });
 
-export const setHoraRecepcion = (horaRecepcion: string) => ({
-  type: 'SET_HORA_RECEPCION',
-  payload: horaRecepcion,
-});
+// export const setHoraRecepcion = (horaRecepcion: string) => ({
+//   type: 'SET_HORA_RECEPCION',
+//   payload: horaRecepcion,
+// });
 
 export const setNFactura = (nFactura: string) => ({
   type: 'SET_N_FACTURA',
@@ -48,4 +48,9 @@ export const setRutProveedor = (rutProveedor: string) => ({
 export const setnombreProveedor = (nombreProveedor: string) => ({
   type: 'SET_NOMBRE_PROVEEDOR',
   payload: nombreProveedor,
+});
+
+export const setModalidadCompra = (modalidadCompra: string) => ({
+  type: 'SET_MODALIDAD_COMPRA',
+  payload: modalidadCompra,
 });

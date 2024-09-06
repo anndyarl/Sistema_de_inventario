@@ -1,18 +1,16 @@
 
-
-// datos_inventarioReducer.js
-
 const initialState = {
   nRecepcion: '',
   fechaRecepcion: '',
   nOrdenCompra: '',
-  horaRecepcion: '',
+  // horaRecepcion: '',
   nFactura: '',
   origenPresupuesto: '',
   montoRecepcion: '',
   fechaFactura: '',
   rutProveedor: '',
   nombreProveedor: '',
+  modalidadCompra: '',
 };
 
 const datos_inventarioReducer = (state = initialState, action: any) => {
@@ -23,8 +21,8 @@ const datos_inventarioReducer = (state = initialState, action: any) => {
       return { ...state, fechaRecepcion: action.payload };
     case 'SET_N_ORDEN_COMPRA':
       return { ...state, nOrdenCompra: action.payload };
-    case 'SET_HORA_RECEPCION':
-      return { ...state, horaRecepcion: action.payload };
+    // case 'SET_HORA_RECEPCION':
+    //   return { ...state, horaRecepcion: action.payload };
     case 'SET_N_FACTURA':
       return { ...state, nFactura: action.payload };
     case 'SET_ORIGEN_PRESUPUESTO':
@@ -37,6 +35,8 @@ const datos_inventarioReducer = (state = initialState, action: any) => {
       return { ...state, rutProveedor: action.payload };
     case 'SET_NOMBRE_PROVEEDOR':
       return { ...state, nombreProveedor: action.payload };
+    case 'SET_MODALIDAD_COMPRA':
+        return { ...state, modalidadCompra: action.payload };
     default:
       return state;
   }

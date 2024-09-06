@@ -10,7 +10,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth'], // Reducer que deseas persistir
+  whitelist: ['auth', 'Datos_inventariosReducer'], // Reducer que deseas persistir
 };
 
 // Reducer persistente

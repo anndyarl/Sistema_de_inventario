@@ -40,9 +40,6 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
         onBack();
       };
 
-
-  
-
     return (
             <form onSubmit={handleSubmit}>
                 

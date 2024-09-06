@@ -41,15 +41,16 @@ export default function auth(state = initialState, action: Action): AuthState {
         case SET_AUTH_LOADING:
             return {
                 ...state,
-                loading: true,
+                loading: true, 
+                           
             };
         case REMOVE_AUTH_LOADING:
             return {
                 ...state,
-                loading: false,
+                loading: false,             
             };
         case LOGIN_SUCCESS:
-            localStorage.setItem('access', payload.access); // Guarda el token solo al login exitoso
+            // localStorage.setItem('access', payload.access); // Guarda el token solo al login exitoso
             return {
                 ...state,
                 isAuthenticated: true,

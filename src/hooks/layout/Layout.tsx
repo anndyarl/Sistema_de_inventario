@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import { connect, ConnectedProps, useDispatch } from 'react-redux';
+import { connect, ConnectedProps } from 'react-redux';
 import { RootState } from '../../redux/reducers';
 import Sidebar from "../../components/navigation/Sidebar";
 import Navbar from "../../components/navigation/Navbar";
@@ -9,29 +9,14 @@ import { List, X } from 'react-bootstrap-icons';
 import '../../styles/Layout.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../../styles/Layout.css'
-import { useLocation } from "react-router-dom";
-import { setNRecepcion } from '../../redux/actions/Inventario/Datos_inventariosActions';
-import {InventarioProps} from '../../components/Inventario/Datos_inventario'
-
 
 interface OwnProps {
   children: ReactNode;
-  nRecepcion: string; // Recibir nRecepcion desde Redux
+
 }
 
-const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated, nRecepcion }) => {
-  const [data, setData] = useState<InventarioProps>({
-    nRecepcion: '',
-    fechaRecepcion: '',
-    nOrdenCompra: '',
-    horaRecepcion: '',
-    nFactura: '',
-    origenPresupuesto: '',
-    montoRecepcion: '',
-    fechaFactura: '',
-    rutProveedor: '',
-    nombreProveedor: '',
-  });
+const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated }) => {
+ 
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
@@ -52,19 +37,7 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
       setSidebarOpen(false);
     }
   }, [isDesktop]);
-
-  const dispatch = useDispatch();
-  const location = useLocation();
-  const currentPath = location.pathname; // Obtén la ruta actual
   
-  useEffect(() => {
-    // Verifica si la ruta actual NO es '/formulario' para despachar la acción
-    if (currentPath !== '/Inventario') {
-      dispatch(setNRecepcion(data.nRecepcion));
-      console.log(`Despachando nRecepcion: ${data.nRecepcion} al cambiar de ruta a ${currentPath}`);
-    }
-  }, [currentPath, dispatch, data.nRecepcion]);
-
 
   if (!isAuthenticated) {
     return (
@@ -171,7 +144,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  setNRecepcion
+  
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

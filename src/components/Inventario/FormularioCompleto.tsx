@@ -8,13 +8,17 @@ import Timeline from './Timeline';
 // Redux
 import { RootState } from '../../redux/reducers'; 
 import { connect } from 'react-redux';
-//Actions redux
-import { comboTraeOrigen } from '../../redux/actions/combos/comboTraeOrigenActions'; 
-import { comboTraeServicio } from '../../redux/actions/combos/comboTraeServicioActions'; 
 
-// Importa la interfaz OrigenPresupuesto desde Datos_inventario.tsx
+//Actions redux
+import { comboOrigenPresupuesto } from '../../redux/actions/combos/comboOrigenPresupuestoActions'; 
+import { comboModalidadCompra } from '../../redux/actions/combos/comboModalidadCompraActions';
+import { comboServicio } from '../../redux/actions/combos/comboServicioActions'; 
+
+// Importa la interfaz desde Datos_inventario.tsx
 import { OrigenPresupuesto } from '../../components/Inventario/Datos_inventario';
+import { ModalidadCompra } from '../../components/Inventario/Datos_inventario';
 import { Servicio } from '../../components/Inventario/Datos_cuenta';
+
 
 interface FormData {
   datosInventario: Record<string, any>;
@@ -23,17 +27,21 @@ interface FormData {
 }
 
 interface FormularioCompletoProps {
-  //Trae props OrigenPresupuesto de Datos_inventario(formulario 1) 
+  //Trae props combos de Datos_inventario(formulario 1) 
   origenes: OrigenPresupuesto[];  
-  comboTraeOrigen: (token: string) => void;
+  comboOrigenPresupuesto: (token: string) => void;
+  modalidades: ModalidadCompra[];   
+  comboModalidadCompra: (token: string) => void;
 
-  //Trae props Servicio de Datos_cuenta(formulario 2)
+  //Trae props combos de Datos_cuenta(formulario 2)
   servicios: Servicio[];  
-  comboTraeServicio: (token: string) => void
+  comboServicio: (token: string) => void
+
+
   token: string | null;
 }
 
-const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servicios, comboTraeOrigen, comboTraeServicio, token }) => {
+const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modalidades, servicios, comboOrigenPresupuesto, comboModalidadCompra, comboServicio, token }) => {
   const [step, setStep] = useState<number>(0);
   const [formData, setFormData] = useState<FormData>({
     datosInventario: {},
@@ -44,17 +52,22 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
   useEffect(() => {
        // Llama a la API comboTraeOrigen solo si está vacío
     if (token && origenes.length === 0) {
-      comboTraeOrigen(token);
-      console.log("Token local:", token)      
+      comboOrigenPresupuesto(token);         
       console.log("origenes", origenes);      
       }
 
-      if (token && servicios.length === 0) {
-        comboTraeServicio(token)
-        console.log("Token local:", token)      
+    if (token && modalidades.length === 0) {
+        comboModalidadCompra(token)         
+        console.log("modalidades", modalidades);      
+      }
+
+    if (token && servicios.length === 0) {
+        comboServicio(token)    
         console.log("servicios", servicios);      
-        }
-  }, [comboTraeOrigen, comboTraeServicio]);
+      }
+
+      
+  }, [comboOrigenPresupuesto, comboModalidadCompra, comboServicio]);
   
  
 
@@ -98,7 +111,7 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
   return (
     <div>
       <Timeline Formulario_actual={step} /> 
-      {step === 0 && <DatosInventario onNext={handleNext}  origenes={origenes}   />}
+      {step === 0 && <DatosInventario onNext={handleNext}  origenes={origenes}  modalidades={modalidades} />}
       {step === 1 && <DatosCuenta onNext={handleNext} onBack={handleBack} servicios={servicios} />}
       {step === 2 && <DatosActivoFijo onNext={handleNext} onBack={handleBack}/>}
     </div>
@@ -109,11 +122,13 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, servi
 const mapStateToProps = (state: RootState) => ({
   origenes: state.origenPresupuestoReducer.origenes,
   servicios: state.servicioReducer.servicios,
+  modalidades: state.modalidadCompraReducer.modalidades,
   token: state.auth.token
 });
 
 export default connect(mapStateToProps,
    {
-     comboTraeOrigen, 
-     comboTraeServicio,      
+    comboOrigenPresupuesto, 
+    comboServicio,   
+    comboModalidadCompra   
     })(FormularioCompleto);

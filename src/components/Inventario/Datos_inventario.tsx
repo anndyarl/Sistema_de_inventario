@@ -1,111 +1,111 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
+
+//importacion de objetos desde actions de redux
 import { 
   setNRecepcion,
   setFechaRecepcion,
   setNOrdenCompra,
-  setHoraRecepcion,
+  // setHoraRecepcion,
   setNFactura,
   setOrigenPresupuesto,
   setMontoRecepcion,
   setFechaFactura,
   setRutProveedor,
   setnombreProveedor,
- } from '../../redux/actions/Inventario/Datos_inventariosActions';
+  setModalidadCompra
+ } from '../../redux/actions/Inventario/Datos_inventariosActions'; 
 import { RootState } from '../../store';
 
-// Define el tipo de los datos que se manejarán en el componente
-export interface InventarioProps {
-  nRecepcion: string;
-  fechaRecepcion: string;
-  nOrdenCompra: string;
-  horaRecepcion: string;
-  nFactura: string;
-  origenPresupuesto: string;
-  montoRecepcion: string;
-  fechaFactura: string;
-  rutProveedor: string;
-  nombreProveedor: string;
-}
-
-// Define el tipo de los elementos del combo `origenPresupuesto`
+// Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface OrigenPresupuesto {
   codigo: string;
   descripcion: string;
 }
 
-// Define el tipo de props para el componente
-interface Datos_inventarioProps {
-  onNext: (data: InventarioProps) => void;
-  origenes: OrigenPresupuesto[];
-
-  nRecepcion: string; // Recibir nRecepcion desde Redux
+// Define el tipo de los elementos del combo `ModalidadCompra`
+export interface ModalidadCompra {
+  codigo: string;
+  descripcion: string;
+}
+// Define el tipo de los datos que se manejarán en el componente
+export interface InventarioProps {
+  nRecepcion: string;
   fechaRecepcion: string;
   nOrdenCompra: string;
-  horaRecepcion: string;
+  // horaRecepcion: string;
   nFactura: string;
   origenPresupuesto: string;
   montoRecepcion: string;
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
+  modalidadCompra: string;
+}
+
+// Define el tipo de props para el componente, extendiendo InventarioProps
+interface Datos_inventarioProps extends InventarioProps {
+  onNext: (data: InventarioProps) => void;
+  origenes: OrigenPresupuesto[]; 
+  modalidades: ModalidadCompra[];  
 }
 
 // Define el componente `Datos_inventario` del props
 const Datos_inventario: React.FC<Datos_inventarioProps> = ({ 
   onNext,
-   origenes, 
+   origenes, //combo OrigenPresupuesto
+   modalidades, //combo MdalidadCompra
    nRecepcion,
    fechaRecepcion,
    nOrdenCompra,
-   horaRecepcion,
+  //  horaRecepcion,
    nFactura,   
+   origenPresupuesto,
    montoRecepcion,
    fechaFactura,
    rutProveedor,
    nombreProveedor,
+   modalidadCompra,
 
   }) => {
   const [data, setData] = useState<InventarioProps>({
     nRecepcion: '',
     fechaRecepcion: '',
     nOrdenCompra: '',
-    horaRecepcion: '',
+    // horaRecepcion: '',
     nFactura: '',
     origenPresupuesto: '',
     montoRecepcion: '',
     fechaFactura: '',
     rutProveedor: '',
-    nombreProveedor: ''
+    nombreProveedor: '',
+    modalidadCompra: ''
   });
 
   const dispatch = useDispatch();
 
-//  useEffect(() => {
- 
-//   setData(prevData => ({
-//     ...prevData,         /
-//     nRecepcion: nRecepcion, 
-//   }));
-// }, [nRecepcion]);
 
+ //Hook que muestra los valores al input
 useEffect(() => {
    // Sincroniza el estado local con el valor de Redux
   setData((prevData) => ({
     ...prevData, // Copia todos los valores anteriores del estado
-    nRecepcion: nRecepcion,    // Actualiza los valores
+    nRecepcion: nRecepcion,   
     fechaRecepcion: fechaRecepcion,
     nOrdenCompra: nOrdenCompra,
-    horaRecepcion: horaRecepcion,
-    nFactura: nFactura,    
+    // horaRecepcion: horaRecepcion,
+    nFactura: nFactura,  
+    origenPresupuesto: origenPresupuesto,  
     montoRecepcion: montoRecepcion,
     fechaFactura: fechaFactura,
     rutProveedor: rutProveedor,
     nombreProveedor: nombreProveedor,
-    origenes: origenes
+    modalidadCompra: modalidadCompra,
+    
   }));
-}, [nRecepcion, fechaRecepcion, nOrdenCompra, horaRecepcion, nFactura, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, origenes]);
+  
+}, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra ]);
 
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -120,13 +120,15 @@ useEffect(() => {
     dispatch(setNRecepcion(data.nRecepcion)); // Despachar la acción para actualizar `nRecepcion`
     dispatch(setFechaRecepcion(data.fechaRecepcion));
     dispatch(setNOrdenCompra(data.nOrdenCompra));
-    dispatch(setHoraRecepcion(data.horaRecepcion));
+    // dispatch(setHoraRecepcion(data.horaRecepcion));
     dispatch(setNFactura(data.nFactura));
     dispatch(setOrigenPresupuesto(data.origenPresupuesto));
     dispatch(setMontoRecepcion(data.montoRecepcion));
     dispatch(setFechaFactura(data.fechaFactura));
     dispatch(setRutProveedor(data.rutProveedor));
     dispatch(setnombreProveedor(data.nombreProveedor));
+    dispatch(setModalidadCompra(data.modalidadCompra));
+    
     onNext(data);
   };
 
@@ -160,12 +162,12 @@ useEffect(() => {
                     </dd>
                   </div>
           
-                  <div className="col-sm-12 col-md-3 mb-3">
+                  {/* <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">Hora Recepción</dt>
                     <dd className="d-flex align-items-center">
                       <input type="text" className="form-control" name="horaRecepcion" onChange={handleChange} value={data.horaRecepcion}/>
                     </dd>
-                  </div>
+                  </div> */}
           
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">N° Factura</dt>
@@ -214,6 +216,19 @@ useEffect(() => {
                       <input type="text" className="form-control" name="nombreProveedor" onChange={handleChange} value={data.nombreProveedor}/>
                     </dd>
                   </div>
+                  <div className="col-sm-12 col-md-3 mb-3">
+                  <dt className="text-muted">Modalidad de Compra</dt>
+                  <dd className="d-flex align-items-center">
+                    <select className="form-select" name="modalidadCompra" onChange={handleChange} value={data.modalidadCompra}>
+                      <option value="">Seleccione un origen</option>
+                      {modalidades.map((modalidad) => (
+                        <option key={modalidad.codigo} value={modalidad.codigo}>
+                          {modalidad.descripcion} 
+                        </option>
+                      ))}
+                    </select>
+                  </dd>
+                  </div> 
                 </dl>
               </div>
             </div>          
@@ -229,13 +244,14 @@ const mapStateToProps = (state: RootState) => ({
   nRecepcion: state.datos_inventarioReducer.nRecepcion,
   fechaRecepcion: state.datos_inventarioReducer.fechaRecepcion,
   nOrdenCompra: state.datos_inventarioReducer.nOrdenCompra,
-  horaRecepcion: state.datos_inventarioReducer.horaRecepcion,
+  // horaRecepcion: state.datos_inventarioReducer.horaRecepcion,
   nFactura: state.datos_inventarioReducer.nFactura,
   origenPresupuesto: state.datos_inventarioReducer.origenPresupuesto,
   montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
   fechaFactura: state.datos_inventarioReducer.fechaFactura,
   rutProveedor: state.datos_inventarioReducer.rutProveedor,
   nombreProveedor: state.datos_inventarioReducer.nombreProveedor,
+  modalidadCompra: state.datos_inventarioReducer.modalidadCompra
 });
 
 export default connect(mapStateToProps,
@@ -243,12 +259,13 @@ export default connect(mapStateToProps,
     setNRecepcion,
     setFechaRecepcion,
     setNOrdenCompra,
-    setHoraRecepcion,
+    // setHoraRecepcion,
     setNFactura,
     setOrigenPresupuesto,
     setMontoRecepcion,
     setFechaFactura,
     setRutProveedor,
     setnombreProveedor,
+    setModalidadCompra,
     })(Datos_inventario);
 

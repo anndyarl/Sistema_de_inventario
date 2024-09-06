@@ -31,6 +31,7 @@ const Timeline: React.FC<TimelineProps> = ({ Formulario_actual }) => {
     </React.Fragment>
   ))}
 </div>
+
   );
 };
 
