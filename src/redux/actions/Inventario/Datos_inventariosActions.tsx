@@ -54,3 +54,5 @@ export const setModalidadCompra = (modalidadCompra: string) => ({
   type: 'SET_MODALIDAD_COMPRA',
   payload: modalidadCompra,
 });
+
+

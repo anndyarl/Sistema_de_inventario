@@ -41,7 +41,7 @@ export interface InventarioProps {
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
-  modalidadCompra: string;
+  modalidadCompra: string; 
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -66,7 +66,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
    fechaFactura,
    rutProveedor,
    nombreProveedor,
-   modalidadCompra,
+   modalidadCompra  
 
   }) => {
   const [data, setData] = useState<InventarioProps>({
@@ -80,11 +80,12 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     fechaFactura: '',
     rutProveedor: '',
     nombreProveedor: '',
-    modalidadCompra: ''
+    modalidadCompra: ''   
   });
 
   const dispatch = useDispatch();
-
+  const [showInput, setShowInput] = useState(false);
+  const [allModalidades, setAllModalidades] = useState<ModalidadCompra[]>(modalidades);
 
  //Hook que muestra los valores al input
 useEffect(() => {
@@ -101,21 +102,28 @@ useEffect(() => {
     fechaFactura: fechaFactura,
     rutProveedor: rutProveedor,
     nombreProveedor: nombreProveedor,
-    modalidadCompra: modalidadCompra,
-    
-  }));
+    modalidadCompra: modalidadCompra,    
   
-}, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra ]);
+  }));
+  setAllModalidades([...modalidades]);
+}, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra, modalidades ]);
 
+const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const { name, value } = e.target;
+  console.log('Input change detected', { name, value });
+  setData(prevData => ({ ...prevData, [name]: value }));
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setData(prevData => ({ ...prevData, [name]: value }));
-  };
+  if (name === 'modalidadCompra' && value === 'otro') {
+    setShowInput(true);
+  } else if (name === 'modalidadCompra') {
+    setShowInput(false);
+  }
+};
 
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log('Submitting form with data', data);
      // Despachar todas las acciones necesarias
     dispatch(setNRecepcion(data.nRecepcion)); // Despachar la acción para actualizar `nRecepcion`
     dispatch(setFechaRecepcion(data.fechaRecepcion));
@@ -128,6 +136,12 @@ useEffect(() => {
     dispatch(setRutProveedor(data.rutProveedor));
     dispatch(setnombreProveedor(data.nombreProveedor));
     dispatch(setModalidadCompra(data.modalidadCompra));
+
+    if (showInput && data.modalidadCompra) {
+      const nuevaModalidad = { codigo: data.modalidadCompra, descripcion: data.modalidadCompra };
+      setAllModalidades((prevModalidades) => [...prevModalidades, nuevaModalidad]);
+      setShowInput(false); // Oculta el input después de agregar
+    }
     
     onNext(data);
   };
@@ -217,18 +231,33 @@ useEffect(() => {
                     </dd>
                   </div>
                   <div className="col-sm-12 col-md-3 mb-3">
-                  <dt className="text-muted">Modalidad de Compra</dt>
-                  <dd className="d-flex align-items-center">
-                    <select className="form-select" name="modalidadCompra" onChange={handleChange} value={data.modalidadCompra}>
-                      <option value="">Seleccione un origen</option>
-                      {modalidades.map((modalidad) => (
-                        <option key={modalidad.codigo} value={modalidad.codigo}>
-                          {modalidad.descripcion} 
-                        </option>
-                      ))}
-                    </select>
-                  </dd>
-                  </div> 
+              <dt className="text-muted">Modalidad de Compra</dt>
+              <dd className="d-flex align-items-center">
+                <select className="form-select" name="modalidadCompra" onChange={handleChange} value={data.modalidadCompra}>
+                  <option value="">Seleccione una modalidad</option>
+                  {allModalidades.map((modalidad) => (
+                    <option key={modalidad.codigo} value={modalidad.codigo}>
+                      {modalidad.descripcion} 
+                    </option>
+                  ))}
+                  <option value="otro">Otro</option>
+                </select>
+              </dd>
+            </div>
+            {showInput && (
+              <div className="col-sm-12 col-md-3 mb-3">
+                <dt className="text-muted">Modalidad de compra</dt>
+                <dd className="d-flex align-items-center">
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="modalidadCompra"
+                    placeholder="Especifique otro"
+                    onChange={(e) => setData({ ...data, modalidadCompra: e.target.value })}               
+                  />
+                </dd>
+              </div>
+            )}
                 </dl>
               </div>
             </div>          
