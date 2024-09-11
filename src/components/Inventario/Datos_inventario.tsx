@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 
 //importacion de objetos desde actions de redux
-import { 
+import {
   setNRecepcion,
   setFechaRecepcion,
   setNOrdenCompra,
@@ -15,8 +15,9 @@ import {
   setRutProveedor,
   setnombreProveedor,
   setModalidadCompra
- } from '../../redux/actions/Inventario/Datos_inventariosActions'; 
+} from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { RootState } from '../../store';
+import { Col, Row } from 'react-bootstrap';
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface OrigenPresupuesto {
@@ -37,38 +38,38 @@ export interface InventarioProps {
   // horaRecepcion: string;
   nFactura: string;
   origenPresupuesto: string;
-  montoRecepcion: string;
+  montoRecepcion: number;
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
-  modalidadCompra: string; 
+  modalidadCompra: string;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
 interface Datos_inventarioProps extends InventarioProps {
   onNext: (data: InventarioProps) => void;
-  origenes: OrigenPresupuesto[]; 
-  modalidades: ModalidadCompra[];  
+  origenes: OrigenPresupuesto[];
+  modalidades: ModalidadCompra[];
 }
 
 // Define el componente `Datos_inventario` del props
-const Datos_inventario: React.FC<Datos_inventarioProps> = ({ 
+const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   onNext,
-   origenes, //combo OrigenPresupuesto
-   modalidades, //combo MdalidadCompra
-   nRecepcion,
-   fechaRecepcion,
-   nOrdenCompra,
+  origenes, //combo OrigenPresupuesto
+  modalidades, //combo MdalidadCompra
+  nRecepcion,
+  fechaRecepcion,
+  nOrdenCompra,
   //  horaRecepcion,
-   nFactura,   
-   origenPresupuesto,
-   montoRecepcion,
-   fechaFactura,
-   rutProveedor,
-   nombreProveedor,
-   modalidadCompra  
+  nFactura,
+  origenPresupuesto,
+  montoRecepcion,
+  fechaFactura,
+  rutProveedor,
+  nombreProveedor,
+  modalidadCompra
 
-  }) => {
+}) => {
   const [data, setData] = useState<InventarioProps>({
     nRecepcion: '',
     fechaRecepcion: '',
@@ -76,56 +77,55 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     // horaRecepcion: '',
     nFactura: '',
     origenPresupuesto: '',
-    montoRecepcion: '',
+    montoRecepcion: 0,
     fechaFactura: '',
     rutProveedor: '',
     nombreProveedor: '',
-    modalidadCompra: ''   
+    modalidadCompra: ''
   });
 
   const dispatch = useDispatch();
   const [showInput, setShowInput] = useState(false);
 
- //Hook que muestra los valores al input
-useEffect(() => {
-   // Sincroniza el estado local con el valor de Redux
-  setData((prevData) => ({
-    ...prevData, // Copia todos los valores anteriores del estado
-    nRecepcion: nRecepcion,   
-    fechaRecepcion: fechaRecepcion,
-    nOrdenCompra: nOrdenCompra,
-    // horaRecepcion: horaRecepcion,
-    nFactura: nFactura,  
-    origenPresupuesto: origenPresupuesto,  
-    montoRecepcion: montoRecepcion,
-    fechaFactura: fechaFactura,
-    rutProveedor: rutProveedor,
-    nombreProveedor: nombreProveedor,
-    modalidadCompra: modalidadCompra,    
-  
-  }));
-  
-}, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra ]);
+  //Hook que muestra los valores al input
+  useEffect(() => {
+    // Sincroniza el estado local con el valor de Redux
+    setData((prevData) => ({
+      ...prevData, // Copia todos los valores anteriores del estado
+      nRecepcion: nRecepcion,
+      fechaRecepcion: fechaRecepcion,
+      nOrdenCompra: nOrdenCompra,
+      // horaRecepcion: horaRecepcion,
+      nFactura: nFactura,
+      origenPresupuesto: origenPresupuesto,
+      montoRecepcion: montoRecepcion,
+      fechaFactura: fechaFactura,
+      rutProveedor: rutProveedor,
+      nombreProveedor: nombreProveedor,
+      modalidadCompra: modalidadCompra,
 
-const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-  const { name, value } = e.target;
-  console.log('Input change detected', { name, value });
-  setData(prevData => ({ ...prevData, [name]: value }));
+    }));
 
-  if (name === 'modalidadCompra' && value === '7') {
-    setShowInput(true);
-  }
-  else 
-  {
-    setShowInput(false);
-  }
-};
+  }, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra]);
 
-  
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    console.log('Input change detected', { name, value });
+    setData(prevData => ({ ...prevData, [name]: value }));
+
+    if (name === 'modalidadCompra' && value === '7') {
+      setShowInput(true);
+    }
+    else {
+      setShowInput(false);
+    }
+  };
+
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Submitting form with data', data);
-     // Despachar todas las acciones necesarias
+    console.log('dispatch data', data);
+    // Despachar todas las acciones necesarias
     dispatch(setNRecepcion(data.nRecepcion)); // Despachar la acción para actualizar `nRecepcion`
     dispatch(setFechaRecepcion(data.fechaRecepcion));
     dispatch(setNOrdenCompra(data.nOrdenCompra));
@@ -141,129 +141,138 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
     onNext(data);
   };
 
-     return (   
-          <form onSubmit={handleSubmit} >
-            <div className="border-top p-1 rounded">
-              <div>
-                <h3 className="form-title">Datos Inventario</h3> {/*
-                <p className="form-subtitle">Detalles personales y aplicación.</p> */}
-              </div>
-              <div className="mt-4 border-top">
-                <dl className="row">          
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">N° de Recepción</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" maxLength={12} name="nRecepcion" onChange={handleChange} value={data.nRecepcion}/>
-                    </dd>
-                  </div>
-          
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">Fecha de Recepción</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="date" className="form-control" name="fechaRecepcion" onChange={handleChange} value={data.fechaRecepcion}/>
-                    </dd>
-                  </div>
-          
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">N° Orden de Compra</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" maxLength={12} name="nOrdenCompra" onChange={handleChange} value={data.nOrdenCompra} />
-                    </dd>
-                  </div>
-          
-                  {/* <div className="col-sm-12 col-md-3 mb-3">
+  return (
+    <div>
+      <form onSubmit={handleSubmit} >
+        <div className="border-top p-1 rounded">
+          <div>
+            <h3 className="form-title">Datos Inventario</h3>
+          </div>
+          <div className="mt-4 border-top">
+            <Row>
+              <Col md={6}>
+                <div className="mb-3">
+                  <dt className="text-muted">N° de Recepción</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="text" className="form-control" maxLength={12} name="nRecepcion" onChange={handleChange} value={data.nRecepcion} />
+                  </dd>
+                </div>
+
+                <div className="mb-3">
+                  <dt className="text-muted">Fecha de Recepción</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="date" className="form-control" name="fechaRecepcion" onChange={handleChange} value={data.fechaRecepcion} />
+                  </dd>
+                </div>
+
+                <div className="mb-3">
+                  <dt className="text-muted">N° Orden de Compra</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="text" className="form-control" maxLength={12} name="nOrdenCompra" onChange={handleChange} value={data.nOrdenCompra} />
+                  </dd>
+                </div>
+
+                {/* <div className="mb-3">
                     <dt className="text-muted">Hora Recepción</dt>
                     <dd className="d-flex align-items-center">
                       <input type="text" className="form-control" name="horaRecepcion" onChange={handleChange} value={data.horaRecepcion}/>
                     </dd>
                   </div> */}
-          
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">N° Factura</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" maxLength={12} name="nFactura" onChange={handleChange} value={data.nFactura}/>
-                    </dd>
-                  </div>
-          
-                  <div className="col-sm-12 col-md-3 mb-3">
+
+                <div className="mb-3">
+                  <dt className="text-muted">N° Factura</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="text" className="form-control" maxLength={12} name="nFactura" onChange={handleChange} value={data.nFactura} />
+                  </dd>
+                </div>
+
+                <div className="mb-3">
                   <dt className="text-muted">Origen Presupuesto</dt>
                   <dd className="d-flex align-items-center">
                     <select className="form-select" name="origenPresupuesto" onChange={handleChange} value={data.origenPresupuesto}>
                       <option value="">Seleccione un origen</option>
                       {origenes.map((origen) => (
                         <option key={origen.codigo} value={origen.codigo}>
-                          {origen.descripcion} 
+                          {origen.descripcion}
                         </option>
                       ))}
                     </select>
                   </dd>
-                  </div> 
-          
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">Monto Recepción</dt>
+                </div>
+              </Col>
+              <Col md={6}>
+
+                <div className="mb-3">
+                  <dt className="text-muted">Monto Recepción</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="text" className="form-control" maxLength={12} name="montoRecepcion" onChange={handleChange} value={data.montoRecepcion} />
+                  </dd>
+                </div>
+
+                <div className="mb-3">
+                  <dt className="text-muted">Fecha factura</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="date" className="form-control" name="fechaFactura" onChange={handleChange} value={data.fechaFactura} />
+                  </dd>
+                </div>
+
+                <div className="mb-3">
+                  <dt className="text-muted">Rut Proveedor</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="text" className="form-control" maxLength={12} name="rutProveedor" onChange={handleChange} value={data.rutProveedor} />
+                  </dd>
+                </div>
+
+                <div className="mb-3">
+                  <dt className="text-muted">Nombre Proveedor</dt>
+                  <dd className="d-flex align-items-center">
+                    <input type="text" className="form-control" maxLength={30} name="nombreProveedor" onChange={handleChange} value={data.nombreProveedor} />
+                  </dd>
+                </div>
+
+                <div className="mb-3">
+                  <dt className="text-muted">Modalidad de Compra</dt>
+                  <dd className="d-flex align-items-center">
+                    <select className="form-select" name="modalidadCompra" onChange={handleChange} value={data.modalidadCompra}>
+                      <option value="">Seleccione una modalidad</option>
+                      {modalidades.map((modalidad) => (
+                        <option key={modalidad.codigo} value={modalidad.codigo}>
+                          {modalidad.descripcion}
+                        </option>
+                      ))}
+                    </select>
+                  </dd>
+                </div>
+                {showInput && (
+                  <div className="mb-3">
+                    <dt className="text-muted">Modalidad de compra</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" maxLength={12} name="montoRecepcion" onChange={handleChange} value={data.montoRecepcion}/>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="modalidadCompra"
+                        placeholder="Especifique otro"
+                        onChange={(e) => setData({ ...data, modalidadCompra: e.target.value })}
+                      />
                     </dd>
                   </div>
-          
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">Fecha factura</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="date" className="form-control" name="fechaFactura" onChange={handleChange} value={data.fechaFactura}/>
-                    </dd>
-                  </div>
-          
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">Rut Proveedor</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" maxLength={12} name="rutProveedor" onChange={handleChange} value={data.rutProveedor}/>
-                    </dd>
-                  </div>
-                  <div className="col-sm-12 col-md-3 mb-3">
-                    <dt className="text-muted">Nombre Proveedor</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" maxLength={30} name="nombreProveedor" onChange={handleChange} value={data.nombreProveedor}/>
-                    </dd>
-                  </div>
-                  <div className="col-sm-12 col-md-3 mb-3">
-              <dt className="text-muted">Modalidad de Compra</dt>
-              <dd className="d-flex align-items-center">
-                <select className="form-select" name="modalidadCompra" onChange={handleChange} value={data.modalidadCompra}>
-                  <option value="">Seleccione una modalidad</option>
-                  {modalidades.map((modalidad) => (
-                    <option key={modalidad.codigo} value={modalidad.codigo}>
-                      {modalidad.descripcion} 
-                    </option>
-                  ))}                
-                </select>
-              </dd>
-            </div>
-            {showInput && (
-              <div className="col-sm-12 col-md-3 mb-3">
-                <dt className="text-muted">Modalidad de compra</dt>
-                <dd className="d-flex align-items-center">
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="modalidadCompra"
-                    placeholder="Especifique otro"
-                    onChange={(e) => setData({ ...data, modalidadCompra: e.target.value })}               
-                  />
-                </dd>
-              </div>
-            )}
-                </dl>
-              </div>
-            </div>          
-            <div className="p-1 rounded bg-white d-flex justify-content-end ">              
-                <button type="submit" className="btn btn-primary ">Siguiente</button>                
-            </div>
-          </form>      
-    );
+                )}
+
+              </Col>
+            </Row>
+
+          </div>
+        </div>
+        <div className="p-1 rounded bg-white d-flex justify-content-end ">
+          <button type="submit" className="btn btn-primary ">Siguiente</button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 //mapea los valores del estado global de Redux 
-const mapStateToProps = (state: RootState) => ({ 
+const mapStateToProps = (state: RootState) => ({
   nRecepcion: state.datos_inventarioReducer.nRecepcion,
   fechaRecepcion: state.datos_inventarioReducer.fechaRecepcion,
   nOrdenCompra: state.datos_inventarioReducer.nOrdenCompra,
@@ -278,7 +287,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps,
-   {  
+  {
     setNRecepcion,
     setFechaRecepcion,
     setNOrdenCompra,
@@ -290,5 +299,5 @@ export default connect(mapStateToProps,
     setRutProveedor,
     setnombreProveedor,
     setModalidadCompra,
-    })(Datos_inventario);
+  })(Datos_inventario);
 

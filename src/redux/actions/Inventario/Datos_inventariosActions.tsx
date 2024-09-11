@@ -30,7 +30,7 @@ export const setOrigenPresupuesto = (origenPresupuesto: string) => ({
   payload: origenPresupuesto,
 });
 
-export const setMontoRecepcion = (montoRecepcion: string) => ({
+export const setMontoRecepcion = (montoRecepcion: number) => ({
   type: 'SET_MONTO_RECEPCION',
   payload: montoRecepcion,
 });
@@ -55,9 +55,9 @@ export const setModalidadCompra = (modalidadCompra: string) => ({
   payload: modalidadCompra,
 });
 
-export const setTotalActivoFijo = (newTotal: number) => ({
+export const setTotalActivoFijo = (total: number) => ({
   type: 'SET_TOTAL_ACTIVO_FIJO',
-  payload: newTotal,
+  payload: total,
 });
 
 

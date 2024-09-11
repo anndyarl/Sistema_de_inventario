@@ -5,12 +5,12 @@ interface DatosInventarioState {
   nOrdenCompra: string;
   nFactura: string;
   origenPresupuesto: string;
-  montoRecepcion: string;
+  montoRecepcion: number;
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
   modalidadCompra: string;
-  totalActivoFijo: string; 
+  totalActivoFijo: number; 
 }
 
 // Estado inicial tipado
@@ -20,24 +20,17 @@ const initialState: DatosInventarioState = {
   nOrdenCompra: '',
   nFactura: '',
   origenPresupuesto: '',
-  montoRecepcion: '',
+  montoRecepcion: 0,
   fechaFactura: '',
   rutProveedor: '',
   nombreProveedor: '',
   modalidadCompra: '',
-  totalActivoFijo: '', 
+  totalActivoFijo: 0,
 };
 
-// Define los tipos de acción
-interface SetTotalActivoFijoAction {
-  type: 'SET_TOTAL_ACTIVO_FIJO';
-  payload: string; // Cambiar a 'number' si corresponde
-}
-
-type DatosInventarioActions = SetTotalActivoFijoAction | { type: string; payload: any }; // Agrega otros tipos de acción según los casos
 
 // Reducer con tipos definidos
-const datos_inventarioReducer = (state = initialState, action: DatosInventarioActions): DatosInventarioState => {
+const datos_inventarioReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case 'SET_N_RECEPCION':
       return { ...state, nRecepcion: action.payload };

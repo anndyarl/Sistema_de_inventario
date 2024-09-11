@@ -1,5 +1,3 @@
-'use client'
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
@@ -8,9 +6,9 @@ import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
 
-import { 
+import {
   setTotalActivoFijo
- } from '../../redux/actions/Inventario/Datos_inventariosActions'; 
+} from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 
 interface ActivoFijoData {
@@ -23,41 +21,50 @@ interface ActivoFijoData {
   observaciones: string;
   serie: string;
   precio: string;
+  general: string;
 
 }
 
 interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijoData[]) => void;
-  onBack: () => void; 
-  montoRecepcion: string //declaro un props para traer montoRecepción del estado global
+  onBack: () => void;
+  montoRecepcion: string; //declaro un props para traer montoRecepción del estado global
+  totalAF: number;
+}
+interface GeneralErrors {
+  general?: string; // Agrega un campo para Error generales
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, montoRecepcion}) => {
-  const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);  
-  const [errors, setErrors] = useState<Partial<ActivoFijoData>>({});
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, montoRecepcion, totalAF }) => {
+  const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);
+  const [error, Error] = useState<Partial<ActivoFijoData>>({});
+  //Modal
   const [showModal, setShowModal] = useState(false);
   const [showModalConfirmar, setShowModalConfirmar] = useState(false);
+  //Tabla
   const [editingSerie, setEditingSerie] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [currentActivo, setCurrentActivo] = useState<ActivoFijoData>({
-    id: '',
-    vidaUtil: '',
-    fechaIngreso: '',
-    marca: '',
-    cantidad: '1',
-    modelo: '',
-    observaciones: '',
-    serie: '',
-    precio: '',
-  });
- 
-  //---------------------------------------------------------//
 
+  const [total, setTotal] = useState<number>(0);
+  const [currentActivo, setCurrentActivo] = useState<ActivoFijoData>({ id: '', vidaUtil: '', fechaIngreso: '', marca: '', cantidad: '1', modelo: '', observaciones: '', serie: '', precio: '', general: '' });
+
+
+  const dispatch = useDispatch();
+  const precio = parseFloat(currentActivo.precio) || 0;
+  const cantidad = parseInt(currentActivo.cantidad, 10) || 0;
+
+  // Calcular el total cuando cambien la cantidad o el precio
+  useEffect(() => {
+    const newTotal = cantidad * precio;
+    setTotal(newTotal);
+  }, [cantidad, precio]); // Mantén las dependencias precisas
+  //---------------------------------------------------------//
+ 
   //Validaciones
   const validate = () => {
-    let tempErrors: Partial<ActivoFijoData> = {};
+    let tempErrors: Partial<ActivoFijoData> & GeneralErrors = {};
     if (!currentActivo.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria";
     if (!/^\d+$/.test(currentActivo.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
     if (!currentActivo.fechaIngreso) tempErrors.fechaIngreso = "Fecha de Ingreso es obligatoria";
@@ -69,8 +76,50 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
     if (!currentActivo.precio) tempErrors.precio = "Precio es obligatorio";
     if (!/^\d+(\.\d{1,2})?$/.test(currentActivo.precio)) tempErrors.precio = "Precio debe ser un número válido con hasta dos decimales";
     if (!currentActivo.observaciones) tempErrors.observaciones = "Observaciones es obligatoria";
-    setErrors(tempErrors);
+
+    // Validación para el total activo fijo
+    if (!totalActivoFijo()) {
+      tempErrors.general = "El precio y la cantidad ingresados deben coincidir con el monto de recepción, que es de $" + (montoRecepcion);
+      tempErrors.cantidad = " ";
+      tempErrors.precio = " ";
+      console.log("monto recepcion", montoRecepcion)
+    }
+
+    Error(tempErrors);
     return Object.keys(tempErrors).length === 0;
+  };
+
+  // Función para verificar si el total coincide con el monto de recepción
+  const totalActivoFijo = () => {
+    return total === parseFloat(montoRecepcion);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (validate()) {
+      const newActivos = Array.from({ length: cantidad }, () => ({
+        ...currentActivo,
+        id: '1', // Mismo ID para todos los activos
+      }));
+      setActivosFijos(prev => [...prev, ...newActivos]);
+      setCurrentActivo({
+        id: '',
+        vidaUtil: '',
+        fechaIngreso: '',
+        marca: '',
+        cantidad: '1',
+        modelo: '',
+        observaciones: '',
+        serie: '',
+        precio: '',
+        general: '',
+      });
+
+      dispatch(setTotalActivoFijo(total));
+      setShowModal(false);
+      console.log("total", total);
+      console.log("monto recepcion",montoRecepcion)
+    }
   };
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
@@ -80,8 +129,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   };
 
   const handleSerieChange = (index: number, newSerie: string) => {
-    setActivosFijos(prevActivos => 
-      prevActivos.map((activo, i) => 
+    setActivosFijos(prevActivos =>
+      prevActivos.map((activo, i) =>
         i === index ? { ...activo, serie: newSerie } : activo
       )
     );
@@ -93,7 +142,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   };
 
   const handleRowSelect = (index: number) => {
-    setSelectedRows(prev => 
+    setSelectedRows(prev =>
       prev.includes(index.toString()) ? prev.filter(rowIndex => rowIndex !== index.toString()) : [...prev, index.toString()]
     );
   };
@@ -112,68 +161,28 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
     setSelectedRows([]);
   };
 
-  const handleClone = (activo: ActivoFijoData) => {
-    const clonedActivo = { ...activo };
-    setActivosFijos(prev => [...prev, clonedActivo]);
-  };
+  // const handleClone = (activo: ActivoFijoData) => {
+  //   const clonedActivo = { ...activo };
+  //   setActivosFijos(prev => [...prev, clonedActivo]);
+  // };
 
   const handleDelete = (index: number) => {
     setActivosFijos(prev => prev.filter((_, i) => i !== index));
   };
 
+  //-------------Fin Funciones de la tabla --------------------//
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleBack = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (validate()) {
-      const cantidad = parseInt(currentActivo.cantidad, 10);
-      const newActivos = Array.from({ length: cantidad }, () => ({
-        ...currentActivo,
-        id: '1', // Mismo ID para todos los activos
-      }));
-      setActivosFijos(prev => [...prev, ...newActivos]);
-      setCurrentActivo({
-        id: '',
-        vidaUtil: '',
-        fechaIngreso: '',
-        marca: '',
-        cantidad: '1',
-        modelo: '',
-        observaciones: '',
-        serie: '',
-        precio: '',
-      });
-      setShowModal(false);   
-    }
-    
-  }; 
+    onBack();
+  };
+
+  const handleShowModal = () => {
+    setShowModalConfirmar(true);
+  };
 
   const handleFinalSubmit = () => {
     onNext(activosFijos);
-  };
-
-  const handleBack = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();   
-    onBack();
-  };
- 
-  const handleShowModal = () => {
-    setShowModalConfirmar(true); 
-  };
-
-  const [total, setTotal] = useState<number>(0);
-  const dispatch = useDispatch();
-  // Calcular el total cuando cambien la cantidad o el precio
-  useEffect(() => {
-    const cantidad = parseFloat(currentActivo.cantidad) || 0; // Manejar NaN con || 0
-    const precio = parseFloat(currentActivo.precio) || 0;     // Manejar NaN con || 0
-    const newTotal = cantidad * precio;
-    setTotal(newTotal);
-    dispatch(setTotalActivoFijo(newTotal)); // Usa newTotal aquí en lugar de total
-  }, [currentActivo.cantidad, currentActivo.precio, dispatch]);
-
-  // Verificar si el total coincide con el monto de recepción
-  const totalActivoFijo = () => {
-    return total === parseFloat(montoRecepcion);
   };
 
 
@@ -187,30 +196,31 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   const totalPages = Math.ceil(activosFijos.length / itemsPerPage);
 
   return (
-    
-      <div className="container">
-        
-           <div className="justify-content-end navbar navbar-light">
-                    <div className="navbar-nav mb-2 mb-lg-0 me-3">                       
-                        <p className="nav-item nav-link mb-0">
-                        <strong>Total Activo Fijo:</strong> ${total.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
-                        </p>                      
-                    </div>                   
-            </div>
-     
-     
-        <h3 className="form-title mb-4">Datos Activo Fijo</h3>
+    <div>
+      {/* Total Activo Fijo*/}
+      <div className="justify-content-end navbar navbar-light">
+        <div className="navbar-nav mb-2 mb-lg-0 me-3">
+          <p className="nav-item nav-link mb-0">
+            <strong>Total Activo Fijo:</strong> ${totalAF.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
+          </p>
+        </div>
+      </div>
 
-        <Button variant="primary" onClick={() => setShowModal(true)} className="mb-3 me-2">
-          + 
-        </Button> 
+      <h3 className="form-title mb-4">Datos Activo Fijo</h3>
+      {/* Boton abre Modal formulario activos fijo */}
+      {total != parseFloat(montoRecepcion) && (
+      <Button variant="primary" onClick={() => setShowModal(true)} className="mb-3 me-2">+</Button>
+     
+       )} 
       
-        {selectedRows.length > 0 && (
-          <Button variant="danger" onClick={handleDeleteSelected} className="mb-3">
-            Eliminar Seleccionados
-          </Button>
-        )}
-      
+      {/* Boton elimina filas seleccionadas */}
+      {selectedRows.length > 0 && (
+        <Button variant="danger" onClick={handleDeleteSelected} className="mb-3">
+          Eliminar Seleccionados
+        </Button>
+      )}
+
+      {/* Tabla*/}
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -244,7 +254,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
                     onChange={(e) => handleSerieChange(index, e.target.value)}
                     onBlur={handleSerieBlur}
                     autoFocus
-                    maxLength={10} // Restringe a 10 caracteres
+                    maxLength={10}
                     pattern="\d*"
                   />
                 ) : (
@@ -256,9 +266,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
               </td>
               <td>${parseFloat(activo.precio).toLocaleString('es-ES', { minimumFractionDigits: 0 })}</td>
               <td>
-                <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
+                {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                   Clonar
-                </Button>
+                </Button> */}
                 <Button variant="outline-danger" size="sm" onClick={() => handleDelete(index)}>
                   Eliminar
                 </Button>
@@ -268,9 +278,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
         </tbody>
       </Table>
 
-
-         {/* Paginador*/}    
-       <Pagination>
+    
+      {/* Paginador*/}
+      {currentItems.length > 0 && (
+        <Pagination className="d-flex justify-content-end">
           <Pagination.First onClick={() => paginate(1)} disabled={currentPage === 1} />
           <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
           {Array.from({ length: totalPages }, (_, i) => (
@@ -280,127 +291,131 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
           ))}
           <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
           <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
-        </Pagination>        
-        <div className="d-flex justify-content-end mt-3 justify-content-between">
-          <Button onClick={handleBack} className="btn btn-primary m-1">Volver</Button>          
+        </Pagination>
+      )}
+      <div className="d-flex justify-content-end mt-3 justify-content-between">
+        <Button onClick={handleBack} className="btn btn-primary m-1">Volver</Button>
+
+        {currentItems.length > 0 && (
           <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
-        </div>
+        )}
+      </div>
 
-        {/* Modal formulario Activos Fijo*/}    
-        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-
-       
-          <Modal.Header closeButton>
-            <Modal.Title>Agregar Activo Fijo</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-          <div>
-              {!totalActivoFijo() &&  (
-                <p className="alert alert-danger">Cantidad no coincide con el monto de recepción.</p>
-              )              
-             }
+   
+      {/* Modal formulario Activos Fijo*/}
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar Activo Fijo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>  
+            {error.general && (
+              <p className="alert alert-danger">{error.general}</p>
+            )}
           </div>
-            <form onSubmit={handleSubmit}>
-              <Row>
-                <div className="d-flex justify-content-end ">
+          <form onSubmit={handleSubmit}>
+            <Row>
+              <div className="d-flex justify-content-end ">
                 <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
-              Cancelar
-            </Button>
-            <Button type="submit" variant="primary">
-              Agregar
-            </Button>
+                  Cancelar
+                </Button>
+                <Button type="submit" variant="primary">
+                  Agregar
+                </Button>
+              </div>
+              <Col md={6}>
+
+                <div className="mb-3">
+                  <label htmlFor="vidaUtil" className="form-label">Vida Útil</label>
+                  <input type="text" className={`form-control ${error.vidaUtil ? 'is-invalid' : ''}`} id="vidaUtil" name="vidaUtil" onChange={handleChange} value={currentActivo.vidaUtil} />
+                  {error.vidaUtil && <div className="invalid-feedback">{error.vidaUtil}</div>}
                 </div>
-                <Col md={6}>
 
-                  <div className="mb-3">
-                    <label htmlFor="vidaUtil" className="form-label">Vida Útil</label>
-                    <input type="text" className={`form-control ${errors.vidaUtil ? 'is-invalid' : ''}`} id="vidaUtil" name="vidaUtil" onChange={handleChange} value={currentActivo.vidaUtil} />
-                    {errors.vidaUtil && <div className="invalid-feedback">{errors.vidaUtil}</div>}
-                  </div>
-
-                  <div className="mb-3">
-                    <label htmlFor="fechaIngreso" className="form-label">Fecha Ingreso</label>
-                    <input type="date" className={`form-control ${errors.fechaIngreso ? 'is-invalid' : ''}`} id="fechaIngreso" name="fechaIngreso" onChange={handleChange} value={currentActivo.fechaIngreso} />
-                    {errors.fechaIngreso && <div className="invalid-feedback">{errors.fechaIngreso}</div>}
-                  </div>
-
-                  <div className="mb-3">
-                    <label htmlFor="marca" className="form-label">Marca</label>
-                    <input type="text" className={`form-control ${errors.marca ? 'is-invalid' : ''}`} id="marca" name="marca" onChange={handleChange} value={currentActivo.marca} />
-                    {errors.marca && <div className="invalid-feedback">{errors.marca}</div>}
-                  </div>
-
-                  <div className="mb-3">
-                    <label htmlFor="modelo" className="form-label">Modelo</label>
-                    <input type="text" className={`form-control ${errors.modelo ? 'is-invalid' : ''}`} id="modelo" name="modelo" onChange={handleChange} value={currentActivo.modelo} />
-                    {errors.modelo && <div className="invalid-feedback">{errors.modelo}</div>}
-                  </div>
-
-                </Col>
-                
-                <Col md={6}>
                 <div className="mb-3">
-                    <label htmlFor="serie" className="form-label">Serie</label>                  
-                    <input type="text"  className={`form-control ${errors.serie ? 'is-invalid' : ''}`} id="serie" name="serie" onChange={handleChange} value={currentActivo.serie} />
-                    {errors.serie && <div className="invalid-feedback">{errors.serie}</div>}
-                  </div>
+                  <label htmlFor="fechaIngreso" className="form-label">Fecha Ingreso</label>
+                  <input type="date" className={`form-control ${error.fechaIngreso ? 'is-invalid' : ''}`} id="fechaIngreso" name="fechaIngreso" onChange={handleChange} value={currentActivo.fechaIngreso} />
+                  {error.fechaIngreso && <div className="invalid-feedback">{error.fechaIngreso}</div>}
+                </div>
+
                 <div className="mb-3">
-                    <label htmlFor="precio" className="form-label">Precio</label>
-                    <input type="text" className={`form-control ${errors.precio ? 'is-invalid' : ''}`} id="precio" name="precio" onChange={handleChange} value={currentActivo.precio} />
-                    {errors.precio && <div className="invalid-feedback">{errors.precio}</div>}
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="cantidad" className="form-label">Cantidad</label>
-                    <input type="text" className={`form-control ${errors.cantidad ? 'is-invalid' : ''}`} id="cantidad" name="cantidad" onChange={handleChange} value={currentActivo.cantidad} />
-                    {errors.cantidad && <div className="invalid-feedback">{errors.cantidad}</div>}
-                  </div>
+                  <label htmlFor="marca" className="form-label">Marca</label>
+                  <input type="text" className={`form-control ${error.marca ? 'is-invalid' : ''}`} id="marca" name="marca" onChange={handleChange} value={currentActivo.marca} />
+                  {error.marca && <div className="invalid-feedback">{error.marca}</div>}
+                </div>
 
-                  <div className="mb-3">
-                    <label htmlFor="observaciones" className="form-label">Observaciones</label>
-                    <textarea className={`form-control ${errors.observaciones ? 'is-invalid' : ''}`} id="observaciones" name="observaciones" rows={2} style={{ minHeight: '5px', resize: 'none' }} onChange={handleChange} value={currentActivo.observaciones} />
-                    {errors.observaciones && <div className="invalid-feedback">{errors.observaciones}</div>}
-                  </div>
-                </Col>
-              </Row>
-            </form>
-          </Modal.Body>
-        </Modal>
-        
+                <div className="mb-3">
+                  <label htmlFor="modelo" className="form-label">Modelo</label>
+                  <input type="text" className={`form-control ${error.modelo ? 'is-invalid' : ''}`} id="modelo" name="modelo" onChange={handleChange} value={currentActivo.modelo} />
+                  {error.modelo && <div className="invalid-feedback">{error.modelo}</div>}
+                </div>
 
-          {/* Modal  Confirmar */}    
-          <Modal show={showModalConfirmar} onHide={() => setShowModalConfirmar(false)} size="xl">
-          <Modal.Header closeButton>
-            <Modal.Title>
+              </Col>
+
+              <Col md={6}>
+                <div className="mb-3">
+                  <label htmlFor="serie" className="form-label">Serie</label>
+                  <input type="text" className={`form-control ${error.serie ? 'is-invalid' : ''}`} id="serie" name="serie" onChange={handleChange} value={currentActivo.serie} />
+                  {error.serie && <div className="invalid-feedback">{error.serie}</div>}
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="precio" className="form-label">Precio</label>
+                  <input type="text" className={`form-control ${error.precio ? 'is-invalid' : 'is-valid'}`} id="precio" name="precio" onChange={handleChange} value={currentActivo.precio} />
+                  {error.precio && <div className="invalid-feedback">{error.precio}</div>}
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="cantidad" className="form-label">Cantidad</label>
+                  <input type="text" className={`form-control ${error.cantidad ? 'is-invalid' : 'is-valid'}`} id="cantidad" name="cantidad" onChange={handleChange} value={currentActivo.cantidad} />
+                  {error.cantidad && <div className="invalid-feedback">{error.cantidad}</div>}
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="observaciones" className="form-label">Observaciones</label>
+                  <textarea className={`form-control ${error.observaciones ? 'is-invalid' : ''}`} id="observaciones" name="observaciones" rows={2} style={{ minHeight: '5px', resize: 'none' }} onChange={handleChange} value={currentActivo.observaciones} />
+                  {error.observaciones && <div className="invalid-feedback">{error.observaciones}</div>}
+                </div>
+              </Col>
+            </Row>
+          </form>
+        </Modal.Body>
+      </Modal>
+
+
+      {/* Modal  Confirmar */}
+      <Modal show={showModalConfirmar} onHide={() => setShowModalConfirmar(false)} size="xl">
+        <Modal.Header closeButton>
+          <Modal.Title>
             <svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" fill="currentColor" className="bi bi-exclamation-circle mr-1 mb-1" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
-          </svg>
-              </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-           
-                <p className="form-heading fs-09em">
-                  Confirmar el envio del formualrio completo
-                </p>              
-                <form  onSubmit={handleSubmit}>                                                   
-                   <div className="form-group d-flex justify-content-center">   
-                      <Button variant="btn btn-primary m-1" onClick={handleFinalSubmit}>Confirmar y Enviar</Button>
-                      <Button variant="btn btn-secondary m-1" onClick={() => setShowModalConfirmar(false)} className="me-2">Cancelar</Button>      
-                    </div>                   
-                </form>              
-      
-          </Modal.Body>
-        </Modal>
-       
-      </div> 
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+              <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
+            </svg>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+
+          <p className="form-heading fs-09em">
+            Confirmar el envio del formualrio completo
+          </p>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group d-flex justify-content-center">
+              <Button variant="btn btn-primary m-1" onClick={handleFinalSubmit}>Confirmar y Enviar</Button>
+              <Button variant="btn btn-secondary m-1" onClick={() => setShowModalConfirmar(false)} className="me-2">Cancelar</Button>
+            </div>
+          </form>
+
+        </Modal.Body>
+      </Modal>
+
+    </div>
   );
 };
 
 const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
-  newTotal: state.datos_inventarioReducer.totalActivoFijo
+  totalAF: state.datos_inventarioReducer.totalActivoFijo
 });
-export default connect(mapStateToProps,{
-  setTotalActivoFijo
+export default connect(mapStateToProps, {
+  // setTotalActivoFijo
 
 })(Datos_activo_fijo);

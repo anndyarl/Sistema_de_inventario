@@ -6,13 +6,13 @@ import DatosActivoFijo from '../Inventario/Datos_activo_fijo';
 import Timeline from './Timeline';
 
 // Redux
-import { RootState } from '../../redux/reducers'; 
+import { RootState } from '../../redux/reducers';
 import { connect } from 'react-redux';
 
 //Actions redux
-import { comboOrigenPresupuesto } from '../../redux/actions/combos/comboOrigenPresupuestoActions'; 
+import { comboOrigenPresupuesto } from '../../redux/actions/combos/comboOrigenPresupuestoActions';
 import { comboModalidadCompra } from '../../redux/actions/combos/comboModalidadCompraActions';
-import { comboServicio } from '../../redux/actions/combos/comboServicioActions'; 
+import { comboServicio } from '../../redux/actions/combos/comboServicioActions';
 
 // Importa la interfaz desde Datos_inventario.tsx
 import { OrigenPresupuesto } from '../../components/Inventario/Datos_inventario';
@@ -30,13 +30,13 @@ interface FormData {
 
 interface FormularioCompletoProps {
   //Trae props combos de Datos_inventario(formulario 1) 
-  origenes: OrigenPresupuesto[];  
+  origenes: OrigenPresupuesto[];
   comboOrigenPresupuesto: (token: string) => void;
-  modalidades: ModalidadCompra[];   
+  modalidades: ModalidadCompra[];
   comboModalidadCompra: (token: string) => void;
 
   //Trae props combos de Datos_cuenta(formulario 2)
-  servicios: Servicio[];  
+  servicios: Servicio[];
   comboServicio: (token: string) => void
 
 
@@ -52,26 +52,26 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
   });
 
   useEffect(() => {
-       // Llama a la API comboTraeOrigen solo si está vacío
+    // Llama a la API comboTraeOrigen solo si está vacío
     if (token && origenes.length === 0) {
-      comboOrigenPresupuesto(token);         
-      console.log("origenes", origenes);      
-      }
+      comboOrigenPresupuesto(token);
+      console.log("origenes", origenes);
+    }
 
     if (token && modalidades.length === 0) {
-        comboModalidadCompra(token)         
-        console.log("modalidades", modalidades);      
-      }
+      comboModalidadCompra(token)
+      console.log("modalidades", modalidades);
+    }
 
     if (token && servicios.length === 0) {
-        comboServicio(token)    
-        console.log("servicios", servicios);      
-      }
+      comboServicio(token)
+      console.log("servicios", servicios);
+    }
 
-      
+
   }, [comboOrigenPresupuesto, comboModalidadCompra, comboServicio]);
-  
- 
+
+
 
   const handleNext = (data: Record<string, any>) => {
     // Guardar los datos del formulario actual
@@ -91,14 +91,14 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
 
     // Pasar al siguiente formulario
     if (step < 2) {
-        setStep(step + 1);
+      setStep(step + 1);
     }
-  };  
+  };
 
   const handleBack = () => {
     if (step > 0) {
       setStep(step - 1);
-    }   
+    }
   };
 
   const handleSubmit = () => {
@@ -110,9 +110,9 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
 
   return (
     <div>
-      <Timeline Formulario_actual={step} /> 
-      {step === 0 && <DatosInventario onNext={handleNext}  origenes={origenes}  modalidades={modalidades} />}
-      {step === 1 && <DatosCuenta onBack={handleBack}  onNext={handleNext} servicios={servicios} />}
+      <Timeline Formulario_actual={step} />
+      {step === 0 && <DatosInventario onNext={handleNext} origenes={origenes} modalidades={modalidades} />}
+      {step === 1 && <DatosCuenta onBack={handleBack} onNext={handleNext} servicios={servicios} />}
       {step === 2 && <DatosActivoFijo onBack={handleBack} onNext={handleNext} />}
     </div>
   );
@@ -127,8 +127,8 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps,
-   {
-    comboOrigenPresupuesto, 
-    comboServicio,   
-    comboModalidadCompra   
-    })(FormularioCompleto);
+  {
+    comboOrigenPresupuesto,
+    comboServicio,
+    comboModalidadCompra
+  })(FormularioCompleto);

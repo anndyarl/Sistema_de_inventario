@@ -16,14 +16,14 @@ const rootReducer = combineReducers({
 
     //combos
     origenPresupuestoReducer,
-    servicioReducer,  
+    servicioReducer,
     modalidadCompraReducer,
-    
+
 
     //formulario inventaro
     datos_inventarioReducer,
 
-  
+
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
