@@ -5,7 +5,8 @@ import modalidadCompraReducer from './combos/comboModalidadReducers';
 import servicioReducer from './combos/comboServicioReducers';
 
 import datos_inventarioReducer from './Inventario/Datos_inventariosReducer';
-import { logout } from '../actions/auth/auth';
+
+
 
 
 // Define el tipo de RootState basado en tus reducers
@@ -17,13 +18,12 @@ const rootReducer = combineReducers({
     origenPresupuestoReducer,
     servicioReducer,  
     modalidadCompraReducer,
+    
 
     //formulario inventaro
     datos_inventarioReducer,
 
-    //Logout
-    logout
-
+  
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

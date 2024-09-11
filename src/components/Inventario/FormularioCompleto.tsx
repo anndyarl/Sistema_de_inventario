@@ -20,6 +20,8 @@ import { ModalidadCompra } from '../../components/Inventario/Datos_inventario';
 import { Servicio } from '../../components/Inventario/Datos_cuenta';
 
 
+
+
 interface FormData {
   datosInventario: Record<string, any>;
   datosCuenta: Record<string, any>;
@@ -88,17 +90,15 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
     }
 
     // Pasar al siguiente formulario
-    if (step === 2) {
-      handleSubmit();
-    } else {
-      setStep(step + 1);
+    if (step < 2) {
+        setStep(step + 1);
     }
-  };
+  };  
 
   const handleBack = () => {
     if (step > 0) {
       setStep(step - 1);
-    }
+    }   
   };
 
   const handleSubmit = () => {
@@ -112,8 +112,8 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
     <div>
       <Timeline Formulario_actual={step} /> 
       {step === 0 && <DatosInventario onNext={handleNext}  origenes={origenes}  modalidades={modalidades} />}
-      {step === 1 && <DatosCuenta onNext={handleNext} onBack={handleBack} servicios={servicios} />}
-      {step === 2 && <DatosActivoFijo onNext={handleNext} onBack={handleBack}/>}
+      {step === 1 && <DatosCuenta onBack={handleBack}  onNext={handleNext} servicios={servicios} />}
+      {step === 2 && <DatosActivoFijo onBack={handleBack} onNext={handleNext} />}
     </div>
   );
 };

@@ -10,6 +10,8 @@ import '../../styles/Layout.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../../styles/Layout.css'
 
+import { Navigate } from "react-router-dom";
+
 interface OwnProps {
   children: ReactNode;
 
@@ -40,26 +42,11 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
   
 
   if (!isAuthenticated) {
-    return (
-      <div className="container d-flex justify-content-center align-items-center vh-100 fixed">
-        <div className="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
-          <h1 className="form-heading">Sesión expirada</h1>
-          <p className="form-heading fs-09em">
-            No está autenticado. Por favor, inicie sesión nuevamente.
-          </p>
-          <div className="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
-            <a href="/Login" className="btn btn-primary">
-              Clave Única
-            </a>
-          </div>
-          <p className="botto-text">Diseñado por Departamento de Informática - Unidad de Desarrollo 2024</p>
-        </div>
-      </div>
-    );
+    return <Navigate to='/' />;
+   
   }
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* Mobile Navbar */}
@@ -139,15 +126,10 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
 };
 
 const mapStateToProps = (state: RootState) => ({
-  isAuthenticated: state.auth.isAuthenticated,
-  nRecepcion: state.datos_inventarioReducer.nRecepcion // Asegúrate de mapear el estado de nRecepcion
+  isAuthenticated: state.auth.isAuthenticated
 });
 
-const mapDispatchToProps = {
-  
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
+const connector = connect(mapStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(Layout);

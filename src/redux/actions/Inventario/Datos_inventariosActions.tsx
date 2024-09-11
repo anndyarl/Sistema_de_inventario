@@ -55,4 +55,9 @@ export const setModalidadCompra = (modalidadCompra: string) => ({
   payload: modalidadCompra,
 });
 
+export const setTotalActivoFijo = (newTotal: number) => ({
+  type: 'SET_TOTAL_ACTIVO_FIJO',
+  payload: newTotal,
+});
+
 

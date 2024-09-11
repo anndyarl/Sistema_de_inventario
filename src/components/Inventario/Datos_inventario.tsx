@@ -85,7 +85,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
   const dispatch = useDispatch();
   const [showInput, setShowInput] = useState(false);
-  const [allModalidades, setAllModalidades] = useState<ModalidadCompra[]>(modalidades);
 
  //Hook que muestra los valores al input
 useEffect(() => {
@@ -105,17 +104,19 @@ useEffect(() => {
     modalidadCompra: modalidadCompra,    
   
   }));
-  setAllModalidades([...modalidades]);
-}, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra, modalidades ]);
+  
+}, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra ]);
 
 const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
   const { name, value } = e.target;
   console.log('Input change detected', { name, value });
   setData(prevData => ({ ...prevData, [name]: value }));
 
-  if (name === 'modalidadCompra' && value === 'otro') {
+  if (name === 'modalidadCompra' && value === '7') {
     setShowInput(true);
-  } else if (name === 'modalidadCompra') {
+  }
+  else 
+  {
     setShowInput(false);
   }
 };
@@ -137,12 +138,6 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
     dispatch(setnombreProveedor(data.nombreProveedor));
     dispatch(setModalidadCompra(data.modalidadCompra));
 
-    if (showInput && data.modalidadCompra) {
-      const nuevaModalidad = { codigo: data.modalidadCompra, descripcion: data.modalidadCompra };
-      setAllModalidades((prevModalidades) => [...prevModalidades, nuevaModalidad]);
-      setShowInput(false); // Oculta el input después de agregar
-    }
-    
     onNext(data);
   };
 
@@ -158,7 +153,7 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">N° de Recepción</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="nRecepcion" onChange={handleChange} value={data.nRecepcion}/>
+                      <input type="text" className="form-control" maxLength={12} name="nRecepcion" onChange={handleChange} value={data.nRecepcion}/>
                     </dd>
                   </div>
           
@@ -172,7 +167,7 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">N° Orden de Compra</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="nOrdenCompra" onChange={handleChange} value={data.nOrdenCompra} />
+                      <input type="text" className="form-control" maxLength={12} name="nOrdenCompra" onChange={handleChange} value={data.nOrdenCompra} />
                     </dd>
                   </div>
           
@@ -186,7 +181,7 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">N° Factura</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="nFactura" onChange={handleChange} value={data.nFactura}/>
+                      <input type="text" className="form-control" maxLength={12} name="nFactura" onChange={handleChange} value={data.nFactura}/>
                     </dd>
                   </div>
           
@@ -207,7 +202,7 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">Monto Recepción</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="montoRecepcion" onChange={handleChange} value={data.montoRecepcion}/>
+                      <input type="text" className="form-control" maxLength={12} name="montoRecepcion" onChange={handleChange} value={data.montoRecepcion}/>
                     </dd>
                   </div>
           
@@ -221,13 +216,13 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">Rut Proveedor</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="rutProveedor" onChange={handleChange} value={data.rutProveedor}/>
+                      <input type="text" className="form-control" maxLength={12} name="rutProveedor" onChange={handleChange} value={data.rutProveedor}/>
                     </dd>
                   </div>
                   <div className="col-sm-12 col-md-3 mb-3">
                     <dt className="text-muted">Nombre Proveedor</dt>
                     <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="nombreProveedor" onChange={handleChange} value={data.nombreProveedor}/>
+                      <input type="text" className="form-control" maxLength={30} name="nombreProveedor" onChange={handleChange} value={data.nombreProveedor}/>
                     </dd>
                   </div>
                   <div className="col-sm-12 col-md-3 mb-3">
@@ -235,12 +230,11 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
               <dd className="d-flex align-items-center">
                 <select className="form-select" name="modalidadCompra" onChange={handleChange} value={data.modalidadCompra}>
                   <option value="">Seleccione una modalidad</option>
-                  {allModalidades.map((modalidad) => (
+                  {modalidades.map((modalidad) => (
                     <option key={modalidad.codigo} value={modalidad.codigo}>
                       {modalidad.descripcion} 
                     </option>
-                  ))}
-                  <option value="otro">Otro</option>
+                  ))}                
                 </select>
               </dd>
             </div>

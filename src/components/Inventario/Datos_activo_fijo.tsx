@@ -1,10 +1,17 @@
 'use client'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
 
 import { PencilFill } from 'react-bootstrap-icons';
+import { RootState } from '../../store';
+import { connect, useDispatch } from 'react-redux';
+
+import { 
+  setTotalActivoFijo
+ } from '../../redux/actions/Inventario/Datos_inventariosActions'; 
+
 
 interface ActivoFijoData {
   id: string;
@@ -22,10 +29,18 @@ interface ActivoFijoData {
 interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijoData[]) => void;
   onBack: () => void; 
+  montoRecepcion: string //declaro un props para traer montoRecepción del estado global
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) => {
-  const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, montoRecepcion}) => {
+  const [activosFijos, setActivosFijos] = useState<ActivoFijoData[]>([]);  
+  const [errors, setErrors] = useState<Partial<ActivoFijoData>>({});
+  const [showModal, setShowModal] = useState(false);
+  const [showModalConfirmar, setShowModalConfirmar] = useState(false);
+  const [editingSerie, setEditingSerie] = useState<string | null>(null);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijoData>({
     id: '',
     vidaUtil: '',
@@ -37,13 +52,26 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
     serie: '',
     precio: '',
   });
-  const [errors, setErrors] = useState<Partial<ActivoFijoData>>({});
-  const [showModal, setShowModal] = useState(false);
-  const [showModalConfirmar, setShowModalConfirmar] = useState(false);
-  const [editingSerie, setEditingSerie] = useState<string | null>(null);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+ 
+  //---------------------------------------------------------//
+
+  //Validaciones
+  const validate = () => {
+    let tempErrors: Partial<ActivoFijoData> = {};
+    if (!currentActivo.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria";
+    if (!/^\d+$/.test(currentActivo.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
+    if (!currentActivo.fechaIngreso) tempErrors.fechaIngreso = "Fecha de Ingreso es obligatoria";
+    if (!currentActivo.marca) tempErrors.marca = "Marca es obligatoria";
+    if (!currentActivo.modelo) tempErrors.modelo = "Modelo es obligatoria";
+    if (!currentActivo.serie) tempErrors.serie = "Serie es obligatoria";
+    if (!currentActivo.cantidad) tempErrors.cantidad = "Cantidad es obligatoria";
+    if (!/^\d+$/.test(currentActivo.cantidad)) tempErrors.cantidad = "Cantidad debe ser un número";
+    if (!currentActivo.precio) tempErrors.precio = "Precio es obligatorio";
+    if (!/^\d+(\.\d{1,2})?$/.test(currentActivo.precio)) tempErrors.precio = "Precio debe ser un número válido con hasta dos decimales";
+    if (!currentActivo.observaciones) tempErrors.observaciones = "Observaciones es obligatoria";
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -59,6 +87,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
     );
   };
 
+  //-------------Funciones de la tabla --------------------//
   const handleSerieBlur = () => {
     setEditingSerie(null);
   };
@@ -83,19 +112,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
     setSelectedRows([]);
   };
 
-  const validate = () => {
-    let tempErrors: Partial<ActivoFijoData> = {};
-    if (!currentActivo.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria.";
-    if (!/^\d+$/.test(currentActivo.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número.";
-    if (!currentActivo.fechaIngreso) tempErrors.fechaIngreso = "Fecha de Ingreso es obligatoria.";
-    if (!currentActivo.marca) tempErrors.marca = "Marca es obligatoria.";
-    if (!currentActivo.cantidad) tempErrors.cantidad = "Cantidad es obligatoria.";
-    if (!/^\d+$/.test(currentActivo.cantidad)) tempErrors.cantidad = "Cantidad debe ser un número.";
-    if (!currentActivo.precio) tempErrors.precio = "Precio es obligatorio.";
-    if (!/^\d+(\.\d{1,2})?$/.test(currentActivo.precio)) tempErrors.precio = "Precio debe ser un número válido con hasta dos decimales.";
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
+  const handleClone = (activo: ActivoFijoData) => {
+    const clonedActivo = { ...activo };
+    setActivosFijos(prev => [...prev, clonedActivo]);
   };
+
+  const handleDelete = (index: number) => {
+    setActivosFijos(prev => prev.filter((_, i) => i !== index));
+  };
+
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -119,16 +144,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
       });
       setShowModal(false);   
     }
-  };
-
-  const handleClone = (activo: ActivoFijoData) => {
-    const clonedActivo = { ...activo };
-    setActivosFijos(prev => [...prev, clonedActivo]);
-  };
-
-  const handleDelete = (index: number) => {
-    setActivosFijos(prev => prev.filter((_, i) => i !== index));
-  };
+    
+  }; 
 
   const handleFinalSubmit = () => {
     onNext(activosFijos);
@@ -143,8 +160,24 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
     setShowModalConfirmar(true); 
   };
 
+  const [total, setTotal] = useState<number>(0);
+  const dispatch = useDispatch();
+  // Calcular el total cuando cambien la cantidad o el precio
+  useEffect(() => {
+    const cantidad = parseFloat(currentActivo.cantidad) || 0; // Manejar NaN con || 0
+    const precio = parseFloat(currentActivo.precio) || 0;     // Manejar NaN con || 0
+    const newTotal = cantidad * precio;
+    setTotal(newTotal);
+    dispatch(setTotalActivoFijo(newTotal)); // Usa newTotal aquí en lugar de total
+  }, [currentActivo.cantidad, currentActivo.precio, dispatch]);
 
-  // Pagination logic
+  // Verificar si el total coincide con el monto de recepción
+  const totalActivoFijo = () => {
+    return total === parseFloat(montoRecepcion);
+  };
+
+
+  // Logica de Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = useMemo(() => activosFijos.slice(indexOfFirstItem, indexOfLastItem), [activosFijos, indexOfFirstItem, indexOfLastItem]);
@@ -154,67 +187,87 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
   const totalPages = Math.ceil(activosFijos.length / itemsPerPage);
 
   return (
+    
       <div className="container">
+        
+           <div className="justify-content-end navbar navbar-light">
+                    <div className="navbar-nav mb-2 mb-lg-0 me-3">                       
+                        <p className="nav-item nav-link mb-0">
+                        <strong>Total Activo Fijo:</strong> ${total.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
+                        </p>                      
+                    </div>                   
+            </div>
+     
+     
         <h3 className="form-title mb-4">Datos Activo Fijo</h3>
 
         <Button variant="primary" onClick={() => setShowModal(true)} className="mb-3 me-2">
           + 
         </Button> 
+      
         {selectedRows.length > 0 && (
           <Button variant="danger" onClick={handleDeleteSelected} className="mb-3">
             Eliminar Seleccionados
           </Button>
         )}
       
-        <Table striped bordered hover >
-          <thead>
-            <tr>
-              <th>
-                <Form.Check type="checkbox" onChange={handleSelectAll} checked={selectedRows.length === currentItems.length && currentItems.length > 0} />
-              </th>
-              <th>Vida Útil</th>
-              <th>Fecha Ingreso</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Serie</th>
-              <th>Precio</th>
-              <th>Acciones</th>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>
+              <Form.Check type="checkbox" onChange={handleSelectAll} checked={selectedRows.length === currentItems.length && currentItems.length > 0} />
+            </th>
+            <th>Vida Útil</th>
+            <th>Fecha Ingreso</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Serie</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentItems.map((activo, index) => (
+            <tr key={index}>
+              <td>
+                <Form.Check type="checkbox" onChange={() => handleRowSelect(index)} checked={selectedRows.includes(index.toString())} />
+              </td>
+              <td>{activo.vidaUtil}</td>
+              <td>{activo.fechaIngreso}</td>
+              <td>{activo.marca}</td>
+              <td>{activo.modelo}</td>
+              <td className="fixed-width" onClick={() => setEditingSerie(index.toString())}>
+                {editingSerie === index.toString() ? (
+                  <Form.Control
+                    type="text"
+                    value={activo.serie}
+                    onChange={(e) => handleSerieChange(index, e.target.value)}
+                    onBlur={handleSerieBlur}
+                    autoFocus
+                    maxLength={10} // Restringe a 10 caracteres
+                    pattern="\d*"
+                  />
+                ) : (
+                  <span style={{ display: 'flex', alignItems: 'center' }}>
+                    {activo.serie || 'editar'}
+                    <PencilFill style={{ marginLeft: '8px', color: '#6c757d' }} /> {/* Ícono de lápiz */}
+                  </span>
+                )}
+              </td>
+              <td>${parseFloat(activo.precio).toLocaleString('es-ES', { minimumFractionDigits: 0 })}</td>
+              <td>
+                <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
+                  Clonar
+                </Button>
+                <Button variant="outline-danger" size="sm" onClick={() => handleDelete(index)}>
+                  Eliminar
+                </Button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((activo, index) => (
-              <tr key={indexOfFirstItem + index}>
-                <td>
-                  <Form.Check type="checkbox" onChange={() => handleRowSelect(indexOfFirstItem + index)} checked={selectedRows.includes((indexOfFirstItem + index).toString())} />
-                </td>
-                <td>{activo.vidaUtil}</td>
-                <td>{activo.fechaIngreso}</td>
-                <td>{activo.marca}</td>
-                <td>{activo.modelo}</td>
-                <td  className='fixed-width' onClick={() => setEditingSerie((indexOfFirstItem + index).toString())}>
-                  {editingSerie === (indexOfFirstItem + index).toString() ? (
-                    <Form.Control type="text"  value={activo.serie} onChange={(e) => handleSerieChange(indexOfFirstItem + index, e.target.value)} onBlur={handleSerieBlur} autoFocus maxLength={10} // Restringe a 10 caracteres
-                    pattern="\d*"  />
-                  ) : (
-                    <span style={{ display: 'flex', alignItems: 'center' }}>
-                      {activo.serie || 'editar'}
-                      <PencilFill style={{ marginLeft: '8px', color: '#6c757d' }} /> {/* Ícono de lápiz */}
-                    </span>
-                  )}
-                </td>
-                <td>{activo.precio}</td>
-                <td>
-                  <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
-                    Clonar
-                  </Button>
-                  <Button variant="outline-danger" size="sm" onClick={() => handleDelete(indexOfFirstItem + index)}>
-                    Eliminar
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+          ))}
+        </tbody>
+      </Table>
+
 
          {/* Paginador*/}    
        <Pagination>
@@ -227,20 +280,26 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
           ))}
           <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
           <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
-        </Pagination>
-
-
+        </Pagination>        
         <div className="d-flex justify-content-end mt-3 justify-content-between">
-           <button onClick={handleBack} className="btn btn-primary m-1">Volver</button>          
+          <Button onClick={handleBack} className="btn btn-primary m-1">Volver</Button>          
           <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
         </div>
 
-        {/* Modal formulario ACtivos Fijo*/}    
+        {/* Modal formulario Activos Fijo*/}    
         <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+
+       
           <Modal.Header closeButton>
             <Modal.Title>Agregar Activo Fijo</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+          <div>
+              {!totalActivoFijo() &&  (
+                <p className="alert alert-danger">Cantidad no coincide con el monto de recepción.</p>
+              )              
+             }
+          </div>
             <form onSubmit={handleSubmit}>
               <Row>
                 <div className="d-flex justify-content-end ">
@@ -273,22 +332,23 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
 
                   <div className="mb-3">
                     <label htmlFor="modelo" className="form-label">Modelo</label>
-                    <input type="text" className="form-control" id="modelo" name="modelo" onChange={handleChange} value={currentActivo.modelo} />
+                    <input type="text" className={`form-control ${errors.modelo ? 'is-invalid' : ''}`} id="modelo" name="modelo" onChange={handleChange} value={currentActivo.modelo} />
+                    {errors.modelo && <div className="invalid-feedback">{errors.modelo}</div>}
                   </div>
 
-                  <div className="mb-3">
-                    <label htmlFor="serie" className="form-label">Serie</label>
-                    <input type="text" className="form-control" id="serie" name="serie" onChange={handleChange} value={currentActivo.serie} />
+                </Col>
+                
+                <Col md={6}>
+                <div className="mb-3">
+                    <label htmlFor="serie" className="form-label">Serie</label>                  
+                    <input type="text"  className={`form-control ${errors.serie ? 'is-invalid' : ''}`} id="serie" name="serie" onChange={handleChange} value={currentActivo.serie} />
+                    {errors.serie && <div className="invalid-feedback">{errors.serie}</div>}
                   </div>
-
-                  <div className="mb-3">
+                <div className="mb-3">
                     <label htmlFor="precio" className="form-label">Precio</label>
                     <input type="text" className={`form-control ${errors.precio ? 'is-invalid' : ''}`} id="precio" name="precio" onChange={handleChange} value={currentActivo.precio} />
                     {errors.precio && <div className="invalid-feedback">{errors.precio}</div>}
                   </div>
-                </Col>
-                
-                <Col md={6}>
                   <div className="mb-3">
                     <label htmlFor="cantidad" className="form-label">Cantidad</label>
                     <input type="text" className={`form-control ${errors.cantidad ? 'is-invalid' : ''}`} id="cantidad" name="cantidad" onChange={handleChange} value={currentActivo.cantidad} />
@@ -297,7 +357,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
 
                   <div className="mb-3">
                     <label htmlFor="observaciones" className="form-label">Observaciones</label>
-                    <textarea className="form-control" id="observaciones" name="observaciones" rows={15} style={{ minHeight: '382px', resize: 'none' }} onChange={handleChange} value={currentActivo.observaciones} />
+                    <textarea className={`form-control ${errors.observaciones ? 'is-invalid' : ''}`} id="observaciones" name="observaciones" rows={2} style={{ minHeight: '5px', resize: 'none' }} onChange={handleChange} value={currentActivo.observaciones} />
+                    {errors.observaciones && <div className="invalid-feedback">{errors.observaciones}</div>}
                   </div>
                 </Col>
               </Row>
@@ -335,4 +396,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack}) 
   );
 };
 
-export default Datos_activo_fijo;
+const mapStateToProps = (state: RootState) => ({
+  montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
+  newTotal: state.datos_inventarioReducer.totalActivoFijo
+});
+export default connect(mapStateToProps,{
+  setTotalActivoFijo
+
+})(Datos_activo_fijo);

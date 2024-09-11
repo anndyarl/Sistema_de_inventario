@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 import React, { useState } from 'react'; 
+import { Button } from 'react-bootstrap';
 
 
 // Define el tipo de los elementos del combo `servicio`
@@ -95,8 +96,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
                     </div>
                 </div>
                 <div className="p-1 rounded bg-white d-flex justify-content-between">              
-                      <button onClick={handleBack} className="btn btn-primary m-1">Volver</button> 
-                      <button type="submit" className="btn btn-primary m-1">Siguiente</button>                
+                      <Button onClick={handleBack} className="btn btn-primary m-1">Volver</Button> 
+                      <Button type="submit" className="btn btn-primary m-1">Siguiente</Button>                
                 </div>
             </form>
     );

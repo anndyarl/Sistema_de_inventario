@@ -1,19 +1,18 @@
 import axios from 'axios';
 import {
+    LOGIN_REQUEST,
     LOGIN_SUCCESS,
-    LOGIN_FAIL,
-    SET_AUTH_LOADING,
-    REMOVE_AUTH_LOADING,   
+    LOGIN_FAILURE,  
     SET_TOKEN,
     LOGOUT,
+    
 } from '../types';
 import { Dispatch } from 'redux';
 import { DatosPersona } from "../../interfaces"
 
+
 export const login = (usuario: string, password: string) => async (dispatch: Dispatch) => {
-    dispatch({
-        type: SET_AUTH_LOADING,
-    });
+  dispatch({ type: LOGIN_REQUEST });
 
     const config = {
         headers: {
@@ -35,30 +34,26 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
    
             const token = res.data.access_token;  
             if (token) {               
-                dispatch({ type: LOGIN_SUCCESS, payload: res.data });
+                dispatch({ type: LOGIN_SUCCESS, payload: token });
                 dispatch({ type: SET_TOKEN, payload: token });
             
             } else {
                 console.error('Token no encontrado en la respuesta del servidor');
-                dispatch({ type: LOGIN_FAIL });
-                dispatch({ type: REMOVE_AUTH_LOADING });
+                dispatch({ type: LOGIN_FAILURE });
+               
             }
         } else {
             console.error('Error en la respuesta del servidor:', res.status);
-            dispatch({ type: LOGIN_FAIL });
+            dispatch({ type: LOGIN_FAILURE });
         }
     } catch (err) {
         console.error('Error en la solicitud:', err);
-        dispatch({ type: LOGIN_FAIL });
-    } finally {
-        dispatch({ type: REMOVE_AUTH_LOADING });
-    }
+        dispatch({ type: LOGIN_FAILURE });
+    } 
 };
 
 export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: Dispatch) => {
-    dispatch({
-      type: SET_AUTH_LOADING,
-    });
+  
   
     const config = {
       headers: {
@@ -84,17 +79,15 @@ export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: 
           dispatch({ type: SET_TOKEN, payload: token });
         } else {
           console.error('Token no encontrado en la respuesta del servidor');
-          dispatch({ type: LOGIN_FAIL });
+          dispatch({ type: LOGIN_FAILURE });
         }
       } else {
         console.error('Error en la respuesta del servidor:', res.status);
-        dispatch({ type: LOGIN_FAIL });
+        dispatch({ type: LOGIN_FAILURE });
       }
     } catch (err) {
       console.error('Error en la solicitud:', err);
-      dispatch({ type: LOGIN_FAIL });
-    } finally {
-      dispatch({ type: REMOVE_AUTH_LOADING });
+      dispatch({ type: LOGIN_FAILURE });
     }
   };
 
@@ -103,6 +96,17 @@ export const logout = () => {
       type: LOGOUT,
     };
   };
+
+  export const checkAuthStatus = () => (dispatch: Dispatch) => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+        dispatch({ type: SET_TOKEN, payload: token });
+        dispatch({ type: LOGIN_SUCCESS, payload: token }); // Asume que el token es válido
+    } else {
+        dispatch({ type: LOGIN_FAILURE, payload: { error: 'No se encontró un token' } });
+    }
+}; 
 
 //endpoint que se consulta con parametro token recibido
  // https://sidra.ssmso.cl/api_erp_inv_qa/api/claveunica/validarportal/

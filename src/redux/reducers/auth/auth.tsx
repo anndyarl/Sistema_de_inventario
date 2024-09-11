@@ -1,8 +1,7 @@
 import {
+    LOGIN_REQUEST,
     LOGIN_SUCCESS,
-    LOGIN_FAIL,
-    SET_AUTH_LOADING,
-    REMOVE_AUTH_LOADING,   
+    LOGIN_FAILURE,  
     LOGOUT,
     SET_TOKEN
 } from '../../actions/types';
@@ -37,44 +36,18 @@ interface Action {
 export default function auth(state = initialState, action: Action): AuthState {
     const { type, payload } = action;
 
-    switch (type) {
-        case SET_AUTH_LOADING:
-            return {
-                ...state,
-                loading: true, 
-                           
-            };
-        case REMOVE_AUTH_LOADING:
-            return {
-                ...state,
-                loading: false,             
-            };
+    switch (type) {              
+        case LOGIN_REQUEST:
+            return {...state,loading: true, error: null};
         case LOGIN_SUCCESS:
-            // localStorage.setItem('access', payload.access); // Guarda el token solo al login exitoso
-            return {
-                ...state,
-                isAuthenticated: true,
-                access: payload.access || null,
-                user: payload.user || null,
-                loading: false,
-                token: payload.access_token 
-            };
-        case LOGIN_FAIL: 
-            return {
-                ...state,
-                isAuthenticated: false,
-                token: null,
-                loading: false,
-                error: payload,
-            };   
+            return {...state, loading: false, token: payload, isAuthenticated: true};
+        case LOGIN_FAILURE: 
+        return { ...state, loading: false, error: action.payload.error, isAuthenticated: false, token: null };
         case LOGOUT:
-            localStorage.removeItem('access');
+            localStorage.removeItem('token');
             return initialState;
         case SET_TOKEN:
-             return {
-                ...state,
-                token: payload,               
-             }       
+             return {...state, token: payload }       
         default:
             return state;
     }
