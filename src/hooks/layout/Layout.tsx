@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import { connect, ConnectedProps } from 'react-redux';
+import { connect } from 'react-redux';
 import { RootState } from '../../redux/reducers';
 import Sidebar from "../../components/navigation/Sidebar";
 import Navbar from "../../components/navigation/Navbar";
@@ -12,12 +12,12 @@ import '../../styles/Layout.css'
 
 import { Navigate } from "react-router-dom";
 
-interface OwnProps {
+interface LayoutProps {
   children: ReactNode;
-
+  isAuthenticated: boolean | null;
 }
 
-const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
  
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -129,7 +129,6 @@ const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.auth.isAuthenticated
 });
 
-const connector = connect(mapStateToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
+export default connect(mapStateToProps, {
 
-export default connector(Layout);
+})(Layout);

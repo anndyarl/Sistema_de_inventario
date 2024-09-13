@@ -19,10 +19,7 @@ import { OrigenPresupuesto } from '../../components/Inventario/Datos_inventario'
 import { ModalidadCompra } from '../../components/Inventario/Datos_inventario';
 import { Servicio } from '../../components/Inventario/Datos_cuenta';
 
-
-
-
-interface FormData {
+export interface FormularioCompleto{
   datosInventario: Record<string, any>;
   datosCuenta: Record<string, any>;
   datosActivoFijo: Record<string, any>;
@@ -39,13 +36,12 @@ interface FormularioCompletoProps {
   servicios: Servicio[];
   comboServicio: (token: string) => void
 
-
   token: string | null;
 }
 
 const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modalidades, servicios, comboOrigenPresupuesto, comboModalidadCompra, comboServicio, token }) => {
   const [step, setStep] = useState<number>(0);
-  const [formData, setFormData] = useState<FormData>({
+  const [formularios, setFormualarios] = useState<FormularioCompleto>({
     datosInventario: {},
     datosCuenta: {},
     datosActivoFijo: {},
@@ -54,18 +50,15 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
   useEffect(() => {
     // Llama a la API comboTraeOrigen solo si está vacío
     if (token && origenes.length === 0) {
-      comboOrigenPresupuesto(token);
-      console.log("origenes", origenes);
+      comboOrigenPresupuesto(token);     
     }
 
     if (token && modalidades.length === 0) {
-      comboModalidadCompra(token)
-      console.log("modalidades", modalidades);
+      comboModalidadCompra(token);    
     }
 
     if (token && servicios.length === 0) {
-      comboServicio(token)
-      console.log("servicios", servicios);
+      comboServicio(token);
     }
 
 
@@ -77,13 +70,13 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
     // Guardar los datos del formulario actual
     switch (step) {
       case 0:
-        setFormData((prevData) => ({ ...prevData, datosInventario: data }));
+        setFormualarios((prevData) => ({ ...prevData, datosInventario: data }));
         break;
       case 1:
-        setFormData((prevData) => ({ ...prevData, datosCuenta: data }));
+        setFormualarios((prevData) => ({ ...prevData, datosCuenta: data }));
         break;
       case 2:
-        setFormData((prevData) => ({ ...prevData, datosActivoFijo: data }));
+        setFormualarios((prevData) => ({ ...prevData, datosActivoFijo: data }));
         break;
       default:
         break;
@@ -103,7 +96,7 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
 
   const handleSubmit = () => {
     // Manejar el envío del formulario a la API aquí
-    console.log('Enviando datos:', formData);
+    console.log('Enviando datos:', formularios);
     // Ejemplo de llamada a una función de envío
     // submitForm(formData);
   };
@@ -113,7 +106,8 @@ const FormularioCompleto: React.FC<FormularioCompletoProps> = ({ origenes, modal
       <Timeline Formulario_actual={step} />
       {step === 0 && <DatosInventario onNext={handleNext} origenes={origenes} modalidades={modalidades} />}
       {step === 1 && <DatosCuenta onBack={handleBack} onNext={handleNext} servicios={servicios} />}
-      {step === 2 && <DatosActivoFijo onBack={handleBack} onNext={handleNext} />}
+      {step === 2 && <DatosActivoFijo onBack={handleBack} onNext={handleNext} formularioCompleto={formularios}/>}
+      
     </div>
   );
 };
