@@ -65,8 +65,7 @@ const Logout: React.FC<LogoutProps> = ({logout}) => {
           </div>
         </form>
       </Modal.Body>
-    </Modal>
-    
+    </Modal>    
         <div className="mt-1 ">
           <Button onClick={handleShowModal} className="btn btn-outline-light w-100 d-flex align-items-center justify-content-center  text-dark" >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-left" viewBox="0 0 16 16">
@@ -76,14 +75,13 @@ const Logout: React.FC<LogoutProps> = ({logout}) => {
         <div className='m-2'> Cerrar Sesión</div>           
           </Button>
         </div>
-    
     </>
   );
 }
 
 //mapea los valores del estado global de Redux 
 const mapStateToProps = (state: RootState) => ({
-  logout: state.logout
+  logout: state.auth.logout
 
 });
 

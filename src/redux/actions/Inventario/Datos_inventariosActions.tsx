@@ -1,3 +1,6 @@
+import { Dispatch } from "redux";
+import axios from 'axios';
+
 
 
 export const setNRecepcion = (nRecepcion: string) => ({
@@ -60,4 +63,32 @@ export const setTotalActivoFijo = (total: number) => ({
   payload: total,
 });
 
+export const setResetFormulario = () => ({
+  type: 'RESET_FORMULARIO',
+});
 
+
+// Acción para enviar el formulario
+export const postFormulario = (formularioCombinado: any) => async (dispatch: Dispatch) => {
+ 
+    // dispatch({ type: POST_FORMULARIO_REQUEST });
+    try {
+      const response = await axios.post('/api_inv/api/inventario/comboTraeServicio', formularioCombinado);
+
+      // Si el POST es exitoso
+      if (response.status === 200) {
+        // dispatch({
+        //   type: POST_FORMULARIO_SUCCESS,
+        //   payload: response.data,
+        // });
+        console.log('Formulario enviado correctamente');
+      }
+    } catch (error) {
+      // dispatch({
+      //   type: POST_FORMULARIO_FAILURE,
+      //   error: error.message,
+      // });
+      console.error('Error al enviar el formulario:', error);
+    }
+ 
+};

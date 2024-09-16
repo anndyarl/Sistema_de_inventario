@@ -23,8 +23,9 @@ export interface Especie {
 }
 
 const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }) => {
-    const [Servicio, setServicio] = useState<Servicio[]>(servicios);
+    const [Servicio] = useState<Servicio[]>(servicios);
     const [elementoSeleccionado, setElementoSeleccionado] = useState<Servicio | null>(null);
+   //Cuenta es la variable de estado
     const [Cuenta, setCuenta] = useState({
         servicio: '',
         dependencia: '',

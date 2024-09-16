@@ -15,6 +15,7 @@ interface AuthState {
     loading: boolean;  
     error: string | null; // Añade error al estado
     token:string | null;   
+    logout: any;
 }
 
 // Estado inicial
@@ -24,7 +25,8 @@ const initialState: AuthState = {
     isAuthenticated: false,
     loading: false,   
     error: null, // Inicializa error como null
-    token:null
+    token:null,
+    logout: null,
 };
 
 // Define el tipo de acción
@@ -42,10 +44,11 @@ export default function auth(state = initialState, action: Action): AuthState {
         case LOGIN_SUCCESS:
             return {...state, loading: false, token: payload, isAuthenticated: true};
         case LOGIN_FAILURE: 
-        return { ...state, loading: false, error: action.payload.error, isAuthenticated: false, token: null };
-        case LOGOUT:
+        return { ...state, loading: false, error: action.payload.error, isAuthenticated: false, token: null };      
+        case 'LOGOUT':
             localStorage.removeItem('token');
-            return initialState;
+            return { ...state, logout: action.payload, isAuthenticated: false, token:null} ;
+           
         case SET_TOKEN:
              return {...state, token: payload }       
         default:

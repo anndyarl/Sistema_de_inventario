@@ -8,9 +8,7 @@ import { connect, useDispatch } from 'react-redux';
 
 import { FormularioCompleto } from '../../components/Inventario/FormularioCompleto';
 
-import {
-  setTotalActivoFijo
-} from '../../redux/actions/Inventario/Datos_inventariosActions';
+import {  setTotalActivoFijo, postFormulario } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 
 interface ActivoFijo {
@@ -194,14 +192,19 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
 
   const handleFinalSubmit = async () => {
     // Combina todos los datos en un solo objeto
+    const total = 0;
     const FormulariosCombinados = {
       ...formularioCompleto.datosInventario,
       ...formularioCompleto.datosCuenta,
       activosFijos: formularioCompleto.datosActivoFijo,
     };
-
+    postFormulario(FormulariosCombinados);
     // Log para verificar los datos combinados
-    console.log("Formulario completo combinado:", FormulariosCombinados);
+    console.log("Formulario completo combinado:", FormulariosCombinados);   
+    dispatch(setTotalActivoFijo(total)); 
+    console.log("Total activo fijo", total);
+    console.log("Formulario reseteado a su estado inicial");
+  
   };
 
 
@@ -430,7 +433,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
 
 const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
-  totalAF: state.datos_inventarioReducer.totalActivoFijo
+  totalAF: state.datos_inventarioReducer.totalActivoFijo,
+  resetFormulario: state.datos_inventarioReducer.resetFormulario
+ 
 });
 export default connect(mapStateToProps, {
   setTotalActivoFijo

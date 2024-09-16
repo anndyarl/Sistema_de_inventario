@@ -91,10 +91,10 @@ export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: 
     }
   };
 
-export const logout = () => {
+export const logout = () => { 
     return {
-      type: LOGOUT,
-    };
+      type: LOGOUT,  
+      };
   };
 
   export const checkAuthStatus = () => (dispatch: Dispatch) => {
