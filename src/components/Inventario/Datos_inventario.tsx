@@ -130,31 +130,32 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   }, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra]);
 
 
-// Este useEffect se activará cuando nRecepcion cambie en el estado de Redux
-useEffect(() => {
-  if (nRecepcion && nRecepcion.length > 0) {   
-    setInventario((prevInventario) => ({
-      ...prevInventario,
-      nRecepcion: nRecepcion,
-      fechaRecepcion: fechaRecepcion,
-      nOrdenCompra: nOrdenCompra,
-      // horaRecepcion: horaRecepcion,
-      nFactura: nFactura,
-      origenPresupuesto: origenPresupuesto,
-      montoRecepcion: montoRecepcion,
-      fechaFactura: fechaFactura,
-      rutProveedor: rutProveedor,
-      nombreProveedor: nombreProveedor,
-      modalidadCompra: modalidadCompra,
-    }));
-    console.log('Recepción obtenida:', nRecepcion);
-  }
-}, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra]);
+  // Este useEffect se activará cuando nRecepcion cambie en el estado de Redux
+  useEffect(() => {
+    if (nRecepcion && nRecepcion.length > 0) {
+      setInventario((prevInventario) => ({
+        ...prevInventario,
+        nRecepcion: nRecepcion,
+        fechaRecepcion: fechaRecepcion,
+        nOrdenCompra: nOrdenCompra,
+        // horaRecepcion: horaRecepcion,
+        nFactura: nFactura,
+        origenPresupuesto: origenPresupuesto,
+        montoRecepcion: montoRecepcion,
+        fechaFactura: fechaFactura,
+        rutProveedor: rutProveedor,
+        nombreProveedor: nombreProveedor,
+        modalidadCompra: modalidadCompra,
+      }));
+      console.log('Recepción obtenida:', nRecepcion);
+    }
+  }, [nRecepcion, fechaRecepcion, nOrdenCompra,/* horaRecepcion*/, nFactura, origenPresupuesto, montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log('Formulario Datos inventario', Inventario);
+    // console.log('Formulario Datos inventario', Inventario);
+
     // Despachar todas las acciones necesarias
     dispatch(setNRecepcion(Inventario.nRecepcion));
     dispatch(setFechaRecepcion(Inventario.fechaRecepcion));
@@ -174,21 +175,20 @@ useEffect(() => {
 
 
   const handleRecepcionSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();  
+    e.preventDefault();
 
     // Despacha la acción para obtener la recepción
-    dispatch(obtenerRecepcionActions(Inventario.nRecepcion));   
-    
+    dispatch(obtenerRecepcionActions(Inventario.nRecepcion));
+
   };
 
 
-
   return (
-    <div>
+    <>
       <form onSubmit={handleSubmit} >
         <div className="border-top p-1 rounded">
           <div>
-            <h3 className="form-title">Datos Inventario</h3>
+            <h3 className="form-title">Registro Inventario</h3>
           </div>
           <div className="mt-4 border-top">
             <Row>
@@ -211,7 +211,7 @@ useEffect(() => {
                 <div className="mb-1">
                   <dt className="text-muted">N° Orden de Compra</dt>
                   <dd className="d-flex align-items-center">
-                    <input type="text" className="form-control" maxLength={12} name="nOrdenCompra" onChange={handleChange} value={Inventario.nOrdenCompra || data.n} />
+                    <input type="text" className="form-control" maxLength={12} name="nOrdenCompra" onChange={handleChange} value={Inventario.nOrdenCompra} />
                   </dd>
                 </div>
 
@@ -310,7 +310,7 @@ useEffect(() => {
           <button type="submit" className="btn btn-primary ">Siguiente</button>
         </div>
       </form>
-    </div>
+    </>
   );
 };
 
@@ -327,7 +327,7 @@ const mapStateToProps = (state: RootState) => ({
   rutProveedor: state.datos_inventarioReducer.rutProveedor,
   nombreProveedor: state.datos_inventarioReducer.nombreProveedor,
   modalidadCompra: state.datos_inventarioReducer.modalidadCompra,
-  recepciones: state.obtenerRecepcionReducer.recepciones
+
 });
 
 export default connect(mapStateToProps,

@@ -13,6 +13,8 @@ export const SET_TOKEN = 'SET_TOKEN';
 // Acción de cierre de sesión
 export const LOGOUT = 'LOGOUT';
 
+export const SET_TOTAL_ACTIVO_FIJO = 'SET_TOTAL_ACTIVO_FIJO';
+
 // Acción de carga combo origen presupuesto
 export const ORIGEN_SUCCESS = 'ORIGEN_SUCCESS';
 export const ORIGEN_FAIL = 'ORIGEN_FAIL';
@@ -26,14 +28,22 @@ export const SERVICIO_REQUEST = 'SERVICIO_REQUEST';
 // Acción de carga combo modalidad compra
 export const MODALIDAD_COMPRA_SUCCESS = 'MODALIDAD_COMPRA_SUCCESS';
 export const MODALIDAD_COMPRA_FAIL = 'MODALIDAD_COMPRA_FAIL';
-export const MODALIDAD_COMPRA_REQUEST = 'MODALIDAD_COMPRA_REQUEST';    
+export const MODALIDAD_COMPRA_REQUEST = 'MODALIDAD_COMPRA_REQUEST';
 
 // Acción de carga combo recepcion
 export const RECEPCION_SUCCESS = 'RECEPCION_SUCCESS';
 export const RECEPCION_FAIL = 'RECEPCION_FAIL';
 export const RECEPCION_REQUEST = 'RECEPCION_REQUEST';
 
-export const SET_TOTAL_ACTIVO_FIJO ='SET_TOTAL_ACTIVO_FIJO';
+// Acción de carga combo cuenta
+export const CUENTA_SUCCESS = 'CUENTA_SUCCESS';
+export const CUENTA_FAIL = 'CUENTA_FAIL';
+export const CUENTA_REQUEST = 'CUENTA_REQUEST';
+
+// Acción de carga combo bien
+export const BIEN_SUCCESS = 'BIEN_SUCCESS';
+export const BIEN_FAIL = 'BIEN_FAIL';
+export const BIEN_REQUEST = 'BIEN_REQUEST';
 
 
 

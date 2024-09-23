@@ -2,14 +2,14 @@ import axios from 'axios';
 import {
     MODALIDAD_COMPRA_REQUEST,
     MODALIDAD_COMPRA_SUCCESS,
-    MODALIDAD_COMPRA_FAIL,       
+    MODALIDAD_COMPRA_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
 export const comboModalidadCompra = (token: string) => async (dispatch: Dispatch) => {
-    if (token) {    
+    if (token) {
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -21,18 +21,17 @@ export const comboModalidadCompra = (token: string) => async (dispatch: Dispatch
 
         try {
             const res = await axios.get('/api_inv/api/inventario/comboTraeModalidad', config);
-            console.log('Respuesta del servidor obtener modalidades:', res); 
 
             if (res.status === 200) {
                 dispatch({
                     type: MODALIDAD_COMPRA_SUCCESS,
                     payload: res.data
-                }); 
+                });
             } else {
                 dispatch({ type: MODALIDAD_COMPRA_FAIL });
             }
         } catch (err) {
-            console.error("Error en la solicitud:", err);          
+            console.error("Error en la solicitud:", err);
             dispatch({ type: MODALIDAD_COMPRA_FAIL });
         }
     } else {

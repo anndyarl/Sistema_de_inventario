@@ -9,11 +9,25 @@ export interface Servicio {
     descripcion: string;
 }
 
+// Define el tipo de los elementos del combo `cuentas`
+export interface comboCuentas {
+    id: number;
+    descripcion: string;
+}
+
+// Define el tipo de los elementos del combo `bien`
+export interface Bien {
+    codigo: number;
+    descripcion: string;
+}
+
 // Define el tipo de props para el componente
 interface Datos_cuentaProps {
     onNext: (cuenta: any) => void;
     onBack: () => void;
     servicios: Servicio[];
+    comboCuentas: comboCuentas[];
+    bien: Bien[];
 }
 
 // Define el tipo de los elementos del combo `especie`
@@ -22,10 +36,10 @@ export interface Especie {
     descripcionEspecie: string;
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }) => {
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, bien }) => {
     const [Servicio] = useState<Servicio[]>(servicios);
     const [elementoSeleccionado, setElementoSeleccionado] = useState<Servicio | null>(null);
-   //Cuenta es la variable de estado
+    //Cuenta es la variable de estado
     const [Cuenta, setCuenta] = useState({
         servicio: '',
         dependencia: '',
@@ -83,18 +97,18 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(() => servicios.slice(indicePrimerElemento, indiceUltimoElemento), [servicios, indicePrimerElemento, indiceUltimoElemento]);
-    const totalPaginas = Math.ceil(servicios.length / elementosPorPagina);
+    const elementosActuales = useMemo(() => bien.slice(indicePrimerElemento, indiceUltimoElemento), [bien, indicePrimerElemento, indiceUltimoElemento]);
+    const totalPaginas = Math.ceil(bien.length / elementosPorPagina);
 
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
 
     return (
-        <div>
+        <>
             <form onSubmit={handleSubmit}>
                 <div className="border-top p-1 rounded">
                     <div>
-                        <h3 className="form-title">Datos cuenta</h3>
+                        <h3 className="form-title">Detalle Inventario</h3>
                     </div>
                     <div className="mt-4 border-top">
                         <Row>
@@ -126,13 +140,15 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
                             </Col>
                             <Col md={6}>
                                 <div className="mb-1">
-                                    <dt className="text-muted">cuenta</dt>
+                                    <dt className="text-muted">Cuenta</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="cuenta" className="form-select" onChange={handleChange} value={Cuenta.cuenta}>
                                             <option value="">Selecciona una opción</option>
-                                            <option value="backend">Backend Developer</option>
-                                            <option value="frontend">Frontend Developer</option>
-                                            <option value="fullstack">Full Stack Developer</option>
+                                            {comboCuentas.map((traeCuentas) => (
+                                                <option key={traeCuentas.id} value={traeCuentas.id}>
+                                                    {traeCuentas.descripcion}
+                                                </option>
+                                            ))}
                                         </select>
                                     </dd>
                                 </div>
@@ -182,10 +198,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
                                     <dt className="text-muted">Bien</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="bien" className="form-select" onChange={handleChange} value={Cuenta.bien}>
-                                            <option value="">Selecciona una opción</option>
-                                            <option value="backend">Backend Developer</option>
-                                            <option value="frontend">Frontend Developer</option>
-                                            <option value="fullstack">Full Stack Developer</option>
+                                            {bien.map((traeBien) => (
+                                                <option key={traeBien.codigo} value={traeBien.codigo}>
+                                                    {traeBien.descripcion}
+                                                </option>
+                                            ))}
                                         </select>
                                     </dd>
                                 </div>
@@ -254,7 +271,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios }
                     </Pagination>
                 </Modal.Body>
             </Modal>
-        </div>
+        </>
 
 
     );

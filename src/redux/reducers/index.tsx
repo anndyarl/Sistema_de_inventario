@@ -6,6 +6,8 @@ import servicioReducer from './combos/comboServicioReducers';
 
 import datos_inventarioReducer from './Inventario/Datos_inventariosReducer';
 import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
+import cuentaReducer from './combos/comboCuentaReducers';
+import bienReducer from './combos/comboBienReducers';
 
 
 // import nRecepcionReducer from './combos/comboRecepcionReducers';
@@ -24,6 +26,8 @@ const rootReducer = combineReducers({
     servicioReducer,
     modalidadCompraReducer,
     obtenerRecepcionReducer,
+    cuentaReducer,
+    bienReducer,
 
 
     //formulario inventaro

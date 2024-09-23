@@ -1,14 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
-
 import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
-
 import { FormularioCompleto } from '../../components/Inventario/FormularioCompleto';
-
-import {  setTotalActivoFijo, postFormulario } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { setTotalActivoFijo, postFormulario } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 
 interface ActivoFijo {
@@ -131,7 +128,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    console.log('detectección en tiempo real', { name, value });
+    // console.log('detectección en tiempo real', { name, value });
     setCurrentActivo(prevData => ({ ...prevData, [name]: value }));
   };
 
@@ -187,7 +184,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   const handleShowModal = () => {
     onNext(activosFijos);
     setMostrarModalConfirmar(true);
-    console.log("formulario datos activo fijo:", activosFijos);
+    // console.log("formulario datos activo fijo:", activosFijos);
   };
 
   const handleFinalSubmit = async () => {
@@ -200,11 +197,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
     };
     postFormulario(FormulariosCombinados);
     // Log para verificar los datos combinados
-    console.log("Formulario completo combinado:", FormulariosCombinados);   
-    dispatch(setTotalActivoFijo(total)); 
-    console.log("Total activo fijo", total);
-    console.log("Formulario reseteado a su estado inicial");
-  
+    console.log("Formulario completo combinado:", FormulariosCombinados);
+    dispatch(setTotalActivoFijo(total));
+    // console.log("Total activo fijo", total);
+    // console.log("Formulario reseteado a su estado inicial");
+
   };
 
 
@@ -217,7 +214,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
 
   return (
-    <div>
+    <>
       {/* Total Activo Fijo*/}
       <div className="justify-content-end navbar navbar-light">
         <div className="navbar-nav mb-2 mb-lg-0 me-3">
@@ -227,7 +224,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
         </div>
       </div>
 
-      <h3 className="form-title mb-4">Datos Activo Fijo</h3>
+      <h3 className="form-title mb-4">Detalle Activo</h3>
       {/* Boton abre Modal formulario activos fijo */}
       {total !== parseFloat(montoRecepcion) && (
         <Button variant="primary" onClick={() => setMostrarModal(true)} className="mb-1 me-2">+</Button>
@@ -298,7 +295,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
         </tbody>
       </Table>
 
-
       {/* Paginador*/}
       {elementosActuales.length > 0 && (
         <Pagination className="d-flex justify-content-end">
@@ -314,6 +310,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
         </Pagination>
       )}
 
+      {/* Botones volver y confirmar*/}
       <div className="d-flex justify-content-end mt-3 justify-content-between">
         <Button onClick={handleVolver} className="btn btn-primary m-1">Volver</Button>
 
@@ -321,7 +318,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
           <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
         )}
       </div>
-
 
       {/* Modal formulario Activos Fijo*/}
       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
@@ -427,7 +423,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
         </Modal.Body>
       </Modal>
 
-    </div>
+    </>
   );
 };
 
@@ -435,7 +431,7 @@ const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
   totalAF: state.datos_inventarioReducer.totalActivoFijo,
   resetFormulario: state.datos_inventarioReducer.resetFormulario
- 
+
 });
 export default connect(mapStateToProps, {
   setTotalActivoFijo

@@ -8,6 +8,7 @@ import { List, X } from 'react-bootstrap-icons';
 
 import '../../styles/Layout.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '../../styles/bootstrap-5.3.3/dist/css/bootstrap.css';
 import '../../styles/Layout.css'
 
 import { Navigate } from "react-router-dom";
@@ -18,7 +19,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
- 
+
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
@@ -39,11 +40,11 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
       setSidebarOpen(false);
     }
   }, [isDesktop]);
-  
+
 
   if (!isAuthenticated) {
     return <Navigate to='/' />;
-   
+
   }
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -61,10 +62,10 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
 
       <div className="d-flex flex-grow-1">
         {/* Sidebar */}
-        <div 
-          className={`bg-color ${sidebarOpen ? 'd-block' : 'd-none'} d-md-block`} 
+        <div
+          className={`bg-color ${sidebarOpen ? 'd-block' : 'd-none'} d-md-block`}
           style={{
-            width: '250px', 
+            width: '250px',
             minWidth: '250px',
             maxWidth: '250px',
             transition: 'all 0.3s',
@@ -74,7 +75,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
             left: isDesktop ? '0' : (sidebarOpen ? '0' : '-250px'),
             zIndex: 1000
           }}
-        >         
+        >
           <div className="d-flex flex-column h-100">
             <div className="p-3">
               <div className="d-flex justify-content-between align-items-center">
@@ -92,8 +93,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
                     <i className="fa fa-user"></i>
                     <span className="fs-6">Andy Riquelme</span>
                   </a>
-                  <div className="dropdown-menu" aria-labelledby="userDropdown">                 
-                  <Logout /> 
+                  <div className="dropdown-menu" aria-labelledby="userDropdown">
+                    <Logout />
                   </div>
                 </div>
 
@@ -104,11 +105,11 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
             </div>
             <div className="flex-grow-1 overflow-auto">
               <Sidebar />
-            </div>          
+            </div>
           </div>
-          
+
         </div>
-       
+
         <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: isDesktop ? '0' : (sidebarOpen ? '250px' : '0'), transition: 'margin-left 0.3s' }}>
           {/* Desktop Navbar */}
           <div className="d-none d-md-block ">
@@ -117,7 +118,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
 
           {/* Main Content */}
           <div className="flex-grow-1 p-3 overflow-auto">
-            {children}
+            <div className="container">
+              {children}
+            </div>
           </div>
         </div>
       </div>
