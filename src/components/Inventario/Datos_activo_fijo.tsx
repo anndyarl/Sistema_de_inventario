@@ -4,8 +4,15 @@ import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstra
 import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
-import { FormularioCompleto } from '../../components/Inventario/FormularioCompleto';
+
 import { setTotalActivoFijo, postFormulario } from '../../redux/actions/Inventario/Datos_inventariosActions';
+
+import {
+  setNRecepcion, setFechaRecepcion, setNOrdenCompra, setNFactura,
+  setOrigenPresupuesto, setMontoRecepcion, setFechaFactura,
+  setRutProveedor, setnombreProveedor, setModalidadCompra
+} from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { FormInventario } from './FormInventario';
 
 
 interface ActivoFijo {
@@ -25,15 +32,16 @@ interface ActivoFijo {
 interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijo[]) => void;
   onBack: () => void;
+  onReset: () => void; // vuelva a al componente Datos_inventario
   montoRecepcion: string; //declaro un props para traer montoRecepción del estado global
   totalAF: number;
-  formularioCompleto: FormularioCompleto;
+  formInventario: FormInventario;
 }
 interface GeneralErrors {
   general?: string; // Agrega un campo para Error generales
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, montoRecepcion, totalAF, formularioCompleto }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalAF, formInventario }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
     id: '', vidaUtil: '', fechaIngreso: '', marca: '', cantidad: '',
@@ -63,16 +71,16 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
     setTotal(newTotal);
   }, [cantidad, precio]);
   //---------------------------------------------------------//
-
+  let tempErrors: Partial<ActivoFijo> & GeneralErrors = {};
   //Validaciones
   const validate = () => {
-    let tempErrors: Partial<ActivoFijo> & GeneralErrors = {};
+
     if (!currentActivo.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria";
     if (!/^\d+$/.test(currentActivo.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
     if (!currentActivo.fechaIngreso) tempErrors.fechaIngreso = "Fecha de Ingreso es obligatoria";
     if (!currentActivo.marca) tempErrors.marca = "Marca es obligatoria";
     if (!currentActivo.modelo) tempErrors.modelo = "Modelo es obligatoria";
-    if (!currentActivo.serie) tempErrors.serie = "Serie es obligatoria";
+    // if (!currentActivo.serie) tempErrors.serie = "Serie es obligatoria";
     if (!currentActivo.cantidad) tempErrors.cantidad = "Cantidad es obligatoria";
     if (!/^\d+$/.test(currentActivo.cantidad)) tempErrors.cantidad = "Cantidad debe ser un número";
     if (!currentActivo.precio) tempErrors.precio = "Precio es obligatorio";
@@ -96,7 +104,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
     return total === parseFloat(montoRecepcion);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let counter = 0;
     const generateCorrelativeId = () => {
@@ -133,12 +141,25 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   };
 
   const handleCambiaSerie = (index: number, newSerie: string) => {
-    setActivosFijos(prevActivos =>
-      prevActivos.map((activo, i) =>
+    setActivosFijos(prevActivos => {
+      // Verificar si la serie ya existe en otro elemento del array
+      const serieExists = prevActivos.some((activo, i) => activo.serie === newSerie && i !== index);
+
+      if (serieExists) {
+
+        // alert("Esta serie ya existe en otro activo. Introduce un valor único.");
+        tempErrors.general = "Esta serie ya existe en otro activo. Introduce un valor único.";
+        Error(tempErrors);
+        return prevActivos; // No se realizan cambios si la serie ya existe
+      }
+
+      // Si no existe, actualizar la serie del activo correspondiente
+      return prevActivos.map((activo, i) =>
         i === index ? { ...activo, serie: newSerie } : activo
-      )
-    );
+      );
+    });
   };
+
 
   //-------------Funciones de la tabla --------------------//
   const handleSerieBlur = () => {
@@ -184,23 +205,36 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   const handleShowModal = () => {
     onNext(activosFijos);
     setMostrarModalConfirmar(true);
-    // console.log("formulario datos activo fijo:", activosFijos);
+    console.log("formulario datos activo fijo:", activosFijos);
   };
 
   const handleFinalSubmit = async () => {
     // Combina todos los datos en un solo objeto
-    const total = 0;
+    // const total = 0;
     const FormulariosCombinados = {
-      ...formularioCompleto.datosInventario,
-      ...formularioCompleto.datosCuenta,
-      activosFijos: formularioCompleto.datosActivoFijo,
+      ...formInventario.datosInventario,
+      ...formInventario.datosCuenta,
+      activosFijos: formInventario.datosActivoFijo,
     };
     postFormulario(FormulariosCombinados);
-    // Log para verificar los datos combinados
-    console.log("Formulario completo combinado:", FormulariosCombinados);
+
+    //Resetea todo el formualario al estado inicial
     dispatch(setTotalActivoFijo(total));
-    // console.log("Total activo fijo", total);
-    // console.log("Formulario reseteado a su estado inicial");
+    dispatch(setNRecepcion(''));
+    dispatch(setFechaRecepcion(''));
+    dispatch(setNOrdenCompra(''));
+    dispatch(setNFactura(''));
+    dispatch(setOrigenPresupuesto(''));
+    dispatch(setMontoRecepcion(0));
+    dispatch(setFechaFactura(''));
+    dispatch(setRutProveedor(''));
+    dispatch(setnombreProveedor(''));
+    dispatch(setModalidadCompra(''));
+    onReset(); // retorna a Datos_inventario
+
+    // Log para verificar los datos combinados
+    console.log("Formulario completo combinado:", FormulariosCombinados)
+    console.log("Total activo fijo", total);
 
   };
 
@@ -208,7 +242,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => activosFijos.slice(indicePrimerElemento, indiceUltimoElemento), [activosFijos, indicePrimerElemento, indiceUltimoElemento]);
+  const elementosActuales = useMemo(
+    () => activosFijos.slice(indicePrimerElemento, indiceUltimoElemento),
+    [activosFijos, indicePrimerElemento, indiceUltimoElemento]
+  );
   const totalPaginas = Math.ceil(activosFijos.length / elementosPorPagina);
 
   const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
@@ -226,7 +263,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
 
       <h3 className="form-title mb-4">Detalle Activo</h3>
       {/* Boton abre Modal formulario activos fijo */}
-      {total !== parseFloat(montoRecepcion) && (
+      {totalAF !== parseFloat(montoRecepcion) && (
         <Button variant="primary" onClick={() => setMostrarModal(true)} className="mb-1 me-2">+</Button>
       )}
 
@@ -236,7 +273,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
           Eliminar Seleccionados
         </Button>
       )}
-
+      <div>
+        {error.general && (
+          <p className="alert alert-danger">{error.general}</p>
+        )}
+      </div>
       {/* Tabla*/}
       <Table striped bordered hover>
         <thead>
@@ -330,7 +371,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
               <p className="alert alert-danger">{error.general}</p>
             )}
           </div>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleAgregar}>
             <Row>
               <div className="d-flex justify-content-end ">
                 {/* <Button variant="secondary" onClick={() => setMostrarModal(false)} className="me-2">
@@ -388,7 +429,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
 
                 <div className="mb-1">
                   <label htmlFor="observaciones" className="form-label">Observaciones</label>
-                  <textarea className={`form-control ${error.observaciones ? 'is-invalid' : ''}`} id="observaciones" name="observaciones" rows={2} style={{ minHeight: '5px', resize: 'none' }} onChange={handleChange} value={currentActivo.observaciones} />
+                  <textarea className={`form-control ${error.observaciones ? 'is-invalid' : ''}`} id="observaciones" name="observaciones" rows={3} style={{ minHeight: '5px', resize: 'none' }} onChange={handleChange} value={currentActivo.observaciones} />
                   {error.observaciones && <div className="invalid-feedback">{error.observaciones}</div>}
                 </div>
               </Col>
@@ -396,7 +437,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
           </form>
         </Modal.Body>
       </Modal>
-
 
       {/* Modal  Confirmar */}
       <Modal show={mostrarModalConfirmar} onHide={() => setMostrarModalConfirmar(false)} size="xl">
@@ -413,7 +453,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, m
           <p className="form-heading fs-09em">
             Confirmar el envio del formualrio completo
           </p>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleAgregar}>
             <div className="form-group d-flex justify-content-center">
               <Button variant="btn btn-primary m-1" onClick={handleFinalSubmit}>Confirmar y Enviar</Button>
               <Button variant="btn btn-secondary m-1" onClick={() => setMostrarModalConfirmar(false)} className="me-2">Cancelar</Button>

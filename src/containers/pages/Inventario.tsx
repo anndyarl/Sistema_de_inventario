@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Row, Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { FolderPlus } from 'react-bootstrap-icons';
+import { Plus, Pencil } from 'react-bootstrap-icons';
 import Layout from '../../hooks/layout/Layout';
 
 
@@ -15,8 +15,8 @@ const Inventario: React.FC = () => {
     return (
         <Layout>
             <>
-                <Row className="align-items-center w-100">
-                    <Col lg={4} md={6} className="mb-4">
+                <Row className="align-items-center w-100 ">
+                    <Col lg={6} md={6} className="mb-4">
                         <Card className="custom-card shadow p-3 border-0 rounded">
                             {/* <Card.Img
                                     variant="top"
@@ -31,8 +31,8 @@ const Inventario: React.FC = () => {
                                 </Card.Text>
                                 <div className="d-flex justify-content-center">
                                     <div className="flex-grow-1">
-                                        <NavLink key="FormularioCompleto" to="/FormularioCompleto" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
-                                            <FolderPlus className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                        <NavLink key="FormInventario" to="/FormInventario" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
+                                            <Plus className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
                                             Nuevo
                                         </NavLink>
                                     </div>
@@ -40,7 +40,7 @@ const Inventario: React.FC = () => {
                             </Card.Body>
                         </Card>
                     </Col>
-                    <Col lg={4} md={6} className="mb-4">
+                    <Col lg={6} md={6} className="mb-4">
                         <Card className="custom-card shadow p-3 border-0 rounded">
                             {/* <Card.Img
                                     variant="top"
@@ -56,7 +56,7 @@ const Inventario: React.FC = () => {
                                 <div className="d-flex justify-content-center">
                                     <div className="flex-grow-1">
                                         <NavLink key="FormularioCompleto" to="/FormularioCompleto" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
-                                            <FolderPlus className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                            <Pencil className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
                                             Modificar / Eliminar
                                         </NavLink>
                                     </div>

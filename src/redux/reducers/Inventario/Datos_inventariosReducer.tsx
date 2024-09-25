@@ -1,17 +1,23 @@
+import {
+  RECEPCION_REQUEST,
+  RECEPCION_SUCCESS,
+  RECEPCION_FAIL,
+} from '../../actions/types';
+
+
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
   nRecepcion: string;
   fechaRecepcion: string;
   nOrdenCompra: string;
   nFactura: string;
-  origenPresupuesto: string;
+  origenPresupuesto: number;
   montoRecepcion: number;
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
-  modalidadCompra: string;
+  modalidadDeCompra: string;
   totalActivoFijo: number;
-
   resetFormulario: [];
 }
 
@@ -21,12 +27,12 @@ const initialState: DatosInventarioState = {
   fechaRecepcion: '',
   nOrdenCompra: '',
   nFactura: '',
-  origenPresupuesto: '',
+  origenPresupuesto: 0,
   montoRecepcion: 0,
   fechaFactura: '',
   rutProveedor: '',
   nombreProveedor: '',
-  modalidadCompra: '',
+  modalidadDeCompra: '',
   totalActivoFijo: 0,
   resetFormulario: [],
 
@@ -55,13 +61,30 @@ const datos_inventarioReducer = (state = initialState, action: any) => {
     case 'SET_NOMBRE_PROVEEDOR':
       return { ...state, nombreProveedor: action.payload };
     case 'SET_MODALIDAD_COMPRA':
-      return { ...state, modalidadCompra: action.payload };
-    case 'SET_TOTAL_ACTIVO_FIJO':
-      return { ...state, totalActivoFijo: action.payload };
+      return { ...state, modalidadDeCompra: action.payload };
     case 'SET_TOTAL_ACTIVO_FIJO':
       return { ...state, totalActivoFijo: action.payload };
     case 'RESET_FORMULARIO':
       return { ...initialState, payload: initialState };
+    case RECEPCION_REQUEST:
+      return { ...state, loading: true };
+    case RECEPCION_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        nRecepcion: action.payload.numeroRecepcion,
+        fechaRecepcion: action.payload.fechaRecepcion,
+        nOrdenCompra: action.payload.numeroOrdenCompra,
+        nFactura: action.payload.numeroFactura,
+        origenPresupuesto: action.payload.origen,
+        montoRecepcion: action.payload.montoRecepcion,
+        fechaFactura: action.payload.fechaFactura,
+        rutProveedor: action.payload.rutProveedor,
+        nombreProveedor: action.payload.nombreProveedor,
+        modalidadDeCompra: action.payload.modalidadDeCompra,
+      };
+    case RECEPCION_FAIL:
+      return { ...state, loading: false, error: action.error };
     default:
       return state;
   }

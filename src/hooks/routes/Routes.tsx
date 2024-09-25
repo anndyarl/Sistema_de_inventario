@@ -16,7 +16,8 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { checkAuthStatus } from '../../redux/actions/auth/auth';
 import { AppDispatch } from '../../store';
-import FormularioCompleto from '../../components/Inventario/FormularioCompleto';
+import FormInventario from '../../components/Inventario/FormInventario';
+
 
 
 
@@ -47,7 +48,7 @@ const AnimatedRoutes: React.FC = () => {
 
                 {/* Menu Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />
-                <Route path="/FormularioCompleto" element={<FormularioCompleto />} />
+                <Route path="/FormInventario" element={<FormInventario />} />
                 {/* Fin Menu Inventario */}
 
 

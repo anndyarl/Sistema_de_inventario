@@ -8,6 +8,7 @@ import datos_inventarioReducer from './Inventario/Datos_inventariosReducer';
 import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
 import cuentaReducer from './combos/comboCuentaReducers';
 import bienReducer from './combos/comboBienReducers';
+import dependenciaReducer from './combos/comboDependenciaReducers';
 
 
 // import nRecepcionReducer from './combos/comboRecepcionReducers';
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
     obtenerRecepcionReducer,
     cuentaReducer,
     bienReducer,
+    dependenciaReducer,
 
 
     //formulario inventaro

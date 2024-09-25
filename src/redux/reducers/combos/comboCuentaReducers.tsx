@@ -8,7 +8,7 @@ import {
 
 interface CuentaState {
   loading: boolean;
-  comboCuentas: Array<{ id: number; descripcion: string }>;
+  comboCuentas: Array<{ codigo: number; descripcion: string }>;
   error: string | null;
 }
 

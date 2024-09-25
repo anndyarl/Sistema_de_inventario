@@ -1,6 +1,6 @@
 // ClaveUnica.tsx
 import React, { useEffect } from 'react';
-import { useAppDispatch } from '../../redux/hook'; 
+import { useAppDispatch } from '../../redux/hook';
 import { loginClaveUnica } from '../../redux/actions/auth/auth';
 import { DatosPersona } from '../../redux/interfaces'; // Importa la interfaz
 import { connect } from 'react-redux';
@@ -9,14 +9,14 @@ import { Navigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 
 
-interface Props {  
-    isAuthenticated: boolean | null;   
+interface Props {
+    isAuthenticated: boolean | null;
 }
 
-const ClaveUnica: React.FC<Props> = ({isAuthenticated}) => {
-    const dispatch = useAppDispatch(); 
+const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
+    const dispatch = useAppDispatch();
 
-       const handleEnviar = () => {
+    const handleEnviar = () => {
         const params = new URLSearchParams(window.location.search);
 
         /*rut = "12870560";*/
@@ -39,7 +39,7 @@ const ClaveUnica: React.FC<Props> = ({isAuthenticated}) => {
         } else {
             console.error('Datos de la persona no encontrados', datosPersona);
         }
-      };
+    };
 
     if (isAuthenticated) {
         return <Navigate to='/Home' />;
@@ -50,7 +50,7 @@ const ClaveUnica: React.FC<Props> = ({isAuthenticated}) => {
                 <h1 className="form-heading">Sistema de Inventario</h1>
                 <p className="form-heading fs-09em">
                     Sistema de apoyo en la gestión administrativa, Servicio de Salud Metropolitano Sur Oriente
-                    Departamento de Informática Unidad de Desarrollo 2020
+                    Departamento de Informática Unidad de Desarrollo 2024
                 </p>
                 <div className="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
                     {/**Producciòn */}
@@ -61,11 +61,11 @@ const ClaveUnica: React.FC<Props> = ({isAuthenticated}) => {
                         Clave Única
                     </a> */}
 
-                   {/**Desarrollo */}
-                {/* <Button onClick={handleEnviar}  type="submit" className="btn btn-primary text-center me-2">Clave Unica </Button> */}
+                    {/**Desarrollo */}
+                    {/* <Button onClick={handleEnviar}  type="submit" className="btn btn-primary text-center me-2">Clave Unica </Button> */}
 
-                   {/**Prueba */}
-                   <a href="/Login" className="btn btn-primary">
+                    {/**Prueba */}
+                    <a href="/Login" className="btn btn-primary">
                         Clave Única
                     </a>
                 </div>
@@ -76,9 +76,9 @@ const ClaveUnica: React.FC<Props> = ({isAuthenticated}) => {
 };
 
 const mapStateToProps = (state: RootState) => ({
-    isAuthenticated: state.auth.isAuthenticated,   
+    isAuthenticated: state.auth.isAuthenticated,
 });
 
 export default connect(mapStateToProps, {
-    loginClaveUnica, 
+    loginClaveUnica,
 })(ClaveUnica);

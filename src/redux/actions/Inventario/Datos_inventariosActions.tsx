@@ -28,7 +28,7 @@ export const setNFactura = (nFactura: string) => ({
   payload: nFactura,
 });
 
-export const setOrigenPresupuesto = (origenPresupuesto: string) => ({
+export const setOrigenPresupuesto = (origenPresupuesto: number) => ({
   type: 'SET_ORIGEN_PRESUPUESTO',
   payload: origenPresupuesto,
 });
@@ -53,9 +53,9 @@ export const setnombreProveedor = (nombreProveedor: string) => ({
   payload: nombreProveedor,
 });
 
-export const setModalidadCompra = (modalidadCompra: string) => ({
+export const setModalidadCompra = (modalidadDeCompra: string) => ({
   type: 'SET_MODALIDAD_COMPRA',
-  payload: modalidadCompra,
+  payload: modalidadDeCompra,
 });
 
 export const setTotalActivoFijo = (total: number) => ({
@@ -70,25 +70,25 @@ export const setResetFormulario = () => ({
 
 // Acción para enviar el formulario
 export const postFormulario = (formularioCombinado: any) => async (dispatch: Dispatch) => {
- 
-    // dispatch({ type: POST_FORMULARIO_REQUEST });
-    try {
-      const response = await axios.post('/api_inv/api/inventario/comboTraeServicio', formularioCombinado);
 
-      // Si el POST es exitoso
-      if (response.status === 200) {
-        // dispatch({
-        //   type: POST_FORMULARIO_SUCCESS,
-        //   payload: response.data,
-        // });
-        console.log('Formulario enviado correctamente');
-      }
-    } catch (error) {
+  // dispatch({ type: POST_FORMULARIO_REQUEST });
+  try {
+    const response = await axios.post('/api_inv/api/inventario/comboTraeServicio', formularioCombinado);
+
+    // Si el POST es exitoso
+    if (response.status === 200) {
       // dispatch({
-      //   type: POST_FORMULARIO_FAILURE,
-      //   error: error.message,
+      //   type: POST_FORMULARIO_SUCCESS,
+      //   payload: response.data,
       // });
-      console.error('Error al enviar el formulario:', error);
+      console.log('Formulario enviado correctamente');
     }
- 
+  } catch (error) {
+    // dispatch({
+    //   type: POST_FORMULARIO_FAILURE,
+    //   error: error.message,
+    // });
+    console.error('Error al enviar el formulario:', error);
+  }
+
 };

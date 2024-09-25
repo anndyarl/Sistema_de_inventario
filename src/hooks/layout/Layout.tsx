@@ -78,8 +78,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
         >
           <div className="d-flex flex-column h-100">
             <div className="p-3">
-              <div className="d-flex justify-content-between align-items-center">
-
+              <div className="d-flex justify-content-center align-items-center ml-4">
                 {/*Logout */}
                 <div className="dropdown">
                   <a
@@ -98,9 +97,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
                   </div>
                 </div>
 
-                <button className="btn btn-link text-white d-md-none" onClick={toggleSidebar}>
+                {/* <button className="btn btn-link text-white d-md-none" onClick={toggleSidebar}>
                   <X size={24} />
-                </button>
+                </button> */}
               </div>
             </div>
             <div className="flex-grow-1 overflow-auto">

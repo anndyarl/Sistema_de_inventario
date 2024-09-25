@@ -45,6 +45,10 @@ export const BIEN_SUCCESS = 'BIEN_SUCCESS';
 export const BIEN_FAIL = 'BIEN_FAIL';
 export const BIEN_REQUEST = 'BIEN_REQUEST';
 
+// Acción de carga combo dependencia
+export const DEPENDENCIA_SUCCESS = 'DEPENDENCIA_SUCCESS';
+export const DEPENDENCIA_FAIL = 'DEPENDENCIA_FAIL';
+export const DEPENDENCIA_REQUEST = 'DEPENDENCIA_REQUEST';
 
 
 //Datos_inventario

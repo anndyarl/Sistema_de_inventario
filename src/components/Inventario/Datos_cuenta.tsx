@@ -4,14 +4,14 @@ import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstra
 
 // Define el tipo de los elementos del combo `servicio`
 export interface Servicio {
-    codigo: string;
+    codigo: number;
     nombrE_ORD: string;
     descripcion: string;
 }
 
 // Define el tipo de los elementos del combo `cuentas`
 export interface comboCuentas {
-    id: number;
+    codigo: number;
     descripcion: string;
 }
 
@@ -21,6 +21,19 @@ export interface Bien {
     descripcion: string;
 }
 
+// Define el tipo de los elementos del combo `dependencia`
+export interface Dependencia {
+    codigo: number;
+    descripcion: string;
+    nombrE_ORD: string;
+}
+
+// Define el tipo de los elementos del listado `especie`
+export interface Especie {
+    codigoEspecie: number;
+    descripcionEspecie: string;
+}
+
 // Define el tipo de props para el componente
 interface Datos_cuentaProps {
     onNext: (cuenta: any) => void;
@@ -28,17 +41,18 @@ interface Datos_cuentaProps {
     servicios: Servicio[];
     comboCuentas: comboCuentas[];
     bien: Bien[];
+    dependencias: Dependencia[];
+
 }
 
-// Define el tipo de los elementos del combo `especie`
-export interface Especie {
-    codigoEspecie: string;
-    descripcionEspecie: string;
-}
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, bien, dependencias }) => {
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, bien }) => {
-    const [Servicio] = useState<Servicio[]>(servicios);
-    const [elementoSeleccionado, setElementoSeleccionado] = useState<Servicio | null>(null);
+    //Listado de especie
+    const [Bien] = useState<Bien[]>(bien);
+
+
+    const [elementoSeleccionado, setElementoSeleccionado] = useState<Bien | null>(null);
+
     //Cuenta es la variable de estado
     const [Cuenta, setCuenta] = useState({
         servicio: '',
@@ -46,8 +60,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
         cuenta: '',
         bien: '',
         detalles: '',
-        codigoEspecie: '',
-        descripcionEspecie: ''
+        especie: '',
+        codigoEspecie: 0,
+        descripcionEspecie: '',
     });
     const [mostrarModal, setMostrarModal] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -58,6 +73,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
         const { name, value } = e.target;
         console.log('Detección en tiempo real Formulario Cuentas', { name, value });
         setCuenta(cuentaPrevia => ({ ...cuentaPrevia, [name]: value }));
+
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -71,8 +87,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
         onBack();
     };
 
+    //Selecciona fila del listado de especies
     const handleSeleccionFila = (index: number) => {
-        const item = Servicio[index];
+        const item = Bien[index];
         setFilasSeleccionadas([index.toString()]);
         setElementoSeleccionado(item);
         console.log("Elemento seleccionado", item);
@@ -116,11 +133,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                 <div className="mb-1">
                                     <dt className="text-muted">Servicio</dt>
                                     <dd className="d-flex align-items-center">
-                                        <select className="form-select" name="servicio" onChange={handleChange}>
+                                        <select className="form-select" name="servicio" onChange={handleChange} value={Cuenta.servicio}>
                                             <option value="">Seleccione un origen</option>
-                                            {servicios.map((servicio) => (
-                                                <option key={servicio.codigo} value={servicio.codigo}>
-                                                    {servicio.nombrE_ORD}
+                                            {servicios.map((traeServicio) => (
+                                                <option key={traeServicio.codigo} value={traeServicio.codigo}>
+                                                    {traeServicio.nombrE_ORD}
                                                 </option>
                                             ))}
                                         </select>
@@ -129,11 +146,13 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                 <div className="cmb-1">
                                     <dt className="text-muted">Dependencia</dt>
                                     <dd className="d-flex align-items-center">
-                                        <select name="dependencia" className="form-select" onChange={handleChange} value={Cuenta.dependencia}>
+                                        <select className="form-select" name="dependencia" onChange={handleChange} value={Cuenta.dependencia}>
                                             <option value="">Selecciona una opción</option>
-                                            <option value="backend">Backend Developer</option>
-                                            <option value="frontend">Frontend Developer</option>
-                                            <option value="fullstack">Full Stack Developer</option>
+                                            {dependencias.map((traeDependencia) => (
+                                                <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
+                                                    {traeDependencia.nombrE_ORD}
+                                                </option>
+                                            ))}
                                         </select>
                                     </dd>
                                 </div>
@@ -142,10 +161,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                 <div className="mb-1">
                                     <dt className="text-muted">Cuenta</dt>
                                     <dd className="d-flex align-items-center">
-                                        <select name="cuenta" className="form-select" onChange={handleChange} value={Cuenta.cuenta}>
+                                        <select className="form-select" name="cuenta" onChange={handleChange} value={Cuenta.cuenta}>
                                             <option value="">Selecciona una opción</option>
                                             {comboCuentas.map((traeCuentas) => (
-                                                <option key={traeCuentas.id} value={traeCuentas.id}>
+                                                <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
                                                     {traeCuentas.descripcion}
                                                 </option>
                                             ))}
@@ -156,13 +175,12 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dt className="text-muted">Especie</dt>
                                     <dd className="d-flex align-items-center">
                                         <Button variant="primary" onClick={() => setMostrarModal(true)}>+</Button>
-                                        <select className="form-select" onChange={handleChange} value={Cuenta.codigoEspecie} disabled>
-                                            <option value="" disabled>
+                                        <select className="form-select" name="especie" onChange={handleChange} value={Cuenta.especie} disabled>
+                                            <option value="" >
                                                 {Cuenta.descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
                                             </option>
                                         </select>
                                     </dd>
-
                                 </div>
                             </Col>
                         </Row>
@@ -237,7 +255,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                             </tr>
                         </thead>
                         <tbody>
-                            {elementosActuales.map((activo, index) => (
+                            {elementosActuales.map((especie, index) => (
                                 <tr key={index}>
                                     <td>
                                         <Form.Check
@@ -246,8 +264,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                             checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
                                         />
                                     </td>
-                                    <td>{activo.codigo}</td>
-                                    <td>{activo.descripcion}</td>
+                                    <td>{especie.codigo}</td>
+                                    <td>{especie.descripcion}</td>
                                 </tr>
                             ))}
                         </tbody>
