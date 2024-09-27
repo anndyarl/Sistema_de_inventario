@@ -8,7 +8,7 @@ import {
 
 interface OrigenPresupuestoState {
   loading: boolean;
-  origenes: Array<{ codigo: number; descripcion: string }>;
+  origenes: Array<{ codigo: string; descripcion: string }>;
   error: string | null;
 }
 

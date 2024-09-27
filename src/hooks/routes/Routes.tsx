@@ -17,6 +17,7 @@ import { useEffect } from 'react';
 import { checkAuthStatus } from '../../redux/actions/auth/auth';
 import { AppDispatch } from '../../store';
 import FormInventario from '../../components/Inventario/FormInventario';
+import FormBienesFuncionarios from '../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
 
 
 
@@ -49,6 +50,7 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Menu Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />
                 <Route path="/FormInventario" element={<FormInventario />} />
+                <Route path="/BienesFuncionarios/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
                 {/* Fin Menu Inventario */}
 
 

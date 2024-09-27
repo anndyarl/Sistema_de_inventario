@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import auth from './auth/auth'; // Asegúrate de que esta ruta es correcta
+import auth from './auth/auth';
 import origenPresupuestoReducer from './combos/comboOrigenReducers';
 import modalidadCompraReducer from './combos/comboModalidadReducers';
 import servicioReducer from './combos/comboServicioReducers';
@@ -9,14 +9,10 @@ import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
 import cuentaReducer from './combos/comboCuentaReducers';
 import bienReducer from './combos/comboBienReducers';
 import dependenciaReducer from './combos/comboDependenciaReducers';
+import listadoDeEspeciesBienReducer from './combos/comboListadoDeEspeciesBienReducers';
 
 
 // import nRecepcionReducer from './combos/comboRecepcionReducers';
-
-
-
-
-
 // Define el tipo de RootState basado en tus reducers
 const rootReducer = combineReducers({
     //Autentificaciòn
@@ -30,11 +26,11 @@ const rootReducer = combineReducers({
     cuentaReducer,
     bienReducer,
     dependenciaReducer,
+    listadoDeEspeciesBienReducer,
 
 
     //formulario inventaro
     datos_inventarioReducer,
-
 
 });
 

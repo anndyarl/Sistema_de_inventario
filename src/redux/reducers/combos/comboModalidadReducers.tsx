@@ -8,7 +8,7 @@ import {
 
 interface ModalidadCompraState {
   loading: boolean;
-  modalidades: Array<{ codigo: number, descripcion: string }>;
+  modalidades: Array<{ codigo: string, descripcion: string }>;
   error: string | null;
 }
 

@@ -5,7 +5,7 @@ import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
 
-import { setTotalActivoFijo, postFormulario } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { setTotalActivoFijo, postFormInventario, setPrecio } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 import {
   setNRecepcion, setFechaRecepcion, setNOrdenCompra, setNFactura,
@@ -24,8 +24,9 @@ interface ActivoFijo {
   modelo: string;
   observaciones: string;
   serie: string;
-  precio: string;
-  general: string;
+  precio: string
+  general?: string; // Campo para errores generales
+  generalTabla?: string;
 
 }
 
@@ -34,21 +35,18 @@ interface Datos_activo_fijoProps {
   onBack: () => void;
   onReset: () => void; // vuelva a al componente Datos_inventario
   montoRecepcion: string; //declaro un props para traer montoRecepción del estado global
-  totalAF: number;
+  totalEstadoGlobal: number;
+  precioEstadoGlobal: number;
   formInventario: FormInventario;
 }
-interface GeneralErrors {
-  general?: string; // Agrega un campo para Error generales
-}
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalAF, formInventario }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalEstadoGlobal, precioEstadoGlobal, formInventario }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
     id: '', vidaUtil: '', fechaIngreso: '', marca: '', cantidad: '',
-    modelo: '', observaciones: '', serie: '', precio: '', general: ''
+    modelo: '', observaciones: '', serie: '', precio: '',
   });
-
-  const [error, Error] = useState<Partial<ActivoFijo>>({});
+  const [error, setError] = useState<Partial<ActivoFijo> & { general?: string, generalTabla?: string }>({});
   //Modal
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalConfirmar, setMostrarModalConfirmar] = useState(false);
@@ -71,10 +69,13 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     setTotal(newTotal);
   }, [cantidad, precio]);
   //---------------------------------------------------------//
-  let tempErrors: Partial<ActivoFijo> & GeneralErrors = {};
+  // Función para verificar si el total coincide con el monto de recepción
+  const totalActivoFijo = () => {
+    return total === parseFloat(montoRecepcion);
+  };
   //Validaciones
   const validate = () => {
-
+    let tempErrors: Partial<ActivoFijo> & { general?: string } = {};
     if (!currentActivo.vidaUtil) tempErrors.vidaUtil = "Vida útil es obligatoria";
     if (!/^\d+$/.test(currentActivo.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
     if (!currentActivo.fechaIngreso) tempErrors.fechaIngreso = "Fecha de Ingreso es obligatoria";
@@ -89,20 +90,16 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
     // Validación para el total activo fijo
     if (!totalActivoFijo()) {
-      tempErrors.general = "El precio y la cantidad ingresados deben coincidir con el monto de recepción, que es de $" + (montoRecepcion);
-      // tempErrors.cantidad = " ";
-      // tempErrors.precio = " ";
+      tempErrors.general = `El precio y la cantidad ingresados deben coincidir con el monto de recepción, que es de $${montoRecepcion}`;
+
       console.log("monto recepcion", montoRecepcion)
     }
 
-    Error(tempErrors);
+    setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
 
-  // Función para verificar si el total coincide con el monto de recepción
-  const totalActivoFijo = () => {
-    return total === parseFloat(montoRecepcion);
-  };
+
 
   const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -113,6 +110,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     };
 
     if (validate()) {
+
       const newActivos = Array.from({ length: cantidad }, () => ({ ...currentActivo, id: generateCorrelativeId(), }));
       setActivosFijos(prev => [...prev, ...newActivos]);
       setCurrentActivo({
@@ -125,35 +123,42 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
         observaciones: '',
         serie: '',
         precio: '',
-        general: '',
+
       });
 
-      dispatch(setTotalActivoFijo(total)); //establece total activo fijo en estado global
+      dispatch(setTotalActivoFijo(total)); //establece total activo fijo en el estado global
+      dispatch(setPrecio(precio)); //establece precio en el estado global
       setMostrarModal(false); //Cierra modal
     }
   };
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    // console.log('detectección en tiempo real', { name, value });
+    const { name, value } = e.target
     setCurrentActivo(prevData => ({ ...prevData, [name]: value }));
+    console.log('Detección en tiempo real (otros campos)', { name, value });
   };
 
   const handleCambiaSerie = (index: number, newSerie: string) => {
     setActivosFijos(prevActivos => {
-      // Verificar si la serie ya existe en otro elemento del array
+      // Limpiar el mensaje de error general cuando se empieza a escribir una nueva serie
+      setError(prevErrors => ({
+        ...prevErrors,
+        generalTabla: undefined // Limpiar el mensaje de error inmediatamente
+      }));
+
+      // Comprobar si la nueva serie ya existe en otro activo
       const serieExists = prevActivos.some((activo, i) => activo.serie === newSerie && i !== index);
+      console.log('Detección en tiempo real (serie)', { index, newSerie });
 
       if (serieExists) {
-
-        // alert("Esta serie ya existe en otro activo. Introduce un valor único.");
-        tempErrors.general = "Esta serie ya existe en otro activo. Introduce un valor único.";
-        Error(tempErrors);
-        return prevActivos; // No se realizan cambios si la serie ya existe
+        setError(prevErrors => ({
+          ...prevErrors,
+          generalTabla: "Esta serie ya existe en otro activo. Introduce un valor único."
+        }));
+        return prevActivos; // Retornar sin modificar si la serie ya existe
       }
 
-      // Si no existe, actualizar la serie del activo correspondiente
       return prevActivos.map((activo, i) =>
         i === index ? { ...activo, serie: newSerie } : activo
       );
@@ -193,6 +198,12 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
   const handleEliminar = (index: number) => {
     setActivosFijos(prev => prev.filter((_, i) => i !== index));
+    const totalEstadoActualizado = totalEstadoGlobal - precioEstadoGlobal
+    dispatch(setTotalActivoFijo(totalEstadoActualizado));
+
+    // dispatch(setMontoRecepcion(totalEstadoGlobal));
+    console.log("precio", precioEstadoGlobal);
+    console.log("totalEstadoGlobal", totalEstadoGlobal);
   };
 
   //-------------Fin Funciones de la tabla --------------------//
@@ -216,7 +227,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       ...formInventario.datosCuenta,
       activosFijos: formInventario.datosActivoFijo,
     };
-    postFormulario(FormulariosCombinados);
+
+    postFormInventario(formInventario.datosInventario);
+
 
     //Resetea todo el formualario al estado inicial
     dispatch(setTotalActivoFijo(total));
@@ -224,7 +237,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     dispatch(setFechaRecepcion(''));
     dispatch(setNOrdenCompra(''));
     dispatch(setNFactura(''));
-    dispatch(setOrigenPresupuesto(''));
+    dispatch(setOrigenPresupuesto(0));
     dispatch(setMontoRecepcion(0));
     dispatch(setFechaFactura(''));
     dispatch(setRutProveedor(''));
@@ -234,6 +247,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
     // Log para verificar los datos combinados
     console.log("Formulario completo combinado:", FormulariosCombinados)
+    console.log("formInventario.datosInventario:", formInventario.datosInventario)
     console.log("Total activo fijo", total);
 
   };
@@ -256,14 +270,14 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       <div className="justify-content-end navbar navbar-light">
         <div className="navbar-nav mb-2 mb-lg-0 me-3">
           <p className="nav-item nav-link mb-0">
-            <strong>Total Activo Fijo:</strong> ${totalAF.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
+            <strong>Total Activo Fijo:</strong> ${totalEstadoGlobal.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
           </p>
         </div>
       </div>
 
       <h3 className="form-title mb-4">Detalle Activo</h3>
-      {/* Boton abre Modal formulario activos fijo */}
-      {totalAF !== parseFloat(montoRecepcion) && (
+      {/* habilita Boton Modal formulario activos fijo si no coinciden el total con el monto recepcion */}
+      {totalEstadoGlobal !== parseFloat(montoRecepcion) && (
         <Button variant="primary" onClick={() => setMostrarModal(true)} className="mb-1 me-2">+</Button>
       )}
 
@@ -273,12 +287,13 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
           Eliminar Seleccionados
         </Button>
       )}
-      <div>
-        {error.general && (
-          <p className="alert alert-danger">{error.general}</p>
-        )}
-      </div>
-      {/* Tabla*/}
+      {/* Mostrar errores generales */}
+      {error.generalTabla && (
+        <div className="alert alert-danger" role="alert">
+          {error.generalTabla}
+        </div>
+      )}
+      {/* Tabla */}
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -314,6 +329,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
                     autoFocus
                     maxLength={10}
                     pattern="\d*"
+                    data-index={index}
+                    // Agregar clase condicional si hay un error en la serie
+                    className={error?.generalTabla ? 'is-invalid' : ''}
                   />
                 ) : (
                   <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -366,11 +384,12 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
           <Modal.Title>Agregar Activo Fijo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>
-            {error.general && (
-              <p className="alert alert-danger">{error.general}</p>
-            )}
-          </div>
+          {/* Mostrar errores generales en el modal */}
+          {error.general && (
+            <div className="alert alert-danger" role="alert">
+              {error.general}
+            </div>
+          )}
           <form onSubmit={handleAgregar}>
             <Row>
               <div className="d-flex justify-content-end ">
@@ -409,11 +428,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
               </Col>
 
               <Col md={6}>
-                <div className="mb-1">
+                {/* <div className="mb-1">
                   <label htmlFor="serie" className="form-label">Serie</label>
                   <input type="text" className={`form-control ${error.serie ? 'is-invalid' : ''}`} id="serie" name="serie" onChange={handleChange} value={currentActivo.serie} />
                   {error.serie && <div className="invalid-feedback">{error.serie}</div>}
-                </div>
+                </div> */}
 
                 <div className="mb-1">
                   <label htmlFor="precio" className="form-label">Precio</label>
@@ -469,8 +488,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
 const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
-  totalAF: state.datos_inventarioReducer.totalActivoFijo,
-  resetFormulario: state.datos_inventarioReducer.resetFormulario
+  totalEstadoGlobal: state.datos_inventarioReducer.totalEstadoGlobal,
+  resetFormulario: state.datos_inventarioReducer.resetFormulario,
+  precioEstadoGlobal: state.datos_inventarioReducer.precio,
+  token: state.auth.token // se utiliza el token aqui para pasarselo al postFormInventario
 
 });
 export default connect(mapStateToProps, {

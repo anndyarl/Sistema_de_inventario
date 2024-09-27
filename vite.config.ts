@@ -33,7 +33,6 @@ export default defineConfig({
   build: {
     sourcemap: true,  // Habilitar source maps en la construcción
   },
-  
  
 });
 

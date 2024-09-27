@@ -29,9 +29,10 @@ export interface Dependencia {
 }
 
 // Define el tipo de los elementos del listado `especie`
-export interface Especie {
-    codigoEspecie: number;
-    descripcionEspecie: string;
+export interface ListadoEspecies {
+    codigo: number;
+    descripcion: string;
+    // nombrE_ESP: string;
 }
 
 // Define el tipo de props para el componente
@@ -42,16 +43,15 @@ interface Datos_cuentaProps {
     comboCuentas: comboCuentas[];
     bien: Bien[];
     dependencias: Dependencia[];
+    listadoEspecies: ListadoEspecies[] | undefined | null;
+
+
+    onServicioSeleccionado: (codigoServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+    servicioSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
 
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, bien, dependencias }) => {
-
-    //Listado de especie
-    const [Bien] = useState<Bien[]>(bien);
-
-
-    const [elementoSeleccionado, setElementoSeleccionado] = useState<Bien | null>(null);
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, bien, dependencias, listadoEspecies, onServicioSeleccionado }) => {
 
     //Cuenta es la variable de estado
     const [Cuenta, setCuenta] = useState({
@@ -63,9 +63,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
         especie: '',
         codigoEspecie: 0,
         descripcionEspecie: '',
+
     });
     const [mostrarModal, setMostrarModal] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [elementoSeleccionado, setElementoSeleccionado] = useState<ListadoEspecies>();
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 10;
 
@@ -73,6 +75,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
         const { name, value } = e.target;
         console.log('Detección en tiempo real Formulario Cuentas', { name, value });
         setCuenta(cuentaPrevia => ({ ...cuentaPrevia, [name]: value }));
+
+        if (name === 'servicio') {
+            // Llama a la función para enviar el servicio seleccionado al componente padre
+            onServicioSeleccionado(value);
+        }
 
     };
 
@@ -89,7 +96,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
 
     //Selecciona fila del listado de especies
     const handleSeleccionFila = (index: number) => {
-        const item = Bien[index];
+        const item = listadoEspecies[index];
         setFilasSeleccionadas([index.toString()]);
         setElementoSeleccionado(item);
         console.log("Elemento seleccionado", item);
@@ -98,11 +105,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
     const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (elementoSeleccionado) {
+        if (typeof elementoSeleccionado === 'object' && elementoSeleccionado !== null) {
             setCuenta(cuentaPrevia => ({
                 ...cuentaPrevia,
-                codigoEspecie: elementoSeleccionado.codigo,
-                descripcionEspecie: elementoSeleccionado.descripcion
+                codigoEspecie: (elementoSeleccionado as ListadoEspecies).codigo,
+                descripcionEspecie: (elementoSeleccionado as ListadoEspecies).descripcion
             }));
             setMostrarModal(false);
             console.log("Elemento seleccionado:", elementoSeleccionado);
@@ -114,8 +121,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(() => bien.slice(indicePrimerElemento, indiceUltimoElemento), [bien, indicePrimerElemento, indiceUltimoElemento]);
-    const totalPaginas = Math.ceil(bien.length / elementosPorPagina);
+    const elementosActuales = useMemo(() => listadoEspecies.slice(indicePrimerElemento, indiceUltimoElemento), [listadoEspecies, indicePrimerElemento, indiceUltimoElemento]);
+    // const totalPaginas = Math.ceil(listadoEspecies.length / elementosPorPagina);
+    const totalPaginas = Array.isArray(listadoEspecies) ? Math.ceil(listadoEspecies.length / elementosPorPagina) : 0;
+
 
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -133,7 +142,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                 <div className="mb-1">
                                     <dt className="text-muted">Servicio</dt>
                                     <dd className="d-flex align-items-center">
-                                        <select className="form-select" name="servicio" onChange={handleChange} value={Cuenta.servicio}>
+                                        <select className="form-select" name="servicio" onChange={handleChange} value={Cuenta.servicio || ''}>
                                             <option value="">Seleccione un origen</option>
                                             {servicios.map((traeServicio) => (
                                                 <option key={traeServicio.codigo} value={traeServicio.codigo}>
@@ -146,8 +155,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                 <div className="cmb-1">
                                     <dt className="text-muted">Dependencia</dt>
                                     <dd className="d-flex align-items-center">
-                                        <select className="form-select" name="dependencia" onChange={handleChange} value={Cuenta.dependencia}>
-                                            <option value="">Selecciona una opción</option>
+                                        <select className="form-select" name="dependencia" disabled={!Cuenta.servicio} onChange={handleChange} value={Cuenta.dependencia}>
+                                            <option value="" >Selecciona una opción</option>
                                             {dependencias.map((traeDependencia) => (
                                                 <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
                                                     {traeDependencia.nombrE_ORD}
@@ -174,7 +183,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                 <div className="mb-1">
                                     <dt className="text-muted">Especie</dt>
                                     <dd className="d-flex align-items-center">
+                                        {/* si el listado tiene datos se habilita el boton */}
                                         <Button variant="primary" onClick={() => setMostrarModal(true)}>+</Button>
+
                                         <select className="form-select" name="especie" onChange={handleChange} value={Cuenta.especie} disabled>
                                             <option value="" >
                                                 {Cuenta.descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
@@ -224,17 +235,19 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                         </select>
                                     </dd>
                                 </div>
-                                <div className="mb-1">
+                                {/* <div className="mb-1">
                                     <dt className="text-muted">Detalles</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="detalles" className="form-select" onChange={handleChange} value={Cuenta.detalles}>
                                             <option value="">Selecciona una opción</option>
-                                            <option value="backend">Backend Developer</option>
-                                            <option value="frontend">Frontend Developer</option>
-                                            <option value="fullstack">Full Stack Developer</option>
+                                            {listadoEspecies.map((traeListado) => (
+                                                <option key={traeListado.codigo} value={traeListado.codigo}>
+                                                    {traeListado.descripcion}
+                                                </option>
+                                            ))}
                                         </select>
                                     </dd>
-                                </div>
+                                </div> */}
                                 <div className="mb-1">
                                     <dd className="d-flex align-items-center">
                                         <input type="text" name="" className="form-control" />
@@ -250,12 +263,13 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Codigo Especie</th>
-                                <th>Nombre Especie</th>
+                                <th>Establecimiento</th>
+                                <th>Nombre</th>
+                                {/* <th>Especie</th> */}
                             </tr>
                         </thead>
                         <tbody>
-                            {elementosActuales.map((especie, index) => (
+                            {elementosActuales.map((listadoEspecies, index) => (
                                 <tr key={index}>
                                     <td>
                                         <Form.Check
@@ -264,13 +278,14 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                             checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
                                         />
                                     </td>
-                                    <td>{especie.codigo}</td>
-                                    <td>{especie.descripcion}</td>
+                                    <td>{listadoEspecies.codigo}</td>
+                                    <td>{listadoEspecies.descripcion}</td>
+                                    {/* <td>{listadoEspecies.nombrE_ESP}</td> */}
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
-                    {/* Paginador*/}
+
                     {/* Paginador */}
                     <Pagination className="d-flex justify-content-end">
                         <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />

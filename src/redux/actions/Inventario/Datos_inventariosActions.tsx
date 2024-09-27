@@ -1,6 +1,10 @@
 import { Dispatch } from "redux";
 import axios from 'axios';
-
+import {
+  POST_FORMULARIO_REQUEST,
+  POST_FORMULARIO_SUCCESS,
+  POST_FORMULARIO_FAIL,
+} from '../types';
 
 
 export const setNRecepcion = (nRecepcion: string) => ({
@@ -62,6 +66,10 @@ export const setTotalActivoFijo = (total: number) => ({
   type: 'SET_TOTAL_ACTIVO_FIJO',
   payload: total,
 });
+export const setPrecio = (precio: number) => ({
+  type: 'SET_PRECIO',
+  payload: precio,
+});
 
 export const setResetFormulario = () => ({
   type: 'RESET_FORMULARIO',
@@ -69,26 +77,33 @@ export const setResetFormulario = () => ({
 
 
 // Acción para enviar el formulario
-export const postFormulario = (formularioCombinado: any) => async (dispatch: Dispatch) => {
+export const postFormInventario = (formularioCombinado: any) => async (dispatch: Dispatch, getState: any) => {
+  const token = getState().auth.token; //token está en el estado de autenticación
+  if (token) {
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      },
+    };
+    dispatch({ type: POST_FORMULARIO_REQUEST });
+    try {
+      const response = await axios.post('/api_inv/api/inventario/crearActivoFijoTest', formularioCombinado, config);
 
-  // dispatch({ type: POST_FORMULARIO_REQUEST });
-  try {
-    const response = await axios.post('/api_inv/api/inventario/comboTraeServicio', formularioCombinado);
-
-    // Si el POST es exitoso
-    if (response.status === 200) {
-      // dispatch({
-      //   type: POST_FORMULARIO_SUCCESS,
-      //   payload: response.data,
-      // });
-      console.log('Formulario enviado correctamente');
+      // Si el POST es exitoso
+      if (response.status === 200) {
+        dispatch({
+          type: POST_FORMULARIO_SUCCESS,
+          payload: response.data,
+        });
+        console.log('formInventario datosInventario: enviado correctamente');
+      }
+    } catch (error) {
+      dispatch({
+        type: POST_FORMULARIO_FAIL,
+        // error: error.message,
+      });
+      console.error('Error al enviar el formulario:', error);
     }
-  } catch (error) {
-    // dispatch({
-    //   type: POST_FORMULARIO_FAILURE,
-    //   error: error.message,
-    // });
-    console.error('Error al enviar el formulario:', error);
   }
-
 };

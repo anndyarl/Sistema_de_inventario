@@ -17,8 +17,9 @@ interface DatosInventarioState {
   rutProveedor: string;
   nombreProveedor: string;
   modalidadDeCompra: string;
-  totalActivoFijo: number;
+  totalEstadoGlobal: number;
   resetFormulario: [];
+  precio: number;
 }
 
 // Estado inicial tipado
@@ -33,8 +34,9 @@ const initialState: DatosInventarioState = {
   rutProveedor: '',
   nombreProveedor: '',
   modalidadDeCompra: '',
-  totalActivoFijo: 0,
+  totalEstadoGlobal: 0,
   resetFormulario: [],
+  precio: 0,
 
 };
 
@@ -63,7 +65,9 @@ const datos_inventarioReducer = (state = initialState, action: any) => {
     case 'SET_MODALIDAD_COMPRA':
       return { ...state, modalidadDeCompra: action.payload };
     case 'SET_TOTAL_ACTIVO_FIJO':
-      return { ...state, totalActivoFijo: action.payload };
+      return { ...state, totalEstadoGlobal: action.payload };
+    case 'SET_PRECIO':
+      return { ...state, precio: action.payload };
     case 'RESET_FORMULARIO':
       return { ...initialState, payload: initialState };
     case RECEPCION_REQUEST:
