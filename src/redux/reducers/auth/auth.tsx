@@ -1,7 +1,7 @@
 import {
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
-    LOGIN_FAILURE,  
+    LOGIN_FAIL,
     LOGOUT,
     SET_TOKEN
 } from '../../actions/types';
@@ -12,9 +12,9 @@ interface AuthState {
     user: any; // Define el tipo de usuario si lo conoces
     access: string | null;
     isAuthenticated: boolean | null;
-    loading: boolean;  
+    loading: boolean;
     error: string | null; // Añade error al estado
-    token:string | null;   
+    token: string | null;
     logout: any;
 }
 
@@ -23,9 +23,9 @@ const initialState: AuthState = {
     user: null,
     access: null,
     isAuthenticated: false,
-    loading: false,   
+    loading: false,
     error: null, // Inicializa error como null
-    token:null,
+    token: null,
     logout: null,
 };
 
@@ -38,19 +38,19 @@ interface Action {
 export default function auth(state = initialState, action: Action): AuthState {
     const { type, payload } = action;
 
-    switch (type) {              
+    switch (type) {
         case LOGIN_REQUEST:
-            return {...state,loading: true, error: null};
+            return { ...state, loading: true, error: null };
         case LOGIN_SUCCESS:
-            return {...state, loading: false, token: payload, isAuthenticated: true};
-        case LOGIN_FAILURE: 
-        return { ...state, loading: false, error: action.payload.error, isAuthenticated: false, token: null };      
-        case 'LOGOUT':
+            return { ...state, loading: false, token: payload, isAuthenticated: true };
+        case LOGIN_FAIL:
+            return { ...state, loading: false, error: action.payload, isAuthenticated: false, token: null };
+        case LOGOUT:
             localStorage.removeItem('token');
-            return { ...state, logout: action.payload, isAuthenticated: false, token:null} ;
-           
+            return { ...state, logout: action.payload, isAuthenticated: false, token: null };
+
         case SET_TOKEN:
-             return {...state, token: payload }       
+            return { ...state, token: payload }
         default:
             return state;
     }

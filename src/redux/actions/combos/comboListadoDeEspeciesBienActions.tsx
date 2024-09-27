@@ -8,9 +8,8 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
+export const comboListadoDeEspeciesBien = (token: string, EST: string, IDBIEN: string) => async (dispatch: Dispatch) => {
 
-export const comboListadoDeEspeciesBien = (EST: number, IDBIEN: string) => async (dispatch: Dispatch, getState: any) => {
-    const token = getState().auth.token; //token está en el estado de autenticación
     if (token) {
         const config = {
             headers: {

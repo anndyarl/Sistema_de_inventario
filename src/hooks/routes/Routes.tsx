@@ -13,7 +13,7 @@ import Configuracion from '../../containers/pages/Configuracion';
 import ClaveUnica from '../../containers/pages/ClaveUnica';
 import SesionExpirada from '../../containers/errors/SesionExpirada';
 import { useDispatch } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { checkAuthStatus } from '../../redux/actions/auth/auth';
 import { AppDispatch } from '../../store';
 import FormInventario from '../../components/Inventario/FormInventario';
@@ -25,7 +25,6 @@ import FormBienesFuncionarios from '../../components/Inventario/BienesFuncionari
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
-
     const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch
 
     useEffect(() => {

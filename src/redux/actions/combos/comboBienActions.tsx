@@ -9,6 +9,7 @@ import { Dispatch } from 'redux';
 
 // Acción para obtener servicio
 export const comboBien = (token: string) => async (dispatch: Dispatch) => {
+
     if (token) {
         const config = {
             headers: {
@@ -18,9 +19,11 @@ export const comboBien = (token: string) => async (dispatch: Dispatch) => {
         };
 
         dispatch({ type: BIEN_REQUEST });
+        // const EST = 1;
+        // const IDBIEN = 37;
 
         try {
-            const res = await axios.get('/api_inv/api/inventario/comboTraeBien', config);
+            const res = await axios.get(`/api_inv/api/inventario/comboTraeBien`, config);
 
             if (res.status === 200) {
                 dispatch({

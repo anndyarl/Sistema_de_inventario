@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../hooks/layout/Layout';
 import DatosInventario, { OrigenPresupuesto, ModalidadCompra } from './Datos_inventario';
-import DatosCuenta, { Servicio, comboCuentas, Dependencia, Bien, ListadoEspecies } from './Datos_cuenta';
+import DatosCuenta, { Servicio, comboCuentas, Dependencia, ListaEspecie } from './Datos_cuenta';
 import DatosActivoFijo from './Datos_activo_fijo';
 import Timeline from './Timeline';
 
@@ -38,18 +38,18 @@ interface FormInventarioProps {
   comboServicio: (token: string) => void
   comboCuentas: comboCuentas[];
   comboCuenta: (token: string) => void
-  bien: Bien[];
+  listaEspecie: ListaEspecie[];
   comboBien: (token: string) => void
   dependencias: Dependencia[];
   comboDependencia: (servicioSeleccionado: string) => void;
 
-  listadoEspeciesForm: ListadoEspecies[] | null | undefined;
-  comboListadoDeEspeciesBien: (EST: number, IDBIEN: string) => void;
+
+  comboListadoDeEspeciesBien: (token: string, EST: number, IDBIEN: string) => void;
 
   token: string | null;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ origenes, modalidades, servicios, comboCuentas, bien, dependencias, listadoEspeciesForm = [], comboOrigenPresupuesto, comboModalidadCompra, comboServicio, comboCuenta, comboBien, comboDependencia, comboListadoDeEspeciesBien, token }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({ origenes, modalidades, servicios, comboCuentas, listaEspecie, dependencias, bien, comboOrigenPresupuesto, comboModalidadCompra, comboServicio, comboCuenta, comboBien, comboDependencia, comboListadoDeEspeciesBien, token }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -85,15 +85,16 @@ const FormInventario: React.FC<FormInventarioProps> = ({ origenes, modalidades, 
       comboCuenta(token);
     }
 
+    if (token && listaEspecie.length === 0) {
+
+      comboListadoDeEspeciesBien(token, 1, "37");
+    }
+
     if (token && bien.length === 0) {
       comboBien(token);
     }
-
-    if (listadoEspeciesForm.length === 0) {
-      comboListadoDeEspeciesBien(1, "37");
-    }
-    console.log("listadoEspecies en Datos_cuenta:", listadoEspeciesForm);
-  }, [comboOrigenPresupuesto, comboModalidadCompra, comboServicio, comboListadoDeEspeciesBien]);
+    console.log("listadoEspecies en Datos_cuenta:", listaEspecie);
+  }, [comboOrigenPresupuesto, comboModalidadCompra, comboServicio, comboBien, comboListadoDeEspeciesBien]);
 
 
   const handleNext = (data: Record<string, any>) => {
@@ -140,7 +141,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ origenes, modalidades, 
         <Timeline Formulario_actual={step} />
         {step === 0 && <DatosInventario onNext={handleNext} origenes={origenes} modalidades={modalidades} />}
         {step === 1 && <DatosCuenta onBack={handleBack} onNext={handleNext} servicios={servicios} comboCuentas={comboCuentas}
-          bien={bien} dependencias={dependencias} listadoEspecies={listadoEspeciesForm} onServicioSeleccionado={handleServicioSeleccionado} servicioSeleccionado={servicioSeleccionado} />}
+          listaEspecie={listaEspecie} bien={bien} dependencias={dependencias} onServicioSeleccionado={handleServicioSeleccionado} servicioSeleccionado={servicioSeleccionado} />}
         {step === 2 && <DatosActivoFijo onBack={handleBack} onNext={handleNext} formInventario={formularios} onReset={handleReset} />}
       </div>
     </Layout>
@@ -155,7 +156,7 @@ const mapStateToProps = (state: RootState) => ({
   comboCuentas: state.cuentaReducer.comboCuentas,
   bien: state.bienReducer.bien,
   dependencias: state.dependenciaReducer.dependencias,
-  listadoDeEspecies: state.listadoDeEspeciesBienReducer.listadoDeEspecies,
+  listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
   token: state.auth.token
 });
 

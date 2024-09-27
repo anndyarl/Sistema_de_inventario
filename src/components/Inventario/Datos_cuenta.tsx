@@ -15,12 +15,6 @@ export interface comboCuentas {
     descripcion: string;
 }
 
-// Define el tipo de los elementos del combo `bien`
-export interface Bien {
-    codigo: number;
-    descripcion: string;
-}
-
 // Define el tipo de los elementos del combo `dependencia`
 export interface Dependencia {
     codigo: number;
@@ -28,22 +22,28 @@ export interface Dependencia {
     nombrE_ORD: string;
 }
 
-// Define el tipo de los elementos del listado `especie`
-export interface ListadoEspecies {
-    codigo: number;
-    descripcion: string;
-    // nombrE_ESP: string;
+
+// Define el tipo de los elementos del combo `ListaEspecie`
+export interface ListaEspecie {
+    estabL_CORR: number;
+    esP_CODIGO: string;
+    nombrE_ESP: string;
 }
 
+// Define el tipo de los elementos del combo `ListaEspecie`
+export interface Bien {
+    codigo: number;
+    descripcion: string;
+}
 // Define el tipo de props para el componente
 interface Datos_cuentaProps {
     onNext: (cuenta: any) => void;
     onBack: () => void;
     servicios: Servicio[];
     comboCuentas: comboCuentas[];
-    bien: Bien[];
+    listaEspecie: ListaEspecie[];
     dependencias: Dependencia[];
-    listadoEspecies: ListadoEspecies[] | undefined | null;
+    bien: Bien[];
 
 
     onServicioSeleccionado: (codigoServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
@@ -51,7 +51,7 @@ interface Datos_cuentaProps {
 
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, bien, dependencias, listadoEspecies, onServicioSeleccionado }) => {
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, listaEspecie, dependencias, bien, onServicioSeleccionado }) => {
 
     //Cuenta es la variable de estado
     const [Cuenta, setCuenta] = useState({
@@ -67,7 +67,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
     });
     const [mostrarModal, setMostrarModal] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-    const [elementoSeleccionado, setElementoSeleccionado] = useState<ListadoEspecies>();
+    const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 10;
 
@@ -96,7 +96,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
 
     //Selecciona fila del listado de especies
     const handleSeleccionFila = (index: number) => {
-        const item = listadoEspecies[index];
+        const item = listaEspecie[index];
         setFilasSeleccionadas([index.toString()]);
         setElementoSeleccionado(item);
         console.log("Elemento seleccionado", item);
@@ -108,8 +108,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
         if (typeof elementoSeleccionado === 'object' && elementoSeleccionado !== null) {
             setCuenta(cuentaPrevia => ({
                 ...cuentaPrevia,
-                codigoEspecie: (elementoSeleccionado as ListadoEspecies).codigo,
-                descripcionEspecie: (elementoSeleccionado as ListadoEspecies).descripcion
+                codigoEspecie: (elementoSeleccionado as ListaEspecie).estabL_CORR,
+                descripcionEspecie: (elementoSeleccionado as ListaEspecie).esP_CODIGO + " " + (elementoSeleccionado as ListaEspecie).nombrE_ESP
             }));
             setMostrarModal(false);
             console.log("Elemento seleccionado:", elementoSeleccionado);
@@ -121,9 +121,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(() => listadoEspecies.slice(indicePrimerElemento, indiceUltimoElemento), [listadoEspecies, indicePrimerElemento, indiceUltimoElemento]);
+    const elementosActuales = useMemo(() => listaEspecie.slice(indicePrimerElemento, indiceUltimoElemento), [listaEspecie, indicePrimerElemento, indiceUltimoElemento]);
     // const totalPaginas = Math.ceil(listadoEspecies.length / elementosPorPagina);
-    const totalPaginas = Array.isArray(listadoEspecies) ? Math.ceil(listadoEspecies.length / elementosPorPagina) : 0;
+    const totalPaginas = Array.isArray(listaEspecie) ? Math.ceil(listaEspecie.length / elementosPorPagina) : 0;
 
 
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
@@ -204,7 +204,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
             </form>
 
             {/* Modal formulario Activos Fijo*/}
-            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
+            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title>Listado de Especies</Modal.Title>
                 </Modal.Header>
@@ -265,7 +265,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                 <th></th>
                                 <th>Establecimiento</th>
                                 <th>Nombre</th>
-                                {/* <th>Especie</th> */}
+                                <th>Especie</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -278,9 +278,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                             checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
                                         />
                                     </td>
-                                    <td>{listadoEspecies.codigo}</td>
-                                    <td>{listadoEspecies.descripcion}</td>
-                                    {/* <td>{listadoEspecies.nombrE_ESP}</td> */}
+                                    <td>{listadoEspecies.estabL_CORR}</td>
+                                    <td>{listadoEspecies.esP_CODIGO}</td>
+                                    <td>{listadoEspecies.nombrE_ESP}</td>
                                 </tr>
                             ))}
                         </tbody>

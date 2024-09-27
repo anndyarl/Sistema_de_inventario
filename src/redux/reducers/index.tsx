@@ -9,7 +9,7 @@ import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
 import cuentaReducer from './combos/comboCuentaReducers';
 import bienReducer from './combos/comboBienReducers';
 import dependenciaReducer from './combos/comboDependenciaReducers';
-import listadoDeEspeciesBienReducer from './combos/comboListadoDeEspeciesBienReducers';
+import comboListadoDeEspeciesBien from './combos/comboListadoDeEspeciesBienReducers';
 
 
 // import nRecepcionReducer from './combos/comboRecepcionReducers';
@@ -26,7 +26,7 @@ const rootReducer = combineReducers({
     cuentaReducer,
     bienReducer,
     dependenciaReducer,
-    listadoDeEspeciesBienReducer,
+    comboListadoDeEspeciesBien,
 
 
     //formulario inventaro

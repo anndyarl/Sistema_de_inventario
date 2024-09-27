@@ -16,7 +16,7 @@ import { Button, Col, Row } from 'react-bootstrap';
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface OrigenPresupuesto {
-  codigo: number;
+  codigo: string;
   descripcion: string;
 }
 

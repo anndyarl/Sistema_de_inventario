@@ -2,7 +2,7 @@ import axios from 'axios';
 import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
-  LOGIN_FAILURE,
+  LOGIN_FAIL,
   SET_TOKEN,
   LOGOUT,
 
@@ -39,16 +39,16 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
 
       } else {
         // console.error('Token no encontrado en la respuesta del servidor');
-        dispatch({ type: LOGIN_FAILURE });
+        dispatch({ type: LOGIN_FAIL, payload: { error: 'Token no encontrado en la respuesta del servidor' } });
 
       }
     } else {
       // console.error('Error en la respuesta del servidor:', res.status);
-      dispatch({ type: LOGIN_FAILURE });
+      dispatch({ type: LOGIN_FAIL, payload: { error: 'Error en la respuesta del servidor' } });
     }
   } catch (err) {
     // console.error('Error en la solicitud:', err);
-    dispatch({ type: LOGIN_FAILURE });
+    dispatch({ type: LOGIN_FAIL, payload: { error: '500 (Internal Server Error)' } });
   }
 };
 
@@ -79,15 +79,15 @@ export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: 
         dispatch({ type: SET_TOKEN, payload: token });
       } else {
         console.error('Token no encontrado en la respuesta del servidor');
-        dispatch({ type: LOGIN_FAILURE });
+        dispatch({ type: LOGIN_FAIL });
       }
     } else {
       console.error('Error en la respuesta del servidor:', res.status);
-      dispatch({ type: LOGIN_FAILURE });
+      dispatch({ type: LOGIN_FAIL });
     }
   } catch (err) {
     console.error('Error en la solicitud:', err);
-    dispatch({ type: LOGIN_FAILURE });
+    dispatch({ type: LOGIN_FAIL });
   }
 };
 
@@ -104,7 +104,7 @@ export const checkAuthStatus = () => (dispatch: Dispatch) => {
     dispatch({ type: SET_TOKEN, payload: token });
     dispatch({ type: LOGIN_SUCCESS, payload: token }); // Asume que el token es válido
   } else {
-    dispatch({ type: LOGIN_FAILURE, payload: { error: 'No se encontró un token' } });
+    dispatch({ type: LOGIN_FAIL });
   }
 };
 
