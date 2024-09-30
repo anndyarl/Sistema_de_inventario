@@ -1,38 +1,38 @@
 // reducers/origenPresupuestoReducer.ts
 import {
-  BIEN_REQUEST,
-  BIEN_SUCCESS,
-  BIEN_FAIL,
+  BIEN_DETALLES_REQUEST,
+  BIEN_DETALLES_SUCCESS,
+  BIEN_DETALLES_FAIL,
 
 } from '../../actions/types';
 
-interface BienState {
+interface DetallesState {
   loading: boolean;
-  bien: Array<{ codigo: number; descripcion: string }>;
+  detalles: Array<{ codigo: string; descripcion: string }>;
   error: string | null;
 }
 
-const initialState: BienState = {
+const initialState: DetallesState = {
   loading: false,
-  bien: [],
+  detalles: [],
   error: null,
 };
 
-const bienReducer = (state = initialState, action: any): BienState => {
+const detallesReducer = (state = initialState, action: any): DetallesState => {
   switch (action.type) {
-    case BIEN_REQUEST:
+    case BIEN_DETALLES_REQUEST:
       return {
         ...state,
         loading: true,
         error: null
       };
-    case BIEN_SUCCESS:
+    case BIEN_DETALLES_SUCCESS:
       return {
         ...state,
         loading: false,
-        bien: action.payload
+        detalles: action.payload
       };
-    case BIEN_FAIL:
+    case BIEN_DETALLES_FAIL:
       return {
         ...state,
         loading: false,
@@ -43,4 +43,4 @@ const bienReducer = (state = initialState, action: any): BienState => {
   }
 };
 
-export default bienReducer;
+export default detallesReducer;

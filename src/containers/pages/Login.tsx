@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { login } from '../../redux/actions/auth/auth'; // Elimina buscar_unidades si no se usa aquí
@@ -37,7 +37,29 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
         return <Navigate to='/Home' />;
     }
 
-    console.log("error", error)
+
+    const [submitCount, setSubmitCount] = useState(0); // Estado para contar ejecuciones
+
+    useEffect(() => {
+        if (error) {
+            const handleAutoSubmit = async () => {
+                setLoading(true);
+                await login(usuario, password);
+                setLoading(false);
+            };
+
+            handleAutoSubmit();
+
+            // Incrementar el contador cada vez que se ejecuta el useEffect
+            setSubmitCount((prevCount) => prevCount + 1);
+            console.log("Error detectado", error);
+        }
+    }, [error]); // Ejecuta la lógica cuando ocurre un error
+
+    useEffect(() => {
+        console.log("El useEffect se ha ejecutado", submitCount, "veces.");
+    }, [submitCount]); // Mostrar cuántas veces se ha ejecutado el useEffect
+
     return (
 
         <div className="container d-flex justify-content-center align-items-center vh-100 ">

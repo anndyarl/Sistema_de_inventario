@@ -7,9 +7,10 @@ import servicioReducer from './combos/comboServicioReducers';
 import datos_inventarioReducer from './Inventario/Datos_inventariosReducer';
 import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
 import cuentaReducer from './combos/comboCuentaReducers';
-import bienReducer from './combos/comboBienReducers';
+// import bienReducer from './combos/comboBienReducers.tsx.old';
 import dependenciaReducer from './combos/comboDependenciaReducers';
 import comboListadoDeEspeciesBien from './combos/comboListadoDeEspeciesBienReducers';
+import detallesReducer from './combos/comboDetallesReducers';
 
 
 // import nRecepcionReducer from './combos/comboRecepcionReducers';
@@ -24,10 +25,10 @@ const rootReducer = combineReducers({
     modalidadCompraReducer,
     obtenerRecepcionReducer,
     cuentaReducer,
-    bienReducer,
+    // bienReducer,
     dependenciaReducer,
     comboListadoDeEspeciesBien,
-
+    detallesReducer,
 
     //formulario inventaro
     datos_inventarioReducer,

@@ -35,6 +35,13 @@ export interface Bien {
     codigo: number;
     descripcion: string;
 }
+
+// Define el tipo de los elementos del combo `detalles`
+export interface Detalles {
+    codigo: string;
+    descripcion: string;
+}
+
 // Define el tipo de props para el componente
 interface Datos_cuentaProps {
     onNext: (cuenta: any) => void;
@@ -44,14 +51,21 @@ interface Datos_cuentaProps {
     listaEspecie: ListaEspecie[];
     dependencias: Dependencia[];
     bien: Bien[];
+    detalles: Detalles[];
 
 
     onServicioSeleccionado: (codigoServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
     servicioSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
 
+    onBienSeleccionado: (codigoBien: string) => void; // Nueva prop para pasar el bien seleccionado
+    bienSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
+
+    onDetalleSeleccionado: (codigoDetalle: string) => void; // Nueva prop para pasar el detalle seleccionado
+    detalleSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
+
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, listaEspecie, dependencias, bien, onServicioSeleccionado }) => {
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, listaEspecie, dependencias, detalles, onServicioSeleccionado, onBienSeleccionado, onDetalleSeleccionado }) => {
 
     //Cuenta es la variable de estado
     const [Cuenta, setCuenta] = useState({
@@ -69,18 +83,23 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 10;
+    const elementosPorPagina = 350;
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         console.log('Detección en tiempo real Formulario Cuentas', { name, value });
         setCuenta(cuentaPrevia => ({ ...cuentaPrevia, [name]: value }));
 
+        // Llama a la funciones para enviar el servicio seleccionado al componente padre
         if (name === 'servicio') {
-            // Llama a la función para enviar el servicio seleccionado al componente padre
             onServicioSeleccionado(value);
         }
-
+        if (name === 'bien') {
+            onBienSeleccionado(value);
+        }
+        if (name === 'detalles') {
+            onDetalleSeleccionado(value);
+        }
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -99,7 +118,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
         const item = listaEspecie[index];
         setFilasSeleccionadas([index.toString()]);
         setElementoSeleccionado(item);
-        console.log("Elemento seleccionado", item);
+        // console.log("Elemento seleccionado", item);
     };
 
     const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
@@ -112,9 +131,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                 descripcionEspecie: (elementoSeleccionado as ListaEspecie).esP_CODIGO + " " + (elementoSeleccionado as ListaEspecie).nombrE_ESP
             }));
             setMostrarModal(false);
-            console.log("Elemento seleccionado:", elementoSeleccionado);
+            // console.log("Elemento seleccionado:", elementoSeleccionado);
         } else {
-            console.log("No se ha seleccionado ningún elemento.");
+            // console.log("No se ha seleccionado ningún elemento.");
         }
     };
 
@@ -122,12 +141,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(() => listaEspecie.slice(indicePrimerElemento, indiceUltimoElemento), [listaEspecie, indicePrimerElemento, indiceUltimoElemento]);
-    // const totalPaginas = Math.ceil(listadoEspecies.length / elementosPorPagina);
-    const totalPaginas = Array.isArray(listaEspecie) ? Math.ceil(listaEspecie.length / elementosPorPagina) : 0;
+    const totalPaginas = Math.ceil(listaEspecie.length / elementosPorPagina);
+    // const totalPaginas = Array.isArray(listaEspecie) ? Math.ceil(listaEspecie.length / elementosPorPagina) : 0;
 
 
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
-
 
     return (
         <>
@@ -227,7 +245,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dt className="text-muted">Bien</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="bien" className="form-select" onChange={handleChange} value={Cuenta.bien}>
-                                            {bien.map((traeBien) => (
+                                            {detalles.map((traeBien) => (
                                                 <option key={traeBien.codigo} value={traeBien.codigo}>
                                                     {traeBien.descripcion}
                                                 </option>
@@ -235,19 +253,19 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                         </select>
                                     </dd>
                                 </div>
-                                {/* <div className="mb-1">
+                                <div className="mb-1">
                                     <dt className="text-muted">Detalles</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="detalles" className="form-select" onChange={handleChange} value={Cuenta.detalles}>
                                             <option value="">Selecciona una opción</option>
-                                            {listadoEspecies.map((traeListado) => (
-                                                <option key={traeListado.codigo} value={traeListado.codigo}>
-                                                    {traeListado.descripcion}
+                                            {detalles.map((traeDetalles) => (
+                                                <option key={traeDetalles.codigo} value={traeDetalles.codigo}>
+                                                    {traeDetalles.descripcion}
                                                 </option>
                                             ))}
                                         </select>
                                     </dd>
-                                </div> */}
+                                </div>
                                 <div className="mb-1">
                                     <dd className="d-flex align-items-center">
                                         <input type="text" name="" className="form-control" />
@@ -259,38 +277,43 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                     </form>
 
                     {/* Tabla*/}
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Establecimiento</th>
-                                <th>Nombre</th>
-                                <th>Especie</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {elementosActuales.map((listadoEspecies, index) => (
-                                <tr key={index}>
-                                    <td>
-                                        <Form.Check
-                                            type="checkbox"
-                                            onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
-                                            checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
-                                        />
-                                    </td>
-                                    <td>{listadoEspecies.estabL_CORR}</td>
-                                    <td>{listadoEspecies.esP_CODIGO}</td>
-                                    <td>{listadoEspecies.nombrE_ESP}</td>
+                    <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Establecimiento</th>
+                                    <th>Nombre</th>
+                                    <th>Especie</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {elementosActuales.map((listadoEspecies, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <Form.Check
+                                                type="checkbox"
+                                                onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
+                                                checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
+                                            />
+                                        </td>
+                                        <td>{listadoEspecies.estabL_CORR}</td>
+                                        <td>{listadoEspecies.esP_CODIGO}</td>
+                                        <td>{listadoEspecies.nombrE_ESP}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
+
 
                     {/* Paginador */}
-                    <Pagination className="d-flex justify-content-end">
+                    < Pagination className="d-flex justify-content-end">
                         <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
                         <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+
                         {Array.from({ length: totalPaginas }, (_, i) => (
+
                             <Pagination.Item
                                 key={i + 1}
                                 active={i + 1 === paginaActual}
@@ -298,12 +321,21 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                             >
                                 {i + 1}
                             </Pagination.Item>
+
                         ))}
+
+
                         <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
                         <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+
                     </Pagination>
+
+
+
                 </Modal.Body>
-            </Modal>
+
+            </Modal >
+
         </>
 
 
