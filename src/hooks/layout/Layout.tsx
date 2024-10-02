@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import { connect, ConnectedProps } from 'react-redux';
+import { connect } from 'react-redux';
 import { RootState } from '../../redux/reducers';
 import Sidebar from "../../components/navigation/Sidebar";
 import Navbar from "../../components/navigation/Navbar";
@@ -8,13 +8,19 @@ import { List, X } from 'react-bootstrap-icons';
 
 import '../../styles/Layout.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '../../styles/bootstrap-5.3.3/dist/css/bootstrap.css';
 import '../../styles/Layout.css'
 
-interface OwnProps {
+import { Navigate } from "react-router-dom";
+
+interface LayoutProps {
   children: ReactNode;
+  isAuthenticated: boolean | null;
 }
 
-const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
+
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
@@ -35,27 +41,13 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
     }
   }, [isDesktop]);
 
+
   if (!isAuthenticated) {
-    return (
-      <div className="container d-flex justify-content-center align-items-center vh-100 fixed">
-        <div className="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
-          <h1 className="form-heading">Sesión expirada</h1>
-          <p className="form-heading fs-09em">
-            No está autenticado. Por favor, inicie sesión nuevamente.
-          </p>
-          <div className="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
-            <a href="/Login" className="btn btn-primary">
-              Clave Única
-            </a>
-          </div>
-          <p className="botto-text">Diseñado por Departamento de Informática - Unidad de Desarrollo 2024</p>
-        </div>
-      </div>
-    );
+    return <Navigate to='/' />;
+
   }
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* Mobile Navbar */}
@@ -70,10 +62,10 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
 
       <div className="d-flex flex-grow-1">
         {/* Sidebar */}
-        <div 
-          className={`bg-color ${sidebarOpen ? 'd-block' : 'd-none'} d-md-block`} 
+        <div
+          className={`bg-color ${sidebarOpen ? 'd-block' : 'd-none'} d-md-block`}
           style={{
-            width: '250px', 
+            width: '250px',
             minWidth: '250px',
             maxWidth: '250px',
             transition: 'all 0.3s',
@@ -83,11 +75,10 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
             left: isDesktop ? '0' : (sidebarOpen ? '0' : '-250px'),
             zIndex: 1000
           }}
-        >         
+        >
           <div className="d-flex flex-column h-100">
             <div className="p-3">
-              <div className="d-flex justify-content-between align-items-center">
-
+              <div className="d-flex justify-content-center align-items-center ml-4">
                 {/*Logout */}
                 <div className="dropdown">
                   <a
@@ -101,23 +92,23 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
                     <i className="fa fa-user"></i>
                     <span className="fs-6">Andy Riquelme</span>
                   </a>
-                  <div className="dropdown-menu" aria-labelledby="userDropdown">                 
-                  <Logout /> 
+                  <div className="dropdown-menu" aria-labelledby="userDropdown">
+                    <Logout />
                   </div>
                 </div>
 
-                <button className="btn btn-link text-white d-md-none" onClick={toggleSidebar}>
+                {/* <button className="btn btn-link text-white d-md-none" onClick={toggleSidebar}>
                   <X size={24} />
-                </button>
+                </button> */}
               </div>
             </div>
             <div className="flex-grow-1 overflow-auto">
               <Sidebar />
-            </div>          
+            </div>
           </div>
-          
+
         </div>
-       
+
         <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: isDesktop ? '0' : (sidebarOpen ? '250px' : '0'), transition: 'margin-left 0.3s' }}>
           {/* Desktop Navbar */}
           <div className="d-none d-md-block ">
@@ -126,7 +117,9 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
 
           {/* Main Content */}
           <div className="flex-grow-1 p-3 overflow-auto">
-            {children}
+            <div className="container">
+              {children}
+            </div>
           </div>
         </div>
       </div>
@@ -135,14 +128,9 @@ const Layout: React.FC<PropsFromRedux & OwnProps> = ({ children, isAuthenticated
 };
 
 const mapStateToProps = (state: RootState) => ({
-  isAuthenticated: state.auth.isAuthenticated,
+  isAuthenticated: state.auth.isAuthenticated
 });
 
-const mapDispatchToProps = {
-  // Add your actions here if needed
-};
+export default connect(mapStateToProps, {
 
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-export default connector(Layout);
+})(Layout);

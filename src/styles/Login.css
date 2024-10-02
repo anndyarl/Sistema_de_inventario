@@ -97,7 +97,12 @@ body#LoginForm {
 }
 
 .fs-09em {
-    font-size: 1em;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.fs-05em {
+    font-size: 0.7rem;
     text-align: center;
 }
 .w-39 {

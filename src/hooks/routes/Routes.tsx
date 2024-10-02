@@ -11,10 +11,25 @@ import Donaciones from '../../containers/pages/Donaciones';
 import Informes from '../../containers/pages/Informes';
 import Configuracion from '../../containers/pages/Configuracion';
 import ClaveUnica from '../../containers/pages/ClaveUnica';
+import SesionExpirada from '../../containers/errors/SesionExpirada';
+import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { checkAuthStatus } from '../../redux/actions/auth/auth';
+import { AppDispatch } from '../../store';
+import FormInventario from '../../components/Inventario/FormInventario';
+import FormBienesFuncionarios from '../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
+
+
+
 
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
+    const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch
+
+    useEffect(() => {
+        dispatch(checkAuthStatus()); // Verifica el estado de autenticación al inicio
+    }, [dispatch]);
 
     return (
         <AnimatePresence>
@@ -22,17 +37,28 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Error Display */}
                 <Route path="*" element={<Error404 />} />
 
-                {/* Login Display */}
-                <Route path="/" element={<ClaveUnica/>} />
-                <Route path="/Login" element={<Login/>} />
-                <Route path="/Home" element={<Home/>} />
-                <Route path="/Inventario" element={<Inventario/>} />
-                <Route path="/Traslados" element={<Traslados/>} />
-                <Route path="/Altas" element={<Altas/>} />
-                <Route path="/Bajas" element={<Bajas/>} />
-                <Route path="/Donaciones" element={<Donaciones/>} />
-                <Route path="/Informes" element={<Informes/>} />
-                <Route path="/Configuracion" element={<Configuracion/>} />
+                {/* Access Display */}
+                <Route path="/Login" element={<Login />} />
+                <Route path="/SesionExpirada" element={<SesionExpirada />} />
+                {/* <Route path="/ClaveUnica" element={<ClaveUnica/>} />  */}
+
+                {/* Menu principal */}
+                <Route path="/" element={<ClaveUnica />} />
+                <Route path="/Home" element={<Home />} />
+
+                {/* Menu Inventario */}
+                <Route path="/Inventario" element={<Inventario />} />
+                <Route path="/FormInventario" element={<FormInventario />} />
+                <Route path="/BienesFuncionarios/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+                {/* Fin Menu Inventario */}
+
+
+                <Route path="/Traslados" element={<Traslados />} />
+                <Route path="/Altas" element={<Altas />} />
+                <Route path="/Bajas" element={<Bajas />} />
+                <Route path="/Donaciones" element={<Donaciones />} />
+                <Route path="/Informes" element={<Informes />} />
+                <Route path="/Configuracion" element={<Configuracion />} />
             </Routes>
         </AnimatePresence>
     );

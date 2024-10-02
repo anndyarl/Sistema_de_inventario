@@ -1,8 +1,7 @@
 import {
+    LOGIN_REQUEST,
     LOGIN_SUCCESS,
     LOGIN_FAIL,
-    SET_AUTH_LOADING,
-    REMOVE_AUTH_LOADING,   
     LOGOUT,
     SET_TOKEN
 } from '../../actions/types';
@@ -13,9 +12,10 @@ interface AuthState {
     user: any; // Define el tipo de usuario si lo conoces
     access: string | null;
     isAuthenticated: boolean | null;
-    loading: boolean;  
+    loading: boolean;
     error: string | null; // Añade error al estado
-    token:string | null;   
+    token: string | null;
+    logout: any;
 }
 
 // Estado inicial
@@ -23,9 +23,10 @@ const initialState: AuthState = {
     user: null,
     access: null,
     isAuthenticated: false,
-    loading: false,   
+    loading: false,
     error: null, // Inicializa error como null
-    token:null
+    token: null,
+    logout: null,
 };
 
 // Define el tipo de acción
@@ -38,42 +39,18 @@ export default function auth(state = initialState, action: Action): AuthState {
     const { type, payload } = action;
 
     switch (type) {
-        case SET_AUTH_LOADING:
-            return {
-                ...state,
-                loading: true,
-            };
-        case REMOVE_AUTH_LOADING:
-            return {
-                ...state,
-                loading: false,
-            };
+        case LOGIN_REQUEST:
+            return { ...state, loading: true, error: null };
         case LOGIN_SUCCESS:
-            localStorage.setItem('access', payload.access); // Guarda el token solo al login exitoso
-            return {
-                ...state,
-                isAuthenticated: true,
-                access: payload.access || null,
-                user: payload.user || null,
-                loading: false,
-                token: payload.access_token 
-            };
-        case LOGIN_FAIL: 
-            return {
-                ...state,
-                isAuthenticated: false,
-                token: null,
-                loading: false,
-                error: payload,
-            };   
+            return { ...state, loading: false, token: payload, isAuthenticated: true };
+        case LOGIN_FAIL:
+            return { ...state, loading: false, error: action.payload, isAuthenticated: false, token: null };
         case LOGOUT:
-            localStorage.removeItem('access');
-            return initialState;
+            localStorage.removeItem('token');
+            return { ...state, logout: action.payload, isAuthenticated: false, token: null };
+
         case SET_TOKEN:
-             return {
-                ...state,
-                token: payload,               
-             }       
+            return { ...state, token: payload }
         default:
             return state;
     }
