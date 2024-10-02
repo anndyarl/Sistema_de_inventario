@@ -21,29 +21,29 @@ export interface OrigenPresupuesto {
 }
 
 // Define el tipo de los elementos del combo `ModalidadCompra`
-export interface ModalidadCompra {
+export interface ModalidadDeCompra {
   codigo: string;
   descripcion: string;
 }
 // Define el tipo de los datos que se manejarán en el componente
 export interface InventarioProps {
-  nRecepcion: string;
-  fechaRecepcion: string;
-  nOrdenCompra: string;
-  nFactura: string;
-  origenPresupuesto: number;
-  montoRecepcion: number;
-  fechaFactura: string;
-  rutProveedor: string;
-  nombreProveedor: string;
-  modalidadCompra: string;
+  fechaFactura: string,
+  fechaRecepcion: string,
+  modalidadDeCompra: number,
+  montoRecepcion: number,
+  nFactura: string,
+  nOrdenCompra: number,
+  nRecepcion: number,
+  nombreProveedor: string,
+  origenPresupuesto: number,
+  rutProveedor: string
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
 interface Datos_inventarioProps extends InventarioProps {
   onNext: (Inventario: InventarioProps) => void;
   origenes: OrigenPresupuesto[];
-  modalidades: ModalidadCompra[];
+  modalidades: ModalidadDeCompra[];
 }
 
 // Define el componente `Datos_inventario` del props
@@ -51,28 +51,34 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   onNext, origenes, modalidades,
   nRecepcion, fechaRecepcion, nOrdenCompra, nFactura,
   origenPresupuesto, montoRecepcion, fechaFactura,
-  rutProveedor, nombreProveedor, modalidadCompra
+  rutProveedor, nombreProveedor, modalidadDeCompra
 
 
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
-    nRecepcion: '', fechaRecepcion: '', nOrdenCompra: '',
+    nRecepcion: 0, fechaRecepcion: '', nOrdenCompra: 0,
     nFactura: '', origenPresupuesto: 0, montoRecepcion: 0,
     fechaFactura: '', rutProveedor: '', nombreProveedor: '',
-    modalidadCompra: '',
+    modalidadDeCompra: 0,
   });
 
   const dispatch = useDispatch<AppDispatch>();
   const [showInput, setShowInput] = useState(false);
 
-
-
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    // console.log('Detectección en tiempo real Formulario Inventario', { name, value });
-    setInventario(prevInventario => ({ ...prevInventario, [name]: value }));
 
-    if (name === 'modalidadCompra' && value === '7') {
+    // Verifica si el campo que se está modificando es 'montoRecepcion' y convierte el valor a número
+    const newValue = name === "montoRecepcion" ? parseFloat(value) || 0 : value;
+    const newValue2 = name === "nOrdenCompra" ? parseInt(value) || 0 : value;
+    setInventario(prevInventario => ({
+      ...prevInventario,
+      [name]: newValue,
+      [name]: newValue2
+    }));
+
+    //Al seleccionar "otros" es decir el valor 7 este habilitará el input text
+    if (name === 'modalidadDeCompra' && value === '7') {
       setShowInput(true);
     }
     else {
@@ -86,10 +92,10 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     setInventario({
       nRecepcion, fechaRecepcion, nOrdenCompra, nFactura,
       origenPresupuesto, montoRecepcion, fechaFactura,
-      rutProveedor, nombreProveedor, modalidadCompra
+      rutProveedor, nombreProveedor, modalidadDeCompra
     });
   }, [nRecepcion, fechaRecepcion, nOrdenCompra, nFactura, origenPresupuesto,
-    montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadCompra]);
+    montoRecepcion, fechaFactura, rutProveedor, nombreProveedor, modalidadDeCompra]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,7 +111,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     dispatch(setFechaFactura(Inventario.fechaFactura));
     dispatch(setRutProveedor(Inventario.rutProveedor));
     dispatch(setnombreProveedor(Inventario.nombreProveedor));
-    dispatch(setModalidadCompra(Inventario.modalidadCompra));
+    dispatch(setModalidadCompra(Inventario.modalidadDeCompra));
 
     onNext(Inventario);
   };
@@ -117,7 +123,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       alert("Por favor, ingrese un número de recepción válido.");
       return;
     }
-    // Despacha la acción para obtener la recepción
+    // Despacha la acción para obtener la recepción en el formulario de activos fijos
     dispatch(obtenerRecepcionActions(Inventario.nRecepcion));
   };
 
@@ -153,13 +159,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   </dd>
                 </div>
 
-                {/* <div className="mb-1">
-                    <dt className="text-muted">Hora Recepción</dt>
-                    <dd className="d-flex align-items-center">
-                      <input type="text" className="form-control" name="horaRecepcion" onChange={handleChange} value={Inventario.horaRecepcion}/>
-                    </dd>
-                  </div> */}
-
                 <div className="mb-1">
                   <dt className="text-muted">N° Factura</dt>
                   <dd className="d-flex align-items-center">
@@ -186,7 +185,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <div className="mb-1">
                   <dt className="text-muted">Monto Recepción</dt>
                   <dd className="d-flex align-items-center">
-                    <input type="text" className="form-control" maxLength={12} name="montoRecepcion" onChange={handleChange} value={Inventario.montoRecepcion || montoRecepcion} />
+                    <input type="text" className="form-control" maxLength={12} name="montoRecepcion" onChange={handleChange} value={Inventario.montoRecepcion} />
                   </dd>
                 </div>
 
@@ -214,7 +213,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <div className="mb-1">
                   <dt className="text-muted">Modalidad de Compra</dt>
                   <dd className="d-flex align-items-center">
-                    <select className="form-select" name="modalidadCompra" onChange={handleChange} value={Inventario.modalidadCompra}>
+                    <select className="form-select" name="modalidadDeCompra" onChange={handleChange} value={Inventario.modalidadDeCompra}>
                       <option value="">Seleccione una modalidad</option>
                       {modalidades.map((modalidad) => (
                         <option key={modalidad.codigo} value={modalidad.codigo}>
@@ -231,9 +230,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                       <input
                         type="text"
                         className="form-control"
-                        name="modalidadCompra"
+                        name="modalidadDeCompra"
                         placeholder="Especifique otro"
-                        onChange={(e) => setInventario({ ...Inventario, modalidadCompra: e.target.value })}
+                        onChange={(e) => setInventario({ ...Inventario, modalidadDeCompra: parseInt(e.target.value) })}
                       />
                     </dd>
                   </div>
@@ -263,7 +262,7 @@ const mapStateToProps = (state: RootState) => ({
   fechaFactura: state.datos_inventarioReducer.fechaFactura,
   rutProveedor: state.datos_inventarioReducer.rutProveedor,
   nombreProveedor: state.datos_inventarioReducer.nombreProveedor,
-  modalidadCompra: state.datos_inventarioReducer.modalidadDeCompra
+  modalidadDeCompra: state.datos_inventarioReducer.modalidadDeCompra
 
 });
 

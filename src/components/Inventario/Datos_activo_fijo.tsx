@@ -34,45 +34,49 @@ interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijo[]) => void;
   onBack: () => void;
   onReset: () => void; // vuelva a al componente Datos_inventario
-  montoRecepcion: string; //declaro un props para traer montoRecepción del estado global
+  montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
   totalEstadoGlobal: number;
-  precioEstadoGlobal: number;
   formInventario: FormInventario;
+  token: string | null;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalEstadoGlobal, precioEstadoGlobal, formInventario }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalEstadoGlobal, formInventario, token }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
     id: '', vidaUtil: '', fechaIngreso: '', marca: '', cantidad: '',
     modelo: '', observaciones: '', serie: '', precio: '',
   });
+  const dispatch = useDispatch();
+
   const [error, setError] = useState<Partial<ActivoFijo> & { general?: string, generalTabla?: string }>({});
-  //Modal
+  //-------Modal-------//
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalConfirmar, setMostrarModalConfirmar] = useState(false);
-  //Tabla
+  //-------Fin Modal-------//
+
+  //-------Tabla-------//
   const [editingSerie, setEditingSerie] = useState<string | null>(null);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setCurrentPage] = useState(1);
   const [elementosPorPagina] = useState(10);
-
   const [total, setTotal] = useState<number>(0);
+  //-------Fin Tabla-------//
 
-
-  const dispatch = useDispatch();
   const precio = parseFloat(currentActivo.precio) || 0;
   const cantidad = parseInt(currentActivo.cantidad, 10) || 0;
 
   // Calcular el total cuando cambien la cantidad o el precio
+  const newTotal = cantidad * precio;
+  const pendiente = montoRecepcion - totalEstadoGlobal
+
+
+  // muestra el total cuando cambien la cantidad o el precio
   useEffect(() => {
-    const newTotal = cantidad * precio;
     setTotal(newTotal);
   }, [cantidad, precio]);
+
   //---------------------------------------------------------//
-  // Función para verificar si el total coincide con el monto de recepción
-  const totalActivoFijo = () => {
-    return total === parseFloat(montoRecepcion);
-  };
+
   //Validaciones
   const validate = () => {
     let tempErrors: Partial<ActivoFijo> & { general?: string } = {};
@@ -88,49 +92,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     if (!/^\d+(\.\d{1,2})?$/.test(currentActivo.precio)) tempErrors.precio = "Precio debe ser un número válido con hasta dos decimales";
     if (!currentActivo.observaciones) tempErrors.observaciones = "Observaciones es obligatoria";
 
-    // Validación para el total activo fijo
-    if (!totalActivoFijo()) {
-      tempErrors.general = `El precio y la cantidad ingresados deben coincidir con el monto de recepción, que es de $${montoRecepcion}`;
 
-      console.log("monto recepcion", montoRecepcion)
+    if (newTotal != pendiente) {
+      tempErrors.general = `Monto pendiente al monto recepción $${pendiente}`;
     }
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
 
-
-
-  const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    let counter = 0;
-    const generateCorrelativeId = () => {
-      counter += 1;
-      return String(counter);
-    };
-
-    if (validate()) {
-
-      const newActivos = Array.from({ length: cantidad }, () => ({ ...currentActivo, id: generateCorrelativeId(), }));
-      setActivosFijos(prev => [...prev, ...newActivos]);
-      setCurrentActivo({
-        id: '',
-        vidaUtil: '',
-        fechaIngreso: '',
-        marca: '',
-        cantidad: '',
-        modelo: '',
-        observaciones: '',
-        serie: '',
-        precio: '',
-
-      });
-
-      dispatch(setTotalActivoFijo(total)); //establece total activo fijo en el estado global
-      dispatch(setPrecio(precio)); //establece precio en el estado global
-      setMostrarModal(false); //Cierra modal
-    }
-  };
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -185,25 +155,76 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     }
   };
 
-  const handleEliminarSeleccionados = () => {
-    const selectedIndices = filasSeleccionadas.map(Number);
-    setActivosFijos(prev => prev.filter((_, index) => !selectedIndices.includes(index)));
-    setFilasSeleccionadas([]);
-  };
 
   // const handleClone = (activo: ActivoFijo) => {
   //   const clonedActivo = { ...activo };
   //   setActivosFijos(prev => [...prev, clonedActivo]);
   // };
 
-  const handleEliminar = (index: number) => {
+
+  const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let counter = 0;
+    const generateCorrelativeId = () => {
+      counter += 1;
+      return String(counter);
+    };
+
+    if (validate()) {
+
+      const newActivos = Array.from({ length: cantidad }, () => ({ ...currentActivo, id: generateCorrelativeId(), }));
+      setActivosFijos(prev => [...prev, ...newActivos]);
+      setCurrentActivo({
+        id: '',
+        vidaUtil: '',
+        fechaIngreso: '',
+        marca: '',
+        cantidad: '',
+        modelo: '',
+        observaciones: '',
+        serie: '',
+        precio: '',
+
+      });
+
+      const coincidePendiente = totalEstadoGlobal + pendiente
+      if (totalEstadoGlobal === 0) {
+        dispatch(setTotalActivoFijo(total)); //establece total activo fijo en el estado global
+      }
+      else if (coincidePendiente === montoRecepcion) {
+        dispatch(setTotalActivoFijo(coincidePendiente)); //agrega el pendiente
+      }
+      dispatch(setPrecio(precio)); //establece precio en el estado global
+      setMostrarModal(false); //Cierra modal
+    }
+  };
+
+  const handleEliminar = (index: number, precio: number) => {
     setActivosFijos(prev => prev.filter((_, i) => i !== index));
-    const totalEstadoActualizado = totalEstadoGlobal - precioEstadoGlobal
+    const totalEstadoActualizado = totalEstadoGlobal - precio // calcula el total activo fijo del estado global  - el precio de la tabla seleccionada
     dispatch(setTotalActivoFijo(totalEstadoActualizado));
 
-    // dispatch(setMontoRecepcion(totalEstadoGlobal));
-    console.log("precio", precioEstadoGlobal);
-    console.log("totalEstadoGlobal", totalEstadoGlobal);
+  };
+
+  const handleEliminarSeleccionados = () => {
+    // Convertir los índices seleccionados a números
+    const selectedIndices = filasSeleccionadas.map(Number);
+
+    // Sumar los precios de los activos seleccionados
+    const totalPrecioSeleccionado = selectedIndices.reduce((acc, index) => {
+      const activo = activosFijos[index]; // Obtén el activo correspondiente
+      return acc + parseFloat(activo.precio); // Suma el precio del activo seleccionado
+    }, 0);
+
+    // Filtrar los activos para eliminar los seleccionados
+    setActivosFijos((prev) => prev.filter((_, index) => !selectedIndices.includes(index)));
+
+    // Actualizar el total en el estado global restando la suma de los precios seleccionados
+    const totalEstadoActualizado = totalEstadoGlobal - totalPrecioSeleccionado;
+    dispatch(setTotalActivoFijo(totalEstadoActualizado));
+
+    // Limpiar las filas seleccionadas
+    setFilasSeleccionadas([]);
   };
 
   //-------------Fin Funciones de la tabla --------------------//
@@ -222,31 +243,33 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   const handleFinalSubmit = async () => {
     // Combina todos los datos en un solo objeto
     // const total = 0;
-    const FormulariosCombinados = {
-      ...formInventario.datosInventario,
-      ...formInventario.datosCuenta,
-      activosFijos: formInventario.datosActivoFijo,
-    };
+    // const FormulariosCombinados = {
+    //   ...formInventario.datosInventario,
+    //   ...formInventario.datosCuenta,
+    //   activosFijos: formInventario.datosActivoFijo,
+    // };
+    if (token) {
+      postFormInventario(formInventario.datosInventario);
 
-    postFormInventario(formInventario.datosInventario);
+    }
 
 
     //Resetea todo el formualario al estado inicial
     dispatch(setTotalActivoFijo(total));
-    dispatch(setNRecepcion(''));
+    dispatch(setNRecepcion(0));
     dispatch(setFechaRecepcion(''));
-    dispatch(setNOrdenCompra(''));
+    dispatch(setNOrdenCompra(0));
     dispatch(setNFactura(''));
     dispatch(setOrigenPresupuesto(0));
     dispatch(setMontoRecepcion(0));
     dispatch(setFechaFactura(''));
     dispatch(setRutProveedor(''));
     dispatch(setnombreProveedor(''));
-    dispatch(setModalidadCompra(''));
+    dispatch(setModalidadCompra(0));
     onReset(); // retorna a Datos_inventario
 
     // Log para verificar los datos combinados
-    console.log("Formulario completo combinado:", FormulariosCombinados)
+    // console.log("Formulario completo combinado:", FormulariosCombinados)
     console.log("formInventario.datosInventario:", formInventario.datosInventario)
     console.log("Total activo fijo", total);
 
@@ -277,7 +300,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
       <h3 className="form-title mb-4">Detalle Activo</h3>
       {/* habilita Boton Modal formulario activos fijo si no coinciden el total con el monto recepcion */}
-      {totalEstadoGlobal !== parseFloat(montoRecepcion) && (
+      {totalEstadoGlobal !== montoRecepcion && (
         <Button variant="primary" onClick={() => setMostrarModal(true)} className="mb-1 me-2">+</Button>
       )}
 
@@ -345,7 +368,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
                 {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                   Clonar
                 </Button> */}
-                <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(index)}>
+                <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(index, parseFloat(activo.precio))}>
                   Eliminar
                 </Button>
               </td>
@@ -490,7 +513,6 @@ const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
   totalEstadoGlobal: state.datos_inventarioReducer.totalEstadoGlobal,
   resetFormulario: state.datos_inventarioReducer.resetFormulario,
-  precioEstadoGlobal: state.datos_inventarioReducer.precio,
   token: state.auth.token // se utiliza el token aqui para pasarselo al postFormInventario
 
 });

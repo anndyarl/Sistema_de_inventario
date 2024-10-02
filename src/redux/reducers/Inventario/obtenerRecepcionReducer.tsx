@@ -13,7 +13,7 @@ interface obtenerRecepcionState {
   nOrdenCompra: string;
   nFactura: string;
   origenPresupuesto: number;
-  montoRecepcion: string;
+  montoRecepcion: number;
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
@@ -28,7 +28,7 @@ const initialState: obtenerRecepcionState = {
   nOrdenCompra: '',
   nFactura: '',
   origenPresupuesto: 0,
-  montoRecepcion: '',
+  montoRecepcion: 0,
   fechaFactura: '',
   rutProveedor: '',
   nombreProveedor: '',

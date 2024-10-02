@@ -7,16 +7,16 @@ import {
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  nRecepcion: string;
+  nRecepcion: number;
   fechaRecepcion: string;
-  nOrdenCompra: string;
+  nOrdenCompra: number;
   nFactura: string;
   origenPresupuesto: number;
   montoRecepcion: number;
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
-  modalidadDeCompra: string;
+  modalidadDeCompra: number;
   totalEstadoGlobal: number;
   resetFormulario: [];
   precio: number;
@@ -24,16 +24,16 @@ interface DatosInventarioState {
 
 // Estado inicial tipado
 const initialState: DatosInventarioState = {
-  nRecepcion: '',
+  nRecepcion: 0,
   fechaRecepcion: '',
-  nOrdenCompra: '',
+  nOrdenCompra: 0,
   nFactura: '',
   origenPresupuesto: 0,
   montoRecepcion: 0,
   fechaFactura: '',
   rutProveedor: '',
   nombreProveedor: '',
-  modalidadDeCompra: '',
+  modalidadDeCompra: 0,
   totalEstadoGlobal: 0,
   resetFormulario: [],
   precio: 0,

@@ -32,7 +32,7 @@ export interface ListaEspecie {
 
 // Define el tipo de los elementos del combo `ListaEspecie`
 export interface Bien {
-    codigo: number;
+    codigo: string;
     descripcion: string;
 }
 
@@ -65,7 +65,7 @@ interface Datos_cuentaProps {
 
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, listaEspecie, dependencias, detalles, onServicioSeleccionado, onBienSeleccionado, onDetalleSeleccionado }) => {
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, listaEspecie, dependencias, detalles, bien, onServicioSeleccionado, onBienSeleccionado, onDetalleSeleccionado }) => {
 
     //Cuenta es la variable de estado
     const [Cuenta, setCuenta] = useState({
@@ -245,7 +245,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dt className="text-muted">Bien</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="bien" className="form-select" onChange={handleChange} value={Cuenta.bien}>
-                                            {detalles.map((traeBien) => (
+                                            {bien.map((traeBien) => (
                                                 <option key={traeBien.codigo} value={traeBien.codigo}>
                                                     {traeBien.descripcion}
                                                 </option>

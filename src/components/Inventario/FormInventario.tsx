@@ -1,7 +1,7 @@
 // Importa componentes al FormularioCompleto.tsx
 import React, { useState, useEffect } from 'react';
 import Layout from '../../hooks/layout/Layout';
-import DatosInventario, { OrigenPresupuesto, ModalidadCompra } from './Datos_inventario';
+import DatosInventario, { OrigenPresupuesto, ModalidadDeCompra } from './Datos_inventario';
 import DatosCuenta, { Servicio, comboCuentas, Dependencia, ListaEspecie, Bien, Detalles } from './Datos_cuenta';
 import DatosActivoFijo from './Datos_activo_fijo';
 import Timeline from './Timeline';
@@ -15,7 +15,6 @@ import { comboOrigenPresupuesto } from '../../redux/actions/combos/comboOrigenPr
 import { comboModalidadCompra } from '../../redux/actions/combos/comboModalidadCompraActions';
 import { comboServicio } from '../../redux/actions/combos/comboServicioActions';
 import { comboCuenta } from '../../redux/actions/combos/comboCuentaActions';
-// import { comboBien } from '../../redux/actions/combos/comboBienActions.tsx.old';
 import { comboDependencia } from '../../redux/actions/combos/comboDependenciaActions';
 import { comboListadoDeEspeciesBien } from '../../redux/actions/combos/comboListadoDeEspeciesBienActions';
 import { comboDetalles } from '../../redux/actions/combos/comboDetallesActions';
@@ -32,7 +31,8 @@ interface FormInventarioProps {
   //Trae props combos de Datos_inventario(formulario 1) 
   origenes: OrigenPresupuesto[];
   comboOrigenPresupuesto: (token: string) => void;
-  modalidades: ModalidadCompra[];
+  modalidades: ModalidadDeCompra[];
+
   comboModalidadCompra: (token: string) => void;
 
   //Trae props combos de Datos_cuenta(formulario 2)
@@ -109,12 +109,12 @@ const FormInventario: React.FC<FormInventarioProps> = ({ origenes, modalidades, 
     }
 
     //Carga combo bien con valor 0
-    if (token && detalles.length === 0) {
-      comboDetalles("0");
-    }
+
+    comboDetalles("0");
+
 
     console.log("listadoEspecies en Datos_cuenta:", listaEspecie);
-  }, [comboOrigenPresupuesto, comboModalidadCompra, comboServicio, comboListadoDeEspeciesBien]);
+  }, [comboOrigenPresupuesto, comboModalidadCompra, comboServicio, comboDetalles, comboListadoDeEspeciesBien]);
 
 
   const handleNext = (data: Record<string, any>) => {
@@ -165,7 +165,8 @@ const FormInventario: React.FC<FormInventarioProps> = ({ origenes, modalidades, 
           onNext={handleNext}
           //Lista combos
           origenes={origenes}
-          modalidades={modalidades} />}
+          modalidades={modalidades}
+        />}
 
         {step === 1 && <DatosCuenta
           // Props para volver y avanzar
@@ -211,6 +212,7 @@ const mapStateToProps = (state: RootState) => ({
   dependencias: state.dependenciaReducer.dependencias,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
   detalles: state.detallesReducer.detalles,
+  bien: state.detallesReducer.bien,
   token: state.auth.token
 });
 

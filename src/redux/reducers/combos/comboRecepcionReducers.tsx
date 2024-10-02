@@ -12,7 +12,7 @@ interface nRecepcionState {
     numeroRecepcion: string,
     numeroOrdenCompra: string,
     numeroFactura: string,
-    montoRecepcion: string,
+    montoRecepcion: number,
     rutProveedor: string,
     fechaRecepcion: string,
     horaRecepcion: string,

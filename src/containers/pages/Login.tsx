@@ -38,27 +38,27 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
     }
 
 
-    const [submitCount, setSubmitCount] = useState(0); // Estado para contar ejecuciones
+    // const [submitCount, setSubmitCount] = useState(0); // Estado para contar ejecuciones
 
-    useEffect(() => {
-        if (error) {
-            const handleAutoSubmit = async () => {
-                setLoading(true);
-                await login(usuario, password);
-                setLoading(false);
-            };
+    // useEffect(() => {
+    //     if (error) {
+    //         const handleAutoSubmit = async () => {
+    //             setLoading(true);
+    //             await login(usuario, password);
+    //             setLoading(false);
+    //         };
 
-            handleAutoSubmit();
+    //         handleAutoSubmit();
 
-            // Incrementar el contador cada vez que se ejecuta el useEffect
-            setSubmitCount((prevCount) => prevCount + 1);
-            console.log("Error detectado", error);
-        }
-    }, [error]); // Ejecuta la lógica cuando ocurre un error
+    //         // Incrementar el contador cada vez que se ejecuta el useEffect
+    //         setSubmitCount((prevCount) => prevCount + 1);
+    //         console.log("Error detectado", error);
+    //     }
+    // }, [error]); // Ejecuta la lógica cuando ocurre un error
 
-    useEffect(() => {
-        console.log("El useEffect se ha ejecutado", submitCount, "veces.");
-    }, [submitCount]); // Mostrar cuántas veces se ha ejecutado el useEffect
+    // useEffect(() => {
+    //     console.log("El useEffect se ha ejecutado", submitCount, "veces.");
+    // }, [submitCount]); // Mostrar cuántas veces se ha ejecutado el useEffect
 
     return (
 

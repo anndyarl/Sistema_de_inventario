@@ -7,7 +7,7 @@ import {
 } from '../types';
 
 
-export const setNRecepcion = (nRecepcion: string) => ({
+export const setNRecepcion = (nRecepcion: number) => ({
   type: 'SET_N_RECEPCION',
   payload: nRecepcion,
 });
@@ -17,15 +17,10 @@ export const setFechaRecepcion = (fechaRecepcion: string) => ({
   payload: fechaRecepcion,
 });
 
-export const setNOrdenCompra = (nOrdenCompra: string) => ({
+export const setNOrdenCompra = (nOrdenCompra: number) => ({
   type: 'SET_N_ORDEN_COMPRA',
   payload: nOrdenCompra,
 });
-
-// export const setHoraRecepcion = (horaRecepcion: string) => ({
-//   type: 'SET_HORA_RECEPCION',
-//   payload: horaRecepcion,
-// });
 
 export const setNFactura = (nFactura: string) => ({
   type: 'SET_N_FACTURA',
@@ -57,7 +52,7 @@ export const setnombreProveedor = (nombreProveedor: string) => ({
   payload: nombreProveedor,
 });
 
-export const setModalidadCompra = (modalidadDeCompra: string) => ({
+export const setModalidadCompra = (modalidadDeCompra: number) => ({
   type: 'SET_MODALIDAD_COMPRA',
   payload: modalidadDeCompra,
 });
@@ -98,12 +93,16 @@ export const postFormInventario = (formularioCombinado: any) => async (dispatch:
         });
         console.log('formInventario datosInventario: enviado correctamente');
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Manejo detallado del error
+      const errorMessage = error.response?.data?.message || error.message || 'Error al enviar el formulario';
       dispatch({
         type: POST_FORMULARIO_FAIL,
-        // error: error.message,
+        payload: errorMessage, // Mandamos el mensaje de error al reducer
       });
-      console.error('Error al enviar el formulario:', error);
+      console.error('Error al enviar el formulario:', errorMessage);
     }
+  } else {
+    console.error('No token available'); // Mensaje en caso de que no haya token
   }
 };

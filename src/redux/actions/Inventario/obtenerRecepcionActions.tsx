@@ -7,7 +7,7 @@ import {
 } from '../types';
 
 // Acción para obtener la recepción por número
-export const obtenerRecepcionActions = (nRecepcion: string) => async (dispatch: Dispatch, getState: any) => {
+export const obtenerRecepcionActions = (nRecepcion: number) => async (dispatch: Dispatch, getState: any) => {
     const token = getState().auth.token; //token está en el estado de autenticación
 
     if (token) {

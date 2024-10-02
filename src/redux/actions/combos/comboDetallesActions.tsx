@@ -3,6 +3,7 @@ import {
     BIEN_DETALLES_REQUEST,
     BIEN_DETALLES_SUCCESS,
     BIEN_DETALLES_FAIL,
+    BIEN_SUCCESS,
 } from '../types';
 import { Dispatch } from 'redux';
 
@@ -25,10 +26,17 @@ export const comboDetalles = (idPadre: string) => async (dispatch: Dispatch, get
             const res = await axios.get(`/api_inv/api/inventario/comboTraeBienxPadre?idPadre=${idPadre}`, config);
 
             if (res.status === 200) {
-                dispatch({
-                    type: BIEN_DETALLES_SUCCESS,
-                    payload: res.data
-                });
+                if (idPadre === "0") {
+                    dispatch({
+                        type: BIEN_SUCCESS,
+                        payload: res.data
+                    });
+                } else {
+                    dispatch({
+                        type: BIEN_DETALLES_SUCCESS,
+                        payload: res.data
+                    });
+                }
             } else {
                 dispatch({ type: BIEN_DETALLES_FAIL });
             }
