@@ -8,17 +8,17 @@ import {
 
 interface ServicioState {
   loading: boolean;
-  servicios: Array<{ codigo: number; nombrE_ORD: string; descripcion: string }>;
+  comboServicio: Array<{ codigo: number; nombrE_ORD: string; descripcion: string }>;
   error: string | null;
 }
 
 const initialState: ServicioState = {
   loading: false,
-  servicios: [],
+  comboServicio: [],
   error: null,
 };
 
-const servicioReducer = (state = initialState, action: any): ServicioState => {
+const comboServicioReducer = (state = initialState, action: any): ServicioState => {
   switch (action.type) {
     case SERVICIO_REQUEST:
       return {
@@ -30,7 +30,7 @@ const servicioReducer = (state = initialState, action: any): ServicioState => {
       return {
         ...state,
         loading: false,
-        servicios: action.payload
+        comboServicio: action.payload
       };
     case SERVICIO_FAIL:
       return {
@@ -43,4 +43,4 @@ const servicioReducer = (state = initialState, action: any): ServicioState => {
   }
 };
 
-export default servicioReducer;
+export default comboServicioReducer;

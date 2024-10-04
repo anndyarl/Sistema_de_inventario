@@ -20,6 +20,10 @@ interface DatosInventarioState {
   totalEstadoGlobal: number;
   resetFormulario: [];
   precio: number;
+  servicio: number;
+  cuenta: number;
+  dependencia: number;
+  especie: number;
 }
 
 // Estado inicial tipado
@@ -37,12 +41,16 @@ const initialState: DatosInventarioState = {
   totalEstadoGlobal: 0,
   resetFormulario: [],
   precio: 0,
+  servicio: 0,
+  cuenta: 0,
+  dependencia: 0,
+  especie: 0
 
 };
 
 
 // Reducer con tipos definidos
-const datos_inventarioReducer = (state = initialState, action: any) => {
+const datosInventarioReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case 'SET_N_RECEPCION':
       return { ...state, nRecepcion: action.payload };
@@ -68,6 +76,14 @@ const datos_inventarioReducer = (state = initialState, action: any) => {
       return { ...state, totalEstadoGlobal: action.payload };
     case 'SET_PRECIO':
       return { ...state, precio: action.payload };
+    case 'SET_SERVICIO':
+      return { ...state, servicio: action.payload };
+    case 'SET_CUENTA':
+      return { ...state, cuenta: action.payload };
+    case 'SET_DEPENDENCIA':
+      return { ...state, dependencia: action.payload };
+    case 'SET_ESPECIE':
+      return { ...state, especie: action.payload };
     case 'RESET_FORMULARIO':
       return { ...initialState, payload: initialState };
     case RECEPCION_REQUEST:
@@ -96,4 +112,4 @@ const datos_inventarioReducer = (state = initialState, action: any) => {
 
 
 
-export default datos_inventarioReducer;
+export default datosInventarioReducer;

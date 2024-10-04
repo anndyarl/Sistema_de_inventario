@@ -1,27 +1,41 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useMemo } from 'react';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
+import React, { useState, useMemo, useEffect } from 'react';
+import { connect, useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 // Define el tipo de los elementos del combo `servicio`
-export interface Servicio {
+export interface SERVICIO {
     codigo: number;
     nombrE_ORD: string;
     descripcion: string;
 }
 
 // Define el tipo de los elementos del combo `cuentas`
-export interface comboCuentas {
+export interface CUENTA {
     codigo: number;
     descripcion: string;
 }
 
 // Define el tipo de los elementos del combo `dependencia`
-export interface Dependencia {
+export interface DEPENDENCIA {
     codigo: number;
     descripcion: string;
     nombrE_ORD: string;
 }
 
+// Define el tipo de los elementos del combo `ListaEspecie`
+export interface BIEN {
+    codigo: string;
+    descripcion: string;
+}
+
+// Define el tipo de los elementos del combo `detalles`
+export interface DETALLE {
+    codigo: string;
+    descripcion: string;
+}
 
 // Define el tipo de los elementos del combo `ListaEspecie`
 export interface ListaEspecie {
@@ -30,80 +44,110 @@ export interface ListaEspecie {
     nombrE_ESP: string;
 }
 
-// Define el tipo de los elementos del combo `ListaEspecie`
-export interface Bien {
-    codigo: string;
-    descripcion: string;
+interface CuentaProps {
+    servicio: number;
+    cuenta: number;
+    dependencia: number;
+    especie: number;
+    bien: number;
+    detalles: number;
+    descripcionEspecie: string;
 }
 
-// Define el tipo de los elementos del combo `detalles`
-export interface Detalles {
-    codigo: string;
-    descripcion: string;
-}
-
-// Define el tipo de props para el componente
-interface Datos_cuentaProps {
-    onNext: (cuenta: any) => void;
+// Define el tipo de props para el componente, extendiendo InventarioProps
+interface Datos_cuentaProps extends CuentaProps {
+    onNext: (Cuenta: CuentaProps) => void;
     onBack: () => void;
-    servicios: Servicio[];
-    comboCuentas: comboCuentas[];
+    comboServicio: SERVICIO[];
+    comboCuenta: CUENTA[];
+    comboDependencia: DEPENDENCIA[];
+    //Dentro del modal
+    comboBien: BIEN[];
+    comboDetalle: DETALLE[];
     listaEspecie: ListaEspecie[];
-    dependencias: Dependencia[];
-    bien: Bien[];
-    detalles: Detalles[];
-
-
     onServicioSeleccionado: (codigoServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
     servicioSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
-
     onBienSeleccionado: (codigoBien: string) => void; // Nueva prop para pasar el bien seleccionado
     bienSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
-
     onDetalleSeleccionado: (codigoDetalle: string) => void; // Nueva prop para pasar el detalle seleccionado
     detalleSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
-
 }
 
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, comboCuentas, listaEspecie, dependencias, detalles, bien, onServicioSeleccionado, onBienSeleccionado, onDetalleSeleccionado }) => {
+const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
+    onNext,
+    onBack,
+    //Combos
+    comboServicio,
+    comboCuenta,
+    comboDependencia,
+    comboBien,
+    comboDetalle,
+    listaEspecie,
+    //inputs
+    servicio,
+    cuenta,
+    dependencia,
+    especie,
+    bien,
+    detalles,
+    descripcionEspecie,
+    onServicioSeleccionado,
+    onBienSeleccionado,
+    onDetalleSeleccionado }) => {
 
     //Cuenta es la variable de estado
-    const [Cuenta, setCuenta] = useState({
-        servicio: '',
-        dependencia: '',
-        cuenta: '',
-        bien: '',
-        detalles: '',
-        especie: '',
-        codigoEspecie: 0,
-        descripcionEspecie: '',
+    const [Cuenta, setCuenta] = useState<CuentaProps>({
+        servicio: 0,
+        cuenta: 0,
+        dependencia: 0,
+        especie: 0,
+        bien: 0,
+        detalles: 0,
+        descripcionEspecie: ""
 
     });
+    const dispatch = useDispatch<AppDispatch>();
     const [mostrarModal, setMostrarModal] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 350;
 
+    useEffect(() => {
+        setCuenta({
+            servicio,
+            cuenta,
+            dependencia,
+            especie,
+            bien,
+            detalles,
+            descripcionEspecie
+        });
+    }, [servicio, cuenta, dependencia, especie, bien, detalles, descripcionEspecie]);
+
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         console.log('Detección en tiempo real Formulario Cuentas', { name, value });
         setCuenta(cuentaPrevia => ({ ...cuentaPrevia, [name]: value }));
 
-        // Llama a la funciones para enviar el servicio seleccionado al componente padre
+        // Llama a la funciones para enviar el servicio seleccionado al componente padre (FormInventario)
         if (name === 'servicio') {
             onServicioSeleccionado(value);
         }
         if (name === 'bien') {
             onBienSeleccionado(value);
         }
-        if (name === 'detalles') {
+        if (name === 'detalle') {
             onDetalleSeleccionado(value);
         }
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        dispatch(setServicioActions(Cuenta.servicio));
+        dispatch(setCuentaActions(Cuenta.cuenta));
+        dispatch(setDependenciaActions(Cuenta.dependencia));
+        dispatch(setEspecieActions(Cuenta.especie));
         onNext(Cuenta);
         console.log("Formulario Datos cuenta:", Cuenta);
     };
@@ -162,7 +206,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dd className="d-flex align-items-center">
                                         <select className="form-select" name="servicio" onChange={handleChange} value={Cuenta.servicio || ''}>
                                             <option value="">Seleccione un origen</option>
-                                            {servicios.map((traeServicio) => (
+                                            {comboServicio.map((traeServicio) => (
                                                 <option key={traeServicio.codigo} value={traeServicio.codigo}>
                                                     {traeServicio.nombrE_ORD}
                                                 </option>
@@ -175,7 +219,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dd className="d-flex align-items-center">
                                         <select className="form-select" name="dependencia" disabled={!Cuenta.servicio} onChange={handleChange} value={Cuenta.dependencia}>
                                             <option value="" >Selecciona una opción</option>
-                                            {dependencias.map((traeDependencia) => (
+                                            {comboDependencia.map((traeDependencia) => (
                                                 <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
                                                     {traeDependencia.nombrE_ORD}
                                                 </option>
@@ -190,7 +234,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dd className="d-flex align-items-center">
                                         <select className="form-select" name="cuenta" onChange={handleChange} value={Cuenta.cuenta}>
                                             <option value="">Selecciona una opción</option>
-                                            {comboCuentas.map((traeCuentas) => (
+                                            {comboCuenta.map((traeCuentas) => (
                                                 <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
                                                     {traeCuentas.descripcion}
                                                 </option>
@@ -245,7 +289,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dt className="text-muted">Bien</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="bien" className="form-select" onChange={handleChange} value={Cuenta.bien}>
-                                            {bien.map((traeBien) => (
+                                            {comboBien.map((traeBien) => (
                                                 <option key={traeBien.codigo} value={traeBien.codigo}>
                                                     {traeBien.descripcion}
                                                 </option>
@@ -258,7 +302,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                                     <dd className="d-flex align-items-center">
                                         <select name="detalles" className="form-select" onChange={handleChange} value={Cuenta.detalles}>
                                             <option value="">Selecciona una opción</option>
-                                            {detalles.map((traeDetalles) => (
+                                            {comboDetalle.map((traeDetalles) => (
                                                 <option key={traeDetalles.codigo} value={traeDetalles.codigo}>
                                                     {traeDetalles.descripcion}
                                                 </option>
@@ -323,15 +367,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
                             </Pagination.Item>
 
                         ))}
-
-
                         <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
                         <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-
                     </Pagination>
-
-
-
                 </Modal.Body>
 
             </Modal >
@@ -343,5 +381,15 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({ onNext, onBack, servicios, 
 };
 
 
+//mapea los valores del estado global de Redux 
+const mapStateToProps = (state: RootState) => ({
+    servicio: state.datosInventarioReducer.servicio,
+    cuenta: state.datosInventarioReducer.cuenta,
+    dependencia: state.datosInventarioReducer.dependencia,
+    especie: state.datosInventarioReducer.especie,
+});
 
-export default (Datos_cuenta);
+export default connect(mapStateToProps,
+    {
+
+    })(Datos_cuenta);

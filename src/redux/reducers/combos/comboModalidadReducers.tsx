@@ -8,13 +8,13 @@ import {
 
 interface ModalidadCompraState {
   loading: boolean;
-  modalidades: Array<{ codigo: string, descripcion: string }>;
+  comboModalidad: Array<{ codigo: string, descripcion: string }>;
   error: string | null;
 }
 
 const initialState: ModalidadCompraState = {
   loading: false,
-  modalidades: [],
+  comboModalidad: [],
   error: null,
 };
 
@@ -30,7 +30,7 @@ const modalidadCompraReducer = (state = initialState, action: any): ModalidadCom
       return {
         ...state,
         loading: false,
-        modalidades: action.payload
+        comboModalidad: action.payload
       };
     case MODALIDAD_COMPRA_FAIL:
       return {

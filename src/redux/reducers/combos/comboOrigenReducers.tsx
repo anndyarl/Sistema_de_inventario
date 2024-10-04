@@ -8,13 +8,13 @@ import {
 
 interface OrigenPresupuestoState {
   loading: boolean;
-  origenes: Array<{ codigo: string; descripcion: string }>;
+  comboOrigen: Array<{ codigo: string; descripcion: string }>;
   error: string | null;
 }
 
 const initialState: OrigenPresupuestoState = {
   loading: false,
-  origenes: [],
+  comboOrigen: [],
   error: null,
 };
 
@@ -30,7 +30,7 @@ const origenPresupuestoReducer = (state = initialState, action: any): OrigenPres
       return {
         ...state,
         loading: false,
-        origenes: action.payload
+        comboOrigen: action.payload
       };
     case ORIGEN_FAIL:
       return {

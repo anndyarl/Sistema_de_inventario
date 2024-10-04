@@ -5,12 +5,13 @@ import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
 
-import { setTotalActivoFijo, postFormInventario, setPrecio } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { setTotalActivoFijoActions, setPrecioActions, setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { postFormInventarioActions } from '../../redux/actions/Inventario/postFormInventarioActions';
 
 import {
-  setNRecepcion, setFechaRecepcion, setNOrdenCompra, setNFactura,
-  setOrigenPresupuesto, setMontoRecepcion, setFechaFactura,
-  setRutProveedor, setnombreProveedor, setModalidadCompra
+  setNRecepcionActions, setFechaRecepcionActions, setNOrdenCompraActions, setNFacturaActions,
+  setOrigenPresupuestoActions, setMontoRecepcionActions, setFechaFacturaActions,
+  setRutProveedorActions, setnombreProveedorActions, setModalidadCompraActions
 } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { FormInventario } from './FormInventario';
 
@@ -189,12 +190,12 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
       const coincidePendiente = totalEstadoGlobal + pendiente
       if (totalEstadoGlobal === 0) {
-        dispatch(setTotalActivoFijo(total)); //establece total activo fijo en el estado global
+        dispatch(setTotalActivoFijoActions(total)); //establece total activo fijo en el estado global
       }
       else if (coincidePendiente === montoRecepcion) {
-        dispatch(setTotalActivoFijo(coincidePendiente)); //agrega el pendiente
+        dispatch(setTotalActivoFijoActions(coincidePendiente)); //agrega el pendiente
       }
-      dispatch(setPrecio(precio)); //establece precio en el estado global
+      dispatch(setPrecioActions(precio)); //establece precio en el estado global
       setMostrarModal(false); //Cierra modal
     }
   };
@@ -202,7 +203,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   const handleEliminar = (index: number, precio: number) => {
     setActivosFijos(prev => prev.filter((_, i) => i !== index));
     const totalEstadoActualizado = totalEstadoGlobal - precio // calcula el total activo fijo del estado global  - el precio de la tabla seleccionada
-    dispatch(setTotalActivoFijo(totalEstadoActualizado));
+    dispatch(setTotalActivoFijoActions(totalEstadoActualizado));
 
   };
 
@@ -221,7 +222,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
     // Actualizar el total en el estado global restando la suma de los precios seleccionados
     const totalEstadoActualizado = totalEstadoGlobal - totalPrecioSeleccionado;
-    dispatch(setTotalActivoFijo(totalEstadoActualizado));
+    dispatch(setTotalActivoFijoActions(totalEstadoActualizado));
 
     // Limpiar las filas seleccionadas
     setFilasSeleccionadas([]);
@@ -249,23 +250,27 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     //   activosFijos: formInventario.datosActivoFijo,
     // };
     if (token) {
-      postFormInventario(formInventario.datosInventario);
+      postFormInventarioActions(formInventario.datosInventario);
 
     }
 
 
     //Resetea todo el formualario al estado inicial
-    dispatch(setTotalActivoFijo(total));
-    dispatch(setNRecepcion(0));
-    dispatch(setFechaRecepcion(''));
-    dispatch(setNOrdenCompra(0));
-    dispatch(setNFactura(''));
-    dispatch(setOrigenPresupuesto(0));
-    dispatch(setMontoRecepcion(0));
-    dispatch(setFechaFactura(''));
-    dispatch(setRutProveedor(''));
-    dispatch(setnombreProveedor(''));
-    dispatch(setModalidadCompra(0));
+    dispatch(setTotalActivoFijoActions(total));
+    dispatch(setNRecepcionActions(0));
+    dispatch(setFechaRecepcionActions(''));
+    dispatch(setNOrdenCompraActions(0));
+    dispatch(setNFacturaActions(''));
+    dispatch(setOrigenPresupuestoActions(0));
+    dispatch(setMontoRecepcionActions(0));
+    dispatch(setFechaFacturaActions(''));
+    dispatch(setRutProveedorActions(''));
+    dispatch(setnombreProveedorActions(''));
+    dispatch(setModalidadCompraActions(0));
+    dispatch(setServicioActions(0));
+    dispatch(setDependenciaActions(0));
+    dispatch(setCuentaActions(0));
+    dispatch(setEspecieActions(0));
     onReset(); // retorna a Datos_inventario
 
     // Log para verificar los datos combinados
@@ -510,13 +515,14 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 };
 
 const mapStateToProps = (state: RootState) => ({
-  montoRecepcion: state.datos_inventarioReducer.montoRecepcion,
-  totalEstadoGlobal: state.datos_inventarioReducer.totalEstadoGlobal,
-  resetFormulario: state.datos_inventarioReducer.resetFormulario,
+  montoRecepcion: state.datosInventarioReducer.montoRecepcion,
+  totalEstadoGlobal: state.datosInventarioReducer.totalEstadoGlobal,
+  resetFormulario: state.datosInventarioReducer.resetFormulario,
   token: state.auth.token // se utiliza el token aqui para pasarselo al postFormInventario
 
 });
 export default connect(mapStateToProps, {
-  setTotalActivoFijo
+  setTotalActivoFijoActions,
+  postFormInventarioActions
 
 })(Datos_activo_fijo);

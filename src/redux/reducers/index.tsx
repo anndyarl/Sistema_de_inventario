@@ -1,37 +1,40 @@
 import { combineReducers } from 'redux';
 import auth from './auth/auth';
+
+import datosInventarioReducer from './Inventario/DatosInventariosReducer';
+import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
+
+//Form1
 import origenPresupuestoReducer from './combos/comboOrigenReducers';
 import modalidadCompraReducer from './combos/comboModalidadReducers';
-import servicioReducer from './combos/comboServicioReducers';
 
-import datos_inventarioReducer from './Inventario/Datos_inventariosReducer';
-import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
-import cuentaReducer from './combos/comboCuentaReducers';
-// import bienReducer from './combos/comboBienReducers.tsx.old';
-import dependenciaReducer from './combos/comboDependenciaReducers';
-import comboListadoDeEspeciesBien from './combos/comboListadoDeEspeciesBienReducers';
+//Form 2
+import comboServicioReducer from './combos/comboServicioReducers';
+import comboCuentaReducer from './combos/comboCuentaReducers';
+import comboDependenciaReducer from './combos/comboDependenciaReducers';
 import detallesReducer from './combos/comboDetallesReducers';
+import comboListadoDeEspeciesBien from './combos/comboListadoDeEspeciesBienReducers';
 
-
-// import nRecepcionReducer from './combos/comboRecepcionReducers';
-// Define el tipo de RootState basado en tus reducers
 const rootReducer = combineReducers({
-    //Autentificaciòn
+    //Autentificación
     auth,
-
-    //combos
-    origenPresupuestoReducer,
-    servicioReducer,
-    modalidadCompraReducer,
     obtenerRecepcionReducer,
-    cuentaReducer,
-    // bienReducer,
-    dependenciaReducer,
+    /*-------------Combos-----------------*/
+    //Form1
+    origenPresupuestoReducer,
+    modalidadCompraReducer,
+
+    //form 2
+    comboServicioReducer,
+    comboCuentaReducer,
+    comboDependenciaReducer,
     comboListadoDeEspeciesBien,
     detallesReducer,
 
+    // Form 3
+
     //formulario inventaro
-    datos_inventarioReducer,
+    datosInventarioReducer,
 
 });
 

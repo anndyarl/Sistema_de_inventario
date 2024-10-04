@@ -8,7 +8,7 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
-export const comboCuenta = (token: string) => async (dispatch: Dispatch) => {
+export const comboCuentaActions = (token: string) => async (dispatch: Dispatch) => {
     if (token) {
         const config = {
             headers: {

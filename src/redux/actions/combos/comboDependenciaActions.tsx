@@ -10,7 +10,7 @@ import { Dispatch } from 'redux';
 // Acción para obtener servicio
 
 
-export const comboDependencia = (serCorr: string) => async (dispatch: Dispatch, getState: any) => {
+export const comboDependenciaActions = (serCorr: string) => async (dispatch: Dispatch, getState: any) => {
     const token = getState().auth.token; //token está en el estado de autenticación
     if (token) {
         const config = {

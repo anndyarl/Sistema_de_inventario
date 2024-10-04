@@ -9,15 +9,15 @@ import {
 
 interface DetallesState {
   loading: boolean;
-  bien: Array<{ codigo: string; descripcion: string }>;
-  detalles: Array<{ codigo: string; descripcion: string }>;
+  comboBien: Array<{ codigo: string; descripcion: string }>;
+  comboDetalle: Array<{ codigo: string; descripcion: string }>;
   error: string | null;
 }
 
 const initialState: DetallesState = {
   loading: false,
-  bien: [],
-  detalles: [],
+  comboBien: [],
+  comboDetalle: [],
   error: null,
 };
 
@@ -33,13 +33,13 @@ const detallesReducer = (state = initialState, action: any): DetallesState => {
       return {
         ...state,
         loading: false,
-        detalles: action.payload
+        comboDetalle: action.payload
       };
     case BIEN_SUCCESS:
       return {
         ...state,
         loading: false,
-        bien: action.payload
+        comboBien: action.payload
       };
     case BIEN_DETALLES_FAIL:
       return {

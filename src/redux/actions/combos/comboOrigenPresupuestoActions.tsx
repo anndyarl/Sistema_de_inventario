@@ -8,7 +8,7 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener origen
-export const comboOrigenPresupuesto = (token: string) => async (dispatch: Dispatch) => {
+export const comboOrigenPresupuestosActions = (token: string) => async (dispatch: Dispatch) => {
     if (token) {
         const config = {
             headers: {

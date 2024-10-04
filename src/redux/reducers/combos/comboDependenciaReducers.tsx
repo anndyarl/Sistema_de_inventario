@@ -8,17 +8,17 @@ import {
 
 interface DependenciaState {
   loading: boolean;
-  dependencias: Array<{ codigo: number; descripcion: string; nombrE_ORD: string; }>;
+  comboDependencia: Array<{ codigo: number; descripcion: string; nombrE_ORD: string; }>;
   error: string | null;
 }
 
 const initialState: DependenciaState = {
   loading: false,
-  dependencias: [],
+  comboDependencia: [],
   error: null,
 };
 
-const dependenciaReducer = (state = initialState, action: any): DependenciaState => {
+const comboDependenciaReducer = (state = initialState, action: any): DependenciaState => {
   switch (action.type) {
     case DEPENDENCIA_REQUEST:
       return {
@@ -30,7 +30,7 @@ const dependenciaReducer = (state = initialState, action: any): DependenciaState
       return {
         ...state,
         loading: false,
-        dependencias: action.payload
+        comboDependencia: action.payload
       };
     case DEPENDENCIA_FAIL:
       return {
@@ -43,4 +43,4 @@ const dependenciaReducer = (state = initialState, action: any): DependenciaState
   }
 };
 
-export default dependenciaReducer;
+export default comboDependenciaReducer;

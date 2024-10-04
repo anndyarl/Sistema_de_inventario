@@ -8,17 +8,17 @@ import {
 
 interface CuentaState {
   loading: boolean;
-  comboCuentas: Array<{ codigo: number; descripcion: string }>;
+  comboCuenta: Array<{ codigo: number; descripcion: string }>;
   error: string | null;
 }
 
 const initialState: CuentaState = {
   loading: false,
-  comboCuentas: [],
+  comboCuenta: [],
   error: null,
 };
 
-const cuentaReducer = (state = initialState, action: any): CuentaState => {
+const comboCuentaReducer = (state = initialState, action: any): CuentaState => {
   switch (action.type) {
     case CUENTA_REQUEST:
       return {
@@ -30,7 +30,7 @@ const cuentaReducer = (state = initialState, action: any): CuentaState => {
       return {
         ...state,
         loading: false,
-        comboCuentas: action.payload
+        comboCuenta: action.payload
       };
     case CUENTA_FAIL:
       return {
@@ -43,4 +43,4 @@ const cuentaReducer = (state = initialState, action: any): CuentaState => {
   }
 };
 
-export default cuentaReducer;
+export default comboCuentaReducer;
