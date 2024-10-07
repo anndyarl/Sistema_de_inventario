@@ -53,7 +53,7 @@ interface FormInventarioProps {
   token: string | null;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, token }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions, token }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -92,27 +92,18 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
 
   useEffect(() => {
     // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
-    if (token && comboOrigen.length === 0) {
-      comboOrigenPresupuestosActions(token);
+
+    if (token) {
+      // Verifica si las acciones ya fueron disparadas
+      if (comboOrigen.length === 0) comboOrigenPresupuestosActions(token);
+      if (comboModalidad.length === 0) comboModalidadesActions(token);
+      if (comboServicio.length === 0) comboServicioActions(token);
+      if (comboCuenta.length === 0) comboCuentaActions(token);
+      if (comboBien.length === 0) comboDetalleActions("0");
     }
 
-    if (token && comboModalidad.length === 0) {
-      comboModalidadesActions(token);
-    }
-
-    if (token && comboServicio.length === 0) {
-      comboServicioActions(token);
-    }
-
-    if (token && comboCuenta.length === 0) {
-      comboCuentaActions(token);
-    }
-
-    //Carga combo bien con valor 0
-    if (token && comboBien.length === 0) {
-      comboDetalleActions("0");
-    }
-
+    //Carga combo bien con valor 0 
+    comboDetalleActions("0");
 
     console.log("listadoEspecies en Datos_cuenta:", listaEspecie);
   }, [comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDetalleActions, comboListadoDeEspeciesBienActions]);
@@ -180,6 +171,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
           comboBien={comboBien}
           comboDependencia={comboDependencia}
           comboDetalle={comboDetalle}
+
 
           //Props desde Datos_cuentas
           onServicioSeleccionado={handleServicioSeleccionado}

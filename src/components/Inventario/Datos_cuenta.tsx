@@ -3,7 +3,7 @@ import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstra
 import React, { useState, useMemo, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
-import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
 // Define el tipo de los elementos del combo `servicio`
 export interface SERVICIO {
@@ -44,14 +44,18 @@ export interface ListaEspecie {
     nombrE_ESP: string;
 }
 
+// export interface ESPECIE {
+//     codigoEspecie: string;
+//     descripcionEspecie: string;
+// }
+
 interface CuentaProps {
     servicio: number;
     cuenta: number;
     dependencia: number;
-    especie: number;
+    especie: string;
     bien: number;
     detalles: number;
-    // descripcionEspecie: string;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -71,6 +75,7 @@ interface Datos_cuentaProps extends CuentaProps {
     bienSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
     onDetalleSeleccionado: (codigoDetalle: string) => void; // Nueva prop para pasar el detalle seleccionado
     detalleSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
+    descripcionEspecie: string; // se utiliza solo para guardar la descripcion de la seleccion de especie
 }
 
 const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
@@ -90,21 +95,25 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     especie,
     bien,
     detalles,
-    // descripcionEspecie,
+    descripcionEspecie,
     onServicioSeleccionado,
     onBienSeleccionado,
     onDetalleSeleccionado }) => {
 
     //Cuenta es la variable de estado
-    const [Cuenta, setCuenta] = useState<CuentaProps>({
+    const [Cuenta, setCuenta] = useState({
         servicio: 0,
         cuenta: 0,
         dependencia: 0,
-        especie: 0,
+        especie: '',
         bien: 0,
-        detalles: 0,
-        // descripcionEspecie: ""
+        detalles: 0
 
+    });
+
+    const [Especies, setEspecies] = useState({
+        codigoEspecie: 0,
+        descripcionEspecie: ""
     });
     const dispatch = useDispatch<AppDispatch>();
     const [mostrarModal, setMostrarModal] = useState(false);
@@ -120,14 +129,13 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             dependencia,
             especie,
             bien,
-            detalles,
-            // descripcionEspecie
+            detalles
         });
     }, [servicio, cuenta, dependencia, especie, bien, detalles]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        console.log('Detección en tiempo real Formulario Cuentas', { name, value });
+        // console.log('Detección en tiempo real Formulario Cuentas', { name, value });
         setCuenta(cuentaPrevia => ({ ...cuentaPrevia, [name]: value }));
 
         // Llama a la funciones para enviar el servicio seleccionado al componente padre (FormInventario)
@@ -137,7 +145,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
         if (name === 'bien') {
             onBienSeleccionado(value);
         }
-        if (name === 'detalle') {
+        if (name === 'detalles') {
             onDetalleSeleccionado(value);
         }
     };
@@ -148,6 +156,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
         dispatch(setCuentaActions(Cuenta.cuenta));
         dispatch(setDependenciaActions(Cuenta.dependencia));
         dispatch(setEspecieActions(Cuenta.especie));
+        dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
         onNext(Cuenta);
         console.log("Formulario Datos cuenta:", Cuenta);
     };
@@ -169,17 +178,22 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
         e.preventDefault();
 
         if (typeof elementoSeleccionado === 'object' && elementoSeleccionado !== null) {
-            setCuenta(cuentaPrevia => ({
+            const codigoEspecie = (elementoSeleccionado as ListaEspecie).estabL_CORR; // Código de la especie
+            const descripcionEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO + " - " + (elementoSeleccionado as ListaEspecie).nombrE_ESP; // Código y nombre
+
+            // Actualizar tanto el estado Especies como el estado Cuenta.especie
+            setEspecies({ codigoEspecie, descripcionEspecie });
+            setCuenta((cuentaPrevia) => ({
                 ...cuentaPrevia,
-                codigoEspecie: (elementoSeleccionado as ListaEspecie).estabL_CORR,
-                descripcionEspecie: (elementoSeleccionado as ListaEspecie).esP_CODIGO + " " + (elementoSeleccionado as ListaEspecie).nombrE_ESP
+                especie: codigoEspecie.toString(), // Actualiza `Cuenta.especie` con el código de la especie
             }));
-            setMostrarModal(false);
-            // console.log("Elemento seleccionado:", elementoSeleccionado);
+
+            setMostrarModal(false); // Cierra el modal
         } else {
-            // console.log("No se ha seleccionado ningún elemento.");
+            console.log("No se ha seleccionado ningún elemento.");
         }
     };
+
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -245,16 +259,16 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                 <div className="mb-1">
                                     <dt className="text-muted">Especie</dt>
                                     <dd className="d-flex align-items-center">
-                                        {/* si el listado tiene datos se habilita el boton */}
+                                        {/* Botón para abrir el modal y seleccionar una especie */}
                                         <Button variant="primary" onClick={() => setMostrarModal(true)}>+</Button>
-
-                                        {/* <select className="form-select" name="especie" onChange={handleChange} value={Cuenta.especie} disabled>
-                                            <option value="" >
-                                                {Cuenta.descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
+                                        <select className="form-select" name="especie" onChange={handleChange} value={Cuenta.especie}>
+                                            <option value="">
+                                                {Especies.descripcionEspecie || descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
                                             </option>
-                                        </select> */}
+                                        </select>
                                     </dd>
                                 </div>
+
                             </Col>
                         </Row>
                     </div>
@@ -389,7 +403,7 @@ const mapStateToProps = (state: RootState) => ({
     especie: state.datosInventarioReducer.especie,
     bien: state.datosInventarioReducer.bien,
     detalles: state.datosInventarioReducer.detalle,
-    // descripcionEspecie: state.datosInventarioReducer.listado
+    descripcionEspecie: state.datosInventarioReducer.descripcionEspecie
 
 });
 

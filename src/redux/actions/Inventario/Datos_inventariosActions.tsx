@@ -70,9 +70,13 @@ export const setDependenciaActions = (dependencia: number) => ({
   type: 'SET_DEPENDENCIA',
   payload: dependencia,
 });
-export const setEspecieActions = (especie: number) => ({
+export const setEspecieActions = (especie: string) => ({
   type: 'SET_ESPECIE',
   payload: especie,
+});
+export const setDescripcionEspecieActions = (descripcionEspecie: string) => ({
+  type: 'SET_DESCRIPCION_ESPECIE',
+  payload: descripcionEspecie,
 });
 export const setBienActions = (bien: number) => ({
   type: 'SET_BIEN',

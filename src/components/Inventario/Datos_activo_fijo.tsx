@@ -41,7 +41,7 @@ interface Datos_activo_fijoProps {
   token: string | null;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalEstadoGlobal, formInventario, token }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalEstadoGlobal, formInventario, token, }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
     id: '', vidaUtil: '', fechaIngreso: '', marca: '', cantidad: '',
@@ -270,7 +270,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     dispatch(setServicioActions(0));
     dispatch(setDependenciaActions(0));
     dispatch(setCuentaActions(0));
-    dispatch(setEspecieActions(0));
+    dispatch(setEspecieActions(''));
     onReset(); // retorna a Datos_inventario
 
     // Log para verificar los datos combinados
