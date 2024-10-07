@@ -37,9 +37,9 @@ interface FormInventarioProps {
 
   //Trae props combos de Datos_cuenta(formulario 2)
   comboServicio: SERVICIO[];
-  comboServiciosActions: (token: string) => void
+  comboServicioActions: (token: string) => void
   comboCuenta: CUENTA[];
-  comboCuentasActions: (token: string) => void
+  comboCuentaActions: (token: string) => void
   comboDependencia: DEPENDENCIA[];
   comboDependenciaActions: (servicioSeleccionado: string) => void;
 
@@ -53,7 +53,7 @@ interface FormInventarioProps {
   token: string | null;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboOrigenPresupuestosActions, comboModalidadesActions, comboServiciosActions, comboCuentasActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, token }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, token }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -67,14 +67,14 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
     datosActivoFijo: {},
   });
 
-  // Función para manejar la selección de servicio en el componente `DatosCuenta`
+  // Función para manejar la selección de dependencia en base al servicio seleccionado del componente `DatosCuenta`
   const handleServicioSeleccionado = (codigoServicio: string) => {
     setServicioSeleccionado(codigoServicio);
     // console.log("Código del servicio seleccionado:", codigoServicio);
     comboDependenciaActions(codigoServicio);
   };
 
-  // Función para manejar la selección de bien en el componente `DatosCuenta`
+  // Función para manejar la selección del detalle en base al bien seleccionado en el componente `DatosCuenta`
   const handleBienSeleccionado = (codigoBien: string) => {
     setBienSeleccionado(codigoBien);
     console.log("Código del bien seleccionado:", codigoBien);
@@ -101,7 +101,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
     }
 
     if (token && comboServicio.length === 0) {
-      comboServiciosActions(token);
+      comboServicioActions(token);
     }
 
     if (token && comboCuenta.length === 0) {
@@ -109,11 +109,13 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
     }
 
     //Carga combo bien con valor 0
-    comboDetalleActions("0");
+    if (token && comboBien.length === 0) {
+      comboDetalleActions("0");
+    }
 
 
     console.log("listadoEspecies en Datos_cuenta:", listaEspecie);
-  }, [comboOrigenPresupuestosActions, comboModalidadesActions, comboServiciosActions, comboCuentasActions, comboDetalleActions, comboListadoDeEspeciesBienActions]);
+  }, [comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDetalleActions, comboListadoDeEspeciesBienActions]);
 
 
   const handleNext = (data: Record<string, any>) => {

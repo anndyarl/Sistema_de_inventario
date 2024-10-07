@@ -24,6 +24,9 @@ interface DatosInventarioState {
   cuenta: number;
   dependencia: number;
   especie: number;
+  bien: number;
+  detalle: number;
+  listado: [];
 }
 
 // Estado inicial tipado
@@ -44,7 +47,11 @@ const initialState: DatosInventarioState = {
   servicio: 0,
   cuenta: 0,
   dependencia: 0,
-  especie: 0
+  especie: 0,
+  bien: 0,
+  detalle: 0,
+  listado: []
+
 
 };
 

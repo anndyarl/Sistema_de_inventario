@@ -1,3 +1,5 @@
+import detallesReducer from "../../reducers/combos/comboDetallesReducers";
+
 export const setNRecepcionActions = (nRecepcion: number) => ({
   type: 'SET_N_RECEPCION',
   payload: nRecepcion,
@@ -72,6 +74,21 @@ export const setEspecieActions = (especie: number) => ({
   type: 'SET_ESPECIE',
   payload: especie,
 });
+export const setBienActions = (bien: number) => ({
+  type: 'SET_BIEN',
+  payload: bien,
+});
+export const setDetalleActions = (detalle: number) => ({
+  type: 'SET_DETALLE',
+  payload: detalle,
+});
+export const setListadoEspecieActions = (listado: number) => ({
+  type: 'SET_LISTADOESPECIE',
+  payload: listado,
+});
+
+
+
 
 export const setResetFormularioActions = () => ({
   type: 'RESET_FORMULARIO',

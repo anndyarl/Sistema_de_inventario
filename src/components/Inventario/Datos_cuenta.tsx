@@ -51,7 +51,7 @@ interface CuentaProps {
     especie: number;
     bien: number;
     detalles: number;
-    descripcionEspecie: string;
+    // descripcionEspecie: string;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -90,7 +90,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     especie,
     bien,
     detalles,
-    descripcionEspecie,
+    // descripcionEspecie,
     onServicioSeleccionado,
     onBienSeleccionado,
     onDetalleSeleccionado }) => {
@@ -103,7 +103,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
         especie: 0,
         bien: 0,
         detalles: 0,
-        descripcionEspecie: ""
+        // descripcionEspecie: ""
 
     });
     const dispatch = useDispatch<AppDispatch>();
@@ -121,9 +121,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             especie,
             bien,
             detalles,
-            descripcionEspecie
+            // descripcionEspecie
         });
-    }, [servicio, cuenta, dependencia, especie, bien, detalles, descripcionEspecie]);
+    }, [servicio, cuenta, dependencia, especie, bien, detalles]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -248,11 +248,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                         {/* si el listado tiene datos se habilita el boton */}
                                         <Button variant="primary" onClick={() => setMostrarModal(true)}>+</Button>
 
-                                        <select className="form-select" name="especie" onChange={handleChange} value={Cuenta.especie} disabled>
+                                        {/* <select className="form-select" name="especie" onChange={handleChange} value={Cuenta.especie} disabled>
                                             <option value="" >
                                                 {Cuenta.descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
                                             </option>
-                                        </select>
+                                        </select> */}
                                     </dd>
                                 </div>
                             </Col>
@@ -387,6 +387,10 @@ const mapStateToProps = (state: RootState) => ({
     cuenta: state.datosInventarioReducer.cuenta,
     dependencia: state.datosInventarioReducer.dependencia,
     especie: state.datosInventarioReducer.especie,
+    bien: state.datosInventarioReducer.bien,
+    detalles: state.datosInventarioReducer.detalle,
+    // descripcionEspecie: state.datosInventarioReducer.listado
+
 });
 
 export default connect(mapStateToProps,
