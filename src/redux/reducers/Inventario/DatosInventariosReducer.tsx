@@ -1,3 +1,4 @@
+import { ActivoFijo } from '../../../components/Inventario/Datos_activo_fijo';
 import {
   RECEPCION_REQUEST,
   RECEPCION_SUCCESS,
@@ -27,6 +28,8 @@ interface DatosInventarioState {
   bien: number;
   detalle: number;
   descripcionEspecie: string;
+  nombreEspecie: string[];
+  datosTabla: ActivoFijo[],
 }
 
 // Estado inicial tipado
@@ -50,9 +53,9 @@ const initialState: DatosInventarioState = {
   especie: '',
   bien: 0,
   detalle: 0,
-  descripcionEspecie: ''
-
-
+  descripcionEspecie: '',
+  nombreEspecie: [],
+  datosTabla: [],
 };
 
 
@@ -93,6 +96,40 @@ const datosInventarioReducer = (state = initialState, action: any) => {
       return { ...state, especie: action.payload };
     case 'SET_DESCRIPCION_ESPECIE':
       return { ...state, descripcionEspecie: action.payload };
+    case 'SET_NOMBRE_ESPECIE':
+      return {
+        ...state,
+        nombreEspecie: [...state.nombreEspecie, action.payload], // Agrega el nuevo nombre al array
+      };
+    case 'SET_DATOS_TABLA':
+      return {
+        ...state,
+        datosTabla: [...state.datosTabla, ...action.payload], // Agrega los nuevos datos en lugar de sobrescribir
+      };
+    case 'ELIMINAR_ACTIVO_TABLA':
+      return {
+        ...state,
+        datosTabla: state.datosTabla.filter((_, i) => i !== action.payload), // Filtra por índice
+      };
+    case 'ELIMINAR_MULTIPLES_ACTIVOS_TABLA':
+      return {
+        ...state,
+        datosTabla: state.datosTabla.filter((_, index) => !action.payload.includes(index)), // Filtra los elementos por índice
+      };
+    case 'ACTUALIZAR_SERIE_TABLA':
+      return {
+        ...state,
+        datosTabla: state.datosTabla.map((activo, i) =>
+          i === action.payload.index
+            ? { ...activo, serie: action.payload.nuevaSerie }
+            : activo
+        )
+      };
+    case 'VACIAR_DATOS_TABLA':
+      return {
+        ...state,
+        datosTabla: [], // Vacía completamente los datos de la tabla
+      };
     case 'RESET_FORMULARIO':
       return { ...initialState, payload: initialState };
     case RECEPCION_REQUEST:

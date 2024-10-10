@@ -5,7 +5,7 @@ import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
 
-import { setTotalActivoFijoActions, setPrecioActions, setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { setTotalActivoFijoActions, setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions, setDatosTabla, eliminarActivoDeTabla, eliminarMultiplesActivosDeTabla, actualizarSerieEnTabla, vaciarDatosTabla, setBienActions, setDetalleActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { postFormInventarioActions } from '../../redux/actions/Inventario/postFormInventarioActions';
 
 import {
@@ -15,8 +15,17 @@ import {
 } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { FormInventario } from './FormInventario';
 
+const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
 
-interface ActivoFijo {
+
+export interface ActivoFijo {
   id: string;
   vidaUtil: string;
   fechaIngreso: string;
@@ -25,9 +34,9 @@ interface ActivoFijo {
   modelo: string;
   observaciones: string;
   serie: string;
-  precio: string
-  general?: string; // Campo para errores generales
-  generalTabla?: string;
+  precio: string;
+  especie: string;
+  color?: string;
 
 }
 
@@ -35,17 +44,21 @@ interface Datos_activo_fijoProps {
   onNext: (data: ActivoFijo[]) => void;
   onBack: () => void;
   onReset: () => void; // vuelva a al componente Datos_inventario
-  montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
-  totalEstadoGlobal: number;
+  montoRecepcion: number; //declaro un props para traer montoRecepción del estado global 
   formInventario: FormInventario;
   token: string | null;
+  nombreEspecie: string[]; //Para obtener del estado global de redux 
+  datosTabla: ActivoFijo[];
+  general?: string; // Campo para errores generales
+  generalTabla?: string;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, totalEstadoGlobal, formInventario, token, }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, nombreEspecie, formInventario, token, datosTabla }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
+
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
     id: '', vidaUtil: '', fechaIngreso: '', marca: '', cantidad: '',
-    modelo: '', observaciones: '', serie: '', precio: '',
+    modelo: '', observaciones: '', serie: '', precio: '', especie: ''
   });
   const dispatch = useDispatch();
 
@@ -60,20 +73,38 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setCurrentPage] = useState(1);
   const [elementosPorPagina] = useState(10);
-  const [total, setTotal] = useState<number>(0);
+  // const [total, setTotal] = useState<number>(0);
   //-------Fin Tabla-------//
 
   const precio = parseFloat(currentActivo.precio) || 0;
   const cantidad = parseInt(currentActivo.cantidad, 10) || 0;
 
-  // Calcular el total cuando cambien la cantidad o el precio
+  // Combina el estado local de react con el estado local de redux
+  const datos = useMemo(() => {
+    return datosTabla.length > 0 ? datosTabla : activosFijos;
+  }, [datosTabla, activosFijos]);
+
+  const indiceUltimoElemento = paginaActual * elementosPorPagina;
+  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
+  const elementosActuales = useMemo(() =>
+    datos.slice(indicePrimerElemento, indiceUltimoElemento),
+    [datos, indicePrimerElemento, indiceUltimoElemento]
+  );
+  const totalPaginas = Math.ceil(datos.length / elementosPorPagina);
+
+  // Calcula el total del precio de la tabla
+  const totalSum = useMemo(() => {
+    return datos.reduce((sum, activo) => sum + parseFloat(activo.precio), 0);
+  }, [datos]);
+
+  // Calcular el total de cantidad por el precio
   const newTotal = cantidad * precio;
-  const pendiente = montoRecepcion - totalEstadoGlobal
+  const pendiente = montoRecepcion - totalSum;
 
-
-  // muestra el total cuando cambien la cantidad o el precio
+  console.log('newTotal', newTotal)
+  console.log('nombreEspecie', nombreEspecie)
   useEffect(() => {
-    setTotal(newTotal);
+    // setTotal(newTotal);
   }, [cantidad, precio]);
 
   //---------------------------------------------------------//
@@ -93,10 +124,16 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     if (!/^\d+(\.\d{1,2})?$/.test(currentActivo.precio)) tempErrors.precio = "Precio debe ser un número válido con hasta dos decimales";
     if (!currentActivo.observaciones) tempErrors.observaciones = "Observaciones es obligatoria";
 
-
-    if (newTotal != pendiente) {
-      tempErrors.general = `Monto pendiente al monto recepción $${pendiente}`;
+    if (newTotal == 0) {
+      tempErrors.general = `Debe ingresar un valor mayor a cero`;
     }
+    if (newTotal > pendiente) {
+      tempErrors.general = `Monto ingresado es mayor al monto recepción pendiente $${pendiente}`;
+    }
+    if (newTotal > montoRecepcion) {
+      tempErrors.general = `La cantidad ingresada excede al facturado $${montoRecepcion}`;
+    }
+
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -130,9 +167,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
         return prevActivos; // Retornar sin modificar si la serie ya existe
       }
 
-      return prevActivos.map((activo, i) =>
+      // Actualizar el estado local
+      const updatedActivos = prevActivos.map((activo, i) =>
         i === index ? { ...activo, serie: newSerie } : activo
       );
+
+      // Despachar la acción para actualizar la serie en Redux
+      dispatch(actualizarSerieEnTabla(index, newSerie));
+
+      return updatedActivos;
     });
   };
 
@@ -162,19 +205,36 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   //   setActivosFijos(prev => [...prev, clonedActivo]);
   // };
 
+  // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
+
 
   const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let counter = 0;
-    const generateCorrelativeId = () => {
-      counter += 1;
-      return String(counter);
-    };
+    // let counter = 0;
+    // const generateCorrelativeId = () => {
+    //   counter += 1;
+    //   return String(counter);
+    // };
 
     if (validate()) {
 
-      const newActivos = Array.from({ length: cantidad }, () => ({ ...currentActivo, id: generateCorrelativeId(), }));
+      const cantidad = parseInt(currentActivo.cantidad, 10);
+      const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || '';
+
+
+      const newActivos = Array.from({ length: cantidad }, (_, index) => ({
+        ...currentActivo,
+        id: String(Date.now() + index),
+        especie: ultimaEspecie,
+        color: getRandomColor() // asigna un color distinto para cada activo
+      }));
       setActivosFijos(prev => [...prev, ...newActivos]);
+
+      // Despacha el array de nuevos activos a Redux
+      if (newTotal < montoRecepcion) {
+        dispatch(setDatosTabla(newActivos)); // Cambiado de currentActivo a newActivos
+      }
+
       setCurrentActivo({
         id: '',
         vidaUtil: '',
@@ -185,26 +245,27 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
         observaciones: '',
         serie: '',
         precio: '',
-
+        especie: '',
+        color: ''
       });
 
-      const coincidePendiente = totalEstadoGlobal + pendiente
-      if (totalEstadoGlobal === 0) {
-        dispatch(setTotalActivoFijoActions(total)); //establece total activo fijo en el estado global
-      }
-      else if (coincidePendiente === montoRecepcion) {
-        dispatch(setTotalActivoFijoActions(coincidePendiente)); //agrega el pendiente
-      }
-      dispatch(setPrecioActions(precio)); //establece precio en el estado global
+      // const coincidePendiente = totalEstadoGlobal + pendiente
+      // if (totalEstadoGlobal === 0) {
+      //   dispatch(setTotalActivoFijoActions(total)); //establece total activo fijo en el estado global
+      // }
+      // if (coincidePendiente === montoRecepcion) {
+      //   dispatch(setTotalActivoFijoActions(coincidePendiente)); //agrega el pendiente
+      // }
+
       setMostrarModal(false); //Cierra modal
     }
   };
 
-  const handleEliminar = (index: number, precio: number) => {
+  const handleEliminar = (index: number/*, precio: number*/) => {
     setActivosFijos(prev => prev.filter((_, i) => i !== index));
-    const totalEstadoActualizado = totalEstadoGlobal - precio // calcula el total activo fijo del estado global  - el precio de la tabla seleccionada
-    dispatch(setTotalActivoFijoActions(totalEstadoActualizado));
-
+    // const totalEstadoActualizado = totalEstadoGlobal - precio // calcula el total activo fijo del estado global  - el precio de la tabla seleccionada
+    // dispatch(setTotalActivoFijoActions(totalEstadoActualizado));
+    dispatch(eliminarActivoDeTabla(index));
   };
 
   const handleEliminarSeleccionados = () => {
@@ -212,17 +273,18 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     const selectedIndices = filasSeleccionadas.map(Number);
 
     // Sumar los precios de los activos seleccionados
-    const totalPrecioSeleccionado = selectedIndices.reduce((acc, index) => {
-      const activo = activosFijos[index]; // Obtén el activo correspondiente
-      return acc + parseFloat(activo.precio); // Suma el precio del activo seleccionado
-    }, 0);
+    // const totalPrecioSeleccionado = selectedIndices.reduce((acc, index) => {
+    //   const activo = activosFijos[index]; // Obtén el activo correspondiente
+    //   return acc + parseFloat(activo.precio); // Suma el precio del activo seleccionado
+    // }, 0);
 
     // Filtrar los activos para eliminar los seleccionados
     setActivosFijos((prev) => prev.filter((_, index) => !selectedIndices.includes(index)));
+    dispatch(eliminarMultiplesActivosDeTabla(selectedIndices));
 
     // Actualizar el total en el estado global restando la suma de los precios seleccionados
-    const totalEstadoActualizado = totalEstadoGlobal - totalPrecioSeleccionado;
-    dispatch(setTotalActivoFijoActions(totalEstadoActualizado));
+    // const totalEstadoActualizado = totalEstadoGlobal - totalPrecioSeleccionado;
+    // dispatch(setTotalActivoFijoActions(totalEstadoActualizado));
 
     // Limpiar las filas seleccionadas
     setFilasSeleccionadas([]);
@@ -256,7 +318,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
 
     //Resetea todo el formualario al estado inicial
-    dispatch(setTotalActivoFijoActions(total));
+    // dispatch(setTotalActivoFijoActions(total));
     dispatch(setNRecepcionActions(0));
     dispatch(setFechaRecepcionActions(''));
     dispatch(setNOrdenCompraActions(0));
@@ -270,27 +332,28 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     dispatch(setServicioActions(0));
     dispatch(setDependenciaActions(0));
     dispatch(setCuentaActions(0));
+    dispatch(setBienActions(0));
+    dispatch(setDetalleActions(0));
     dispatch(setEspecieActions(''));
+    dispatch(vaciarDatosTabla());
     onReset(); // retorna a Datos_inventario
 
     // Log para verificar los datos combinados
     // console.log("Formulario completo combinado:", FormulariosCombinados)
     console.log("formInventario.datosInventario:", formInventario.datosInventario)
-    console.log("Total activo fijo", total);
+    // console.log("Total activo fijo", total);
 
   };
 
 
-  // Lógica de Paginación actualizada
-  const indiceUltimoElemento = paginaActual * elementosPorPagina;
-  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(
-    () => activosFijos.slice(indicePrimerElemento, indiceUltimoElemento),
-    [activosFijos, indicePrimerElemento, indiceUltimoElemento]
-  );
-  const totalPaginas = Math.ceil(activosFijos.length / elementosPorPagina);
 
+  console.log('Datos Tabla:', datosTabla);
+  console.log('Elementos actuales:', elementosActuales);
   const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
+
+  if (datosTabla.length === 0) {
+    console.log('datosTabla está vacío');
+  }
 
   return (
     <>
@@ -298,14 +361,14 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       <div className="justify-content-end navbar navbar-light">
         <div className="navbar-nav mb-2 mb-lg-0 me-3">
           <p className="nav-item nav-link mb-0">
-            <strong>Total Activo Fijo:</strong> ${totalEstadoGlobal.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
+            <strong>Monto Recepción:</strong> ${montoRecepcion.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
           </p>
         </div>
       </div>
 
       <h3 className="form-title mb-4">Detalle Activo</h3>
       {/* habilita Boton Modal formulario activos fijo si no coinciden el total con el monto recepcion */}
-      {totalEstadoGlobal !== montoRecepcion && (
+      {totalSum != montoRecepcion && (
         <Button variant="primary" onClick={() => setMostrarModal(true)} className="mb-1 me-2">+</Button>
       )}
 
@@ -322,80 +385,96 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
         </div>
       )}
       {/* Tabla */}
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>
-              <Form.Check type="checkbox" onChange={handleSeleccionaTodos} checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0} />
-            </th>
-            <th>Vida Útil</th>
-            <th>Fecha Ingreso</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Serie</th>
-            <th>Precio</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {elementosActuales.map((activo, index) => (
-            <tr key={index}>
-              <td>
-                <Form.Check type="checkbox" onChange={() => setSeleccionaFilas(index)} checked={filasSeleccionadas.includes(index.toString())} />
-              </td>
-              <td>{activo.vidaUtil}</td>
-              <td>{activo.fechaIngreso}</td>
-              <td>{activo.marca}</td>
-              <td>{activo.modelo}</td>
-              <td className="fixed-width" onClick={() => setEditingSerie(index.toString())}>
-                {editingSerie === index.toString() ? (
-                  <Form.Control
-                    type="text"
-                    value={activo.serie}
-                    onChange={(e) => handleCambiaSerie(index, e.target.value)}
-                    onBlur={handleSerieBlur}
-                    autoFocus
-                    maxLength={10}
-                    pattern="\d*"
-                    data-index={index}
-                    // Agregar clase condicional si hay un error en la serie
-                    className={error?.generalTabla ? 'is-invalid' : ''}
-                  />
-                ) : (
-                  <span style={{ display: 'flex', alignItems: 'center' }}>
-                    {activo.serie || 'editar'}
-                    <PencilFill style={{ marginLeft: '8px', color: '#6c757d' }} /> {/* Ícono de lápiz */}
-                  </span>
-                )}
-              </td>
-              <td>${parseFloat(activo.precio).toLocaleString('es-ES', { minimumFractionDigits: 0 })}</td>
-              <td>
-                {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
+      {datos.length === 0 ? (
+        <p>No hay datos para mostrar.</p>
+      ) : (
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>
+                <Form.Check type="checkbox" onChange={handleSeleccionaTodos} checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0} />
+              </th>
+              <th>Vida Útil</th>
+              <th>Fecha Ingreso</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Serie</th>
+              <th>Precio</th>
+              <th>Especie</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {elementosActuales.map((activo, index) => (
+              <tr key={index} style={{ backgroundColor: activo.color || 'transparent' }}>
+                <td>
+                  <Form.Check type="checkbox" onChange={() => setSeleccionaFilas(index)} checked={filasSeleccionadas.includes(index.toString())} />
+                </td>
+                <td>{activo.vidaUtil}</td>
+                <td>{activo.fechaIngreso}</td>
+                <td>{activo.marca}</td>
+                <td>{activo.modelo}</td>
+                <td className="fixed-width" onClick={() => setEditingSerie(index.toString())}>
+                  {editingSerie === index.toString() ? (
+                    <Form.Control
+                      type="text"
+                      value={activo.serie}
+                      onChange={(e) => handleCambiaSerie(index, e.target.value)}
+                      onBlur={handleSerieBlur}
+                      autoFocus
+                      maxLength={10}
+                      pattern="\d*"
+                      data-index={index}
+                      // Agregar clase condicional si hay un error en la serie
+                      className={error?.generalTabla ? 'is-invalid' : ''}
+                    />
+                  ) : (
+                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                      {activo.serie || 'editar'}
+                      <PencilFill style={{ marginLeft: '8px', color: '#6c757d' }} /> {/* Ícono de lápiz */}
+                    </span>
+                  )}
+                </td>
+                <td>${parseFloat(activo.precio).toLocaleString('es-ES', { minimumFractionDigits: 0 })}</td>
+                <td> {activo.especie}</td>
+                <td>
+                  {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                   Clonar
                 </Button> */}
-                <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(index, parseFloat(activo.precio))}>
-                  Eliminar
-                </Button>
-              </td>
+                  <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(index/*, parseFloat(activo.precio */)}>
+                    Eliminar
+                  </Button>
+                </td>
+              </tr>
+
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={6} className="text-right"><strong>Total activo fijo:</strong></td>
+              <td><strong>${totalSum.toLocaleString('es-ES', { minimumFractionDigits: 0 })}</strong></td>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </tfoot>
+        </Table >
+      )}
+
 
       {/* Paginador*/}
-      {elementosActuales.length > 0 && (
-        <Pagination className="d-flex justify-content-end">
-          <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-          <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-          {Array.from({ length: totalPaginas }, (_, i) => (
-            <Pagination.Item key={i + 1} active={i + 1 === paginaActual} onClick={() => paginar(i + 1)}>
-              {i + 1}
-            </Pagination.Item>
-          ))}
-          <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-          <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-        </Pagination>
-      )}
+      {
+        elementosActuales.length > 0 && (
+          <Pagination className="d-flex justify-content-end">
+            <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+            <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <Pagination.Item key={i + 1} active={i + 1 === paginaActual} onClick={() => paginar(i + 1)}>
+                {i + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+            <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+          </Pagination>
+        )
+      }
 
       {/* Botones volver y confirmar*/}
       <div className="d-flex justify-content-end mt-3 justify-content-between">
@@ -517,7 +596,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.datosInventarioReducer.montoRecepcion,
   totalEstadoGlobal: state.datosInventarioReducer.totalEstadoGlobal,
+  nombreEspecie: state.datosInventarioReducer.nombreEspecie,
   resetFormulario: state.datosInventarioReducer.resetFormulario,
+  datosTabla: state.datosInventarioReducer.datosTabla,
   token: state.auth.token // se utiliza el token aqui para pasarselo al postFormInventario
 
 });

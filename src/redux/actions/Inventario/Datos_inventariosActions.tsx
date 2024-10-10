@@ -1,4 +1,4 @@
-import detallesReducer from "../../reducers/combos/comboDetallesReducers";
+import { ActivoFijo } from "../../../components/Inventario/Datos_activo_fijo";
 
 export const setNRecepcionActions = (nRecepcion: number) => ({
   type: 'SET_N_RECEPCION',
@@ -87,15 +87,38 @@ export const setDetalleActions = (detalle: number) => ({
   payload: detalle,
 });
 export const setListadoEspecieActions = (listado: number) => ({
-  type: 'SET_LISTADOESPECIE',
+  type: 'SET_LISTADO_ESPECIE',
   payload: listado,
 });
 
-
-
-
+export const setNombreEspecieActions = (nombreEspecie: string) => ({
+  type: 'SET_NOMBRE_ESPECIE',
+  payload: nombreEspecie,
+});
 export const setResetFormularioActions = () => ({
   type: 'RESET_FORMULARIO',
 });
+export const setDatosTabla = (datosTabla: ActivoFijo[]) => ({
+  type: 'SET_DATOS_TABLA',
+  payload: datosTabla,
+});
+
+export const eliminarActivoDeTabla = (index: number) => ({
+  type: 'ELIMINAR_ACTIVO_TABLA',
+  payload: index,
+});
+export const eliminarMultiplesActivosDeTabla = (indices: number[]) => ({
+  type: 'ELIMINAR_MULTIPLES_ACTIVOS_TABLA',
+  payload: indices,
+});
+export const actualizarSerieEnTabla = (index: number, nuevaSerie: string) => ({
+  type: 'ACTUALIZAR_SERIE_TABLA',
+  payload: { index, nuevaSerie }
+});
+export const vaciarDatosTabla = () => ({
+  type: 'VACIAR_DATOS_TABLA',
+});
+
+
 
 

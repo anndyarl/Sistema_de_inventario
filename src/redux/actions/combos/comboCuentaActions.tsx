@@ -8,7 +8,8 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
-export const comboCuentaActions = (token: string) => async (dispatch: Dispatch) => {
+export const comboCuentaActions = (ESP_CODIGO: string) => async (dispatch: Dispatch, getState: any) => {
+    const token = getState().auth.token; //token está en el estado de autenticación
     if (token) {
         const config = {
             headers: {
@@ -20,7 +21,7 @@ export const comboCuentaActions = (token: string) => async (dispatch: Dispatch) 
         dispatch({ type: CUENTA_REQUEST });
 
         try {
-            const res = await axios.get('/api_inv/api/inventario/comboTraeCuenta', config);
+            const res = await axios.get(`/api_inv/api/inventario/comboTraeCuenta?ESP_CODIGO=${ESP_CODIGO}`, config);
 
             if (res.status === 200) {
                 dispatch({

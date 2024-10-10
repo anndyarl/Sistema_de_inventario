@@ -39,7 +39,7 @@ interface FormInventarioProps {
   comboServicio: SERVICIO[];
   comboServicioActions: (token: string) => void
   comboCuenta: CUENTA[];
-  comboCuentaActions: (token: string) => void
+  comboCuentaActions: (nombreEspecie: string) => void
   comboDependencia: DEPENDENCIA[];
   comboDependenciaActions: (servicioSeleccionado: string) => void;
 
@@ -51,6 +51,7 @@ interface FormInventarioProps {
   comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
 
   token: string | null;
+
 }
 
 const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions, token }) => {
@@ -59,7 +60,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
   const [bienSeleccionado, setBienSeleccionado] = useState<string>();
   const [detalleSeleccionado, setDetalleSeleccionado] = useState<string>();
-
+  const [especieSeleccionado, setEspecieSeleccionado] = useState<string>();
 
   const [formularios, setFormularios] = useState<FormInventario>({
     datosInventario: {},
@@ -85,8 +86,15 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
   const handleDetalleSeleccionado = (codigoDetalle: string) => {
     setDetalleSeleccionado(codigoDetalle);
     console.log("Código del detalle seleccionado:", codigoDetalle);
-
     comboListadoDeEspeciesBienActions(1, codigoDetalle); // aqui le paso codigo de detalle
+
+  };
+
+  // Función para manejar la selección de la especie en el componente `DatosCuenta`
+  const handleEspecieSeleccionado = (nombreEspecie: string) => {
+    setEspecieSeleccionado(nombreEspecie);
+    console.log("nombre Especie del listado seleccionado:", nombreEspecie);
+    comboCuentaActions(nombreEspecie); // aqui le paso codigo de detalle
 
   };
 
@@ -98,7 +106,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
       if (comboOrigen.length === 0) comboOrigenPresupuestosActions(token);
       if (comboModalidad.length === 0) comboModalidadesActions(token);
       if (comboServicio.length === 0) comboServicioActions(token);
-      if (comboCuenta.length === 0) comboCuentaActions(token);
       if (comboBien.length === 0) comboDetalleActions("0");
     }
 
@@ -106,7 +113,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
     comboDetalleActions("0");
 
     console.log("listadoEspecies en Datos_cuenta:", listaEspecie);
-  }, [comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDetalleActions, comboListadoDeEspeciesBienActions]);
+  }, [comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboDetalleActions, comboListadoDeEspeciesBienActions]);
 
 
   const handleNext = (data: Record<string, any>) => {
@@ -177,11 +184,13 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
           onServicioSeleccionado={handleServicioSeleccionado}
           onBienSeleccionado={handleBienSeleccionado}
           onDetalleSeleccionado={handleDetalleSeleccionado}
+          onEspecieSeleccionado={handleEspecieSeleccionado}
 
           //Estados seleccionados desde Datos_cuenta
           servicioSeleccionado={servicioSeleccionado}
           bienSeleccionado={bienSeleccionado}
-          detalleSeleccionado={detalleSeleccionado} />}
+          detalleSeleccionado={detalleSeleccionado}
+          especieSeleccionado={especieSeleccionado} />}
 
         {step === 2 && <DatosActivoFijo
           // Props para volver y avanzar
@@ -207,6 +216,8 @@ const mapStateToProps = (state: RootState) => ({
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
+
+
 });
 
 export default connect(mapStateToProps,
