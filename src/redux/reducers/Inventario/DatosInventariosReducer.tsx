@@ -13,7 +13,7 @@ interface DatosInventarioState {
   nOrdenCompra: number;
   nFactura: string;
   origenPresupuesto: number;
-  montoRecepcion: number;
+  montoRecepcion: number[];
   fechaFactura: string;
   rutProveedor: string;
   nombreProveedor: string;
@@ -39,7 +39,7 @@ const initialState: DatosInventarioState = {
   nOrdenCompra: 0,
   nFactura: '',
   origenPresupuesto: 0,
-  montoRecepcion: 0,
+  montoRecepcion: [],
   fechaFactura: '',
   rutProveedor: '',
   nombreProveedor: '',
@@ -74,6 +74,10 @@ const datosInventarioReducer = (state = initialState, action: any) => {
       return { ...state, origenPresupuesto: action.payload };
     case 'SET_MONTO_RECEPCION':
       return { ...state, montoRecepcion: action.payload };
+    // return {
+    //   ...state,
+    //   montoRecepcion: [...state.montoRecepcion, action.payload],
+    // }
     case 'SET_FECHA_FACTURA':
       return { ...state, fechaFactura: action.payload };
     case 'SET_RUT_PROVEEDOR':

@@ -15,6 +15,8 @@ import {
 } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { FormInventario } from './FormInventario';
 
+import Swal from 'sweetalert2';
+
 const getRandomColor = () => {
   const letters = '0123456789ABCDEF';
   let color = '#';
@@ -101,11 +103,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   const newTotal = cantidad * precio;
   const pendiente = montoRecepcion - totalSum;
 
-  console.log('newTotal', newTotal)
-  console.log('nombreEspecie', nombreEspecie)
-  useEffect(() => {
-    // setTotal(newTotal);
-  }, [cantidad, precio]);
+
 
   //---------------------------------------------------------//
 
@@ -217,6 +215,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     // };
 
     if (validate()) {
+      // SweetAlert2: mostrar alerta de éxito
 
       const cantidad = parseInt(currentActivo.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || '';
@@ -234,6 +233,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       if (newTotal < montoRecepcion) {
         dispatch(setDatosTabla(newActivos)); // Cambiado de currentActivo a newActivos
       }
+
 
       setCurrentActivo({
         id: '',
@@ -298,8 +298,36 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   };
 
   const handleShowModal = () => {
-    onNext(activosFijos);
-    setMostrarModalConfirmar(true);
+    if (pendiente == 0) {
+      // setMostrarModalConfirmar(true);
+      onNext(activosFijos);
+
+      Swal.fire({
+        icon: 'info',
+        // title: 'Confirmar',
+        text: 'Confirmar el envio del formulario',
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Confirmar y Enviar",
+
+
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire("Registrado!", "", "success");
+          handleFinalSubmit()
+        }
+      });
+    } else {
+      // SweetAlert2: mostrar alerta de error
+      Swal.fire({
+        icon: 'warning',
+        title: 'Pendiente',
+        text: `Tienes un monto pendiente de $${pendiente}`
+      });
+    }
+
+
     console.log("formulario datos activo fijo:", activosFijos);
   };
 
@@ -313,8 +341,14 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     // };
     if (token) {
       postFormInventarioActions(formInventario.datosInventario);
-
+      Swal.fire({
+        icon: 'success',
+        title: 'Registro exitoso',
+        text: 'El formulario se ha enviado y registrado con éxito!',
+      });
     }
+
+
 
 
     //Resetea todo el formualario al estado inicial
@@ -340,7 +374,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
     // Log para verificar los datos combinados
     // console.log("Formulario completo combinado:", FormulariosCombinados)
-    console.log("formInventario.datosInventario:", formInventario.datosInventario)
+    console.log("Formulario confirmado y enviado", formInventario.datosInventario)
     // console.log("Total activo fijo", total);
 
   };
@@ -367,8 +401,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       </div>
 
       <h3 className="form-title mb-4">Detalle Activo</h3>
-      {/* habilita Boton Modal formulario activos fijo si no coinciden el total con el monto recepcion */}
-      {totalSum != montoRecepcion && (
+      {/* habilita Boton Modal formulario si solo monto recepcion y total coinciden y si la especie tiene datos */}
+      {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
         <Button variant="primary" onClick={() => setMostrarModal(true)} className="mb-1 me-2">+</Button>
       )}
 

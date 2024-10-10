@@ -61,7 +61,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
   const [bienSeleccionado, setBienSeleccionado] = useState<string>();
   const [detalleSeleccionado, setDetalleSeleccionado] = useState<string>();
   const [especieSeleccionado, setEspecieSeleccionado] = useState<string>();
-
   const [formularios, setFormularios] = useState<FormInventario>({
     datosInventario: {},
     datosCuenta: {},
@@ -185,6 +184,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
           onBienSeleccionado={handleBienSeleccionado}
           onDetalleSeleccionado={handleDetalleSeleccionado}
           onEspecieSeleccionado={handleEspecieSeleccionado}
+
 
           //Estados seleccionados desde Datos_cuenta
           servicioSeleccionado={servicioSeleccionado}
