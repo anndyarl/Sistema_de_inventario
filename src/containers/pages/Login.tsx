@@ -64,7 +64,7 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
 
         <div className="container d-flex justify-content-center align-items-center vh-100 ">
             <div className="col-12 col-md-5 border p-4 rounded shadow-sm bg-white">
-                <h1 className="form-heading">Sistema de Inventario</h1>
+                <h1 className="form-heading">Clave única demo</h1>
                 <p className="form-heading fs-09em">
                     Sistema de apoyo en la gestión administrativa, Servicio de Salud Metropolitano Sur Oriente
                     Departamento de Informática Unidad de Desarrollo 2024

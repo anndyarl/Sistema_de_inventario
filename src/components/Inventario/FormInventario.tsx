@@ -1,7 +1,7 @@
 // Importa componentes al FormularioCompleto.tsx
 import React, { useState, useEffect } from 'react';
 import Layout from '../../hooks/layout/Layout';
-import DatosInventario, { ORIGEN, MODALIDAD } from './Datos_inventario';
+import DatosInventario, { ORIGEN, MODALIDAD, InventarioProps } from './Datos_inventario';
 import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, ListaEspecie, BIEN, DETALLE } from './Datos_cuenta';
 import DatosActivoFijo from './Datos_activo_fijo';
 import Timeline from './Timeline';

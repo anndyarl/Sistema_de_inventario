@@ -3,14 +3,16 @@ import { Button, Col, Row } from 'react-bootstrap';
 import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
+import Swal from 'sweetalert2';
 //importacion de objetos desde actions de redux
 import {
   setNRecepcionActions, setFechaRecepcionActions, setNOrdenCompraActions, setNFacturaActions,
   setOrigenPresupuestoActions, setMontoRecepcionActions, setFechaFacturaActions,
-  setRutProveedorActions, setnombreProveedorActions, setModalidadCompraActions
+  setRutProveedorActions, setnombreProveedorActions, setModalidadCompraActions,
+  vaciarDatosTabla
 } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { obtenerRecepcionActions } from '../../redux/actions/Inventario/obtenerRecepcionActions';
-
+import { ActivoFijo } from './Datos_activo_fijo';
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
@@ -42,6 +44,8 @@ interface Datos_inventarioProps extends InventarioProps {
   onNext: (Inventario: InventarioProps) => void;
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
+  datosTabla: ActivoFijo[];
+
 }
 
 // Define el componente `Datos_inventario` del props
@@ -58,7 +62,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   nRecepcion,
   nombreProveedor,
   origenPresupuesto,
-  rutProveedor
+  rutProveedor,
+  datosTabla,
 
 
 }) => {
@@ -82,7 +87,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
   // Validaciones
   const validate = () => {
-    let tempErrors: Partial<InventarioProps> & {} = {};
+    let tempErrors: Partial<any> & {} = {};
 
     // Validación para N° de Recepción (debe ser un número)
     if (!Inventario.nRecepcion) tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
@@ -117,21 +122,53 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
     // Validación para Modalidad de Compra (debe ser un número)
     if (!Inventario.modalidadDeCompra) tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
-    else if (showInput && Inventario.modalidadDeCompra === 7 && !Inventario.modalidadDeCompraEspecifica) {
-      tempErrors.modalidadDeCompraEspecifica = "Especifique la Modalidad de Compra.";
+    else if (showInput && Inventario.modalidadDeCompra === 7) {
+      tempErrors.modalidadDeCompra = "Especifique la Modalidad de Compra.";
     }
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-
+  const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     let newValue: string | number = value;
     // Convertir a número los campos que lo requieren
+
+    if (datosTabla.length > 0) {
+      // Manejar cambios específicos para montoRecepcion
+      if (name === 'montoRecepcion') {
+
+        // Mostrar alerta solo una vez cuando el usuario intente modificar el montoRecepcion por primera vez
+        if (!isMontoRecepcionEdited) {
+          Swal.fire({
+            icon: 'warning',
+            title: '¿Está seguro que desea modificar monto recepción?',
+            text: 'Si modifica el monto recepción se perderán los datos en la tabla del paso 3 del formulario.',
+            showCancelButton: true,
+            confirmButtonText: "Si, Modificar",
+            cancelButtonText: "No, Cancelar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              setInventario((prevInventario) => ({
+                ...prevInventario,
+                [name]: 0, // Actualizar montoRecepcion como número
+              }));
+              // Marcar que ya se ha editado el montoRecepcion para evitar que la alerta se muestre de nuevo
+              setIsMontoRecepcionEdited(true);
+              // Vaciar la tabla
+              dispatch(vaciarDatosTabla());
+            }
+          });
+          return;
+        }
+
+      }
+    }
     if (name === 'nRecepcion' || name === 'nOrdenCompra' || name === 'montoRecepcion' || name === 'origenPresupuesto') {
       newValue = parseFloat(value) || 0;
     }
+
     setInventario(prevInventario => ({
       ...prevInventario,
       [name]: newValue,
@@ -163,6 +200,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       rutProveedor
     });
   }, [fechaFactura, fechaRecepcion, modalidadDeCompra, montoRecepcion, nFactura, nOrdenCompra, nRecepcion, nombreProveedor, origenPresupuesto, rutProveedor]);
+
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -299,6 +337,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     maxLength={12}
                     name="montoRecepcion"
                     onChange={handleChange}
+                    // value={isMontoRecepcionEdited ? Inventario.montoRecepcion : montoRecepcion}
                     value={Inventario.montoRecepcion}
                   />
                   {error.montoRecepcion && (
@@ -418,7 +457,7 @@ const mapStateToProps = (state: RootState) => ({
   nombreProveedor: state.datosInventarioReducer.nombreProveedor,
   origenPresupuesto: state.datosInventarioReducer.origenPresupuesto,
   rutProveedor: state.datosInventarioReducer.rutProveedor,
-
+  datosTabla: state.datosInventarioReducer.datosTabla
 });
 
 export default connect(mapStateToProps,

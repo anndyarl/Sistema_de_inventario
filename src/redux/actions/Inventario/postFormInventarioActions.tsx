@@ -8,39 +8,56 @@ import {
 
 
 
-
 // Acción para enviar el formulario
-export const postFormInventarioActions = (formInventario: any) => async (dispatch: Dispatch, getState: any) => {
-    const token = getState().auth.token; //token está en el estado de autenticación
-    if (token) {
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            },
-        };
-        dispatch({ type: POST_FORMULARIO_REQUEST });
-        try {
-            const response = await axios.post('/api_inv/api/inventario/crearActivoFijoTest', formInventario, config);
-
-            // Si el POST es exitoso
-            if (response.status === 200) {
-                dispatch({
-                    type: POST_FORMULARIO_SUCCESS,
-                    payload: response.data,
-                });
-                console.log('formInventario datosInventario: enviado correctamente');
+export const postFormInventarioActions = (datosInventario: Record<string, any>) =>
+    async (dispatch: Dispatch, getState: any): Promise<boolean> => { // Asegúrate de que retorna un boolean
+        const token = getState().auth.token; // Token está en el estado de autenticación
+        if (token) {
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+            };
+            // Verificar si `datosInventario` tiene datos antes de enviar
+            if (!datosInventario || Object.keys(datosInventario).length === 0) {
+                console.error("El objeto datosInventario está vacío.");
+                return false;
             }
-        } catch (error: any) {
-            // Manejo detallado del error
-            const errorMessage = error.response?.data?.message || error.message || 'Error al enviar el formulario';
-            dispatch({
-                type: POST_FORMULARIO_FAIL,
-                payload: errorMessage, // Mandamos el mensaje de error al reducer
+            const body = JSON.stringify({
+                datosInventario,
             });
-            console.error('Error al enviar el formulario:', errorMessage);
+
+            dispatch({ type: POST_FORMULARIO_REQUEST });
+
+            try {
+                const response = await axios.post('/api_inv/api/inventario/crearActivoFijoTest', body, config);
+
+                // Si el POST es exitoso
+                if (response.status === 200) {
+                    dispatch({
+                        type: POST_FORMULARIO_SUCCESS,
+                        payload: response.data,
+                    });
+                    console.log('Post enviado correctamente desde axios');
+                    return true;  // Retorna true en caso de éxito
+                }
+            } catch (error: any) {
+                // Manejo detallado del error
+                const errorMessage = error.response?.data?.message || error.message || 'Error al enviar el formulario';
+                dispatch({
+                    type: POST_FORMULARIO_FAIL,
+                    payload: errorMessage, // Mandamos el mensaje de error al reducer
+                });
+                console.error('Error al enviar el formulario:', errorMessage);
+                return false;  // Retorna false en caso de error
+            }
+        } else {
+            console.error('No token available'); // Mensaje en caso de que no haya token
+            return false;  // Retorna false si no hay token
         }
-    } else {
-        console.error('No token available'); // Mensaje en caso de que no haya token
-    }
-};
+
+        // Añadir un return al final de la función para cumplir con el tipo de retorno
+        return false; // Retorno por defecto (esto nunca debería ser alcanzado)
+    };
+

@@ -1,11 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
 import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
 
-import { setTotalActivoFijoActions, setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions, setDatosTabla, eliminarActivoDeTabla, eliminarMultiplesActivosDeTabla, actualizarSerieEnTabla, vaciarDatosTabla, setBienActions, setDetalleActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions, setDatosTabla, eliminarActivoDeTabla, eliminarMultiplesActivosDeTabla, actualizarSerieEnTabla, vaciarDatosTabla, setBienActions, setDetalleActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { postFormInventarioActions } from '../../redux/actions/Inventario/postFormInventarioActions';
 
 import {
@@ -13,18 +13,9 @@ import {
   setOrigenPresupuestoActions, setMontoRecepcionActions, setFechaFacturaActions,
   setRutProveedorActions, setnombreProveedorActions, setModalidadCompraActions
 } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import Swal from 'sweetalert2';
 import { FormInventario } from './FormInventario';
 
-import Swal from 'sweetalert2';
-
-const getRandomColor = () => {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-}
 
 
 export interface ActivoFijo {
@@ -47,15 +38,16 @@ interface Datos_activo_fijoProps {
   onBack: () => void;
   onReset: () => void; // vuelva a al componente Datos_inventario
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global 
-  formInventario: FormInventario;
   token: string | null;
   nombreEspecie: string[]; //Para obtener del estado global de redux 
   datosTabla: ActivoFijo[];
   general?: string; // Campo para errores generales
   generalTabla?: string;
+  formInventario: FormInventario;
+  postFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, nombreEspecie, formInventario, token, datosTabla }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, nombreEspecie, datosTabla, formInventario, postFormInventarioActions }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
 
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
@@ -99,7 +91,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     return datos.reduce((sum, activo) => sum + parseFloat(activo.precio), 0);
   }, [datos]);
 
-  // Calcular el total de cantidad por el precio
+  // Calcular cantidad por precio
   const newTotal = cantidad * precio;
   const pendiente = montoRecepcion - totalSum;
 
@@ -142,40 +134,49 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setCurrentActivo(prevData => ({ ...prevData, [name]: value }));
-    console.log('Detección en tiempo real (otros campos)', { name, value });
   };
 
-  const handleCambiaSerie = (index: number, newSerie: string) => {
-    setActivosFijos(prevActivos => {
-      // Limpiar el mensaje de error general cuando se empieza a escribir una nueva serie
-      setError(prevErrors => ({
-        ...prevErrors,
-        generalTabla: undefined // Limpiar el mensaje de error inmediatamente
-      }));
+  // Estado para errores específicos por serie
+  const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
 
+  const handleCambiaSerie = (indexVisible: number, newSerie: string) => {
+    // Convertir el índice visible al índice real en el array completo
+
+    const indexReal = indicePrimerElemento + indexVisible;
+    setActivosFijos((prevActivos) => {
       // Comprobar si la nueva serie ya existe en otro activo
-      const serieExists = prevActivos.some((activo, i) => activo.serie === newSerie && i !== index);
-      console.log('Detección en tiempo real (serie)', { index, newSerie });
+      const serieExists = prevActivos.some(
+        (activo, i) => activo.serie === newSerie && i !== indexReal
+      );
 
+      // Si existe, marcamos este índice con un error, pero permitimos el cambio
       if (serieExists) {
-        setError(prevErrors => ({
-          ...prevErrors,
-          generalTabla: "Esta serie ya existe en otro activo. Introduce un valor único."
+        setErroresSerie((prevErrores) => ({
+          ...prevErrores,
+          [indexReal]: "Esta serie ya existe en otro activo.",
         }));
-        return prevActivos; // Retornar sin modificar si la serie ya existe
+      } else {
+        // Si no existe error, limpiamos el error de este índice
+        setErroresSerie((prevErrores) => {
+          const newErrores = { ...prevErrores };
+          delete newErrores[indexReal]; // Eliminar error si ya no hay conflicto
+          return newErrores;
+        });
       }
 
-      // Actualizar el estado local
+      // Actualizar el estado global (activosFijos) con el nuevo valor de serie
       const updatedActivos = prevActivos.map((activo, i) =>
-        i === index ? { ...activo, serie: newSerie } : activo
+        i === indexReal ? { ...activo, serie: newSerie } : activo
       );
 
       // Despachar la acción para actualizar la serie en Redux
-      dispatch(actualizarSerieEnTabla(index, newSerie));
+      dispatch(actualizarSerieEnTabla(indexReal, newSerie));
 
-      return updatedActivos;
+      return updatedActivos; // Retornar el array completo actualizado
     });
   };
+
+
 
 
   //-------------Funciones de la tabla --------------------//
@@ -197,13 +198,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     }
   };
 
-
   // const handleClone = (activo: ActivoFijo) => {
   //   const clonedActivo = { ...activo };
   //   setActivosFijos(prev => [...prev, clonedActivo]);
   // };
-
-  // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
 
 
   const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
@@ -215,26 +213,33 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     // };
 
     if (validate()) {
-      // SweetAlert2: mostrar alerta de éxito
-
       const cantidad = parseInt(currentActivo.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || '';
 
+
+      // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
+      const getRandomPastelColor = () => {
+        const randomChannel = () => Math.floor(Math.random() * 128 + 127); // Valores entre 127 y 255 para generar tonos claros
+        const red = randomChannel();
+        const green = randomChannel();
+        const blue = randomChannel();
+
+        return `rgb(${red}, ${green}, ${blue})`;
+      }
+
+      // Buscar el color del último activo con la misma especie, si existe
+      const colorUltimaEspecie = activosFijos.find(activo => activo.especie === ultimaEspecie)?.color || getRandomPastelColor();
 
       const newActivos = Array.from({ length: cantidad }, (_, index) => ({
         ...currentActivo,
         id: String(Date.now() + index),
         especie: ultimaEspecie,
-        color: getRandomColor() // asigna un color distinto para cada activo
+        color: colorUltimaEspecie // Asigna el color correspondiente
       }));
       setActivosFijos(prev => [...prev, ...newActivos]);
 
-      // Despacha el array de nuevos activos a Redux
-      if (newTotal < montoRecepcion) {
-        dispatch(setDatosTabla(newActivos)); // Cambiado de currentActivo a newActivos
-      }
-
-
+      // Despacha el array de nuevos activos a Redux    
+      dispatch(setDatosTabla(newActivos));
       setCurrentActivo({
         id: '',
         vidaUtil: '',
@@ -330,7 +335,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
     console.log("formulario datos activo fijo:", activosFijos);
   };
-
   const handleFinalSubmit = async () => {
     // Combina todos los datos en un solo objeto
     // const total = 0;
@@ -338,60 +342,60 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     //   ...formInventario.datosInventario,
     //   ...formInventario.datosCuenta,
     //   activosFijos: formInventario.datosActivoFijo,
+    // Aquí extraemos solo datosInventario
+
     // };
-    if (token) {
-      postFormInventarioActions(formInventario.datosInventario);
+    console.log('Datos enviados:', formInventario.datosInventario); // Verifica los datos
+    const success = await postFormInventarioActions(formInventario.datosInventario);
+    if (success) {
+      //Resetea todo el formualario al estado inicial
+      // dispatch(setTotalActivoFijoActions(total));
+      dispatch(setNRecepcionActions(0));
+      dispatch(setFechaRecepcionActions(''));
+      dispatch(setNOrdenCompraActions(0));
+      dispatch(setNFacturaActions(''));
+      dispatch(setOrigenPresupuestoActions(0));
+      dispatch(setMontoRecepcionActions(0));
+      dispatch(setFechaFacturaActions(''));
+      dispatch(setRutProveedorActions(''));
+      dispatch(setnombreProveedorActions(''));
+      dispatch(setModalidadCompraActions(0));
+      dispatch(setServicioActions(0));
+      dispatch(setDependenciaActions(0));
+      dispatch(setCuentaActions(0));
+      dispatch(setBienActions(0));
+      dispatch(setDetalleActions(0));
+      dispatch(setEspecieActions(''));
+      dispatch(vaciarDatosTabla());
+      onReset(); // retorna a Datos_inventario
       Swal.fire({
         icon: 'success',
         title: 'Registro exitoso',
         text: 'El formulario se ha enviado y registrado con éxito!',
       });
     }
-
-
-
-
-    //Resetea todo el formualario al estado inicial
-    // dispatch(setTotalActivoFijoActions(total));
-    dispatch(setNRecepcionActions(0));
-    dispatch(setFechaRecepcionActions(''));
-    dispatch(setNOrdenCompraActions(0));
-    dispatch(setNFacturaActions(''));
-    dispatch(setOrigenPresupuestoActions(0));
-    dispatch(setMontoRecepcionActions(0));
-    dispatch(setFechaFacturaActions(''));
-    dispatch(setRutProveedorActions(''));
-    dispatch(setnombreProveedorActions(''));
-    dispatch(setModalidadCompraActions(0));
-    dispatch(setServicioActions(0));
-    dispatch(setDependenciaActions(0));
-    dispatch(setCuentaActions(0));
-    dispatch(setBienActions(0));
-    dispatch(setDetalleActions(0));
-    dispatch(setEspecieActions(''));
-    dispatch(vaciarDatosTabla());
-    onReset(); // retorna a Datos_inventario
-
-    // Log para verificar los datos combinados
-    // console.log("Formulario completo combinado:", FormulariosCombinados)
-    console.log("Formulario confirmado y enviado", formInventario.datosInventario)
-    // console.log("Total activo fijo", total);
+    else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al enviar el formulario.',
+      });
+    }
 
   };
 
 
-
-  console.log('Datos Tabla:', datosTabla);
-  console.log('Elementos actuales:', elementosActuales);
   const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
 
   if (datosTabla.length === 0) {
     console.log('datosTabla está vacío');
   }
 
+
   return (
     <>
-      {/* Total Activo Fijo*/}
+
+      {/* Monto Recepción*/}
       <div className="justify-content-end navbar navbar-light">
         <div className="navbar-nav mb-2 mb-lg-0 me-3">
           <p className="nav-item nav-link mb-0">
@@ -422,45 +426,45 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       {datos.length === 0 ? (
         <p>No hay datos para mostrar.</p>
       ) : (
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>
+        <Table bordered hover>
+          <thead >
+            <tr >
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>
                 <Form.Check type="checkbox" onChange={handleSeleccionaTodos} checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0} />
               </th>
-              <th>Vida Útil</th>
-              <th>Fecha Ingreso</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Serie</th>
-              <th>Precio</th>
-              <th>Especie</th>
-              <th>Acciones</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Vida Útil</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Fecha Ingreso</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Marca</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Modelo</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Serie</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Precio</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Especie</th>
+              <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            {elementosActuales.map((activo, index) => (
-              <tr key={index} style={{ backgroundColor: activo.color || 'transparent' }}>
+          <tbody >
+            {elementosActuales.map((activo, indexReal) => (
+              <tr key={indexReal} >
                 <td>
-                  <Form.Check type="checkbox" onChange={() => setSeleccionaFilas(index)} checked={filasSeleccionadas.includes(index.toString())} />
+                  <Form.Check type="checkbox" onChange={() => setSeleccionaFilas(indexReal)} checked={filasSeleccionadas.includes(indexReal.toString())} />
                 </td>
                 <td>{activo.vidaUtil}</td>
                 <td>{activo.fechaIngreso}</td>
                 <td>{activo.marca}</td>
                 <td>{activo.modelo}</td>
-                <td className="fixed-width" onClick={() => setEditingSerie(index.toString())}>
-                  {editingSerie === index.toString() ? (
+                <td className="fixed-width" onClick={() => setEditingSerie(indexReal.toString())}>
+                  {editingSerie === indexReal.toString() ? (
                     <Form.Control
                       type="text"
                       value={activo.serie}
-                      onChange={(e) => handleCambiaSerie(index, e.target.value)}
+                      onChange={(e) => handleCambiaSerie(indexReal, e.target.value)}
                       onBlur={handleSerieBlur}
                       autoFocus
                       maxLength={10}
                       pattern="\d*"
-                      data-index={index}
+                      data-index={indexReal}
                       // Agregar clase condicional si hay un error en la serie
-                      className={error?.generalTabla ? 'is-invalid' : ''}
+                      className={erroresSerie[indexReal] ? 'is-invalid' : ''}
                     />
                   ) : (
                     <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -468,14 +472,20 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
                       <PencilFill style={{ marginLeft: '8px', color: '#6c757d' }} /> {/* Ícono de lápiz */}
                     </span>
                   )}
+                  {erroresSerie[indexReal] && (
+                    <div className="invalid-feedback">
+                      {erroresSerie[indexReal]}
+                    </div>
+                  )}
                 </td>
+
                 <td>${parseFloat(activo.precio).toLocaleString('es-ES', { minimumFractionDigits: 0 })}</td>
-                <td> {activo.especie}</td>
-                <td>
+                <td style={{ backgroundColor: activo.color || 'transparent' }}> {activo.especie}</td>
+                <td >
                   {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                   Clonar
                 </Button> */}
-                  <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(index/*, parseFloat(activo.precio */)}>
+                  <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(indexReal/*, parseFloat(activo.precio */)}>
                     Eliminar
                   </Button>
                 </td>
@@ -483,8 +493,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
             ))}
           </tbody>
-          <tfoot>
-            <tr>
+          <tfoot >
+            <tr >
               <td colSpan={6} className="text-right"><strong>Total activo fijo:</strong></td>
               <td><strong>${totalSum.toLocaleString('es-ES', { minimumFractionDigits: 0 })}</strong></td>
             </tr>
@@ -569,12 +579,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
               </Col>
 
               <Col md={6}>
-                {/* <div className="mb-1">
-                  <label htmlFor="serie" className="form-label">Serie</label>
-                  <input type="text" className={`form-control ${error.serie ? 'is-invalid' : ''}`} id="serie" name="serie" onChange={handleChange} value={currentActivo.serie} />
-                  {error.serie && <div className="invalid-feedback">{error.serie}</div>}
-                </div> */}
-
                 <div className="mb-1">
                   <label htmlFor="precio" className="form-label">Precio</label>
                   <input type="text" className={`form-control ${error.precio ? 'is-invalid' : ''}`} id="precio" name="precio" onChange={handleChange} value={currentActivo.precio} />
@@ -637,7 +641,7 @@ const mapStateToProps = (state: RootState) => ({
 
 });
 export default connect(mapStateToProps, {
-  setTotalActivoFijoActions,
+
   postFormInventarioActions
 
 })(Datos_activo_fijo);
