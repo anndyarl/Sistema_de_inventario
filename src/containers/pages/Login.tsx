@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { login } from '../../redux/actions/auth/auth'; // Elimina buscar_unidades si no se usa aquí

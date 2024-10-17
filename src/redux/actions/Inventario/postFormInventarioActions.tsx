@@ -9,23 +9,23 @@ import {
 
 
 // Acción para enviar el formulario
-export const postFormInventarioActions = (datosInventario: Record<string, any>) =>
+export const postFormInventarioActions = (FormulariosCombinados: Record<string, any>) =>
     async (dispatch: Dispatch, getState: any): Promise<boolean> => { // Asegúrate de que retorna un boolean
         const token = getState().auth.token; // Token está en el estado de autenticación
         if (token) {
             const config = {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/jsona'
                 },
             };
-            // Verificar si `datosInventario` tiene datos antes de enviar
-            if (!datosInventario || Object.keys(datosInventario).length === 0) {
+            // Verifica si `datosInventario` tiene datos antes de enviar
+            if (!FormulariosCombinados || Object.keys(FormulariosCombinados).length === 0) {
                 console.error("El objeto datosInventario está vacío.");
                 return false;
             }
             const body = JSON.stringify({
-                datosInventario,
+                FormulariosCombinados,
             });
 
             dispatch({ type: POST_FORMULARIO_REQUEST });

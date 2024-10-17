@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 
 import { logout } from '../../redux/actions/auth/auth'; // Importa la acción de logout
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { RootState } from '../../redux/reducers';
+import { AppDispatch, persistor } from '../../store';
 
 
 interface LogoutProps {
@@ -12,13 +13,11 @@ interface LogoutProps {
 
 const Logout: React.FC<LogoutProps> = ({ logout }) => {
   const [showModal, setShowModal] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setShowModal(false);
-  }
-  const handleLogout = () => {
-    logout(); // Llama a la acción de logout
+  const handleLogout = async () => {
+    dispatch(logout()); // Llama a la acción de logout
+    persistor.purge();
   };
   const handleShowModal = () => {
     setShowModal(true); // Cambia el estado para mostrar el modal
@@ -47,7 +46,7 @@ const Logout: React.FC<LogoutProps> = ({ logout }) => {
           <p className="fs-5 mb-4">
             Si deseas salir, haz clic en <strong>"Cerrar Sesión"</strong> o selecciona <strong>"Cancelar"</strong> para continuar en la página.
           </p>
-          <form onSubmit={handleSubmit}>
+          <form >
             <div className="d-flex justify-content-center gap-3">
               <Button
                 onClick={handleLogout}

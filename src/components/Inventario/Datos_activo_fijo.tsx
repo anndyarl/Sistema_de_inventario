@@ -336,16 +336,19 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     console.log("formulario datos activo fijo:", activosFijos);
   };
   const handleFinalSubmit = async () => {
-    // Combina todos los datos en un solo objeto
-    // const total = 0;
-    // const FormulariosCombinados = {
-    //   ...formInventario.datosInventario,
-    //   ...formInventario.datosCuenta,
-    //   activosFijos: formInventario.datosActivoFijo,
-    // Aquí extraemos solo datosInventario
+    // Combina todos los datos en un solo objeto   
+    const FormulariosCombinados = {
+      ...formInventario.datosInventario,
+      ...formInventario.datosCuenta,
+      activosFijos: activosFijos,
 
-    // };
-    console.log('Datos enviados:', formInventario.datosInventario); // Verifica los datos
+    };
+    console.log('activos fijos:', activosFijos); // Verifica los datos
+    console.log('Datos enviados:', FormulariosCombinados); // Verifica los datos
+
+    // formInventario.datosInventario 
+    // formInventario.datosCuenta
+    // activosFijos
     const success = await postFormInventarioActions(formInventario.datosInventario);
     if (success) {
       //Resetea todo el formualario al estado inicial

@@ -1,7 +1,7 @@
 // Importa componentes al FormularioCompleto.tsx
 import React, { useState, useEffect } from 'react';
 import Layout from '../../hooks/layout/Layout';
-import DatosInventario, { ORIGEN, MODALIDAD, InventarioProps } from './Datos_inventario';
+import DatosInventario, { ORIGEN, MODALIDAD } from './Datos_inventario';
 import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, ListaEspecie, BIEN, DETALLE } from './Datos_cuenta';
 import DatosActivoFijo from './Datos_activo_fijo';
 import Timeline from './Timeline';
@@ -51,10 +51,11 @@ interface FormInventarioProps {
   comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
 
   token: string | null;
-
+  nInventario: number;
+  aF_ORIGEN: string;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions, token }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, nInventario, aF_ORIGEN, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions, token }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -164,6 +165,8 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
           //Lista combos
           comboOrigen={comboOrigen}
           comboModalidad={comboModalidad}
+          nInventario={nInventario}
+          aF_ORIGEN={aF_ORIGEN}
         />}
 
         {step === 1 && <DatosCuenta

@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import auth from './auth/auth';
 
 import datosInventarioReducer from './Inventario/DatosInventariosReducer';
-import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer';
+// import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer.tsx.old';
 
 //Form1
 import origenPresupuestoReducer from './combos/comboOrigenReducers';
@@ -14,11 +14,15 @@ import comboCuentaReducer from './combos/comboCuentaReducers';
 import comboDependenciaReducer from './combos/comboDependenciaReducers';
 import detallesReducer from './combos/comboDetallesReducers';
 import comboListadoDeEspeciesBien from './combos/comboListadoDeEspeciesBienReducers';
+// import obtenerInventarioReducer from './Inventario/obtenerInventarioReducer.tsx.old';
 
 const rootReducer = combineReducers({
     //Autentificación
     auth,
-    obtenerRecepcionReducer,
+    //Obiene por numero de recepcion
+    // obtenerRecepcionReducer,
+    //OBtiene por numero de inventario
+    // obtenerInventarioReducer,
     /*-------------Combos-----------------*/
     //Form1
     origenPresupuestoReducer,
@@ -33,7 +37,7 @@ const rootReducer = combineReducers({
 
     // Form 3
 
-    //formulario inventaro
+    //formulario inventario
     datosInventarioReducer,
 
 });

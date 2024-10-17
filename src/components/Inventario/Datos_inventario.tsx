@@ -13,6 +13,7 @@ import {
 } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { obtenerRecepcionActions } from '../../redux/actions/Inventario/obtenerRecepcionActions';
 import { ActivoFijo } from './Datos_activo_fijo';
+import { obtenerInventarioActions } from '../../redux/actions/Inventario/obtenerInventarioActions';
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
@@ -34,9 +35,12 @@ export interface InventarioProps {
   nFactura: string,
   nOrdenCompra: number,
   nRecepcion: number,
+  nInventario: number,
   nombreProveedor: string,
   origenPresupuesto: number,
-  rutProveedor: string
+  rutProveedor: string,
+  aF_ORIGEN: string
+
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -44,8 +48,7 @@ interface Datos_inventarioProps extends InventarioProps {
   onNext: (Inventario: InventarioProps) => void;
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
-  datosTabla: ActivoFijo[];
-
+  datosTabla: ActivoFijo[];// se utliza aqui para validar el monto recepción, por si se tipea un cambio
 }
 
 // Define el componente `Datos_inventario` del props
@@ -60,10 +63,12 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   nFactura,
   nOrdenCompra,
   nRecepcion,
+  nInventario,
   nombreProveedor,
   origenPresupuesto,
   rutProveedor,
   datosTabla,
+  aF_ORIGEN
 
 
 }) => {
@@ -76,23 +81,39 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     nFactura: '',
     nOrdenCompra: 0,
     nRecepcion: 0,
+    nInventario: 0,
     nombreProveedor: '',
     origenPresupuesto: 0,
     rutProveedor: '',
+    aF_ORIGEN: ''
   });
-
   const dispatch = useDispatch<AppDispatch>();
   const [showInput, setShowInput] = useState(false);
+  const [formState, setFormState] = useState({
+    buscarPor: localStorage.getItem('buscarPor') || '0',  // Recupera el valor guardado o '0' por defecto
+  });
+
+  //Se declara para habilitar la validación de nRecepcion o nInventario
+  const { buscarPor } = formState;
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string, generalTabla?: string }>({});
 
-  // Validaciones
+  const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false);  // Validaciones
+
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
 
-    // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.nRecepcion) tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
-    else if (isNaN(Inventario.nRecepcion)) tempErrors.nRecepcion = "El N° de Recepción debe ser numérico.";
-
+    if (buscarPor === "1") {
+      // Validación para N° de Recepción (debe ser un número)
+      if (!Inventario.nRecepcion) tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
+    }
+    else if (buscarPor === "2") {
+      // Validación para N° de Recepción (debe ser un número)
+      if (!Inventario.nInventario) tempErrors.nInventario = "El N° de Inventario es obligatorio.";
+    }
+    else if (buscarPor === "0") {
+      // Validación seleccionar buscar por
+      tempErrors.general = "Debe selecionar una opción";
+    }
     // Validación para Fecha de Recepción (debe ser una fecha válida)
     if (!Inventario.fechaRecepcion) tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
 
@@ -129,52 +150,44 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-  const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    // Si el campo es numérico, convierte a número solo los que realmente son números
     let newValue: string | number = value;
-    // Convertir a número los campos que lo requieren
-
-    if (datosTabla.length > 0) {
-      // Manejar cambios específicos para montoRecepcion
-      if (name === 'montoRecepcion') {
-
-        // Mostrar alerta solo una vez cuando el usuario intente modificar el montoRecepcion por primera vez
-        if (!isMontoRecepcionEdited) {
-          Swal.fire({
-            icon: 'warning',
-            title: '¿Está seguro que desea modificar monto recepción?',
-            text: 'Si modifica el monto recepción se perderán los datos en la tabla del paso 3 del formulario.',
-            showCancelButton: true,
-            confirmButtonText: "Si, Modificar",
-            cancelButtonText: "No, Cancelar",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              setInventario((prevInventario) => ({
-                ...prevInventario,
-                [name]: 0, // Actualizar montoRecepcion como número
-              }));
-              // Marcar que ya se ha editado el montoRecepcion para evitar que la alerta se muestre de nuevo
-              setIsMontoRecepcionEdited(true);
-              // Vaciar la tabla
-              dispatch(vaciarDatosTabla());
-            }
-          });
-          return;
-        }
-
-      }
-    }
-    if (name === 'nRecepcion' || name === 'nOrdenCompra' || name === 'montoRecepcion' || name === 'origenPresupuesto') {
+    if (name === 'montoRecepcion' || name === 'modalidadDeCompra' || name === 'nOrdenCompra' || name === 'origenPresupuesto') {
       newValue = parseFloat(value) || 0;
     }
 
-    setInventario(prevInventario => ({
-      ...prevInventario,
-      [name]: newValue,
-
-    }));
-
+    if (name === 'montoRecepcion' && datosTabla.length > 0) {
+      if (!isMontoRecepcionEdited) {
+        Swal.fire({
+          icon: 'warning',
+          title: '¿Está seguro que desea modificar monto recepción?',
+          text: 'Si modifica el monto recepción se perderán los datos en la tabla.',
+          showCancelButton: true,
+          confirmButtonText: "Si, Modificar",
+          cancelButtonText: "No, Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setInventario((prevInventario) => ({
+              ...prevInventario,
+              [name]: 0,
+            }));
+            setIsMontoRecepcionEdited(true);
+            dispatch(vaciarDatosTabla());
+          }
+        });
+        return;
+      }
+    }
+    if (name === 'buscarPor') {
+      localStorage.setItem('buscarPor', value);  // Guarda el valor seleccionado en localStorage
+    }
+    setFormState({ ...formState, [name]: value });
+    setError((prevErrors) => ({ ...prevErrors, [name]: '' }));
+    setInventario((prevInventario) => ({ ...prevInventario, [name]: newValue }));
     //Al seleccionar "otros" es decir el valor 7 este habilitará el input text
     if (name === 'modalidadDeCompra' && value === '7') {
       setShowInput(true);
@@ -182,10 +195,11 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     else {
       setShowInput(false);
     }
+
+
   };
 
-  //Hook que muestra los valores al input
-  // Sincroniza el estado local con Redux
+  //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
     setInventario({
       fechaFactura,
@@ -195,12 +209,15 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       nFactura,
       nOrdenCompra,
       nRecepcion,
+      nInventario,
       nombreProveedor,
       origenPresupuesto,
-      rutProveedor
+      rutProveedor,
+      aF_ORIGEN
     });
-  }, [fechaFactura, fechaRecepcion, modalidadDeCompra, montoRecepcion, nFactura, nOrdenCompra, nRecepcion, nombreProveedor, origenPresupuesto, rutProveedor]);
+  }, [fechaFactura, fechaRecepcion, modalidadDeCompra, montoRecepcion, nFactura, nOrdenCompra, nRecepcion, nInventario, nombreProveedor, origenPresupuesto, rutProveedor]);
 
+  console.log("af_ORIGEN", aF_ORIGEN);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -221,7 +238,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       onNext(Inventario);
     }
   };
-
   const handleRecepcionSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!Inventario.nRecepcion) {
@@ -232,42 +248,88 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     // Despacha la acción para obtener la recepción en el formulario de activos fijos
     dispatch(obtenerRecepcionActions(Inventario.nRecepcion));
   };
+  const handleInventarioSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!Inventario.nInventario) {
+
+      alert("Por favor, ingrese un número de inventario válido.");
+      return;
+    }
+    // Despacha la acción para obtener la recepción en el formulario de activos fijos
+    dispatch(obtenerInventarioActions(Inventario.nInventario));
+  };
 
   return (
     <>
       <form onSubmit={handleSubmit} >
         <div className="border-top p-1 rounded">
-          <div>
+
+          <p>aF_ORIGEN: {aF_ORIGEN}</p>
+
+          {formState.buscarPor === '1' && (
             <h3 className="form-title">Registro Inventario</h3>
-          </div>
+          )}
+          {formState.buscarPor === '2' && (
+            <h3 className="form-title">Busqueda del Inventario</h3>
+          )}
+
           <div className="mt-4 border-top">
             <Row>
               <Col md={6}>
                 <div className="mb-1">
-                  <label htmlFor="nRecepcion" className="form-label">N Recepción</label>
-                  <div className="d-flex align-items-center">
-                    <input
-                      type="text"
-                      className={`form-control ${error.nRecepcion ? 'is-invalid' : ''}`}
-                      maxLength={12}
-                      name="nRecepcion"
-                      onChange={handleChange}
-                      value={Inventario.nRecepcion}
-                    />
-
-                    <Button
-                      onClick={handleRecepcionSubmit}
-                      variant="primary"
-                      className="ms-2"
-                    >
-                      +
-                    </Button>
-
-                  </div>
-                  {error.nRecepcion && <div className="invalid-feedback">{error.nRecepcion}</div>}
+                  <select
+                    className={`form-control ${error.general ? 'is-invalid' : ''}`}
+                    name="buscarPor"
+                    value={formState.buscarPor}
+                    onChange={handleChange}
+                    style={{ flex: '0 0 150px' }}
+                  >
+                    <option value="0">Seleccione una opción</option>
+                    <option value="1">N° de Recepción</option>
+                    <option value="2">N° de Inventario</option>
+                  </select>
+                  <div> {error.general && <div className="invalid-feedback d-block">{error.general}</div>}</div>
                 </div>
 
-                <div className="mb-1">
+                {formState.buscarPor === '1' && (
+                  <div className="mb-1">
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className={`form-control ${error.nRecepcion ? 'is-invalid' : ''} w-100`}
+                        maxLength={12}
+                        name="nRecepcion"
+                        onChange={handleChange}
+                        value={Inventario.nRecepcion || 0}
+                      />
+                      <Button onClick={handleRecepcionSubmit} variant="primary" className="ms-2">
+                        +
+                      </Button>
+                    </div>
+                    {error.nRecepcion && <div className="invalid-feedback d-block">{error.nRecepcion}</div>}
+                  </div>
+                )}
+
+                {formState.buscarPor === '2' && (
+                  <div className="mb-1">
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className={`form-control ${error.nInventario ? 'is-invalid' : ''} w-100`}
+                        maxLength={12}
+                        name="nInventario"
+                        onChange={handleChange}
+                        value={Inventario.nInventario || 0}
+                      />
+                      <Button onClick={handleInventarioSubmit} variant="success" className="ms-2">
+                        +
+                      </Button>
+                    </div>
+                    {error.nInventario && <div className="invalid-feedback d-block">{error.nInventario}</div>}
+                  </div>
+                )}
+
+                < div className="mb-1">
                   <label htmlFor="fechaRecepcion" className="form-label">Fecha Recepción</label>
                   <input
                     type="date"
@@ -280,7 +342,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="nOrdenCompra" className="form-label">N Orden de compra</label>
+                  <label htmlFor="nOrdenCompra" className="form-label">N° Orden de compra</label>
                   <input
                     type="text"
                     className={`form-control ${error.nOrdenCompra ? 'is-invalid' : ''}`}
@@ -293,7 +355,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="nFactura" className="form-label">N Factura</label>
+                  <label htmlFor="nFactura" className="form-label">N° Factura</label>
                   <input
                     type="text"
                     className={`form-control ${error.nFactura ? 'is-invalid' : ''}`}
@@ -312,7 +374,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     className={`form-select ${error.origenPresupuesto ? 'is-invalid' : ''}`}
                     name="origenPresupuesto"
                     onChange={handleChange}
-                    value={Inventario.origenPresupuesto}
+                    value={Inventario.origenPresupuesto || Inventario.aF_ORIGEN}
                   >
                     <option value="">Seleccione un origen</option>
                     {comboOrigen.map((traeOrigen) => (
@@ -361,7 +423,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="rutProveedor" className="form-label">Rut Proveesor</label>
+                  <label htmlFor="rutProveedor" className="form-label">Rut Proveedor</label>
                   <input
                     type="text"
                     className={`form-control ${error.rutProveedor ? 'is-invalid' : ''}`}
@@ -377,7 +439,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="nombreProveedor" className="form-label">Nombre Proveesor</label>
+                  <label htmlFor="nombreProveedor" className="form-label">Nombre Proveedor</label>
                   <input
                     type="text"
                     className={`form-control ${error.nombreProveedor ? 'is-invalid' : ''}`}
@@ -434,7 +496,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
               </Col>
             </Row>
 
-
           </div>
         </div>
         <div className="p-1 rounded bg-white d-flex justify-content-end ">
@@ -457,7 +518,8 @@ const mapStateToProps = (state: RootState) => ({
   nombreProveedor: state.datosInventarioReducer.nombreProveedor,
   origenPresupuesto: state.datosInventarioReducer.origenPresupuesto,
   rutProveedor: state.datosInventarioReducer.rutProveedor,
-  datosTabla: state.datosInventarioReducer.datosTabla
+  datosTabla: state.datosInventarioReducer.datosTabla,
+  // aF_ORIGEN: state.datosInventarioReducer.aF_ORIGEN
 });
 
 export default connect(mapStateToProps,

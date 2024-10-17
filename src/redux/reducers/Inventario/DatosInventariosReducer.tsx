@@ -3,6 +3,8 @@ import {
   RECEPCION_REQUEST,
   RECEPCION_SUCCESS,
   RECEPCION_FAIL,
+  INVENTARIO_REQUEST,
+  INVENTARIO_SUCCESS
 } from '../../actions/types';
 
 
@@ -30,6 +32,7 @@ interface DatosInventarioState {
   descripcionEspecie: string;
   nombreEspecie: string[];
   datosTabla: ActivoFijo[],
+  aF_ORIGEN: string,
 }
 
 // Estado inicial tipado
@@ -56,6 +59,7 @@ const initialState: DatosInventarioState = {
   descripcionEspecie: '',
   nombreEspecie: [],
   datosTabla: [],
+  aF_ORIGEN: ''
 };
 
 
@@ -151,7 +155,68 @@ const datosInventarioReducer = (state = initialState, action: any) => {
         fechaFactura: action.payload.fechaFactura,
         rutProveedor: action.payload.rutProveedor,
         nombreProveedor: action.payload.nombreProveedor,
-        modalidadDeCompra: action.payload.modalidadDeCompra,
+        modalidadDeCompra: action.payload.modalidadDeCompra
+      };
+    case INVENTARIO_REQUEST:
+      return { ...state, loading: true };
+    case INVENTARIO_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        aF_CLAVE: 0,
+        aF_CODIGO_GENERICO: "3000000001",
+        aF_CODIGO_LARGO: "3000000001",
+        deP_CORR: 0,
+        esP_CODIGO: "",
+        aF_SECUENCIA: 0,
+        itE_CLAVE: 0,
+        aF_DESCRIPCION: "Locker 3 Cuerpos",
+        aF_FINGRESO: "9/4/2024 12:48:13 PM",
+        aF_ESTADO: "S ",
+        aF_CODIGO: "469-003-1178-01",
+        aF_TIPO: "COMPRAEXTRA",
+        aF_ALTA: "S",
+        aF_PRECIO_REF: 77338,
+        aF_CANTIDAD: 1,
+        aF_ORIGEN: action.payload.aF_ORIGEN,
+        aF_RESOLUCION: "674308",
+        aF_FECHA_SOLICITUD: "6/13/2017 12:00:00 AM",
+        aF_OCO_NUMERO_REF: "165665",
+        usuariO_CREA: "lbriones",
+        f_CREA: "0",
+        iP_CREA: "0",
+        usuariO_MOD: "0",
+        f_MOD: "0",
+        iP_MODt: "",
+        aF_TIPO_DOC: 1,
+        proV_RUN: 0,
+        reG_EQM: "0",
+        aF_NUM_FAC: "0",
+        aF_FECHAFAC: "0",
+        aF_3UTM: "N",
+        iD_GRUPO: 64,
+        ctA_COD: "0",
+        transitoria: "0",
+        aF_MONTOFACTURA: 618705,
+        esP_DESCOMPONE: "0",
+        aF_ETIQUETA: "0",
+        aF_VIDAUTIL: 0,
+        aF_VIGENTE: "0",
+        idprograma: 0,
+        idmodalidadcompra: 0,
+        idpropiedad: 0,
+        especie: "0",
+        deT_MARCA: "acolchado celeste",
+        deT_MODELO: "con apoya brazo",
+        deT_SERIE: "con ruedas",
+        deT_LOTE: "0",
+        deT_OBS: "0",
+        iP_MOD: "0",
+        deT_PRECIO: 38212254,
+        deT_RECEPCION: 0,
+        propietario: 0,
+        tipopropietario: 0,
+
       };
     case RECEPCION_FAIL:
       return { ...state, loading: false, error: action.error };

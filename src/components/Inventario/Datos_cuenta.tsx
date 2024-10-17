@@ -49,8 +49,6 @@ interface CuentaProps {
     cuenta: number;
     dependencia: number;
     especie: string;
-    bien: number;
-    detalles: number;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -74,7 +72,8 @@ interface Datos_cuentaProps extends CuentaProps {
     especieSeleccionado: string | null | undefined;
 
     descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
-
+    bien: number;
+    detalles: number;
 }
 
 const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
@@ -92,8 +91,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     cuenta,
     dependencia,
     especie,
-    bien,
-    detalles,
+    // bien,
+    // detalles,
     descripcionEspecie,
     onServicioSeleccionado,
     onBienSeleccionado,
@@ -105,10 +104,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
         servicio: 0,
         cuenta: 0,
         dependencia: 0,
-        especie: '',
-        bien: 0,
-        detalles: 0
-
+        especie: ''
     });
 
     const [Especies, setEspecies] = useState({
@@ -130,11 +126,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             cuenta,
             dependencia,
             especie,
-            bien,
-            detalles
         });
 
-    }, [servicio, cuenta, dependencia, especie, bien, detalles]);
+    }, [servicio, cuenta, dependencia, especie]);
 
     //Se usa useEffect para el caso de Especie ya que por handleChange no detacta el
     // cambio debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
@@ -327,7 +321,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                 <div className="mb-1">
                                     <dt className="text-muted">Bien</dt>
                                     <dd className="d-flex align-items-center">
-                                        <select name="bien" className="form-select" onChange={handleChange} value={Cuenta.bien}>
+                                        <select name="bien" className="form-select" onChange={handleChange} >
                                             {comboBien.map((traeBien) => (
                                                 <option key={traeBien.codigo} value={traeBien.codigo}>
                                                     {traeBien.descripcion}
@@ -339,7 +333,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                 <div className="mb-1">
                                     <dt className="text-muted">Detalles</dt>
                                     <dd className="d-flex align-items-center">
-                                        <select name="detalles" className="form-select" onChange={handleChange} value={Cuenta.detalles}>
+                                        <select name="detalles" className="form-select" onChange={handleChange} >
                                             <option value="">Selecciona una opción</option>
                                             {comboDetalle.map((traeDetalles) => (
                                                 <option key={traeDetalles.codigo} value={traeDetalles.codigo}>

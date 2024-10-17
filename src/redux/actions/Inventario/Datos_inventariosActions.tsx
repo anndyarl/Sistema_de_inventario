@@ -4,52 +4,42 @@ export const setNRecepcionActions = (nRecepcion: number) => ({
   type: 'SET_N_RECEPCION',
   payload: nRecepcion,
 });
-
 export const setFechaRecepcionActions = (fechaRecepcion: string) => ({
   type: 'SET_FECHA_RECEPCION',
   payload: fechaRecepcion,
 });
-
 export const setNOrdenCompraActions = (nOrdenCompra: number) => ({
   type: 'SET_N_ORDEN_COMPRA',
   payload: nOrdenCompra,
 });
-
 export const setNFacturaActions = (nFactura: string) => ({
   type: 'SET_N_FACTURA',
   payload: nFactura,
 });
-
 export const setOrigenPresupuestoActions = (origenPresupuesto: number) => ({
   type: 'SET_ORIGEN_PRESUPUESTO',
   payload: origenPresupuesto,
 });
-
 export const setMontoRecepcionActions = (montoRecepcion: number) => ({
   type: 'SET_MONTO_RECEPCION',
   payload: montoRecepcion,
 });
-
 export const setFechaFacturaActions = (fechaFactura: string) => ({
   type: 'SET_FECHA_FACTURA',
   payload: fechaFactura,
 });
-
 export const setRutProveedorActions = (rutProveedor: string) => ({
   type: 'SET_RUT_PROVEEDOR',
   payload: rutProveedor,
 });
-
 export const setnombreProveedorActions = (nombreProveedor: string) => ({
   type: 'SET_NOMBRE_PROVEEDOR',
   payload: nombreProveedor,
 });
-
 export const setModalidadCompraActions = (modalidadDeCompra: number) => ({
   type: 'SET_MODALIDAD_COMPRA',
   payload: modalidadDeCompra,
 });
-
 export const setTotalActivoFijoActions = (total: number) => ({
   type: 'SET_TOTAL_ACTIVO_FIJO',
   payload: total,
@@ -90,7 +80,6 @@ export const setListadoEspecieActions = (listado: number) => ({
   type: 'SET_LISTADO_ESPECIE',
   payload: listado,
 });
-
 export const setNombreEspecieActions = (nombreEspecie: string) => ({
   type: 'SET_NOMBRE_ESPECIE',
   payload: nombreEspecie,
@@ -102,7 +91,6 @@ export const setDatosTabla = (datosTabla: ActivoFijo[]) => ({
   type: 'SET_DATOS_TABLA',
   payload: datosTabla,
 });
-
 export const eliminarActivoDeTabla = (index: number) => ({
   type: 'ELIMINAR_ACTIVO_TABLA',
   payload: index,
