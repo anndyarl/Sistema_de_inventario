@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
 import React, { useState, useMemo, useEffect } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { connect, useDispatch} from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
@@ -416,13 +416,13 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
 
 //mapea los valores del estado global de Redux 
 const mapStateToProps = (state: RootState) => ({
-    servicio: state.datosInventarioReducer.servicio,
-    cuenta: state.datosInventarioReducer.cuenta,
-    dependencia: state.datosInventarioReducer.dependencia,
-    especie: state.datosInventarioReducer.especie,
-    bien: state.datosInventarioReducer.bien,
-    detalles: state.datosInventarioReducer.detalle,
-    descripcionEspecie: state.datosInventarioReducer.descripcionEspecie
+    servicio: state.datosRecepcionReducer.servicio,
+    cuenta: state.datosRecepcionReducer.cuenta,
+    dependencia: state.datosRecepcionReducer.dependencia,
+    especie: state.datosRecepcionReducer.especie,
+    bien: state.datosRecepcionReducer.bien,
+    detalles: state.datosRecepcionReducer.detalle,
+    descripcionEspecie: state.datosRecepcionReducer.descripcionEspecie
 
 });
 

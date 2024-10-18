@@ -18,6 +18,7 @@ import { checkAuthStatus } from '../../redux/actions/auth/auth';
 import { AppDispatch } from '../../store';
 import FormInventario from '../../components/Inventario/FormInventario';
 import FormBienesFuncionarios from '../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
+import ModificarInventario from '../../components/Inventario/ModificarInventario/ModificarInventario';
 
 
 
@@ -49,6 +50,7 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Menu Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />
                 <Route path="/FormInventario" element={<FormInventario />} />
+                <Route path="/ModificarInventario/ModificarInventario" element={<ModificarInventario />} />
                 <Route path="/BienesFuncionarios/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
                 {/* Fin Menu Inventario */}
 

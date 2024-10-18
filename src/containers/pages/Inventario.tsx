@@ -49,15 +49,15 @@ const Inventario: React.FC = () => {
                                     style={{ height: "350px", objectFit: "cover" }}
                                 /> */}
                             <Card.Body>
-                                <Card.Title className="text-center">Modificar y Eliminar Inventario</Card.Title>
+                                <Card.Title className="text-center">Modificar Inventario</Card.Title>
                                 <Card.Text className="text-center">
                                     Busca el inventario que deseas modificar. Podrás editarlo o eliminarlo según necesites.
                                 </Card.Text>
                                 <div className="d-flex justify-content-center">
                                     <div className="flex-grow-1">
-                                        <NavLink key="FormBienesFuncionarios" to="/BienesFuncionarios/FormBienesFuncionarios" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
+                                        <NavLink key="ModificarInventario" to="/ModificarInventario/ModificarInventario" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
                                             <Pencil className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                                            Modificar / Eliminar
+                                            Modificar Inventario
                                         </NavLink>
                                     </div>
                                 </div>

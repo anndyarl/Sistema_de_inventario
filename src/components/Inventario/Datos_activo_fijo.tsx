@@ -5,7 +5,7 @@ import { PencilFill } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect, useDispatch } from 'react-redux';
 
-import { setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions, setDatosTabla, eliminarActivoDeTabla, eliminarMultiplesActivosDeTabla, actualizarSerieEnTabla, vaciarDatosTabla, setBienActions, setDetalleActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions, setDatosTablaActivoFijo, eliminarActivoDeTabla, eliminarMultiplesActivosDeTabla, actualizarSerieEnTabla, vaciarDatosTabla, setBienActions, setDetalleActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
 import { postFormInventarioActions } from '../../redux/actions/Inventario/postFormInventarioActions';
 
 import {
@@ -40,14 +40,14 @@ interface Datos_activo_fijoProps {
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global 
   token: string | null;
   nombreEspecie: string[]; //Para obtener del estado global de redux 
-  datosTabla: ActivoFijo[];
+  datosTablaActivoFijo: ActivoFijo[];
   general?: string; // Campo para errores generales
   generalTabla?: string;
   formInventario: FormInventario;
   postFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, nombreEspecie, datosTabla, formInventario, postFormInventarioActions }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, nombreEspecie, datosTablaActivoFijo, formInventario, postFormInventarioActions }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
 
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
@@ -75,8 +75,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
   // Combina el estado local de react con el estado local de redux
   const datos = useMemo(() => {
-    return datosTabla.length > 0 ? datosTabla : activosFijos;
-  }, [datosTabla, activosFijos]);
+    return datosTablaActivoFijo.length > 0 ? datosTablaActivoFijo : activosFijos;
+  }, [datosTablaActivoFijo, activosFijos]);
 
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -239,7 +239,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       setActivosFijos(prev => [...prev, ...newActivos]);
 
       // Despacha el array de nuevos activos a Redux    
-      dispatch(setDatosTabla(newActivos));
+      dispatch(setDatosTablaActivoFijo(newActivos));
       setCurrentActivo({
         id: '',
         vidaUtil: '',
@@ -390,8 +390,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
   const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
 
-  if (datosTabla.length === 0) {
-    console.log('datosTabla está vacío');
+  if (datosTablaActivoFijo.length === 0) {
+    console.log('datosTablaActivoFijo está vacío');
   }
 
 
@@ -635,11 +635,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 };
 
 const mapStateToProps = (state: RootState) => ({
-  montoRecepcion: state.datosInventarioReducer.montoRecepcion,
-  totalEstadoGlobal: state.datosInventarioReducer.totalEstadoGlobal,
-  nombreEspecie: state.datosInventarioReducer.nombreEspecie,
-  resetFormulario: state.datosInventarioReducer.resetFormulario,
-  datosTabla: state.datosInventarioReducer.datosTabla,
+  montoRecepcion: state.datosRecepcionReducer.montoRecepcion,
+  totalEstadoGlobal: state.datosRecepcionReducer.totalEstadoGlobal,
+  nombreEspecie: state.datosRecepcionReducer.nombreEspecie,
+  resetFormulario: state.datosRecepcionReducer.resetFormulario,
+  datosTablaActivoFijo: state.datosRecepcionReducer.datosTablaActivoFijo,
   token: state.auth.token // se utiliza el token aqui para pasarselo al postFormInventario
 
 });

@@ -7,7 +7,7 @@ import {
 } from '../types';
 
 // Acción para obtener la recepción por número
-export const obtenerInventarioActions = (nInventario: number) => async (dispatch: Dispatch, getState: any) => {
+export const obtenerInventarioActions = (nInventario: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().auth.token; //token está en el estado de autenticación
 
     if (token) {
@@ -28,13 +28,15 @@ export const obtenerInventarioActions = (nInventario: number) => async (dispatch
             if (res.status === 200) {
                 dispatch({
                     type: INVENTARIO_SUCCESS,
-                    payload: res.data,
+                    payload: res.data,                  
                 });
+                   return false;
             } else {
                 dispatch({
                     type: INVENTARIO_FAIL,
-                    error: 'No se pudo obtener el inventario. Por favor, intente nuevamente.',
+                    error: 'No se pudo obtener el inventario. Por favor, intente nuevamente.',                   
                 });
+                  return false;
             }
         } catch (err) {
             console.error("Error en la solicitud:", err);
@@ -42,11 +44,13 @@ export const obtenerInventarioActions = (nInventario: number) => async (dispatch
                 type: INVENTARIO_FAIL,
                 error: 'Error en la solicitud. Por favor, intente nuevamente.',
             });
+              return false;
         }
     } else {
         dispatch({
             type: INVENTARIO_FAIL,
             error: 'No se encontró un token de autenticación válido.',
         });
+          return false;
     }
 };

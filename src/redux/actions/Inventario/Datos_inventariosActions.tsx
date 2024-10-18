@@ -87,9 +87,9 @@ export const setNombreEspecieActions = (nombreEspecie: string) => ({
 export const setResetFormularioActions = () => ({
   type: 'RESET_FORMULARIO',
 });
-export const setDatosTabla = (datosTabla: ActivoFijo[]) => ({
-  type: 'SET_DATOS_TABLA',
-  payload: datosTabla,
+export const setDatosTablaActivoFijo = (datosTablaActivoFijo: ActivoFijo[]) => ({
+  type: 'SET_DATOS_TABLA_ACTIVO_FIJO',
+  payload: datosTablaActivoFijo,
 });
 export const eliminarActivoDeTabla = (index: number) => ({
   type: 'ELIMINAR_ACTIVO_TABLA',
