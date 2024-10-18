@@ -26,17 +26,23 @@ export const obtenerInventarioActions = (nInventario: number) => async (dispatch
             console.log('Respuesta del servidor obtener nInventario:', res);
 
             if (res.status === 200) {
-                dispatch({
-                    type: INVENTARIO_SUCCESS,
-                    payload: res.data,                  
-                });
-                   return false;
+                if (res.data?.length) {
+                    dispatch({
+                        type: INVENTARIO_SUCCESS,
+                        payload: res.data,
+                    });
+                    return true;
+                }
+                else {
+                    return false
+                }
+
             } else {
                 dispatch({
                     type: INVENTARIO_FAIL,
-                    error: 'No se pudo obtener el inventario. Por favor, intente nuevamente.',                   
+                    error: 'No se pudo obtener el inventario. Por favor, intente nuevamente.',
                 });
-                  return false;
+                return false;
             }
         } catch (err) {
             console.error("Error en la solicitud:", err);
@@ -44,13 +50,13 @@ export const obtenerInventarioActions = (nInventario: number) => async (dispatch
                 type: INVENTARIO_FAIL,
                 error: 'Error en la solicitud. Por favor, intente nuevamente.',
             });
-              return false;
+            return false;
         }
     } else {
         dispatch({
             type: INVENTARIO_FAIL,
             error: 'No se encontró un token de autenticación válido.',
         });
-          return false;
+        return false;
     }
 };

@@ -8,7 +8,8 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
-export const comboServicioActions = (token: string) => async (dispatch: Dispatch) => {
+export const comboServicioActions = () => async (dispatch: Dispatch, getState: any) => {
+    const token = getState().auth.token; //token está en el estado de autenticación
     if (token) {
         const config = {
             headers: {

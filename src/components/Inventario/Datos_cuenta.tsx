@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
 import React, { useState, useMemo, useEffect } from 'react';
-import { connect, useDispatch} from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
 
@@ -175,6 +175,14 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
 
     const handleVolver = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
+        dispatch(setServicioActions(Cuenta.servicio));
+        dispatch(setCuentaActions(Cuenta.cuenta));
+        dispatch(setDependenciaActions(Cuenta.dependencia));
+        dispatch(setEspecieActions(Cuenta.especie));
+        dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
+        if (parseInt(Especies.codigoEspecie) > 0) {
+            dispatch(setNombreEspecieActions(Especies.codigoEspecie));
+        }
         onBack();
     };
 
@@ -266,9 +274,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                             type="text"
                                             name="especie"
                                             value={Especies.descripcionEspecie || descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
-                                            onChange={handleChange} // Si deseas capturar cambios manualmente
-                                            disabled // Deshabilitado para evitar edición manual
-                                            className="form-control" // Añade la clase de Bootstrap para el estilo
+                                            onChange={handleChange}
+                                            disabled
+                                            className="form-control"
                                         />
                                     </dd>
                                 </div>

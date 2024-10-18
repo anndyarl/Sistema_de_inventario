@@ -1,16 +1,58 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, Row, Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { Plus, Pencil } from 'react-bootstrap-icons';
 import Layout from '../../hooks/layout/Layout';
+import { MODALIDAD, ORIGEN } from '../../components/Inventario/Datos_inventario';
+import { BIEN, CUENTA, DEPENDENCIA, SERVICIO } from '../../components/Inventario/Datos_cuenta';
+import { comboOrigenPresupuestosActions } from '../../redux/actions/combos/comboOrigenPresupuestoActions';
+import { comboModalidadesActions } from '../../redux/actions/combos/comboModalidadCompraActions';
+import { comboServicioActions } from '../../redux/actions/combos/comboServicioActions';
+import { comboDetalleActions } from '../../redux/actions/combos/comboDetalleActions';
+import { RootState } from '../../store';
+import { connect } from 'react-redux';
 
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(' ');
 };
 
+interface FormInventarioProps {
+    //Trae props combos de Datos_inventario(formulario 1) 
+    comboOrigen: ORIGEN[];
+    comboOrigenPresupuestosActions: () => void;
+    comboModalidad: MODALIDAD[];
 
-const Inventario: React.FC = () => {
+    comboModalidadesActions: () => void;
+
+    //Trae props combos de Datos_cuenta(formulario 2)
+    comboServicio: SERVICIO[];
+    comboServicioActions: () => void
+    comboCuenta: CUENTA[];
+    comboCuentaActions: (nombreEspecie: string) => void
+    comboDependencia: DEPENDENCIA[];
+    comboDependenciaActions: (servicioSeleccionado: string) => void;
+    comboBien: BIEN[];
+
+
+    token: string | null;
+}
+
+const Inventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboBien, token, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions }) => {
+    useEffect(() => {
+        // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
+
+        if (token) {
+            // Verifica si las acciones ya fueron disparadas
+            if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
+            if (comboModalidad.length === 0) comboModalidadesActions();
+            if (comboServicio.length === 0) comboServicioActions();
+            if (comboBien.length === 0) comboDetalleActions("0");
+        }
+
+        //Carga combo bien con valor 0 
+        comboDetalleActions("0");
+    }, [comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboDetalleActions]);
 
     return (
         <Layout>
@@ -57,7 +99,7 @@ const Inventario: React.FC = () => {
                                     <div className="flex-grow-1">
                                         <NavLink key="ModificarInventario" to="/ModificarInventario/ModificarInventario" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
                                             <Pencil className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                                            Modificar Inventario
+                                            Modificar
                                         </NavLink>
                                     </div>
                                 </div>
@@ -72,4 +114,22 @@ const Inventario: React.FC = () => {
 
 };
 
-export default Inventario;
+const mapStateToProps = (state: RootState) => ({
+    token: state.auth.token,
+    comboOrigen: state.origenPresupuestoReducer.comboOrigen,
+    comboServicio: state.comboServicioReducer.comboServicio,
+    comboModalidad: state.modalidadCompraReducer.comboModalidad,
+    comboCuenta: state.comboCuentaReducer.comboCuenta,
+    comboDependencia: state.comboDependenciaReducer.comboDependencia,
+    comboBien: state.detallesReducer.comboBien,
+
+});
+
+export default connect(mapStateToProps,
+    {
+        comboOrigenPresupuestosActions,
+        comboModalidadesActions,
+        comboServicioActions,
+        comboDetalleActions,
+
+    })(Inventario);

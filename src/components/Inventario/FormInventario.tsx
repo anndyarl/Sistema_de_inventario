@@ -30,14 +30,14 @@ export interface FormInventario {
 interface FormInventarioProps {
   //Trae props combos de Datos_inventario(formulario 1) 
   comboOrigen: ORIGEN[];
-  comboOrigenPresupuestosActions: (token: string) => void;
+  comboOrigenPresupuestosActions: () => void;
   comboModalidad: MODALIDAD[];
 
-  comboModalidadesActions: (token: string) => void;
+  comboModalidadesActions: () => void;
 
   //Trae props combos de Datos_cuenta(formulario 2)
   comboServicio: SERVICIO[];
-  comboServicioActions: (token: string) => void
+  comboServicioActions: () => void
   comboCuenta: CUENTA[];
   comboCuentaActions: (nombreEspecie: string) => void
   comboDependencia: DEPENDENCIA[];
@@ -55,7 +55,7 @@ interface FormInventarioProps {
   aF_ORIGEN: string;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, nInventario, aF_ORIGEN, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions, token }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, nInventario, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions, token }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -103,9 +103,9 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
 
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboOrigen.length === 0) comboOrigenPresupuestosActions(token);
-      if (comboModalidad.length === 0) comboModalidadesActions(token);
-      if (comboServicio.length === 0) comboServicioActions(token);
+      if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
+      if (comboModalidad.length === 0) comboModalidadesActions();
+      if (comboServicio.length === 0) comboServicioActions();
       if (comboBien.length === 0) comboDetalleActions("0");
     }
 
@@ -166,7 +166,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
           comboOrigen={comboOrigen}
           comboModalidad={comboModalidad}
           nInventario={nInventario}
-          aF_ORIGEN={aF_ORIGEN}
         />}
 
         {step === 1 && <DatosCuenta
