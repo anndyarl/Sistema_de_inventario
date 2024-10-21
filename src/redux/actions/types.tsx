@@ -57,7 +57,9 @@ export const BIEN_DETALLES_FAIL = 'BIEN_DETALLES_FAIL';
 export const BIEN_DETALLES_REQUEST = 'BIEN_DETALLES_REQUEST';
 
 // Acción de carga combo bien
+export const BIEN_REQUEST = 'BIEN_REQUEST';
 export const BIEN_SUCCESS = 'BIEN_SUCCESS';
+export const BIEN_FAIL = 'BIEN_FAIL';
 
 // Acción de post formulario inventario
 export const POST_FORMULARIO_SUCCESS = 'POST_FORMULARIO_SUCCESS';

@@ -10,13 +10,13 @@ import {
 
 // Acción para enviar el formulario
 export const postFormInventarioActions = (FormulariosCombinados: Record<string, any>) =>
-    async (dispatch: Dispatch, getState: any): Promise<boolean> => { 
+    async (dispatch: Dispatch, getState: any): Promise<boolean> => {
         const token = getState().auth.token; // Token está en el estado de autenticación
         if (token) {
             const config = {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/jsona'
+                    'Content-Type': 'application/json'
                 },
             };
             // Verifica si `datosInventario` tiene datos antes de enviar

@@ -13,10 +13,10 @@ import Configuracion from '../../containers/pages/Configuracion';
 import ClaveUnica from '../../containers/pages/ClaveUnica';
 import SesionExpirada from '../../containers/errors/SesionExpirada';
 import { useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { checkAuthStatus } from '../../redux/actions/auth/auth';
 import { AppDispatch } from '../../store';
-import FormInventario from '../../components/Inventario/FormInventario';
+import FormInventario from '../../components/Inventario/RegistrarInventario/FormInventario';
 import FormBienesFuncionarios from '../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
 import ModificarInventario from '../../components/Inventario/ModificarInventario/ModificarInventario';
 
@@ -50,8 +50,8 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Menu Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />
                 <Route path="/FormInventario" element={<FormInventario />} />
-                <Route path="/ModificarInventario/ModificarInventario" element={<ModificarInventario />} />
-                <Route path="/BienesFuncionarios/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+                <Route path="/ModificarInventario" element={<ModificarInventario />} />
+                <Route path="/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
                 {/* Fin Menu Inventario */}
 
 

@@ -1,23 +1,23 @@
 // Importa componentes al FormularioCompleto.tsx
-import React, { useState, useEffect } from 'react';
-import Layout from '../../hooks/layout/Layout';
+import React, { useState } from 'react';
+import Layout from '../../../hooks/layout/Layout';
 import DatosInventario, { ORIGEN, MODALIDAD } from './Datos_inventario';
 import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, ListaEspecie, BIEN, DETALLE } from './Datos_cuenta';
 import DatosActivoFijo from './Datos_activo_fijo';
 import Timeline from './Timeline';
 
 // Redux global
-import { RootState } from '../../redux/reducers';
+import { RootState } from '../../../redux/reducers';
 import { connect } from 'react-redux';
 
 //Actions redux
-import { comboOrigenPresupuestosActions } from '../../redux/actions/combos/comboOrigenPresupuestoActions';
-import { comboModalidadesActions } from '../../redux/actions/combos/comboModalidadCompraActions';
-import { comboServicioActions } from '../../redux/actions/combos/comboServicioActions';
-import { comboCuentaActions } from '../../redux/actions/combos/comboCuentaActions';
-import { comboDependenciaActions } from '../../redux/actions/combos/comboDependenciaActions';
-import { comboListadoDeEspeciesBienActions } from '../../redux/actions/combos/comboListadoDeEspeciesBienActions';
-import { comboDetalleActions } from '../../redux/actions/combos/comboDetalleActions';
+import { comboOrigenPresupuestosActions } from '../../../redux/actions/combos/comboOrigenPresupuestoActions';
+import { comboModalidadesActions } from '../../../redux/actions/combos/comboModalidadCompraActions';
+import { comboServicioActions } from '../../../redux/actions/combos/comboServicioActions';
+import { comboCuentaActions } from '../../../redux/actions/combos/comboCuentaActions';
+import { comboDependenciaActions } from '../../../redux/actions/combos/comboDependenciaActions';
+import { comboListadoDeEspeciesBienActions } from '../../../redux/actions/combos/comboListadoDeEspeciesBienActions';
+import { comboDetalleActions } from '../../../redux/actions/combos/comboDetalleActions';
 
 
 
@@ -55,7 +55,7 @@ interface FormInventarioProps {
   aF_ORIGEN: string;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, nInventario, comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions, token }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, nInventario, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -95,26 +95,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
     setEspecieSeleccionado(nombreEspecie);
     console.log("nombre Especie del listado seleccionado:", nombreEspecie);
     comboCuentaActions(nombreEspecie); // aqui le paso codigo de detalle
-
   };
-
-  useEffect(() => {
-    // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
-
-    if (token) {
-      // Verifica si las acciones ya fueron disparadas
-      if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
-      if (comboModalidad.length === 0) comboModalidadesActions();
-      if (comboServicio.length === 0) comboServicioActions();
-      if (comboBien.length === 0) comboDetalleActions("0");
-    }
-
-    //Carga combo bien con valor 0 
-    comboDetalleActions("0");
-
-    console.log("listadoEspecies en Datos_cuenta:", listaEspecie);
-  }, [comboOrigenPresupuestosActions, comboModalidadesActions, comboServicioActions, comboDetalleActions, comboListadoDeEspeciesBienActions]);
-
 
   const handleNext = (data: Record<string, any>) => {
     // Guardar los datos del formulario actual
@@ -209,7 +190,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
 
 //mapea los valores del estado global de Redux 
 const mapStateToProps = (state: RootState) => ({
-  token: state.auth.token,
   comboOrigen: state.origenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
   comboModalidad: state.modalidadCompraReducer.comboModalidad,

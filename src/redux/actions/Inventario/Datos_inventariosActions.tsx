@@ -1,4 +1,4 @@
-import { ActivoFijo } from "../../../components/Inventario/Datos_activo_fijo";
+import { ActivoFijo } from "../../../components/Inventario/RegistrarInventario/Datos_activo_fijo";
 
 export const setNRecepcionActions = (nRecepcion: number) => ({
   type: 'SET_N_RECEPCION',

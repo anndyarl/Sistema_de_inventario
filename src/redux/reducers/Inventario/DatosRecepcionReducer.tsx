@@ -1,8 +1,8 @@
-import { ActivoFijo } from '../../../components/Inventario/Datos_activo_fijo';
+import { ActivoFijo } from '../../../components/Inventario/RegistrarInventario/Datos_activo_fijo';
 import {
   RECEPCION_REQUEST,
   RECEPCION_SUCCESS,
-  RECEPCION_FAIL, 
+  RECEPCION_FAIL,
 } from '../../actions/types';
 
 
@@ -56,7 +56,7 @@ const initialState: DatosRecepcionState = {
   descripcionEspecie: '',
   nombreEspecie: [],
   datosTablaActivoFijo: [],
- };
+};
 
 
 // Reducer con tipos definidos
@@ -147,8 +147,8 @@ const datosRecepcionReducer = (state = initialState, action: any) => {
         fechaFactura: action.payload.fechaFactura,
         rutProveedor: action.payload.rutProveedor,
         nombreProveedor: action.payload.nombreProveedor,
-        modalidadDeCompra: action.payload.modalidadDeCompra   
-      };   
+        modalidadDeCompra: action.payload.modalidadDeCompra
+      };
     case RECEPCION_FAIL:
       return { ...state, loading: false, error: action.error };
     default:

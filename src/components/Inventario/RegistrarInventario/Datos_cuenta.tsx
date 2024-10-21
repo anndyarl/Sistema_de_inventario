@@ -2,8 +2,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form, Pagination, Row, Col } from 'react-bootstrap';
 import React, { useState, useMemo, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { AppDispatch, RootState } from '../../store';
-import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions } from '../../redux/actions/Inventario/Datos_inventariosActions';
+import { AppDispatch, RootState } from '../../../store';
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions } from '../../../redux/actions/Inventario/Datos_inventariosActions';
+import { Plus } from 'react-bootstrap-icons';
 
 // Define el tipo de los elementos del combo `servicio`
 export interface SERVICIO {
@@ -119,7 +120,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 350;
-
+    const classNames = (...classes: (string | boolean | undefined)[]): string => {
+        return classes.filter(Boolean).join(' ');
+    };
     useEffect(() => {
         setCuenta({
             servicio,
@@ -130,8 +133,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
 
     }, [servicio, cuenta, dependencia, especie]);
 
-    //Se usa useEffect para el caso de Especie ya que por handleChange no detacta el
-    // cambio debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
+    //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
+    // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
     useEffect(() => {
         // Detecta si el valor de 'especie' ha cambiado
         if (Especies.codigoEspecie) {
@@ -206,7 +209,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             setEspecies({ estableEspecie, codigoEspecie, nombreEspecie, descripcionEspecie });
             setCuenta(cuentaPrevia => ({
                 ...cuentaPrevia,
-                especie: estableEspecie.toString(),  // Actualiza el campo 'especie' en el estado de 'Cuenta'
+                especie: codigoEspecie.toString(),  // Actualiza el campo 'especie' en el estado de 'Cuenta'
             }));
             // Resetea el estado de las filas seleccionadas para desmarcar el checkbox
             setFilasSeleccionadas([]);
@@ -234,7 +237,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                     <div>
                         <h3 className="form-title">Detalle Inventario</h3>
                     </div>
-                    <div className="mt-4 border-top">
+                    <div className="shadow-sm p-5 m-1">
                         <Row>
                             <Col md={6}>
                                 <div className="mb-1">
@@ -268,8 +271,6 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                 <div className="mb-1">
                                     <dt className="text-muted">Especie</dt>
                                     <dd className="d-flex align-items-center">
-                                        {/* Botón para abrir el modal y seleccionar una especie */}
-                                        <Button variant="primary" onClick={() => setMostrarModal(true)}>+</Button>
                                         <input
                                             type="text"
                                             name="especie"
@@ -278,6 +279,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                             disabled
                                             className="form-control"
                                         />
+                                        {/* Botón para abrir el modal y seleccionar una especie */}
+                                        <Button variant="primary" onClick={() => setMostrarModal(true)} className="ms-1">
+                                            <Plus className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                        </Button>
                                     </dd>
                                 </div>
 

@@ -1,9 +1,12 @@
 import axios from 'axios';
 import {
+    BIEN_REQUEST,
+    BIEN_SUCCESS,
+    BIEN_FAIL,
     BIEN_DETALLES_REQUEST,
     BIEN_DETALLES_SUCCESS,
     BIEN_DETALLES_FAIL,
-    BIEN_SUCCESS,
+
 } from '../types';
 import { Dispatch } from 'redux';
 
@@ -19,8 +22,12 @@ export const comboDetalleActions = (idPadre: string) => async (dispatch: Dispatc
                 'Accept': 'application/json'
             },
         };
-
-        dispatch({ type: BIEN_DETALLES_REQUEST });
+        if (idPadre === "0") {
+            dispatch({ type: BIEN_REQUEST });
+        }
+        else {
+            dispatch({ type: BIEN_DETALLES_REQUEST });
+        }
 
         try {
             const res = await axios.get(`/api_inv/api/inventario/comboTraeBienxPadre?idPadre=${idPadre}`, config);
@@ -38,7 +45,13 @@ export const comboDetalleActions = (idPadre: string) => async (dispatch: Dispatc
                     });
                 }
             } else {
-                dispatch({ type: BIEN_DETALLES_FAIL });
+
+                if (idPadre === "0") {
+                    dispatch({ type: BIEN_FAIL });
+                }
+                else {
+                    dispatch({ type: BIEN_DETALLES_FAIL });
+                }
             }
         } catch (err) {
             console.error("Error en la solicitud:", err);
