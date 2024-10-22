@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../../store';
 import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions } from '../../../redux/actions/Inventario/Datos_inventariosActions';
-import { Plus } from 'react-bootstrap-icons';
+import { Check2Circle, Plus } from 'react-bootstrap-icons';
 
 // Define el tipo de los elementos del combo `servicio`
 export interface SERVICIO {
@@ -119,7 +119,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 350;
+    const elementosPorPagina = 50;
     const classNames = (...classes: (string | boolean | undefined)[]): string => {
         return classes.filter(Boolean).join(' ');
     };
@@ -312,7 +312,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             </form>
 
             {/* Modal formulario Activos Fijo*/}
-            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="xl">
+            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Listado de Especies</Modal.Title>
                 </Modal.Header>
@@ -324,26 +324,28 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                     </div> */}
                     <form onSubmit={handleSubmitSeleccionado}>
                         <Row>
-                            <div className="d-flex justify-content-end ">
-                                {/* <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
-                                    Cancelar
-                                </Button> */}
-                                <Button variant="primary" type="submit">Seleccionar</Button>
-                            </div>
-                            <Col md={6}>
-                                <div className="mb-1">
-                                    <dt className="text-muted">Bien</dt>
-                                    <dd className="d-flex align-items-center">
-                                        <select name="bien" className="form-select" onChange={handleChange} >
-                                            {comboBien.map((traeBien) => (
-                                                <option key={traeBien.codigo} value={traeBien.codigo}>
-                                                    {traeBien.descripcion}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </dd>
+
+                            <Col md={12}>
+                                <div className='d-flex justify-content-between'>
+                                    <div className="mb-1 w-50">
+                                        <dt className="text-muted">Bien</dt>
+                                        <dd className="d-flex align-items-center">
+                                            <select name="bien" className="form-select" onChange={handleChange} >
+                                                {comboBien.map((traeBien) => (
+                                                    <option key={traeBien.codigo} value={traeBien.codigo}>
+                                                        {traeBien.descripcion}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </dd>
+                                    </div>
+                                    <div className="d-flex justify-content-end p-4">
+                                        <Button variant="primary" type="submit">
+                                            Seleccionar <Check2Circle className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="mb-1">
+                                <div className="mb-1 w-50">
                                     <dt className="text-muted">Detalles</dt>
                                     <dd className="d-flex align-items-center">
                                         <select name="detalles" className="form-select" onChange={handleChange} >
@@ -356,13 +358,14 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                         </select>
                                     </dd>
                                 </div>
-                                <div className="mb-1">
+                                {/* <div className="mb-1">
                                     <dd className="d-flex align-items-center">
                                         <input type="text" name="" className="form-control" />
                                         <Button variant="primary">Buscar</Button>
                                     </dd>
-                                </div>
+                                </div> */}
                             </Col>
+
                         </Row>
                     </form>
 

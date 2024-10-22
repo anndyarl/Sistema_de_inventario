@@ -1,25 +1,25 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Table, Form, Row, Col, Modal, Pagination } from "react-bootstrap";
+import { Button, Table, Form, Row, Col, Modal, Pagination, Spinner } from "react-bootstrap";
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../hooks/layout/Layout";
 import { obtenerInventarioActions } from "../../../redux/actions/Inventario/obtenerInventarioActions";
-import { MODALIDAD, ORIGEN } from "../RegistrarInventario/Datos_inventario";
+import { InventarioProps, MODALIDAD, ORIGEN } from "../RegistrarInventario/Datos_inventario";
 import { BIEN, CUENTA, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO } from "../RegistrarInventario/Datos_cuenta";
 import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
 import Swal from "sweetalert2";
 import { comboDetalleActions } from "../../../redux/actions/combos/comboDetalleActions";
 import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/combos/comboListadoDeEspeciesBienActions";
 import { comboCuentaActions } from "../../../redux/actions/combos/comboCuentaActions";
-import { Pencil, Plus } from "react-bootstrap-icons";
+import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
 
 export interface InventarioCompleto {
   aF_CLAVE: number;
   aF_CODIGO_GENERICO: string;
   aF_CODIGO_LARGO: string;
   deP_CORR: number;
-  esP_CODIGO_M: string;
+  esP_CODIGO: string;
   aF_SECUENCIA: number;
   itE_CLAVE: number;
   aF_DESCRIPCION: string;
@@ -72,6 +72,7 @@ export interface InventarioCompleto {
 
 interface InventarioCompletoProps {
   datosInventarioCompleto: InventarioCompleto[];
+  inventarioProps: InventarioProps[];
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
   comboServicio: SERVICIO[];
@@ -106,20 +107,53 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboListadoDeEspeciesBienActions,
   comboCuentaActions
 }) => {
+
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalLista, setMostrarModalLista] = useState(false);
+  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
+  const [paginaActual, setPaginaActual] = useState(1);
+  const elementosPorPagina = 50;
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [error, setError] = useState<Partial<InventarioProps> & {}>({});
+  const classNames = (...classes: (string | boolean | undefined)[]): string => {
+    return classes.filter(Boolean).join(' ');
+  };
+  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  // Asegúrate de que el array tiene datos
+  const index = 0; // Cambia esto al índice que desees
+  const ultimoDatoInventarioCompleto = datosInventarioCompleto[datosInventarioCompleto.length - 1] || '';
+  const nRecepcion = datosInventarioCompleto[index]?.aF_CLAVE || 0;
+  const fechaRecepcion = datosInventarioCompleto[index]?.aF_FINGRESO
+    ? new Date(datosInventarioCompleto[index]?.aF_FINGRESO).toISOString().split('T')[0]
+    : '';
+
+  const origenPresupuesto = ultimoDatoInventarioCompleto?.aF_ORIGEN || 0;
+  const nFactura = ultimoDatoInventarioCompleto?.aF_NUM_FAC || '';
+  const montoRecepcion = ultimoDatoInventarioCompleto?.aF_MONTOFACTURA || 0;
+  const rutProveedor = ultimoDatoInventarioCompleto?.proV_RUN || 0;
+  const modalidadDeCompra = ultimoDatoInventarioCompleto?.idmodalidadcompra || 0;
+  const fechaFactura = ultimoDatoInventarioCompleto?.aF_FECHAFAC
+    ? new Date(ultimoDatoInventarioCompleto?.aF_FECHAFAC).toISOString().split('T')[0]
+    : '';
+  const dependencia = ultimoDatoInventarioCompleto?.deP_CORR || 0;
+  const especie = ultimoDatoInventarioCompleto?.esP_CODIGO || '';
+
   const [Inventario, setInventario] = useState({
-    aF_CLAVE: 0,
-    aF_FINGRESO: '',
-    aF_ORIGEN: 0,
-    aF_NUM_FAC: '',
-    aF_MONTOFACTURA: 0,
-    proV_RUN: 0,
-    idmodalidadcompra: 0,
-    aF_FECHAFAC: '',
-    deP_CORR: 0,
-    esP_CODIGO_M: ''
-
-
-
+    fechaFactura: "",
+    fechaRecepcion: "",
+    modalidadDeCompra: 0,
+    montoRecepcion: 0,
+    nFactura: "",
+    nOrdenCompra: 0,
+    nRecepcion: 0,
+    nInventario: 0,
+    nombreProveedor: "",
+    origenPresupuesto: 0,
+    rutProveedor: 0,
+    dependencia: 0,
+    servicio: 0,
+    cuenta: 0
   });
   const [Especies, setEspecies] = useState({
     estableEspecie: 0,
@@ -128,83 +162,69 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     descripcionEspecie: ""
   });
 
-  const [mostrarModal, setMostrarModal] = useState(false);
-  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
-  const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 350;
-  const [isDisabled, setIsDisabled] = useState(true);
-  const [isDisabledNInventario, setIsDisabledNInventario] = useState(false);
-  const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
-  const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(' ');
-  };
 
-  // Asegúrate de que el array tiene datos
-  const index = 0; // Cambia esto al índice que desees
-  const ultimoDatoInventarioCompleto = datosInventarioCompleto[datosInventarioCompleto.length - 1] || '';
-  const aF_CLAVE = datosInventarioCompleto[index]?.aF_CLAVE || 0;
-  const aF_FINGRESO = datosInventarioCompleto[index]?.aF_FINGRESO
-    ? new Date(datosInventarioCompleto[index]?.aF_FINGRESO).toISOString().split('T')[0]
-    : '';
-
-  const aF_ORIGEN = ultimoDatoInventarioCompleto?.aF_ORIGEN || 0;
-  const aF_NUM_FAC = ultimoDatoInventarioCompleto?.aF_NUM_FAC || '';
-  const aF_MONTOFACTURA = ultimoDatoInventarioCompleto?.aF_MONTOFACTURA || 0;
-  const proV_RUN = ultimoDatoInventarioCompleto?.proV_RUN || 0;
-  const idmodalidadcompra = ultimoDatoInventarioCompleto?.idmodalidadcompra || 0;
-  const aF_FECHAFAC = ultimoDatoInventarioCompleto?.aF_FECHAFAC
-    ? new Date(ultimoDatoInventarioCompleto?.aF_FECHAFAC).toISOString().split('T')[0]
-    : '';
-  const deP_CORR = ultimoDatoInventarioCompleto?.deP_CORR || 0;
+  console.log("ultimo", ultimoDatoInventarioCompleto);
 
 
+  //Hook que muestra los valores al input, Sincroniza el estado local con Redux
+  // useEffect(() => {
+  //   setInventario({
+  //     fechaFactura,
+  //     fechaRecepcion,
+  //     modalidadDeCompra,
+  //     montoRecepcion,
+  //     nFactura,
+  //     nOrdenCompra,
+  //     nRecepcion,
+  //     nombreProveedor,
+  //     origenPresupuesto,
+  //     rutProveedor,
+  //     dependencia,
+  //     servicio,
+  //     cuenta
+  //   });
+  // }, [
+  //   fechaFactura,
+  //   fechaRecepcion,
+  //   modalidadDeCompra,
+  //   montoRecepcion,
+  //   nFactura,
+  //   nOrdenCompra,
+  //   nRecepcion,
+  //   nombreProveedor,
+  //   origenPresupuesto,
+  //   rutProveedor,
+  //   dependencia,
+  //   servicio,
+  //   cuenta
+  // ]);
 
-  useEffect(() => {
-    setInventario({
-      aF_CLAVE,
-      aF_FINGRESO,
-      aF_ORIGEN,
-      aF_NUM_FAC,
-      aF_MONTOFACTURA,
-      proV_RUN,
-      idmodalidadcompra,
-      aF_FECHAFAC,
-      deP_CORR
-    });
-  }, [
-    aF_CLAVE,
-    aF_FINGRESO,
-    aF_ORIGEN,
-    aF_NUM_FAC,
-    aF_MONTOFACTURA,
-    proV_RUN,
-    idmodalidadcompra,
-    aF_FECHAFAC,
-    deP_CORR
-  ]);
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.aF_FINGRESO) tempErrors.aF_FINGRESO = "La fecha de Recepción es obligatorio.";
-    if (!Inventario.aF_ORIGEN) tempErrors.aF_ORIGEN = "El Origen de Presupuesto es obligatorio.";
-    if (!Inventario.aF_NUM_FAC) tempErrors.aF_NUM_FAC = "El N° de Factura es obligatorio.";
-    if (!Inventario.aF_MONTOFACTURA) tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
-    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.aF_MONTOFACTURA))) tempErrors.montoRecepcion =
+    if (!Inventario.nRecepcion) tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
+    if (!Inventario.fechaRecepcion) tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
+    if (!Inventario.nOrdenCompra) tempErrors.nOrdenCompra = "El N° de Orden de Compra es obligatorio.";
+    else if (isNaN(Inventario.nOrdenCompra)) tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
+    if (!Inventario.nFactura) tempErrors.nFactura = "El N° de Factura es obligatorio.";
+    if (!Inventario.origenPresupuesto) tempErrors.origenPresupuesto = "El Origen de Presupuesto es obligatorio.";
+    if (!Inventario.montoRecepcion) tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
+    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion))) tempErrors.montoRecepcion =
       "El Monto debe ser un número válido con hasta dos decimales.";
-    if (!Inventario.proV_RUN) tempErrors.proV_RUN = "El Rut del Proveedor es obligatorio.";
-    if (!Inventario.idmodalidadcompra) tempErrors.idmodalidadcompra = "La Modalidad de Compra es obligatoria.";
-    if (!Inventario.aF_FECHAFAC) tempErrors.aF_FECHAFAC = "La Fecha de Recepción es obligatoria.";
-
+    if (!Inventario.fechaFactura) tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
+    if (!Inventario.rutProveedor) tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
+    if (!Inventario.nombreProveedor) tempErrors.nombreProveedor = "El Nombre del Proveedor es obligatorio.";
+    else if (Inventario.nombreProveedor.length > 30) tempErrors.nombreProveedor = "El Nombre no debe exceder los 30 caracteres.";
+    if (!Inventario.modalidadDeCompra) tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (validate()) {
+    // if (validate()) {
+    // }
+    console.log("actualizacion inventario completo", Inventario);
 
-    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -241,7 +261,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleInventarioSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!Inventario.aF_CLAVE) {
+    setLoading(true); // Inicia el estado de carga
+    if (!Inventario.nRecepcion) {
       Swal.fire({
         icon: "warning",
         title: "Por favor, ingrese un número de inventario",
@@ -249,7 +270,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       });
       return;
     }
-    const resultado = await obtenerInventarioActions(Inventario.aF_CLAVE);
+    const resultado = await obtenerInventarioActions(Inventario.nRecepcion);
+
     if (!resultado) {
       Swal.fire({
         icon: "error",
@@ -257,21 +279,14 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         confirmButtonText: "Ok",
       });
       setIsDisabled(true);
-      setIsDisabledNInventario(false)
-
     }
     else {
       setIsDisabled(false);
-      setIsDisabledNInventario(true)
+
     }
+    setLoading(false); // Inicia el estado de carga
     console.log("array", datosInventarioCompleto);
   };
-
-  const handleInventarioCambiarSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    //Limpia todo el formulario
-  }
-
 
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -316,52 +331,96 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       <form onSubmit={handleSubmit}>
         <div className="border-top p-1 rounded">
           <h3 className="form-title">Modificar Inventario</h3>
-
           <div className="shadow-sm p-5 m-1">
             <Row>
               <Col md={4}>
                 <div className="mb-1">
-                  <dt className="text-muted">N° Inventario</dt>
+                  <dt className="text-muted">Nº Recepción</dt>
                   <div className="d-flex align-items-center">
-                    <input type="text" className="form-control" disabled={isDisabledNInventario} maxLength={12} name="aF_CLAVE" placeholder="Buscar inventario" onChange={handleChange} value={Inventario.aF_CLAVE || aF_CLAVE} />
+                    <input
+                      type="text"
+                      className={`form-control ${error.nRecepcion ? "is-invalid" : ""} w-100`}
+                      maxLength={12}
+                      name="nRecepcion"
+                      onChange={handleChange}
+                      value={Inventario.nRecepcion}
+                    />
+                    <Button
+                      onClick={handleInventarioSubmit}
+                      variant="primary"
+                      className="ms-1"
+                    >
+                      {loading ? (
+                        <>
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                        </>
+                      ) : (
+                        <Search className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                      )}
 
-                    {isDisabledNInventario == true ? (
-                      <Button onClick={handleInventarioCambiarSubmit} variant="primary" className="ms-1" >
-                        <Pencil className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                      </Button>
-                    ) : (
-                      <Button onClick={handleInventarioSubmit} variant="primary" className="ms-1" >
-                        <Plus className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                      </Button>
-
-                    )}
+                    </Button>
                   </div>
-                </div>
-                <div className="mb-1">
-                  <dt className="text-muted">Fecha Recepción</dt>
-                  <input type="date" className={`form-control ${error.aF_FINGRESO ? "is-invalid" : ""} w-100`}
-                    maxLength={12} name="aF_FINGRESO" onChange={handleChange} value={Inventario.aF_FINGRESO || aF_FINGRESO}
-                    disabled={isDisabled} />
-                  {error.aF_FINGRESO && (
+                  {error.nRecepcion && (
                     <div className="invalid-feedback d-block">
-                      {error.aF_FINGRESO}
+                      {error.nRecepcion}
                     </div>
                   )}
                 </div>
-
+                <div className="mb-1">
+                  <dt className="text-muted">Fecha Recepción</dt>
+                  <input
+                    type="date"
+                    className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""}`}
+                    name="fechaRecepcion"
+                    onChange={handleChange}
+                    value={Inventario.fechaRecepcion || fechaRecepcion}
+                    disabled={isDisabled}
+                  />
+                  {error.fechaRecepcion && (
+                    <div className="invalid-feedback">
+                      {error.fechaRecepcion}
+                    </div>
+                  )}
+                </div>
                 <div className="mb-1">
                   <dt className="text-muted">N° Orden de compra</dt>
-                  <input type="text" className="form-control" maxLength={12} name="nOrdenCompra" onChange={handleChange} value="" disabled={isDisabled} />
+                  <input
+                    type="text"
+                    className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""}`}
+                    maxLength={12}
+                    name="nOrdenCompra"
+                    onChange={handleChange}
+                    value={Inventario.nOrdenCompra}
+                    disabled={isDisabled}
+                  />
+                  {error.nOrdenCompra && (
+                    <div className="invalid-feedback">{error.nOrdenCompra}</div>
+                  )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Nº factura</dt>
-                  <input type="text" className={`form-control ${error.aF_NUM_FAC ? "is-invalid" : ""} w-100`} maxLength={12} name="aF_NUM_FAC" onChange={handleChange} value={Inventario.aF_NUM_FAC || aF_NUM_FAC} disabled={isDisabled} />
+                  <input
+                    type="text"
+                    className={`form-control ${error.nFactura ? "is-invalid" : ""}`}
+                    maxLength={12}
+                    name="nFactura"
+                    onChange={handleChange}
+                    value={Inventario.nFactura || nFactura}
+                    disabled={isDisabled}
+                  />
+                  {error.nFactura && (
+                    <div className="invalid-feedback">{error.nFactura}</div>
+                  )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Origen Presupuesto</dt>
-                  <select className={`form-control ${error.aF_ORIGEN ? "is-invalid" : ""} w-100`} name="aF_ORIGEN" onChange={handleChange} value={Inventario.aF_ORIGEN || aF_ORIGEN} disabled={isDisabled}>
+                  <select
+                    className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""}`}
+                    name="origenPresupuesto"
+                    onChange={handleChange}
+                    value={Inventario.origenPresupuesto || origenPresupuesto}
+                    disabled={isDisabled}
+                  >
                     <option value="">Seleccione un origen</option>
                     {comboOrigen.map((traeOrigen) => (
                       <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
@@ -369,33 +428,57 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       </option>
                     ))}
                   </select>
+                  {error.origenPresupuesto && (
+                    <div className="invalid-feedback">
+                      {error.origenPresupuesto}
+                    </div>
+                  )}
                 </div>
               </Col>
-
               <Col md={4}>
                 <div className="mb-1">
                   <dt className="text-muted">Monto Recepción</dt>
-                  <input type="text" className="form-control" maxLength={12} name="aF_MONTOFACTURA" onChange={handleChange} value={Inventario.aF_MONTOFACTURA || aF_MONTOFACTURA} disabled={isDisabled} />
+                  <input type="text"
+                    className="form-control"
+                    maxLength={12}
+                    name="montoRecepcion"
+                    onChange={handleChange}
+                    value={Inventario.montoRecepcion || montoRecepcion} disabled={isDisabled} />
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Fecha Factura</dt>
-                  <input type="date" className="form-control" name="aF_FECHAFAC" onChange={handleChange} value={Inventario.aF_FECHAFAC || aF_FECHAFAC} disabled={isDisabled} />
+                  <input type="date"
+                    className="form-control"
+                    name="fechaFactura"
+                    onChange={handleChange}
+                    value={Inventario.fechaFactura || fechaFactura} disabled={isDisabled} />
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Rut Proveedor</dt>
-                  <input type="text" className="form-control" maxLength={12} name="proV_RUN" onChange={handleChange} value={Inventario.proV_RUN || proV_RUN} disabled={isDisabled} />
+                  <input type="text"
+                    className="form-control"
+                    maxLength={12}
+                    name="rutProveedor"
+                    onChange={handleChange}
+                    value={Inventario.rutProveedor || rutProveedor} disabled={isDisabled} />
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Nombre Proveedor</dt>
-                  <input type="text" className="form-control" maxLength={30} name="nombreProveedor" onChange={handleChange} value="" disabled={isDisabled} />
+                  <input type="text"
+                    className="form-control"
+                    maxLength={30}
+                    name="nombreProveedor"
+                    onChange={handleChange}
+                    value={Inventario.nombreProveedor}
+                    disabled={isDisabled} />
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Modalida de Compra</dt>
-                  <select className="form-control" name="idmodalidadcompra" onChange={handleChange} value={Inventario.idmodalidadcompra || idmodalidadcompra} disabled={isDisabled}>
+                  <select className="form-control"
+                    name="modalidadDeCompra"
+                    onChange={handleChange}
+                    value={Inventario.modalidadDeCompra || modalidadDeCompra}
+                    disabled={isDisabled}>
                     <option value="">Seleccione una modalidad</option>
                     {comboModalidad.map((traeModalidad) => (
                       <option key={traeModalidad.codigo} value={traeModalidad.codigo}>
@@ -408,7 +491,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               <Col md={4}>
                 <div className="mb-1">
                   <dt className="text-muted">Servicio</dt>
-                  <select className="form-select" name="servicio" onChange={handleChange} value='' disabled={isDisabled}>
+                  <select className="form-select"
+                    name="servicio"
+                    onChange={handleChange}
+                    value={Inventario.servicio} disabled={isDisabled}>
                     <option value="">Seleccione un origen</option>
                     {comboServicio.map((traeServicio) => (
                       <option key={traeServicio.codigo} value={traeServicio.codigo}>
@@ -420,7 +506,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 </div>
                 <div className="cmb-1">
                   <dt className="text-muted">Dependencia</dt>
-                  <select className="form-select" name="dependencia" onChange={handleChange} value={Inventario.deP_CORR || deP_CORR} disabled={isDisabled}>
+                  <select className="form-select"
+                    name="dependencia"
+                    onChange={handleChange}
+                    value={Inventario.dependencia || dependencia} disabled={isDisabled}>
                     <option value="" >Selecciona una opción</option>
                     {comboDependencia.map((traeDependencia) => (
                       <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
@@ -429,10 +518,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     ))}
                   </select>
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Cuenta</dt>
-                  <select className="form-select" name="cuenta" onChange={handleChange} value='' disabled={isDisabled}>
+                  <select className="form-select"
+                    name="cuenta"
+                    onChange={handleChange}
+                    value={Inventario.cuenta}
+                    disabled={isDisabled}>
                     <option value="">Selecciona una opción</option>
                     {comboCuenta.map((traeCuentas) => (
                       <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
@@ -447,13 +539,25 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     <input
                       type="text"
                       name="especie"
-                      value={Especies.descripcionEspecie || descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
+                      value={Especies.descripcionEspecie || especie || 'Haz clic en más para seleccionar una especie'}
                       onChange={handleChange}
                       disabled
                       className="form-control"
                     />
                     {/* Botón para abrir el modal y seleccionar una especie */}
-                    <Button variant="primary" onClick={() => setMostrarModal(true)} className="ms-1" disabled={isDisabled} >+</Button>
+                    <Button variant="primary" onClick={() => setMostrarModal(true)} className="ms-1" disabled={isDisabled} >
+                      <Pencil className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                    </Button>
+                  </dd>
+                </div>
+                <div className="mb-1">
+                  <dt className="text-muted">Activos fijos</dt>
+                  <dd className="d-flex align-items-center">
+                    <p className="text-right w-100 border p-2 rounded">Detalles activos fijos</p>
+                    {/* Botón para abrir el modal y seleccionar una especie */}
+                    <Button variant="primary" onClick={() => setMostrarModalLista(true)} className="ms-1" disabled={isDisabled} >
+                      <Eye className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                    </Button>
                   </dd>
                 </div>
               </Col>
@@ -469,39 +573,35 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         </div>
       </form>
 
-      {/* Modal formulario Activos Fijo*/}
-      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="xl">
+      {/* Modal especies*/}
+      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Listado de Especies</Modal.Title>
+          <Modal.Title className='fw-semibold'>Listado de Especies</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* <div>
-                        {error.general && (
-                            <p className="alert alert-danger">{error.general}</p>
-                        )}
-                    </div> */}
           <form onSubmit={handleSubmitSeleccionado}>
             <Row>
-              <div className="d-flex justify-content-end ">
-                {/* <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
-                                    Cancelar
-                                </Button> */}
-                <Button variant="primary" type="submit">Seleccionar</Button>
-              </div>
-              <Col md={6}>
-                <div className="mb-1">
-                  <dt className="text-muted">Bien</dt>
-                  <dd className="d-flex align-items-center">
-                    <select name="bien" className="form-select" onChange={handleChange} >
-                      {comboBien.map((traeBien) => (
-                        <option key={traeBien.codigo} value={traeBien.codigo}>
-                          {traeBien.descripcion}
-                        </option>
-                      ))}
-                    </select>
-                  </dd>
+              <Col md={12}>
+                <div className='d-flex justify-content-between'>
+                  <div className="mb-1 w-50">
+                    <dt className="text-muted">Bien</dt>
+                    <dd className="d-flex align-items-center">
+                      <select name="bien" className="form-select" onChange={handleChange} >
+                        {comboBien.map((traeBien) => (
+                          <option key={traeBien.codigo} value={traeBien.codigo}>
+                            {traeBien.descripcion}
+                          </option>
+                        ))}
+                      </select>
+                    </dd>
+                  </div>
+                  <div className="d-flex justify-content-end p-4">
+                    <Button variant="primary" type="submit">
+                      Seleccionar <Check2Circle className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="mb-1">
+                <div className="mb-1 w-50">
                   <dt className="text-muted">Detalles</dt>
                   <dd className="d-flex align-items-center">
                     <select name="detalles" className="form-select" onChange={handleChange} >
@@ -514,12 +614,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </select>
                   </dd>
                 </div>
-                <div className="mb-1">
+                {/* <div className="mb-1">
                   <dd className="d-flex align-items-center">
                     <input type="text" name="" className="form-control" />
                     <Button variant="primary">Buscar</Button>
                   </dd>
-                </div>
+                </div> */}
               </Col>
             </Row>
           </form>
@@ -575,9 +675,56 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
           </Pagination>
         </Modal.Body>
-
       </Modal >
-    </Layout>
+
+      {/* Modal tabla detalles ativos Fijo*/}
+      <Modal show={mostrarModalLista} onHide={() => setMostrarModalLista(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title className='fw-semibold'>Listado de activo fijo</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <div className="shadow-sm">
+            <div className="overflow-auto">
+              <Table bordered hover>
+                <thead >
+                  <tr >
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}></th>
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Vida Útil</th>
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Fecha Ingreso</th>
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Marca</th>
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Modelo</th>
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Serie</th>
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Precio</th>
+                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Especie</th>
+                    {/* <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Acciones</th> */}
+                  </tr>
+                </thead>
+                <tbody >
+                  <tr>
+                    <td>
+                      <Form.Check type="checkbox" />
+                    </td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>6</td>
+                    <td>7</td>
+                    <td>
+                      {/* <Button variant="outline-danger" size="sm">
+                        Eliminar
+                      </Button> */}
+                    </td>
+                  </tr>
+                </tbody>
+              </Table >
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal >
+    </Layout >
   );
 };
 
