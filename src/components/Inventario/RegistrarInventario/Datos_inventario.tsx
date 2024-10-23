@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Row, Spinner } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
@@ -20,7 +20,7 @@ import {
 } from "../../../redux/actions/Inventario/Datos_inventariosActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./Datos_activo_fijo";
-import { Plus } from "react-bootstrap-icons";
+import { Plus, Search } from "react-bootstrap-icons";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: string;
@@ -41,7 +41,6 @@ export interface InventarioProps {
   nFactura: string;
   nOrdenCompra: number;
   nRecepcion: number;
-  nInventario: number;
   nombreProveedor: string;
   origenPresupuesto: number;
   rutProveedor: string;
@@ -67,7 +66,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   nFactura,
   nOrdenCompra,
   nRecepcion,
-  nInventario,
   nombreProveedor,
   origenPresupuesto,
   rutProveedor,
@@ -82,7 +80,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     nFactura: "",
     nOrdenCompra: 0,
     nRecepcion: 0,
-    nInventario: 0,
     nombreProveedor: "",
     origenPresupuesto: 0,
     rutProveedor: "",
@@ -95,6 +92,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(' ');
   };
+  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -181,7 +180,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       nFactura,
       nOrdenCompra,
       nRecepcion,
-      nInventario,
       nombreProveedor,
       origenPresupuesto,
       rutProveedor,
@@ -194,7 +192,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     nFactura,
     nOrdenCompra,
     nRecepcion,
-    nInventario,
     nombreProveedor,
     origenPresupuesto,
     rutProveedor,
@@ -220,8 +217,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     }
   };
 
-  const handleRecepcionSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setLoading(true); // Inicia el estado de carga
     if (!Inventario.nRecepcion) {
       Swal.fire({
         icon: "warning",
@@ -231,8 +229,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       return;
     }
     // Despacha la acción para obtener la recepción en el formulario de activos fijos
-    dispatch(obtenerRecepcionActions(Inventario.nRecepcion));
-
+    await dispatch(obtenerRecepcionActions(Inventario.nRecepcion));
+    setLoading(false);
   };
 
   return (
@@ -260,7 +258,14 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                       variant="primary"
                       className="ms-1"
                     >
-                      <Plus className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                      {loading ? (
+                        <>
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                        </>
+                      ) : (
+                        <Search className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                      )}
+
                     </Button>
                   </div>
                   {error.nRecepcion && (
@@ -284,7 +289,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     </div>
                   )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">N° Orden de compra</dt>
                   <input
@@ -299,7 +303,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     <div className="invalid-feedback">{error.nOrdenCompra}</div>
                   )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Nº factura</dt>
                   <input
@@ -315,7 +318,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     <div className="invalid-feedback">{error.nFactura}</div>
                   )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Origen Presupuesto</dt>
                   <select
@@ -359,7 +361,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     </div>
                   )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Fecha Factura</dt>
                   <input
@@ -389,7 +390,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     <div className="invalid-feedback">{error.rutProveedor}</div>
                   )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Nombre Proveedor</dt>
                   <input
@@ -407,7 +407,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     </div>
                   )}
                 </div>
-
                 <div className="mb-1">
                   <dt className="text-muted">Modalida de Compra</dt>
                   <select

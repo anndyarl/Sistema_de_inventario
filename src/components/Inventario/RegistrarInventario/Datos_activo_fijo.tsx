@@ -62,7 +62,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   const [error, setError] = useState<Partial<ActivoFijo> & { general?: string, generalTabla?: string }>({});
   //-------Modal-------//
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [mostrarModalConfirmar, setMostrarModalConfirmar] = useState(false);
+  // const [mostrarModalConfirmar, setMostrarModalConfirmar] = useState(false);
   //-------Fin Modal-------//
 
   //-------Tabla-------//
