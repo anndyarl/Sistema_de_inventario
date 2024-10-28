@@ -7,7 +7,7 @@ import {
 } from '../types';
 
 // Acción para obtener la recepción por número
-export const obtenerRecepcionActions = (nRecepcion: number) => async (dispatch: Dispatch, getState: any) => {
+export const obtenerRecepcionActions = (nRecepcion: number) => async (dispatch: Dispatch, getState: any): Promise<Boolean> => {
     const token = getState().auth.token; //token está en el estado de autenticación
 
     if (token) {
@@ -21,7 +21,6 @@ export const obtenerRecepcionActions = (nRecepcion: number) => async (dispatch: 
         dispatch({ type: RECEPCION_REQUEST });
 
         try {
-            // Llamada GET a la API con el número de recepción como parámetro
             const res = await axios.get(`/api_inv/api/inventario/comboTraeRecepcion?numero=${nRecepcion}`, config);
             console.log('Respuesta del servidor obtener nRecepcion:', res);
 
@@ -30,11 +29,13 @@ export const obtenerRecepcionActions = (nRecepcion: number) => async (dispatch: 
                     type: RECEPCION_SUCCESS,
                     payload: res.data,
                 });
+                return true;
             } else {
                 dispatch({
                     type: RECEPCION_FAIL,
                     error: 'No se pudo obtener la recepción. Por favor, intente nuevamente.',
                 });
+                return false;
             }
         } catch (err) {
             console.error("Error en la solicitud:", err);
@@ -42,11 +43,13 @@ export const obtenerRecepcionActions = (nRecepcion: number) => async (dispatch: 
                 type: RECEPCION_FAIL,
                 error: 'Error en la solicitud. Por favor, intente nuevamente.',
             });
+            return false;
         }
     } else {
         dispatch({
             type: RECEPCION_FAIL,
             error: 'No se encontró un token de autenticación válido.',
         });
+        return false;
     }
 };

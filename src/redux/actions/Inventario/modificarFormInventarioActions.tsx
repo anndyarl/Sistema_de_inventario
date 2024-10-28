@@ -6,12 +6,10 @@ import {
     POST_FORMULARIO_FAIL,
 } from '../types';
 
-
-
-// Acción para enviar el formulario
-export const postFormInventarioActions = (FormulariosCombinados: Record<string, any>) =>
+export const modificarFormInventarioActions = (FormulariosCombinados: Record<string, any>) =>
     async (dispatch: Dispatch, getState: any): Promise<boolean> => {
         const token = getState().auth.token; // Token está en el estado de autenticación
+
         if (token) {
             const config = {
                 headers: {
@@ -31,7 +29,7 @@ export const postFormInventarioActions = (FormulariosCombinados: Record<string, 
             dispatch({ type: POST_FORMULARIO_REQUEST });
 
             try {
-                const response = await axios.post('/api_inv/api/inventario/crearActivoFijoTest', body, config);
+                const response = await axios.post(`/api_inv/api/inventario/actualizaActivoFijo/`, body, config);
 
                 // Si el POST es exitoso
                 if (response.status === 200) {
@@ -39,7 +37,7 @@ export const postFormInventarioActions = (FormulariosCombinados: Record<string, 
                         type: POST_FORMULARIO_SUCCESS,
                         payload: response.data,
                     });
-                    console.log('Post enviado correctamente desde axios');
+                    console.log('Put enviado correctamente');
                     return true;  // Retorna true en caso de éxito
                 }
             } catch (error: any) {
@@ -53,11 +51,10 @@ export const postFormInventarioActions = (FormulariosCombinados: Record<string, 
                 return false;  // Retorna false en caso de error
             }
         } else {
-            console.error('No token available'); // Mensaje en caso de que no haya token
-            return false;  // Retorna false si no hay token
+            console.error('Sin token'); // Mensaje en caso de que no haya token
+            return false;
         }
 
-        // Añadir un return al final de la función para cumplir con el tipo de retorno
         return false; // Retorno por defecto (esto nunca debería ser alcanzado)
     };
 

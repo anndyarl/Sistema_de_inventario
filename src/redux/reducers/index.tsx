@@ -1,10 +1,9 @@
 import { combineReducers } from 'redux';
 import auth from './auth/auth';
 
-import datosInventarioReducer from './Inventario/DatosInventarioReducer';
-// import obtenerRecepcionReducer from './Inventario/obtenerRecepcionReducer.tsx.old';
-
+//------------Registro inventario------------------//
 //Form1
+import datosRecepcionReducer from './Inventario/DatosRecepcionReducer';
 import origenPresupuestoReducer from './combos/comboOrigenReducers';
 import modalidadCompraReducer from './combos/comboModalidadReducers';
 
@@ -14,18 +13,23 @@ import comboCuentaReducer from './combos/comboCuentaReducers';
 import comboDependenciaReducer from './combos/comboDependenciaReducers';
 import detallesReducer from './combos/comboDetallesReducers';
 import comboListadoDeEspeciesBien from './combos/comboListadoDeEspeciesBienReducers';
-import datosRecepcionReducer from './Inventario/DatosRecepcionReducer';
+
+//-----------Modificar Inventario --------------//
+import datosInventarioReducer from './Inventario/DatosInventarioReducer';
+
+//-----------Anular Inventario --------------//
+import datosListaInventarioReducer from './Inventario/DatosListaInventarioReducer';
+
+
+
 // import obtenerInventarioReducer from './Inventario/obtenerInventarioReducer.tsx.old';
 
 const rootReducer = combineReducers({
     //Autentificación
     auth,
-    //Obiene por numero de recepcion
-    // obtenerRecepcionReducer,
-    //OBtiene por numero de inventario
-    // obtenerInventarioReducer,
-    /*-------------Combos-----------------*/
+    //------------Registro inventario------------------//
     //Form1
+    datosRecepcionReducer,
     origenPresupuestoReducer,
     modalidadCompraReducer,
 
@@ -36,11 +40,11 @@ const rootReducer = combineReducers({
     comboListadoDeEspeciesBien,
     detallesReducer,
 
-    // Form 3
-
-    //formulario inventario
+    //-----------Modificar Inventario --------------//
     datosInventarioReducer,
-    datosRecepcionReducer
+
+    //-----------Anular Inventario --------------//
+    datosListaInventarioReducer
 
 });
 

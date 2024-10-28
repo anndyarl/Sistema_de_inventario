@@ -26,7 +26,7 @@ const Logout: React.FC<LogoutProps> = ({ logout }) => {
   return (
     <>
       {/* Modal  Cerrar sesión*/}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton className="border-0">
           <Modal.Title className="d-flex align-items-center">
             <svg
@@ -44,7 +44,7 @@ const Logout: React.FC<LogoutProps> = ({ logout }) => {
         </Modal.Header>
         <Modal.Body className="text-center">
           <p className="fs-5 mb-4">
-            Si deseas salir, haz clic en <strong>"Cerrar Sesión"</strong> o selecciona <strong>"Cancelar"</strong> para continuar en la página.
+            Si deseas salir, haz clic en <strong>"Cerrar Sesión"</strong> de lo contrario <strong>"Cancelar"</strong>
           </p>
           <form >
             <div className="d-flex justify-content-center gap-3">

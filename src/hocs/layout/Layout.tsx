@@ -3,15 +3,14 @@ import { connect } from 'react-redux';
 import { RootState } from '../../redux/reducers';
 import Sidebar from "../../components/navigation/Sidebar";
 import Navbar from "../../components/navigation/Navbar";
-import Logout from "../../components/navigation/Logout";
-import { List, X } from 'react-bootstrap-icons';
+import { List } from 'react-bootstrap-icons';
+import { motion, AnimatePresence } from "framer-motion";
+import { Navigate, useLocation } from "react-router-dom";
 
 import '../../styles/Layout.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../../styles/bootstrap-5.3.3/dist/css/bootstrap.css';
 import '../../styles/Layout.css'
-
-import { Navigate } from "react-router-dom";
 
 interface LayoutProps {
   children: ReactNode;
@@ -19,10 +18,9 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
-
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  const location = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -41,23 +39,37 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
     }
   }, [isDesktop]);
 
-
   if (!isAuthenticated) {
     return <Navigate to='/' />;
-
   }
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const pageVariants = {
+    initial: { opacity: 0, scale: 0.98 },
+    in: { opacity: 1, scale: 1 },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.1,
+    // delay: 0.02,
+
+
+  };
+
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* Mobile Navbar */}
       <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none">
+
         <div className="container-fluid">
           <button className="navbar-toggler border-0" type="button" onClick={toggleSidebar}>
             <List size={24} />
           </button>
-          <a className="navbar-brand" href="#">SSMSO</a>
         </div>
+
       </nav>
 
       <div className="d-flex flex-grow-1">
@@ -76,36 +88,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
             zIndex: 1000
           }}
         >
-          <div className="d-flex flex-column h-100">
-            <div className="p-3">
-              <div className="d-flex justify-content-center align-items-center ml-4">
-                {/*Logout */}
-                <div className="dropdown">
-                  <a
-                    className="btn btn-border-none text-white outline-none dropdown-toggle"
-                    type="button"
-                    id="userDropdown"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    <i className="fa fa-user"></i>
-                    <span className="fs-6">Andy Riquelme</span>
-                  </a>
-                  <div className="dropdown-menu" aria-labelledby="userDropdown">
-                    <Logout />
-                  </div>
-                </div>
 
-                {/* <button className="btn btn-link text-white d-md-none" onClick={toggleSidebar}>
-                  <X size={24} />
-                </button> */}
-              </div>
-            </div>
-            <div className="flex-grow-1 overflow-auto">
-              <Sidebar />
-            </div>
-          </div>
+          <Sidebar />
 
         </div>
 
@@ -115,15 +99,27 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
             <Navbar />
           </div>
 
-          {/* Main Content */}
+          {/* Main Content with Talana-like Transition */}
           <div className="flex-grow-1 p-3 overflow-auto">
             <div className="container">
-              {children}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants}
+                  transition={pageTransition}
+
+                >
+                  {children}
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
@@ -131,6 +127,4 @@ const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.auth.isAuthenticated
 });
 
-export default connect(mapStateToProps, {
-
-})(Layout);
+export default connect(mapStateToProps, {})(Layout);

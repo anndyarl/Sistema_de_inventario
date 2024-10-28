@@ -1,12 +1,12 @@
 import React from "react"
 import Layout from "../../hocs/layout/Layout";
 
-const Bajas: React.FC = () => {
+const Inicio: React.FC = () => {
   return (
     <Layout>
-      <p>Bajas</p>
+      <p>Inicio</p>
     </Layout>
   );
 };
 
-export default Bajas;
+export default Inicio;

@@ -1,6 +1,6 @@
 // Importa componentes al FormularioCompleto.tsx
 import React, { useState } from 'react';
-import Layout from '../../../hooks/layout/Layout';
+import Layout from '../../../hocs/layout/Layout';
 import DatosInventario, { ORIGEN, MODALIDAD } from './Datos_inventario';
 import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, ListaEspecie, BIEN, DETALLE } from './Datos_cuenta';
 import DatosActivoFijo from './Datos_activo_fijo';
@@ -18,8 +18,6 @@ import { comboCuentaActions } from '../../../redux/actions/combos/comboCuentaAct
 import { comboDependenciaActions } from '../../../redux/actions/combos/comboDependenciaActions';
 import { comboListadoDeEspeciesBienActions } from '../../../redux/actions/combos/comboListadoDeEspeciesBienActions';
 import { comboDetalleActions } from '../../../redux/actions/combos/comboDetalleActions';
-
-
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -50,12 +48,9 @@ interface FormInventarioProps {
   listaEspecie: ListaEspecie[];
   comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
 
-  token: string | null;
-  nInventario: number;
-  aF_ORIGEN: string;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, nInventario, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -146,7 +141,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
           //Lista combos
           comboOrigen={comboOrigen}
           comboModalidad={comboModalidad}
-          nInventario={nInventario}
+        // nInventario={nInventario}
         />}
 
         {step === 1 && <DatosCuenta

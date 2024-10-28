@@ -45,7 +45,7 @@ export interface ListaEspecie {
     nombrE_ESP: string;
 }
 
-interface CuentaProps {
+export interface CuentaProps {
     servicio: number;
     cuenta: number;
     dependencia: number;
@@ -123,6 +123,20 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     const classNames = (...classes: (string | boolean | undefined)[]): string => {
         return classes.filter(Boolean).join(' ');
     };
+    const [error, setError] = useState<Partial<CuentaProps>>({});
+
+
+    const validate = () => {
+        let tempErrors: Partial<any> & {} = {};
+        // Validación para N° de Recepción (debe ser un número)
+        if (!Cuenta.servicio) tempErrors.servicio = "El Servicio es obligatorio.";
+        if (!Cuenta.dependencia) tempErrors.dependencia = "La Dependencia es obligatoria.";
+        if (!Cuenta.especie) tempErrors.especie = "La Especie es obligatorio.";
+        if (!Cuenta.cuenta) tempErrors.cuenta = "La Cuenta es obligatorio.";
+
+        setError(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+    };
     useEffect(() => {
         setCuenta({
             servicio,
@@ -142,13 +156,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
         }
     }, [Especies.codigoEspecie]);
 
-
-
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Actualiza el estado de 'cuenta' con el nuevo valor
         setCuenta(cuentaPrevia => ({ ...cuentaPrevia, [name]: value }));
-
 
         // Otras condiciones para diferentes campos del formulario
         if (name === 'servicio') {
@@ -163,19 +174,19 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     };
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch(setServicioActions(Cuenta.servicio));
-        dispatch(setCuentaActions(Cuenta.cuenta));
-        dispatch(setDependenciaActions(Cuenta.dependencia));
-        dispatch(setEspecieActions(Cuenta.especie));
-        dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
-        if (parseInt(Especies.codigoEspecie) > 0) {
-            dispatch(setNombreEspecieActions(Especies.codigoEspecie));
+        if (validate()) {
+            dispatch(setServicioActions(Cuenta.servicio));
+            dispatch(setCuentaActions(Cuenta.cuenta));
+            dispatch(setDependenciaActions(Cuenta.dependencia));
+            dispatch(setEspecieActions(Cuenta.especie));
+            dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
+            if (parseInt(Especies.codigoEspecie) > 0) {
+                dispatch(setNombreEspecieActions(Especies.codigoEspecie));
+            }
+            onNext(Cuenta);
+            console.log("Formulario Datos cuenta:", Cuenta);
         }
-
-        onNext(Cuenta);
-        console.log("Formulario Datos cuenta:", Cuenta);
     };
-
     const handleVolver = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         dispatch(setServicioActions(Cuenta.servicio));
@@ -187,6 +198,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             dispatch(setNombreEspecieActions(Especies.codigoEspecie));
         }
         onBack();
+
     };
 
     //Selecciona fila del listado de especies
@@ -233,84 +245,104 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <div className="border-top p-1 rounded">
-                    <div>
-                        <h3 className="form-title">Detalle Inventario</h3>
-                    </div>
-                    <div className="shadow-sm p-5 m-1">
-                        <Row>
-                            <Col md={6}>
-                                <div className="mb-1">
-                                    <dt className="text-muted">Servicio</dt>
-                                    <dd className="d-flex align-items-center">
-                                        <select className="form-select" name="servicio" onChange={handleChange} value={Cuenta.servicio || ''}>
-                                            <option value="">Seleccione un origen</option>
-                                            {comboServicio.map((traeServicio) => (
-                                                <option key={traeServicio.codigo} value={traeServicio.codigo}>
-                                                    {traeServicio.nombrE_ORD}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </dd>
-                                </div>
-                                <div className="cmb-1">
-                                    <dt className="text-muted">Dependencia</dt>
-                                    <dd className="d-flex align-items-center">
-                                        <select className="form-select" name="dependencia" disabled={!Cuenta.servicio} onChange={handleChange} value={Cuenta.dependencia}>
-                                            <option value="" >Selecciona una opción</option>
-                                            {comboDependencia.map((traeDependencia) => (
-                                                <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
-                                                    {traeDependencia.nombrE_ORD}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </dd>
-                                </div>
-                            </Col>
-                            <Col md={6}>
-                                <div className="mb-1">
-                                    <dt className="text-muted">Especie</dt>
-                                    <dd className="d-flex align-items-center">
-                                        <input
-                                            type="text"
-                                            name="especie"
-                                            value={Especies.descripcionEspecie || descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
-                                            onChange={handleChange}
-                                            disabled
-                                            className="form-control"
-                                        />
-                                        {/* Botón para abrir el modal y seleccionar una especie */}
-                                        <Button variant="primary" onClick={() => setMostrarModal(true)} className="ms-1">
-                                            <Plus className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                                        </Button>
-                                    </dd>
-                                </div>
-
-                                <div className="mb-1">
-                                    <dt className="text-muted">Cuenta</dt>
-                                    <dd className="d-flex align-items-center">
-                                        <select className="form-select" name="cuenta" disabled={!Cuenta.especie} onChange={handleChange} value={Cuenta.cuenta}>
-                                            <option value="">Selecciona una opción</option>
-                                            {comboCuenta.map((traeCuentas) => (
-                                                <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                                                    {traeCuentas.descripcion}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </dd>
-                                </div>
-
-
-                            </Col>
-                        </Row>
+                <div className="border-bottom shadow-sm p-4 rounded">
+                    <h3 className="form-title fw-semibold border-bottom">Detalle Inventario</h3>
+                    <Row>
+                        <Col md={6}>
+                            <div className="mb-1">
+                                <dt className="text-muted">Servicio</dt>
+                                <select
+                                    className={`form-select ${error.servicio ? "is-invalid" : ""}`}
+                                    name="servicio"
+                                    onChange={handleChange}
+                                    value={Cuenta.servicio}>
+                                    <option value="">Seleccione un origen</option>
+                                    {comboServicio.map((traeServicio) => (
+                                        <option key={traeServicio.codigo} value={traeServicio.codigo}>
+                                            {traeServicio.nombrE_ORD}
+                                        </option>
+                                    ))}
+                                </select>
+                                {error.servicio && (
+                                    <div className="invalid-feedback">
+                                        {error.servicio}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mb-1">
+                                <dt className="text-muted">Dependencia</dt>
+                                <select
+                                    className={`form-select ${error.dependencia ? "is-invalid" : ""}`}
+                                    name="dependencia"
+                                    onChange={handleChange}
+                                    value={Cuenta.dependencia} disabled={!Cuenta.servicio}>
+                                    <option value="" >Selecciona una opción</option>
+                                    {comboDependencia.map((traeDependencia) => (
+                                        <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
+                                            {traeDependencia.nombrE_ORD}
+                                        </option>
+                                    ))}
+                                </select>
+                                {error.dependencia && (
+                                    <div className="invalid-feedback">
+                                        {error.dependencia}
+                                    </div>
+                                )}
+                            </div>
+                        </Col>
+                        <Col md={6}>
+                            <div className="mb-1">
+                                <dt className="text-muted">Especie</dt>
+                                <dd className="d-flex align-items-center">
+                                    <input
+                                        className={`form-select ${error.especie ? "is-invalid" : ""}`}
+                                        type="text"
+                                        name="especie"
+                                        value={Especies.descripcionEspecie || descripcionEspecie || 'Haz clic en más para seleccionar una especie'}
+                                        onChange={handleChange}
+                                        disabled
+                                    />
+                                    {/* Botón para abrir el modal y seleccionar una especie */}
+                                    <Button variant="primary" onClick={() => setMostrarModal(true)} className="ms-1">
+                                        <Plus className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                    </Button>
+                                </dd>
+                                {error.especie && (
+                                    <div className="invalid-feedback d-block">
+                                        {error.especie}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mb-1">
+                                <dt className="text-muted">Cuenta</dt>
+                                <select
+                                    className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
+                                    name="cuenta"
+                                    disabled={!Cuenta.especie}
+                                    onChange={handleChange}
+                                    value={Cuenta.cuenta}>
+                                    <option value="">Selecciona una opción</option>
+                                    {comboCuenta.map((traeCuentas) => (
+                                        <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                                            {traeCuentas.descripcion}
+                                        </option>
+                                    ))}
+                                </select>
+                                {error.cuenta && (
+                                    <div className="invalid-feedback">
+                                        {error.cuenta}
+                                    </div>
+                                )}
+                            </div>
+                        </Col>
+                    </Row>
+                    <div className="p-1 rounded bg-white d-flex justify-content-between">
+                        <Button onClick={handleVolver} className="btn btn-primary m-1">Volver</Button>
+                        <Button type="submit" className="btn btn-primary m-1">Siguiente</Button>
                     </div>
                 </div>
-                <div className="p-1 rounded bg-white d-flex justify-content-between">
-                    <Button onClick={handleVolver} className="btn btn-primary m-1">Volver</Button>
-                    <Button type="submit" className="btn btn-primary m-1">Siguiente</Button>
-                </div>
+
             </form>
-
             {/* Modal formulario Activos Fijo*/}
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
                 <Modal.Header closeButton>
@@ -324,7 +356,6 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                     </div> */}
                     <form onSubmit={handleSubmitSeleccionado}>
                         <Row>
-
                             <Col md={12}>
                                 <div className='d-flex justify-content-between'>
                                     <div className="mb-1 w-50">
@@ -365,7 +396,6 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                                     </dd>
                                 </div> */}
                             </Col>
-
                         </Row>
                     </form>
 
@@ -399,7 +429,6 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                         </Table>
                     </div>
 
-
                     {/* Paginador */}
                     < Pagination className="d-flex justify-content-end">
                         <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
@@ -422,10 +451,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 </Modal.Body>
 
             </Modal >
-
         </>
-
-
     );
 };
 

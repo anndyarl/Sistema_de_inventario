@@ -42,7 +42,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
     };
 
     if (isAuthenticated) {
-        return <Navigate to='/Home' />;
+        return <Navigate to='/Inicio' />;
     }
     return (
         <div className="container d-flex justify-content-center align-items-center vh-100">

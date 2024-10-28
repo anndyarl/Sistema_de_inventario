@@ -1,13 +1,13 @@
 import { Dispatch } from "redux";
 import axios from 'axios';
 import {
-    INVENTARIO_REQUEST,
-    INVENTARIO_SUCCESS,
-    INVENTARIO_FAIL,
+    ANULAR_INVENTARIO_REQUEST,
+    ANULAR_INVENTARIO_SUCCESS,
+    ANULAR_INVENTARIO_FAIL,
 } from '../types';
 
 // Acción para obtener la recepción por número
-export const obtenerInventarioActions = (nInventario: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const anularInventarioActions = (AF_CLAVE: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().auth.token; //token está en el estado de autenticación
 
     if (token) {
@@ -18,27 +18,22 @@ export const obtenerInventarioActions = (nInventario: string) => async (dispatch
             },
         };
 
-        dispatch({ type: INVENTARIO_REQUEST });
+        dispatch({ type: ANULAR_INVENTARIO_REQUEST });
 
         try {
-            const res = await axios.get(`/api_inv/api/inventario/TraeInvxID?AF_CLAVE=${nInventario}`, config);
-            console.log('Respuesta del servidor obtener nInventario:', res);
+            const res = await axios.get(`/api_inv/api/inventario/AnulaInventario?AF_CLAVE=${AF_CLAVE}`, config);
+            console.log('Respuesta del servidor anulado el nInventario seleccionado:', res);
 
             if (res.status === 200) {
-                if (res.data?.length) {
-                    dispatch({
-                        type: INVENTARIO_SUCCESS,
-                        payload: res.data,
-                    });
-                    return true;
-                }
-                else {
-                    return false
-                }
+                dispatch({
+                    type: ANULAR_INVENTARIO_SUCCESS,
+                    payload: res.data,
+                });
+                return true;
 
             } else {
                 dispatch({
-                    type: INVENTARIO_FAIL,
+                    type: ANULAR_INVENTARIO_FAIL,
                     error: 'No se pudo obtener el inventario. Por favor, intente nuevamente.',
                 });
                 return false;
@@ -46,14 +41,14 @@ export const obtenerInventarioActions = (nInventario: string) => async (dispatch
         } catch (err) {
             console.error("Error en la solicitud:", err);
             dispatch({
-                type: INVENTARIO_FAIL,
+                type: ANULAR_INVENTARIO_FAIL,
                 error: 'Error en la solicitud. Por favor, intente nuevamente.',
             });
             return false;
         }
     } else {
         dispatch({
-            type: INVENTARIO_FAIL,
+            type: ANULAR_INVENTARIO_FAIL,
             error: 'No se encontró un token de autenticación válido.',
         });
         return false;

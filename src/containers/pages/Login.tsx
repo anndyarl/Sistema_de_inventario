@@ -34,7 +34,7 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
     };
 
     if (isAuthenticated) {
-        return <Navigate to='/Home' />;
+        return <Navigate to='/Inicio' />;
     }
 
 

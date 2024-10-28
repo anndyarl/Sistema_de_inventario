@@ -1,5 +1,5 @@
 import React from "react"
-import Layout from "../../hooks/layout/Layout";
+import Layout from "../../hocs/layout/Layout";
 
 const Donaciones: React.FC = () => {
   return (

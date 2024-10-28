@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { Card, Row, Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { Plus, Pencil } from 'react-bootstrap-icons';
-import Layout from '../../hooks/layout/Layout';
+import { Plus, Pencil, Trash } from 'react-bootstrap-icons';
+import Layout from '../../hocs/layout/Layout';
 import { MODALIDAD, ORIGEN } from '../../components/Inventario/RegistrarInventario/Datos_inventario';
-import { BIEN, CUENTA, DEPENDENCIA, SERVICIO } from '../../components/Inventario/RegistrarInventario/Datos_cuenta';
+import { BIEN, SERVICIO } from '../../components/Inventario/RegistrarInventario/Datos_cuenta';
 import { comboOrigenPresupuestosActions } from '../../redux/actions/combos/comboOrigenPresupuestoActions';
 import { comboModalidadesActions } from '../../redux/actions/combos/comboModalidadCompraActions';
 import { comboServicioActions } from '../../redux/actions/combos/comboServicioActions';
@@ -28,10 +28,7 @@ interface FormInventarioProps {
     //Trae props combos de Datos_cuenta(formulario 2)
     comboServicio: SERVICIO[];
     comboServicioActions: () => void
-    comboCuenta: CUENTA[];
-    comboCuentaActions: (nombreEspecie: string) => void
-    comboDependencia: DEPENDENCIA[];
-    comboDependenciaActions: (servicioSeleccionado: string) => void;
+
     comboBien: BIEN[];
     comboDetalleActions: (bienSeleccionado: string) => void
     token: string | null;
@@ -55,24 +52,22 @@ const Inventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad
     return (
         <Layout>
             <>
-                <Row className="align-items-center w-100 ">
+                <Row>
                     <Col lg={6} md={6} className="mb-4">
                         <Card className="custom-card shadow p-3 border-0 rounded">
-                            {/* <Card.Img
-                                    variant="top"
-                                    src="https://via.placeholder.com/150"
-                                    alt="Card image 1"
-                                    style={{ height: "350px", objectFit: "cover" }}
-                                /> */}
                             <Card.Body>
                                 <Card.Title className="text-center fw-semibold">Registrar Inventario</Card.Title>
                                 <Card.Text className="text-center m-2">
-                                    Registra un nuevo formulario en tres simples pasos
+                                    Complete el registro de un nuevo inventario en tres sencillos pasos.
                                 </Card.Text>
                                 <div className="d-flex justify-content-center">
                                     <div className="flex-grow-1">
-                                        <NavLink key="FormInventario" to="/FormInventario" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
-                                            <Plus className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                        <NavLink
+                                            key="FormInventario"
+                                            to="/FormInventario"
+                                            className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
+                                        >
+                                            <Plus className={classNames("me-3 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                                             Nuevo
                                         </NavLink>
                                     </div>
@@ -80,23 +75,22 @@ const Inventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad
                             </Card.Body>
                         </Card>
                     </Col>
+
                     <Col lg={6} md={6} className="mb-4">
                         <Card className="custom-card shadow p-3 border-0 rounded">
-                            {/* <Card.Img
-                                    variant="top"
-                                    src="https://via.placeholder.com/150"
-                                    alt="Card image 2"
-                                    style={{ height: "350px", objectFit: "cover" }}
-                                /> */}
                             <Card.Body>
                                 <Card.Title className="text-center fw-semibold">Modificar Inventario</Card.Title>
                                 <Card.Text className="text-center m-2">
-                                    Busca el inventario que deseas modificar
+                                    Encuentre y modifique el inventario existente.
                                 </Card.Text>
                                 <div className="d-flex justify-content-center">
                                     <div className="flex-grow-1">
-                                        <NavLink key="ModificarInventario" to="/ModificarInventario" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
-                                            <Pencil className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                        <NavLink
+                                            key="ModificarInventario"
+                                            to="/ModificarInventario"
+                                            className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
+                                        >
+                                            <Pencil className={classNames("me-3 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                                             Modificar
                                         </NavLink>
                                     </div>
@@ -106,21 +100,42 @@ const Inventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad
                     </Col>
                     <Col lg={6} md={6} className="mb-4">
                         <Card className="custom-card shadow p-3 border-0 rounded">
-                            {/* <Card.Img
-                                    variant="top"
-                                    src="https://via.placeholder.com/150"
-                                    alt="Card image 2"
-                                    style={{ height: "350px", objectFit: "cover" }}
-                                /> */}
                             <Card.Body>
-                                <Card.Title className="text-center fw-semibold">Bienes de Funcionarios</Card.Title>
+                                <Card.Title className="text-center fw-semibold">Anular Inventario</Card.Title>
                                 <Card.Text className="text-center m-2">
-                                    Registra un nuevo formulario de bienes de funcionarios
+                                    Para anular un inventario, búsquelo previamente por fecha de inicio y término.
                                 </Card.Text>
                                 <div className="d-flex justify-content-center">
                                     <div className="flex-grow-1">
-                                        <NavLink key="FormBienesFuncionarios" to="/FormBienesFuncionarios" className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none">
-                                            <Plus className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                        <NavLink
+                                            key="AnularInventario"
+                                            to="/AnularInventario"
+                                            className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
+                                        >
+                                            <Trash className={classNames("me-3 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                                            Eliminar
+                                        </NavLink>
+                                    </div>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    <Col lg={6} md={6} className="mb-4">
+                        <Card className="custom-card shadow p-3 border-0 rounded">
+                            <Card.Body>
+                                <Card.Title className="text-center fw-semibold">Bienes de Funcionarios</Card.Title>
+                                <Card.Text className="text-center m-2">
+                                    Registre los bienes asignados a funcionarios.
+                                </Card.Text>
+                                <div className="d-flex justify-content-center">
+                                    <div className="flex-grow-1">
+                                        <NavLink
+                                            key="FormBienesFuncionarios"
+                                            to="/FormBienesFuncionarios"
+                                            className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
+                                        >
+                                            <Plus className={classNames("me-3 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                                             Nuevo
                                         </NavLink>
                                     </div>
@@ -128,7 +143,10 @@ const Inventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad
                             </Card.Body>
                         </Card>
                     </Col>
+
+
                 </Row>
+
             </>
         </Layout>
     );

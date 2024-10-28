@@ -6,7 +6,7 @@ import { RootState } from '../../../store';
 import { connect, useDispatch } from 'react-redux';
 
 import { setServicioActions, setDependenciaActions, setCuentaActions, setEspecieActions, setDatosTablaActivoFijo, eliminarActivoDeTabla, eliminarMultiplesActivosDeTabla, actualizarSerieEnTabla, vaciarDatosTabla, setBienActions, setDetalleActions } from '../../../redux/actions/Inventario/Datos_inventariosActions';
-import { postFormInventarioActions } from '../../../redux/actions/Inventario/postFormInventarioActions';
+import { registrarFormInventarioActions } from '../../../redux/actions/Inventario/registrarFormInventarioActions';
 
 import {
   setNRecepcionActions, setFechaRecepcionActions, setNOrdenCompraActions, setNFacturaActions,
@@ -15,8 +15,6 @@ import {
 } from '../../../redux/actions/Inventario/Datos_inventariosActions';
 import Swal from 'sweetalert2';
 import { FormInventario } from './FormInventario';
-
-
 
 export interface ActivoFijo {
   id: string;
@@ -30,7 +28,6 @@ export interface ActivoFijo {
   precio: string;
   especie: string;
   color?: string;
-
 }
 
 interface Datos_activo_fijoProps {
@@ -38,16 +35,15 @@ interface Datos_activo_fijoProps {
   onBack: () => void;
   onReset: () => void; // vuelva a al componente Datos_inventario
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global 
-  token: string | null;
   nombreEspecie: string[]; //Para obtener del estado global de redux 
   datosTablaActivoFijo: ActivoFijo[];
   general?: string; // Campo para errores generales
   generalTabla?: string;
   formInventario: FormInventario;
-  postFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
+  registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, nombreEspecie, datosTablaActivoFijo, formInventario, postFormInventarioActions }) => {
+const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, onReset, montoRecepcion, nombreEspecie, datosTablaActivoFijo, formInventario, registrarFormInventarioActions }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
 
   const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
@@ -98,8 +94,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   const newTotal = cantidad * precio;
   const pendiente = montoRecepcion - totalSum;
 
-
-
   //---------------------------------------------------------//
 
   //Validaciones
@@ -127,18 +121,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       tempErrors.general = `La cantidad ingresada excede al facturado $${montoRecepcion}`;
     }
 
-
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setCurrentActivo(prevData => ({ ...prevData, [name]: value }));
   };
-
   // Estado para errores específicos por serie
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
 
@@ -178,10 +169,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       return updatedActivos; // Retornar el array completo actualizado
     });
   };
-
-
-
-
   //-------------Funciones de la tabla --------------------//
   const handleSerieBlur = () => {
     setEditingSerie(null);
@@ -206,7 +193,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
   //   setActivosFijos(prev => [...prev, clonedActivo]);
   // };
 
-
   const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // let counter = 0;
@@ -218,7 +204,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     if (validate()) {
       const cantidad = parseInt(currentActivo.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || '';
-
 
       // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
       const getRandomPastelColor = () => {
@@ -285,7 +270,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     onBack();
   };
 
-  const handleShowModal = () => {
+  const handleValidar = () => {
     if (pendiente == 0) {
       // setMostrarModalConfirmar(true);
       onNext(activosFijos);
@@ -324,10 +309,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
       activosFijos: activosFijos,
 
     };
-    console.log('Tabla detalles activos fijos:', activosFijos); // Verifica los datos
-    console.log('Formulario completo activos fijo:', FormulariosCombinados); // Verifica los datos
-
-    const resultado = await postFormInventarioActions(formInventario.datosInventario);
+    const resultado = await registrarFormInventarioActions(FormulariosCombinados);
     if (resultado) {
       //Resetea todo el formualario al estado inicial
       // dispatch(setTotalActivoFijoActions(total));
@@ -371,21 +353,18 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
     console.log('datosTablaActivoFijo está vacío');
   }
 
-
   return (
     <>
-      <div className="border-top p-1 rounded">
-        <h3 className="form-title mb-4 fw-semibold">Detalles activo</h3>
-        <div className='d-flex justify-content-between '>
+      <div className="border-bottom shadow-sm p-4 rounded">
+        <h3 className="form-title fw-semibold border-bottom">Detalles activo</h3>
+        <div className='d-flex justify-content-between  m-1'>
           {/* Monto Recepción*/}
-          <div className="justify-content-end navbar navbar-light">
-            <p>
-              <strong>Monto Recepción:</strong> ${montoRecepcion.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
-            </p>
+          <div className=" align-content-center">
+            <strong>Monto Recepción:</strong> ${montoRecepcion.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
           </div>
           {/* habilita Boton Modal formulario si solo monto recepcion y total coinciden y si la especie tiene datos */}
           {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
-            <Button variant="primary" onClick={() => setMostrarModal(true)}>
+            <Button className="align-content-center" variant="primary" onClick={() => setMostrarModal(true)}>
               <Plus className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
             </Button>
           )}
@@ -407,89 +386,85 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
         {datos.length === 0 ? (
           <p className='d-flex justify-content-center alert alert-light m-1 p-1 '>Haz clic en (+) para agregar los detalles de cada activo aquí.</p>
         ) : (
-          <div className="shadow-sm">
-            <div className="overflow-auto">
-              <Table bordered hover>
-                <thead >
-                  <tr >
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>
-                      <Form.Check type="checkbox" onChange={handleSeleccionaTodos} checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0} />
-                    </th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Vida Útil</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Fecha Ingreso</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Marca</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Modelo</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Serie</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Precio</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Especie</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody >
-                  {elementosActuales.map((activo, indexReal) => (
-                    <tr key={indexReal} >
-                      <td>
-                        <Form.Check type="checkbox" onChange={() => setSeleccionaFilas(indexReal)} checked={filasSeleccionadas.includes(indexReal.toString())} />
-                      </td>
-                      <td>{activo.vidaUtil}</td>
-                      <td>{activo.fechaIngreso}</td>
-                      <td>{activo.marca}</td>
-                      <td>{activo.modelo}</td>
-                      <td className="fixed-width" onClick={() => setEditingSerie(indexReal.toString())}>
-                        {editingSerie === indexReal.toString() ? (
-                          <Form.Control
-                            type="text"
-                            value={activo.serie}
-                            onChange={(e) => handleCambiaSerie(indexReal, e.target.value)}
-                            onBlur={handleSerieBlur}
-                            autoFocus
-                            maxLength={10}
-                            pattern="\d*"
-                            data-index={indexReal}
-                            // Agregar clase condicional si hay un error en la serie
-                            className={erroresSerie[indexReal] ? 'is-invalid' : ''}
-                          />
-                        ) : (
-                          <span style={{ display: 'flex', alignItems: 'center' }}>
-                            {activo.serie || 'editar'}
-                            <PencilFill style={{ marginLeft: '8px', color: '#6c757d' }} /> {/* Ícono de lápiz */}
-                          </span>
-                        )}
-                        {erroresSerie[indexReal] && (
-                          <div className="invalid-feedback">
-                            {erroresSerie[indexReal]}
-                          </div>
-                        )}
-                      </td>
 
-                      <td>${parseFloat(activo.precio).toLocaleString('es-ES', { minimumFractionDigits: 0 })}</td>
-                      <td style={{ backgroundColor: activo.color || 'transparent' }}> {activo.especie}</td>
-                      <td >
-                        {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
+          <div className="overflow-auto">
+            <Table bordered hover>
+              <thead >
+                <tr >
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>
+                    <Form.Check type="checkbox" onChange={handleSeleccionaTodos} checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0} />
+                  </th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Vida Útil</th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Fecha Ingreso</th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Marca</th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Modelo</th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Serie</th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Precio</th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Especie</th>
+                  <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody >
+                {elementosActuales.map((activo, indexReal) => (
+                  <tr key={indexReal} >
+                    <td>
+                      <Form.Check type="checkbox" onChange={() => setSeleccionaFilas(indexReal)} checked={filasSeleccionadas.includes(indexReal.toString())} />
+                    </td>
+                    <td>{activo.vidaUtil}</td>
+                    <td>{activo.fechaIngreso}</td>
+                    <td>{activo.marca}</td>
+                    <td>{activo.modelo}</td>
+                    <td className="w-15" onClick={() => setEditingSerie(indexReal.toString())}>
+                      <div className='d-flex align-items-center '>
+                        <Form.Control
+                          type="text"
+                          value={activo.serie}
+                          onChange={(e) => handleCambiaSerie(indexReal, e.target.value)}
+                          onBlur={handleSerieBlur}
+                          autoFocus
+                          maxLength={10}
+                          pattern="\d*"
+                          placeholder='editar'
+                          data-index={indexReal}
+                          // Agregar clase condicional si hay un error en la serie
+                          className={erroresSerie[indexReal] ? 'is-invalid' : ''}
+                        />
+
+                        <PencilFill style={{ marginLeft: '1rem', color: '#6c757d' }} /> {/* Ícono de lápiz */}
+                      </div>
+                      {erroresSerie[indexReal] && (
+                        <div className="invalid-feedback d-block">
+                          {erroresSerie[indexReal]}
+                        </div>
+                      )}
+                    </td>
+
+                    <td>${parseFloat(activo.precio).toLocaleString('es-ES', { minimumFractionDigits: 0 })}</td>
+                    <td style={{ backgroundColor: activo.color || 'transparent' }}> {activo.especie}</td>
+                    <td >
+                      {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                   Clonar
                 </Button> */}
-                        <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(indexReal/*, parseFloat(activo.precio */)}>
-                          Eliminar
-                        </Button>
-                      </td>
-                    </tr>
-
-                  ))}
-                </tbody>
-                <tfoot >
-                  <tr >
-                    <td colSpan={6} className="text-right"><strong>Total activo fijo:</strong></td>
-                    <td><strong>${totalSum.toLocaleString('es-ES', { minimumFractionDigits: 0 })}</strong></td>
+                      <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(indexReal/*, parseFloat(activo.precio */)}>
+                        Eliminar
+                      </Button>
+                    </td>
                   </tr>
-                </tfoot>
-              </Table >
-            </div>
+
+                ))}
+              </tbody>
+              <tfoot >
+                <tr >
+                  <td colSpan={6} className="text-right"><strong>Total activo fijo:</strong></td>
+                  <td><strong>${totalSum.toLocaleString('es-ES', { minimumFractionDigits: 0 })}</strong></td>
+                </tr>
+              </tfoot>
+            </Table >
           </div>
         )}
-      </div>
-      {/* Paginador*/}
-      {
-        elementosActuales.length > 0 && (
+
+        {/* Paginador*/}
+        {elementosActuales.length > 0 && (
           <Pagination className="d-flex justify-content-end">
             <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
             <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
@@ -501,16 +476,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
             <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
             <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
           </Pagination>
-        )
-      }
-
-      {/* Botones volver y confirmar*/}
-      <div className="d-flex justify-content-end mt-3 justify-content-between">
-        <Button onClick={handleVolver} className="btn btn-primary m-1">Volver</Button>
-
-        {elementosActuales.length > 0 && (
-          <Button variant="btn btn-primary m-1" onClick={handleShowModal}>Confirmar</Button>
         )}
+        {/* Botones volver y confirmar*/}
+        <div className="d-flex justify-content-end mt-3 justify-content-between">
+          <Button onClick={handleVolver} className="btn btn-primary m-1">Volver</Button>
+
+          {elementosActuales.length > 0 && (
+            <Button variant="btn btn-primary m-1" onClick={handleValidar}>Validar</Button>
+          )}
+        </div>
       </div>
       {/* Modal formulario Activos Fijo*/}
       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
@@ -539,7 +513,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
               <Col md={6}>
                 <div className="mb-1">
                   <label htmlFor="vidaUtil" className="form-label">Vida Útil</label>
-                  <input type="text" className={`form-control ${error.vidaUtil ? 'is-invalid' : ''}`} id="vidaUtil" name="vidaUtil" onChange={handleChange} value={currentActivo.vidaUtil} />
+                  <input type="text" className={`form-control ${error.vidaUtil ? 'is-invalid' : ''}`} id="vidaUtil" name="vidaUtil" maxLength={10} onChange={handleChange} value={currentActivo.vidaUtil} />
                   {error.vidaUtil && <div className="invalid-feedback">{error.vidaUtil}</div>}
                 </div>
 
@@ -551,13 +525,13 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
 
                 <div className="mb-1">
                   <label htmlFor="marca" className="form-label">Marca</label>
-                  <input type="text" className={`form-control ${error.marca ? 'is-invalid' : ''}`} id="marca" name="marca" onChange={handleChange} value={currentActivo.marca} />
+                  <input type="text" className={`form-control ${error.marca ? 'is-invalid' : ''}`} id="marca" name="marca" maxLength={10} onChange={handleChange} value={currentActivo.marca} />
                   {error.marca && <div className="invalid-feedback">{error.marca}</div>}
                 </div>
 
                 <div className="mb-1">
                   <label htmlFor="modelo" className="form-label">Modelo</label>
-                  <input type="text" className={`form-control ${error.modelo ? 'is-invalid' : ''}`} id="modelo" name="modelo" onChange={handleChange} value={currentActivo.modelo} />
+                  <input type="text" className={`form-control ${error.modelo ? 'is-invalid' : ''}`} id="modelo" name="modelo" maxLength={10} onChange={handleChange} value={currentActivo.modelo} />
                   {error.modelo && <div className="invalid-feedback">{error.modelo}</div>}
                 </div>
 
@@ -565,13 +539,13 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
               <Col md={6}>
                 <div className="mb-1">
                   <label htmlFor="precio" className="form-label">Precio</label>
-                  <input type="text" className={`form-control ${error.precio ? 'is-invalid' : ''}`} id="precio" name="precio" onChange={handleChange} value={currentActivo.precio} />
+                  <input type="text" className={`form-control ${error.precio ? 'is-invalid' : ''}`} id="precio" name="precio" maxLength={12} onChange={handleChange} value={currentActivo.precio} />
                   {error.precio && <div className="invalid-feedback">{error.precio}</div>}
                 </div>
 
                 <div className="mb-1">
                   <label htmlFor="cantidad" className="form-label">Cantidad</label>
-                  <input type="text" className={`form-control ${error.cantidad ? 'is-invalid' : ''}`} id="cantidad" name="cantidad" onChange={handleChange} value={currentActivo.cantidad} />
+                  <input type="text" className={`form-control ${error.cantidad ? 'is-invalid' : ''}`} id="cantidad" name="cantidad" maxLength={6} onChange={handleChange} value={currentActivo.cantidad} />
                   {error.cantidad && <div className="invalid-feedback">{error.cantidad}</div>}
                 </div>
 
@@ -585,32 +559,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({ onNext, onBack, o
           </form>
         </Modal.Body>
       </Modal >
-
-      {/* Modal  Confirmar */}
-      {/* < Modal show={mostrarModalConfirmar} onHide={() => setMostrarModalConfirmar(false)} size="xl" >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" fill="currentColor" className="bi bi-exclamation-circle mr-1 mb-1" viewBox="0 0 16 16">
-              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-              <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
-            </svg>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-
-          <p className="form-heading fs-09em">
-            Confirmar el envío completo del formualario
-          </p>
-          <form onSubmit={handleAgregar}>
-            <div className="form-group d-flex justify-content-center">
-              <Button variant="btn btn-primary m-1" onClick={handleFinalSubmit}>Confirmar y Enviar</Button>
-              <Button variant="btn btn-secondary m-1" onClick={() => setMostrarModalConfirmar(false)} className="me-2">Cancelar</Button>
-            </div>
-          </form>
-
-        </Modal.Body>
-      </Modal > */}
-
     </>
   );
 };
@@ -621,11 +569,7 @@ const mapStateToProps = (state: RootState) => ({
   nombreEspecie: state.datosRecepcionReducer.nombreEspecie,
   resetFormulario: state.datosRecepcionReducer.resetFormulario,
   datosTablaActivoFijo: state.datosRecepcionReducer.datosTablaActivoFijo,
-  token: state.auth.token // se utiliza el token aqui para pasarselo al postFormInventario
-
 });
 export default connect(mapStateToProps, {
-
-  postFormInventarioActions
-
+  registrarFormInventarioActions
 })(Datos_activo_fijo);

@@ -20,7 +20,7 @@ import {
 } from "../../../redux/actions/Inventario/Datos_inventariosActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./Datos_activo_fijo";
-import { Plus, Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: string;
@@ -52,6 +52,7 @@ interface Datos_inventarioProps extends InventarioProps {
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio 
+  obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
 }
 
 // Define el componente `Datos_inventario` del props
@@ -69,7 +70,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   nombreProveedor,
   origenPresupuesto,
   rutProveedor,
-  datosTablaActivoFijo
+  datosTablaActivoFijo,
+  obtenerRecepcionActions
 
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
@@ -93,8 +95,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     return classes.filter(Boolean).join(' ');
   };
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-
-
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -139,7 +139,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
         Swal.fire({
           icon: "warning",
           title: "¿Está seguro que desea modificar monto recepción?",
-          text: "Si modifica el monto recepción se perderán los datos en la tabla.",
+          text: "Si modifica el monto recepción se perderán los datos en la tabla activos fijos.",
           showCancelButton: true,
           confirmButtonText: "Si, Modificar",
           cancelButtonText: "No, Cancelar",
@@ -184,6 +184,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       origenPresupuesto,
       rutProveedor,
     });
+
   }, [
     fechaFactura,
     fechaRecepcion,
@@ -196,7 +197,42 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     origenPresupuesto,
     rutProveedor,
   ]);
+  const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setLoading(true); // Inicia el estado de carga
+    if (!Inventario.nRecepcion) {
+      Swal.fire({
+        icon: "warning",
+        title: "Por favor, ingrese un número de recepción.",
+        confirmButtonText: "Ok",
+      });
+      setLoading(false);
+      return;
+    }
 
+    // Despacha la acción para obtener la recepción en el formulario de activos fijos
+    const resultado = await obtenerRecepcionActions(Inventario.nRecepcion);
+    if (resultado) {
+
+      setLoading(false);
+    }
+
+  };
+  // const handleLimpiar = () => {
+  //   setInventario((prevInventario) => ({
+  //     ...prevInventario,
+  //     fechaFactura: "",
+  //     fechaRecepcion: "",
+  //     modalidadDeCompra: 0,
+  //     montoRecepcion: 0,
+  //     nFactura: "",
+  //     nOrdenCompra: 0,
+  //     nRecepcion: 0,
+  //     nombreProveedor: "",
+  //     origenPresupuesto: 0,
+  //     rutProveedor: "",
+  //   }));
+  // }
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -217,252 +253,240 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     }
   };
 
-  const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setLoading(true); // Inicia el estado de carga
-    if (!Inventario.nRecepcion) {
-      Swal.fire({
-        icon: "warning",
-        title: "Por favor, ingrese un número de recepción.",
-        confirmButtonText: "Ok",
-      });
-      return;
-    }
-    // Despacha la acción para obtener la recepción en el formulario de activos fijos
-    await dispatch(obtenerRecepcionActions(Inventario.nRecepcion));
-    setLoading(false);
-  };
+
 
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="border-top p-1 rounded">
-          <h3 className="form-title">Registro Inventario</h3>
-
-          <div className="shadow-sm p-5 m-1">
-            <Row>
-              <Col md={6}>
-                <div className="mb-1">
-                  <dt className="text-muted">Nº Recepción</dt>
-                  <div className="d-flex align-items-center">
-                    <input
-                      type="text"
-                      className={`form-control ${error.nRecepcion ? "is-invalid" : ""} w-100`}
-                      maxLength={12}
-                      name="nRecepcion"
-                      onChange={handleChange}
-                      value={Inventario.nRecepcion}
-                    />
-                    <Button
-                      onClick={handleRecepcionSubmit}
-                      variant="primary"
-                      className="ms-1"
-                    >
-                      {loading ? (
-                        <>
-                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                        </>
-                      ) : (
-                        <Search className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                      )}
-
-                    </Button>
-                  </div>
-                  {error.nRecepcion && (
-                    <div className="invalid-feedback d-block">
-                      {error.nRecepcion}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <dt className="text-muted">Fecha Recepción</dt>
-                  <input
-                    type="date"
-                    className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""}`}
-                    name="fechaRecepcion"
-                    onChange={handleChange}
-                    value={Inventario.fechaRecepcion}
-                  />
-                  {error.fechaRecepcion && (
-                    <div className="invalid-feedback">
-                      {error.fechaRecepcion}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <dt className="text-muted">N° Orden de compra</dt>
+        <div className="border-bottom shadow-sm p-4 rounded">
+          <h3 className="form-title fw-semibold border-bottom">Registro Inventario</h3>
+          <Row>
+            <Col md={6}>
+              <div className="mb-1">
+                <dt className="text-muted">Nº Recepción</dt>
+                <div className="d-flex align-items-center">
                   <input
                     type="text"
-                    className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""}`}
+                    className={`form-control ${error.nRecepcion ? "is-invalid" : ""} w-100`}
                     maxLength={12}
-                    name="nOrdenCompra"
+                    name="nRecepcion"
                     onChange={handleChange}
-                    value={Inventario.nOrdenCompra}
+                    value={Inventario.nRecepcion}
                   />
-                  {error.nOrdenCompra && (
-                    <div className="invalid-feedback">{error.nOrdenCompra}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <dt className="text-muted">Nº factura</dt>
-                  <input
-                    type="text"
-                    className={`form-control ${error.nFactura ? "is-invalid" : ""}`}
-                    maxLength={12}
-                    name="nFactura"
-                    onChange={handleChange}
-                    value={Inventario.nFactura}
-
-                  />
-                  {error.nFactura && (
-                    <div className="invalid-feedback">{error.nFactura}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <dt className="text-muted">Origen Presupuesto</dt>
-                  <select
-                    className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""}`}
-                    name="origenPresupuesto"
-                    onChange={handleChange}
-                    value={Inventario.origenPresupuesto}
-
+                  <Button
+                    onClick={handleRecepcionSubmit}
+                    variant="primary"
+                    className="ms-1"
                   >
-                    <option value="">Seleccione un origen</option>
-                    {comboOrigen.map((traeOrigen) => (
-                      <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
-                        {traeOrigen.descripcion}
-                      </option>
-                    ))}
-                  </select>
-                  {error.origenPresupuesto && (
-                    <div className="invalid-feedback">
-                      {error.origenPresupuesto}
-                    </div>
-                  )}
-                </div>
-              </Col>
+                    {loading ? (
+                      <>
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                      </>
+                    ) : (
+                      <Search className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                    )}
 
-              <Col md={6}>
-                <div className="mb-1">
-                  <dt className="text-muted">Monto Recepción</dt>
-                  <input
-                    type="text"
-                    className={`form-control ${error.montoRecepcion ? "is-invalid" : ""}`}
-                    maxLength={12}
-                    name="montoRecepcion"
-                    onChange={handleChange}
-                    // value={isMontoRecepcionEdited ? Inventario.montoRecepcion : montoRecepcion}
-                    value={Inventario.montoRecepcion}
-
-                  />
-                  {error.montoRecepcion && (
-                    <div className="invalid-feedback">
-                      {error.montoRecepcion}
-                    </div>
-                  )}
+                  </Button>
+                  {/* <Button
+                    onClick={handleLimpiar}
+                    variant="primary"
+                    className="ms-1"                    >
+                    <Eraser className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                  </Button> */}
                 </div>
-                <div className="mb-1">
-                  <dt className="text-muted">Fecha Factura</dt>
-                  <input
-                    type="date"
-                    className={`form-control ${error.fechaFactura ? "is-invalid" : ""}`}
-                    name="fechaFactura"
-                    onChange={handleChange}
-                    value={Inventario.fechaFactura}
+                {error.nRecepcion && (
+                  <div className="invalid-feedback d-block">
+                    {error.nRecepcion}
+                  </div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text-muted">Fecha Recepción</dt>
+                <input
+                  type="date"
+                  className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""}`}
+                  name="fechaRecepcion"
+                  onChange={handleChange}
+                  value={Inventario.fechaRecepcion}
+                />
+                {error.fechaRecepcion && (
+                  <div className="invalid-feedback">
+                    {error.fechaRecepcion}
+                  </div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text">N° Orden de compra</dt>
+                <input
+                  type="text"
+                  className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""}`}
+                  maxLength={12}
+                  name="nOrdenCompra"
+                  onChange={handleChange}
+                  value={Inventario.nOrdenCompra}
+                />
+                {error.nOrdenCompra && (
+                  <div className="invalid-feedback">{error.nOrdenCompra}</div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text-muted">Nº factura</dt>
+                <input
+                  type="text"
+                  className={`form-control ${error.nFactura ? "is-invalid" : ""}`}
+                  maxLength={12}
+                  name="nFactura"
+                  onChange={handleChange}
+                  value={Inventario.nFactura}
 
-                  />
-                  {error.fechaFactura && (
-                    <div className="invalid-feedback">{error.fechaFactura}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <dt className="text-muted">Rut Proveedor</dt>
-                  <input
-                    type="text"
-                    className={`form-control ${error.rutProveedor ? "is-invalid" : ""}`}
-                    maxLength={12}
-                    name="rutProveedor"
-                    onChange={handleChange}
-                    value={Inventario.rutProveedor}
+                />
+                {error.nFactura && (
+                  <div className="invalid-feedback">{error.nFactura}</div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text-muted">Origen Presupuesto</dt>
+                <select
+                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""}`}
+                  name="origenPresupuesto"
+                  onChange={handleChange}
+                  value={Inventario.origenPresupuesto}
 
-                  />
-                  {error.rutProveedor && (
-                    <div className="invalid-feedback">{error.rutProveedor}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <dt className="text-muted">Nombre Proveedor</dt>
-                  <input
-                    type="text"
-                    className={`form-control ${error.nombreProveedor ? "is-invalid" : ""}`}
-                    maxLength={30}
-                    name="nombreProveedor"
-                    onChange={handleChange}
-                    value={Inventario.nombreProveedor}
+                >
+                  <option value="">Seleccione un origen</option>
+                  {comboOrigen.map((traeOrigen) => (
+                    <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
+                      {traeOrigen.descripcion}
+                    </option>
+                  ))}
+                </select>
+                {error.origenPresupuesto && (
+                  <div className="invalid-feedback">
+                    {error.origenPresupuesto}
+                  </div>
+                )}
+              </div>
+            </Col>
+            <Col md={6}>
+              <div className="mb-1">
+                <dt className="text-muted">Monto Recepción</dt>
+                <input
+                  type="text"
+                  className={`form-control ${error.montoRecepcion ? "is-invalid" : ""}`}
+                  maxLength={12}
+                  name="montoRecepcion"
+                  onChange={handleChange}
+                  // value={isMontoRecepcionEdited ? Inventario.montoRecepcion : montoRecepcion}
+                  value={Inventario.montoRecepcion}
 
-                  />
-                  {error.nombreProveedor && (
-                    <div className="invalid-feedback">
-                      {error.nombreProveedor}
-                    </div>
-                  )}
-                </div>
+                />
+                {error.montoRecepcion && (
+                  <div className="invalid-feedback">
+                    {error.montoRecepcion}
+                  </div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text-muted">Fecha Factura</dt>
+                <input
+                  type="date"
+                  className={`form-control ${error.fechaFactura ? "is-invalid" : ""}`}
+                  name="fechaFactura"
+                  onChange={handleChange}
+                  value={Inventario.fechaFactura}
+
+                />
+                {error.fechaFactura && (
+                  <div className="invalid-feedback">{error.fechaFactura}</div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text-muted">Rut Proveedor</dt>
+                <input
+                  type="text"
+                  className={`form-control ${error.rutProveedor ? "is-invalid" : ""}`}
+                  maxLength={12}
+                  name="rutProveedor"
+                  onChange={handleChange}
+                  value={Inventario.rutProveedor}
+
+                />
+                {error.rutProveedor && (
+                  <div className="invalid-feedback">{error.rutProveedor}</div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text-muted">Nombre Proveedor</dt>
+                <input
+                  type="text"
+                  className={`form-control ${error.nombreProveedor ? "is-invalid" : ""}`}
+                  maxLength={30}
+                  name="nombreProveedor"
+                  onChange={handleChange}
+                  value={Inventario.nombreProveedor}
+
+                />
+                {error.nombreProveedor && (
+                  <div className="invalid-feedback">
+                    {error.nombreProveedor}
+                  </div>
+                )}
+              </div>
+              <div className="mb-1">
+                <dt className="text-muted">Modalida de Compra</dt>
+                <select
+                  className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""}`}
+                  name="modalidadDeCompra"
+                  onChange={handleChange}
+                  value={Inventario.modalidadDeCompra}
+
+                >
+                  <option value="">Seleccione una modalidad</option>
+                  {comboModalidad.map((traeModalidad) => (
+                    <option
+                      key={traeModalidad.codigo}
+                      value={traeModalidad.codigo}
+                    >
+                      {traeModalidad.descripcion}
+                    </option>
+                  ))}
+                </select>
+                {error.modalidadDeCompra && (
+                  <div className="invalid-feedback">
+                    {error.modalidadDeCompra}
+                  </div>
+                )}
+              </div>
+
+              {showInput && (
                 <div className="mb-1">
                   <dt className="text-muted">Modalida de Compra</dt>
-                  <select
-                    className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""}`}
+                  <input
+                    type="text"
+                    className={`form-control ${error.modalidadDeCompra ? "is-invalid" : ""}`}
                     name="modalidadDeCompra"
-                    onChange={handleChange}
-                    value={Inventario.modalidadDeCompra}
-
-                  >
-                    <option value="">Seleccione una modalidad</option>
-                    {comboModalidad.map((traeModalidad) => (
-                      <option
-                        key={traeModalidad.codigo}
-                        value={traeModalidad.codigo}
-                      >
-                        {traeModalidad.descripcion}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Especifique otro"
+                    onChange={(e) =>
+                      setInventario({
+                        ...Inventario,
+                        modalidadDeCompra: parseInt(e.target.value),
+                      })
+                    }
+                  />
                   {error.modalidadDeCompra && (
                     <div className="invalid-feedback">
                       {error.modalidadDeCompra}
                     </div>
                   )}
                 </div>
-
-                {showInput && (
-                  <div className="mb-1">
-                    <dt className="text-muted">Modalida de Compra</dt>
-                    <input
-                      type="text"
-                      className={`form-control ${error.modalidadDeCompra ? "is-invalid" : ""}`}
-                      name="modalidadDeCompra"
-                      placeholder="Especifique otro"
-                      onChange={(e) =>
-                        setInventario({
-                          ...Inventario,
-                          modalidadDeCompra: parseInt(e.target.value),
-                        })
-                      }
-                    />
-                    {error.modalidadDeCompra && (
-                      <div className="invalid-feedback">
-                        {error.modalidadDeCompra}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Col>
-            </Row>
+              )}
+            </Col>
+          </Row>
+          <div className="rounded bg-white d-flex justify-content-end m-2">
+            <button type="submit" className="btn btn-primary ">
+              Siguiente
+            </button>
           </div>
-        </div>
-        <div className="p-1 rounded bg-white d-flex justify-content-end ">
-          <button type="submit" className="btn btn-primary ">
-            Siguiente
-          </button>
         </div>
       </form>
     </>
@@ -485,4 +509,6 @@ const mapStateToProps = (state: RootState) => ({
   datosInventarioCompleto: state.datosInventarioReducer.datosInventarioCompleto,
 });
 
-export default connect(mapStateToProps, {})(Datos_inventario);
+export default connect(mapStateToProps, {
+  obtenerRecepcionActions
+})(Datos_inventario);

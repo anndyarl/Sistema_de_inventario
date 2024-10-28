@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import Error404 from '../../containers/errors/Error404';
 import Login from '../../containers/pages/Login';
-import Home from '../../containers/pages/Home';
 import Traslados from '../../containers/pages/Traslados';
 import Altas from '../../containers/pages/Altas';
 import Inventario from '../../containers/pages/Inventario';
@@ -16,17 +15,19 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { checkAuthStatus } from '../../redux/actions/auth/auth';
 import { AppDispatch } from '../../store';
-import FormInventario from '../../components/Inventario/RegistrarInventario/FormInventario';
+
 import FormBienesFuncionarios from '../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
 import ModificarInventario from '../../components/Inventario/ModificarInventario/ModificarInventario';
 
-
-
+import AnularInventario from '../../components/Inventario/AnularInventario/AnularInventario';
+import Inicio from '../../containers/pages/Inicio';
+import FormInventario from '../../components/Inventario/RegistrarInventario/FormInventario';
 
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
     const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch
+
 
     useEffect(() => {
         dispatch(checkAuthStatus()); // Verifica el estado de autenticación al inicio
@@ -44,14 +45,16 @@ const AnimatedRoutes: React.FC = () => {
                 {/* <Route path="/ClaveUnica" element={<ClaveUnica/>} />  */}
 
                 {/* Menu principal */}
+                <Route path="/Inicio" element={<Inicio />} />
                 <Route path="/" element={<ClaveUnica />} />
-                <Route path="/Home" element={<Home />} />
 
                 {/* Menu Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />
                 <Route path="/FormInventario" element={<FormInventario />} />
                 <Route path="/ModificarInventario" element={<ModificarInventario />} />
+                <Route path="/AnularInventario" element={<AnularInventario />} />
                 <Route path="/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+
                 {/* Fin Menu Inventario */}
 
 
