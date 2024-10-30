@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { Button, Modal } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Button, Modal } from "react-bootstrap";
 
-import { logout } from '../../redux/actions/auth/auth'; // Importa la acción de logout
-import { connect, useDispatch } from 'react-redux';
-import { RootState } from '../../redux/reducers';
-import { AppDispatch, persistor } from '../../store';
-
+import { logout } from "../../redux/actions/auth/auth"; // Importa la acción de logout
+import { connect, useDispatch } from "react-redux";
+import { RootState } from "../../redux/reducers";
+import { AppDispatch, persistor } from "../../store";
 
 interface LogoutProps {
   logout: () => void;
@@ -44,9 +43,10 @@ const Logout: React.FC<LogoutProps> = ({ logout }) => {
         </Modal.Header>
         <Modal.Body className="text-center">
           <p className="fs-5 mb-4">
-            Si deseas salir, haz clic en <strong>"Cerrar Sesión"</strong> de lo contrario <strong>"Cancelar"</strong>
+            Si deseas salir, haz clic en <strong>"Cerrar Sesión"</strong> de lo
+            contrario <strong>"Cancelar"</strong>
           </p>
-          <form >
+          <form>
             <div className="d-flex justify-content-center gap-3">
               <Button
                 onClick={handleLogout}
@@ -55,10 +55,7 @@ const Logout: React.FC<LogoutProps> = ({ logout }) => {
               >
                 Cerrar Sesión
               </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setShowModal(false)}
-              >
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
                 Cancelar
               </Button>
             </div>
@@ -66,25 +63,38 @@ const Logout: React.FC<LogoutProps> = ({ logout }) => {
         </Modal.Body>
       </Modal>
 
-      <Button onClick={handleShowModal} className="btn btn-outline-light w-100 d-flex align-items-center justify-content-center text-dark bg-white" >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-left" viewBox="0 0 16 16">
-          <path fillRule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z" />
-          <path fillRule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z" />
+      <Button
+        onClick={handleShowModal}
+        className="btn btn-outline-light w-100 d-flex align-items-center justify-content-center text-dark bg-white"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          className="bi bi-box-arrow-left"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fillRule="evenodd"
+            d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z"
+          />
+          <path
+            fillRule="evenodd"
+            d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z"
+          />
         </svg>
-        <div className='m-1'> Cerrar Sesión</div>
+        <div className="m-1"> Cerrar Sesión</div>
       </Button>
-
     </>
   );
-}
+};
 
-//mapea los valores del estado global de Redux 
+//mapea los valores del estado global de Redux
 const mapStateToProps = (state: RootState) => ({
-  logout: state.auth.logout
-
+  logout: state.loginReducer.logout,
 });
 
-export default connect(mapStateToProps,
-  {
-    logout
-  })(Logout);
+export default connect(mapStateToProps, {
+  logout,
+})(Logout);

@@ -11,7 +11,7 @@ const persistConfig = {
   key: 'root',
   storage,
   // whitelist: ['auth', 'datosInventarioReducer', 'comboDependenciaReducer', 'comboListadoDeEspeciesBien', 'comboCuentaReducer']// Se agregan los datos a persistir en el navegador
-  whitelist: ['auth']
+  whitelist: ['loginReducer']
 };
 
 // Reducer persistente

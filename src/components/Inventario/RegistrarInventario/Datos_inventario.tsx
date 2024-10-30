@@ -51,7 +51,7 @@ interface Datos_inventarioProps extends InventarioProps {
   onNext: (Inventario: InventarioProps) => void;
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
-  datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio 
+  datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
 }
 
@@ -71,8 +71,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   origenPresupuesto,
   rutProveedor,
   datosTablaActivoFijo,
-  obtenerRecepcionActions
-
+  obtenerRecepcionActions,
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
     fechaFactura: "",
@@ -89,29 +88,45 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
   const dispatch = useDispatch<AppDispatch>();
   const [showInput, setShowInput] = useState(false);
-  const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
+  const [error, setError] = useState<
+    Partial<InventarioProps> & { general?: string; generalTabla?: string }
+  >({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(' ');
+    return classes.filter(Boolean).join(" ");
   };
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.nRecepcion) tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
-    if (!Inventario.fechaRecepcion) tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
-    if (!Inventario.nOrdenCompra) tempErrors.nOrdenCompra = "El N° de Orden de Compra es obligatorio.";
-    else if (isNaN(Inventario.nOrdenCompra)) tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
-    if (!Inventario.nFactura) tempErrors.nFactura = "El N° de Factura es obligatorio.";
-    if (!Inventario.origenPresupuesto) tempErrors.origenPresupuesto = "El Origen de Presupuesto es obligatorio.";
-    if (!Inventario.montoRecepcion) tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
-    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion))) tempErrors.montoRecepcion =
-      "El Monto debe ser un número válido con hasta dos decimales.";
-    if (!Inventario.fechaFactura) tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
-    if (!Inventario.rutProveedor) tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
-    if (!Inventario.nombreProveedor) tempErrors.nombreProveedor = "El Nombre del Proveedor es obligatorio.";
-    else if (Inventario.nombreProveedor.length > 30) tempErrors.nombreProveedor = "El Nombre no debe exceder los 30 caracteres.";
-    if (!Inventario.modalidadDeCompra) tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
+    if (!Inventario.nRecepcion)
+      tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
+    if (!Inventario.fechaRecepcion)
+      tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
+    if (!Inventario.nOrdenCompra)
+      tempErrors.nOrdenCompra = "El N° de Orden de Compra es obligatorio.";
+    else if (isNaN(Inventario.nOrdenCompra))
+      tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
+    if (!Inventario.nFactura)
+      tempErrors.nFactura = "El N° de Factura es obligatorio.";
+    if (!Inventario.origenPresupuesto)
+      tempErrors.origenPresupuesto = "El Origen de Presupuesto es obligatorio.";
+    if (!Inventario.montoRecepcion)
+      tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
+    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion)))
+      tempErrors.montoRecepcion =
+        "El Monto debe ser un número válido con hasta dos decimales.";
+    if (!Inventario.fechaFactura)
+      tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
+    if (!Inventario.rutProveedor)
+      tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
+    if (!Inventario.nombreProveedor)
+      tempErrors.nombreProveedor = "El Nombre del Proveedor es obligatorio.";
+    else if (Inventario.nombreProveedor.length > 30)
+      tempErrors.nombreProveedor =
+        "El Nombre no debe exceder los 30 caracteres.";
+    if (!Inventario.modalidadDeCompra)
+      tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
     else if (showInput && Inventario.modalidadDeCompra === 7) {
       tempErrors.modalidadDeCompra = "Especifique la Modalidad de Compra.";
     }
@@ -167,7 +182,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     } else {
       setShowInput(false);
     }
-
   };
 
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
@@ -184,7 +198,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       origenPresupuesto,
       rutProveedor,
     });
-
   }, [
     fechaFactura,
     fechaRecepcion,
@@ -197,7 +210,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     origenPresupuesto,
     rutProveedor,
   ]);
-  const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleRecepcionSubmit = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
     if (!Inventario.nRecepcion) {
@@ -213,10 +228,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     // Despacha la acción para obtener la recepción en el formulario de activos fijos
     const resultado = await obtenerRecepcionActions(Inventario.nRecepcion);
     if (resultado) {
-
       setLoading(false);
     }
-
   };
   // const handleLimpiar = () => {
   //   setInventario((prevInventario) => ({
@@ -253,13 +266,13 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     }
   };
 
-
-
   return (
     <>
       <form onSubmit={handleSubmit}>
         <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold border-bottom">Registro Inventario</h3>
+          <h3 className="form-title fw-semibold border-bottom p-1">
+            Registro de Inventario
+          </h3>
           <Row>
             <Col md={6}>
               <div className="mb-1">
@@ -267,7 +280,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <div className="d-flex align-items-center">
                   <input
                     type="text"
-                    className={`form-control ${error.nRecepcion ? "is-invalid" : ""} w-100`}
+                    className={`form-control ${
+                      error.nRecepcion ? "is-invalid" : ""
+                    } w-100`}
                     maxLength={12}
                     name="nRecepcion"
                     onChange={handleChange}
@@ -280,12 +295,20 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   >
                     {loading ? (
                       <>
-                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                        />
                       </>
                     ) : (
-                      <Search className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                      <Search
+                        className={classNames("flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />
                     )}
-
                   </Button>
                   {/* <Button
                     onClick={handleLimpiar}
@@ -304,22 +327,24 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <dt className="text-muted">Fecha Recepción</dt>
                 <input
                   type="date"
-                  className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.fechaRecepcion ? "is-invalid" : ""
+                  }`}
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion}
                 />
                 {error.fechaRecepcion && (
-                  <div className="invalid-feedback">
-                    {error.fechaRecepcion}
-                  </div>
+                  <div className="invalid-feedback">{error.fechaRecepcion}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text">N° Orden de compra</dt>
                 <input
                   type="text"
-                  className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.nOrdenCompra ? "is-invalid" : ""
+                  }`}
                   maxLength={12}
                   name="nOrdenCompra"
                   onChange={handleChange}
@@ -333,12 +358,13 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <dt className="text-muted">Nº factura</dt>
                 <input
                   type="text"
-                  className={`form-control ${error.nFactura ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.nFactura ? "is-invalid" : ""
+                  }`}
                   maxLength={12}
                   name="nFactura"
                   onChange={handleChange}
                   value={Inventario.nFactura}
-
                 />
                 {error.nFactura && (
                   <div className="invalid-feedback">{error.nFactura}</div>
@@ -347,11 +373,12 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
               <div className="mb-1">
                 <dt className="text-muted">Origen Presupuesto</dt>
                 <select
-                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""}`}
+                  className={`form-select ${
+                    error.origenPresupuesto ? "is-invalid" : ""
+                  }`}
                   name="origenPresupuesto"
                   onChange={handleChange}
                   value={Inventario.origenPresupuesto}
-
                 >
                   <option value="">Seleccione un origen</option>
                   {comboOrigen.map((traeOrigen) => (
@@ -372,29 +399,29 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <dt className="text-muted">Monto Recepción</dt>
                 <input
                   type="text"
-                  className={`form-control ${error.montoRecepcion ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.montoRecepcion ? "is-invalid" : ""
+                  }`}
                   maxLength={12}
                   name="montoRecepcion"
                   onChange={handleChange}
                   // value={isMontoRecepcionEdited ? Inventario.montoRecepcion : montoRecepcion}
                   value={Inventario.montoRecepcion}
-
                 />
                 {error.montoRecepcion && (
-                  <div className="invalid-feedback">
-                    {error.montoRecepcion}
-                  </div>
+                  <div className="invalid-feedback">{error.montoRecepcion}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">Fecha Factura</dt>
                 <input
                   type="date"
-                  className={`form-control ${error.fechaFactura ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.fechaFactura ? "is-invalid" : ""
+                  }`}
                   name="fechaFactura"
                   onChange={handleChange}
                   value={Inventario.fechaFactura}
-
                 />
                 {error.fechaFactura && (
                   <div className="invalid-feedback">{error.fechaFactura}</div>
@@ -404,12 +431,13 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <dt className="text-muted">Rut Proveedor</dt>
                 <input
                   type="text"
-                  className={`form-control ${error.rutProveedor ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.rutProveedor ? "is-invalid" : ""
+                  }`}
                   maxLength={12}
                   name="rutProveedor"
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
-
                 />
                 {error.rutProveedor && (
                   <div className="invalid-feedback">{error.rutProveedor}</div>
@@ -419,12 +447,13 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <dt className="text-muted">Nombre Proveedor</dt>
                 <input
                   type="text"
-                  className={`form-control ${error.nombreProveedor ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.nombreProveedor ? "is-invalid" : ""
+                  }`}
                   maxLength={30}
                   name="nombreProveedor"
                   onChange={handleChange}
                   value={Inventario.nombreProveedor}
-
                 />
                 {error.nombreProveedor && (
                   <div className="invalid-feedback">
@@ -435,11 +464,12 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
               <div className="mb-1">
                 <dt className="text-muted">Modalida de Compra</dt>
                 <select
-                  className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""}`}
+                  className={`form-select ${
+                    error.modalidadDeCompra ? "is-invalid" : ""
+                  }`}
                   name="modalidadDeCompra"
                   onChange={handleChange}
                   value={Inventario.modalidadDeCompra}
-
                 >
                   <option value="">Seleccione una modalidad</option>
                   {comboModalidad.map((traeModalidad) => (
@@ -463,7 +493,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   <dt className="text-muted">Modalida de Compra</dt>
                   <input
                     type="text"
-                    className={`form-control ${error.modalidadDeCompra ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      error.modalidadDeCompra ? "is-invalid" : ""
+                    }`}
                     name="modalidadDeCompra"
                     placeholder="Especifique otro"
                     onChange={(e) =>
@@ -510,5 +542,5 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-  obtenerRecepcionActions
+  obtenerRecepcionActions,
 })(Datos_inventario);

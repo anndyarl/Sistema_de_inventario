@@ -1,12 +1,33 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Table, Form, Row, Col, Modal, Pagination, Spinner } from "react-bootstrap";
+import {
+  Button,
+  Table,
+  Form,
+  Row,
+  Col,
+  Modal,
+  Pagination,
+  Spinner,
+} from "react-bootstrap";
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../hocs/layout/Layout";
 import { obtenerInventarioActions } from "../../../redux/actions/Inventario/obtenerInventarioActions";
-import { InventarioProps, MODALIDAD, ORIGEN } from "../RegistrarInventario/Datos_inventario";
-import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO } from "../RegistrarInventario/Datos_cuenta";
+import {
+  InventarioProps,
+  MODALIDAD,
+  ORIGEN,
+} from "../RegistrarInventario/Datos_inventario";
+import {
+  BIEN,
+  CUENTA,
+  CuentaProps,
+  DEPENDENCIA,
+  DETALLE,
+  ListaEspecie,
+  SERVICIO,
+} from "../RegistrarInventario/Datos_cuenta";
 import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
 import Swal from "sweetalert2";
 import { comboDetalleActions } from "../../../redux/actions/combos/comboDetalleActions";
@@ -85,10 +106,15 @@ interface InventarioCompletoProps {
 
   comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   obtenerInventarioActions: (aF_CLAVE: string) => Promise<boolean>;
-  comboDetalleActions: (bienSeleccionado: string) => void
-  comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
-  comboCuentaActions: (nombreEspecie: string) => void
-  modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
+  comboDetalleActions: (bienSeleccionado: string) => void;
+  comboListadoDeEspeciesBienActions: (
+    EST: number,
+    IDBIEN: string
+  ) => Promise<void>;
+  comboCuentaActions: (nombreEspecie: string) => void;
+  modificarFormInventarioActions: (
+    formInventario: Record<string, any>
+  ) => Promise<Boolean>;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
 }
 
@@ -108,53 +134,60 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboDetalleActions,
   comboListadoDeEspeciesBienActions,
   comboCuentaActions,
-  modificarFormInventarioActions
+  modificarFormInventarioActions,
 }) => {
-
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalLista, setMostrarModalLista] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
+  const [elementoSeleccionado, setElementoSeleccionado] =
+    useState<ListaEspecie>();
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 50;
   const [isDisabled, setIsDisabled] = useState(true);
   const [isDisabledNRecepcion, setIsDisabledNRecepcion] = useState(false);
-  const [error, setError] = useState<Partial<InventarioProps> & Partial<CuentaProps> & {}>({});
+  const [error, setError] = useState<
+    Partial<InventarioProps> & Partial<CuentaProps> & {}
+  >({});
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(' ');
+    return classes.filter(Boolean).join(" ");
   };
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
 
   // Asegúrate de que el array tiene datos
-  const index = 0; // Cambia esto al índice que desees  
+  const index = 0; // Cambia esto al índice que desees
   //-------------------------Formulario---------------------------//
   // Campos principales
   const fechaFactura = datosInventarioCompleto[index]?.aF_FECHAFAC
-    ? new Date(datosInventarioCompleto[index]?.aF_FECHAFAC).toISOString().split('T')[0]
-    : '';
+    ? new Date(datosInventarioCompleto[index]?.aF_FECHAFAC)
+        .toISOString()
+        .split("T")[0]
+    : "";
 
   const fechaRecepcion = datosInventarioCompleto[index]?.aF_FINGRESO
-    ? new Date(datosInventarioCompleto[index]?.aF_FINGRESO).toISOString().split('T')[0]
-    : '';
-  const modalidadDeCompra = datosInventarioCompleto[index]?.idmodalidadcompra || 0;
+    ? new Date(datosInventarioCompleto[index]?.aF_FINGRESO)
+        .toISOString()
+        .split("T")[0]
+    : "";
+  const modalidadDeCompra =
+    datosInventarioCompleto[index]?.idmodalidadcompra || 0;
   const montoRecepcion = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0;
-  const nFactura = datosInventarioCompleto[index]?.aF_NUM_FAC || '';
+  const nFactura = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
   const nOrdenCompra = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0; //falta
-  const nRecepcion = datosInventarioCompleto[index]?.aF_CLAVE || '';
-  const nombreProveedor = datosInventarioCompleto[index]?.aF_NUM_FAC || '';
+  const nRecepcion = datosInventarioCompleto[index]?.aF_CLAVE || "";
+  const nombreProveedor = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
   const origenPresupuesto = datosInventarioCompleto[index]?.aF_ORIGEN || 0;
-  const rutProveedor = datosInventarioCompleto[index]?.proV_RUN || 0;//falta
+  const rutProveedor = datosInventarioCompleto[index]?.proV_RUN || 0; //falta
   const dependencia = datosInventarioCompleto[index]?.deP_CORR || 0;
-  const servicio = datosInventarioCompleto[index]?.aF_ORIGEN || 0;//falta
-  const cuenta = datosInventarioCompleto[index]?.aF_ORIGEN || 0;//falta
+  const servicio = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
+  const cuenta = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
 
   // Tabla
   const vidaUtil = datosInventarioCompleto[index]?.aF_VIDAUTIL || 0;
-  const marca = datosInventarioCompleto[index]?.deT_MARCA || '';
-  const modelo = datosInventarioCompleto[index]?.deT_MODELO || '';
-  const serie = datosInventarioCompleto[index]?.deT_SERIE || '';
+  const marca = datosInventarioCompleto[index]?.deT_MARCA || "";
+  const modelo = datosInventarioCompleto[index]?.deT_MODELO || "";
+  const serie = datosInventarioCompleto[index]?.deT_SERIE || "";
   const precio = datosInventarioCompleto[index]?.deT_PRECIO || 0;
-  const especie = datosInventarioCompleto[index]?.esP_CODIGO || '';
+  const especie = datosInventarioCompleto[index]?.esP_CODIGO || "";
 
   const [Inventario, setInventario] = useState({
     fechaFactura: "",
@@ -175,36 +208,56 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     modelo: "",
     serie: "",
     precio: 0,
-    especie: ""
-
+    especie: "",
   });
   const [Especies, setEspecies] = useState({
     estableEspecie: 0,
     codigoEspecie: "",
     nombreEspecie: "",
-    descripcionEspecie: ""
+    descripcionEspecie: "",
   });
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.nRecepcion) tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
-    if (!Inventario.fechaRecepcion) tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
-    if (!Inventario.nOrdenCompra) tempErrors.nOrdenCompra = "El N° de Orden de Compra es obligatorio.";
-    else if (isNaN(Inventario.nOrdenCompra)) tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
-    if (!Inventario.nFactura || Inventario.nFactura === "0") tempErrors.nFactura = "El N° de Factura es obligatorio.";
-    if (!Inventario.origenPresupuesto) tempErrors.origenPresupuesto = "El Origen de Presupuesto es obligatorio.";
-    if (!Inventario.montoRecepcion || Inventario.montoRecepcion === 0) tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
-    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion))) tempErrors.montoRecepcion =
-      "El Monto debe ser un número válido con hasta dos decimales.";
-    if (!Inventario.fechaFactura) tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
-    if (!Inventario.rutProveedor) tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
-    if (!Inventario.nombreProveedor || Inventario.nombreProveedor === "" || Inventario.nombreProveedor === "0") tempErrors.nombreProveedor = "El Nombre del Proveedor es obligatorio.";
-    else if (Inventario.nombreProveedor.length > 30) tempErrors.nombreProveedor = "El Nombre no debe exceder los 30 caracteres.";
-    if (!Inventario.modalidadDeCompra) tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
-    if (!Inventario.servicio) tempErrors.servicio = "EL Servicio es obligatoria.";
-    if (!Inventario.dependencia) tempErrors.dependencia = "La Dependencia es obligatoria.";
-    if (!Inventario.cuenta || Inventario.cuenta === 0) tempErrors.cuenta = "La Cuenta es obligatoria.";
+    if (!Inventario.nRecepcion)
+      tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
+    if (!Inventario.fechaRecepcion)
+      tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
+    if (!Inventario.nOrdenCompra)
+      tempErrors.nOrdenCompra = "El N° de Orden de Compra es obligatorio.";
+    else if (isNaN(Inventario.nOrdenCompra))
+      tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
+    if (!Inventario.nFactura || Inventario.nFactura === "0")
+      tempErrors.nFactura = "El N° de Factura es obligatorio.";
+    if (!Inventario.origenPresupuesto)
+      tempErrors.origenPresupuesto = "El Origen de Presupuesto es obligatorio.";
+    if (!Inventario.montoRecepcion || Inventario.montoRecepcion === 0)
+      tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
+    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion)))
+      tempErrors.montoRecepcion =
+        "El Monto debe ser un número válido con hasta dos decimales.";
+    if (!Inventario.fechaFactura)
+      tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
+    if (!Inventario.rutProveedor)
+      tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
+    if (
+      !Inventario.nombreProveedor ||
+      Inventario.nombreProveedor === "" ||
+      Inventario.nombreProveedor === "0"
+    )
+      tempErrors.nombreProveedor = "El Nombre del Proveedor es obligatorio.";
+    else if (Inventario.nombreProveedor.length > 30)
+      tempErrors.nombreProveedor =
+        "El Nombre no debe exceder los 30 caracteres.";
+    if (!Inventario.modalidadDeCompra)
+      tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
+    if (!Inventario.servicio)
+      tempErrors.servicio = "EL Servicio es obligatoria.";
+    if (!Inventario.dependencia)
+      tempErrors.dependencia = "La Dependencia es obligatoria.";
+    if (!Inventario.cuenta || Inventario.cuenta === 0)
+      tempErrors.cuenta = "La Cuenta es obligatoria.";
     // if (!Inventario.especie) tempErrors.especie = "La Especie es obligatoria.";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -230,8 +283,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       modelo,
       serie,
       precio,
-      especie
-
+      especie,
     });
     //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
     // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
@@ -259,11 +311,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     serie,
     precio,
     especie,
-    Especies.codigoEspecie
-
+    Especies.codigoEspecie,
   ]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     setInventario((prevState) => ({
       ...prevState,
@@ -286,19 +339,18 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       newValue = parseFloat(value) || 0;
     }
 
-    if (name === 'servicio') {
+    if (name === "servicio") {
       comboDependenciaActions(value);
     }
 
-    if (name === 'bien') {
+    if (name === "bien") {
       comboDetalleActions(value);
       console.log("Código del bien seleccionado:", value);
     }
-    if (name === 'detalles') {
+    if (name === "detalles") {
       comboListadoDeEspeciesBienActions(1, value);
       console.log("Código del detalle seleccionado:", value);
     }
-
   };
 
   const handleEdit = () => {
@@ -307,22 +359,35 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       nRecepcion: "",
     }));
     setIsDisabled(true);
-    setIsDisabledNRecepcion(false)
-  }
+    setIsDisabledNRecepcion(false);
+  };
 
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (typeof elementoSeleccionado === 'object' && elementoSeleccionado !== null) {
+    if (
+      typeof elementoSeleccionado === "object" &&
+      elementoSeleccionado !== null
+    ) {
       const estableEspecie = (elementoSeleccionado as ListaEspecie).estabL_CORR;
       const codigoEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO;
-      const nombreEspecie = `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
-      const descripcionEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO + " | " + `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
+      const nombreEspecie = `${
+        (elementoSeleccionado as ListaEspecie).nombrE_ESP
+      }`;
+      const descripcionEspecie =
+        (elementoSeleccionado as ListaEspecie).esP_CODIGO +
+        " | " +
+        `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
       // Actualiza tanto el estado 'Especies' como el estado 'Cuenta.especie'
-      setEspecies({ estableEspecie, codigoEspecie, nombreEspecie, descripcionEspecie });
-      setInventario(inventarioPrevia => ({
+      setEspecies({
+        estableEspecie,
+        codigoEspecie,
+        nombreEspecie,
+        descripcionEspecie,
+      });
+      setInventario((inventarioPrevia) => ({
         ...inventarioPrevia,
-        especie: codigoEspecie.toString(),  // Actualiza el campo 'especie' en el estado de 'Inventario'
+        especie: codigoEspecie.toString(), // Actualiza el campo 'especie' en el estado de 'Inventario'
       }));
       // Resetea el estado de las filas seleccionadas para desmarcar el checkbox
       setFilasSeleccionadas([]);
@@ -340,7 +405,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     // console.log("Elemento seleccionado", item);
   };
 
-  const handleInventarioSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleInventarioSubmit = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     let resultado = false;
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
@@ -362,62 +429,59 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         confirmButtonText: "Ok",
       });
       setIsDisabled(true);
-      setIsDisabledNRecepcion(false)
+      setIsDisabledNRecepcion(false);
       setLoading(false); //Finaliza estado de carga
       return;
-    }
-    else {
+    } else {
       setIsDisabled(false);
-      setIsDisabledNRecepcion(true)
+      setIsDisabledNRecepcion(true);
       setLoading(false); //Finaliza estado de carga
     }
-
-  }
+  };
   const handleValidar = () => {
     console.log("campos", Inventario);
     if (validate()) {
       Swal.fire({
-        icon: 'info',
+        icon: "info",
         // title: 'Confirmar',
-        text: 'Confirmar la modificación del formulario',
+        text: "Confirmar la modificación del formulario",
         showDenyButton: false,
         showCancelButton: true,
-        confirmButtonText: "Confirmar y modificar"
-
+        confirmButtonText: "Confirmar y modificar",
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           Swal.fire("Modificación realizada corectamente", "", "success");
-          handleSubmit()
+          handleSubmit();
         }
       });
     }
-  }
+  };
 
   const handleSubmit = async () => {
     const resultado = await modificarFormInventarioActions(Inventario);
     if (resultado) {
       Swal.fire({
-        icon: 'success',
-        title: 'Actualización exitosa',
-        text: 'Se ha actualizado el registro con éxito!',
+        icon: "success",
+        title: "Actualización exitosa",
+        text: "Se ha actualizado el registro con éxito!",
       });
-    }
-    else {
+    } else {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Hubo un problema al actualizar el registro.',
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al actualizar el registro.",
       });
     }
-
   };
-
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => listaEspecie.slice(indicePrimerElemento, indiceUltimoElemento), [listaEspecie, indicePrimerElemento, indiceUltimoElemento]);
+  const elementosActuales = useMemo(
+    () => listaEspecie.slice(indicePrimerElemento, indiceUltimoElemento),
+    [listaEspecie, indicePrimerElemento, indiceUltimoElemento]
+  );
   const totalPaginas = Math.ceil(listaEspecie.length / elementosPorPagina);
   // const totalPaginas = Array.isArray(listaEspecie) ? Math.ceil(listaEspecie.length / elementosPorPagina) : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
@@ -426,7 +490,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     <Layout>
       <form onSubmit={handleSubmit}>
         <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold">Modificar Inventario</h3>
+          <h3 className="form-title fw-semibold border-bottom p-1">
+            Modificar Inventario
+          </h3>
           <Row>
             <Col md={4}>
               <div className="mb-1">
@@ -434,7 +500,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <div className="d-flex align-items-center">
                   <input
                     type="text"
-                    className={`form-control ${error.nRecepcion ? "is-invalid" : ""} w-100`}
+                    className={`form-control ${
+                      error.nRecepcion ? "is-invalid" : ""
+                    } w-100`}
                     maxLength={12}
                     name="nRecepcion"
                     onChange={handleChange}
@@ -449,18 +517,31 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   >
                     {loading ? (
                       <>
-                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                        />
                       </>
                     ) : (
-                      <Search className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                      <Search
+                        className={classNames("flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />
                     )}
                   </Button>
 
                   <Button
                     onClick={handleEdit}
                     variant="primary"
-                    className="ms-1"                    >
-                    <Pencil className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                    className="ms-1"
+                  >
+                    <Pencil
+                      className={classNames("flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </div>
                 {error.nRecepcion && (
@@ -473,23 +554,25 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <dt className="text-muted">Fecha Recepción</dt>
                 <input
                   type="date"
-                  className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.fechaRecepcion ? "is-invalid" : ""
+                  }`}
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion || fechaRecepcion}
                   disabled={isDisabled}
                 />
                 {error.fechaRecepcion && (
-                  <div className="invalid-feedback">
-                    {error.fechaRecepcion}
-                  </div>
+                  <div className="invalid-feedback">{error.fechaRecepcion}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">N° Orden de compra</dt>
                 <input
                   type="text"
-                  className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.nOrdenCompra ? "is-invalid" : ""
+                  }`}
                   maxLength={12}
                   name="nOrdenCompra"
                   onChange={handleChange}
@@ -504,7 +587,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <dt className="text-muted">Nº factura</dt>
                 <input
                   type="text"
-                  className={`form-control ${error.nFactura ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    error.nFactura ? "is-invalid" : ""
+                  }`}
                   maxLength={12}
                   name="nFactura"
                   onChange={handleChange}
@@ -512,14 +597,15 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   disabled={isDisabled}
                 />
                 {error.nFactura && (
-                  <div className="invalid-feedback">
-                    {error.nFactura}</div>
+                  <div className="invalid-feedback">{error.nFactura}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">Origen Presupuesto</dt>
                 <select
-                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""}`}
+                  className={`form-select ${
+                    error.origenPresupuesto ? "is-invalid" : ""
+                  }`}
                   name="origenPresupuesto"
                   onChange={handleChange}
                   value={Inventario.origenPresupuesto || origenPresupuesto}
@@ -542,54 +628,67 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             <Col md={4}>
               <div className="mb-1">
                 <dt className="text-muted">Monto Recepción</dt>
-                <input type="text"
-                  className={`form-select ${error.montoRecepcion ? "is-invalid" : ""}`}
+                <input
+                  type="text"
+                  className={`form-select ${
+                    error.montoRecepcion ? "is-invalid" : ""
+                  }`}
                   maxLength={12}
                   name="montoRecepcion"
                   onChange={handleChange}
-                  value={Inventario.montoRecepcion || montoRecepcion} disabled={isDisabled} />
+                  value={Inventario.montoRecepcion || montoRecepcion}
+                  disabled={isDisabled}
+                />
                 {error.montoRecepcion && (
-                  <div className="invalid-feedback">
-                    {error.montoRecepcion}
-                  </div>
+                  <div className="invalid-feedback">{error.montoRecepcion}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">Fecha Factura</dt>
-                <input type="date"
-                  className={`form-select ${error.fechaFactura ? "is-invalid" : ""}`}
+                <input
+                  type="date"
+                  className={`form-select ${
+                    error.fechaFactura ? "is-invalid" : ""
+                  }`}
                   name="fechaFactura"
                   onChange={handleChange}
-                  value={Inventario.fechaFactura || fechaFactura} disabled={isDisabled} />
+                  value={Inventario.fechaFactura || fechaFactura}
+                  disabled={isDisabled}
+                />
                 {error.fechaFactura && (
-                  <div className="invalid-feedback">
-                    {error.fechaFactura}
-                  </div>
+                  <div className="invalid-feedback">{error.fechaFactura}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">Rut Proveedor</dt>
-                <input type="text"
-                  className={`form-select ${error.rutProveedor ? "is-invalid" : ""}`}
+                <input
+                  type="text"
+                  className={`form-select ${
+                    error.rutProveedor ? "is-invalid" : ""
+                  }`}
                   maxLength={8}
                   name="rutProveedor"
                   onChange={handleChange}
-                  value={Inventario.rutProveedor || rutProveedor} disabled={isDisabled} />
+                  value={Inventario.rutProveedor || rutProveedor}
+                  disabled={isDisabled}
+                />
                 {error.rutProveedor && (
-                  <div className="invalid-feedback">
-                    {error.rutProveedor}
-                  </div>
+                  <div className="invalid-feedback">{error.rutProveedor}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">Nombre Proveedor</dt>
-                <input type="text"
-                  className={`form-select ${error.nombreProveedor ? "is-invalid" : ""}`}
+                <input
+                  type="text"
+                  className={`form-select ${
+                    error.nombreProveedor ? "is-invalid" : ""
+                  }`}
                   maxLength={30}
                   name="nombreProveedor"
                   onChange={handleChange}
                   value={Inventario.nombreProveedor}
-                  disabled={isDisabled} />
+                  disabled={isDisabled}
+                />
                 {error.nombreProveedor && (
                   <div className="invalid-feedback">
                     {error.nombreProveedor}
@@ -599,18 +698,23 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               <div className="mb-1">
                 <dt className="text-muted">Modalida de Compra</dt>
                 <select
-                  className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""}`}
+                  className={`form-select ${
+                    error.modalidadDeCompra ? "is-invalid" : ""
+                  }`}
                   name="modalidadDeCompra"
                   onChange={handleChange}
                   value={Inventario.modalidadDeCompra || modalidadDeCompra}
-                  disabled={isDisabled}>
+                  disabled={isDisabled}
+                >
                   <option value="">Seleccione una modalidad</option>
                   {comboModalidad.map((traeModalidad) => (
-                    <option key={traeModalidad.codigo} value={traeModalidad.codigo}>
+                    <option
+                      key={traeModalidad.codigo}
+                      value={traeModalidad.codigo}
+                    >
                       {traeModalidad.descripcion}
                     </option>
                   ))}
-
                 </select>
                 {error.modalidadDeCompra && (
                   <div className="invalid-feedback">
@@ -623,62 +727,51 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               <div className="mb-1">
                 <dt className="text-muted">Servicio</dt>
                 <select
-                  className={`form-select ${error.servicio ? "is-invalid" : ""}`}
+                  className={`form-select ${
+                    error.servicio ? "is-invalid" : ""
+                  }`}
                   name="servicio"
                   onChange={handleChange}
-                  value={Inventario.servicio || servicio} disabled={isDisabled}>
+                  value={Inventario.servicio || servicio}
+                  disabled={isDisabled}
+                >
                   <option value="">Seleccione un origen</option>
                   {comboServicio.map((traeServicio) => (
-                    <option key={traeServicio.codigo} value={traeServicio.codigo}>
+                    <option
+                      key={traeServicio.codigo}
+                      value={traeServicio.codigo}
+                    >
                       {traeServicio.nombrE_ORD}
                     </option>
                   ))}
                 </select>
                 {error.servicio && (
-                  <div className="invalid-feedback">
-                    {error.servicio}
-                  </div>
+                  <div className="invalid-feedback">{error.servicio}</div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">Dependencia</dt>
                 <select
-                  className={`form-select ${error.dependencia ? "is-invalid" : ""}`}
+                  className={`form-select ${
+                    error.dependencia ? "is-invalid" : ""
+                  }`}
                   name="dependencia"
                   onChange={handleChange}
-                  value={Inventario.dependencia || dependencia} disabled={isDisabled}>
-                  <option value="" >Selecciona una opción</option>
+                  value={Inventario.dependencia || dependencia}
+                  disabled={isDisabled ? isDisabled : !Inventario.servicio}
+                >
+                  <option value="">Selecciona una opción</option>
                   {comboDependencia.map((traeDependencia) => (
-                    <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
+                    <option
+                      key={traeDependencia.codigo}
+                      value={traeDependencia.codigo}
+                    >
                       {traeDependencia.nombrE_ORD}
                     </option>
                   ))}
                 </select>
                 {error.dependencia && (
-                  <div className="invalid-feedback">
-                    {error.dependencia}
-                  </div>
-                )}
-              </div>
-              <div className="mb-1">
-                <dt className="text-muted">Cuenta</dt>
-                <select
-                  className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
-                  name="cuenta"
-                  onChange={handleChange}
-                  value={Inventario.cuenta || cuenta || 0}
-                  disabled={isDisabled}>
-                  <option value="">Selecciona una opción</option>
-                  {comboCuenta.map((traeCuentas) => (
-                    <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                      {traeCuentas.descripcion}
-                    </option>
-                  ))}
-                </select>
-                {error.cuenta && (
-                  <div className="invalid-feedback">
-                    {error.cuenta}
-                  </div>
+                  <div className="invalid-feedback">{error.dependencia}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -687,15 +780,27 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   <input
                     type="text"
                     name="especie"
-                    value={Especies.descripcionEspecie || especie || 'Haz clic en más para seleccionar una especie'}
+                    value={
+                      Especies.descripcionEspecie ||
+                      especie ||
+                      "Haz clic en más para seleccionar una especie"
+                    }
                     onChange={handleChange}
                     disabled
                     // className={`form-select ${error.especie ? "is-invalid" : ""}`}
                     className="form-select"
                   />
                   {/* Botón para abrir el modal y seleccionar una especie */}
-                  <Button variant="primary" onClick={() => setMostrarModal(true)} className="ms-1" disabled={isDisabled} >
-                    <Pencil className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                  <Button
+                    variant="primary"
+                    onClick={() => setMostrarModal(true)}
+                    className="ms-1"
+                    disabled={isDisabled}
+                  >
+                    <Pencil
+                      className={classNames("flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </dd>
                 {/* {error.especie && (
@@ -705,39 +810,82 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   )} */}
               </div>
               <div className="mb-1">
+                <dt className="text-muted">Cuenta</dt>
+                <select
+                  className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
+                  name="cuenta"
+                  onChange={handleChange}
+                  value={Inventario.cuenta || cuenta || 0}
+                  disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                >
+                  <option value="">Selecciona una opción</option>
+                  {comboCuenta.map((traeCuentas) => (
+                    <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                      {traeCuentas.descripcion}
+                    </option>
+                  ))}
+                </select>
+                {error.cuenta && (
+                  <div className="invalid-feedback">{error.cuenta}</div>
+                )}
+              </div>
+
+              <div className="mb-1">
                 <dt className="text-muted">Activos fijos</dt>
                 <dd className="d-flex align-items-center">
-                  <p className="text-right w-100 border p-2 m-0 rounded">Detalles activos fijos</p>
+                  <p className="text-right w-100 border p-2 m-0 rounded">
+                    Detalles activos fijos
+                  </p>
                   {/* Botón para abrir el modal y seleccionar una especie */}
-                  <Button variant="primary" onClick={() => setMostrarModalLista(true)} className="ms-1" disabled={isDisabled} >
-                    <Eye className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                  <Button
+                    variant="primary"
+                    onClick={() => setMostrarModalLista(true)}
+                    className="ms-1"
+                    disabled={isDisabled}
+                  >
+                    <Eye
+                      className={classNames("flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />
                   </Button>
                 </dd>
               </div>
             </Col>
           </Row>
           <div className="p-1 rounded bg-white d-flex justify-content-end">
-
-            <Button variant="btn btn-primary m-1" disabled={isDisabled} onClick={handleValidar}>Validar</Button>
-
+            <Button
+              variant="btn btn-primary m-1"
+              disabled={isDisabled}
+              onClick={handleValidar}
+            >
+              Validar
+            </Button>
           </div>
         </div>
       </form>
 
       {/* Modal especies*/}
-      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
+      <Modal
+        show={mostrarModal}
+        onHide={() => setMostrarModal(false)}
+        size="lg"
+      >
         <Modal.Header closeButton>
-          <Modal.Title className='fw-semibold'>Listado de Especies</Modal.Title>
+          <Modal.Title className="fw-semibold">Listado de Especies</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={handleSubmitSeleccionado}>
             <Row>
               <Col md={12}>
-                <div className='d-flex justify-content-between'>
+                <div className="d-flex justify-content-between">
                   <div className="mb-1 w-50">
                     <dt className="text-muted">Bien</dt>
                     <dd className="d-flex align-items-center">
-                      <select name="bien" className="form-select" onChange={handleChange} >
+                      <select
+                        name="bien"
+                        className="form-select"
+                        onChange={handleChange}
+                      >
                         {comboBien.map((traeBien) => (
                           <option key={traeBien.codigo} value={traeBien.codigo}>
                             {traeBien.descripcion}
@@ -748,17 +896,28 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                   <div className="d-flex justify-content-end p-4">
                     <Button variant="primary" type="submit">
-                      Seleccionar <Check2Circle className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                      Seleccionar{" "}
+                      <Check2Circle
+                        className={classNames("flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />
                     </Button>
                   </div>
                 </div>
                 <div className="mb-1 w-50">
                   <dt className="text-muted">Detalles</dt>
                   <dd className="d-flex align-items-center">
-                    <select name="detalles" className="form-select" onChange={handleChange} >
+                    <select
+                      name="detalles"
+                      className="form-select"
+                      onChange={handleChange}
+                    >
                       <option value="">Selecciona una opción</option>
                       {comboDetalle.map((traeDetalles) => (
-                        <option key={traeDetalles.codigo} value={traeDetalles.codigo}>
+                        <option
+                          key={traeDetalles.codigo}
+                          value={traeDetalles.codigo}
+                        >
                           {traeDetalles.descripcion}
                         </option>
                       ))}
@@ -776,7 +935,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           </form>
 
           {/* Tabla*/}
-          <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+          <div style={{ maxHeight: "500px", overflowY: "auto" }}>
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -792,8 +951,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     <td>
                       <Form.Check
                         type="checkbox"
-                        onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
-                        checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
+                        onChange={() =>
+                          handleSeleccionFila(indicePrimerElemento + index)
+                        }
+                        checked={filasSeleccionadas.includes(
+                          (indicePrimerElemento + index).toString()
+                        )}
                       />
                     </td>
                     <td>{listadoEspecies.estabL_CORR}</td>
@@ -806,12 +969,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           </div>
 
           {/* Paginador */}
-          < Pagination className="d-flex justify-content-end">
-            <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-            <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+          <Pagination className="d-flex justify-content-end">
+            <Pagination.First
+              onClick={() => paginar(1)}
+              disabled={paginaActual === 1}
+            />
+            <Pagination.Prev
+              onClick={() => paginar(paginaActual - 1)}
+              disabled={paginaActual === 1}
+            />
 
             {Array.from({ length: totalPaginas }, (_, i) => (
-
               <Pagination.Item
                 key={i + 1}
                 active={i + 1 === paginaActual}
@@ -819,48 +987,63 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               >
                 {i + 1}
               </Pagination.Item>
-
             ))}
-            <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-            <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+            <Pagination.Next
+              onClick={() => paginar(paginaActual + 1)}
+              disabled={paginaActual === totalPaginas}
+            />
+            <Pagination.Last
+              onClick={() => paginar(totalPaginas)}
+              disabled={paginaActual === totalPaginas}
+            />
           </Pagination>
         </Modal.Body>
-      </Modal >
+      </Modal>
 
       {/* Modal tabla detalles ativos Fijo*/}
-      <Modal show={mostrarModalLista} onHide={() => setMostrarModalLista(false)} size="xl">
+      <Modal
+        show={mostrarModalLista}
+        onHide={() => setMostrarModalLista(false)}
+        size="xl"
+      >
         <Modal.Header closeButton>
-          <Modal.Title className='fw-semibold'>Detalles activo fijo</Modal.Title>
+          <Modal.Title className="fw-semibold">
+            Detalles activo fijo
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <div className="shadow-sm">
             <div className="overflow-auto">
               <Table bordered hover>
-                <thead >
-                  <tr >
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Vida Útil</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Fecha Ingreso</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Marca</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Modelo</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Serie</th>
-                    <th style={{ color: 'white', backgroundColor: '#0d4582' }}>Precio</th>
+                <thead>
+                  <tr>
+                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                      Vida Útil
+                    </th>
+                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                      Fecha Ingreso
+                    </th>
+                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                      Marca
+                    </th>
+                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                      Modelo
+                    </th>
+                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                      Serie
+                    </th>
+                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                      Precio
+                    </th>
                   </tr>
                 </thead>
-                <tbody >
+                <tbody>
                   <tr>
-                    <td>
-                      {vidaUtil}
-                    </td>
-                    <td>
-                      {fechaRecepcion}
-                    </td>
-                    <td>
-                      {marca}
-                    </td>
-                    <td>
-                      {modelo}
-                    </td>
+                    <td>{vidaUtil}</td>
+                    <td>{fechaRecepcion}</td>
+                    <td>{marca}</td>
+                    <td>{modelo}</td>
                     <td className="d-flex align-items-center p-1">
                       <input
                         type="text"
@@ -869,19 +1052,24 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         value={Inventario.serie || serie}
                         onChange={(e) => handleChange(e)}
                       />
-                      <Pencil className={classNames('flex-shrink-0', 'h-5 w-5 m-1')} aria-hidden="true" />
+                      <Pencil
+                        className={classNames("flex-shrink-0", "h-5 w-5 m-1")}
+                        aria-hidden="true"
+                      />
                     </td>
                     <td>
-                      {precio.toLocaleString('es-ES', { minimumFractionDigits: 0 })}
+                      {precio.toLocaleString("es-ES", {
+                        minimumFractionDigits: 0,
+                      })}
                     </td>
                   </tr>
                 </tbody>
-              </Table >
+              </Table>
             </div>
           </div>
         </Modal.Body>
-      </Modal >
-    </Layout >
+      </Modal>
+    </Layout>
   );
 };
 
@@ -895,16 +1083,14 @@ const mapStateToProps = (state: RootState) => ({
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
-  descripcionEspecie: state.datosRecepcionReducer.descripcionEspecie
+  descripcionEspecie: state.datosRecepcionReducer.descripcionEspecie,
 });
 
-export default connect(mapStateToProps,
-  {
-    comboDependenciaActions,
-    obtenerInventarioActions,
-    comboDetalleActions,
-    comboListadoDeEspeciesBienActions,
-    comboCuentaActions,
-    modificarFormInventarioActions
-
-  })(ModificarInventario);
+export default connect(mapStateToProps, {
+  comboDependenciaActions,
+  obtenerInventarioActions,
+  comboDetalleActions,
+  comboListadoDeEspeciesBienActions,
+  comboCuentaActions,
+  modificarFormInventarioActions,
+})(ModificarInventario);
