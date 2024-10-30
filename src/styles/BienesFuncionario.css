@@ -33,8 +33,8 @@
   }
   
   .dropzone {
-    width: 30rem;
-    height: 6rem;
+    width: 50rem;
+    height: 11rem;
     border: 2px dashed #5a9bf9;
     border-radius: 10px;
     display: flex;

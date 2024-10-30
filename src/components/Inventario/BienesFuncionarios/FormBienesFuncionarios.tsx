@@ -147,7 +147,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
         </h3>
         <form onSubmit={handleFormSubmit}>
           <Row>
-            <Col md={6}>
+            <Col md={5}>
               <div className="mb-1">
                 <dt className="text-muted">Rut Funcionario</dt>
                 <div className="d-flex align-items-center">
@@ -207,7 +207,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                 </dd>
               </div>
             </Col>
-            <Col md={6}>
+            <Col md={3}>
               <div className="mb-1">
                 <dt className="text-muted">Subir archivos</dt>
                 <dd className="d-flex align-items-center">
@@ -241,6 +241,8 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   />
                 </dd>
               </div>
+            </Col>
+            <Col md={3}>
               <div className="mb-1">
                 <dt className="text-muted">Subir archivos</dt>
                 <dd className="d-flex align-items-center">
