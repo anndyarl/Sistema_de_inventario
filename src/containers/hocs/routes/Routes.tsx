@@ -1,27 +1,28 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import Error404 from '../../containers/errors/Error404';
-import Login from '../../containers/pages/Login';
-import Traslados from '../../containers/pages/Traslados';
-import Altas from '../../containers/pages/Altas';
-import Inventario from '../../containers/pages/Inventario';
-import Bajas from '../../containers/pages/Bajas';
-import Donaciones from '../../containers/pages/Donaciones';
-import Informes from '../../containers/pages/Informes';
-import Configuracion from '../../containers/pages/Configuracion';
-import ClaveUnica from '../../containers/pages/ClaveUnica';
-import SesionExpirada from '../../containers/errors/SesionExpirada';
+import Error404 from '../../errors/Error404';
+import Login from '../../pages/Login';
+import Traslados from '../../pages/Traslados';
+import Altas from '../../pages/Altas';
+import Inventario from '../../pages/Inventario';
+import Bajas from '../../pages/Bajas';
+import Donaciones from '../../pages/Donaciones';
+import Informes from '../../pages/Informes';
+import Configuracion from '../../pages/Configuracion';
+import ClaveUnica from '../../pages/ClaveUnica';
+import SesionExpirada from '../../errors/SesionExpirada';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
-import { checkAuthStatus } from '../../redux/actions/auth/auth';
-import { AppDispatch } from '../../store';
+import { checkAuthStatus } from '../../../redux/actions/auth/auth';
+import { AppDispatch } from '../../../store';
 
-import FormBienesFuncionarios from '../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
-import ModificarInventario from '../../components/Inventario/ModificarInventario/ModificarInventario';
+import FormBienesFuncionarios from '../../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
+import ModificarInventario from '../../../components/Inventario/ModificarInventario/ModificarInventario';
 
-import AnularInventario from '../../components/Inventario/AnularInventario/AnularInventario';
-import Inicio from '../../containers/pages/Inicio';
-import FormInventario from '../../components/Inventario/RegistrarInventario/FormInventario';
+import AnularInventario from '../../../components/Inventario/AnularInventario/AnularInventario';
+import Inicio from '../../pages/Inicio';
+import FormInventario from '../../../components/Inventario/RegistrarInventario/FormInventario';
+import CargaMasiva from '../../../components/Inventario/CargaMasiva/CargaMasiva';
 
 
 const AnimatedRoutes: React.FC = () => {
@@ -48,12 +49,13 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Inicio" element={<Inicio />} />
                 <Route path="/" element={<ClaveUnica />} />
 
-                {/* Menu Inventario */}
+                {/* Módulo Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />
                 <Route path="/FormInventario" element={<FormInventario />} />
                 <Route path="/ModificarInventario" element={<ModificarInventario />} />
                 <Route path="/AnularInventario" element={<AnularInventario />} />
                 <Route path="/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+                <Route path="/CargaMasiva" element={<CargaMasiva />} />
 
                 {/* Fin Menu Inventario */}
 

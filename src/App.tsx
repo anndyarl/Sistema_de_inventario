@@ -4,7 +4,7 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Provider } from 'react-redux';
 // import './App.css';
 
-import AnimatedRoutes from './hocs/routes/Routes';
+import AnimatedRoutes from './containers/hocs/routes/Routes';
 import { PersistGate } from 'redux-persist/integration/react';
 
 const App: React.FC = () => {

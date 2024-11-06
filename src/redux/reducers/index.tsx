@@ -1,8 +1,9 @@
 import { combineReducers } from "redux";
 
+import loginReducer from "./auth/auth";
 //------------Registro inventario------------------//
 //Form1
-import datosRecepcionReducer from "./Inventario/DatosRecepcionReducer";
+import datosRecepcionReducer from "./Inventario/datosRecepcionReducer";
 import origenPresupuestoReducer from "./combos/comboOrigenReducers";
 import modalidadCompraReducer from "./combos/comboModalidadReducers";
 
@@ -14,13 +15,13 @@ import detallesReducer from "./combos/comboDetallesReducers";
 import comboListadoDeEspeciesBien from "./combos/comboListadoDeEspeciesBienReducers";
 
 //-----------Modificar Inventario --------------//
-import datosInventarioReducer from "./Inventario/DatosInventarioReducer";
+import datosInventarioReducer from "./Inventario/datosInventarioReducer";
+
+//------------Anular Inventario-----------------//
 import datosListaInventarioReducer from "./Inventario/datosListaInventarioReducer";
-import loginReducer from "./auth/auth";
+import comboProveedorReducers from "./combos/comboProveedorReducers";
 
-//-----------Anular Inventario --------------//
 
-// import obtenerInventarioReducer from './Inventario/obtenerInventarioReducer.tsx.old';
 
 const rootReducer = combineReducers({
   //Autentificación
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   datosRecepcionReducer,
   origenPresupuestoReducer,
   modalidadCompraReducer,
+  comboProveedorReducers,
 
   //form 2
   comboServicioReducer,
@@ -38,7 +40,7 @@ const rootReducer = combineReducers({
   comboListadoDeEspeciesBien,
   detallesReducer,
 
-  //-----------Modificar Inventario --------------//
+
   datosInventarioReducer,
 
   //-----------Anular Inventario --------------//

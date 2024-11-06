@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 // Acción para enviar el formulario
-export const registrarFormInventarioActions = (FormulariosCombinados: Record<string, any>) =>
+export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_CORR: number, SER_CORR: number, COMPROBANTE_PAGO: string, AUTORIZACION: string) =>
     async (dispatch: Dispatch, getState: any): Promise<boolean> => {
         const token = getState().loginReducer.token; // Token está en el estado de autenticación
         if (token) {
@@ -18,21 +18,19 @@ export const registrarFormInventarioActions = (FormulariosCombinados: Record<str
                 },
             };
             // Verifica si `datosInventario` tiene datos antes de enviar
-            if (
-                !FormulariosCombinados ||
-                Object.keys(FormulariosCombinados).length === 0
-            ) {
-                console.error("El objeto datosInventario está vacío.");
-                return false;
-            }
+
             const body = JSON.stringify({
-                FormulariosCombinados,
+                RUT_FUNCIONARIO,
+                DEP_CORR,
+                SER_CORR,
+                COMPROBANTE_PAGO,
+                AUTORIZACION
             });
 
             dispatch({ type: POST_FORMULARIO_REQUEST });
 
             try {
-                const response = await axios.post("/api_inv/api/inventario/crearActivoFijo", body, config);
+                const response = await axios.post("/api_inv/api/inventario/crearBienFuncionario", body, config);
 
                 // Si el POST es exitoso
                 if (response.status === 200) {

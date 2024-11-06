@@ -32,6 +32,13 @@ export interface MODALIDAD {
   codigo: string;
   descripcion: string;
 }
+
+export interface PROVEEDOR {
+  rut: number,
+  nomprov: string
+}
+
+
 // Define el tipo de los datos que se manejarán en el componente
 export interface InventarioProps {
   fechaFactura: string;
@@ -41,7 +48,6 @@ export interface InventarioProps {
   nFactura: string;
   nOrdenCompra: number;
   nRecepcion: number;
-  nombreProveedor: string;
   origenPresupuesto: number;
   rutProveedor: string;
 }
@@ -51,6 +57,7 @@ interface Datos_inventarioProps extends InventarioProps {
   onNext: (Inventario: InventarioProps) => void;
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
+  comboProveedor: PROVEEDOR[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
 }
@@ -60,6 +67,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   onNext,
   comboOrigen,
   comboModalidad,
+  comboProveedor,
   fechaFactura,
   fechaRecepcion,
   modalidadDeCompra,
@@ -67,7 +75,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   nFactura,
   nOrdenCompra,
   nRecepcion,
-  nombreProveedor,
   origenPresupuesto,
   rutProveedor,
   datosTablaActivoFijo,
@@ -81,7 +88,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     nFactura: "",
     nOrdenCompra: 0,
     nRecepcion: 0,
-    nombreProveedor: "",
     origenPresupuesto: 0,
     rutProveedor: "",
   });
@@ -120,11 +126,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
     if (!Inventario.rutProveedor)
       tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
-    if (!Inventario.nombreProveedor)
-      tempErrors.nombreProveedor = "El Nombre del Proveedor es obligatorio.";
-    else if (Inventario.nombreProveedor.length > 30)
-      tempErrors.nombreProveedor =
-        "El Nombre no debe exceder los 30 caracteres.";
     if (!Inventario.modalidadDeCompra)
       tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
     else if (showInput && Inventario.modalidadDeCompra === 7) {
@@ -194,7 +195,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       nFactura,
       nOrdenCompra,
       nRecepcion,
-      nombreProveedor,
       origenPresupuesto,
       rutProveedor,
     });
@@ -206,7 +206,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     nFactura,
     nOrdenCompra,
     nRecepcion,
-    nombreProveedor,
     origenPresupuesto,
     rutProveedor,
   ]);
@@ -259,7 +258,6 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       dispatch(setNFacturaActions(Inventario.nFactura));
       dispatch(setNOrdenCompraActions(Inventario.nOrdenCompra));
       dispatch(setNRecepcionActions(Inventario.nRecepcion));
-      dispatch(setnombreProveedorActions(Inventario.nombreProveedor));
       dispatch(setOrigenPresupuestoActions(Inventario.origenPresupuesto));
       dispatch(setRutProveedorActions(Inventario.rutProveedor));
       onNext(Inventario);
@@ -274,15 +272,14 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             Registro de Inventario
           </h3>
           <Row>
-            <Col md={6}>
+            <Col md={4}>
               <div className="mb-1">
                 <dt className="text-muted">Nº Recepción</dt>
                 <div className="d-flex align-items-center">
                   <input
                     type="text"
-                    className={`form-control ${
-                      error.nRecepcion ? "is-invalid" : ""
-                    } w-100`}
+                    className={`form-control ${error.nRecepcion ? "is-invalid" : ""
+                      } w-100`}
                     maxLength={12}
                     name="nRecepcion"
                     onChange={handleChange}
@@ -327,9 +324,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <dt className="text-muted">Fecha Recepción</dt>
                 <input
                   type="date"
-                  className={`form-control ${
-                    error.fechaRecepcion ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""
+                    }`}
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion}
@@ -339,12 +335,11 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text">N° Orden de compra</dt>
+                <dt className="text-muted">N° Orden de compra</dt>
                 <input
                   type="text"
-                  className={`form-control ${
-                    error.nOrdenCompra ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""
+                    }`}
                   maxLength={12}
                   name="nOrdenCompra"
                   onChange={handleChange}
@@ -354,13 +349,14 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   <div className="invalid-feedback">{error.nOrdenCompra}</div>
                 )}
               </div>
+            </Col>
+            <Col md={4}>
               <div className="mb-1">
                 <dt className="text-muted">Nº factura</dt>
                 <input
                   type="text"
-                  className={`form-control ${
-                    error.nFactura ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${error.nFactura ? "is-invalid" : ""
+                    }`}
                   maxLength={12}
                   name="nFactura"
                   onChange={handleChange}
@@ -373,9 +369,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
               <div className="mb-1">
                 <dt className="text-muted">Origen Presupuesto</dt>
                 <select
-                  className={`form-select ${
-                    error.origenPresupuesto ? "is-invalid" : ""
-                  }`}
+                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
+                    }`}
                   name="origenPresupuesto"
                   onChange={handleChange}
                   value={Inventario.origenPresupuesto}
@@ -393,15 +388,12 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   </div>
                 )}
               </div>
-            </Col>
-            <Col md={6}>
               <div className="mb-1">
                 <dt className="text-muted">Monto Recepción</dt>
                 <input
                   type="text"
-                  className={`form-control ${
-                    error.montoRecepcion ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${error.montoRecepcion ? "is-invalid" : ""
+                    }`}
                   maxLength={12}
                   name="montoRecepcion"
                   onChange={handleChange}
@@ -412,13 +404,14 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   <div className="invalid-feedback">{error.montoRecepcion}</div>
                 )}
               </div>
+            </Col>
+            <Col md={4}>
               <div className="mb-1">
                 <dt className="text-muted">Fecha Factura</dt>
                 <input
                   type="date"
-                  className={`form-control ${
-                    error.fechaFactura ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${error.fechaFactura ? "is-invalid" : ""
+                    }`}
                   name="fechaFactura"
                   onChange={handleChange}
                   value={Inventario.fechaFactura}
@@ -428,45 +421,32 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Rut Proveedor</dt>
-                <input
-                  type="text"
-                  className={`form-control ${
-                    error.rutProveedor ? "is-invalid" : ""
-                  }`}
-                  maxLength={12}
+                <dt className="text-muted">Proveedor</dt>
+                <select
+                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
+                    }`}
                   name="rutProveedor"
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
-                />
+                >
+                  <option value="">Seleccione un Proovedor</option>
+                  {comboProveedor.map((traeProveedor) => (
+                    <option key={traeProveedor.rut} value={traeProveedor.rut}>
+                      {traeProveedor.nomprov}
+                    </option>
+                  ))}
+                </select>
                 {error.rutProveedor && (
-                  <div className="invalid-feedback">{error.rutProveedor}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <dt className="text-muted">Nombre Proveedor</dt>
-                <input
-                  type="text"
-                  className={`form-control ${
-                    error.nombreProveedor ? "is-invalid" : ""
-                  }`}
-                  maxLength={30}
-                  name="nombreProveedor"
-                  onChange={handleChange}
-                  value={Inventario.nombreProveedor}
-                />
-                {error.nombreProveedor && (
                   <div className="invalid-feedback">
-                    {error.nombreProveedor}
+                    {error.rutProveedor}
                   </div>
                 )}
               </div>
               <div className="mb-1">
                 <dt className="text-muted">Modalida de Compra</dt>
                 <select
-                  className={`form-select ${
-                    error.modalidadDeCompra ? "is-invalid" : ""
-                  }`}
+                  className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""
+                    }`}
                   name="modalidadDeCompra"
                   onChange={handleChange}
                   value={Inventario.modalidadDeCompra}
@@ -487,15 +467,13 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   </div>
                 )}
               </div>
-
               {showInput && (
                 <div className="mb-1">
                   <dt className="text-muted">Modalida de Compra</dt>
                   <input
                     type="text"
-                    className={`form-control ${
-                      error.modalidadDeCompra ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.modalidadDeCompra ? "is-invalid" : ""
+                      }`}
                     name="modalidadDeCompra"
                     placeholder="Especifique otro"
                     onChange={(e) =>
@@ -513,6 +491,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 </div>
               )}
             </Col>
+
           </Row>
           <div className="rounded bg-white d-flex justify-content-end m-2">
             <button type="submit" className="btn btn-primary ">

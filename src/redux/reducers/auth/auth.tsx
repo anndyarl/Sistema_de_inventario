@@ -48,7 +48,7 @@ function loginReducer(state = initialState, action: any): AuthState {
         token: null,
       };
     case LOGOUT:
-      return { ...initialState, loading: false, isAuthenticated: false };
+      return { ...initialState, loading: false };
     case SET_TOKEN:
       return { ...state, token: action.payload };
     default:

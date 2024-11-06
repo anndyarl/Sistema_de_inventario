@@ -1,81 +1,81 @@
 /* BienesFuncionario.css */
 .input-container {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-  }
-  
-  /* Estilos para los inputs de texto */
-  .text-input {
-    padding: 10px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-  }
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+/* Estilos para los inputs de texto */
+.text-input {
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+}
 /* .file-upload {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  } */
-  .file-upload_20 {
-    display: flex;
-    flex-direction: column-reverse;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  .dropzone {
-    width: 50rem;
-    height: 11rem;
-    border: 2px dashed #5a9bf9;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: #5a9bf9;
-    transition: background-color 0.3s ease-in-out;
-    cursor: pointer;
-  }
-  
-  .dropzone.dragging {
-    background-color: #e3f2fd;
-  }
-  
-  .file-input {
-    display: none;
-  }
-  
-  .upload-button,
-  .submit-button {
-    background-color: #1e90ff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .upload-button:hover,
-  .submit-button:hover {
-    background-color: #1c86ee;
-  }
-  
-  .upload-button:focus,
-  .submit-button:focus {
-    outline: none;
-  }
-  
-  p {
-    margin: 0;
-    font-size: 16px;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+} */
+.file-upload_20 {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dropzone {
+  width: 100%;
+  height: 14rem;
+  border: 2px dashed #5a9bf9;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #5a9bf9;
+  transition: background-color 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.dropzone.dragging {
+  background-color: #e3f2fd;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-button,
+.submit-button {
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.upload-button:hover,
+.submit-button:hover {
+  background-color: #1c86ee;
+}
+
+.upload-button:focus,
+.submit-button:focus {
+  outline: none;
+}
+
+p {
+  margin: 0;
+  font-size: 16px;
+}

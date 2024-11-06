@@ -342,7 +342,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 <dt className="text-muted">Especie</dt>
                 <dd className="d-flex align-items-center">
                   <input
-                    className={`form-select ${
+                    className={`form-control ${
                       error.especie ? "is-invalid" : ""
                     }`}
                     type="text"
@@ -415,11 +415,6 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
           <Modal.Title>Listado de Especies</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* <div>
-                        {error.general && (
-                            <p className="alert alert-danger">{error.general}</p>
-                        )}
-                    </div> */}
           <form onSubmit={handleSubmitSeleccionado}>
             <Row>
               <Col md={12}>

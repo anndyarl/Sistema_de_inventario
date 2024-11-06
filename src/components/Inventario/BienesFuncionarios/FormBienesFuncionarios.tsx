@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Layout from "../../../hocs/layout/Layout";
+import React, { useRef, useState } from "react";
+import Layout from "../../../containers/hocs/layout/Layout";
 import { Col, Row } from "react-bootstrap";
 import "../../../styles/BienesFuncionario.css";
 import {
@@ -12,23 +12,41 @@ import { connect } from "react-redux";
 import { RootState } from "../../../store";
 import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
 import { comboServicioActions } from "../../../redux/actions/combos/comboServicioActions";
+import { registrarBienFuncionarioActions } from "../../../redux/actions/Inventario/registrarBienFuncionarioActions";
 
 interface FuncionarioProps {
   rutFuncionario: string;
+  servicio: number;
+  dependencia: number;
+  autorizacion: string;
+  comprobanteDePago: string;
 }
 interface FormFuncionarioProps {
   comboServicio: SERVICIO[];
   comboDependencia: DEPENDENCIA[];
   comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+  registrarBienFuncionarioActions: (
+    rutFuncionario: string,
+    comboServicio: number,
+    comboDependencia: number,
+    comprobanteDePago: string,
+    autorizacion: string
+  ) => Promise<Boolean>;
 }
 const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   comboServicio,
   comboDependencia,
   comboDependenciaActions,
+  registrarBienFuncionarioActions,
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [selectedFile1, setSelectedFile1] = useState<File | null>(null);
-  const [selectedFile2, setSelectedFile2] = useState<File | null>(null);
+  const fileInputRef1 = useRef<HTMLInputElement>(null);
+  const fileInputRef2 = useRef<HTMLInputElement>(null);
+  const [selectedFileComprobante, setSelectedFileComprobante] =
+    useState<File | null>(null);
+  const [selectedFileAutorizacion, setSelectedFileAutorizacion] =
+    useState<File | null>(null);
+  const [isDraggingComprobante, setIsDraggingComprobante] = useState(false);
+  const [isDraggingAutorizacion, setIsDraggingAutorizacion] = useState(false);
   const [error, setError] = useState<
     Partial<FuncionarioProps> & Partial<CuentaProps> & {}
   >({});
@@ -36,10 +54,19 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
     rutFuncionario: "",
     servicio: 0,
     dependencia: 0,
+    comprobanteDePago: "",
+    autorizacion: "",
   });
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+    ];
     // Validación para N° de Recepción (debe ser un número)
     if (!Funcionario.rutFuncionario)
       tempErrors.rutFuncionario = "El rut del funcionario es obligatorio.";
@@ -48,36 +75,97 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
     if (!Funcionario.dependencia)
       tempErrors.dependencia = "La dependencia es obligatoria.";
 
+    // Validación de archivos: autorizacion
+    if (!selectedFileAutorizacion) {
+      tempErrors.autorizacion = "La autorización es obligatoria.";
+    } else if (!allowedTypes.includes(selectedFileAutorizacion.type)) {
+      tempErrors.autorizacion = "Solo se permiten archivos PDF, DOCX o JPG.";
+    }
+
+    // Validación de archivos: comprobanteDePago
+    if (!selectedFileComprobante) {
+      tempErrors.comprobanteDePago = "El comprobante de pago es obligatorio.";
+    } else if (!allowedTypes.includes(selectedFileComprobante.type)) {
+      tempErrors.comprobanteDePago =
+        "Solo se permiten archivos PDF, DOCX o JPG.";
+    }
+
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-  // Manejador del evento de drop
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+
+  // Función para formatear el RUT
+  const formatRut = (rut: string) => {
+    // Remover puntos y guion para limpiar el formato
+    const cleanRut = rut.replace(/[.-]/g, "");
+
+    // Separar el número del dígito verificador
+    const number = cleanRut.slice(0, -1);
+    const verifier = cleanRut.slice(-1);
+
+    // Formatear con puntos y guion
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "-" + verifier;
+  };
+  //----------------Comprobante de Pago --------------//
+  //Habilita el estado arrastrar
+  const handleDragOverComprobante = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragging(false);
+    setIsDraggingComprobante(true);
+  };
+  //Adjuntar por arrastre
+  const handleDropComprobante = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingComprobante(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setSelectedFileComprobante(file);
 
-    const files = Array.from(e.dataTransfer.files);
-
-    if (files.length >= 2) {
-      setSelectedFile1(files[0]);
-      setSelectedFile2(files[1]);
+      // Actualiza el estado del funcionario con el archivo en el campo comprobanteDePago
+      setFuncionario((prevFuncionario) => ({
+        ...prevFuncionario,
+        comprobanteDePago: file.name,
+      }));
     }
   };
-
-  // Manejador para cuando el archivo está sobre la zona de drop
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
+  //Adjuntar por click
+  const handleFileSelectComprobante = () => {
+    if (fileInputRef1.current) {
+      fileInputRef1.current.click();
+    }
   };
+  //----------------Fin Comprobante de Pago --------------//
 
-  // Manejador cuando el archivo sale de la zona de drop
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+  //----------------Autorización --------------//
+  //Habilita el estado arrastrar
+  const handleDragOverAutorizacion = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragging(false);
+    setIsDraggingAutorizacion(true);
   };
+  //Adjuntar por arrastre
+  const handleDropAutorizacion = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingAutorizacion(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setSelectedFileAutorizacion(file);
+
+      // Actualiza el estado del funcionario con el archivo en el campo comprobanteDePago
+      setFuncionario((prevFuncionario) => ({
+        ...prevFuncionario,
+        autorizacion: file.name,
+      }));
+    }
+  };
+  //Adjuntar por click
+  const handleFileSelectAutorizacion = () => {
+    if (fileInputRef2.current) {
+      fileInputRef2.current.click();
+    }
+  };
+  //----------------Fin Autorización --------------//
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFuncionario((prevState) => ({
@@ -104,38 +192,48 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
         [name]: value,
       }));
     }
-  };
 
-  // Función para formatear el RUT
-  const formatRut = (rut: string) => {
-    // Remover puntos y guion para limpiar el formato
-    const cleanRut = rut.replace(/[.-]/g, "");
-
-    // Separar el número del dígito verificador
-    const number = cleanRut.slice(0, -1);
-    const verifier = cleanRut.slice(-1);
-
-    // Formatear con puntos y guion
-    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "-" + verifier;
+    // Verificar si es un input de tipo "file" y si tiene archivos seleccionados
+    if (e.target instanceof HTMLInputElement && e.target.type === "file") {
+      const file = e.target.files?.[0];
+      if (file) {
+        // Si el archivo es válido, establecerlo en el estado correspondiente
+        if (name === "comprobanteDePago") {
+          setSelectedFileComprobante(file);
+          setError({ ...error, comprobanteDePago: "" }); // Limpiar errores si el archivo es válido
+        } else if (name === "autorizacion") {
+          setSelectedFileAutorizacion(file);
+          setError({ ...error, autorizacion: "" }); // Limpiar errores si el archivo es válido
+        }
+      }
+    }
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let resultado = false;
-    console.log("datos biene funcionario", Funcionario);
-    // resultado = await postFormBienFuncionarioActions(Funcionario);
-    if (resultado) {
-      Swal.fire({
-        icon: "success",
-        title: "Envio exitoso",
-        text: "Se ha registrado con éxito!",
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Hubo un problema al enviar el registro.",
-      });
+
+    if (validate()) {
+      const resultado = await registrarBienFuncionarioActions(
+        Funcionario.rutFuncionario,
+        Funcionario.servicio,
+        Funcionario.dependencia,
+        Funcionario.comprobanteDePago,
+        Funcionario.autorizacion
+      );
+
+      if (resultado) {
+        Swal.fire({
+          icon: "success",
+          title: "Envío exitoso",
+          text: "¡Se ha registrado con éxito!",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Hubo un problema al enviar el registro.",
+        });
+      }
     }
   };
 
@@ -146,26 +244,29 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
           Registro Bienes de Funcioanarios
         </h3>
         <form onSubmit={handleFormSubmit}>
-          <Row>
-            <Col md={5}>
+          <Row className="d-flex align-items-center">
+            <Col md={4}>
               <div className="mb-1">
                 <dt className="text-muted">Rut Funcionario</dt>
-                <div className="d-flex align-items-center">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      error.rutFuncionario ? "is-invalid" : ""
+                <input
+                  type="text"
+                  className={`form-control ${error.rutFuncionario ? "is-invalid" : ""
                     } w-100`}
-                    maxLength={12}
-                    name="rutFuncionario"
-                    onChange={handleChange}
-                    value={Funcionario.rutFuncionario}
-                  />
-                </div>
+                  maxLength={12}
+                  name="rutFuncionario"
+                  onChange={handleChange}
+                  value={Funcionario.rutFuncionario}
+                />
+                {error.rutFuncionario && (
+                  <div className="invalid-feedback d-block">
+                    {error.rutFuncionario}
+                  </div>
+                )}
               </div>
-              <div className="mb-1">
-                <dt className="text-muted">Servicio</dt>
-                <dd className="d-flex align-items-center">
+              <div className="border shadow-sm p-4 rounded">
+                <h5 className="fw-semibold border-bottom p-1">Destino</h5>
+                <div className="mb-1">
+                  <dt className="text-muted">Servicio</dt>
                   <select
                     className="form-select"
                     name="servicio"
@@ -182,11 +283,14 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                       </option>
                     ))}
                   </select>
-                </dd>
-              </div>
-              <div className="mb-1">
-                <dt className="text-muted">Dependencia</dt>
-                <dd className="d-flex align-items-center">
+                  {error.servicio && (
+                    <div className="invalid-feedback d-block">
+                      {error.servicio}
+                    </div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <dt className="text-muted">Dependencia</dt>
                   <select
                     className="form-select"
                     name="dependencia"
@@ -204,77 +308,84 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                       </option>
                     ))}
                   </select>
-                </dd>
+                  {error.dependencia && (
+                    <div className="invalid-feedback d-block">
+                      {error.dependencia}
+                    </div>
+                  )}
+                </div>
               </div>
             </Col>
-            <Col md={3}>
-              <div className="mb-1">
-                <dt className="text-muted">Subir archivos</dt>
-                <dd className="d-flex align-items-center">
-                  <div
-                    className={`dropzone ${isDragging ? "dragging" : ""}`}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onClick={() =>
-                      document.getElementById("fileInput")?.click()
-                    }
-                  >
-                    {selectedFile1 && selectedFile2 ? (
-                      <p>
-                        Archivos seleccionados: {selectedFile1.name},{" "}
-                        {selectedFile2.name}
-                      </p>
-                    ) : (
-                      <p>
-                        Arrastra y suelta los archivos aquí, o haz clic para
-                        seleccionar dos archivos
-                      </p>
-                    )}
+            <Col md={4} className="d-flex align-items-center">
+              <div className="mb-1 w-100">
+                <dt className="text-muted">Comprobante de Pago</dt>
+                <div
+                  className={`dropzone ${isDraggingComprobante ? "dragging" : ""
+                    }`}
+                  onDrop={handleDropComprobante}
+                  onDragOver={handleDragOverComprobante}
+                  onClick={handleFileSelectComprobante}
+                >
+                  {selectedFileComprobante ? (
+                    <p>Archivo seleccionado: {selectedFileComprobante.name}</p>
+                  ) : (
+                    <p>
+                      Arrastra y suelta el archivo aquí, o haz clic para
+                      seleccionar
+                    </p>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef1} // Asigna la referencia al input
+                  className={`file-input ${error.comprobanteDePago ? "is-invalid" : ""
+                    } w-100`}
+                  name="comprobanteDePago"
+                  onChange={handleChange}
+                  accept=".pdf, .docx, .jpg" // Solo permite los tipos de archivos especificados
+                  value=""
+                />
+                {error.comprobanteDePago && (
+                  <div className="invalid-feedback d-block">
+                    {error.comprobanteDePago}
                   </div>
-                  <input
-                    type="file"
-                    // onChange={handleFileChange}
-                    id="fileInput"
-                    className="file-input"
-                    multiple
-                  />
-                </dd>
+                )}
               </div>
             </Col>
-            <Col md={3}>
-              <div className="mb-1">
-                <dt className="text-muted">Subir archivos</dt>
-                <dd className="d-flex align-items-center">
-                  <div
-                    className={`dropzone ${isDragging ? "dragging" : ""}`}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onClick={() =>
-                      document.getElementById("fileInput")?.click()
-                    }
-                  >
-                    {selectedFile1 && selectedFile2 ? (
-                      <p>
-                        Archivos seleccionados: {selectedFile1.name},{" "}
-                        {selectedFile2.name}
-                      </p>
-                    ) : (
-                      <p>
-                        Arrastra y suelta los archivos aquí, o haz clic para
-                        seleccionar dos archivos
-                      </p>
-                    )}
+            <Col md={4} className="d-flex align-items-center">
+              <div className="mb-1 w-100">
+                <dt className="text-muted">Autorización</dt>
+                <div
+                  className={`dropzone ${isDraggingAutorizacion ? "dragging" : ""
+                    }`}
+                  onDrop={handleDropAutorizacion}
+                  onDragOver={handleDragOverAutorizacion}
+                  onClick={handleFileSelectAutorizacion}
+                >
+                  {selectedFileAutorizacion ? (
+                    <p>Archivo seleccionado: {selectedFileAutorizacion.name}</p>
+                  ) : (
+                    <p>
+                      Arrastra y suelta el archivo aquí, o haz clic para
+                      seleccionar
+                    </p>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef2} // Asigna la referencia al input
+                  className={`file-input ${error.autorizacion ? "is-invalid" : ""
+                    } w-100`}
+                  name="autorizacion"
+                  onChange={handleChange}
+                  accept=".pdf, .docx, .jpg" // Solo permite los tipos de archivos especificados
+                  value=""
+                />
+                {error.autorizacion && (
+                  <div className="invalid-feedback d-block">
+                    {error.autorizacion}
                   </div>
-                  <input
-                    type="file"
-                    // onChange={handleFileChange}
-                    id="fileInput"
-                    className="file-input"
-                    multiple
-                  />
-                </dd>
+                )}
               </div>
             </Col>
           </Row>
@@ -298,4 +409,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   comboServicioActions,
   comboDependenciaActions,
+  registrarBienFuncionarioActions,
 })(FormInventarioFuncionario);

@@ -1,23 +1,32 @@
 // Importa componentes al FormularioCompleto.tsx
-import React, { useState } from 'react';
-import Layout from '../../../hocs/layout/Layout';
-import DatosInventario, { ORIGEN, MODALIDAD } from './Datos_inventario';
-import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, ListaEspecie, BIEN, DETALLE } from './Datos_cuenta';
-import DatosActivoFijo from './Datos_activo_fijo';
-import Timeline from './Timeline';
+import React, { useState } from "react";
+import { easeIn, easeInOut, motion } from "framer-motion";
+import Layout from "../../../containers/hocs/layout/Layout";
+import DatosInventario, { ORIGEN, MODALIDAD, PROVEEDOR } from "./Datos_inventario";
+import DatosCuenta, {
+  SERVICIO,
+  CUENTA,
+  DEPENDENCIA,
+  ListaEspecie,
+  BIEN,
+  DETALLE,
+} from "./Datos_cuenta";
+import DatosActivoFijo from "./Datos_activo_fijo";
+import Timeline from "./Timeline";
 
 // Redux global
-import { RootState } from '../../../redux/reducers';
-import { connect } from 'react-redux';
+import { RootState } from "../../../redux/reducers";
+import { connect } from "react-redux";
 
 //Actions redux
-import { comboOrigenPresupuestosActions } from '../../../redux/actions/combos/comboOrigenPresupuestoActions';
-import { comboModalidadesActions } from '../../../redux/actions/combos/comboModalidadCompraActions';
-import { comboServicioActions } from '../../../redux/actions/combos/comboServicioActions';
-import { comboCuentaActions } from '../../../redux/actions/combos/comboCuentaActions';
-import { comboDependenciaActions } from '../../../redux/actions/combos/comboDependenciaActions';
-import { comboListadoDeEspeciesBienActions } from '../../../redux/actions/combos/comboListadoDeEspeciesBienActions';
-import { comboDetalleActions } from '../../../redux/actions/combos/comboDetalleActions';
+import { comboOrigenPresupuestosActions } from "../../../redux/actions/combos/comboOrigenPresupuestoActions";
+import { comboModalidadesActions } from "../../../redux/actions/combos/comboModalidadCompraActions";
+import { comboServicioActions } from "../../../redux/actions/combos/comboServicioActions";
+import { comboCuentaActions } from "../../../redux/actions/combos/comboCuentaActions";
+import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
+import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/combos/comboListadoDeEspeciesBienActions";
+import { comboDetalleActions } from "../../../redux/actions/combos/comboDetalleActions";
+
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -26,31 +35,46 @@ export interface FormInventario {
 }
 
 interface FormInventarioProps {
-  //Trae props combos de Datos_inventario(formulario 1) 
+  //Trae props combos de Datos_inventario(formulario 1)
   comboOrigen: ORIGEN[];
-  comboOrigenPresupuestosActions: () => void;
   comboModalidad: MODALIDAD[];
-
-  comboModalidadesActions: () => void;
+  comboProveedor: PROVEEDOR[];
 
   //Trae props combos de Datos_cuenta(formulario 2)
   comboServicio: SERVICIO[];
-  comboServicioActions: () => void
+  comboServicioActions: () => void;
   comboCuenta: CUENTA[];
-  comboCuentaActions: (nombreEspecie: string) => void
+  comboCuentaActions: (nombreEspecie: string) => void;
   comboDependencia: DEPENDENCIA[];
   comboDependenciaActions: (servicioSeleccionado: string) => void;
 
   comboBien: BIEN[];
   comboDetalle: DETALLE[];
-  comboDetalleActions: (bienSeleccionado: string) => void
+  comboDetalleActions: (bienSeleccionado: string) => void;
 
   listaEspecie: ListaEspecie[];
-  comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
-
+  comboListadoDeEspeciesBienActions: (
+    EST: number,
+    IDBIEN: string
+  ) => Promise<void>;
 }
 
-const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModalidad, comboServicio, comboCuenta, comboDependencia, listaEspecie, comboDetalle, comboBien, comboCuentaActions, comboDependenciaActions, comboListadoDeEspeciesBienActions, comboDetalleActions }) => {
+const FormInventario: React.FC<FormInventarioProps> = ({
+  comboOrigen,
+  comboModalidad,
+  comboProveedor,
+  comboServicio,
+  comboCuenta,
+  comboDependencia,
+  listaEspecie,
+  comboDetalle,
+  comboBien,
+  comboCuentaActions,
+  comboDependenciaActions,
+  comboListadoDeEspeciesBienActions,
+  comboDetalleActions
+
+}) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
@@ -82,7 +106,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
     setDetalleSeleccionado(codigoDetalle);
     console.log("Código del detalle seleccionado:", codigoDetalle);
     comboListadoDeEspeciesBienActions(1, codigoDetalle); // aqui le paso codigo de detalle
-
   };
 
   // Función para manejar la selección de la especie en el componente `DatosCuenta`
@@ -135,55 +158,50 @@ const FormInventario: React.FC<FormInventarioProps> = ({ comboOrigen, comboModal
       <div className="container">
         <Timeline Formulario_actual={step} />
 
-        {step === 0 && <DatosInventario
-          // Props para avanzar
-          onNext={handleNext}
-          //Lista combos
-          comboOrigen={comboOrigen}
-          comboModalidad={comboModalidad}
-        // nInventario={nInventario}
-        />}
+        {step === 0 && (
+          <DatosInventario
+            onNext={handleNext}
+            comboOrigen={comboOrigen}
+            comboModalidad={comboModalidad}
+            comboProveedor={comboProveedor}
+          />
+        )}
 
-        {step === 1 && <DatosCuenta
-          // Props para volver y avanzar
-          onBack={handleBack}
-          onNext={handleNext}
-          //Lista combos
-          comboServicio={comboServicio}
-          comboCuenta={comboCuenta}
-          listaEspecie={listaEspecie}
-          comboBien={comboBien}
-          comboDependencia={comboDependencia}
-          comboDetalle={comboDetalle}
+        {step === 1 && (
+          <DatosCuenta
+            onBack={handleBack}
+            onNext={handleNext}
+            comboServicio={comboServicio}
+            comboCuenta={comboCuenta}
+            listaEspecie={listaEspecie}
+            comboBien={comboBien}
+            comboDependencia={comboDependencia}
+            comboDetalle={comboDetalle}
+            onServicioSeleccionado={handleServicioSeleccionado}
+            onBienSeleccionado={handleBienSeleccionado}
+            onDetalleSeleccionado={handleDetalleSeleccionado}
+            onEspecieSeleccionado={handleEspecieSeleccionado}
+            servicioSeleccionado={servicioSeleccionado}
+            bienSeleccionado={bienSeleccionado}
+            detalleSeleccionado={detalleSeleccionado}
+            especieSeleccionado={especieSeleccionado}
+          />
+        )}
 
-
-          //Props desde Datos_cuentas
-          onServicioSeleccionado={handleServicioSeleccionado}
-          onBienSeleccionado={handleBienSeleccionado}
-          onDetalleSeleccionado={handleDetalleSeleccionado}
-          onEspecieSeleccionado={handleEspecieSeleccionado}
-
-
-          //Estados seleccionados desde Datos_cuenta
-          servicioSeleccionado={servicioSeleccionado}
-          bienSeleccionado={bienSeleccionado}
-          detalleSeleccionado={detalleSeleccionado}
-          especieSeleccionado={especieSeleccionado} />}
-
-        {step === 2 && <DatosActivoFijo
-          // Props para volver y avanzar
-          onBack={handleBack}
-          onNext={handleNext}
-          onReset={handleReset}
-          //Props fomrulario completo
-          formInventario={formularios} />}
-
+        {step === 2 && (
+          <DatosActivoFijo
+            onBack={handleBack}
+            onNext={handleNext}
+            onReset={handleReset}
+            formInventario={formularios}
+          />
+        )}
       </div>
     </Layout>
   );
 };
 
-//mapea los valores del estado global de Redux 
+//mapea los valores del estado global de Redux
 const mapStateToProps = (state: RootState) => ({
   comboOrigen: state.origenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
@@ -192,19 +210,14 @@ const mapStateToProps = (state: RootState) => ({
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
+  comboProveedor: state.comboProveedorReducers.comboProveedor,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
-
-
 });
 
-export default connect(mapStateToProps,
-  {
-    comboOrigenPresupuestosActions,
-    comboModalidadesActions,
-    comboServicioActions,
-    comboDependenciaActions,
-    comboListadoDeEspeciesBienActions,
-    comboDetalleActions,
-    comboCuentaActions,
-
-  })(FormInventario);
+export default connect(mapStateToProps, {
+  comboServicioActions,
+  comboDependenciaActions,
+  comboListadoDeEspeciesBienActions,
+  comboDetalleActions,
+  comboCuentaActions,
+})(FormInventario);

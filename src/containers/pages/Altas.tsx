@@ -1,5 +1,5 @@
 import React from "react"
-import Layout from "../../hocs/layout/Layout";
+import Layout from "../hocs/layout/Layout";
 
 const Altas: React.FC = () => {
   return (

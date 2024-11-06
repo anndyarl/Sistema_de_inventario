@@ -7,8 +7,7 @@ import {
 } from "../types";
 
 export const modificarFormInventarioActions =
-  (FormulariosCombinados: Record<string, any>) =>
-  async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+  (FormulariosCombinados: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; // Token está en el estado de autenticación
 
     if (token) {

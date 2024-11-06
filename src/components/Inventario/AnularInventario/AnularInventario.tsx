@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Table, Row, Col, Pagination, Button, Spinner } from "react-bootstrap";
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
-import Layout from "../../../hocs/layout/Layout";
+import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 
 import { InventarioCompleto } from "../ModificarInventario/ModificarInventario";
@@ -164,9 +164,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({
                 <div className=" d-flex mb-2 w-100 ">
                   <input
                     type="date"
-                    className={`form-control text-center ${
-                      error.fechaInicio ? "is-invalid" : ""
-                    }`}
+                    className={`form-control text-center ${error.fechaInicio ? "is-invalid" : ""
+                      }`}
                     name="fechaInicio"
                     onChange={handleChange}
                     value={Inventario.fechaInicio}
@@ -214,9 +213,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({
                 <dt className="text-muted">Fecha Término</dt>
                 <input
                   type="date"
-                  className={`form-control text-center ${
-                    error.fechaTermino ? "is-invalid" : ""
-                  }`}
+                  className={`form-control text-center ${error.fechaTermino ? "is-invalid" : ""
+                    }`}
                   name="fechaTermino"
                   onChange={handleChange}
                   value={Inventario.fechaTermino}

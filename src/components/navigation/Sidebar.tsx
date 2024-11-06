@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { House, Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText, Gear } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css"
-import Logout from './Logout';
+// import Logout from './Logout';
 // Function to combine classes conditionally
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(' ');
@@ -24,7 +24,7 @@ const Sidebar: React.FC = () => {
     { name: 'Bajas', href: '/Bajas', icon: DashCircle },
     { name: 'Donaciones', href: '/Donaciones', icon: Heart },
     { name: 'Informes', href: '/Informes', icon: FileText },
-    { name: 'Configuración', href: '/Configuracion', icon: Gear }
+    // { name: 'Configuración', href: '/Configuracion', icon: Gear }
   ];
 
   const handleClick = (name: string) => {

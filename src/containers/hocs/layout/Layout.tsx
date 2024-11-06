@@ -1,16 +1,15 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { RootState } from "../../redux/reducers";
-import Sidebar from "../../components/navigation/Sidebar";
-import Navbar from "../../components/navigation/Navbar";
+import { RootState } from "../../../redux/reducers";
+import Sidebar from "../../../components/navigation/Sidebar";
+import Navbar from "../../../components/navigation/Navbar";
 import { List } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navigate, useLocation } from "react-router-dom";
 
-import "../../styles/Layout.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "../../styles/bootstrap-5.3.3/dist/css/bootstrap.css";
-import "../../styles/Layout.css";
+import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
+import "../../../styles/Layout.css"
 
 interface LayoutProps {
   children: ReactNode;
@@ -62,22 +61,17 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
       {/* Mobile Navbar */}
       <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none">
         <div className="container-fluid">
-          <button
-            className="navbar-toggler border-0"
-            type="button"
-            onClick={toggleSidebar}
-          >
+          <button className="navbar-toggler border-0" type="button" onClick={toggleSidebar}>
             <List size={24} />
           </button>
+          <Navbar />
         </div>
       </nav>
 
       <div className="d-flex flex-grow-1">
         {/* Sidebar */}
         <div
-          className={`bg-color ${
-            sidebarOpen ? "d-block" : "d-none"
-          } d-md-block`}
+          className={`bg-color ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}
           style={{
             width: "250px",
             minWidth: "250px",
@@ -109,14 +103,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
           <div className="flex-grow-1 p-3 overflow-auto">
             <div className="container">
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={location.pathname}
-                  initial="initial"
-                  animate="in"
-                  exit="out"
-                  variants={pageVariants}
-                  transition={pageTransition}
-                >
+                <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
                   {children}
                 </motion.div>
               </AnimatePresence>

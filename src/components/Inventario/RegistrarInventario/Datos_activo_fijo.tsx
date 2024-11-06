@@ -67,9 +67,7 @@ interface Datos_activo_fijoProps {
   general?: string; // Campo para errores generales
   generalTabla?: string;
   formInventario: FormInventario;
-  registrarFormInventarioActions: (
-    formInventario: Record<string, any>
-  ) => Promise<Boolean>;
+  registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
 }
 
 const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
@@ -196,10 +194,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>(
     {}
   );
+  const [isRepeatSerie, setIsRepeatSerie] = useState(false);
 
   const handleCambiaSerie = (indexVisible: number, newSerie: string) => {
     // Convertir el índice visible al índice real en el array completo
-
     const indexReal = indicePrimerElemento + indexVisible;
     setActivosFijos((prevActivos) => {
       // Comprobar si la nueva serie ya existe en otro activo
@@ -209,19 +207,21 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
       // Si existe, marcamos este índice con un error, pero permitimos el cambio
       if (serieExists) {
+        setIsRepeatSerie(true);
         setErroresSerie((prevErrores) => ({
           ...prevErrores,
           [indexReal]: "Esta serie ya existe en otro activo.",
         }));
+
       } else {
         // Si no existe error, limpiamos el error de este índice
+        setIsRepeatSerie(false);
         setErroresSerie((prevErrores) => {
           const newErrores = { ...prevErrores };
           delete newErrores[indexReal]; // Eliminar error si ya no hay conflicto
           return newErrores;
         });
       }
-
       // Actualizar el estado global (activosFijos) con el nuevo valor de serie
       const updatedActivos = prevActivos.map((activo, i) =>
         i === indexReal ? { ...activo, serie: newSerie } : activo
@@ -345,6 +345,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   };
 
   const handleValidar = () => {
+
     if (pendiente == 0) {
       // setMostrarModalConfirmar(true);
       onNext(activosFijos);
@@ -371,6 +372,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         text: `Tienes un monto pendiente de $${pendiente}`,
       });
     }
+
+    if (isRepeatSerie) {
+      // SweetAlert2: mostrar alerta de error
+      Swal.fire({
+        icon: "warning",
+        title: "Serie Duplicada",
+        text: "Por favor, verifique que no existan series duplicadas en el registro.",
+      });
+    }
   };
 
   const handleFinalSubmit = async () => {
@@ -380,10 +390,12 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
       ...formInventario.datosCuenta,
       activosFijos: activosFijos,
     };
+
     const resultado = await registrarFormInventarioActions(
       FormulariosCombinados
     );
     if (resultado) {
+      console.log("FormulariosCombinados", FormulariosCombinados);
       //Resetea todo el formualario al estado inicial
       // dispatch(setTotalActivoFijoActions(total));
       dispatch(setNRecepcionActions(0));
@@ -416,6 +428,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         text: "Hubo un problema al enviar el formulario.",
       });
     }
+
   };
 
   const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
@@ -485,7 +498,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                       onChange={handleSeleccionaTodos}
                       checked={
                         filasSeleccionadas.length ===
-                          elementosActuales.length &&
+                        elementosActuales.length &&
                         elementosActuales.length > 0
                       }
                     />
@@ -700,9 +713,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
-                      error.vidaUtil ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.vidaUtil ? "is-invalid" : ""
+                      }`}
                     id="vidaUtil"
                     name="vidaUtil"
                     maxLength={10}
@@ -720,9 +732,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                   </label>
                   <input
                     type="date"
-                    className={`form-control ${
-                      error.fechaIngreso ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.fechaIngreso ? "is-invalid" : ""
+                      }`}
                     id="fechaIngreso"
                     name="fechaIngreso"
                     onChange={handleChange}
@@ -739,9 +750,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
-                      error.marca ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.marca ? "is-invalid" : ""
+                      }`}
                     id="marca"
                     name="marca"
                     maxLength={10}
@@ -759,9 +769,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
-                      error.modelo ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.modelo ? "is-invalid" : ""
+                      }`}
                     id="modelo"
                     name="modelo"
                     maxLength={10}
@@ -780,9 +789,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
-                      error.precio ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.precio ? "is-invalid" : ""
+                      }`}
                     id="precio"
                     name="precio"
                     maxLength={12}
@@ -800,9 +808,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
-                      error.cantidad ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.cantidad ? "is-invalid" : ""
+                      }`}
                     id="cantidad"
                     name="cantidad"
                     maxLength={6}
@@ -819,9 +826,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     Observaciones
                   </label>
                   <textarea
-                    className={`form-control ${
-                      error.observaciones ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${error.observaciones ? "is-invalid" : ""
+                      }`}
                     id="observaciones"
                     name="observaciones"
                     rows={4}

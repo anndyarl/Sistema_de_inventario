@@ -1,0 +1,54 @@
+/* Overlay para el panel deslizante */
+.slide-panel-overlay {
+    position: fixed;
+    top: 0;
+    /* left: 0; */
+    right: 0;
+    bottom: 0;
+    /* background-color: rgba(0; 0; 0; 0.5); Fondo oscuro semi-transparente */
+    z-index: 1040; /* Debajo del panel pero encima del contenido */
+    display: flex;
+    justify-content: flex-end; /* Alinear el panel a la derecha */
+    /* align-items: stretch; */
+  }
+  
+  /* Estilos para el panel deslizante */
+  .slide-panel {
+    /* width: 25rem; Ajusta el ancho según tus necesidades */
+    height: 100vh; /* Altura completa de la ventana */
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 1050; /* Encima del overlay */  
+   
+  }  
+ 
+  /* Botón de cierre */
+  .close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    /* cursor: pointer; */
+    /* color: #000; Color del botón de cierre */
+  }
+  .button-moon-sun{
+    
+    height: 40px;
+    border-radius: 20px;
+    transition: background-color 0.3s;
+    overflow: hidden;
+  }
+  .icon-moon-sun{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease-in-out;  
+  }
