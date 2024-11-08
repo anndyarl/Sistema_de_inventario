@@ -17,7 +17,7 @@ import {
   setnombreProveedorActions,
   setModalidadCompraActions,
   vaciarDatosTabla,
-} from "../../../redux/actions/Inventario/Datos_inventariosActions";
+} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./Datos_activo_fijo";
 import { Eraser, Search } from "react-bootstrap-icons";
@@ -274,9 +274,10 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
           <Row>
             <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Nº Recepción</dt>
+                <label className="text-muted fw-semibold">Nº Recepción</label>
                 <div className="d-flex align-items-center">
                   <input
+                    aria-label="nRecepcion"
                     type="text"
                     className={`form-control ${error.nRecepcion ? "is-invalid" : ""
                       } w-100`}
@@ -321,8 +322,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Fecha Recepción</dt>
+                <label className="text-muted fw-semibold">Fecha Recepción</label>
                 <input
+                  aria-label="fechaRecepcion"
                   type="date"
                   className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""
                     }`}
@@ -335,8 +337,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">N° Orden de compra</dt>
+                <label className="text-muted fw-semibold">N° Orden de compra</label>
                 <input
+                  aria-label="nOrdenCompra"
                   type="text"
                   className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""
                     }`}
@@ -352,8 +355,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             </Col>
             <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Nº factura</dt>
+                <label className="text-muted fw-semibold">Nº factura</label>
                 <input
+                  aria-label="nFactura"
                   type="text"
                   className={`form-control ${error.nFactura ? "is-invalid" : ""
                     }`}
@@ -367,8 +371,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Origen Presupuesto</dt>
+                <label className="text-muted fw-semibold">Origen Presupuesto</label>
                 <select
+                  aria-label="origenPresupuesto"
                   className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
                     }`}
                   name="origenPresupuesto"
@@ -389,8 +394,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Monto Recepción</dt>
+                <label className="text-muted fw-semibold">Monto Recepción</label>
                 <input
+                  aria-label="montoRecepcion"
                   type="text"
                   className={`form-control ${error.montoRecepcion ? "is-invalid" : ""
                     }`}
@@ -407,8 +413,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             </Col>
             <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Fecha Factura</dt>
+                <label className="text-muted fw-semibold">Fecha Factura</label>
                 <input
+                  aria-label="fechaFactura"
                   type="date"
                   className={`form-control ${error.fechaFactura ? "is-invalid" : ""
                     }`}
@@ -421,8 +428,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Proveedor</dt>
+                <label className="text-muted fw-semibold">Proveedor</label>
                 <select
+                  aria-label="rutProveedor"
                   className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
                     }`}
                   name="rutProveedor"
@@ -443,8 +451,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Modalida de Compra</dt>
+                <label className="text-muted fw-semibold">Modalida de Compra</label>
                 <select
+                  aria-label="modalidadDeCompra"
                   className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""
                     }`}
                   name="modalidadDeCompra"
@@ -469,8 +478,9 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
               </div>
               {showInput && (
                 <div className="mb-1">
-                  <dt className="text-muted">Modalida de Compra</dt>
+                  <label className="text-muted fw-semibold">Modalida de Compra</label>
                   <input
+                    aria-label="modalidadDeCompra"
                     type="text"
                     className={`form-control ${error.modalidadDeCompra ? "is-invalid" : ""
                       }`}

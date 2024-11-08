@@ -25,7 +25,7 @@ import {
   vaciarDatosTabla,
   setBienActions,
   setDetalleActions,
-} from "../../../redux/actions/Inventario/Datos_inventariosActions";
+} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
 import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/registrarFormInventarioActions";
 
 import {
@@ -39,7 +39,7 @@ import {
   setRutProveedorActions,
   setnombreProveedorActions,
   setModalidadCompraActions,
-} from "../../../redux/actions/Inventario/Datos_inventariosActions";
+} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
 
@@ -828,10 +828,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                   <textarea
                     className={`form-control ${error.observaciones ? "is-invalid" : ""
                       }`}
-                    id="observaciones"
+                    aria-label="observaciones"
                     name="observaciones"
                     rows={4}
-                    style={{ minHeight: "8px", resize: "none" }}
+                    // style={{ minHeight: "8px", resize: "none" }}
                     onChange={handleChange}
                     value={currentActivo.observaciones}
                   />

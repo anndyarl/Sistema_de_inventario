@@ -1,64 +1,117 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-    POST_FORMULARIO_REQUEST,
-    POST_FORMULARIO_SUCCESS,
-    POST_FORMULARIO_FAIL,
+    POST_FORMULARIO_BIENES_REQUEST,
+    POST_FORMULARIO_BIENES_SUCCESS,
+    POST_FORMULARIO_BIENES_FAIL,
 } from "../types";
 
 // Acción para enviar el formulario
-export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_CORR: number, SER_CORR: number, COMPROBANTE_PAGO: string, AUTORIZACION: string) =>
-    async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-        const token = getState().loginReducer.token; // Token está en el estado de autenticación
-        if (token) {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            };
-            // Verifica si `datosInventario` tiene datos antes de enviar
+export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_CORR: number, SER_CORR: number, IMAGEN_COMPROBANTE_PAGO: File, IMAGEN_AUTORIZACION: File
+) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+    const token = getState().loginReducer.token;
 
-            const body = JSON.stringify({
-                RUT_FUNCIONARIO,
-                DEP_CORR,
-                SER_CORR,
-                COMPROBANTE_PAGO,
-                AUTORIZACION
-            });
+    if (token) {
+        // Configuración para enviar multipart/form-data
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        };
+        const COMPROBANTE_PAGO = String(IMAGEN_COMPROBANTE_PAGO.name);
+        const AUTORIZACION = String(IMAGEN_AUTORIZACION.name);
 
-            dispatch({ type: POST_FORMULARIO_REQUEST });
+        const formBienesFormulario = new FormData();
+        formBienesFormulario.append("RUT_FUNCIONARIO", RUT_FUNCIONARIO);
+        formBienesFormulario.append("DEP_CORR", DEP_CORR.toString());
+        formBienesFormulario.append("SER_CORR", SER_CORR.toString());
+        formBienesFormulario.append("COMPROBANTE_PAGO", COMPROBANTE_PAGO);
+        formBienesFormulario.append("AUTORIZACION", AUTORIZACION);
+        formBienesFormulario.append("IMAGEN_COMPROBANTE_PAGO", IMAGEN_COMPROBANTE_PAGO); // Archivo en binario
+        formBienesFormulario.append("IMAGEN_AUTORIZACION", IMAGEN_AUTORIZACION);         // Archivo en binario
 
-            try {
-                const response = await axios.post("/api_inv/api/inventario/crearBienFuncionario", body, config);
+        dispatch({ type: POST_FORMULARIO_BIENES_REQUEST });
 
-                // Si el POST es exitoso
-                if (response.status === 200) {
-                    dispatch({
-                        type: POST_FORMULARIO_SUCCESS,
-                        payload: response.data,
-                    });
-                    console.log("Post enviado correctamente desde axios");
-                    return true; // Retorna true en caso de éxito
-                }
-            } catch (error: any) {
-                // Manejo detallado del error
-                const errorMessage =
-                    error.response?.data?.message ||
-                    error.message ||
-                    "Error al enviar el formulario";
+        try {
+            const response = await axios.post("/api_inv/api/inventario/crearBienFuncionario", formBienesFormulario, config);
+
+            if (response.status === 200) {
                 dispatch({
-                    type: POST_FORMULARIO_FAIL,
-                    payload: errorMessage, // Mandamos el mensaje de error al reducer
+                    type: POST_FORMULARIO_BIENES_SUCCESS,
+                    payload: response.data,
                 });
-                console.error("Error al enviar el formulario:", errorMessage);
-                return false; // Retorna false en caso de error
+                console.log("Post enviado correctamente desde axios");
+                return true;
             }
-        } else {
-            console.error("No token available"); // Mensaje en caso de que no haya token
-            return false; // Retorna false si no hay token
+        } catch (error: any) {
+            const errorMessage =
+                error.response?.data?.message || error.message || "Error al enviar el formulario";
+            dispatch({
+                type: POST_FORMULARIO_BIENES_FAIL,
+                payload: errorMessage,
+            });
+            console.error("Error al enviar el formulario:", errorMessage);
+            return false;
         }
+    } else {
+        console.error("No token available");
+        return false;
+    }
 
-        // Añadir un return al final de la función para cumplir con el tipo de retorno
-        return false; // Retorno por defecto (esto nunca debería ser alcanzado)
-    };
+    return false;
+};
+
+// export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_CORR: number, SER_CORR: number, IMAGEN_COMPROBANTE_PAGO: File, IMAGEN_AUTORIZACION: File
+// ) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+//     const token = getState().loginReducer.token;
+
+//     if (token) {
+//         // Configuración para enviar multipart/form-data
+//         const config = {
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//                 "Content-Type": "multipart/form-data",
+//             },
+//         };
+//         const COMPROBANTE_PAGO = String(IMAGEN_COMPROBANTE_PAGO.name);
+//         const AUTORIZACION = String(IMAGEN_AUTORIZACION.name);
+
+//         // Define la URL con los parámetros query
+//         const url = `/api_inv/api/inventario/crearBienFuncionario?RUT_FUNCIONARIO=${RUT_FUNCIONARIO}&DEP_CORR=${DEP_CORR}&SER_CORR=${SER_CORR}&COMPROBANTE_PAGO=${COMPROBANTE_PAGO}&AUTORIZACION=${AUTORIZACION}`;
+
+//         const formBienesFormulario = new FormData();
+
+//         formBienesFormulario.append("IMAGEN_COMPROBANTE_PAGO", IMAGEN_COMPROBANTE_PAGO); // Archivo en binario
+//         formBienesFormulario.append("IMAGEN_AUTORIZACION", IMAGEN_AUTORIZACION);         // Archivo en binario
+
+//         dispatch({ type: POST_FORMULARIO_BIENES_REQUEST });
+
+//         try {
+//             const response = await axios.post(url, formBienesFormulario, config);
+
+//             if (response.status === 200) {
+//                 dispatch({
+//                     type: POST_FORMULARIO_BIENES_SUCCESS,
+//                     payload: response.data,
+//                 });
+//                 console.log("Post enviado correctamente desde axios");
+//                 return true;
+//             }
+//         } catch (error: any) {
+//             const errorMessage =
+//                 error.response?.data?.message || error.message || "Error al enviar el formulario";
+//             dispatch({
+//                 type: POST_FORMULARIO_BIENES_FAIL,
+//                 payload: errorMessage,
+//             });
+//             console.error("Error al enviar el formulario:", errorMessage);
+//             return false;
+//         }
+//     } else {
+//         console.error("No token available");
+//         return false;
+//     }
+
+//     return false;
+// };

@@ -1,33 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Table,
-  Form,
-  Row,
-  Col,
-  Modal,
-  Pagination,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Table, Form, Row, Col, Modal, Pagination, Spinner, } from "react-bootstrap";
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { obtenerInventarioActions } from "../../../redux/actions/Inventario/obtenerInventarioActions";
-import {
-  InventarioProps,
-  MODALIDAD,
-  ORIGEN,
-} from "../RegistrarInventario/Datos_inventario";
-import {
-  BIEN,
-  CUENTA,
-  CuentaProps,
-  DEPENDENCIA,
-  DETALLE,
-  ListaEspecie,
-  SERVICIO,
-} from "../RegistrarInventario/Datos_cuenta";
+import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "../RegistrarInventario/Datos_inventario";
+import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "../RegistrarInventario/Datos_cuenta";
 import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
 import Swal from "sweetalert2";
 import { comboDetalleActions } from "../../../redux/actions/combos/comboDetalleActions";
@@ -35,6 +14,7 @@ import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/combos
 import { comboCuentaActions } from "../../../redux/actions/combos/comboCuentaActions";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
 import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/modificarFormInventarioActions";
+import { comboProveedorActions } from "../../../redux/actions/combos/comboProveedorActions";
 
 export interface InventarioCompleto {
   aF_CLAVE: string;
@@ -61,7 +41,7 @@ export interface InventarioCompleto {
   iP_CREA: string;
   usuariO_MOD: string;
   f_MOD: string;
-  iP_MODt: string;
+  iP_MOlabel: string;
   aF_TIPO_DOC: number;
   proV_RUN: number;
   reG_EQM: string;
@@ -91,7 +71,6 @@ export interface InventarioCompleto {
   propietario: number;
   tipopropietario: number;
 }
-
 interface InventarioCompletoProps {
   datosInventarioCompleto: InventarioCompleto[];
   // inventarioProps: InventarioProps[];
@@ -103,6 +82,7 @@ interface InventarioCompletoProps {
   comboBien: BIEN[];
   comboDetalle: DETALLE[];
   listaEspecie: ListaEspecie[];
+  comboProveedor: PROVEEDOR[];
 
   comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   obtenerInventarioActions: (aF_CLAVE: string) => Promise<boolean>;
@@ -127,6 +107,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboCuenta,
   comboBien,
   comboDetalle,
+  comboProveedor,
   listaEspecie,
   descripcionEspecie,
   comboDependenciaActions,
@@ -240,13 +221,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (!Inventario.fechaFactura)
       tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
     if (!Inventario.rutProveedor)
-      tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
-    if (
-      !Inventario.nombreProveedor ||
-      Inventario.nombreProveedor === "" ||
-      Inventario.nombreProveedor === "0"
-    )
-      tempErrors.nombreProveedor = "El Nombre del Proveedor es obligatorio.";
+      tempErrors.rutProveedor = "El Proveedor es obligatorio.";
+
     else if (Inventario.nombreProveedor.length > 30)
       tempErrors.nombreProveedor =
         "El Nombre no debe exceder los 30 caracteres.";
@@ -465,6 +441,31 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         title: "Actualización exitosa",
         text: "Se ha actualizado el registro con éxito!",
       });
+      setInventario((inventarioPrevia) => ({
+        ...inventarioPrevia,
+        fechaFactura: "",
+        fechaRecepcion: "",
+        modalidadDeCompra: 0,
+        montoRecepcion: 0,
+        nFactura: "",
+        nOrdenCompra: 0,
+        nRecepcion: "",
+        nombreProveedor: "",
+        origenPresupuesto: 0,
+        rutProveedor: 0,
+        dependencia: 0,
+        servicio: 0,
+        cuenta: 0,
+        vidaUtil: 0,
+        marca: "",
+        modelo: "",
+        serie: "",
+        precio: 0,
+        especie: ""
+      }));
+
+
+
     } else {
       Swal.fire({
         icon: "error",
@@ -495,9 +496,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           <Row>
             <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Nº Inventario</dt>
+                <label className="text-muted fw-semibold">Nº Inventario</label>
                 <div className="d-flex align-items-center">
                   <input
+                    aria-label="nRecepcion"
                     type="text"
                     className={`form-control ${error.nRecepcion ? "is-invalid" : ""
                       } w-100`}
@@ -520,13 +522,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           animation="border"
                           size="sm"
                           role="status"
-                          aria-hidden="true"
+                          aria-hidiven="true"
                         />
                       </>
                     ) : (
                       <Search
                         className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
+                        aria-hidiven="true"
                       />
                     )}
                   </Button>
@@ -538,7 +540,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   >
                     <Pencil
                       className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
+                      aria-hidiven="true"
                     />
                   </Button>
                 </div>
@@ -549,8 +551,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Fecha Recepción</dt>
+                <label className="text-muted fw-semibold">Fecha Recepción</label>
                 <input
+                  aria-label="fechaRecepcion"
                   type="date"
                   className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""
                     }`}
@@ -564,8 +567,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">N° Orden de compra</dt>
+                <label className="text-muted fw-semibold">N° Orden de compra</label>
                 <input
+                  aria-label="nOrdenCompra"
                   type="text"
                   className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""
                     }`}
@@ -580,8 +584,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Nº factura</dt>
+                <label className="text-muted fw-semibold">Nº factura</label>
                 <input
+                  aria-label="nFactura"
                   type="text"
                   className={`form-control ${error.nFactura ? "is-invalid" : ""
                     }`}
@@ -596,8 +601,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Origen Presupuesto</dt>
+                <label className="text-muted fw-semibold">Origen Presupuesto</label>
                 <select
+                  aria-label="origenPresupuesto"
                   className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
                     }`}
                   name="origenPresupuesto"
@@ -621,8 +627,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Col>
             <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Monto Recepción</dt>
+                <label className="text-muted fw-semibold">Monto Recepción</label>
                 <input
+                  aria-label="montoRecepcion"
                   type="text"
                   className={`form-select ${error.montoRecepcion ? "is-invalid" : ""
                     }`}
@@ -637,8 +644,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Fecha Factura</dt>
+                <label className="text-muted fw-semibold">Fecha Factura</label>
                 <input
+                  aria-label="fechaFactura"
                   type="date"
                   className={`form-select ${error.fechaFactura ? "is-invalid" : ""
                     }`}
@@ -652,42 +660,32 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Rut Proveedor</dt>
-                <input
-                  type="text"
+                <label className="text-muted fw-semibold">Proveedor</label>
+                <select
+                  aria-label="rutProveedor"
                   className={`form-select ${error.rutProveedor ? "is-invalid" : ""
                     }`}
-                  maxLength={8}
                   name="rutProveedor"
                   onChange={handleChange}
-                  value={Inventario.rutProveedor || rutProveedor}
-                  disabled={isDisabled}
-                />
+                  value={Inventario.rutProveedor}
+                >
+                  <option value="">Seleccione un Proveedor</option>
+                  {comboProveedor.map((traeProveedor) => (
+                    <option key={traeProveedor.rut} value={traeProveedor.rut}>
+                      {traeProveedor.nomprov}
+                    </option>
+                  ))}
+                </select>
                 {error.rutProveedor && (
-                  <div className="invalid-feedback">{error.rutProveedor}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <dt className="text-muted">Nombre Proveedor</dt>
-                <input
-                  type="text"
-                  className={`form-select ${error.nombreProveedor ? "is-invalid" : ""
-                    }`}
-                  maxLength={30}
-                  name="nombreProveedor"
-                  onChange={handleChange}
-                  value={Inventario.nombreProveedor}
-                  disabled={isDisabled}
-                />
-                {error.nombreProveedor && (
                   <div className="invalid-feedback">
-                    {error.nombreProveedor}
+                    {error.rutProveedor}
                   </div>
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Modalida de Compra</dt>
+                <label className="text-muted fw-semibold">Modalida de Compra</label>
                 <select
+                  aria-label="modalidadDeCompra"
                   className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""
                     }`}
                   name="modalidadDeCompra"
@@ -711,11 +709,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                 )}
               </div>
-            </Col>
-            <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Servicio</dt>
+                <label className="text-muted fw-semibold">Servicio</label>
                 <select
+                  aria-label="servicio"
                   className={`form-select ${error.servicio ? "is-invalid" : ""
                     }`}
                   name="servicio"
@@ -737,9 +734,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   <div className="invalid-feedback">{error.servicio}</div>
                 )}
               </div>
+            </Col>
+            <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Dependencia</dt>
+                <label className="text-muted fw-semibold">Dependencia</label>
                 <select
+                  aria-label="dependencia"
                   className={`form-select ${error.dependencia ? "is-invalid" : ""
                     }`}
                   name="dependencia"
@@ -762,9 +762,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Especie</dt>
-                <dd className="d-flex align-items-center">
+                <label className="text-muted fw-semibold">Especie</label>
+                <div className="d-flex align-items-center">
                   <input
+                    aria-label="especie"
                     type="text"
                     name="especie"
                     value={
@@ -786,10 +787,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   >
                     <Pencil
                       className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
+                      aria-hidiven="true"
                     />
                   </Button>
-                </dd>
+                </div>
                 {/* {error.especie && (
                     <div className="invalid-feedback d-block">
                       {error.especie}
@@ -797,8 +798,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   )} */}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Cuenta</dt>
+                <label className="text-muted fw-semibold">Cuenta</label>
                 <select
+                  aria-label="cuenta"
                   className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
                   name="cuenta"
                   onChange={handleChange}
@@ -818,8 +820,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </div>
 
               <div className="mb-1">
-                <dt className="text-muted">Activos fijos</dt>
-                <dd className="d-flex align-items-center">
+                <label className="text-muted fw-semibold">Activos fijos</label>
+                <div className="d-flex align-items-center">
                   <p className="text-right w-100 border p-2 m-0 rounded">
                     Detalles activos fijos
                   </p>
@@ -832,11 +834,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   >
                     <Eye
                       className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
+                      aria-hidiven="true"
                     />
                   </Button>
-                </dd>
+                </div>
+
               </div>
+
             </Col>
           </Row>
           <div className="p-1 rounded bg-white d-flex justify-content-end">
@@ -866,9 +870,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               <Col md={12}>
                 <div className="d-flex justify-content-between">
                   <div className="mb-1 w-50">
-                    <dt className="text-muted">Bien</dt>
-                    <dd className="d-flex align-items-center">
+                    <label className="text-muted fw-semibold">Bien</label>
+                    <div className="d-flex align-items-center">
                       <select
+                        aria-label="bien"
                         name="bien"
                         className="form-select"
                         onChange={handleChange}
@@ -879,22 +884,23 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           </option>
                         ))}
                       </select>
-                    </dd>
+                    </div>
                   </div>
                   <div className="d-flex justify-content-end p-4">
                     <Button variant="primary" type="submit">
                       Seleccionar{" "}
                       <Check2Circle
                         className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
+                        aria-hidiven="true"
                       />
                     </Button>
                   </div>
                 </div>
                 <div className="mb-1 w-50">
-                  <dt className="text-muted">Detalles</dt>
-                  <dd className="d-flex align-items-center">
+                  <label className="text-muted fw-semibold">Detalles</label>
+                  <div className="d-flex align-items-center">
                     <select
+                      aria-label="detalles"
                       name="detalles"
                       className="form-select"
                       onChange={handleChange}
@@ -909,20 +915,20 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         </option>
                       ))}
                     </select>
-                  </dd>
+                  </div>
                 </div>
                 {/* <div className="mb-1">
-                  <dd className="d-flex align-items-center">
+                  <div className="d-flex align-items-center">
                     <input type="text" name="" className="form-control" />
                     <Button variant="primary">Buscar</Button>
-                  </dd>
+                  </div>
                 </div> */}
               </Col>
             </Row>
           </form>
 
           {/* Tabla*/}
-          <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+          <div className="table-responsive overflow-auto" style={{ maxHeight: "500px" }}>
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -1005,22 +1011,22 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               <Table bordered hover>
                 <thead>
                   <tr>
-                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                    <th className="bg-primary text-white" >
                       Vida Útil
                     </th>
-                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                    <th className="bg-primary text-white">
                       Fecha Ingreso
                     </th>
-                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                    <th className="bg-primary text-white">
                       Marca
                     </th>
-                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                    <th className="bg-primary text-white">
                       Modelo
                     </th>
-                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                    <th className="bg-primary text-white">
                       Serie
                     </th>
-                    <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                    <th className="bg-primary text-white">
                       Precio
                     </th>
                   </tr>
@@ -1033,6 +1039,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     <td>{modelo}</td>
                     <td className="d-flex align-items-center p-1">
                       <input
+                        aria-label="serie"
                         type="text"
                         name="serie"
                         className="form-control border border-0 rounded-0 "
@@ -1041,7 +1048,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       />
                       <Pencil
                         className={classNames("flex-shrink-0", "h-5 w-5 m-1")}
-                        aria-hidden="true"
+                        aria-hidiven="true"
                       />
                     </td>
                     <td>
@@ -1056,7 +1063,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           </div>
         </Modal.Body>
       </Modal>
-    </Layout>
+    </Layout >
   );
 };
 
@@ -1069,6 +1076,7 @@ const mapStateToProps = (state: RootState) => ({
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
+  comboProveedor: state.comboProveedorReducers.comboProveedor,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
   descripcionEspecie: state.datosRecepcionReducer.descripcionEspecie,
 });
@@ -1080,4 +1088,5 @@ export default connect(mapStateToProps, {
   comboListadoDeEspeciesBienActions,
   comboCuentaActions,
   modificarFormInventarioActions,
+  comboProveedorActions
 })(ModificarInventario);

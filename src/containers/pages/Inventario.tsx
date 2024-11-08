@@ -80,7 +80,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
     <Layout>
       <>
         <Row>
-          <Col lg={6} md={6} className="mb-4">
+          <Col lg={4} md={4} className="mb-4">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -108,7 +108,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={6} md={6} className="mb-4">
+          <Col lg={4} md={4} className="mb-4">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -135,7 +135,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={6} md={6} className="mb-4">
+          <Col lg={4} md={4} className="mb-4">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -163,7 +163,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={6} md={6} className="mb-4">
+          <Col lg={4} md={4} className="mb-4">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -190,7 +190,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={6} md={6} className="mb-4">
+          <Col lg={4} md={4} className="mb-4">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">

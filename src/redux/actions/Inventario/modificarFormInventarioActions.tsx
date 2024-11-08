@@ -17,7 +17,6 @@ export const modificarFormInventarioActions =
           "Content-Type": "application/json",
         },
       };
-      // Verifica si `datosInventario` tiene datos antes de enviar
       if (
         !FormulariosCombinados ||
         Object.keys(FormulariosCombinados).length === 0
@@ -32,20 +31,14 @@ export const modificarFormInventarioActions =
       dispatch({ type: POST_FORMULARIO_REQUEST });
 
       try {
-        const response = await axios.post(
-          `/api_inv/api/inventario/actualizaActivoFijo/`,
-          body,
-          config
-        );
+        const response = await axios.post(`/api_inv/api/inventario/actualizaActivoFijo/`, body, config);
 
-        // Si el POST es exitoso
         if (response.status === 200) {
           dispatch({
             type: POST_FORMULARIO_SUCCESS,
             payload: response.data,
           });
-          console.log("Put enviado correctamente");
-          return true; // Retorna true en caso de éxito
+          return true;
         }
       } catch (error: any) {
         // Manejo detallado del error
@@ -55,7 +48,7 @@ export const modificarFormInventarioActions =
           "Error al enviar el formulario";
         dispatch({
           type: POST_FORMULARIO_FAIL,
-          payload: errorMessage, // Mandamos el mensaje de error al reducer
+          payload: errorMessage,
         });
         console.error("Error al enviar el formulario:", errorMessage);
         return false; // Retorna false en caso de error

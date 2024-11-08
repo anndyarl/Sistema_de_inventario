@@ -160,9 +160,10 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({
           <Row>
             <Col md={5}>
               <div className="p-2 w-100">
-                <dt className="text-muted">Fecha Inicio</dt>
+                <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
                 <div className=" d-flex mb-2 w-100 ">
                   <input
+                    id="fechaInicio"
                     type="date"
                     className={`form-control text-center ${error.fechaInicio ? "is-invalid" : ""
                       }`}
@@ -210,8 +211,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({
                 )}
               </div>
               <div className="p-2  w-81">
-                <dt className="text-muted">Fecha Término</dt>
+                <label htmlFor="fechaTermino" className="text-muted">Fecha Término</label>
                 <input
+                  aria-label="Archivo de autorización"
                   type="date"
                   className={`form-control text-center ${error.fechaTermino ? "is-invalid" : ""
                     }`}

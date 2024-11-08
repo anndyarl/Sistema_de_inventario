@@ -18,7 +18,7 @@ import {
   setEspecieActions,
   setDescripcionEspecieActions,
   setNombreEspecieActions,
-} from "../../../redux/actions/Inventario/Datos_inventariosActions";
+} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
 import { Check2Circle, Plus } from "react-bootstrap-icons";
 
 // Define el tipo de los elementos del combo `servicio`
@@ -239,9 +239,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     ) {
       const estableEspecie = (elementoSeleccionado as ListaEspecie).estabL_CORR;
       const codigoEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO;
-      const nombreEspecie = `${
-        (elementoSeleccionado as ListaEspecie).nombrE_ESP
-      }`;
+      const nombreEspecie = `${(elementoSeleccionado as ListaEspecie).nombrE_ESP
+        }`;
       const descripcionEspecie =
         (elementoSeleccionado as ListaEspecie).esP_CODIGO +
         " | " +
@@ -288,11 +287,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
           <Row>
             <Col md={6}>
               <div className="mb-1">
-                <dt className="text-muted">Servicio</dt>
+                <label className="text-muted">Servicio</label>
                 <select
-                  className={`form-select ${
-                    error.servicio ? "is-invalid" : ""
-                  }`}
+                  aria-label="servicio"
+                  className={`form-select ${error.servicio ? "is-invalid" : ""
+                    }`}
                   name="servicio"
                   onChange={handleChange}
                   value={Cuenta.servicio}
@@ -312,11 +311,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Dependencia</dt>
+                <label className="text-muted">Dependencia</label>
                 <select
-                  className={`form-select ${
-                    error.dependencia ? "is-invalid" : ""
-                  }`}
+                  aria-label="dependencia"
+                  className={`form-select ${error.dependencia ? "is-invalid" : ""
+                    }`}
                   name="dependencia"
                   onChange={handleChange}
                   value={Cuenta.dependencia}
@@ -339,12 +338,12 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             </Col>
             <Col md={6}>
               <div className="mb-1">
-                <dt className="text-muted">Especie</dt>
+                <label className="text-muted">Especie</label>
                 <dd className="d-flex align-items-center">
                   <input
-                    className={`form-control ${
-                      error.especie ? "is-invalid" : ""
-                    }`}
+                    aria-label="especie"
+                    className={`form-control ${error.especie ? "is-invalid" : ""
+                      }`}
                     type="text"
                     name="especie"
                     value={
@@ -374,8 +373,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <dt className="text-muted">Cuenta</dt>
+                <label className="text-muted">Cuenta</label>
                 <select
+                  aria-label="cuenta"
                   className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
                   name="cuenta"
                   disabled={!Cuenta.especie}
@@ -420,9 +420,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
               <Col md={12}>
                 <div className="d-flex justify-content-between">
                   <div className="mb-1 w-50">
-                    <dt className="text-muted">Bien</dt>
+                    <label className="text-muted">Bien</label>
                     <dd className="d-flex align-items-center">
                       <select
+                        aria-label="bien"
                         name="bien"
                         className="form-select"
                         onChange={handleChange}
@@ -446,9 +447,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                   </div>
                 </div>
                 <div className="mb-1 w-50">
-                  <dt className="text-muted">Detalles</dt>
+                  <label className="text-muted">Detalles</label>
                   <dd className="d-flex align-items-center">
                     <select
+                      aria-label="detalles"
                       name="detalles"
                       className="form-select"
                       onChange={handleChange}

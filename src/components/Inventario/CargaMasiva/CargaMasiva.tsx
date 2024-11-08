@@ -131,7 +131,7 @@ const CargaMasiva: React.FC = () => {
         </h3>
         <form onSubmit={handleFormSubmit}>
           <div className="mb-1">
-            <dt className="text-muted">Descargar formato</dt>
+            <label className="text-muted">Descargar formato</label>
             <div className="d-flex align-items-center">
               <button
                 onClick={handleDescargaExcel}
@@ -144,7 +144,7 @@ const CargaMasiva: React.FC = () => {
           </div>
 
           <div className="mb-1">
-            <dd className="d-flex align-items-center ">
+            <div className="d-flex align-items-center ">
               <div
                 className={`dropzone ${isDraggingAutorizacion ? "dragging" : ""
                   }`}
@@ -162,6 +162,7 @@ const CargaMasiva: React.FC = () => {
                 )}
               </div>
               <input
+                aria-label="Archivo de autorización"
                 type="file"
                 ref={fileInputRefArchivoExcel} // Asigna la referencia al input
                 className={`file-input ${error.archivoExcel ? "is-invalid" : ""
@@ -170,7 +171,7 @@ const CargaMasiva: React.FC = () => {
                 onChange={handleChange}
                 value=""
               />
-            </dd>
+            </div>
             {error.archivoExcel && (
               <div className="invalid-feedback d-block">
                 {error.archivoExcel}

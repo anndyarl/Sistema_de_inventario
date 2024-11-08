@@ -6,60 +6,56 @@ import {
   INVENTARIO_FAIL,
 } from "../types";
 
-// Acción para obtener la recepción por número
+// Acción para obtener la recepción por af_clave
 export const obtenerInventarioActions =
   (nInventario: string) =>
-  async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-    const token = getState().loginReducer.token; //token está en el estado de autenticación
+    async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+      const token = getState().loginReducer.token;
 
-    if (token) {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      };
+      if (token) {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        };
 
-      dispatch({ type: INVENTARIO_REQUEST });
+        dispatch({ type: INVENTARIO_REQUEST });
 
-      try {
-        const res = await axios.get(
-          `/api_inv/api/inventario/TraeInvxID?AF_CLAVE=${nInventario}`,
-          config
-        );
-        console.log("Respuesta del servidor obtener nInventario:", res);
+        try {
+          const res = await axios.get(`/api_inv/api/inventario/TraeInvxID?AF_CLAVE=${nInventario}`, config);
 
-        if (res.status === 200) {
-          if (res.data?.length) {
-            dispatch({
-              type: INVENTARIO_SUCCESS,
-              payload: res.data,
-            });
-            return true;
+          if (res.status === 200) {
+            if (res.data?.length) {
+              dispatch({
+                type: INVENTARIO_SUCCESS,
+                payload: res.data,
+              });
+              return true;
+            } else {
+              return false;
+            }
           } else {
+            dispatch({
+              type: INVENTARIO_FAIL,
+              error:
+                "No se pudo obtener el inventario. Por favor, intente nuevamente.",
+            });
             return false;
           }
-        } else {
+        } catch (err) {
+          console.error("Error en la solicitud:", err);
           dispatch({
             type: INVENTARIO_FAIL,
-            error:
-              "No se pudo obtener el inventario. Por favor, intente nuevamente.",
+            error: "Error en la solicitud. Por favor, intente nuevamente.",
           });
           return false;
         }
-      } catch (err) {
-        console.error("Error en la solicitud:", err);
+      } else {
         dispatch({
           type: INVENTARIO_FAIL,
-          error: "Error en la solicitud. Por favor, intente nuevamente.",
+          error: "No se encontró un token de autenticación válido.",
         });
         return false;
       }
-    } else {
-      dispatch({
-        type: INVENTARIO_FAIL,
-        error: "No se encontró un token de autenticación válido.",
-      });
-      return false;
-    }
-  };
+    };

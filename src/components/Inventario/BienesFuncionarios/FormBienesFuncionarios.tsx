@@ -29,8 +29,8 @@ interface FormFuncionarioProps {
     rutFuncionario: string,
     comboServicio: number,
     comboDependencia: number,
-    comprobanteDePago: string,
-    autorizacion: string
+    comprobanteDePago: File,
+    autorizacion: File
   ) => Promise<Boolean>;
 }
 const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
@@ -41,10 +41,8 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
 }) => {
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef2 = useRef<HTMLInputElement>(null);
-  const [selectedFileComprobante, setSelectedFileComprobante] =
-    useState<File | null>(null);
-  const [selectedFileAutorizacion, setSelectedFileAutorizacion] =
-    useState<File | null>(null);
+  const [selectedFileComprobante, setSelectedFileComprobante] = useState<File | null>(null);
+  const [selectedFileAutorizacion, setSelectedFileAutorizacion] = useState<File | null>(null);
   const [isDraggingComprobante, setIsDraggingComprobante] = useState(false);
   const [isDraggingAutorizacion, setIsDraggingAutorizacion] = useState(false);
   const [error, setError] = useState<
@@ -60,7 +58,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
-    const allowedTypes = [
+    const allowelabelypes = [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "image/jpeg",
@@ -78,14 +76,14 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
     // Validación de archivos: autorizacion
     if (!selectedFileAutorizacion) {
       tempErrors.autorizacion = "La autorización es obligatoria.";
-    } else if (!allowedTypes.includes(selectedFileAutorizacion.type)) {
+    } else if (!allowelabelypes.includes(selectedFileAutorizacion.type)) {
       tempErrors.autorizacion = "Solo se permiten archivos PDF, DOCX o JPG.";
     }
 
     // Validación de archivos: comprobanteDePago
     if (!selectedFileComprobante) {
       tempErrors.comprobanteDePago = "El comprobante de pago es obligatorio.";
-    } else if (!allowedTypes.includes(selectedFileComprobante.type)) {
+    } else if (!allowelabelypes.includes(selectedFileComprobante.type)) {
       tempErrors.comprobanteDePago =
         "Solo se permiten archivos PDF, DOCX o JPG.";
     }
@@ -213,25 +211,33 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
     e.preventDefault();
 
     if (validate()) {
-      const resultado = await registrarBienFuncionarioActions(
-        Funcionario.rutFuncionario,
-        Funcionario.servicio,
-        Funcionario.dependencia,
-        Funcionario.comprobanteDePago,
-        Funcionario.autorizacion
-      );
+      if (selectedFileComprobante && selectedFileAutorizacion) {
+        const resultado = await registrarBienFuncionarioActions(
+          Funcionario.rutFuncionario,
+          Funcionario.servicio,
+          Funcionario.dependencia,
+          selectedFileComprobante,
+          selectedFileAutorizacion
+        );
 
-      if (resultado) {
-        Swal.fire({
-          icon: "success",
-          title: "Envío exitoso",
-          text: "¡Se ha registrado con éxito!",
-        });
+        if (resultado) {
+          Swal.fire({
+            icon: "success",
+            title: "Envío exitoso",
+            text: "¡Se ha registrado con éxito!",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Hubo un problema al enviar el registro.",
+          });
+        }
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Hubo un problema al enviar el registro.",
+        setError({
+          ...error,
+          comprobanteDePago: selectedFileComprobante ? "" : "El comprobante de pago es obligatorio.",
+          autorizacion: selectedFileAutorizacion ? "" : "La autorización es obligatoria.",
         });
       }
     }
@@ -247,8 +253,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
           <Row className="d-flex align-items-center">
             <Col md={4}>
               <div className="mb-1">
-                <dt className="text-muted">Rut Funcionario</dt>
+                <label htmlFor="rutFuncionario" className="text-muted fw-semibold fw-semibold">Rut Funcionario</label>
                 <input
+                  aria-label="rutFuncionario"  // Asociado al label
                   type="text"
                   className={`form-control ${error.rutFuncionario ? "is-invalid" : ""
                     } w-100`}
@@ -266,8 +273,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
               <div className="border shadow-sm p-4 rounded">
                 <h5 className="fw-semibold border-bottom p-1">Destino</h5>
                 <div className="mb-1">
-                  <dt className="text-muted">Servicio</dt>
+                  <label htmlFor="servicio" className="text-muted fw-semibold fw-semibold">Servicio</label>
                   <select
+                    aria-label="servicio"
                     className="form-select"
                     name="servicio"
                     onChange={handleChange}
@@ -290,8 +298,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   )}
                 </div>
                 <div className="mb-1">
-                  <dt className="text-muted">Dependencia</dt>
+                  <label htmlFor="dependencia" className="text-muted fw-semibold fw-semibold">Dependencia</label>
                   <select
+                    aria-label="dependencia"
                     className="form-select"
                     name="dependencia"
                     disabled={!Funcionario.servicio}
@@ -318,7 +327,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
             </Col>
             <Col md={4} className="d-flex align-items-center">
               <div className="mb-1 w-100">
-                <dt className="text-muted">Comprobante de Pago</dt>
+                <label htmlFor="comprobanteDePago" className="text-muted fw-semibold fw-semibold">Comprobante de Pago</label>
                 <div
                   className={`dropzone ${isDraggingComprobante ? "dragging" : ""
                     }`}
@@ -336,6 +345,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   )}
                 </div>
                 <input
+                  aria-label="comprobanteDePago"
                   type="file"
                   ref={fileInputRef1} // Asigna la referencia al input
                   className={`file-input ${error.comprobanteDePago ? "is-invalid" : ""
@@ -354,7 +364,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
             </Col>
             <Col md={4} className="d-flex align-items-center">
               <div className="mb-1 w-100">
-                <dt className="text-muted">Autorización</dt>
+                <label htmlFor="autorizacion" className="text-muted fw-semibold fw-semibold">Autorización</label>
                 <div
                   className={`dropzone ${isDraggingAutorizacion ? "dragging" : ""
                     }`}
@@ -372,6 +382,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   )}
                 </div>
                 <input
+                  aria-label="autorizacion"
                   type="file"
                   ref={fileInputRef2} // Asigna la referencia al input
                   className={`file-input ${error.autorizacion ? "is-invalid" : ""
