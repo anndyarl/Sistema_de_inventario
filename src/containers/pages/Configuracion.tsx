@@ -4,7 +4,7 @@ import Layout from "../hocs/layout/Layout";
 const Configuracion: React.FC = () => {
   return (
     <Layout>
-      <p>Configuracion</p>
+      <p>Configuración</p>
     </Layout>
   );
 };

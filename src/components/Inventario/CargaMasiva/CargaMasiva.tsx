@@ -29,7 +29,7 @@ const CargaMasiva: React.FC = () => {
       tempErrors.archivoExcel =
         "Debe adjuntar el archivo excel para la carga masiva de inventarios";
     } else if (!allowedTypes.includes(selectedArchivoExcel.type)) {
-      tempErrors.archivoExcel = "Solo se permiten archivos PDF, DOCX o JPG.";
+      tempErrors.archivoExcel = "Solo se permiten archivos xlsx.";
     }
 
     setError(tempErrors);
@@ -64,9 +64,7 @@ const CargaMasiva: React.FC = () => {
     }
   };
   //----------------Fin Autorización --------------//
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setAdjunto((prevState) => ({
       ...prevState,

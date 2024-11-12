@@ -80,7 +80,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
     <Layout>
       <>
         <Row>
-          <Col lg={4} md={4} className="mb-4">
+          <Col lg={6} md={5} className="mb-1">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -108,34 +108,37 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={4} md={4} className="mb-4">
+          <Col lg={6} md={5} className="mb-1">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
                   Modificar Inventario
+
                 </Card.Title>
                 <Card.Text className="text-center m-2">
                   Encuentre y modifique el inventario existente.
+
                 </Card.Text>
                 <div className="d-flex justify-content-center">
                   <div className="flex-grow-1">
                     <NavLink
                       key="ModificarInventario"
                       to="/ModificarInventario"
+
                       className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
                     >
-                      <Pencil
+                      <Trash
                         className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
                         aria-hidden="true"
                       />
-                      Modificar
+                      Anular
                     </NavLink>
                   </div>
                 </div>
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={4} md={4} className="mb-4">
+          <Col lg={6} md={5} className="mb-1">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -163,7 +166,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={4} md={4} className="mb-4">
+          <Col lg={6} md={5} className="mb-1">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -172,7 +175,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                 <Card.Text className="text-center m-2">
                   Registre los bienes asignados a funcionarios.
                 </Card.Text>
-                <div className="d-flex justify-items-center ">
+                <div className="d-flex justify-content-center">
                   <div className="flex-grow-1 ">
                     <NavLink
                       key="FormBienesFuncionarios"
@@ -190,7 +193,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={4} md={4} className="mb-4">
+          <Col lg={6} md={5} className="mb-1">
             <Card className="custom-card shadow p-3 border-0 rounded">
               <Card.Body>
                 <Card.Title className="text-center fw-semibold">
@@ -199,7 +202,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                 <Card.Text className="text-center m-2">
                   Adjunte el documento correspondiente para la carga masiva del inventario
                 </Card.Text>
-                <div className="d-flex justify-items-center ">
+                <div className="d-flex justify-content-center">
                   <div className="flex-grow-1 ">
                     <NavLink
                       key="CargaMasiva"

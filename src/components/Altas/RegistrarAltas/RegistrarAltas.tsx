@@ -5,27 +5,25 @@ import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-
-import { InventarioCompleto } from "../ModificarInventario/ModificarInventario";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/obtenerListaInventarioActions";
 import { anularInventarioActions } from "../../../redux/actions/Inventario/anularInventarioActions";
+import { InventarioCompleto } from "../../Inventario/ModificarInventario/ModificarInventario";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
-interface ListaInventarioProps {
-  datosListaInventario: InventarioCompleto[];
-  obtenerListaInventarioActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
-  anularInventarioActions: (nInventairio: string) => Promise<boolean>;
-}
-
 interface FechasProps {
   fechaInicio: string;
   fechaTermino: string;
 }
+interface Datos {
+  datosListaInventario: InventarioCompleto[];
+}
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario, obtenerListaInventarioActions, anularInventarioActions }) => {
+const RegistrarAltas: React.FC<Datos> = ({ datosListaInventario }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
+
+
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [elementoSeleccionado, setElementoSeleccionado] = useState<FechasProps[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -36,27 +34,17 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     fechaTermino: "",
   });
 
-  // useEffect(() => {
-  //   datosListaInventario;
-  // }, [datosListaInventario]);
-
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.fechaInicio)
-      tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-    if (!Inventario.fechaTermino)
-      tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-    if (Inventario.fechaInicio > Inventario.fechaTermino)
-      tempErrors.fechaInicio =
-        "La fecha de inicio es mayor a la fecha de término";
+    if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
+    if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
+    if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     setInventario((prevState) => ({
       ...prevState,
@@ -64,60 +52,59 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     }));
   };
 
-  const handleBuscarInventario = async () => {
-    let resultado = false;
-    if (validate()) {
-      setLoading(true);
-      resultado = await obtenerListaInventarioActions(
-        Inventario.fechaInicio,
-        Inventario.fechaTermino
-      );
+  // const handleBuscarInventario = async () => {
+  //   let resultado = false;
+  //   if (validate()) {
+  //     setLoading(true);
+  //     resultado = await obtenerListaInventarioActions(
+  //       Inventario.fechaInicio,
+  //       Inventario.fechaTermino
+  //     );
 
-      if (!resultado) {
-        Swal.fire({
-          icon: "error",
-          title: "No se encontraron resultados para la busqueda ",
-          confirmButtonText: "Ok",
-        });
-        setLoading(false); //Finaliza estado de carga
-        return;
-      } else {
-        setLoading(false); //Finaliza estado de carga
-      }
-    }
-  };
+  //     if (!resultado) {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "No se encontraron resultados para la busqueda ",
+  //         confirmButtonText: "Ok",
+  //       });
+  //       setLoading(false); //Finaliza estado de carga
+  //       return;
+  //     } else {
+  //       setLoading(false); //Finaliza estado de carga
+  //     }
+  //   }
+  // };
 
-  const handleAnular = async (index: number, aF_CLAVE: string) => {
-    setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+  // const handleAnular = async (index: number, aF_CLAVE: string) => {
+  //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
 
-    const result = await Swal.fire({
-      icon: "warning",
-      title: "Anular Registro",
-      text: `Confirma anular el registro Nº ${aF_CLAVE}`,
-      showDenyButton: false,
-      showCancelButton: true,
-      confirmButtonText: "Confirmar y Anular",
+  //   const result = await Swal.fire({
+  //     icon: "warning",
+  //     title: "Anular Registro",
+  //     text: `Confirma anular el registro Nº ${aF_CLAVE}`,
+  //     showDenyButton: false,
+  //     showCancelButton: true,
+  //     confirmButtonText: "Confirmar y Anular",
+  //   });
 
-    });
-
-    if (result.isConfirmed) {
-      const resultado = await anularInventarioActions(aF_CLAVE);
-      if (resultado) {
-        Swal.fire({
-          icon: "success",
-          title: "Registro anulado",
-          text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
-        });
-        handleBuscarInventario();
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
-        });
-      }
-    }
-  };
+  //   if (result.isConfirmed) {
+  //     const resultado = await anularInventarioActions(aF_CLAVE);
+  //     if (resultado) {
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Registro anulado",
+  //         text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
+  //       });
+  //       handleBuscarInventario();
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Error",
+  //         text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
+  //       });
+  //     }
+  //   }
+  // };
 
   const handleLimpiar = () => {
     setInventario((prevInventario) => ({
@@ -145,7 +132,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">
-            Anular Inventario
+            Registrar Altas
           </h3>
           <Row>
             <Col md={5}>
@@ -162,7 +149,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                     value={Inventario.fechaInicio}
                   />
                   <Button
-                    onClick={handleBuscarInventario}
+                    // onClick={handleBuscarInventario}
                     variant="primary"
                     className="ms-1"
                   >
@@ -250,9 +237,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                       <Button
                         variant="outline-danger"
                         size="sm"
-                        onClick={() =>
-                          handleAnular(index, datosListaInventario.aF_CLAVE)
-                        }
+                      // onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}
                       >
                         Anular
                       </Button>
@@ -304,4 +289,4 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   obtenerListaInventarioActions,
   anularInventarioActions,
-})(AnularInventario);
+})(RegistrarAltas);

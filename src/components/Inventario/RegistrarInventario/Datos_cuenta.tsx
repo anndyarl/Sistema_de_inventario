@@ -20,6 +20,7 @@ import {
   setNombreEspecieActions,
 } from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
 import { Check2Circle, Plus } from "react-bootstrap-icons";
+import Inventario from "../../../containers/pages/Inventario";
 
 // Define el tipo de los elementos del combo `servicio`
 export interface SERVICIO {
@@ -154,19 +155,31 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Actualiza el estado de 'cuenta' con el nuevo valor
-    setCuenta((cuentaPrevia) => ({ ...cuentaPrevia, [name]: value }));
+    // Si el campo debe ser numérico, convierte `value` a número; de lo contrario, manténlo como string
+    let newValue: string | number = ["servicio", "dependencia", "especie", "cuenta"].includes(name)
+      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+      : value;
+
+    setCuenta((prevCuenta) => ({
+      ...prevCuenta,
+      [name]: newValue,
+    }));
 
     // Otras condiciones para diferentes campos del formulario
     // Condiciones para los campos específicos
     if (name === "servicio") {
       onServicioSeleccionado(value);
+      dispatch(setServicioActions(newValue as number));
       // Restablece dependencia al seleccionar un nuevo servicio
-      setCuenta((cuentaPrevia) => ({ ...cuentaPrevia, dependencia: 0 })); // Limpia dependencia localmente
+      setCuenta((cuentaPrevia) => ({ ...cuentaPrevia, dependencia: 0 })); // Limpia dependencia localmente     
+    }
+    if (name === "dependencia") {
+      dispatch(setDependenciaActions(newValue as number));
+    }
+    if (name === "cuenta") {
+      dispatch(setCuentaActions(newValue as number));
     }
     if (name === "bien") {
       onBienSeleccionado(value);
@@ -174,6 +187,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     if (name === "detalles") {
       onDetalleSeleccionado(value);
     }
+
   };
   useEffect(() => {
     setCuenta({
@@ -190,35 +204,26 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     // Detecta si el valor de 'especie' ha cambiado
     if (Especies.codigoEspecie) {
       onEspecieSeleccionado(Especies.codigoEspecie);
+      dispatch(setEspecieActions(Cuenta.especie));
+      dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
+      if (parseInt(Especies.codigoEspecie) > 0) {
+        dispatch(setNombreEspecieActions(Especies.codigoEspecie));
+      }
+
       setCuenta((cuentaPrevia) => ({ ...cuentaPrevia, cuenta: 0 })); // Limpia cuenta localmente
+
     }
   }, [Especies.codigoEspecie]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      dispatch(setServicioActions(Cuenta.servicio));
-      dispatch(setCuentaActions(Cuenta.cuenta));
-      dispatch(setDependenciaActions(Cuenta.dependencia));
-      dispatch(setEspecieActions(Cuenta.especie));
-      dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
-      if (parseInt(Especies.codigoEspecie) > 0) {
-        dispatch(setNombreEspecieActions(Especies.codigoEspecie));
-      }
       onNext(Cuenta);
       console.log("Formulario Datos cuenta:", Cuenta);
     }
   };
   const handleVolver = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    dispatch(setServicioActions(Cuenta.servicio));
-    dispatch(setCuentaActions(Cuenta.cuenta));
-    dispatch(setDependenciaActions(Cuenta.dependencia));
-    dispatch(setEspecieActions(Cuenta.especie));
-    dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
-    if (parseInt(Especies.codigoEspecie) > 0) {
-      dispatch(setNombreEspecieActions(Especies.codigoEspecie));
-    }
     onBack();
   };
 

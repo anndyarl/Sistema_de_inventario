@@ -97,21 +97,21 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   // Función para manejar la selección del detalle en base al bien seleccionado en el componente `DatosCuenta`
   const handleBienSeleccionado = (codigoBien: string) => {
     setBienSeleccionado(codigoBien);
-    console.log("Código del bien seleccionado:", codigoBien);
+    // console.log("Código del bien seleccionado:", codigoBien);
     comboDetalleActions(codigoBien); // aqui le paso codigo de bien
   };
 
   // Función para manejar la selección de detalles en el componente `DatosCuenta`
   const handleDetalleSeleccionado = (codigoDetalle: string) => {
     setDetalleSeleccionado(codigoDetalle);
-    console.log("Código del detalle seleccionado:", codigoDetalle);
+    // console.log("Código del detalle seleccionado:", codigoDetalle);
     comboListadoDeEspeciesBienActions(1, codigoDetalle); // aqui le paso codigo de detalle
   };
 
   // Función para manejar la selección de la especie en el componente `DatosCuenta`
   const handleEspecieSeleccionado = (nombreEspecie: string) => {
     setEspecieSeleccionado(nombreEspecie);
-    console.log("nombre Especie del listado seleccionado:", nombreEspecie);
+    // console.log("nombre Especie del listado seleccionado:", nombreEspecie);
     comboCuentaActions(nombreEspecie); // aqui le paso codigo de detalle
   };
 

@@ -112,7 +112,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setCurrentPage] = useState(1);
   const [elementosPorPagina] = useState(10);
-  // const [total, setTotal] = useState<number>(0);
+  // Estado para errores específicos por serie
+  const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
+  const [isRepeatSerie, setIsRepeatSerie] = useState(false);
   //-------Fin Tabla-------//
 
   const precio = parseFloat(currentActivo.precio) || 0;
@@ -182,19 +184,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   };
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
-    >
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setCurrentActivo((prevData) => ({ ...prevData, [name]: value }));
   };
-  // Estado para errores específicos por serie
-  const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>(
-    {}
-  );
-  const [isRepeatSerie, setIsRepeatSerie] = useState(false);
 
   const handleCambiaSerie = (indexVisible: number, newSerie: string) => {
     // Convertir el índice visible al índice real en el array completo
@@ -395,7 +388,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
       FormulariosCombinados
     );
     if (resultado) {
-      console.log("FormulariosCombinados", FormulariosCombinados);
+      // console.log("FormulariosCombinados", FormulariosCombinados);
       //Resetea todo el formualario al estado inicial
       // dispatch(setTotalActivoFijoActions(total));
       dispatch(setNRecepcionActions(0));

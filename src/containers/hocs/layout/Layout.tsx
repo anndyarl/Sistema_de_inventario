@@ -4,19 +4,21 @@ import { RootState } from "../../../redux/reducers";
 import Sidebar from "../../../components/navigation/Sidebar";
 import Navbar from "../../../components/navigation/Navbar";
 import { List } from "react-bootstrap-icons";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, easeIn } from "framer-motion";
 import { Navigate, useLocation } from "react-router-dom";
 
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
 import "../../../styles/Layout.css"
 
+
 interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
+  token: string | null;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
   const location = useLocation();
@@ -36,7 +38,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
     } else {
       setSidebarOpen(false);
     }
-  }, [isDesktop]);
+    token
+  }, [isDesktop, token]);
 
   if (!isAuthenticated) {
     return <Navigate to="/" />;
@@ -45,15 +48,17 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const pageVariants = {
-    initial: { opacity: 0, scale: 0.98 },
-    in: { opacity: 1, scale: 1 },
+    // initial: { opacity: 0, scale: 0.98 },
+    // in: { opacity: 1, scale: 1 },
+    initial: { opacity: 0, x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
+    in: { opacity: 1, x: 0, }, // Llega a opacidad completa y posición natural
   };
 
   const pageTransition = {
     type: "tween",
-    ease: "anticipate",
-    duration: 0.1,
-    // delay: 0.02,
+    easeIn: "anticipate",
+    duration: 0.2,
+    // delay: 0.03,
   };
 
   return (
@@ -61,7 +66,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
       {/* Mobile Navbar */}
       <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none">
         <div className="container-fluid">
-          <button className="navbar-toggler border-0" type="button" onClick={toggleSidebar}>
+          <button className="navbar-toggler border-0" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={24} />
           </button>
           <Navbar />
@@ -117,6 +122,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated }) => {
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.loginReducer.isAuthenticated,
+  token: state.loginReducer.token
 });
 
-export default connect(mapStateToProps, {})(Layout);
+export default connect(mapStateToProps, {
+
+})(Layout);

@@ -33,20 +33,9 @@ function loginReducer(state = initialState, action: any): AuthState {
     case LOGIN_REQUEST:
       return { ...state, loading: true, error: null };
     case LOGIN_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        token: action.payload,
-        isAuthenticated: true,
-      };
+      return { ...state, loading: false, token: action.payload.token, isAuthenticated: true };
     case LOGIN_FAIL:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-        isAuthenticated: false,
-        token: null,
-      };
+      return { ...state, loading: false, error: action.payload, isAuthenticated: false, token: null, };
     case LOGOUT:
       return { ...initialState, loading: false };
     case SET_TOKEN:

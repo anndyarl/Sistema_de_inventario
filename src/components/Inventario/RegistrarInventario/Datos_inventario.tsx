@@ -135,19 +135,37 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Si el campo es numérico, convierte a número solo los que realmente son números
-    let newValue: string | number = value;
-    if (
-      name === "montoRecepcion" ||
-      name === "modalidadDeCompra" ||
-      name === "nOrdenCompra" ||
-      name === "origenPresupuesto"
-    ) {
+
+    // Si el campo debe ser numérico, convierte `value` a número; de lo contrario, manténlo como string
+    let newValue: string | number = ["montoRecepcion", "nOrdenCompra", "nRecepcion"].includes(name)
+      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+      : value;
+
+    setInventario((prevInventario) => ({
+      ...prevInventario,
+      [name]: newValue,
+    }));
+
+    // Ejecuta los dispatch correspondientes
+    if (name === "fechaFactura") {
+      dispatch(setFechaFacturaActions(newValue as string));
+    } else if (name === "fechaRecepcion") {
+      dispatch(setFechaRecepcionActions(newValue as string));
+    } else if (name === "nFactura") {
+      dispatch(setNFacturaActions(newValue as string)); // Convertido a número
+    } else if (name === "nOrdenCompra") {
       newValue = parseFloat(value) || 0;
+      console.log("nOrdenCompra", nOrdenCompra);
+      dispatch(setNOrdenCompraActions(newValue as number)); // Convertido a número
+    } else if (name === "nRecepcion") {
+      dispatch(setNRecepcionActions(newValue as number)); // Convertido a número
+    } else if (name === "origenPresupuesto") {
+      newValue = parseFloat(value) || 0;
+      dispatch(setOrigenPresupuestoActions(newValue as number));
+    } else if (name === "rutProveedor") {
+      dispatch(setRutProveedorActions(newValue as string));
     }
 
     if (name === "montoRecepcion" && datosTablaActivoFijo.length > 0) {
@@ -168,20 +186,30 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             setIsMontoRecepcionEdited(true);
             dispatch(vaciarDatosTabla());
           }
+          else {
+            setInventario((prevInventario) => ({
+              ...prevInventario,
+              [name]: Inventario.montoRecepcion,
+            }));
+          }
         });
         return;
       }
     }
     // setError((prevErrors) => ({ ...prevErrors, [name]: "" }));
-    setInventario((prevInventario) => ({
-      ...prevInventario,
-      [name]: newValue,
-    }));
+
     //Al seleccionar "otros" es decir el valor 7 este habilitará el input text
-    if (name === "modalidadDeCompra" && value === "7") {
-      setShowInput(true);
-    } else {
-      setShowInput(false);
+
+    if (name === "modalidadDeCompra") {
+      if (value === "7") {
+        newValue = parseFloat(value) || 0;
+        dispatch(setModalidadCompraActions(newValue as number));
+        setShowInput(true);
+      } else {
+        newValue = parseFloat(value) || 0;
+        dispatch(setModalidadCompraActions(newValue as number));
+        setShowInput(false);
+      }
     }
   };
 
@@ -249,17 +277,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     e.preventDefault();
 
     if (validate()) {
-      console.log("Formulario Datos inventario", Inventario);
-      // Despachar todas las acciones necesarias
-      dispatch(setFechaFacturaActions(Inventario.fechaFactura));
-      dispatch(setFechaRecepcionActions(Inventario.fechaRecepcion));
-      dispatch(setModalidadCompraActions(Inventario.modalidadDeCompra));
-      dispatch(setMontoRecepcionActions(Inventario.montoRecepcion));
-      dispatch(setNFacturaActions(Inventario.nFactura));
-      dispatch(setNOrdenCompraActions(Inventario.nOrdenCompra));
-      dispatch(setNRecepcionActions(Inventario.nRecepcion));
-      dispatch(setOrigenPresupuestoActions(Inventario.origenPresupuesto));
-      dispatch(setRutProveedorActions(Inventario.rutProveedor));
+      dispatch(setMontoRecepcionActions(Inventario.montoRecepcion)); // Convertido a número
       onNext(Inventario);
     }
   };

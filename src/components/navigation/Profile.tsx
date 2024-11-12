@@ -32,7 +32,6 @@ const Profile: React.FC<ProfileProps> = ({
     initial: { opacity: 0, x: 100 }, // Comienza con transparencia y desplazamiento desde la izquierda
     animate: { opacity: 1, x: 0 }, // Llega a opacidad completa y posición natural
     exit: { opacity: 0, x: 100 }, // Se desvanece hacia la derecha en la salida
-
   };
 
   const panelTransition = {
@@ -68,23 +67,23 @@ const Profile: React.FC<ProfileProps> = ({
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <button className="close-btn" onClick={togglePanel}>×</button>
-              <h3 className=" fw-semibold border-bottom p-1 text-center">Andy Riquelme</h3>
-              <p className="navbar-nav nav-item nav-link mb-0 fw-semibold border-bottom fs-6 fs-md-5 fs-lg-4">
+              <button className="navbar-nav fs-2 nav-link close-btn" onClick={togglePanel}>×</button>
+              <h3 className="fw-semibold border-bottom p-1 text-center">Andy Riquelme</h3>
+              <p className="mb-2 fw-fw-normal border-bottom fs-6 fs-md-5 fs-lg-4">
 
                 <strong> <Coin
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 />UTM: </strong> $47.396
               </p>
-              <p className="navbar-nav nav-item nav-link mb-0 fw-semibold border-bottom fs-6 fs-md-5 fs-lg-4">
+              <p className="mb-2 fw-fw-normal border-bottom fs-6 fs-md-5 fs-lg-4">
 
-                <strong className="ms-1"> <Building
+                <strong> <Building
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 />Dependencia: </strong> Finanzas
               </p>
-              <p className="navbar-nav nav-item nav-link mb-1 fw-semibold border-bottom fs-6 fs-md-5 fs-lg-4">
+              <p className="mb-0 fw-fw-normal border-bottom fs-6 fs-md-5 fs-lg-4">
 
                 <strong> <Geo
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
@@ -94,17 +93,17 @@ const Profile: React.FC<ProfileProps> = ({
               <NavLink
                 key="Configuracion"
                 to="/Configuracion"
-                className="navbar-nav nav-item nav-link  fw-semibold border-bottom  fs-6 fs-md-5 fs-lg-4"
+                className="navbar-nav nav-link mb-2 fw-fw-normal border-bottom  fs-6 fs-md-5 fs-lg-4"
               >
                 <strong> <Gear
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
-                />Configuracion</strong>
+                />Configuración</strong>
               </NavLink>
               <button onClick={handleLogout} type="button" className="btn btn-outline-secondary w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
                 Cerrar Sesión
                 <LogOut
-                  className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
+                  className={classNames("ms-1 p-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 /></button>
               {/* <div className="d-flex justify-content-around align-content-center ">
