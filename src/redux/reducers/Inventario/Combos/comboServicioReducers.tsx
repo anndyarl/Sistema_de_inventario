@@ -4,7 +4,7 @@ import {
   SERVICIO_SUCCESS,
   SERVICIO_FAIL,
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface ServicioState {
   loading: boolean;

@@ -4,7 +4,7 @@ import {
   MODALIDAD_COMPRA_SUCCESS,
   MODALIDAD_COMPRA_FAIL,
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface ModalidadCompraState {
   loading: boolean;

@@ -1,10 +1,10 @@
 
-import { InventarioCompleto } from '../../../components/Inventario/ModificarInventario/ModificarInventario';
+import { InventarioCompleto } from '../../../../components/Inventario/ModificarInventario/ModificarInventario';
 import {
   LISTA_INVENTARIO_REQUEST,
   LISTA_INVENTARIO_SUCCESS,
   LISTA_INVENTARIO_FAIL
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 
 // Define el tipo para el estado inicial
@@ -19,7 +19,7 @@ const initialState: DatosInventarioState = {
 };
 
 // Reducer con tipos definidos
-const datosListaInventarioReducer = (state = initialState, action: any) => {
+const datosListaInventarioReducers = (state = initialState, action: any) => {
   switch (action.type) {
     case LISTA_INVENTARIO_REQUEST:
       return { ...state, loading: true };
@@ -38,4 +38,4 @@ const datosListaInventarioReducer = (state = initialState, action: any) => {
 
 
 
-export default datosListaInventarioReducer;
+export default datosListaInventarioReducers;

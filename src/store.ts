@@ -2,7 +2,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import rootReducer from '../src/redux/reducers'; 
+import rootReducer from './redux/reducers'; 
 import thunk, { ThunkMiddleware } from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
@@ -11,7 +11,7 @@ const persistConfig = {
   key: 'root',
   storage,
   // whitelist: ['auth', 'datosInventarioReducer', 'comboDependenciaReducer', 'comboListadoDeEspeciesBien', 'comboCuentaReducer']// Se agregan los datos a persistir en el navegador
-  whitelist: ['loginReducer','datosRecepcionReducer','comboServicioReducer','comboDependenciaReducer','comboListadoDeEspeciesBien','comboCuentaReducer']
+  whitelist: ['loginReducer','obtenerRecepcionReducers','datosCuentaReducers','datosActivoFijoReducers','comboServicioReducer','comboDependenciaReducer','comboListadoDeEspeciesBien','comboCuentaReducer']
 };
 
 // Reducer persistente

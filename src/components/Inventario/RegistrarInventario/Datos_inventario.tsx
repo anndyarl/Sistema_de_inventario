@@ -17,8 +17,8 @@ import {
   setnombreProveedorActions,
   setModalidadCompraActions,
   vaciarDatosTabla,
-} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
-import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/obtenerRecepcionActions";
+} from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
+import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./Datos_activo_fijo";
 import { Eraser, Search } from "react-bootstrap-icons";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
@@ -237,9 +237,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     origenPresupuesto,
     rutProveedor,
   ]);
-  const handleRecepcionSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
     if (!Inventario.nRecepcion) {
@@ -449,7 +447,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <label className="text-muted fw-semibold">Proveedor</label>
                 <select
                   aria-label="rutProveedor"
-                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
+                  className={`form-select ${error.rutProveedor ? "is-invalid" : ""
                     }`}
                   name="rutProveedor"
                   onChange={handleChange}
@@ -534,18 +532,18 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
 //mapea los valores del estado global de Redux
 const mapStateToProps = (state: RootState) => ({
-  fechaFactura: state.datosRecepcionReducer.fechaFactura,
-  fechaRecepcion: state.datosRecepcionReducer.fechaRecepcion,
-  modalidadDeCompra: state.datosRecepcionReducer.modalidadDeCompra,
-  montoRecepcion: state.datosRecepcionReducer.montoRecepcion,
-  nFactura: state.datosRecepcionReducer.nFactura,
-  nOrdenCompra: state.datosRecepcionReducer.nOrdenCompra,
-  nRecepcion: state.datosRecepcionReducer.nRecepcion,
-  nombreProveedor: state.datosRecepcionReducer.nombreProveedor,
-  origenPresupuesto: state.datosRecepcionReducer.origenPresupuesto,
-  rutProveedor: state.datosRecepcionReducer.rutProveedor,
-  datosTablaActivoFijo: state.datosRecepcionReducer.datosTablaActivoFijo,
-  datosInventarioCompleto: state.datosInventarioReducer.datosInventarioCompleto,
+  fechaFactura: state.obtenerRecepcionReducers.fechaFactura,
+  fechaRecepcion: state.obtenerRecepcionReducers.fechaRecepcion,
+  modalidadDeCompra: state.obtenerRecepcionReducers.modalidadDeCompra,
+  montoRecepcion: state.obtenerRecepcionReducers.montoRecepcion,
+  nFactura: state.obtenerRecepcionReducers.nFactura,
+  nOrdenCompra: state.obtenerRecepcionReducers.nOrdenCompra,
+  nRecepcion: state.obtenerRecepcionReducers.nRecepcion,
+  nombreProveedor: state.obtenerRecepcionReducers.nombreProveedor,
+  origenPresupuesto: state.obtenerRecepcionReducers.origenPresupuesto,
+  rutProveedor: state.obtenerRecepcionReducers.rutProveedor,
+  datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
+
 });
 
 export default connect(mapStateToProps, {

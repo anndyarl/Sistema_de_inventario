@@ -6,9 +6,8 @@ import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { Eraser, Search } from "react-bootstrap-icons";
-import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/obtenerListaInventarioActions";
-import { anularInventarioActions } from "../../../redux/actions/Inventario/anularInventarioActions";
-import { InventarioCompleto } from "../../Inventario/ModificarInventario/ModificarInventario";
+import { listaAltasActions } from "../../../redux/actions/Altas/listaAltasActions";
+
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -16,16 +15,32 @@ interface FechasProps {
   fechaInicio: string;
   fechaTermino: string;
 }
-interface Datos {
-  datosListaInventario: InventarioCompleto[];
+export interface ListaAltas {
+  aF_CLAVE: number,
+  ninv: string,
+  serv: string,
+  dep: string,
+  esp: string,
+  ncuenta: string,
+  marca: string,
+  modelo: string,
+  serie: string,
+  precio: string,
+  mrecepcion: string
 }
 
-const RegistrarAltas: React.FC<Datos> = ({ datosListaInventario }) => {
+interface DatosAltas {
+  listaAltas: ListaAltas[];
+  listaAltasActions: () => Promise<boolean>;
+  token: string | null;
+}
+
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, token }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<FechasProps[]>([]);
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 40;
 
@@ -33,7 +48,14 @@ const RegistrarAltas: React.FC<Datos> = ({ datosListaInventario }) => {
     fechaInicio: "",
     fechaTermino: "",
   });
+  useEffect(() => {
+    // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
+    if (token) {
+      // Verifica si las acciones ya fueron disparadas
+      if (listaAltas.length === 0) listaAltasActions();
+    }
 
+  }, []);
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -118,12 +140,12 @@ const RegistrarAltas: React.FC<Datos> = ({ datosListaInventario }) => {
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
   const elementosActuales = useMemo(
     () =>
-      datosListaInventario.slice(indicePrimerElemento, indiceUltimoElemento),
-    [datosListaInventario, indicePrimerElemento, indiceUltimoElemento]
+      listaAltas.slice(indicePrimerElemento, indiceUltimoElemento),
+    [listaAltas, indicePrimerElemento, indiceUltimoElemento]
   );
   // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(datosListaInventario)
-    ? Math.ceil(datosListaInventario.length / elementosPorPagina)
+  const totalPaginas = Array.isArray(listaAltas)
+    ? Math.ceil(listaAltas.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -209,30 +231,34 @@ const RegistrarAltas: React.FC<Datos> = ({ datosListaInventario }) => {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Nª de Recepcion</th>
-                  <th>Fecha de Factura</th>
-                  <th>Fecha de Recepcion</th>
-                  <th>Modalidad de Compra</th>
-                  <th>Monto de Recepcion</th>
-                  <th>Nª de Factura</th>
-                  <th>Origen Presupuesto</th>
-                  <th>Rut Proveedor</th>
-                  <th>Dependencia</th>
+                  <th>aF_CLAVE</th>
+                  <th>ninv</th>
+                  <th>serv</th>
+                  <th>dep</th>
+                  <th>esp</th>
+                  <th>ncuenta</th>
+                  <th>marca</th>
+                  <th>modelo</th>
+                  <th>serie</th>
+                  <th>precio</th>
+                  <th>mrecepcion</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {elementosActuales.map((datosListaInventario, index) => (
+                {elementosActuales.map((listaAltas, index) => (
                   <tr key={index}>
-                    <td>{datosListaInventario.aF_CLAVE}</td>
-                    <td>{datosListaInventario.aF_FECHAFAC}</td>
-                    <td>{datosListaInventario.aF_FINGRESO}</td>
-                    <td>{datosListaInventario.idmodalidadcompra}</td>
-                    <td>{datosListaInventario.aF_MONTOFACTURA}</td>
-                    <td>{datosListaInventario.aF_NUM_FAC}</td>
-                    <td>{datosListaInventario.aF_ORIGEN}</td>
-                    <td>{datosListaInventario.proV_RUN}</td>
-                    <td>{datosListaInventario.deP_CORR}</td>
+                    <td>{listaAltas.aF_CLAVE}</td>
+                    <td>{listaAltas.ninv}</td>
+                    <td>{listaAltas.serv}</td>
+                    <td>{listaAltas.dep}</td>
+                    <td>{listaAltas.esp}</td>
+                    <td>{listaAltas.ncuenta}</td>
+                    <td>{listaAltas.marca}</td>
+                    <td>{listaAltas.modelo}</td>
+                    <td>{listaAltas.serie}</td>
+                    <td>{listaAltas.precio}</td>
+                    <td>{listaAltas.mrecepcion}</td>
                     <td>
                       <Button
                         variant="outline-danger"
@@ -283,10 +309,10 @@ const RegistrarAltas: React.FC<Datos> = ({ datosListaInventario }) => {
 };
 
 const mapStateToProps = (state: RootState) => ({
-  datosListaInventario: state.datosListaInventarioReducer.datosListaInventario,
+  listaAltas: state.datosListaAltasReducers.ListaAltas,
+  token: state.loginReducer.token
 });
 
 export default connect(mapStateToProps, {
-  obtenerListaInventarioActions,
-  anularInventarioActions,
+  listaAltasActions
 })(RegistrarAltas);

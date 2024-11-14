@@ -18,11 +18,8 @@ export const registrarFormInventarioActions = (FormulariosCombinados: Record<str
                 },
             };
             // Verifica si `datosInventario` tiene datos antes de enviar
-            if (
-                !FormulariosCombinados ||
-                Object.keys(FormulariosCombinados).length === 0
-            ) {
-                console.error("El objeto datosInventario está vacío.");
+            if (!FormulariosCombinados || Object.keys(FormulariosCombinados).length === 0) {
+                // console.error("El objeto datosInventario está vacío.");
                 return false;
             }
             const body = JSON.stringify({
@@ -40,7 +37,7 @@ export const registrarFormInventarioActions = (FormulariosCombinados: Record<str
                         type: POST_FORMULARIO_SUCCESS,
                         payload: response.data,
                     });
-                    console.log("Post enviado correctamente desde axios");
+                    // console.log("Post enviado correctamente desde axios");
                     return true; // Retorna true en caso de éxito
                 }
             } catch (error: any) {
@@ -53,11 +50,11 @@ export const registrarFormInventarioActions = (FormulariosCombinados: Record<str
                     type: POST_FORMULARIO_FAIL,
                     payload: errorMessage, // Mandamos el mensaje de error al reducer
                 });
-                console.error("Error al enviar el formulario:", errorMessage);
+                // console.error("Error al enviar el formulario:", errorMessage);
                 return false; // Retorna false en caso de error
             }
         } else {
-            console.error("No token available"); // Mensaje en caso de que no haya token
+            // console.error("No token available"); // Mensaje en caso de que no haya token
             return false; // Retorna false si no hay token
         }
 

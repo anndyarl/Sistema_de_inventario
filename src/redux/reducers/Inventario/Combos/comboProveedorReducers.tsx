@@ -4,7 +4,7 @@ import {
   PROVEEDORES_SUCCESS,
   PROVEEDORES_FAIL
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface ProveedorState {
   loading: boolean;

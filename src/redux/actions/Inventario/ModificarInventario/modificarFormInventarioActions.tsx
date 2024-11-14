@@ -21,7 +21,7 @@ export const modificarFormInventarioActions =
         !FormulariosCombinados ||
         Object.keys(FormulariosCombinados).length === 0
       ) {
-        console.error("El objeto datosInventario está vacío.");
+        // console.error("El objeto datosInventario está vacío.");
         return false;
       }
       const body = JSON.stringify({

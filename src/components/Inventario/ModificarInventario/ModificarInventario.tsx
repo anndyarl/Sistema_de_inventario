@@ -4,17 +4,19 @@ import { Button, Table, Form, Row, Col, Modal, Pagination, Spinner, } from "reac
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
-import { obtenerInventarioActions } from "../../../redux/actions/Inventario/obtenerInventarioActions";
+import { obtenerInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
 import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "../RegistrarInventario/Datos_inventario";
 import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "../RegistrarInventario/Datos_cuenta";
-import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
+
 import Swal from "sweetalert2";
-import { comboDetalleActions } from "../../../redux/actions/combos/comboDetalleActions";
-import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/combos/comboListadoDeEspeciesBienActions";
-import { comboCuentaActions } from "../../../redux/actions/combos/comboCuentaActions";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
-import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/modificarFormInventarioActions";
-import { comboProveedorActions } from "../../../redux/actions/combos/comboProveedorActions";
+import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
+import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
+import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
+import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
+import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
+import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
+
 
 export interface InventarioCompleto {
   aF_CLAVE: string;
@@ -73,7 +75,6 @@ export interface InventarioCompleto {
 }
 interface InventarioCompletoProps {
   datosInventarioCompleto: InventarioCompleto[];
-  // inventarioProps: InventarioProps[];
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
   comboServicio: SERVICIO[];
@@ -126,9 +127,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const elementosPorPagina = 50;
   const [isDisabled, setIsDisabled] = useState(true);
   const [isDisabledNRecepcion, setIsDisabledNRecepcion] = useState(false);
-  const [error, setError] = useState<
-    Partial<InventarioProps> & Partial<CuentaProps> & {}
-  >({});
+  const [error, setError] = useState<Partial<InventarioProps> & Partial<CuentaProps> & {}>({});
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
   };
@@ -220,12 +219,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         "El Monto debe ser un número válido con hasta dos decimales.";
     if (!Inventario.fechaFactura)
       tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
-    if (!Inventario.rutProveedor)
+    if (!Inventario.rutProveedor || Inventario.rutProveedor === 0)
       tempErrors.rutProveedor = "El Proveedor es obligatorio.";
 
-    else if (Inventario.nombreProveedor.length > 30)
-      tempErrors.nombreProveedor =
-        "El Nombre no debe exceder los 30 caracteres.";
     if (!Inventario.modalidadDeCompra)
       tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
     if (!Inventario.servicio)
@@ -240,6 +236,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
+
     setInventario({
       fechaFactura,
       fechaRecepcion,
@@ -260,6 +257,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       serie,
       precio,
       especie,
+
     });
     //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
     // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
@@ -290,42 +288,41 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     Especies.codigoEspecie,
   ]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
+    let newValue: string | number = [
+      "modalidadDeCompra",
+      "montoRecepcion",
+      "nFactura",
+      "nOrdenCompra",
+      "origenPresupuesto",
+      "rutProveedor",
+      "dependencia",
+      "servicio",
+      "cuenta",
+      "vidaUtil",
+      "precio"
+
+    ].includes(name)
+
+      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+      : value;
     setInventario((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: newValue,
     }));
-    let newValue: string | number = value;
-    if (
-      name === "modalidadDeCompra" ||
-      name === "montoRecepcion" ||
-      name === "nFactura" ||
-      name === "nOrdenCompra" ||
-      name === "origenPresupuesto" ||
-      name === "rutProveedor" ||
-      name === "dependencia" ||
-      name === "servicio" ||
-      name === "cuenta" ||
-      name === "vidaUtil" ||
-      name === "precio"
-    ) {
-      newValue = parseFloat(value) || 0;
-    }
 
     if (name === "servicio") {
       comboDependenciaActions(value);
     }
-
     if (name === "bien") {
       comboDetalleActions(value);
-      console.log("Código del bien seleccionado:", value);
     }
     if (name === "detalles") {
       comboListadoDeEspeciesBienActions(1, value);
-      console.log("Código del detalle seleccionado:", value);
+    }
+    if (name === "rutProveedor") {
+      console.log("rutProveedor", value);
     }
   };
 
@@ -369,7 +366,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
       setMostrarModal(false); // Cierra el modal
     } else {
-      console.log("No se ha seleccionado ningún elemento.");
+      // console.log("No se ha seleccionado ningún elemento.");
     }
   };
   //Selecciona fila del listado de especies
@@ -380,9 +377,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     // console.log("Elemento seleccionado", item);
   };
 
-  const handleInventarioSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleInventarioSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
@@ -463,8 +458,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         precio: 0,
         especie: ""
       }));
-
-
 
     } else {
       Swal.fire({
@@ -669,7 +662,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
                 >
-                  <option value="">Seleccione un Proveedor</option>
+                  <option value="0">Seleccione un Proveedor</option>
                   {comboProveedor.map((traeProveedor) => (
                     <option key={traeProveedor.rut} value={traeProveedor.rut}>
                       {traeProveedor.nomprov}
@@ -677,7 +670,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   ))}
                 </select>
                 {error.rutProveedor && (
-                  <div className="invalid-feedback">
+                  <div className="invalid-feedback d-block">
                     {error.rutProveedor}
                   </div>
                 )}
@@ -1068,7 +1061,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 };
 
 const mapStateToProps = (state: RootState) => ({
-  datosInventarioCompleto: state.datosInventarioReducer.datosInventarioCompleto,
+  datosInventarioCompleto: state.datosInventarioReducers.datosInventarioCompleto,
   comboOrigen: state.origenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
   comboModalidad: state.modalidadCompraReducer.comboModalidad,
@@ -1078,7 +1071,7 @@ const mapStateToProps = (state: RootState) => ({
   comboBien: state.detallesReducer.comboBien,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
-  descripcionEspecie: state.datosRecepcionReducer.descripcionEspecie,
+  descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie
 });
 
 export default connect(mapStateToProps, {

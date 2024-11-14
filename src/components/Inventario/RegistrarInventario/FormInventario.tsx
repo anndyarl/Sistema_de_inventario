@@ -1,6 +1,5 @@
 // Importa componentes al FormularioCompleto.tsx
 import React, { useState } from "react";
-import { easeIn, easeInOut, motion } from "framer-motion";
 import Layout from "../../../containers/hocs/layout/Layout";
 import DatosInventario, { ORIGEN, MODALIDAD, PROVEEDOR } from "./Datos_inventario";
 import DatosCuenta, {
@@ -17,15 +16,14 @@ import Timeline from "./Timeline";
 // Redux global
 import { RootState } from "../../../redux/reducers";
 import { connect } from "react-redux";
+import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
+import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
+import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
+import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
+import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
 
 //Actions redux
-import { comboOrigenPresupuestosActions } from "../../../redux/actions/combos/comboOrigenPresupuestoActions";
-import { comboModalidadesActions } from "../../../redux/actions/combos/comboModalidadCompraActions";
-import { comboServicioActions } from "../../../redux/actions/combos/comboServicioActions";
-import { comboCuentaActions } from "../../../redux/actions/combos/comboCuentaActions";
-import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
-import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/combos/comboListadoDeEspeciesBienActions";
-import { comboDetalleActions } from "../../../redux/actions/combos/comboDetalleActions";
+
 
 
 export interface FormInventario {
@@ -53,10 +51,7 @@ interface FormInventarioProps {
   comboDetalleActions: (bienSeleccionado: string) => void;
 
   listaEspecie: ListaEspecie[];
-  comboListadoDeEspeciesBienActions: (
-    EST: number,
-    IDBIEN: string
-  ) => Promise<void>;
+  comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
 }
 
 const FormInventario: React.FC<FormInventarioProps> = ({

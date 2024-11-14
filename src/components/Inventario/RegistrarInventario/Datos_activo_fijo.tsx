@@ -25,8 +25,8 @@ import {
   vaciarDatosTabla,
   setBienActions,
   setDetalleActions,
-} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
-import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/registrarFormInventarioActions";
+} from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
+import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/registrarFormInventarioActions";
 
 import {
   setNRecepcionActions,
@@ -39,7 +39,7 @@ import {
   setRutProveedorActions,
   setnombreProveedorActions,
   setModalidadCompraActions,
-} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
+} from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
 
@@ -844,11 +844,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 };
 
 const mapStateToProps = (state: RootState) => ({
-  montoRecepcion: state.datosRecepcionReducer.montoRecepcion,
-  totalEstadoGlobal: state.datosRecepcionReducer.totalEstadoGlobal,
-  nombreEspecie: state.datosRecepcionReducer.nombreEspecie,
-  resetFormulario: state.datosRecepcionReducer.resetFormulario,
-  datosTablaActivoFijo: state.datosRecepcionReducer.datosTablaActivoFijo,
+  montoRecepcion: state.obtenerRecepcionReducers.montoRecepcion,
+  nombreEspecie: state.datosActivoFijoReducers.nombreEspecie,
+  resetFormulario: state.datosActivoFijoReducers.resetFormulario,
+  datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,

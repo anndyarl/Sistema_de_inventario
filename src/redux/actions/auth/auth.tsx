@@ -6,7 +6,7 @@ import {
   SET_TOKEN,
   LOGOUT,
 
-} from '../types';
+} from '../Inventario/types';
 import { Dispatch } from 'redux';
 import { DatosPersona } from "../../interfaces"
 

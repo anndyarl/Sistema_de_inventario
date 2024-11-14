@@ -4,7 +4,7 @@ import {
   DEPENDENCIA_SUCCESS,
   DEPENDENCIA_FAIL
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface DependenciaState {
   loading: boolean;

@@ -44,7 +44,7 @@ export const obtenerInventarioActions =
             return false;
           }
         } catch (err) {
-          console.error("Error en la solicitud:", err);
+          // console.error("Error en la solicitud:", err);
           dispatch({
             type: INVENTARIO_FAIL,
             error: "Error en la solicitud. Por favor, intente nuevamente.",

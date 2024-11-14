@@ -4,7 +4,7 @@ import {
   RECEPCION_SUCCESS,
   RECEPCION_FAIL,
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface nRecepcionState {
   loading: boolean;

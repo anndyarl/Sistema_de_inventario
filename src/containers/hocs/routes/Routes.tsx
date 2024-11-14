@@ -26,6 +26,7 @@ import CargaMasiva from '../../../components/Inventario/CargaMasiva/CargaMasiva'
 import RegistrarAltas from '../../../components/Altas/RegistrarAltas/RegistrarAltas';
 
 
+
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
     const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch

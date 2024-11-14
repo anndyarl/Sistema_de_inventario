@@ -4,7 +4,7 @@ import {
   CUENTA_SUCCESS,
   CUENTA_FAIL,
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface CuentaState {
   loading: boolean;

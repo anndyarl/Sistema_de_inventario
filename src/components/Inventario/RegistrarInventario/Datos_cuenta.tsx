@@ -1,26 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  Modal,
-  Button,
-  Table,
-  Form,
-  Pagination,
-  Row,
-  Col,
-} from "react-bootstrap";
+import { Modal, Button, Table, Form, Pagination, Row, Col, } from "react-bootstrap";
 import React, { useState, useMemo, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
-import {
-  setDependenciaActions,
-  setServicioActions,
-  setCuentaActions,
-  setEspecieActions,
-  setDescripcionEspecieActions,
-  setNombreEspecieActions,
-} from "../../../redux/actions/Inventario/datosRegistroInventarioActions";
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { Check2Circle, Plus } from "react-bootstrap-icons";
-import Inventario from "../../../containers/pages/Inventario";
 
 // Define el tipo de los elementos del combo `servicio`
 export interface SERVICIO {
@@ -89,8 +73,8 @@ interface Datos_cuentaProps extends CuentaProps {
   especieSeleccionado: string | null | undefined;
 
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
-  bien: number;
-  detalles: number;
+  // bien?: number;
+  // detalles?: number;
 }
 
 const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
@@ -116,7 +100,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
   onDetalleSeleccionado,
   onEspecieSeleccionado,
 }) => {
-  //Cuenta es la variable de estado
+
   const [Cuenta, setCuenta] = useState({
     servicio: 0,
     cuenta: 0,
@@ -133,8 +117,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const [mostrarModal, setMostrarModal] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-  const [elementoSeleccionado, setElementoSeleccionado] =
-    useState<ListaEspecie>();
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 50;
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -553,13 +536,13 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
 
 //mapea los valores del estado global de Redux
 const mapStateToProps = (state: RootState) => ({
-  servicio: state.datosRecepcionReducer.servicio,
-  cuenta: state.datosRecepcionReducer.cuenta,
-  dependencia: state.datosRecepcionReducer.dependencia,
-  especie: state.datosRecepcionReducer.especie,
-  bien: state.datosRecepcionReducer.bien,
-  detalles: state.datosRecepcionReducer.detalle,
-  descripcionEspecie: state.datosRecepcionReducer.descripcionEspecie,
+  servicio: state.datosCuentaReducers.servicio,
+  cuenta: state.datosCuentaReducers.cuenta,
+  dependencia: state.datosCuentaReducers.dependencia,
+  especie: state.datosCuentaReducers.especie,
+  // bien: state.datosCuentaReducers.bien,
+  // detalles: state.datosCuentaReducers.detalle,
+  descripcionEspecie: state.datosCuentaReducers.descripcionEspecie,
 });
 
 export default connect(mapStateToProps, {})(Datos_cuenta);

@@ -5,7 +5,7 @@ import {
   BIEN_DETALLES_FAIL,
   BIEN_SUCCESS
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface DetallesState {
   loading: boolean;

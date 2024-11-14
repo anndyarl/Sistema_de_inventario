@@ -12,13 +12,14 @@ import {
   BIEN,
   SERVICIO,
 } from "../../components/Inventario/RegistrarInventario/Datos_cuenta";
-import { comboOrigenPresupuestosActions } from "../../redux/actions/combos/comboOrigenPresupuestoActions";
-import { comboModalidadesActions } from "../../redux/actions/combos/comboModalidadCompraActions";
-import { comboServicioActions } from "../../redux/actions/combos/comboServicioActions";
-import { comboDetalleActions } from "../../redux/actions/combos/comboDetalleActions";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
-import { comboProveedorActions } from "../../redux/actions/combos/comboProveedorActions";
+import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
+import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
+import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
+import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
+import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
+
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");

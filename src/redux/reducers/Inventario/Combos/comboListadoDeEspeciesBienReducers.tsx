@@ -4,7 +4,7 @@ import {
   LISTADO_ESPECIES_BIEN_SUCCESS,
   LISTADO_ESPECIES_BIEN_FAIL,
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface ListadoDeEspeciesBienState {
   loading: boolean;

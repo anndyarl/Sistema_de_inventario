@@ -3,23 +3,27 @@ import { combineReducers } from "redux";
 import loginReducer from "./auth/auth";
 //------------Registro inventario------------------//
 //Form1
-import datosRecepcionReducer from "./Inventario/datosRecepcionReducer";
-import origenPresupuestoReducer from "./combos/comboOrigenReducers";
-import modalidadCompraReducer from "./combos/comboModalidadReducers";
+import obtenerRecepcionReducers from "./Inventario/RegistrarInventario/obtenerRecepcionReducers";
+import origenPresupuestoReducer from "./Inventario/Combos/comboOrigenReducers";
+import modalidadCompraReducer from "./Inventario/Combos/comboModalidadReducers";
+import comboProveedorReducers from "./Inventario/Combos/comboProveedorReducers";
 
 //Form 2
-import comboServicioReducer from "./combos/comboServicioReducers";
-import comboCuentaReducer from "./combos/comboCuentaReducers";
-import comboDependenciaReducer from "./combos/comboDependenciaReducers";
-import detallesReducer from "./combos/comboDetallesReducers";
-import comboListadoDeEspeciesBien from "./combos/comboListadoDeEspeciesBienReducers";
+import datosCuentaReducers from "./Inventario/RegistrarInventario/datosCuentaReducers";
+import comboServicioReducer from "./Inventario/Combos/comboServicioReducers";
+import comboCuentaReducer from "./Inventario/Combos/comboCuentaReducers";
+import comboDependenciaReducer from "./Inventario/Combos/comboDependenciaReducers";
+import detallesReducer from "./Inventario/Combos/comboDetallesReducers";
+import comboListadoDeEspeciesBien from "./Inventario/Combos/comboListadoDeEspeciesBienReducers";
 
+//Form 3
+import datosActivoFijoReducers from "./Inventario/RegistrarInventario/datosActivoFijoReducers";
 //-----------Modificar Inventario --------------//
-import datosInventarioReducer from "./Inventario/datosInventarioReducer";
-
+import datosInventarioReducers from "./Inventario/ModificarInventario/datosInventarioReducer";
 //------------Anular Inventario-----------------//
-import datosListaInventarioReducer from "./Inventario/datosListaInventarioReducer";
-import comboProveedorReducers from "./combos/comboProveedorReducers";
+import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
+//------------Registrar Altas----------------//
+import datosListaAltasReducers from "./Altas/RegistroAltas/datosListaAltasReducers";
 
 
 
@@ -28,23 +32,28 @@ const rootReducer = combineReducers({
   loginReducer,
   //------------Registro inventario------------------//
   //Form1
-  datosRecepcionReducer,
-  origenPresupuestoReducer,
-  modalidadCompraReducer,
+  obtenerRecepcionReducers,
+  origenPresupuestoReducer,//cambiar nombre a combo
+  modalidadCompraReducer,//cambiar nombre a combo
   comboProveedorReducers,
 
   //form 2
+  datosCuentaReducers,
   comboServicioReducer,
   comboCuentaReducer,
   comboDependenciaReducer,
   comboListadoDeEspeciesBien,
   detallesReducer,
 
+  //form 3
+  datosActivoFijoReducers,
 
-  datosInventarioReducer,
+  datosInventarioReducers,
 
   //-----------Anular Inventario --------------//
-  datosListaInventarioReducer,
+  datosListaInventarioReducers,
+
+  datosListaAltasReducers
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -10,9 +10,10 @@ import {
 import Swal from "sweetalert2";
 import { connect } from "react-redux";
 import { RootState } from "../../../store";
-import { comboDependenciaActions } from "../../../redux/actions/combos/comboDependenciaActions";
-import { comboServicioActions } from "../../../redux/actions/combos/comboServicioActions";
-import { registrarBienFuncionarioActions } from "../../../redux/actions/Inventario/registrarBienFuncionarioActions";
+
+import { registrarBienFuncionarioActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/registrarBienFuncionarioActions";
+import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
+import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
 
 interface FuncionarioProps {
   rutFuncionario: string;

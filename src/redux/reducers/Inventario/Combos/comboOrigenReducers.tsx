@@ -4,7 +4,7 @@ import {
   ORIGEN_SUCCESS,
   ORIGEN_FAIL,
 
-} from '../../actions/types';
+} from '../../../actions/Inventario/types';
 
 interface OrigenPresupuestoState {
   loading: boolean;

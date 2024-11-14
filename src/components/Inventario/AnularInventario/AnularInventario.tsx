@@ -8,8 +8,8 @@ import Swal from "sweetalert2";
 
 import { InventarioCompleto } from "../ModificarInventario/ModificarInventario";
 import { Eraser, Search } from "react-bootstrap-icons";
-import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/obtenerListaInventarioActions";
-import { anularInventarioActions } from "../../../redux/actions/Inventario/anularInventarioActions";
+import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
+import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -68,10 +68,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     let resultado = false;
     if (validate()) {
       setLoading(true);
-      resultado = await obtenerListaInventarioActions(
-        Inventario.fechaInicio,
-        Inventario.fechaTermino
-      );
+      resultado = await obtenerListaInventarioActions(Inventario.fechaInicio, Inventario.fechaTermino);
 
       if (!resultado) {
         Swal.fire({
@@ -298,7 +295,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
 };
 
 const mapStateToProps = (state: RootState) => ({
-  datosListaInventario: state.datosListaInventarioReducer.datosListaInventario,
+  datosListaInventario: state.datosListaInventarioReducers.datosListaInventario,
 });
 
 export default connect(mapStateToProps, {
