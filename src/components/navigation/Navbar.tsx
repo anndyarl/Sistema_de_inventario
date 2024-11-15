@@ -21,7 +21,7 @@ function Navbar() {
 
 
     return (
-        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end">
+        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end border-bottom">
             <Profile />
         </nav>
     );

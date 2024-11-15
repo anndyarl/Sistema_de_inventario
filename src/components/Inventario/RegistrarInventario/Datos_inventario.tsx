@@ -284,9 +284,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     <>
       <form onSubmit={handleSubmit}>
         <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold border-bottom p-1">
-            Registro de Inventario
-          </h3>
+          <h3 className="form-title fw-semibold border-bottom p-1">Registrar Inventario </h3>
           <Row>
             <Col md={4}>
               <div className="mb-1">

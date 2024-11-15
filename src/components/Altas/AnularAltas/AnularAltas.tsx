@@ -5,31 +5,47 @@ import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import SkeletonLoader from '../../Utils/SkeletonLoader';
-import { InventarioCompleto } from "../ModificarInventario/ModificarInventario";
 import { Eraser, Search } from "react-bootstrap-icons";
-import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
-import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
-import MenuInventario from "../../Menus/menuInventario";
-
+import { listaAltasActions } from "../../../redux/actions/Altas/listaAltasActions";
+import SkeletonLoader from '../../Utils/SkeletonLoader';
+import { obtenerListaAltasActions } from "../../../redux/actions/Altas/obtenerListaAltasActions";
+import { anularAltasActions } from "../../../redux/actions/Altas/anularAltasActions";
+import MenuAltas from "../../Menus/MenuAltas";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
-interface ListaInventarioProps {
-  datosListaInventario: InventarioCompleto[];
-  obtenerListaInventarioActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
-  anularInventarioActions: (nInventario: string) => Promise<boolean>;
-}
-
 interface FechasProps {
   fechaInicio: string;
   fechaTermino: string;
 }
+export interface ListaAltas {
+  aF_CLAVE: number,
+  ninv: string,
+  serv: string,
+  dep: string,
+  esp: string,
+  ncuenta: string,
+  marca: string,
+  modelo: string,
+  serie: string,
+  precio: string,
+  mrecepcion: string
+}
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario, obtenerListaInventarioActions, anularInventarioActions }) => {
+interface DatosAltas {
+  listaAltas: ListaAltas[];
+  listaAltasActions: () => Promise<boolean>;
+  obtenerListaAltasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
+  anularAltasActions: (AF_CLAVE: number) => Promise<boolean>;
+  token: string | null;
+}
+
+const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, anularAltasActions, token }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
+
+
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<FechasProps[]>([]);
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 40;
 
@@ -37,28 +53,32 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     fechaInicio: "",
     fechaTermino: "",
   });
-
-  // useEffect(() => {
-  //   datosListaInventario;
-  // }, [datosListaInventario]);
+  const listaAltasAuto = async () => {
+    if (token) {
+      if (listaAltas.length === 0) {
+        setLoading(true);
+        const resultado = await listaAltasActions();
+        if (resultado) {
+          setLoading(false);
+        }
+      }
+    }
+  };
+  useEffect(() => {
+    listaAltasAuto();
+  }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.fechaInicio)
-      tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-    if (!Inventario.fechaTermino)
-      tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-    if (Inventario.fechaInicio > Inventario.fechaTermino)
-      tempErrors.fechaInicio =
-        "La fecha de inicio es mayor a la fecha de término";
+    if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
+    if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
+    if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     setInventario((prevState) => ({
       ...prevState,
@@ -66,12 +86,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     }));
   };
 
-  const handleBuscarInventario = async () => {
+  const handleBuscarAltas = async () => {
     let resultado = false;
     if (validate()) {
       setLoading(true);
-      resultado = await obtenerListaInventarioActions(Inventario.fechaInicio, Inventario.fechaTermino);
-
+      resultado = await obtenerListaAltasActions(Inventario.fechaInicio, Inventario.fechaTermino);
       if (!resultado) {
         Swal.fire({
           icon: "error",
@@ -86,7 +105,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     }
   };
 
-  const handleAnular = async (index: number, aF_CLAVE: string) => {
+  const handleAnular = async (index: number, aF_CLAVE: number) => {
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
 
     const result = await Swal.fire({
@@ -96,18 +115,17 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Anular",
-
     });
 
     if (result.isConfirmed) {
-      const resultado = await anularInventarioActions(aF_CLAVE);
+      const resultado = await anularAltasActions(aF_CLAVE);
       if (resultado) {
         Swal.fire({
           icon: "success",
           title: "Registro anulado",
           text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
         });
-        handleBuscarInventario();
+        listaAltasAuto();
       } else {
         Swal.fire({
           icon: "error",
@@ -130,23 +148,23 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
   const elementosActuales = useMemo(
     () =>
-      datosListaInventario.slice(indicePrimerElemento, indiceUltimoElemento),
-    [datosListaInventario, indicePrimerElemento, indiceUltimoElemento]
+      listaAltas.slice(indicePrimerElemento, indiceUltimoElemento),
+    [listaAltas, indicePrimerElemento, indiceUltimoElemento]
   );
   // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(datosListaInventario)
-    ? Math.ceil(datosListaInventario.length / elementosPorPagina)
+  const totalPaginas = Array.isArray(listaAltas)
+    ? Math.ceil(listaAltas.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
   return (
     <Layout>
-      <MenuInventario />
+      <MenuAltas />
       <div className="container mt-2">
         <form>
           <div className="border-bottom shadow-sm p-4 rounded">
             <h3 className="form-title fw-semibold border-bottom p-1">
-              Anular Inventario
+              Anular Altas
             </h3>
             <Row>
               <Col md={5}>
@@ -162,7 +180,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                       onChange={handleChange}
                       value={Inventario.fechaInicio}
                     />
-                    <Button onClick={handleBuscarInventario} variant="primary" className="ms-1">
+                    <Button onClick={handleBuscarAltas} variant="primary" className="ms-1">
                       {loading ? (
                         <>
                           <Spinner
@@ -177,7 +195,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                         <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                       )}
                     </Button>
-                    <Button onClick={handleLimpiar} variant="primary" className="ms-1">
+                    <Button onClick={handleLimpiar} variant="primary" className="ms-1"                  >
                       <Eraser
                         className={classNames("flex-shrink-0", "h-5 w-5")}
                         aria-hidden="true"
@@ -217,37 +235,39 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                 <Table striped bordered hover>
                   <thead>
                     <tr>
-                      <th>Nª de Recepcion</th>
-                      <th>Fecha de Factura</th>
-                      <th>Fecha de Recepcion</th>
-                      <th>Modalidad de Compra</th>
-                      <th>Monto de Recepcion</th>
-                      <th>Nª de Factura</th>
-                      <th>Origen Presupuesto</th>
-                      <th>Rut Proveedor</th>
+                      <th>Codigo</th>
+                      <th>N° Inventario</th>
+                      <th>Servicio</th>
                       <th>Dependencia</th>
-                      <th></th>
+                      <th>Especie</th>
+                      <th>N° Cuenta</th>
+                      <th>Marca</th>
+                      <th>Modelo</th>
+                      <th>Serie</th>
+                      <th>Precio</th>
+                      <th>N° Recepcion</th>
+                      <th>Acción</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {elementosActuales.map((datosListaInventario, index) => (
+                    {elementosActuales.map((listaAltas, index) => (
                       <tr key={index}>
-                        <td>{datosListaInventario.aF_CLAVE}</td>
-                        <td>{datosListaInventario.aF_FECHAFAC}</td>
-                        <td>{datosListaInventario.aF_FINGRESO}</td>
-                        <td>{datosListaInventario.idmodalidadcompra}</td>
-                        <td>{datosListaInventario.aF_MONTOFACTURA}</td>
-                        <td>{datosListaInventario.aF_NUM_FAC}</td>
-                        <td>{datosListaInventario.aF_ORIGEN}</td>
-                        <td>{datosListaInventario.proV_RUN}</td>
-                        <td>{datosListaInventario.deP_CORR}</td>
+                        <td>{listaAltas.aF_CLAVE}</td>
+                        <td>{listaAltas.ninv}</td>
+                        <td>{listaAltas.serv}</td>
+                        <td>{listaAltas.dep}</td>
+                        <td>{listaAltas.esp}</td>
+                        <td>{listaAltas.ncuenta}</td>
+                        <td>{listaAltas.marca}</td>
+                        <td>{listaAltas.modelo}</td>
+                        <td>{listaAltas.serie}</td>
+                        <td>{listaAltas.precio}</td>
+                        <td>{listaAltas.mrecepcion}</td>
                         <td>
                           <Button
                             variant="outline-danger"
                             size="sm"
-                            onClick={() =>
-                              handleAnular(index, datosListaInventario.aF_CLAVE)
-                            }
+                            onClick={() => handleAnular(index, listaAltas.aF_CLAVE)}
                           >
                             Anular
                           </Button>
@@ -295,10 +315,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
 };
 
 const mapStateToProps = (state: RootState) => ({
-  datosListaInventario: state.datosListaInventarioReducers.datosListaInventario,
+  listaAltas: state.datosListaAltasReducers.ListaAltas,
+  token: state.loginReducer.token
 });
 
 export default connect(mapStateToProps, {
-  obtenerListaInventarioActions,
-  anularInventarioActions,
-})(AnularInventario);
+  listaAltasActions,
+  obtenerListaAltasActions,
+  anularAltasActions
+})(AnularAltas);

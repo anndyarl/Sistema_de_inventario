@@ -16,7 +16,7 @@ import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/co
 import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
 import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
-
+import MenuInventario from "../../Menus/menuInventario";
 
 export interface InventarioCompleto {
   aF_CLAVE: string;
@@ -481,373 +481,376 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   return (
     <Layout>
-      <form onSubmit={handleSubmit}>
-        <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold border-bottom p-1">
-            Modificar Inventario
-          </h3>
-          <Row>
-            <Col md={4}>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Nº Inventario</label>
-                <div className="d-flex align-items-center">
-                  <input
-                    aria-label="nRecepcion"
-                    type="text"
-                    className={`form-control ${error.nRecepcion ? "is-invalid" : ""
-                      } w-100`}
-                    maxLength={12}
-                    name="nRecepcion"
-                    onChange={handleChange}
-                    value={Inventario.nRecepcion}
-                    disabled={isDisabledNRecepcion}
-                  />
+      <MenuInventario />
+      <div className="container mt-2">
+        <form onSubmit={handleSubmit}>
+          <div className="border-bottom shadow-sm p-4 rounded">
+            <h3 className="form-title fw-semibold border-bottom p-1">
+              Modificar Inventario
+            </h3>
+            <Row>
+              <Col md={3}>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Nº Inventario</label>
+                  <div className="d-flex align-items-center">
+                    <input
+                      aria-label="nRecepcion"
+                      type="text"
+                      className={`form-control ${error.nRecepcion ? "is-invalid" : ""
+                        } w-100`}
+                      maxLength={12}
+                      name="nRecepcion"
+                      onChange={handleChange}
+                      value={Inventario.nRecepcion}
+                      disabled={isDisabledNRecepcion}
+                    />
 
-                  <Button
-                    onClick={handleInventarioSubmit}
-                    variant="primary"
-                    className="ms-1"
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
+                    <Button
+                      onClick={handleInventarioSubmit}
+                      variant="primary"
+                      className="ms-1"
+                    >
+                      {loading ? (
+                        <>
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidiven="true"
+                          />
+                        </>
+                      ) : (
+                        <Search
+                          className={classNames("flex-shrink-0", "h-5 w-5")}
                           aria-hidiven="true"
                         />
-                      </>
-                    ) : (
-                      <Search
+                      )}
+                    </Button>
+
+                    <Button
+                      onClick={handleEdit}
+                      variant="primary"
+                      className="ms-1"
+                    >
+                      <Pencil
                         className={classNames("flex-shrink-0", "h-5 w-5")}
                         aria-hidiven="true"
                       />
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={handleEdit}
-                    variant="primary"
-                    className="ms-1"
-                  >
-                    <Pencil
-                      className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidiven="true"
-                    />
-                  </Button>
+                    </Button>
+                  </div>
+                  {error.nRecepcion && (
+                    <div className="invalid-feedback d-block">
+                      {error.nRecepcion}
+                    </div>
+                  )}
                 </div>
-                {error.nRecepcion && (
-                  <div className="invalid-feedback d-block">
-                    {error.nRecepcion}
-                  </div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Fecha Recepción</label>
-                <input
-                  aria-label="fechaRecepcion"
-                  type="date"
-                  className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""
-                    }`}
-                  name="fechaRecepcion"
-                  onChange={handleChange}
-                  value={Inventario.fechaRecepcion || fechaRecepcion}
-                  disabled={isDisabled}
-                />
-                {error.fechaRecepcion && (
-                  <div className="invalid-feedback">{error.fechaRecepcion}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">N° Orden de compra</label>
-                <input
-                  aria-label="nOrdenCompra"
-                  type="text"
-                  className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""
-                    }`}
-                  maxLength={12}
-                  name="nOrdenCompra"
-                  onChange={handleChange}
-                  value={Inventario.nOrdenCompra || nOrdenCompra}
-                  disabled={isDisabled}
-                />
-                {error.nOrdenCompra && (
-                  <div className="invalid-feedback">{error.nOrdenCompra}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Nº factura</label>
-                <input
-                  aria-label="nFactura"
-                  type="text"
-                  className={`form-control ${error.nFactura ? "is-invalid" : ""
-                    }`}
-                  maxLength={12}
-                  name="nFactura"
-                  onChange={handleChange}
-                  value={Inventario.nFactura || nFactura}
-                  disabled={isDisabled}
-                />
-                {error.nFactura && (
-                  <div className="invalid-feedback">{error.nFactura}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Origen Presupuesto</label>
-                <select
-                  aria-label="origenPresupuesto"
-                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
-                    }`}
-                  name="origenPresupuesto"
-                  onChange={handleChange}
-                  value={Inventario.origenPresupuesto || origenPresupuesto}
-                  disabled={isDisabled}
-                >
-                  <option value="">Seleccione un origen</option>
-                  {comboOrigen.map((traeOrigen) => (
-                    <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
-                      {traeOrigen.descripcion}
-                    </option>
-                  ))}
-                </select>
-                {error.origenPresupuesto && (
-                  <div className="invalid-feedback">
-                    {error.origenPresupuesto}
-                  </div>
-                )}
-              </div>
-            </Col>
-            <Col md={4}>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Monto Recepción</label>
-                <input
-                  aria-label="montoRecepcion"
-                  type="text"
-                  className={`form-select ${error.montoRecepcion ? "is-invalid" : ""
-                    }`}
-                  maxLength={12}
-                  name="montoRecepcion"
-                  onChange={handleChange}
-                  value={Inventario.montoRecepcion || montoRecepcion}
-                  disabled={isDisabled}
-                />
-                {error.montoRecepcion && (
-                  <div className="invalid-feedback">{error.montoRecepcion}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Fecha Factura</label>
-                <input
-                  aria-label="fechaFactura"
-                  type="date"
-                  className={`form-select ${error.fechaFactura ? "is-invalid" : ""
-                    }`}
-                  name="fechaFactura"
-                  onChange={handleChange}
-                  value={Inventario.fechaFactura || fechaFactura}
-                  disabled={isDisabled}
-                />
-                {error.fechaFactura && (
-                  <div className="invalid-feedback">{error.fechaFactura}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Proveedor</label>
-                <select
-                  aria-label="rutProveedor"
-                  className={`form-select ${error.rutProveedor ? "is-invalid" : ""
-                    }`}
-                  name="rutProveedor"
-                  onChange={handleChange}
-                  value={Inventario.rutProveedor}
-                >
-                  <option value="0">Seleccione un Proveedor</option>
-                  {comboProveedor.map((traeProveedor) => (
-                    <option key={traeProveedor.rut} value={traeProveedor.rut}>
-                      {traeProveedor.nomprov}
-                    </option>
-                  ))}
-                </select>
-                {error.rutProveedor && (
-                  <div className="invalid-feedback d-block">
-                    {error.rutProveedor}
-                  </div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Modalida de Compra</label>
-                <select
-                  aria-label="modalidadDeCompra"
-                  className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""
-                    }`}
-                  name="modalidadDeCompra"
-                  onChange={handleChange}
-                  value={Inventario.modalidadDeCompra || modalidadDeCompra}
-                  disabled={isDisabled}
-                >
-                  <option value="">Seleccione una modalidad</option>
-                  {comboModalidad.map((traeModalidad) => (
-                    <option
-                      key={traeModalidad.codigo}
-                      value={traeModalidad.codigo}
-                    >
-                      {traeModalidad.descripcion}
-                    </option>
-                  ))}
-                </select>
-                {error.modalidadDeCompra && (
-                  <div className="invalid-feedback">
-                    {error.modalidadDeCompra}
-                  </div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Servicio</label>
-                <select
-                  aria-label="servicio"
-                  className={`form-select ${error.servicio ? "is-invalid" : ""
-                    }`}
-                  name="servicio"
-                  onChange={handleChange}
-                  value={Inventario.servicio || servicio}
-                  disabled={isDisabled}
-                >
-                  <option value="">Seleccione un origen</option>
-                  {comboServicio.map((traeServicio) => (
-                    <option
-                      key={traeServicio.codigo}
-                      value={traeServicio.codigo}
-                    >
-                      {traeServicio.nombrE_ORD}
-                    </option>
-                  ))}
-                </select>
-                {error.servicio && (
-                  <div className="invalid-feedback">{error.servicio}</div>
-                )}
-              </div>
-            </Col>
-            <Col md={4}>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Dependencia</label>
-                <select
-                  aria-label="dependencia"
-                  className={`form-select ${error.dependencia ? "is-invalid" : ""
-                    }`}
-                  name="dependencia"
-                  onChange={handleChange}
-                  value={Inventario.dependencia || dependencia}
-                  disabled={isDisabled ? isDisabled : !Inventario.servicio}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {comboDependencia.map((traeDependencia) => (
-                    <option
-                      key={traeDependencia.codigo}
-                      value={traeDependencia.codigo}
-                    >
-                      {traeDependencia.nombrE_ORD}
-                    </option>
-                  ))}
-                </select>
-                {error.dependencia && (
-                  <div className="invalid-feedback">{error.dependencia}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Especie</label>
-                <div className="d-flex align-items-center">
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Fecha Recepción</label>
                   <input
-                    aria-label="especie"
-                    type="text"
-                    name="especie"
-                    value={
-                      Especies.descripcionEspecie ||
-                      especie ||
-                      "Haz clic en más para seleccionar una especie"
-                    }
+                    aria-label="fechaRecepcion"
+                    type="date"
+                    className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""
+                      }`}
+                    name="fechaRecepcion"
                     onChange={handleChange}
-                    disabled
-                    // className={`form-select ${error.especie ? "is-invalid" : ""}`}
-                    className="form-select"
+                    value={Inventario.fechaRecepcion || fechaRecepcion}
+                    disabled={isDisabled}
                   />
-                  {/* Botón para abrir el modal y seleccionar una especie */}
-                  <Button
-                    variant="primary"
-                    onClick={() => setMostrarModal(true)}
-                    className="ms-1"
+                  {error.fechaRecepcion && (
+                    <div className="invalid-feedback">{error.fechaRecepcion}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">N° Orden de compra</label>
+                  <input
+                    aria-label="nOrdenCompra"
+                    type="text"
+                    className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""
+                      }`}
+                    maxLength={12}
+                    name="nOrdenCompra"
+                    onChange={handleChange}
+                    value={Inventario.nOrdenCompra || nOrdenCompra}
+                    disabled={isDisabled}
+                  />
+                  {error.nOrdenCompra && (
+                    <div className="invalid-feedback">{error.nOrdenCompra}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Nº factura</label>
+                  <input
+                    aria-label="nFactura"
+                    type="text"
+                    className={`form-control ${error.nFactura ? "is-invalid" : ""
+                      }`}
+                    maxLength={12}
+                    name="nFactura"
+                    onChange={handleChange}
+                    value={Inventario.nFactura || nFactura}
+                    disabled={isDisabled}
+                  />
+                  {error.nFactura && (
+                    <div className="invalid-feedback">{error.nFactura}</div>
+                  )}
+                </div>
+
+              </Col>
+              <Col md={3}>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Origen Presupuesto</label>
+                  <select
+                    aria-label="origenPresupuesto"
+                    className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
+                      }`}
+                    name="origenPresupuesto"
+                    onChange={handleChange}
+                    value={Inventario.origenPresupuesto || origenPresupuesto}
                     disabled={isDisabled}
                   >
-                    <Pencil
-                      className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidiven="true"
-                    />
-                  </Button>
+                    <option value="">Seleccione un origen</option>
+                    {comboOrigen.map((traeOrigen) => (
+                      <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
+                        {traeOrigen.descripcion}
+                      </option>
+                    ))}
+                  </select>
+                  {error.origenPresupuesto && (
+                    <div className="invalid-feedback">
+                      {error.origenPresupuesto}
+                    </div>
+                  )}
                 </div>
-                {/* {error.especie && (
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Monto Recepción</label>
+                  <input
+                    aria-label="montoRecepcion"
+                    type="text"
+                    className={`form-select ${error.montoRecepcion ? "is-invalid" : ""
+                      }`}
+                    maxLength={12}
+                    name="montoRecepcion"
+                    onChange={handleChange}
+                    value={Inventario.montoRecepcion || montoRecepcion}
+                    disabled={isDisabled}
+                  />
+                  {error.montoRecepcion && (
+                    <div className="invalid-feedback">{error.montoRecepcion}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Fecha Factura</label>
+                  <input
+                    aria-label="fechaFactura"
+                    type="date"
+                    className={`form-select ${error.fechaFactura ? "is-invalid" : ""
+                      }`}
+                    name="fechaFactura"
+                    onChange={handleChange}
+                    value={Inventario.fechaFactura || fechaFactura}
+                    disabled={isDisabled}
+                  />
+                  {error.fechaFactura && (
+                    <div className="invalid-feedback">{error.fechaFactura}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Proveedor</label>
+                  <select
+                    aria-label="rutProveedor"
+                    className={`form-select ${error.rutProveedor ? "is-invalid" : ""
+                      }`}
+                    name="rutProveedor"
+                    onChange={handleChange}
+                    value={Inventario.rutProveedor}
+                  >
+                    <option value="0">Seleccione un Proveedor</option>
+                    {comboProveedor.map((traeProveedor) => (
+                      <option key={traeProveedor.rut} value={traeProveedor.rut}>
+                        {traeProveedor.nomprov}
+                      </option>
+                    ))}
+                  </select>
+                  {error.rutProveedor && (
+                    <div className="invalid-feedback d-block">
+                      {error.rutProveedor}
+                    </div>
+                  )}
+                </div>
+              </Col>
+              <Col md={3}>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Servicio</label>
+                  <select
+                    aria-label="servicio"
+                    className={`form-select ${error.servicio ? "is-invalid" : ""
+                      }`}
+                    name="servicio"
+                    onChange={handleChange}
+                    value={Inventario.servicio || servicio}
+                    disabled={isDisabled}
+                  >
+                    <option value="">Seleccione un origen</option>
+                    {comboServicio.map((traeServicio) => (
+                      <option
+                        key={traeServicio.codigo}
+                        value={traeServicio.codigo}
+                      >
+                        {traeServicio.nombrE_ORD}
+                      </option>
+                    ))}
+                  </select>
+                  {error.servicio && (
+                    <div className="invalid-feedback">{error.servicio}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Dependencia</label>
+                  <select
+                    aria-label="dependencia"
+                    className={`form-select ${error.dependencia ? "is-invalid" : ""
+                      }`}
+                    name="dependencia"
+                    onChange={handleChange}
+                    value={Inventario.dependencia || dependencia}
+                    disabled={isDisabled ? isDisabled : !Inventario.servicio}
+                  >
+                    <option value="">Selecciona una opción</option>
+                    {comboDependencia.map((traeDependencia) => (
+                      <option
+                        key={traeDependencia.codigo}
+                        value={traeDependencia.codigo}
+                      >
+                        {traeDependencia.nombrE_ORD}
+                      </option>
+                    ))}
+                  </select>
+                  {error.dependencia && (
+                    <div className="invalid-feedback">{error.dependencia}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Modalida de Compra</label>
+                  <select
+                    aria-label="modalidadDeCompra"
+                    className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""
+                      }`}
+                    name="modalidadDeCompra"
+                    onChange={handleChange}
+                    value={Inventario.modalidadDeCompra || modalidadDeCompra}
+                    disabled={isDisabled}
+                  >
+                    <option value="">Seleccione una modalidad</option>
+                    {comboModalidad.map((traeModalidad) => (
+                      <option
+                        key={traeModalidad.codigo}
+                        value={traeModalidad.codigo}
+                      >
+                        {traeModalidad.descripcion}
+                      </option>
+                    ))}
+                  </select>
+                  {error.modalidadDeCompra && (
+                    <div className="invalid-feedback">
+                      {error.modalidadDeCompra}
+                    </div>
+                  )}
+                </div>
+              </Col>
+              <Col md={3}>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Especie</label>
+                  <div className="d-flex align-items-center">
+                    <input
+                      aria-label="especie"
+                      type="text"
+                      name="especie"
+                      value={
+                        Especies.descripcionEspecie ||
+                        especie ||
+                        "Haz clic en más para seleccionar una especie"
+                      }
+                      onChange={handleChange}
+                      disabled
+                      // className={`form-select ${error.especie ? "is-invalid" : ""}`}
+                      className="form-control"
+                    />
+                    {/* Botón para abrir el modal y seleccionar una especie */}
+                    <Button
+                      variant="primary"
+                      onClick={() => setMostrarModal(true)}
+                      className="ms-1"
+                      disabled={isDisabled}
+                    >
+                      <Pencil
+                        className={classNames("flex-shrink-0", "h-5 w-5")}
+                        aria-hidiven="true"
+                      />
+                    </Button>
+                  </div>
+                  {/* {error.especie && (
                     <div className="invalid-feedback d-block">
                       {error.especie}
                     </div>
                   )} */}
-              </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Cuenta</label>
-                <select
-                  aria-label="cuenta"
-                  className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
-                  name="cuenta"
-                  onChange={handleChange}
-                  value={Inventario.cuenta || cuenta || 0}
-                  disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {comboCuenta.map((traeCuentas) => (
-                    <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                      {traeCuentas.descripcion}
-                    </option>
-                  ))}
-                </select>
-                {error.cuenta && (
-                  <div className="invalid-feedback">{error.cuenta}</div>
-                )}
-              </div>
-
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Activos fijos</label>
-                <div className="d-flex align-items-center">
-                  <p className="text-right w-100 border p-2 m-0 rounded">
-                    Detalles activos fijos
-                  </p>
-                  {/* Botón para abrir el modal y seleccionar una especie */}
-                  <Button
-                    variant="primary"
-                    onClick={() => setMostrarModalLista(true)}
-                    className="ms-1"
-                    disabled={isDisabled}
-                  >
-                    <Eye
-                      className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidiven="true"
-                    />
-                  </Button>
                 </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Cuenta</label>
+                  <select
+                    aria-label="cuenta"
+                    className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
+                    name="cuenta"
+                    onChange={handleChange}
+                    value={Inventario.cuenta || cuenta || 0}
+                    disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                  >
+                    <option value="">Selecciona una opción</option>
+                    {comboCuenta.map((traeCuentas) => (
+                      <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                        {traeCuentas.descripcion}
+                      </option>
+                    ))}
+                  </select>
+                  {error.cuenta && (
+                    <div className="invalid-feedback">{error.cuenta}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="text-muted fw-semibold">Activos fijos</label>
+                  <div className="d-flex align-items-center">
+                    <p className="text-right w-100 border p-2 m-0 rounded">
+                      Detalles activos fijos
+                    </p>
+                    {/* Botón para abrir el modal y seleccionar una especie */}
+                    <Button
+                      variant="primary"
+                      onClick={() => setMostrarModalLista(true)}
+                      className="ms-1"
+                      disabled={isDisabled}
+                    >
+                      <Eye
+                        className={classNames("flex-shrink-0", "h-5 w-5")}
+                        aria-hidiven="true"
+                      />
+                    </Button>
+                  </div>
 
-              </div>
-
-            </Col>
-          </Row>
-          <div className="p-1 rounded bg-white d-flex justify-content-end">
-            <Button
-              variant="btn btn-primary m-1"
-              disabled={isDisabled}
-              onClick={handleValidar}
-            >
-              Validar
-            </Button>
+                </div>
+              </Col>
+            </Row>
+            <div className="p-1 rounded bg-white d-flex justify-content-end">
+              <Button
+                variant="btn btn-primary m-1"
+                disabled={isDisabled}
+                onClick={handleValidar}
+              >
+                Validar
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
-
+        </form>
+      </div>
       {/* Modal especies*/}
       <Modal
         show={mostrarModal}

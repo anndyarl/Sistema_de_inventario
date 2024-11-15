@@ -64,7 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* Mobile Navbar */}
-      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none">
+      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none border-bottom">
         <div className="container-fluid">
           <button className="navbar-toggler border-0" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={24} />
@@ -106,13 +106,13 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
 
           {/* Main Content with Talana-like Transition */}
           <div className="flex-grow-1 p-3 overflow-auto">
-            <div className="container">
-              <AnimatePresence mode="wait">
-                <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
-                  {children}
-                </motion.div>
-              </AnimatePresence>
-            </div>
+
+            {/* <AnimatePresence mode="wait">
+                <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}> */}
+            {children}
+            {/* </motion.div>
+              </AnimatePresence> */}
+
           </div>
         </div>
       </div>

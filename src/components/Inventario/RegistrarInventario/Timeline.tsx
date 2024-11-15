@@ -8,7 +8,7 @@ interface TimelineProps {
 
 const Timeline: React.FC<TimelineProps> = ({ Formulario_actual }) => {
   //Defino mi arreglo
-  const formularios = ["Datos Inventario", "Datos Cuenta", "Datos Activo Fijo"];
+  const formularios = ["Registro Inventario", "Detalles Inventario", "Detalles Activo"];
 
   return (
     //mapeamos el arreglo(formulario) en un indice pasa saber su posicion, con un nombre(formulario) para identificarlo
@@ -21,15 +21,14 @@ const Timeline: React.FC<TimelineProps> = ({ Formulario_actual }) => {
               {index + 1}
             </div>
           </div>
-
           {/* Conector entre pasos */}
           {index < formularios.length - 1 && (
-            <div
-              className={`timeline-connector ${Formulario_actual > index ? 'active' : ''}`}
-            ></div>
+            <div className={`timeline-connector ${Formulario_actual > index ? 'active' : ''}`}></div>
+
           )}
         </React.Fragment>
       ))}
+
     </div>
 
   );

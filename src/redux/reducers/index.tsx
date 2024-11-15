@@ -23,7 +23,7 @@ import datosInventarioReducers from "./Inventario/ModificarInventario/datosInven
 //------------Anular Inventario-----------------//
 import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
 //------------Registrar Altas----------------//
-import datosListaAltasReducers from "./Altas/RegistroAltas/datosListaAltasReducers";
+import datosListaAltasReducers from "./Altas/AnularAltas/datosListaAltasReducers";
 
 
 

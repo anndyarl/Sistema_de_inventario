@@ -1,25 +1,19 @@
-import React, { useEffect } from "react";
-import { Card, Row, Col } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
-import { Plus, Pencil, Trash } from "react-bootstrap-icons";
-import Layout from "../hocs/layout/Layout";
-import {
-  MODALIDAD,
-  ORIGEN,
-  PROVEEDOR,
-} from "../../components/Inventario/RegistrarInventario/Datos_inventario";
-import {
-  BIEN,
-  SERVICIO,
-} from "../../components/Inventario/RegistrarInventario/Datos_cuenta";
+import React, { useEffect, useState } from "react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
+import { Card, Row, Col } from "react-bootstrap";
+import { NavLink } from "react-router-dom";
+import { Plus, Pencil, Trash, Box, Arrows, FileText } from "react-bootstrap-icons";
+import Layout from "../hocs/layout/Layout";
+import { MODALIDAD, ORIGEN, PROVEEDOR, } from "../../components/Inventario/RegistrarInventario/Datos_inventario";
+import { BIEN, SERVICIO } from "../../components/Inventario/RegistrarInventario/Datos_cuenta";
 import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
-
+import MenuInventario from "../../components/Menus/menuInventario";
+import { motion, AnimatePresence } from "framer-motion";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
@@ -42,7 +36,12 @@ interface FormInventarioProps {
   comboProveedorActions: () => void;
   token: string | null;
 }
-
+interface NavItem {
+  name: string;
+  description: string;
+  href: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
 const Inventario: React.FC<FormInventarioProps> = ({
   token,
   comboOrigen,
@@ -79,7 +78,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
 
   return (
     <Layout>
-      <>
+      <div className="container mt-2">
         <Row>
           <Col lg={6} md={5} className="mb-1">
             <Card className="custom-card shadow p-3 border-0 rounded">
@@ -194,35 +193,35 @@ const Inventario: React.FC<FormInventarioProps> = ({
               </Card.Body>
             </Card>
           </Col>
-          <Col lg={6} md={5} className="mb-1">
-            <Card className="custom-card shadow p-3 border-0 rounded">
-              <Card.Body>
-                <Card.Title className="text-center fw-semibold">
-                  Carga Masiva
-                </Card.Title>
-                <Card.Text className="text-center m-2">
-                  Adjunte el documento correspondiente para la carga masiva del inventario
-                </Card.Text>
-                <div className="d-flex justify-content-center">
-                  <div className="flex-grow-1 ">
-                    <NavLink
-                      key="CargaMasiva"
-                      to="/CargaMasiva"
-                      className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none "
-                    >
-                      <Plus
-                        className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />
-                      Nuevo
-                    </NavLink>
-                  </div>
+          {/* <Col lg={6} md={5} className="mb-1">
+          <Card className="custom-card shadow p-3 border-0 rounded">
+            <Card.Body>
+              <Card.Title className="text-center fw-semibold">
+                Carga Masiva
+              </Card.Title>
+              <Card.Text className="text-center m-2">
+                Adjunte el documento correspondiente para la carga masiva del inventario
+              </Card.Text>
+              <div className="d-flex justify-content-center">
+                <div className="flex-grow-1 ">
+                  <NavLink
+                    key="CargaMasiva"
+                    to="/CargaMasiva"
+                    className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none "
+                  >
+                    <Plus
+                      className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />
+                    Nuevo
+                  </NavLink>
                 </div>
-              </Card.Body>
-            </Card>
-          </Col>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col> */}
         </Row>
-      </>
+      </div>
     </Layout>
   );
 };

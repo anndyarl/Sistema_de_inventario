@@ -1,4 +1,14 @@
-// Acción de inicio de sesión
+// Acción lista tabla altas
 export const LISTA_ALTAS_REQUEST = 'LISTA_ALTAS_REQUEST';
 export const LISTA_ALTAS_SUCCESS = 'LISTA_ALTAS_SUCCESS';
 export const LISTA_ALTAS_FAIL = 'LISTA_ALTAS_FAIL';
+// Acción obtener tabla altas
+export const OBTENER_ALTAS_REQUEST = 'OBTENER_ALTAS_REQUEST';
+export const OBTENER_ALTAS_SUCCESS = 'OBTENER_ALTAS_SUCCESS';
+export const OBTENER_ALTAS_FAIL = 'OBTENER_ALTAS_FAIL';
+
+// Acción anular altas
+export const ANULAR_ALTAS_REQUEST = 'ANULAR_ALTAS_REQUEST';
+export const ANULAR_ALTAS_SUCCESS = 'ANULAR_ALTAS_SUCCESS';
+export const ANULAR_ALTAS_FAIL = 'ANULAR_ALTAS_FAIL';
+

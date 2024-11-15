@@ -1,12 +1,12 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-  LISTA_INVENTARIO_REQUEST,
-  LISTA_INVENTARIO_SUCCESS,
-  LISTA_INVENTARIO_FAIL,
-} from "../types";
+  OBTENER_ALTAS_REQUEST,
+  OBTENER_ALTAS_SUCCESS,
+  OBTENER_ALTAS_FAIL,
+} from "./types";
 
-export const obtenerListaInventarioActions = (FechaInicio: string, FechaTermino: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerListaAltasActions = (FechaInicio: string, FechaTermino: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -17,15 +17,15 @@ export const obtenerListaInventarioActions = (FechaInicio: string, FechaTermino:
       },
     };
 
-    dispatch({ type: LISTA_INVENTARIO_REQUEST });
+    dispatch({ type: OBTENER_ALTAS_REQUEST });
 
     try {
-      const res = await axios.get(`/api_inv/api/inventario/traeListaInventario?FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
+      const res = await axios.get(`/api_inv/api/inventario/traeAltas?FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({
-            type: LISTA_INVENTARIO_SUCCESS,
+            type: OBTENER_ALTAS_SUCCESS,
             payload: res.data,
           });
           return true;
@@ -34,7 +34,7 @@ export const obtenerListaInventarioActions = (FechaInicio: string, FechaTermino:
         }
       } else {
         dispatch({
-          type: LISTA_INVENTARIO_FAIL,
+          type: OBTENER_ALTAS_FAIL,
           error:
             "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
         });
@@ -43,14 +43,14 @@ export const obtenerListaInventarioActions = (FechaInicio: string, FechaTermino:
     } catch (err) {
       console.error("Error en la solicitud:", err);
       dispatch({
-        type: LISTA_INVENTARIO_FAIL,
+        type: OBTENER_ALTAS_FAIL,
         error: "Error en la solicitud. Por favor, intente nuevamente.",
       });
       return false;
     }
   } else {
     dispatch({
-      type: LISTA_INVENTARIO_FAIL,
+      type: OBTENER_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
     return false;

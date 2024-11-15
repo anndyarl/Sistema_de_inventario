@@ -1,7 +1,8 @@
 .timeline {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
+     margin-top: 20px;
 }
 
 .timeline-step {

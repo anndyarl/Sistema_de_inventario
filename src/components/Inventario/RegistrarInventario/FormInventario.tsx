@@ -21,10 +21,7 @@ import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combo
 import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
-
-//Actions redux
-
-
+import MenuInventario from "../../Menus/menuInventario";
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -82,6 +79,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     datosActivoFijo: {},
   });
 
+
   // Función para manejar la selección de dependencia en base al servicio seleccionado del componente `DatosCuenta`
   const handleServicioSeleccionado = (codigoServicio: string) => {
     setServicioSeleccionado(codigoServicio);
@@ -137,7 +135,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({
       setStep(step - 1);
     }
   };
-
   //Vuelve al primer componente del formularioCompleto(Datos_Inventario)
   const handleReset = () => {
     setFormularios({
@@ -148,11 +145,15 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     setStep(0);
   };
 
+
+
   return (
     <Layout>
-      <div className="container">
-        <Timeline Formulario_actual={step} />
 
+      <MenuInventario />
+
+      <div className="container mt-2">
+        <Timeline Formulario_actual={step} />
         {step === 0 && (
           <DatosInventario
             onNext={handleNext}
@@ -192,6 +193,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
           />
         )}
       </div>
+
     </Layout>
   );
 };

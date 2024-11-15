@@ -23,7 +23,8 @@ import AnularInventario from '../../../components/Inventario/AnularInventario/An
 import Inicio from '../../pages/Inicio';
 import FormInventario from '../../../components/Inventario/RegistrarInventario/FormInventario';
 import CargaMasiva from '../../../components/Inventario/CargaMasiva/CargaMasiva';
-import RegistrarAltas from '../../../components/Altas/RegistrarAltas/RegistrarAltas';
+import RegistrarAltas from '../../../components/Altas/AnularAltas/AnularAltas';
+import AnularAltas from '../../../components/Altas/AnularAltas/AnularAltas';
 
 
 
@@ -63,6 +64,7 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Módulo Altas */}
                 <Route path="/Altas" element={<Altas />} />
                 <Route path="/RegistrarAltas" element={<RegistrarAltas />} />
+                <Route path="/AnularAltas" element={<AnularAltas />} />
                 {/* Fin Módulo Altas */}
                 <Route path="/Bajas" element={<Bajas />} />
                 <Route path="/Donaciones" element={<Donaciones />} />
