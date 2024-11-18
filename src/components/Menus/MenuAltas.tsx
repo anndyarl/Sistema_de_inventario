@@ -18,13 +18,13 @@ const MenuAltas: React.FC = ({ }) => {
         {
             name: 'Registrar Altas',
             description: 'Busque el activo o los activos que desee dar de Alta.',
-            href: '/#',
+            href: '/RegistrarAltas',
             icon: Plus
         },
         {
             name: 'Modificar Inventario',
             description: 'Encuentre y modifique el inventario existente.',
-            href: '/#',
+            href: '/',
             icon: Pencil
         },
         {
@@ -44,26 +44,27 @@ const MenuAltas: React.FC = ({ }) => {
     return (
         <>
             {/* Mobile Navbar y Desktop*/}
-            <nav id="navbar" className="navbar navbar-expand-lg navbar-light">
+            <nav className="navbar navbar-expand-lg navbar-light justify-content-end">
+                <button className="navbar-toggler m-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
                 <div className="container-fluid">
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse justify-content-start" id="navbarNav">
+
+                    <div className="collapse navbar-collapse" id="navbarNav">
+
                         <div className="navbar-nav mb-2 mb-lg-0 me-3">
-                            {navigation.map((item) => (
+
+                            {navigation.map((item, index) => (
                                 <NavLink
+                                    key={index}
                                     to={item.href}
                                     className={classNames(
-                                        'btn btn-outline-light text-dark py-2 px-3 m-1 rounded text-decoration-none',
+                                        'btn btn-outline-primary py-2 px-3 m-1 rounded text-decoration-none',
                                         activeItem === item.name ? 'active' : ''
                                     )}
                                     onClick={() => handleClick(item.name)}
                                 >
-                                    <item.icon
-                                        className={classNames('me-3 flex-shrink-0', 'h-5 w-5')}
-                                        aria-hidden="true"
-                                    />
+                                    <item.icon className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
                                     {item.name}
                                 </NavLink>
 

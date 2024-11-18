@@ -21,7 +21,7 @@ import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combo
 import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
-import MenuInventario from "../../Menus/menuInventario";
+import MenuInventario from "../../Menus/MenuInventario";
 
 export interface FormInventario {
   datosInventario: Record<string, any>;

@@ -468,7 +468,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
           {/* Tabla*/}
           <div style={{ maxHeight: "500px", overflowY: "auto" }}>
             <Table striped bordered hover>
-              <thead>
+              <thead className="table-light sticky-top">
                 <tr>
                   <th></th>
                   <th>Establecimiento</th>

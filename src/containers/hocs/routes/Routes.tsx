@@ -23,8 +23,9 @@ import AnularInventario from '../../../components/Inventario/AnularInventario/An
 import Inicio from '../../pages/Inicio';
 import FormInventario from '../../../components/Inventario/RegistrarInventario/FormInventario';
 import CargaMasiva from '../../../components/Inventario/CargaMasiva/CargaMasiva';
-import RegistrarAltas from '../../../components/Altas/AnularAltas/AnularAltas';
+
 import AnularAltas from '../../../components/Altas/AnularAltas/AnularAltas';
+import RegistrarAltas from '../../../components/Altas/RegistrarAltas/RegistrarAltas';
 
 
 

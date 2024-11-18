@@ -23,7 +23,6 @@ const Profile: React.FC<ProfileProps> = ({
 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
   const togglePanel = () => { setIsOpen((prev) => !prev); };
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -54,7 +53,6 @@ const Profile: React.FC<ProfileProps> = ({
         <CircleUserRound className="flex-shrink-0 h-5 w-5 m-1" aria-hidden="true" />
         <span className="font-bold text-sm ">Andy Riquelme</span>
       </button>
-
       <AnimatePresence >
         {isOpen && (
           <motion.div
@@ -68,22 +66,22 @@ const Profile: React.FC<ProfileProps> = ({
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
               <button className="navbar-nav fs-2 nav-link close-btn" onClick={togglePanel}>×</button>
-              <h3 className="fw-semibold border-bottom p-1 text-center">Andy Riquelme</h3>
-              <p className="mb-2 fw-fw-normal border-bottom fs-6 fs-md-5 fs-lg-4">
+              <h3 className="fw-semibold  p-1 text-center">Andy Riquelme</h3>
+              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
 
                 <strong> <Coin
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 />UTM: </strong> $47.396
               </p>
-              <p className="mb-2 fw-fw-normal border-bottom fs-6 fs-md-5 fs-lg-4">
+              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
 
                 <strong> <Building
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 />Dependencia: </strong> Finanzas
               </p>
-              <p className="mb-0 fw-fw-normal border-bottom fs-6 fs-md-5 fs-lg-4">
+              <p className="mb-0 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
 
                 <strong> <Geo
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
@@ -93,7 +91,7 @@ const Profile: React.FC<ProfileProps> = ({
               <NavLink
                 key="Configuracion"
                 to="/Configuracion"
-                className="navbar-nav nav-link mb-2 fw-fw-normal border-bottom  fs-6 fs-md-5 fs-lg-4"
+                className="navbar-nav nav-link mb-2 fw-fw-normal   fs-6 fs-md-5 fs-lg-4"
               >
                 <strong> <Gear
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
@@ -143,7 +141,6 @@ const Profile: React.FC<ProfileProps> = ({
 
         )}
       </AnimatePresence>
-
     </>
   );
 };

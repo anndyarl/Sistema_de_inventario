@@ -14,7 +14,8 @@ import { RootState } from "../../../store";
 import { registrarBienFuncionarioActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/registrarBienFuncionarioActions";
 import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
-import MenuInventario from "../../Menus/menuInventario";
+import MenuInventario from "../../Menus/MenuInventario";
+
 
 interface FuncionarioProps {
   rutFuncionario: string;

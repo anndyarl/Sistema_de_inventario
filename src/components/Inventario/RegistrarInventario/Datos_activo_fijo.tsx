@@ -483,7 +483,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         ) : (
           <div className="overflow-auto">
             <Table bordered hover>
-              <thead>
+              <thead className="table-light sticky-top">
                 <tr>
                   <th style={{ color: "white", backgroundColor: "#0d4582" }}>
                     <Form.Check

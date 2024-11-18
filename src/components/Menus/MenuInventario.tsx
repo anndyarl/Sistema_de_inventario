@@ -52,36 +52,23 @@ const MenuInventario: React.FC = ({ }) => {
         setActiveItem(name);
         setTimeout(() => setActiveItem(null), 300); // Reset after animation
     };
-    useEffect(() => {
-        const handleScroll = () => {
-            const navbar = document.getElementById('navbar');
-            if (navbar) {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('shadow-navbar', 'bg-white');
-                } else {
-                    navbar.classList.remove('shadow-navbar', 'bg-white');
-                }
-            }
-        };
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
     return (
         <>
             {/* Mobile Navbar y Desktop*/}
-            <nav id="navbar" className="navbar navbar-expand-lg navbar-light">
+            <nav className="navbar navbar-expand-lg navbar-light justify-content-end">
+                <button className="navbar-toggler m-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
                 <div className="container-fluid">
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
                     <div className="collapse navbar-collapse justify-content-start" id="navbarNav">
                         <div className="navbar-nav mb-2 mb-lg-0 me-3">
-                            {navigation.map((item) => (
+                            {navigation.map((item, index) => (
                                 <NavLink
+                                    key={index}
                                     to={item.href}
                                     className={classNames(
-                                        'btn btn-outline-light text-dark py-2 px-3 m-1 rounded text-decoration-none',
+                                        'btn btn-outline-primary py-2 px-3 m-1 rounded text-decoration-none',
                                         activeItem === item.name ? 'active' : ''
                                     )}
                                     onClick={() => handleClick(item.name)}

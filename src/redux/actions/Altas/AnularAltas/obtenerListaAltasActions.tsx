@@ -4,7 +4,7 @@ import {
   OBTENER_ALTAS_REQUEST,
   OBTENER_ALTAS_SUCCESS,
   OBTENER_ALTAS_FAIL,
-} from "./types";
+} from "../types";
 
 export const obtenerListaAltasActions = (FechaInicio: string, FechaTermino: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación

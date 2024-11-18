@@ -33,10 +33,10 @@ const store = createStore(
 const persistor = persistStore(store);
 
 
-// persistor.subscribe(() => {
-//   const state = store.getState();
-//   console.log('Estado persistido:', state);
-// });
+persistor.subscribe(() => {
+  const state = store.getState();
+  console.log('Estado persistido:', state);
+});
 
 
 // Exportar los tipos de store

@@ -1,0 +1,57 @@
+import { Dispatch } from "redux";
+import axios from "axios";
+import {
+  REGISTRAR_ALTAS_REQUEST,
+  REGISTRAR_ALTAS_SUCCESS,
+  REGISTRAR_ALTAS_FAIL,
+} from "../types";
+
+// Acción para obtener la recepción por número
+export const registrarAltasActions = (aF_CLAVE: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+  const token = getState().loginReducer.token; //token está en el estado de autenticación
+
+  if (token) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const body = JSON.stringify({
+      aF_CLAVE
+    });
+
+    dispatch({ type: REGISTRAR_ALTAS_REQUEST });
+
+    try {
+      const res = await axios.post("/api_inv/api/inventario/CrearAltas", body, config);
+
+      if (res.status === 200) {
+        dispatch({
+          type: REGISTRAR_ALTAS_SUCCESS
+        });
+        return true;
+      } else {
+        dispatch({
+          type: REGISTRAR_ALTAS_FAIL,
+          error:
+            "No se pudo anular la alta seleccionada. Por favor, intente nuevamente.",
+        });
+        return false;
+      }
+    } catch (err) {
+      console.error("Error en la solicitud:", err);
+      dispatch({
+        type: REGISTRAR_ALTAS_FAIL,
+        error: "Error en la solicitud. Por favor, intente nuevamente.",
+      });
+      return false;
+    }
+  } else {
+    dispatch({
+      type: REGISTRAR_ALTAS_FAIL,
+      error: "No se encontró un token de autenticación válido.",
+    });
+    return false;
+  }
+};

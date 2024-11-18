@@ -1,8 +1,8 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../../redux/reducers";
-import Sidebar from "../../../components/navigation/Sidebar";
-import Navbar from "../../../components/navigation/Navbar";
+import Sidebar from "../../../components/Navegacion/Sidebar";
+import Navbar from "../../../components/Navegacion/Navbar";
 import { List } from "react-bootstrap-icons";
 import { motion, AnimatePresence, easeIn } from "framer-motion";
 import { Navigate, useLocation } from "react-router-dom";
@@ -64,9 +64,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* Mobile Navbar */}
-      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none border-bottom">
+      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none border-bottom ">
         <div className="container-fluid">
-          <button className="navbar-toggler border-0" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
+          <button className="navbar-toggler border-bottom" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={24} />
           </button>
           <Navbar />
@@ -100,7 +100,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
           }}
         >
           {/* Desktop Navbar */}
-          <div className="d-none d-md-block ">
+          <div className="d-none d-md-block border-bottom  ">
             <Navbar />
           </div>
 

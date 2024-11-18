@@ -4,7 +4,7 @@ import {
   LISTA_ALTAS_REQUEST,
   LISTA_ALTAS_SUCCESS,
   LISTA_ALTAS_FAIL,
-} from "./types";
+} from "../types";
 
 export const listaAltasActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
@@ -21,7 +21,7 @@ export const listaAltasActions = () => async (dispatch: Dispatch, getState: any)
 
     try {
       const res = await axios.get(`/api_inv/api/inventario/TraeAFAltas`, config);
-      console.log("Respuesta del servidor obtener lista altas:", res);
+      // console.log("Respuesta del servidor obtener lista altas:", res);
 
       if (res.status === 200) {
         dispatch({

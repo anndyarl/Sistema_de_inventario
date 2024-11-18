@@ -5,13 +5,13 @@ import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { Eraser, Search } from "react-bootstrap-icons";
 import { listaAltasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasActions";
 import SkeletonLoader from '../../Utils/SkeletonLoader';
 import { obtenerListaAltasActions } from "../../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
-import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
-import MenuAltas from "../../Menus/MenuAltas";
+
 import { obtenerAltasPorCorrActions } from "../../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
+import { registrarAltasActions } from "../../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
+import MenuAltas from "../../Menus/MenuAltas";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -38,11 +38,11 @@ interface DatosAltas {
   listaAltasActions: () => Promise<boolean>;
   obtenerListaAltasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
   obtenerAltasPorCorrActions: (altasCorr: number) => Promise<boolean>;
-  anularAltasActions: (AF_CLAVE: number) => Promise<boolean>;
+  registrarAltasActions: (aF_CLAVE: number) => Promise<boolean>;
   token: string | null;
 }
 
-const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, obtenerAltasPorCorrActions, anularAltasActions, token }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, obtenerAltasPorCorrActions, registrarAltasActions, token }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -136,32 +136,32 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 
   };
 
-  const handleAnular = async (index: number, aF_CLAVE: number) => {
+  const handleRegistrar = async (index: number, aF_CLAVE: number,) => {
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
 
     const result = await Swal.fire({
       icon: "warning",
-      title: "Anular Registro",
-      text: `Confirma anular el registro Nº ${aF_CLAVE}`,
+      title: "Registrar Altas",
+      text: `Confirmar Alta del Nº de registro ${aF_CLAVE}`,
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Confirmar y Anular",
+      confirmButtonText: "Confirmar y Registrar",
     });
 
     if (result.isConfirmed) {
-      const resultado = await anularAltasActions(aF_CLAVE);
+      const resultado = await registrarAltasActions(aF_CLAVE);
       if (resultado) {
         Swal.fire({
           icon: "success",
-          title: "Registro anulado",
-          text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
+          title: "Registro exitoso",
+          text: `Se ha registrado el Alta ${aF_CLAVE} correctamente`,
         });
         listaAltasAuto();
       } else {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
+          text: `Hubo un problema al registrar el Alta seleccionado Nª ${aF_CLAVE}.`,
         });
       }
     }
@@ -194,15 +194,15 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
       <div className="container mt-2">
         <form>
           <div className="border-bottom shadow-sm p-4 rounded">
-            <h3 className="form-title fw-semibold border-bottom p-1">Anular Altas</h3>
-            <Row>
+            <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
+            {/* <Row>
               <Col md={3}>
                 <div className="mb-1">
                   <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
                   <input
                     aria-label="fechaInicio"
                     type="date"
-                    className={`form-control  ${error.fechaInicio ? "is-invalid" : ""
+                    className={`form-control text-center ${error.fechaInicio ? "is-invalid" : ""
                       }`}
                     name="fechaInicio"
                     onChange={handleChange}
@@ -217,7 +217,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                   <input
                     aria-label="fechaTermino"
                     type="date"
-                    className={`form-control  ${error.fechaTermino ? "is-invalid" : ""
+                    className={`form-control text-center ${error.fechaTermino ? "is-invalid" : ""
                       }`}
                     name="fechaTermino"
                     onChange={handleChange}
@@ -235,7 +235,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                   <input
                     aria-label="nInventario"
                     type="text"
-                    className='form-control'
+                    className='form-control text-center'
                     name="aF_CLAVE"
                     onChange={handleChange}
                     value={Inventario.aF_CLAVE}
@@ -260,7 +260,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                   </Button>
                 </div>
               </Col>
-            </Row>
+            </Row> */}
             {/* Tabla*/}
             {loading ? (
               <>
@@ -303,9 +303,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                           <Button
                             variant="outline-danger"
                             size="sm"
-                            onClick={() => handleAnular(index, listaAltas.aF_CLAVE)}
-                          >
-                            Anular
+                            onClick={() => handleRegistrar(index, listaAltas.aF_CLAVE)}>
+                            Registrar
                           </Button>
                         </td>
                       </tr>
@@ -359,5 +358,5 @@ export default connect(mapStateToProps, {
   listaAltasActions,
   obtenerListaAltasActions,
   obtenerAltasPorCorrActions,
-  anularAltasActions
-})(AnularAltas);
+  registrarAltasActions
+})(RegistrarAltas);

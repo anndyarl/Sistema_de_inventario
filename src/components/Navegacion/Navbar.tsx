@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Profile from './Profile';
 
+
 function Navbar() {
 
     useEffect(() => {
@@ -21,9 +22,11 @@ function Navbar() {
 
 
     return (
-        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end border-bottom">
+        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end">
+
             <Profile />
         </nav>
+
     );
 }
 

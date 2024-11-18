@@ -3,7 +3,8 @@ import Layout from "../../../containers/hocs/layout/Layout";
 import { Col, Row } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { FileEarmarkExcel } from "react-bootstrap-icons";
-import MenuInventario from "../../Menus/menuInventario";
+import MenuInventario from "../../Menus/MenuInventario";
+
 
 interface AdjuntoProps {
   archivoExcel: string;

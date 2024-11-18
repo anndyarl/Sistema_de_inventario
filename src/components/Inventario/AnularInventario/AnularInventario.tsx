@@ -10,7 +10,7 @@ import { InventarioCompleto } from "../ModificarInventario/ModificarInventario";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
 import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
-import MenuInventario from "../../Menus/menuInventario";
+import MenuInventario from "../../Menus/MenuInventario";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
@@ -215,7 +215,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
             ) : (
               <div className='skeleton-table'>
                 <Table striped bordered hover>
-                  <thead>
+                  <thead className="table-light sticky-top">
                     <tr>
                       <th>Nª de Recepcion</th>
                       <th>Fecha de Factura</th>

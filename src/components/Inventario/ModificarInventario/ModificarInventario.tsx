@@ -16,7 +16,8 @@ import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/co
 import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
 import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
-import MenuInventario from "../../Menus/menuInventario";
+import MenuInventario from "../../Menus/MenuInventario";
+
 
 export interface InventarioCompleto {
   aF_CLAVE: string;
@@ -517,13 +518,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                             animation="border"
                             size="sm"
                             role="status"
-                            aria-hidiven="true"
+                            aria-hidden="true"
                           />
                         </>
                       ) : (
                         <Search
                           className={classNames("flex-shrink-0", "h-5 w-5")}
-                          aria-hidiven="true"
+                          aria-hidden="true"
                         />
                       )}
                     </Button>
@@ -535,7 +536,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     >
                       <Pencil
                         className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidiven="true"
+                        aria-hidden="true"
                       />
                     </Button>
                   </div>
@@ -785,7 +786,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     >
                       <Pencil
                         className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidiven="true"
+                        aria-hidden="true"
                       />
                     </Button>
                   </div>
@@ -831,7 +832,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     >
                       <Eye
                         className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidiven="true"
+                        aria-hidden="true"
                       />
                     </Button>
                   </div>
@@ -887,7 +888,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       Seleccionar{" "}
                       <Check2Circle
                         className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidiven="true"
+                        aria-hidden="true"
                       />
                     </Button>
                   </div>
@@ -1044,7 +1045,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       />
                       <Pencil
                         className={classNames("flex-shrink-0", "h-5 w-5 m-1")}
-                        aria-hidiven="true"
+                        aria-hidden="true"
                       />
                     </td>
                     <td>
