@@ -27,7 +27,7 @@ import datosListaAltasReducers from "./Altas/AnularAltas/datosListaAltasReducers
 
 
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   //Autentificación
   loginReducer,
   //------------Registro inventario------------------//
@@ -54,7 +54,16 @@ const rootReducer = combineReducers({
   datosListaInventarioReducers,
 
   datosListaAltasReducers
+
 });
+
+const rootReducer = (state: any, action: any) => {
+  if (action.type === 'LOGOUT') {
+    // Reinicia el estado a su valor inicial
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 export type RootState = ReturnType<typeof rootReducer>;
 export default rootReducer;

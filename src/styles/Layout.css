@@ -1,3 +1,5 @@
+
+
 .bg-color{
     background:  linear-gradient(30.09deg, #0d4582 0%, #0d4582 176.73%)  
 }
@@ -6,3 +8,27 @@
     width: 9rem; /* O el ancho que prefieras */
    
   }
+
+.sidebar-left {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+    transition: all 0.3s;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-header{
+    /* box-shadow: 1px 1px 1px 1px rgba(12, 12, 12, 0.2); */
+    border-radius: 0.1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Tablas */
+
+  th, td { 
+    color: rgb(69, 71, 75)!important; 
+ }
+  

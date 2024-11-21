@@ -6,12 +6,13 @@ import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { listaAltasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasActions";
-import SkeletonLoader from '../../Utils/SkeletonLoader';
+
 import { obtenerListaAltasActions } from "../../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
 
 import { obtenerAltasPorCorrActions } from "../../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
 import { registrarAltasActions } from "../../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
 import MenuAltas from "../../Menus/MenuAltas";
+import SkeletonLoader from "../../Utils/SkeletonLoader";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -267,22 +268,22 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, o
                 <SkeletonLoader rowCount={elementosPorPagina} />
               </>
             ) : (
-              <div className='skeleton-table'>
+              <div className='table-responsive'>
                 <Table striped bordered hover>
                   <thead className="table-light sticky-top">
                     <tr>
-                      <th>Codigo</th>
-                      <th>N° Inventario</th>
-                      <th>Servicio</th>
-                      <th>Dependencia</th>
-                      <th>Especie</th>
-                      <th>N° Cuenta</th>
-                      <th>Marca</th>
-                      <th>Modelo</th>
-                      <th>Serie</th>
-                      <th>Precio</th>
-                      <th>N° Recepcion</th>
-                      <th>Acción</th>
+                      <th scope="col">Codigo</th>
+                      <th scope="col">N° Inventario</th>
+                      <th scope="col">Servicio</th>
+                      <th scope="col">Dependencia</th>
+                      <th scope="col">Especie</th>
+                      <th scope="col">N° Cuenta</th>
+                      <th scope="col">Marca</th>
+                      <th scope="col">Modelo</th>
+                      <th scope="col">Serie</th>
+                      <th scope="col">Precio</th>
+                      <th scope="col" >N° Recepcion</th>
+                      <th scope="col">Acción</th>
                     </tr>
                   </thead>
                   <tbody>

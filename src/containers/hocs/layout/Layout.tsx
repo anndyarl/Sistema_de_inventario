@@ -64,7 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* Mobile Navbar */}
-      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none border-bottom ">
+      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none border-bottom">
         <div className="container-fluid">
           <button className="navbar-toggler border-bottom" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={24} />
@@ -76,17 +76,10 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
       <div className="d-flex flex-grow-1">
         {/* Sidebar */}
         <div
-          className={`bg-color ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}
+          className={`bg-color sidebar-left ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}
           style={{
-            width: "250px",
-            minWidth: "250px",
-            maxWidth: "250px",
-            transition: "all 0.3s",
             position: isDesktop ? "relative" : "fixed",
-            top: 0,
-            bottom: 0,
             left: isDesktop ? "0" : sidebarOpen ? "0" : "-250px",
-            zIndex: 1000,
           }}
         >
           <Sidebar />
@@ -100,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
           }}
         >
           {/* Desktop Navbar */}
-          <div className="d-none d-md-block border-bottom  ">
+          <div className="d-none d-md-block navbar-header">
             <Navbar />
           </div>
 

@@ -7,11 +7,12 @@ import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { listaAltasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasActions";
-import SkeletonLoader from '../../Utils/SkeletonLoader';
+
 import { obtenerListaAltasActions } from "../../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
 import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
 import MenuAltas from "../../Menus/MenuAltas";
 import { obtenerAltasPorCorrActions } from "../../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
+import SkeletonLoader from "../../Utils/SkeletonLoader";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -63,6 +64,13 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
         const resultado = await listaAltasActions();
         if (resultado) {
           setLoading(false);
+        }
+        else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+          });
         }
       }
     }
@@ -261,14 +269,15 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                 </div>
               </Col>
             </Row>
+
             {/* Tabla*/}
             {loading ? (
               <>
                 <SkeletonLoader rowCount={elementosPorPagina} />
               </>
             ) : (
-              <div className='skeleton-table'>
-                <Table striped bordered hover>
+              <div className='table-responsive'>
+                <Table striped bordered hover  >
                   <thead className="table-light sticky-top">
                     <tr>
                       <th>Codigo</th>
@@ -314,6 +323,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                 </Table>
               </div>
             )}
+
+
             {/* Paginador */}
             <Pagination className="d-flex justify-content-end">
               <Pagination.First

@@ -9,6 +9,7 @@ import {
 } from '../Inventario/types';
 import { Dispatch } from 'redux';
 import { DatosPersona } from "../../interfaces"
+import { persistor } from '../../../store';
 
 
 export const login = (usuario: string, password: string) => async (dispatch: Dispatch) => {
@@ -91,21 +92,22 @@ export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: 
   }
 };
 
-export const logout = () => async (dispatch: Dispatch): Promise<boolean> => {
+export const logout = () => async (dispatch: Dispatch) => {
+  persistor.purge();
+  // persistor.flush();
   dispatch({ type: LOGOUT });
-  return true;
 };
 
-export const checkAuthStatus = () => (dispatch: Dispatch) => {
-  const token = localStorage.getItem('token');
+// export const checkAuthStatus = () => (dispatch: Dispatch) => {
+//   const token = localStorage.getItem('token');
 
-  if (token) {
-    dispatch({ type: SET_TOKEN, payload: token });
-    dispatch({ type: LOGIN_SUCCESS, payload: token }); // Asume que el token es válido
-  } else {
-    dispatch({ type: LOGIN_FAIL });
-  }
-};
+//   if (token) {
+//     dispatch({ type: SET_TOKEN, payload: token });
+//     dispatch({ type: LOGIN_SUCCESS, payload: token }); // Asume que el token es válido
+//   } else {
+//     dispatch({ type: LOGIN_FAIL });
+//   }
+// };
 
 //endpoint que se consulta con parametro token recibido
 // https://sidra.ssmso.cl/api_erp_inv_qa/api/claveunica/validarportal/

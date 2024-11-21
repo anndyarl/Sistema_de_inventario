@@ -11,10 +11,10 @@ import Informes from '../../pages/Informes';
 import Configuracion from '../../pages/Configuracion';
 import ClaveUnica from '../../pages/ClaveUnica';
 import SesionExpirada from '../../errors/SesionExpirada';
-import { useDispatch } from 'react-redux';
-import { useEffect } from 'react';
-import { checkAuthStatus } from '../../../redux/actions/auth/auth';
-import { AppDispatch } from '../../../store';
+// import { useDispatch } from 'react-redux';
+// import { useEffect } from 'react';
+// import { checkAuthStatus } from '../../../redux/actions/auth/auth';
+// import { AppDispatch } from '../../../store';
 
 import FormBienesFuncionarios from '../../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
 import ModificarInventario from '../../../components/Inventario/ModificarInventario/ModificarInventario';
@@ -31,12 +31,12 @@ import RegistrarAltas from '../../../components/Altas/RegistrarAltas/RegistrarAl
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
-    const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch
+    // const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch
 
 
-    useEffect(() => {
-        dispatch(checkAuthStatus()); // Verifica el estado de autenticación al inicio
-    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(checkAuthStatus()); // Verifica el estado de autenticación al inicio
+    // }, [dispatch]);
 
     return (
         <AnimatePresence>

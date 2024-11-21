@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sun, Moon, CircleUserRound, LogOut } from "lucide-react";
+import { Sun, Moon, LogOut, User2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
-import { AppDispatch, persistor } from "../../store";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers";
 import { logout } from "../../redux/actions/auth/auth";
 import { NavLink } from "react-router-dom";
-import { Building, Coin, Gear, Geo, Plus } from "react-bootstrap-icons";
+import { Building, Coin, Gear, Geo } from "react-bootstrap-icons";
 interface ProfileProps {
   // onToggleDarkMode: () => void;
   // isDarkMode: boolean;
@@ -38,21 +37,18 @@ const Profile: React.FC<ProfileProps> = ({
     easeOut: [0, 0, 0.58, 1],
     duration: 0.2,
   };
-  const handleLogout = async () => {
-    let resultado = await logout();
-
-    if (resultado) {
-      persistor.purge();
-    }
-
+  const handleLogout = () => {
+    logout();
   };
   return (
     <>
-
-      <button type="button" onClick={togglePanel} className="btn btn-outline-light text-black">
-        <CircleUserRound className="flex-shrink-0 h-5 w-5 m-1" aria-hidden="true" />
+      <button type="button" onClick={togglePanel} className="btn btn-outline-light text-black border-radiou">
+        <User2
+          className={classNames("flex-shrink-0 mx-1", "h-5 w-5")}
+          aria-hidden="true"
+        />
         <span className="font-bold text-sm ">Andy Riquelme</span>
-      </button>
+      </button >
       <AnimatePresence >
         {isOpen && (
           <motion.div
@@ -65,7 +61,7 @@ const Profile: React.FC<ProfileProps> = ({
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <button className="navbar-nav fs-2 nav-link close-btn" onClick={togglePanel}>×</button>
+              <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0" onClick={togglePanel}>×</button>
               <h3 className="fw-semibold  p-1 text-center">Andy Riquelme</h3>
               <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
 

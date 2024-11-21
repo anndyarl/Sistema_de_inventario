@@ -21,12 +21,12 @@ const MenuAltas: React.FC = ({ }) => {
             href: '/RegistrarAltas',
             icon: Plus
         },
-        {
-            name: 'Modificar Inventario',
-            description: 'Encuentre y modifique el inventario existente.',
-            href: '/',
-            icon: Pencil
-        },
+        // {
+        //     name: 'Modificar Inventario',
+        //     description: 'Encuentre y modifique el inventario existente.',
+        //     href: '/',
+        //     icon: Pencil
+        // },
         {
             name: 'Anular Altas',
             description: 'Busque el activo o los activos de altas que desee anular.',

@@ -9,7 +9,9 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-import { PencilFill, Plus } from "react-bootstrap-icons";
+import {
+  PencilFill, Plus, Trash
+} from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
 
@@ -42,6 +44,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
+import { LucideTrash, Trash2Icon } from "lucide-react";
 
 export interface ActivoFijo {
   id: string;
@@ -109,6 +112,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
   //-------Tabla-------//
   const [editingSerie, setEditingSerie] = useState<string | null>(null);
+  const [serie, setSerie] = useState<string>();
+
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setCurrentPage] = useState(1);
   const [elementosPorPagina] = useState(10);
@@ -129,10 +134,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(
-    () => datos.slice(indicePrimerElemento, indiceUltimoElemento),
-    [datos, indicePrimerElemento, indiceUltimoElemento]
-  );
+  const elementosActuales = useMemo(() => datos.slice(indicePrimerElemento, indiceUltimoElemento),
+    [datos, indicePrimerElemento, indiceUltimoElemento]);
   const totalPaginas = Math.ceil(datos.length / elementosPorPagina);
 
   // Calcula el total del precio de la tabla
@@ -190,42 +193,52 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   };
 
   const handleCambiaSerie = (indexVisible: number, newSerie: string) => {
-    // Convertir el índice visible al índice real en el array completo
     const indexReal = indicePrimerElemento + indexVisible;
+
     setActivosFijos((prevActivos) => {
-      // Comprobar si la nueva serie ya existe en otro activo
-      const serieExists = prevActivos.some(
-        (activo, i) => activo.serie === newSerie && i !== indexReal
+      // Actualizar la serie del activo correspondiente
+      const actualizaActivos = prevActivos.map((activo, i) =>
+        i === indexReal ? { ...activo, serie: newSerie } : activo
       );
 
-      // Si existe, marcamos este índice con un error, pero permitimos el cambio
-      if (serieExists) {
+      // Validar si hay series vacías
+      const serieVacia = actualizaActivos.some((activo) => !activo.serie.trim());
+      setCurrentActivo((prevData) => ({
+        ...prevData,
+        activo: serieVacia,
+      }));
+
+      // Validar si hay series duplicadas (ignorando vacías)
+      const serieNoVacia = actualizaActivos
+        .map((activo) => activo.serie.trim())
+        .filter((serie) => serie !== "");
+      const duplicados = serieNoVacia.filter(
+        (serie, index, arr) => arr.indexOf(serie) !== index
+      );
+
+      // Actualizar estado de duplicados y errores
+      if (duplicados.length > 0) {
         setIsRepeatSerie(true);
         setErroresSerie((prevErrores) => ({
           ...prevErrores,
           [indexReal]: "Esta serie ya existe en otro activo.",
         }));
-
       } else {
-        // Si no existe error, limpiamos el error de este índice
         setIsRepeatSerie(false);
         setErroresSerie((prevErrores) => {
           const newErrores = { ...prevErrores };
-          delete newErrores[indexReal]; // Eliminar error si ya no hay conflicto
+          delete newErrores[indexReal]; // Limpiar error si ya no hay conflicto
           return newErrores;
         });
       }
-      // Actualizar el estado global (activosFijos) con el nuevo valor de serie
-      const updatedActivos = prevActivos.map((activo, i) =>
-        i === indexReal ? { ...activo, serie: newSerie } : activo
-      );
 
-      // Despachar la acción para actualizar la serie en Redux
+      // Despachar la acción para actualizar Redux
       dispatch(actualizarSerieEnTabla(indexReal, newSerie));
 
-      return updatedActivos; // Retornar el array completo actualizado
+      return actualizaActivos; // Retornar el array actualizado
     });
   };
+
   //-------------Funciones de la tabla --------------------//
   const handleSerieBlur = () => {
     setEditingSerie(null);
@@ -293,6 +306,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
       // Despacha el array de nuevos activos a Redux
       dispatch(setDatosTablaActivoFijo(newActivos));
+      //Limpia campos despues de crearlos
       setCurrentActivo({
         id: "",
         vidaUtil: "",
@@ -338,40 +352,47 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   };
 
   const handleValidar = () => {
+    const serieVacia = activosFijos.some((activo) => !activo.serie.trim());
+
+    if (serieVacia) {
+      Swal.fire({
+        icon: "warning",
+        title: "Serie Faltante",
+        text: "Por favor, verifique que todos sus registros contengan su número de serie.",
+      });
+      return; // Detener el proceso
+    }
+
+    if (isRepeatSerie) {
+      Swal.fire({
+        icon: "warning",
+        title: "Serie Duplicada",
+        text: "Por favor, verifique que no existan series duplicadas en el registro.",
+      });
+      return; // Detener el proceso
+    }
 
     if (pendiente == 0) {
-      // setMostrarModalConfirmar(true);
-      onNext(activosFijos);
-
       Swal.fire({
         icon: "info",
-        // title: 'Confirmar',
-        text: "Confirmar el envio del formulario",
-        showDenyButton: false,
+        text: "Confirmar el envío del formulario",
         showCancelButton: true,
         confirmButtonText: "Confirmar y Enviar",
       }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           Swal.fire("Registrado!", "", "success");
           handleFinalSubmit();
         }
       });
     } else {
-      // SweetAlert2: mostrar alerta de error
       Swal.fire({
         icon: "warning",
         title: "Pendiente",
         text: `Tienes un monto pendiente de $${pendiente}`,
-      });
-    }
-
-    if (isRepeatSerie) {
-      // SweetAlert2: mostrar alerta de error
-      Swal.fire({
-        icon: "warning",
-        title: "Serie Duplicada",
-        text: "Por favor, verifique que no existan series duplicadas en el registro.",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setMostrarModal(true);
+        }
       });
     }
   };
@@ -482,10 +503,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
           </p>
         ) : (
           <div className="overflow-auto">
-            <Table bordered hover>
+            <Table responsive className="mb-0">
               <thead className="table-light sticky-top">
                 <tr>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
+                  <th >
                     <Form.Check
                       type="checkbox"
                       onChange={handleSeleccionaTodos}
@@ -496,30 +517,14 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                       }
                     />
                   </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Vida Útil
-                  </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Fecha Ingreso
-                  </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Marca
-                  </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Modelo
-                  </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Serie
-                  </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Precio
-                  </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Especie
-                  </th>
-                  <th style={{ color: "white", backgroundColor: "#0d4582" }}>
-                    Acciones
-                  </th>
+                  <th>Vida Útil</th>
+                  <th>Fecha Ingreso</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Serie</th>
+                  <th>Precio</th>
+                  <th>Especie</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -546,9 +551,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                         <Form.Control
                           type="text"
                           value={activo.serie}
-                          onChange={(e) =>
-                            handleCambiaSerie(indexReal, e.target.value)
-                          }
+                          onChange={(e) => handleCambiaSerie(indexReal, e.target.value)}
                           onBlur={handleSerieBlur}
                           autoFocus
                           maxLength={10}
@@ -578,12 +581,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                         minimumFractionDigits: 0,
                       })}
                     </td>
-                    <td
-                      style={{ backgroundColor: activo.color || "transparent" }}
-                    >
-                      {" "}
-                      {activo.especie}
-                    </td>
+                    <td className="fw-bold" style={{ backgroundColor: activo.color || "transparent" }}> {" "}  {activo.especie}</td>
                     <td>
                       {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
                   Clonar
@@ -597,7 +595,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                           )
                         }
                       >
-                        Eliminar
+                        <Trash
+                          className={classNames("flex-shrink-0", "h-5 w-5")}
+                          aria-hidden="true"
+                        />
                       </Button>
                     </td>
                   </tr>
@@ -625,31 +626,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         {/* Paginador*/}
         {elementosActuales.length > 0 && (
           <Pagination className="d-flex justify-content-end">
-            <Pagination.First
-              onClick={() => paginar(1)}
-              disabled={paginaActual === 1}
-            />
-            <Pagination.Prev
-              onClick={() => paginar(paginaActual - 1)}
-              disabled={paginaActual === 1}
-            />
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={i + 1 === paginaActual}
-                onClick={() => paginar(i + 1)}
-              >
-                {i + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => paginar(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas}
-            />
-            <Pagination.Last
-              onClick={() => paginar(totalPaginas)}
-              disabled={paginaActual === totalPaginas}
-            />
+            <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+            <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+            {Array.from({ length: totalPaginas }, (_, i) => (<Pagination.Item key={i + 1} active={i + 1 === paginaActual} onClick={() => paginar(i + 1)}>{i + 1} </Pagination.Item>))}
+            <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+            <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
           </Pagination>
         )}
         {/* Botones volver y confirmar*/}
@@ -659,14 +640,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
           </Button>
 
           {elementosActuales.length > 0 && (
-            <Button variant="btn btn-primary m-1" onClick={handleValidar}>
+            <Button variant="btn btn-primary m-1"
+              onClick={handleValidar} >
               Validar
             </Button>
           )}
         </div>
-      </div>
+      </div >
       {/* Modal formulario Activos Fijo*/}
-      <Modal
+      < Modal
         show={mostrarModal}
         onHide={() => setMostrarModal(false)}
         size="lg"
@@ -692,6 +674,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     minimumFractionDigits: 0,
                   })}
                 </p>
+                <p><strong>Monto Pendiente:</strong> ${montoRecepcion - totalSum}</p>
                 <Button type="submit" variant="primary">
                   <Plus
                     className={classNames("flex-shrink-0", "h-5 w-5")}
@@ -838,7 +821,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
             </Row>
           </form>
         </Modal.Body>
-      </Modal>
+      </Modal >
     </>
   );
 };
