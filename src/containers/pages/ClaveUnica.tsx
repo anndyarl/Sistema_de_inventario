@@ -1,6 +1,6 @@
 // ClaveUnica.tsx
 import React, { useEffect } from "react";
-import { useAppDispatch } from "../../redux/hook";
+import { useAppDispatch } from "../../redux/hooks/hook";
 import { loginClaveUnica } from "../../redux/actions/auth/auth";
 import { DatosPersona } from "../../redux/interfaces"; // Importa la interfaz
 import { connect } from "react-redux";

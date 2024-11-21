@@ -65,6 +65,13 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, o
         if (resultado) {
           setLoading(false);
         }
+        else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+          });
+        }
       }
     }
   };

@@ -5,7 +5,10 @@ import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { Check2Circle, Plus } from "react-bootstrap-icons";
-
+import SkeletonLoader from "../../Utils/SkeletonLoader";
+const classNames = (...classes: (string | boolean | undefined)[]): string => {
+  return classes.filter(Boolean).join(" ");
+};
 // Define el tipo de los elementos del combo `servicio`
 export interface SERVICIO {
   codigo: number;
@@ -120,11 +123,9 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
   const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 50;
-  const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(" ");
-  };
   const [error, setError] = useState<Partial<CuentaProps>>({});
 
+  const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -186,6 +187,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
   useEffect(() => {
     // Detecta si el valor de 'especie' ha cambiado
     if (Especies.codigoEspecie) {
+
       onEspecieSeleccionado(Especies.codigoEspecie);
       dispatch(setEspecieActions(Cuenta.especie));
       dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
@@ -466,39 +468,45 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
           </form>
 
           {/* Tabla*/}
-          <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-            <Table striped bordered hover>
-              <thead className="table-light sticky-top">
-                <tr>
-                  <th></th>
-                  <th>Establecimiento</th>
-                  <th>Nombre</th>
-                  <th>Especie</th>
-                </tr>
-              </thead>
-              <tbody>
-                {elementosActuales.map((listadoEspecies, index) => (
-                  <tr key={index}>
-                    <td>
-                      <Form.Check
-                        type="checkbox"
-                        onChange={() =>
-                          handleSeleccionFila(indicePrimerElemento + index)
-                        }
-                        checked={filasSeleccionadas.includes(
-                          (indicePrimerElemento + index).toString()
-                        )}
-                      />
-                    </td>
-                    <td>{listadoEspecies.estabL_CORR}</td>
-                    <td>{listadoEspecies.esP_CODIGO}</td>
-                    <td>{listadoEspecies.nombrE_ESP}</td>
+          {loading ? (
+            <>
+              <SkeletonLoader rowCount={elementosPorPagina} />
+            </>
+          ) : (
+            <div className='table-responsive'>
+              <Table striped bordered hover>
+                <thead className="table-light sticky-top">
+                  <tr>
+                    <th></th>
+                    <th>Establecimiento</th>
+                    <th>Nombre</th>
+                    <th>Especie</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
+                </thead>
+                <tbody>
+                  {elementosActuales.map((listadoEspecies, index) => (
+                    <tr key={index}>
+                      <td>
+                        <Form.Check
+                          type="checkbox"
+                          onChange={() =>
+                            handleSeleccionFila(indicePrimerElemento + index)
+                          }
+                          checked={filasSeleccionadas.includes(
+                            (indicePrimerElemento + index).toString()
+                          )}
+                        />
+                      </td>
+                      <td>{listadoEspecies.estabL_CORR}</td>
+                      <td>{listadoEspecies.esP_CODIGO}</td>
+                      <td>{listadoEspecies.nombrE_ESP}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
 
+            </div>
+          )}
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">
             <Pagination.First

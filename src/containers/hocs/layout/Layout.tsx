@@ -10,6 +10,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
 import "../../../styles/Layout.css"
+import useAutoLogout from "../../../redux/hooks/useAutoLogout";
 
 
 interface LayoutProps {
@@ -60,7 +61,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
     duration: 0.2,
     // delay: 0.03,
   };
-
+  //Se pasan parametros del tiempo en milisegundos en que se mostrará mensaje y cierre de sesion por inactividad
+  useAutoLogout(300000, 600000);
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* Mobile Navbar */}
