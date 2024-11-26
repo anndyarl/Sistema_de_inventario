@@ -134,7 +134,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
     if (!resultado) {
       Swal.fire({
         icon: "error",
-        title: "No se encontraron resultados para la busqueda",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
         confirmButtonText: "Ok",
       });
       setLoading(false); //Finaliza estado de carga
@@ -169,7 +170,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
       } else {
         Swal.fire({
           icon: "error",
-          title: "Error",
+          title: ":'(",
           text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
         });
       }

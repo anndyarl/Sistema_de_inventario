@@ -396,7 +396,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (!resultado) {
       Swal.fire({
         icon: "error",
-        title: "No se encontraron resultados, inténtelo con otro registro. ",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
         confirmButtonText: "Ok",
       });
       setIsDisabled(true);

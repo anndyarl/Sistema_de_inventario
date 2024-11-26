@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { Button, Col, Row } from "react-bootstrap";
 import Swal from "sweetalert2";
-// import QRCode from 'qrcode.react';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import Layout from "../../containers/hocs/layout/Layout";
 import MenuAltas from "../Menus/MenuAltas";
 
@@ -60,14 +60,14 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
             if (resultado) {
                 Swal.fire({
                     icon: "success",
-                    title: "Generaciòn de QR",
-                    text: "Se ha generado un código QR",
+                    title: "Código QR generado",
+                    text: "Se ha generado un código QR al número ingresado",
                 });
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "Error de socilitud",
-                    text: "No existe datos para la solicitud consultada",
+                    title: ":'(",
+                    text: "No se encontraron resultados, inténte otro registro.",
                 });
             }
         };
@@ -107,23 +107,28 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                             </div>
                         )}
 
-                        {datosEtiqueta.map((traeEtiqueta) => (
-                            <div key={traeEtiqueta.aF_CODIGO_LARGO} className="mb-3 text-center">
-                                <p>{traeEtiqueta.aF_CODIGO_LARGO}</p>
-                                <p>{traeEtiqueta.aF_DESCRIPCION}</p>
-                                <p>{traeEtiqueta.aF_UBICACION}</p>
-
-                                {/* Generar QR con los datos */}
-                                {/* <QRCode value={`Código: ${traeEtiqueta.aF_CODIGO_LARGO}`} /> */}
-                            </div>
-                        ))}
-
-
                         <div className="p-1 rounded bg-white d-flex justify-content-center ">
                             <button type="submit" className="btn btn-primary">
                                 Generar
                             </button>
                         </div>
+                        {datosEtiqueta.map((traeEtiqueta) => (
+                            <div key={traeEtiqueta.aF_CODIGO_LARGO} >
+                                <div className="d-flex justify-content-center m-5">
+                                    <QRCodeSVG value={traeEtiqueta.aF_CODIGO_LARGO} size={128} />
+                                    <div className="m-2">
+                                        <h3 className="text-semibold mb-1">{traeEtiqueta.aF_CODIGO_LARGO}</h3>
+                                        <p className="mb-1">{traeEtiqueta.aF_DESCRIPCION}</p>
+                                        <p className="mb-1">{traeEtiqueta.aF_UBICACION}</p>
+                                    </div>
+                                </div>
+
+
+                                {/* <QRCodeCanvas value={traeEtiqueta.aF_CODIGO_LARGO} size={128} /> */}
+                            </div>
+                        ))}
+
+
                     </form>
                 </div>
             </div>

@@ -5,8 +5,6 @@ import {
   REGISTRAR_ALTAS_SUCCESS,
   REGISTRAR_ALTAS_FAIL,
 } from "../types";
-import { ListaAltas } from "../../../../components/Altas/AnularAltas/AnularAltas";
-
 
 // Acción para obtener la recepción por número
 export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
