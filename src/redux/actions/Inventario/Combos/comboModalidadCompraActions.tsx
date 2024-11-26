@@ -21,10 +21,7 @@ export const comboModalidadesActions =
       dispatch({ type: MODALIDAD_COMPRA_REQUEST });
 
       try {
-        const res = await axios.get(
-          "/api_inv/api/inventario/comboTraeModalidad",
-          config
-        );
+        const res = await axios.get("/api_inv/api/inventario/comboTraeModalidad", config);
 
         if (res.status === 200) {
           dispatch({

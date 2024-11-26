@@ -2,14 +2,14 @@ import axios from 'axios';
 import {
     SERVICIO_REQUEST,
     SERVICIO_SUCCESS,
-    SERVICIO_FAIL,       
+    SERVICIO_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
 export const comboTraeServicio = (token: string) => async (dispatch: Dispatch) => {
-    if (token) {    
+    if (token) {
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -21,18 +21,17 @@ export const comboTraeServicio = (token: string) => async (dispatch: Dispatch) =
 
         try {
             const res = await axios.get('/api_inv/api/inventario/comboTraeServicio', config);
-            console.log('Respuesta del servidor obtener servicio:', res); 
 
             if (res.status === 200) {
                 dispatch({
                     type: SERVICIO_SUCCESS,
                     payload: res.data
-                }); 
+                });
             } else {
                 dispatch({ type: SERVICIO_FAIL });
             }
         } catch (err) {
-            console.error("Error en la solicitud:", err);          
+            console.error("Error en la solicitud:", err);
             dispatch({ type: SERVICIO_FAIL });
         }
     } else {

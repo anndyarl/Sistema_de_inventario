@@ -17,10 +17,7 @@ export const comboServicioActions =
       dispatch({ type: SERVICIO_REQUEST });
 
       try {
-        const res = await axios.get(
-          "/api_inv/api/inventario/comboTraeServicio",
-          config
-        );
+        const res = await axios.get("/api_inv/api/inventario/comboTraeServicio", config);
 
         if (res.status === 200) {
           dispatch({

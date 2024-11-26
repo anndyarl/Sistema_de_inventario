@@ -24,6 +24,8 @@ import datosInventarioReducers from "./Inventario/ModificarInventario/datosInven
 import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
 //------------Registrar Altas----------------//
 import datosListaAltasReducers from "./Altas/AnularAltas/datosListaAltasReducers";
+import obtenerEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerEtiquetasAltasReducers";
+import datosListaBajasReducers from "./Bajas/datosListaBajasReducers";
 
 
 
@@ -53,7 +55,9 @@ const appReducer = combineReducers({
   //-----------Anular Inventario --------------//
   datosListaInventarioReducers,
 
-  datosListaAltasReducers
+  datosListaAltasReducers,
+  datosListaBajasReducers,
+  obtenerEtiquetasAltasReducers
 
 });
 

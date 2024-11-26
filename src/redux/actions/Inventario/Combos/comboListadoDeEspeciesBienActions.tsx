@@ -23,9 +23,7 @@ export const comboListadoDeEspeciesBienActions =
 
         try {
           const res = await axios.get(
-            `/api_inv/api/inventario/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}`,
-            config
-          );
+            `/api_inv/api/inventario/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}`, config);
 
           if (res.status === 200) {
             dispatch({

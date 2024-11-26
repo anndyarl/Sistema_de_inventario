@@ -27,10 +27,7 @@ export const comboDetalleActions =
       }
 
       try {
-        const res = await axios.get(
-          `/api_inv/api/inventario/comboTraeBienxPadre?idPadre=${idPadre}`,
-          config
-        );
+        const res = await axios.get(`/api_inv/api/inventario/comboTraeBienxPadre?idPadre=${idPadre}`, config);
 
         if (res.status === 200) {
           if (idPadre === "0") {

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import Error404 from '../../errors/Error404';
+
 import Login from '../../pages/Login';
 import Traslados from '../../pages/Traslados';
 import Altas from '../../pages/Altas';
@@ -27,6 +27,9 @@ import CargaMasiva from '../../../components/Inventario/CargaMasiva/CargaMasiva'
 import AnularAltas from '../../../components/Altas/AnularAltas/AnularAltas';
 import RegistrarAltas from '../../../components/Altas/RegistrarAltas/RegistrarAltas';
 
+import Error404 from '../../errors/Error404';
+import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta';
+import RegistrarBajas from '../../../components/Bajas/RegistrarBajas';
 
 
 const AnimatedRoutes: React.FC = () => {
@@ -47,6 +50,7 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Access Display */}
                 <Route path="/Login" element={<Login />} />
                 <Route path="/SesionExpirada" element={<SesionExpirada />} />
+
                 {/* <Route path="/ClaveUnica" element={<ClaveUnica/>} />  */}
 
                 {/* Menu principal */}
@@ -60,6 +64,8 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/AnularInventario" element={<AnularInventario />} />
                 <Route path="/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
                 <Route path="/CargaMasiva" element={<CargaMasiva />} />
+                <Route path="/ImprimirEtiqueta" element={<ImprimirEtiqueta />} />
+
                 {/* Fin Menu Inventario */}
                 <Route path="/Traslados" element={<Traslados />} />
                 {/* Módulo Altas */}
@@ -67,7 +73,10 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/RegistrarAltas" element={<RegistrarAltas />} />
                 <Route path="/AnularAltas" element={<AnularAltas />} />
                 {/* Fin Módulo Altas */}
+                {/* Módulo Altas */}
                 <Route path="/Bajas" element={<Bajas />} />
+                <Route path="/RegistrarBajas" element={<RegistrarBajas />} />
+                {/* Fin Módulo Bajas */}
                 <Route path="/Donaciones" element={<Donaciones />} />
                 <Route path="/Informes" element={<Informes />} />
                 <Route path="/Configuracion" element={<Configuracion />} />

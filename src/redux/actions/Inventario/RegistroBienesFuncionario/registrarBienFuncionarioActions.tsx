@@ -41,7 +41,6 @@ export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_COR
                     type: POST_FORMULARIO_BIENES_SUCCESS,
                     payload: response.data,
                 });
-                console.log("Post enviado correctamente desde axios");
                 return true;
             }
         } catch (error: any) {

@@ -36,12 +36,6 @@ interface FormInventarioProps {
   comboProveedorActions: () => void;
   token: string | null;
 }
-interface NavItem {
-  name: string;
-  description: string;
-  href: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-}
 const Inventario: React.FC<FormInventarioProps> = ({
   token,
   comboOrigen,

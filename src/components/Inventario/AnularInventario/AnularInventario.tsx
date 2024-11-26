@@ -5,12 +5,13 @@ import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import SkeletonLoader from '../../Utils/SkeletonLoader';
+
 import { InventarioCompleto } from "../ModificarInventario/ModificarInventario";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
 import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import MenuInventario from "../../Menus/MenuInventario";
+import SkeletonLoader from "../../Utils/SkeletonLoader";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");

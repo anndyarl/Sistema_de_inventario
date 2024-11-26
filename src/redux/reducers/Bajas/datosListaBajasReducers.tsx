@@ -1,13 +1,13 @@
 
 import {
-  LISTA_ALTAS_REQUEST,
-  LISTA_ALTAS_SUCCESS,
-  LISTA_ALTAS_FAIL
-} from '../../../actions/Altas/types';
+  LISTA_BAJAS_REQUEST,
+  LISTA_BAJAS_SUCCESS,
+  LISTA_BAJAS_FAIL
+} from '../../actions/Bajas/types'
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  listaAltas: Array<{
+  listaBajas: Array<{
     aF_CLAVE: number,
     ninv: string,
     serv: string,
@@ -23,21 +23,21 @@ interface DatosInventarioState {
 }
 // Estado inicial tipado
 const initialState: DatosInventarioState = {
-  listaAltas: []
+  listaBajas: []
 };
 
 // Reducer con tipos definidos
-const datosListaAltasReducers = (state = initialState, action: any) => {
+const datosListaBajasReducers = (state = initialState, action: any) => {
   switch (action.type) {
-    case LISTA_ALTAS_REQUEST:
+    case LISTA_BAJAS_REQUEST:
       return { ...state, loading: true };
-    case LISTA_ALTAS_SUCCESS:
+    case LISTA_BAJAS_SUCCESS:
       return {
         ...state,
         loading: false,
-        listaAltas: action.payload,
+        listaBajas: action.payload,
       };
-    case LISTA_ALTAS_FAIL:
+    case LISTA_BAJAS_FAIL:
       return { ...state, loading: false, error: action.error };
     default:
       return state;
@@ -46,4 +46,4 @@ const datosListaAltasReducers = (state = initialState, action: any) => {
 
 
 
-export default datosListaAltasReducers;
+export default datosListaBajasReducers;

@@ -11,15 +11,12 @@ interface AdjuntoProps {
 }
 
 const CargaMasiva: React.FC = () => {
+
   const fileInputRefArchivoExcel = useRef<HTMLInputElement>(null);
-  const [selectedArchivoExcel, setSelectedArchivoExcel] = useState<File | null>(
-    null
-  );
+  const [selectedArchivoExcel, setSelectedArchivoExcel] = useState<File | null>(null);
   const [isDraggingAutorizacion, setIsDraggingAutorizacion] = useState(false);
   const [error, setError] = useState<Partial<AdjuntoProps> & {}>({});
-  const [Adjunto, setAdjunto] = useState({
-    archivoExcel: "",
-  });
+  const [Adjunto, setAdjunto] = useState({ archivoExcel: "" });
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     const allowedTypes = [
@@ -37,7 +34,6 @@ const CargaMasiva: React.FC = () => {
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-
   //----------------Autorización --------------//
   //Habilita el estado arrastrar
   const handleDragOverAutorizacion = (e: React.DragEvent<HTMLDivElement>) => {
@@ -85,7 +81,6 @@ const CargaMasiva: React.FC = () => {
       }
     }
   };
-
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
@@ -108,7 +103,6 @@ const CargaMasiva: React.FC = () => {
       // }
     }
   };
-
   const handleDescargaExcel = () => {
     const excelTemplateUrl = "/test_carga_masiva600.xlsx"; //Ubicación del archivo fisico
 

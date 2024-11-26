@@ -20,7 +20,6 @@ export const obtenerRecepcionActions =
 
         try {
           const res = await axios.get(`/api_inv/api/inventario/comboTraeRecepcion?numero=${nRecepcion}`, config);
-          // console.log("Respuesta del servidor obtener nRecepcion:", res);
 
           if (res.status === 200) {
             dispatch({

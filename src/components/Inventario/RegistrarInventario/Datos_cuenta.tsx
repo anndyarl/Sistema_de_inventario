@@ -29,7 +29,7 @@ export interface DEPENDENCIA {
   nombrE_ORD: string;
 }
 
-// Define el tipo de los elementos del combo `ListaEspecie`
+// Define el tipo de los elementos del combo `bien`
 export interface BIEN {
   codigo: string;
   descripcion: string;
@@ -222,19 +222,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
 
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (
-      typeof elementoSeleccionado === "object" &&
-      elementoSeleccionado !== null
-    ) {
+    if (typeof elementoSeleccionado === "object" && elementoSeleccionado !== null) {
       const estableEspecie = (elementoSeleccionado as ListaEspecie).estabL_CORR;
       const codigoEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO;
-      const nombreEspecie = `${(elementoSeleccionado as ListaEspecie).nombrE_ESP
-        }`;
-      const descripcionEspecie =
-        (elementoSeleccionado as ListaEspecie).esP_CODIGO +
-        " | " +
-        `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
+      const nombreEspecie = `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
+      const descripcionEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO + " | " + `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
       // Actualiza tanto el estado 'Especies' como el estado 'Cuenta.especie'
       setEspecies({
         estableEspecie,

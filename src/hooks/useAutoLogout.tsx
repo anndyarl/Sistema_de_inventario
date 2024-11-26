@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
-import { logout } from "../actions/auth/auth";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store";
-
+import { AppDispatch } from "../store";
 import Swal from "sweetalert2";
+import { Navigate } from "react-router-dom";
+import { logout } from "../redux/actions/auth/auth";
 
 const useAutoLogout = (warningTime: number, logoutTime: number) => {
     const warningTimeout = useRef<number | null>(null);
@@ -23,11 +23,11 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
         warningTimeout.current = window.setTimeout(() => {
             Swal.fire({
                 icon: "warning",
-                title: "Cierre de sesión",
-                text: "¿Desea continuar en su sesión?",
+                title: "Su sesión expirará pronto",
+                text: "Si desea continuar presione Si o recargue nuevamente",
                 showCancelButton: true,
                 confirmButtonText: "Sí",
-                cancelButtonText: "Cancelar",
+                cancelButtonText: "No",
                 backdrop: true, // Asegura que no se cierre al hacer clic fuera
                 allowOutsideClick: false, // Evita el cierre cuando se haga clic fuera del modal
             }).then((result) => {
@@ -35,17 +35,22 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 if (result.isConfirmed) {
                     resetTimers(); // Reinicia los temporizadores si el usuario confirma
                 }
-                // Si se presiona Cancelar, cerramos la sesión
+                // Si se presiona No, cerramos la sesión
                 else if (result.dismiss === Swal.DismissReason.cancel) {
-                    dispatch(logout()); // Cierra la sesión
-                    window.location.href = "/"; // Redirige al inicio de sesión
+                    dispatch(logout()); // Cierra la sesión                  
+                    return <Navigate to="/" />;
                 }
             });
         }, warningTime);
 
         logoutTimeout.current = window.setTimeout(() => {
-            dispatch(logout()); // Cierra la sesión
-            window.location.href = "/"; // Redirige al inicio de sesión
+            dispatch(logout());
+            Swal.fire({
+                icon: "info",
+                title: "Sesión expirada",
+                text: `Vuelva a ingresar`,
+            });
+            return <Navigate to="/" />;
         }, logoutTime);
     };
 
@@ -64,7 +69,7 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
         resetTimers();
 
         return () => {
-            console.log("Limpiando listeners y temporizadores...");
+            //Limpiando listeners y temporizadores
             if (warningTimeout.current !== null) {
                 window.clearTimeout(warningTimeout.current);
             }

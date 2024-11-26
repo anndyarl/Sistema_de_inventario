@@ -1,12 +1,11 @@
 // ClaveUnica.tsx
-import React, { useEffect } from "react";
-import { useAppDispatch } from "../../redux/hooks/hook";
+import React from "react";
 import { loginClaveUnica } from "../../redux/actions/auth/auth";
 import { DatosPersona } from "../../redux/interfaces"; // Importa la interfaz
 import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de tener este tipo definido correctamente
 import { Navigate } from "react-router-dom";
-import { Button } from "react-bootstrap";
+import { useAppDispatch } from "../../hooks/hook";
 
 interface Props {
   isAuthenticated: boolean | null;
@@ -46,7 +45,6 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
   if (isAuthenticated) {
     return <Navigate to="/Inicio" />;
   }
-  console.log("isAuthenticated", isAuthenticated);
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">

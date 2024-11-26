@@ -50,7 +50,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 40;
+  const elementosPorPagina = 10;
 
   const [Inventario, setInventario] = useState({
     aF_CLAVE: 0,
@@ -75,6 +75,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
       }
     }
   };
+
   useEffect(() => {
     listaAltasAuto();
   }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
@@ -362,7 +363,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listaAltas: state.datosListaAltasReducers.ListaAltas,
+  listaAltas: state.datosListaAltasReducers.listaAltas,
   token: state.loginReducer.token
 });
 

@@ -22,12 +22,8 @@ export const comboDependenciaActions =
       dispatch({ type: DEPENDENCIA_REQUEST });
       // const serCorr = 0; // O cualquier otro valor dinámico
       try {
-        const res = await axios.get(
-          `/api_inv/api/inventario/traeDependencias?ser_corr=${serCorr}`,
-          config
-        );
+        const res = await axios.get(`/api_inv/api/inventario/traeDependencias?ser_corr=${serCorr}`, config);
 
-        console.log("dependencia", res);
         if (res.status === 200) {
           dispatch({
             type: DEPENDENCIA_SUCCESS,

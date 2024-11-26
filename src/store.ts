@@ -42,11 +42,11 @@ const store = createStore(
 // Creación del persistor
 const persistor = persistStore(store);
 
-
-persistor.subscribe(() => {
-  const state = store.getState();
-  console.log('Estado persistido:', state);
-});
+//Mapea los estado persistidos
+// persistor.subscribe(() => {
+//   const state = store.getState();
+//   console.log('Estado persistido:', state);
+// });
 
 
 // Exportar los tipos de store

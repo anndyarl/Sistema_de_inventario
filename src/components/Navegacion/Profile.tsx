@@ -7,7 +7,7 @@ import "../../styles/Profile.css";
 import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers";
 import { logout } from "../../redux/actions/auth/auth";
-import { NavLink } from "react-router-dom";
+import { Navigate, NavLink } from "react-router-dom";
 import { Building, Coin, Gear, Geo } from "react-bootstrap-icons";
 interface ProfileProps {
   // onToggleDarkMode: () => void;
@@ -37,17 +37,20 @@ const Profile: React.FC<ProfileProps> = ({
     easeOut: [0, 0, 0.58, 1],
     duration: 0.2,
   };
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    let resultado = await logout();
+    if (resultado) {
+      return <Navigate to="/" />;
+    }
   };
   return (
     <>
-      <button type="button" onClick={togglePanel} className="btn btn-outline-light text-black border-radiou">
+      <button type="button" onClick={togglePanel} className="btn btn-outline-light text-black w-100 ">
         <User2
-          className={classNames("flex-shrink-0 mx-1", "h-5 w-5")}
+          className={classNames("flex-shrink-0", "h-3 w-3")}
           aria-hidden="true"
         />
-        <span className="font-bold text-sm ">Andy Riquelme</span>
+        <span className="font-bold ">Andy Riquelme  </span>
       </button >
       <AnimatePresence >
         {isOpen && (
@@ -62,7 +65,7 @@ const Profile: React.FC<ProfileProps> = ({
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
               <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0" onClick={togglePanel}>×</button>
-              <h3 className="fw-semibold  p-1 text-center">Andy Riquelme</h3>
+              <h3 className="fw-semibold  p-1 text-center border-bottom">Andy Riquelme</h3>
               <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
 
                 <strong> <Coin

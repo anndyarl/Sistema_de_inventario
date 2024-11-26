@@ -50,7 +50,7 @@ export const modificarFormInventarioActions =
           type: POST_FORMULARIO_FAIL,
           payload: errorMessage,
         });
-        console.error("Error al enviar el formulario:", errorMessage);
+        // console.error("Error al enviar el formulario:", errorMessage);
         return false; // Retorna false en caso de error
       }
     } else {

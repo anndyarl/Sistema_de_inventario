@@ -70,32 +70,30 @@ export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: 
     //Producción sin parametros
     //const res = await axios.post('https://sidra.ssmso.cl/Wcf_ClaveUnica/?url_solicitud=http://localhost:44364/SSMSO_BIENESTAR/ClaveUnica/validarportal/');
 
-
-    console.log('Respuesta del servidor:', res);
-
     if (res.status === 200) {
       const token = res.data.access_token;
       if (token) {
         dispatch({ type: LOGIN_SUCCESS, payload: res.data });
         dispatch({ type: SET_TOKEN, payload: token });
       } else {
-        console.error('Token no encontrado en la respuesta del servidor');
+        // console.error('Token no encontrado en la respuesta del servidor');
         dispatch({ type: LOGIN_FAIL });
       }
     } else {
-      console.error('Error en la respuesta del servidor:', res.status);
+      // console.error('Error en la respuesta del servidor:', res.status);
       dispatch({ type: LOGIN_FAIL });
     }
   } catch (err) {
-    console.error('Error en la solicitud:', err);
+    // console.error('Error en la solicitud:', err);
     dispatch({ type: LOGIN_FAIL });
   }
 };
 
-export const logout = () => async (dispatch: Dispatch) => {
+export const logout = () => async (dispatch: Dispatch): Promise<boolean> => {
   persistor.purge();
   // persistor.flush();
   dispatch({ type: LOGOUT });
+  return true;
 };
 
 // export const checkAuthStatus = () => (dispatch: Dispatch) => {

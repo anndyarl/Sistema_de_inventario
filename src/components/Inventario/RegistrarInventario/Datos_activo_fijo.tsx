@@ -499,7 +499,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         {/* Tabla */}
         {datos.length === 0 ? (
           <p className="d-flex justify-content-center alert alert-light m-1 p-1 ">
-            Haz clic en (+) para agregar los detalles de cada activo aquí.
+            Haz clic en (+) para agregar aquí los detalles de cada activo.
           </p>
         ) : (
           <div className="overflow-auto">
@@ -583,18 +583,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     </td>
                     <td className="fw-bold" style={{ backgroundColor: activo.color || "transparent" }}> {" "}  {activo.especie}</td>
                     <td>
-                      {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">
-                  Clonar
-                </Button> */}
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() =>
-                          handleEliminar(
-                            indexReal /*, parseFloat(activo.precio */
-                          )
-                        }
-                      >
+                      {/* Clonar */}
+                      {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">*/}
+
+                      {/* </Button> */}
+                      <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
                         <Trash
                           className={classNames("flex-shrink-0", "h-5 w-5")}
                           aria-hidden="true"

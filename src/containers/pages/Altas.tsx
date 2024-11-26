@@ -89,13 +89,13 @@ const Altas: React.FC = () => {
                       Imprimir Etiquetas
                     </Card.Title>
                     <Card.Text className="text-center m-2">
-                      Busque y genere la etiqueta de altas
+                      Busque y genere un codigo QR de los inventarios de altas
                     </Card.Text>
                     <div className="d-flex justify-content-center">
                       <div className="flex-grow-1">
                         <NavLink
-                          key="#"
-                          to="#"
+                          key="ImprimirEtiqueta"
+                          to="/ImprimirEtiqueta"
                           className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
                         >
                           <Plus
