@@ -32,3 +32,27 @@
     color: rgb(69, 71, 75)!important; 
  }
   
+.position-values-1{
+  position:absolute;
+  top:10%;
+  left:55%;
+  z-index:0;
+}
+.position-values-2{
+  position:absolute;
+  bottom:10%;
+  right: 10%;
+  z-index:0;
+ }
+ .position-values-3{
+  position:fixed;
+  bottom: 5%;
+  left: 1px;
+  z-index:0;
+ }
+ .position-values-4{
+  position:fixed;
+  bottom: 5%;
+  right: 1px;
+  z-index:0;
+ }

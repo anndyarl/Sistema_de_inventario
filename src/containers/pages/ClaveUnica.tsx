@@ -6,7 +6,9 @@ import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de tener este tipo definido correctamente
 import { Navigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/hook";
-
+import ssmso_background from "../../assets/img/ssmso_imagen.png";
+import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
+import ondas from "../../assets/img/ondas.png"
 interface Props {
   isAuthenticated: boolean | null;
 }
@@ -46,36 +48,105 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
     return <Navigate to="/Inicio" />;
   }
   return (
-    <div className="container d-flex justify-content-center align-items-center vh-100">
-      <div className="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
-        <h1 className="form-heading">Sistema de Inventario</h1>
-        <p className="form-heading fs-09em">
-          Sistema de apoyo en la gestión administrativa, Servicio de Salud
-          Metropolitano Sur Oriente Departamento de Informática Unidad de
-          Desarrollo 2024
-        </p>
-        <div className="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
-          {/**Producciòn */}
-          {/* <a
-                         href="/claveunica"
-                        className="btn btn-primary"
-                    >
-                        Clave Única
-                    </a> */}
+    // <div classNameNameName="container d-flex justify-content-center align-items-center vh-100">
+    //   <div classNameNameName="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
+    //     <h1 classNameNameName="form-heading">Sistema de Inventario</h1>
+    //     <p classNameNameName="form-heading fs-09em">
+    //       Sistema de apoyo en la gestión administrativa, Servicio de Salud
+    //       Metropolitano Sur Oriente Departamento de Informática Unidad de
+    //       Desarrollo 2024
+    //     </p>
+    //     <div classNameNameName="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
+    //       {/**Producciòn */}
+    //       {/* <a
+    //                      href="/claveunica"
+    //                     classNameNameName="btn btn-primary"
+    //                 >
+    //                     Clave Única
+    //                 </a> */}
 
-          {/**Desarrollo */}
-          {/* <Button onClick={handleEnviar}  type="submit" className="btn btn-primary text-center me-2">Clave Unica </Button> */}
+    //       {/**Desarrollo */}
+    //       {/* <Button onClick={handleEnviar}  type="submit" classNameNameName="btn btn-primary text-center me-2">Clave Unica </Button> */}
 
-          {/**Prueba */}
-          <a href="/Login" className="btn btn-primary">
-            Clave Única
-          </a>
+    //       {/**Prueba */}
+    //       <a href="/Login" classNameNameName="btn btn-primary">
+    //         Clave Única
+    //       </a>
+    //     </div>
+    //     <p classNameNameName="botto-text">
+    //       Diseñado por Departamento de Informática - Unidad de Desarrollo 2024
+    //     </p>
+    //   </div>
+    // </div>
+
+
+    <section className="vh-100">
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-sm-6 text-black">
+            <div className="d-flex px-5 p-3 ms-xl-4 justify-content-start">
+              <img
+                src={ssmso_logo}
+                alt="SSMSO-LOGO"
+                width={200}
+                className="img-fluid "
+              />
+              {/* <p className="align-content-center text-muted fs-09em px-2 ">
+                Sistema de apoyo en la gestión administrativa
+              </p> */}
+            </div>
+            <div className="row align-items-center justify-content-center h-50 p-5">
+              <div className="w-100">
+                <h3 className="text-muted border-bottom text-center p-1"> Sistema de apoyo en la gestión administrativa</h3>
+                <p className="text-muted fs-09em ">
+                  Servicio de Salud Metropolitano Sur Oriente
+                </p>
+                <div className="mb-4 text-center">
+                  <a href="/Login" className="btn btn-primary btn-lg btn-block">
+                    Clave única
+                  </a>
+                </div>
+                <p className="text-muted text-center">
+                  Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="col-sm-6 px-0 d-none d-sm-block">
+            <div className="d-flex position-absolute mx-5 w-25">
+              <div className="text-bg-primary p-1 flex-grow-1"></div>
+              <div className="text-bg-danger p-1 flex-grow-1"></div>
+            </div>
+            <div className="bg-color position-values-1">
+              <img
+                src={ondas}
+                alt="ondas"
+                width={200}
+                className="img-fluid"
+              />
+            </div>
+            <div className="w-100 vh-100 bg-color d-flex justify-content-center align-items-center ">
+              <img
+                src={ssmso_background}
+                alt="SSMSO"
+                width={280}
+                className="img-fluid position-absolute z-1"
+              />
+            </div>
+            <div className="bg-color position-values-2">
+              <img
+                src={ondas}
+                alt="ondas"
+                width={200}
+                className="img-fluid"
+              />
+            </div>
+          </div>
+
         </div>
-        <p className="botto-text">
-          Diseñado por Departamento de Informática - Unidad de Desarrollo 2024
-        </p>
       </div>
-    </div>
+    </section>
+
   );
 };
 

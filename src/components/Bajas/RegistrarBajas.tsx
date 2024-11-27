@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button } from "react-bootstrap";
+import { Table, Row, Col, Pagination, Button, Form, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -33,7 +33,7 @@ export interface ListaBajas {
 interface DatosBajas {
   listaBajas: ListaBajas[];
   listaBajasActions: () => Promise<boolean>;
-  registrarBajasActions: (aF_CLAVE: number) => Promise<boolean>;
+  registrarBajasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
 }
 
@@ -43,6 +43,8 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaBajas[]>([]);
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
+  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
 
@@ -79,37 +81,113 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
       : value;
 
   };
+  const setSeleccionaFilas = (index: number) => {
+    setFilasSeleccionadas((prev) =>
+      prev.includes(index.toString())
+        ? prev.filter((rowIndex) => rowIndex !== index.toString())
+        : [...prev, index.toString()]
+    );
+    console.log("indices seleccionmados", index);
+  };
 
-  const handleRegistrar = async (index: number, aF_CLAVE: number,) => {
-    setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setFilasSeleccionadas(
+        elementosActuales.map((_, index) =>
+          (indicePrimerElemento + index).toString()
+        )
+      );
+      console.log("filas Seleccionadas ", filasSeleccionadas);
+    } else {
+      setFilasSeleccionadas([]);
+    }
+  };
 
+  const handleAgrearSeleccionados = async () => {
+    const selectedIndices = filasSeleccionadas.map(Number);
+    const activosSeleccionados = selectedIndices.map((index) => {
+      return {
+        aF_CLAVE: listaBajas[index].aF_CLAVE
+      };
+
+    });
     const result = await Swal.fire({
-      icon: "warning",
+      icon: "info",
       title: "Registrar Bajas",
-      text: `Confirmar Baja del Nº de registro ${aF_CLAVE}`,
+      text: `Confirme para registrar las Bajas seleccionadas`,
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Registrar",
+
     });
 
+    // selectedIndices.map(async (index) => {
+
     if (result.isConfirmed) {
-      const resultado = await registrarBajasActions(aF_CLAVE);
+      setLoadingRegistro(true);
+      // const elemento = listaAltas[index].aF_CLAVE;
+      // console.log("despues del confirm elemento", elemento);
+
+      // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);      
+      // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
+      // Crear un array de objetos con aF_CLAVE y nombre
+
+
+      // console.log("Activos seleccionados para registrar:", activosSeleccionados);
+
+      const resultado = await registrarBajasActions(activosSeleccionados);
       if (resultado) {
         Swal.fire({
           icon: "success",
-          title: "Registro exitoso",
-          text: `Se ha registrado el Baja ${aF_CLAVE} correctamente`,
+          title: "Bajas Registradas",
+          text: `Se han registrado correctamente las Bajas seleccionadas`,
         });
-        listaABajasAuto();
+        setLoadingRegistro(false);
+        listaBajasActions();
+        setFilasSeleccionadas([]);
       } else {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: `Hubo un problema al registrar la Baja seleccionado Nª ${aF_CLAVE}.`,
+          title: ":'(",
+          text: `Hubo un problema al registrar las Bajas`,
         });
+        setLoadingRegistro(false);
       }
+
     }
+    // })
   };
+
+  // const handleRegistrar = async (index: number, aF_CLAVE: number,) => {
+  //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+
+  //   const result = await Swal.fire({
+  //     icon: "warning",
+  //     title: "Registrar Bajas",
+  //     text: `Confirmar Baja del Nº de registro ${aF_CLAVE}`,
+  //     showDenyButton: false,
+  //     showCancelButton: true,
+  //     confirmButtonText: "Confirmar y Registrar",
+  //   });
+
+  //   if (result.isConfirmed) {
+  //     const resultado = await registrarBajasActions(aF_CLAVE);
+  //     if (resultado) {
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Registro exitoso",
+  //         text: `Se ha registrado el Baja ${aF_CLAVE} correctamente`,
+  //       });
+  //       listaABajasAuto();
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Error",
+  //         text: `Hubo un problema al registrar la Baja seleccionado Nª ${aF_CLAVE}.`,
+  //       });
+  //     }
+  //   }
+  // };
 
 
   // Lógica de Paginación actualizada
@@ -132,6 +210,45 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
         <form>
           <div className="border-bottom shadow-sm p-4 rounded">
             <h3 className="form-title fw-semibold border-bottom p-1">Registrar Bajas</h3>
+            {/* Boton registrar filas seleccionadas */}
+            <div className="d-flex justify-content-start">
+              {filasSeleccionadas.length > 0 ? (
+                <Button
+                  variant="primary"
+                  onClick={handleAgrearSeleccionados}
+                  className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                  disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                >
+                  {loadingRegistro ? (
+                    <>
+                      {" Registrando... "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+
+                    </>
+                  ) : (
+                    <>
+                      Registrar{" "}
+                      <span className="badge bg-light text-dark mx-2">
+                        {filasSeleccionadas.length}
+                      </span>{" "}
+                      {filasSeleccionadas.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"}
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
+                  No hay altas seleccionadas para registrar
+                </strong>
+              )}
+            </div>
+            {/* Tabla*/}
             {loading ? (
               <>
                 <SkeletonLoader rowCount={elementosPorPagina} />
@@ -141,6 +258,17 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                 <Table striped bordered hover>
                   <thead className="table-light sticky-top">
                     <tr>
+                      <th >
+                        <Form.Check
+                          type="checkbox"
+                          onChange={handleSeleccionaTodos}
+                          checked={
+                            filasSeleccionadas.length ===
+                            elementosActuales.length &&
+                            elementosActuales.length > 0
+                          }
+                        />
+                      </th>
                       <th scope="col">Codigo</th>
                       <th scope="col">N° Inventario</th>
                       <th scope="col">Servicio</th>
@@ -152,12 +280,21 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                       <th scope="col">Serie</th>
                       <th scope="col">Precio</th>
                       <th scope="col" >N° Recepcion</th>
-                      <th scope="col">Acción</th>
+                      {/* <th scope="col">Acción</th> */}
                     </tr>
                   </thead>
                   <tbody>
                     {elementosActuales.map((ListaBajas, index) => (
                       <tr key={index}>
+                        <td>
+                          <Form.Check
+                            type="checkbox"
+                            onChange={() => setSeleccionaFilas(index)}
+                            checked={filasSeleccionadas.includes(
+                              index.toString()
+                            )}
+                          />
+                        </td>
                         <td>{ListaBajas.aF_CLAVE}</td>
                         <td>{ListaBajas.ninv}</td>
                         <td>{ListaBajas.serv}</td>
@@ -169,14 +306,14 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                         <td>{ListaBajas.serie}</td>
                         <td>{ListaBajas.precio}</td>
                         <td>{ListaBajas.mrecepcion}</td>
-                        <td>
+                        {/* <td>
                           <Button
                             variant="outline-danger"
                             size="sm"
                             onClick={() => handleRegistrar(index, ListaBajas.aF_CLAVE)}>
                             Registrar
                           </Button>
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

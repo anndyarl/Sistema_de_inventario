@@ -17,13 +17,13 @@ export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async 
         "Content-Type": "application/json",
       },
     };
-    const body = JSON.stringify(activos);  // 'activos' ya es un array
+    const body = JSON.stringify(activos);
 
     dispatch({ type: REGISTRAR_ALTAS_REQUEST });
 
     try {
       const res = await axios.post("/api_inv/api/inventario/CrearAltas", body, config);
-      console.log("Se ha registrado", res);
+      // console.log("Se ha registrado", res);
       if (res.status === 200) {
         dispatch({
           type: REGISTRAR_ALTAS_SUCCESS

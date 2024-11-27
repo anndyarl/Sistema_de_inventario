@@ -12,9 +12,10 @@ react-router-dom
 heroicons/react@2.1.5
 axios@1.7.4
 types/node@22.5.0
-headlessui/react@^1.7.4
-heroicons/react": "^2.1.5
-redux-persist": "^6.0.0
+headlessui/react@1.7.4
+heroicons/react@2.1.5
+redux-persist@6.0.0
 bootstrap@5.3.3
 react-bootstrap bootstrap
-sweetalert2": "^11.14.2
+sweetalert2@11.14.2
+qrcode.react@4.1.0

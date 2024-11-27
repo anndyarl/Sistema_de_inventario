@@ -9,6 +9,7 @@ import { RootState } from "../../redux/reducers";
 import { logout } from "../../redux/actions/auth/auth";
 import { Navigate, NavLink } from "react-router-dom";
 import { Building, Coin, Gear, Geo } from "react-bootstrap-icons";
+import ondas from "../../assets/img/ondas.png"
 interface ProfileProps {
   // onToggleDarkMode: () => void;
   // isDarkMode: boolean;
@@ -55,7 +56,7 @@ const Profile: React.FC<ProfileProps> = ({
       <AnimatePresence >
         {isOpen && (
           <motion.div
-            className="slide-panel-overlay slide-panel "
+            className="slide-panel-overlay slide-panel bg-color color-white"
             initial="initial"
             animate="animate"
             exit="exit"
@@ -64,24 +65,21 @@ const Profile: React.FC<ProfileProps> = ({
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0" onClick={togglePanel}>×</button>
-              <h3 className="fw-semibold  p-1 text-center border-bottom">Andy Riquelme</h3>
-              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
-
+              <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0 text-white close-btn" onClick={togglePanel}>×</button>
+              <h3 className="fw-semibold  p-1 text-center border-bottom text-white">Andy Riquelme</h3>
+              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
                 <strong> <Coin
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 />UTM: </strong> $47.396
               </p>
-              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
-
+              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
                 <strong> <Building
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 />Dependencia: </strong> Finanzas
               </p>
-              <p className="mb-0 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
-
+              <p className="mb-0 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
                 <strong> <Geo
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
@@ -90,19 +88,29 @@ const Profile: React.FC<ProfileProps> = ({
               <NavLink
                 key="Configuracion"
                 to="/Configuracion"
-                className="navbar-nav nav-link mb-2 fw-fw-normal   fs-6 fs-md-5 fs-lg-4"
+                className="navbar-nav nav-link mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white"
               >
                 <strong> <Gear
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
                 />Configuración</strong>
               </NavLink>
-              <button onClick={handleLogout} type="button" className="btn btn-outline-secondary w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
+              <button onClick={handleLogout} type="button" className="btn btn-outline-light w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
                 Cerrar Sesión
                 <LogOut
                   className={classNames("ms-1 p-1 flex-shrink-0", "h-5 w-5")}
                   aria-hidden="true"
-                /></button>
+                />
+              </button>
+              <div className="bg-color position-values-4">
+                <img
+                  src={ondas}
+                  alt="ondas"
+                  width={200}
+                  className="img-fluid"
+                />
+              </div>
+
               {/* <div className="d-flex justify-content-around align-content-center ">
               <p className="navbar-nav nav-item nav-link mb-1">
                 <strong>Modo </strong>

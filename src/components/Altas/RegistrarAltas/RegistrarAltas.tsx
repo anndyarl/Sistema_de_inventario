@@ -34,8 +34,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
   // const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [loadingRegistro, setLoadingRegistro] = useState(false); // Estado para controlar la carga 
+  const [loading, setLoading] = useState(false);
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
@@ -199,10 +199,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
     const result = await Swal.fire({
       icon: "info",
       title: "Registrar Altas",
-      text: `Confirme el registro de las altas seleccionadas `,
+      text: `Confirme para registrar las Altas seleccionadas`,
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Registrar",
+
     });
 
     // selectedIndices.map(async (index) => {
@@ -223,8 +224,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
       if (resultado) {
         Swal.fire({
           icon: "success",
-          title: "Registro exitoso",
-          text: `Se han registrado correctamente las altas seleccionadas`,
+          title: "Altas Registradas",
+          text: `Se han registrado correctamente las Altas seleccionadas`,
         });
         setLoadingRegistro(false);
         listaAltasActions();
@@ -232,8 +233,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
       } else {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: `Hubo un problema al registrar el Alta seleccionada(s).`,
+          title: ":'(",
+          text: `Hubo un problema al registrar las Altas`,
         });
         setLoadingRegistro(false);
       }
@@ -241,7 +242,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
     }
     // })
   };
-
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -264,8 +264,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
         <form>
           <div className="border-bottom shadow-sm p-4 rounded">
             <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
-            {/* Boton elimina filas seleccionadas */}
-
+            {/* Boton registrar filas seleccionadas */}
             <div className="d-flex justify-content-start">
               {filasSeleccionadas.length > 0 ? (
                 <Button
@@ -283,7 +282,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                         size="sm"
                         role="status"
                         aria-hidden="true"
-                        className="me-2"  // Espaciado entre el spinner y el texto
+                        className="me-2"
                       />
 
                     </>
@@ -303,7 +302,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                 </strong>
               )}
             </div>
-
             {/* Tabla*/}
             {loading ? (
               <>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { House, Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText, Gear } from 'react-bootstrap-icons';
+import { Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css"
+import SSMSO_LOGO from "../../assets/img/SSMSO-LOGO.png"
+import ondas from "../../assets/img/ondas.png"
 // import Logout from './Logout';
 // Function to combine classes conditionally
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -34,9 +36,21 @@ const Sidebar: React.FC = () => {
 
   return (
     <nav className="flex-grow-1">
-      <div className='d-flex justify-content-center text-white m-4'>
-        <NavLink className="navbar-brand fw-semibold" to="/Inicio">SSMSO</NavLink>
+      <div className="d-flex position-absolute mx-2 top-0 w-50">
+        <div className="text-bg-primary p-1 flex-grow-1"></div>
+        <div className="text-bg-danger p-1 flex-grow-1"></div>
       </div>
+      <div className="text-center text-white m-4">
+        <NavLink className="navbar-brand fw-semibold fs-5" to="/Inicio">SSMSO</NavLink>
+        {/* <img
+          src={SSMSO_LOGO}
+          alt="SSMSO-LOGO"
+          width={150}
+          className="img-fluid"
+        /> */}
+      </div>
+
+
       {navigation.map((item) => (
         <NavLink
           key={item.name}
@@ -53,8 +67,16 @@ const Sidebar: React.FC = () => {
           <item.icon className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
           {item.name}
         </NavLink>
-      ))}
 
+      ))}
+      <div className="bg-color position-values-3">
+        <img
+          src={ondas}
+          alt="ondas"
+          width={200}
+          className="img-fluid"
+        />
+      </div>
     </nav >
   );
 };

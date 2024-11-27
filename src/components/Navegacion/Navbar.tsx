@@ -71,9 +71,7 @@ function Navbar() {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end ">
-
-
+        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end">
             <div className="d-flex align-items-center">
                 <Search
                     className={classNames("mx-2 flex-shrink-0", "h-5 w-5")}
@@ -84,11 +82,10 @@ function Navbar() {
                     className="form-control"
                     placeholder="Buscar..."
                     value={search}
+                    size={40}
                     onChange={(e) => setSearch(e.target.value)}
                 />
-
                 {search && (
-
                     <ul
                         className="position-absolute mx-5 mt-4 top-50 z-3 bg-white rounded shadow list-group list-group-flush overflow-auto"
                         style={{ maxHeight: '200px' }}>
@@ -102,11 +99,10 @@ function Navbar() {
                             </li>
                         ))}
                     </ul>
-
-
                 )}
-
-                <Profile />
+                <div className='w-100 ms-3'>
+                    <Profile />
+                </div>
             </div>
 
         </nav>

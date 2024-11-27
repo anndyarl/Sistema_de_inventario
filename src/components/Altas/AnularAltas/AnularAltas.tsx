@@ -1,11 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button, Spinner } from "react-bootstrap";
+import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Search } from "react-bootstrap-icons";
 import { listaAltasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasActions";
 
 import { obtenerListaAltasActions } from "../../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
@@ -39,7 +39,7 @@ interface DatosAltas {
   listaAltasActions: () => Promise<boolean>;
   obtenerListaAltasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
   obtenerAltasPorCorrActions: (altasCorr: number) => Promise<boolean>;
-  anularAltasActions: (AF_CLAVE: number) => Promise<boolean>;
+  anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
 }
 
@@ -49,6 +49,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
+  const [loadingAnular, setLoadingAnular] = useState(false);
+  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
 
@@ -146,44 +148,120 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 
   };
 
-  const handleAnular = async (index: number, aF_CLAVE: number) => {
-    setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+  const setSeleccionaFilas = (index: number) => {
+    setFilasSeleccionadas((prev) =>
+      prev.includes(index.toString())
+        ? prev.filter((rowIndex) => rowIndex !== index.toString())
+        : [...prev, index.toString()]
+    );
+    console.log("indices seleccionmados", index);
+  };
 
+  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setFilasSeleccionadas(
+        elementosActuales.map((_, index) =>
+          (indicePrimerElemento + index).toString()
+        )
+      );
+      console.log("filas Seleccionadas ", filasSeleccionadas);
+    } else {
+      setFilasSeleccionadas([]);
+    }
+  };
+
+  const handleAnularSeleccionados = async () => {
+    const selectedIndices = filasSeleccionadas.map(Number);
+    const activosSeleccionados = selectedIndices.map((index) => {
+      return {
+        aF_CLAVE: listaAltas[index].aF_CLAVE
+      };
+
+    });
     const result = await Swal.fire({
-      icon: "warning",
-      title: "Anular Registro",
-      text: `Confirma anular el registro Nº ${aF_CLAVE}`,
+      icon: "info",
+      title: "Anular Altas",
+      text: `Confirme para anular las altas seleccionadas`,
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Anular",
+      confirmButtonColor: '#dc3545',
     });
 
+    // selectedIndices.map(async (index) => {
+
     if (result.isConfirmed) {
-      const resultado = await anularAltasActions(aF_CLAVE);
+      setLoadingAnular(true);
+      // const elemento = listaAltas[index].aF_CLAVE;
+      // console.log("despues del confirm elemento", elemento);
+
+      // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);      
+      // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
+      // Crear un array de objetos con aF_CLAVE y nombre
+
+
+      // console.log("Activos seleccionados para registrar:", activosSeleccionados);
+
+      const resultado = await anularAltasActions(activosSeleccionados);
       if (resultado) {
         Swal.fire({
           icon: "success",
-          title: "Registro anulado",
-          text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
+          title: "Altas anuladas",
+          text: `Se han anulado correctamente las altas seleccionadas`,
         });
-        listaAltasAuto();
+        setLoadingAnular(false);
+        listaAltasActions();
+        setFilasSeleccionadas([]);
       } else {
         Swal.fire({
           icon: "error",
           title: ":'(",
-          text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
+          text: `Hubo un problema al anular las Altas`,
         });
+        setLoadingAnular(false);
       }
-    }
-  };
 
-  const handleLimpiar = () => {
-    setInventario((prevInventario) => ({
-      ...prevInventario,
-      fechaInicio: "",
-      fechaTermino: "",
-    }));
+    }
+    // })
   };
+  // const handleAnular = async (index: number, aF_CLAVE: number) => {
+  //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+
+  //   const result = await Swal.fire({
+  //     icon: "warning",
+  //     title: "Anular Registro",
+  //     text: `Confirma anular el registro Nº ${aF_CLAVE}`,
+  //     showDenyButton: false,
+  //     showCancelButton: true,
+  //     confirmButtonText: "Confirmar y Anular",
+  //   });
+
+  //   if (result.isConfirmed) {
+  //     const resultado = await anularAltasActions(aF_CLAVE);
+  //     if (resultado) {
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Registro anulado",
+  //         text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
+  //       });
+  //       listaAltasAuto();
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: ":'(",
+  //         text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
+  //       });
+  //     }
+  //   }
+  // };
+
+  // const handleLimpiar = () => {
+  //   setInventario((prevInventario) => ({
+  //     ...prevInventario,
+  //     fechaInicio: "",
+  //     fechaTermino: "",
+  //   }));
+  // };
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -271,6 +349,44 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                 </div>
               </Col>
             </Row>
+            {/* Boton anular filas seleccionadas */}
+            <div className="d-flex justify-content-start">
+              {filasSeleccionadas.length > 0 ? (
+                <Button
+                  variant="danger"
+                  onClick={handleAnularSeleccionados}
+                  className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                  disabled={loadingAnular}  // Desactiva el botón mientras carga
+                >
+                  {loadingAnular ? (
+                    <>
+                      {" Anulando... "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"  // Espaciado entre el spinner y el texto
+                      />
+
+                    </>
+                  ) : (
+                    <>
+                      Anular{" "}
+                      <span className="badge bg-light text-dark mx-2">
+                        {filasSeleccionadas.length}
+                      </span>{" "}
+                      {filasSeleccionadas.length === 1 ? "Alta seleccionada" : "Altas seleccionadas"}
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
+                  No hay altas seleccionadas para anular
+                </strong>
+              )}
+            </div>
 
             {/* Tabla*/}
             {loading ? (
@@ -282,6 +398,18 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                 <Table striped bordered hover  >
                   <thead className="table-light sticky-top">
                     <tr>
+                      <th >
+                        <Form.Check
+                          className="check-danger"
+                          type="checkbox"
+                          onChange={handleSeleccionaTodos}
+                          checked={
+                            filasSeleccionadas.length ===
+                            elementosActuales.length &&
+                            elementosActuales.length > 0
+                          }
+                        />
+                      </th>
                       <th>Codigo</th>
                       <th>N° Inventario</th>
                       <th>Servicio</th>
@@ -293,12 +421,21 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                       <th>Serie</th>
                       <th>Precio</th>
                       <th>N° Recepcion</th>
-                      <th>Acción</th>
+                      {/* <th>Acción</th> */}
                     </tr>
                   </thead>
                   <tbody>
                     {elementosActuales.map((listaAltas, index) => (
                       <tr key={index}>
+                        <td>
+                          <Form.Check
+                            type="checkbox"
+                            onChange={() => setSeleccionaFilas(index)}
+                            checked={filasSeleccionadas.includes(
+                              index.toString()
+                            )}
+                          />
+                        </td>
                         <td>{listaAltas.aF_CLAVE}</td>
                         <td>{listaAltas.ninv}</td>
                         <td>{listaAltas.serv}</td>
@@ -310,7 +447,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                         <td>{listaAltas.serie}</td>
                         <td>{listaAltas.precio}</td>
                         <td>{listaAltas.mrecepcion}</td>
-                        <td>
+                        {/* <td>
                           <Button
                             variant="outline-danger"
                             size="sm"
@@ -318,7 +455,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                           >
                             Anular
                           </Button>
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

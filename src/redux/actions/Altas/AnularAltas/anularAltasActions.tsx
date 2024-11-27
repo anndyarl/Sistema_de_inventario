@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 // Acción para obtener la recepción por número
-export const anularAltasActions = (af_clave: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -17,11 +17,11 @@ export const anularAltasActions = (af_clave: number) => async (dispatch: Dispatc
         "Content-Type": "application/json",
       },
     };
-    // const body = af_clave;  // 'activos' ya es un array
+    const body = JSON.stringify(activos);
     dispatch({ type: ANULAR_ALTAS_REQUEST });
 
     try {
-      const res = await axios.post(`/api_inv/api/inventario/AnularAltas`, af_clave, config);
+      const res = await axios.post(`/api_inv/api/inventario/AnularAltas`, body, config);
 
       if (res.status === 200) {
         dispatch({
