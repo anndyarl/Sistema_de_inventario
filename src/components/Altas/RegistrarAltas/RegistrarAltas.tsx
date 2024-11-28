@@ -260,107 +260,106 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
   return (
     <Layout>
       <MenuAltas />
-      <div className="container mt-2">
-        <form>
-          <div className="border-bottom shadow-sm p-4 rounded">
-            <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
-            {/* Boton registrar filas seleccionadas */}
-            <div className="d-flex justify-content-start">
-              {filasSeleccionadas.length > 0 ? (
-                <Button
-                  variant="primary"
-                  onClick={handleAgrearSeleccionados}
-                  className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                  disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                >
-                  {loadingRegistro ? (
-                    <>
-                      {" Registrando... "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="me-2"
-                      />
+      <form>
+        <div className="border-bottom shadow-sm p-4 rounded">
+          <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
+          {/* Boton registrar filas seleccionadas */}
+          <div className="d-flex justify-content-start">
+            {filasSeleccionadas.length > 0 ? (
+              <Button
+                variant="primary"
+                onClick={handleAgrearSeleccionados}
+                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                disabled={loadingRegistro}  // Desactiva el botón mientras carga
+              >
+                {loadingRegistro ? (
+                  <>
+                    {" Registrando... "}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
 
-                    </>
-                  ) : (
-                    <>
-                      Registrar{" "}
-                      <span className="badge bg-light text-dark mx-2">
-                        {filasSeleccionadas.length}
-                      </span>{" "}
-                      {filasSeleccionadas.length === 1 ? "Alta seleccionada" : "Altas seleccionadas"}
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                  No hay altas seleccionadas para registrar
-                </strong>
-              )}
-            </div>
-            {/* Tabla*/}
-            {loading ? (
-              <>
-                <SkeletonLoader rowCount={elementosPorPagina} />
-              </>
+                  </>
+                ) : (
+                  <>
+                    Registrar{" "}
+                    <span className="badge bg-light text-dark mx-2">
+                      {filasSeleccionadas.length}
+                    </span>{" "}
+                    {filasSeleccionadas.length === 1 ? "Alta seleccionada" : "Altas seleccionadas"}
+                  </>
+                )}
+              </Button>
             ) : (
-              <div className='table-responsive'>
-                <Table striped bordered hover>
-                  <thead className="table-light sticky-top">
-                    <tr>
-                      <th >
+              <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
+                No hay altas seleccionadas para registrar
+              </strong>
+            )}
+          </div>
+          {/* Tabla*/}
+          {loading ? (
+            <>
+              <SkeletonLoader rowCount={elementosPorPagina} />
+            </>
+          ) : (
+            <div className='table-responsive'>
+              <Table striped bordered hover>
+                <thead className="table-light sticky-top">
+                  <tr>
+                    <th >
+                      <Form.Check
+                        type="checkbox"
+                        onChange={handleSeleccionaTodos}
+                        checked={
+                          filasSeleccionadas.length ===
+                          elementosActuales.length &&
+                          elementosActuales.length > 0
+                        }
+                      />
+                    </th>
+                    <th scope="col">Codigo</th>
+                    <th scope="col">N° Inventario</th>
+                    <th scope="col">Servicio</th>
+                    <th scope="col">Dependencia</th>
+                    <th scope="col">Especie</th>
+                    <th scope="col">N° Cuenta</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Modelo</th>
+                    <th scope="col">Serie</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col" >N° Recepcion</th>
+                    {/* <th scope="col">Acción</th> */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {elementosActuales.map((listaAltas, index) => (
+                    <tr key={index}>
+                      <td>
                         <Form.Check
                           type="checkbox"
-                          onChange={handleSeleccionaTodos}
-                          checked={
-                            filasSeleccionadas.length ===
-                            elementosActuales.length &&
-                            elementosActuales.length > 0
-                          }
+                          onChange={() => setSeleccionaFilas(index)}
+                          checked={filasSeleccionadas.includes(
+                            index.toString()
+                          )}
                         />
-                      </th>
-                      <th scope="col">Codigo</th>
-                      <th scope="col">N° Inventario</th>
-                      <th scope="col">Servicio</th>
-                      <th scope="col">Dependencia</th>
-                      <th scope="col">Especie</th>
-                      <th scope="col">N° Cuenta</th>
-                      <th scope="col">Marca</th>
-                      <th scope="col">Modelo</th>
-                      <th scope="col">Serie</th>
-                      <th scope="col">Precio</th>
-                      <th scope="col" >N° Recepcion</th>
-                      {/* <th scope="col">Acción</th> */}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {elementosActuales.map((listaAltas, index) => (
-                      <tr key={index}>
-                        <td>
-                          <Form.Check
-                            type="checkbox"
-                            onChange={() => setSeleccionaFilas(index)}
-                            checked={filasSeleccionadas.includes(
-                              index.toString()
-                            )}
-                          />
-                        </td>
-                        <td>{listaAltas.aF_CLAVE}</td>
-                        <td>{listaAltas.ninv}</td>
-                        <td>{listaAltas.serv}</td>
-                        <td>{listaAltas.dep}</td>
-                        <td>{listaAltas.esp}</td>
-                        <td>{listaAltas.ncuenta}</td>
-                        <td>{listaAltas.marca}</td>
-                        <td>{listaAltas.modelo}</td>
-                        <td>{listaAltas.serie}</td>
-                        <td>{listaAltas.precio}</td>
-                        <td>{listaAltas.mrecepcion}</td>
-                        {/* <td>
+                      </td>
+                      <td>{listaAltas.aF_CLAVE}</td>
+                      <td>{listaAltas.ninv}</td>
+                      <td>{listaAltas.serv}</td>
+                      <td>{listaAltas.dep}</td>
+                      <td>{listaAltas.esp}</td>
+                      <td>{listaAltas.ncuenta}</td>
+                      <td>{listaAltas.marca}</td>
+                      <td>{listaAltas.modelo}</td>
+                      <td>{listaAltas.serie}</td>
+                      <td>{listaAltas.precio}</td>
+                      <td>{listaAltas.mrecepcion}</td>
+                      {/* <td>
                           <Button
                             variant="outline-danger"
                             size="sm"
@@ -369,47 +368,46 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                           </Button>
                         </td> */}
 
-                      </tr>
+                    </tr>
 
-                    ))}
+                  ))}
 
-                  </tbody>
+                </tbody>
 
-                </Table>
-              </div>
-            )}
-            {/* Paginador */}
-            <Pagination className="d-flex justify-content-end">
-              <Pagination.First
-                onClick={() => paginar(1)}
-                disabled={paginaActual === 1}
-              />
-              <Pagination.Prev
-                onClick={() => paginar(paginaActual - 1)}
-                disabled={paginaActual === 1}
-              />
+              </Table>
+            </div>
+          )}
+          {/* Paginador */}
+          <Pagination className="d-flex justify-content-end">
+            <Pagination.First
+              onClick={() => paginar(1)}
+              disabled={paginaActual === 1}
+            />
+            <Pagination.Prev
+              onClick={() => paginar(paginaActual - 1)}
+              disabled={paginaActual === 1}
+            />
 
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === paginaActual}
-                  onClick={() => paginar(i + 1)}
-                >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => paginar(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-              />
-              <Pagination.Last
-                onClick={() => paginar(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
-              />
-            </Pagination>
-          </div>
-        </form>
-      </div >
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <Pagination.Item
+                key={i + 1}
+                active={i + 1 === paginaActual}
+                onClick={() => paginar(i + 1)}
+              >
+                {i + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next
+              onClick={() => paginar(paginaActual + 1)}
+              disabled={paginaActual === totalPaginas}
+            />
+            <Pagination.Last
+              onClick={() => paginar(totalPaginas)}
+              disabled={paginaActual === totalPaginas}
+            />
+          </Pagination>
+        </div>
+      </form>
     </Layout >
   );
 };

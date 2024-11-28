@@ -105,7 +105,7 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
             {loading ? (
               <>
                 {" "}
-                {" Ingresar "}{" "}
+                {" Ingresando..."}{" "}
                 <Spinner
                   as="span"
                   animation="border"

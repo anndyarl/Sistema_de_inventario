@@ -2,7 +2,7 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { Plus, Trash } from "react-bootstrap-icons";
+import { DashCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
@@ -27,32 +27,23 @@ const Bajas: React.FC = () => {
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">
-            <Row>
-              <Col lg={6} md={5} className="mb-1">
-                <Card className="custom-card shadow p-3 border-0 rounded">
-                  <Card.Body>
-                    <Card.Title className="text-center fw-semibold">
-                      Registrar Bajas
-                    </Card.Title>
-                    <Card.Text className="text-center m-2">
-                      Busque el activo o los activos que desee dar de Baja.
-                    </Card.Text>
-                    <div className="d-flex justify-content-center">
-                      <div className="flex-grow-1">
-                        <NavLink
-                          key="RegistrarBajas"
-                          to="/RegistrarBajas"
-                          className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
-                        >
-                          <Plus
-                            className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
-                            aria-hidden="true"
-                          />
-                          Nuevo
-                        </NavLink>
-                      </div>
-                    </div>
-                  </Card.Body>
+            <Row className="g-1">
+              <Col lg={4} md={6} sm={12}>
+                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                  <div className="mb-3">
+                    <DashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                  </div>
+                  <Card.Title className="fw-bold">Registrar Bajas</Card.Title>
+                  <Card.Text className="fw-light flex-grow-1">
+                    Busque el activo o los activos que desee dar de Baja
+                  </Card.Text>
+                  <NavLink
+                    key="RegistrarBajas"
+                    to="/RegistrarBajas"
+                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
+                  >
+                    Nuevo
+                  </NavLink>
                 </Card>
               </Col>
             </Row>

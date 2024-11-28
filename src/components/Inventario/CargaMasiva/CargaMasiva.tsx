@@ -120,69 +120,68 @@ const CargaMasiva: React.FC = () => {
   return (
     <Layout>
       <MenuInventario />
-      <div className="container mt-2">
-        <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold border-bottom p-1">
-            Registro de cargas masivas
-          </h3>
-          <form onSubmit={handleFormSubmit}>
-            <div className="mb-1">
-              <label className="text-muted">Descargar formato</label>
-              <div className="d-flex align-items-center">
-                <button
-                  onClick={handleDescargaExcel}
-                  className="btn btn-success d-flex align-items-center justify-content-center"
-                  title="Descargar plantilla Excel"
-                >
-                  <FileEarmarkExcel className="h-5 w-5" aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-1">
-              <div className="d-flex align-items-center ">
-                <div
-                  className={`dropzone ${isDraggingAutorizacion ? "dragging" : ""
-                    }`}
-                  onDrop={handleDropAutorizacion}
-                  onDragOver={handleDragOverAutorizacion}
-                  onClick={handleFileSelectAutorizacion}
-                >
-                  {selectedArchivoExcel ? (
-                    <p>Archivo seleccionado: {selectedArchivoExcel.name}</p>
-                  ) : (
-                    <p>
-                      Arrastra y suelta el archivo aquí, o haz clic para
-                      seleccionar
-                    </p>
-                  )}
-                </div>
-                <input
-                  aria-label="Archivo de autorización"
-                  type="file"
-                  ref={fileInputRefArchivoExcel} // Asigna la referencia al input
-                  className={`file-input ${error.archivoExcel ? "is-invalid" : ""
-                    } w-100`}
-                  name="archivoExcel"
-                  onChange={handleChange}
-                  value=""
-                />
-              </div>
-              {error.archivoExcel && (
-                <div className="invalid-feedback d-block">
-                  {error.archivoExcel}
-                </div>
-              )}
-            </div>
-
-            <div className="p-1 rounded bg-white d-flex justify-content-center ">
-              <button type="submit" className="btn btn-primary">
-                Enviar
+      <div className="border-bottom shadow-sm p-4 rounded">
+        <h3 className="form-title fw-semibold border-bottom p-1">
+          Registro de cargas masivas
+        </h3>
+        <form onSubmit={handleFormSubmit}>
+          <div className="mb-1">
+            <label className="text-muted">Descargar formato</label>
+            <div className="d-flex align-items-center">
+              <button
+                onClick={handleDescargaExcel}
+                className="btn btn-success d-flex align-items-center justify-content-center"
+                title="Descargar plantilla Excel"
+              >
+                <FileEarmarkExcel className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+
+          <div className="mb-1">
+            <div className="d-flex align-items-center ">
+              <div
+                className={`dropzone ${isDraggingAutorizacion ? "dragging" : ""
+                  }`}
+                onDrop={handleDropAutorizacion}
+                onDragOver={handleDragOverAutorizacion}
+                onClick={handleFileSelectAutorizacion}
+              >
+                {selectedArchivoExcel ? (
+                  <p>Archivo seleccionado: {selectedArchivoExcel.name}</p>
+                ) : (
+                  <p>
+                    Arrastra y suelta el archivo aquí, o haz clic para
+                    seleccionar
+                  </p>
+                )}
+              </div>
+              <input
+                aria-label="Archivo de autorización"
+                type="file"
+                ref={fileInputRefArchivoExcel} // Asigna la referencia al input
+                className={`file-input ${error.archivoExcel ? "is-invalid" : ""
+                  } w-100`}
+                name="archivoExcel"
+                onChange={handleChange}
+                value=""
+              />
+            </div>
+            {error.archivoExcel && (
+              <div className="invalid-feedback d-block">
+                {error.archivoExcel}
+              </div>
+            )}
+          </div>
+
+          <div className="p-1 rounded bg-white d-flex justify-content-center ">
+            <button type="submit" className="btn btn-primary">
+              Enviar
+            </button>
+          </div>
+        </form>
       </div>
+
     </Layout>
   );
 };

@@ -103,7 +103,10 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
 
             {/* <AnimatePresence mode="wait">
                 <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}> */}
+
+
             {children}
+
             {/* </motion.div>
               </AnimatePresence> */}
 

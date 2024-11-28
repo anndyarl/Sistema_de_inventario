@@ -144,154 +144,152 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
   return (
     <Layout>
       <MenuInventario />
-      <div className="container mt-2">
-        <form>
-          <div className="border-bottom shadow-sm p-4 rounded">
-            <h3 className="form-title fw-semibold border-bottom p-1">
-              Anular Inventario
-            </h3>
-            <Row>
-              <Col md={5}>
-                <div className="p-2 w-100">
-                  <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
-                  <div className=" d-flex mb-2 w-100 ">
-                    <input
-                      id="fechaInicio"
-                      type="date"
-                      className={`form-control text-center ${error.fechaInicio ? "is-invalid" : ""
-                        }`}
-                      name="fechaInicio"
-                      onChange={handleChange}
-                      value={Inventario.fechaInicio}
-                    />
-                    <Button onClick={handleBuscarInventario} variant="primary" className="ms-1">
-                      {loading ? (
-                        <>
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                        </>
-                      ) : (
-                        <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
-                      )}
-                    </Button>
-                    <Button onClick={handleLimpiar} variant="primary" className="ms-1">
-                      <Eraser
-                        className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />
-                    </Button>
-                  </div>
-                  {error.fechaInicio && (
-                    <div className="invalid-feedback d-block">
-                      {error.fechaInicio}
-                    </div>
-                  )}
-                </div>
-                <div className="p-2  w-81">
-                  <label htmlFor="fechaTermino" className="text-muted">Fecha Término</label>
+      <form>
+        <div className="border-bottom shadow-sm p-4 rounded">
+          <h3 className="form-title fw-semibold border-bottom p-1">
+            Anular Inventario
+          </h3>
+          <Row>
+            <Col md={5}>
+              <div className="p-2 w-100">
+                <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
+                <div className=" d-flex mb-2 w-100 ">
                   <input
-                    aria-label="Archivo de autorización"
+                    id="fechaInicio"
                     type="date"
-                    className={`form-control text-center ${error.fechaTermino ? "is-invalid" : ""
+                    className={`form-control text-center ${error.fechaInicio ? "is-invalid" : ""
                       }`}
-                    name="fechaTermino"
+                    name="fechaInicio"
                     onChange={handleChange}
-                    value={Inventario.fechaTermino}
+                    value={Inventario.fechaInicio}
                   />
-                  {error.fechaTermino && (
-                    <div className="invalid-feedback">{error.fechaTermino}</div>
-                  )}
+                  <Button onClick={handleBuscarInventario} variant="primary" className="ms-1">
+                    {loading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                        />
+                      </>
+                    ) : (
+                      <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                    )}
+                  </Button>
+                  <Button onClick={handleLimpiar} variant="primary" className="ms-1">
+                    <Eraser
+                      className={classNames("flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />
+                  </Button>
                 </div>
-              </Col>
-            </Row>
-            {/* Tabla*/}
-            {loading ? (
-              <>
-                <SkeletonLoader rowCount={elementosPorPagina} />
-              </>
-            ) : (
-              <div className='skeleton-table'>
-                <Table striped bordered hover>
-                  <thead className="table-light sticky-top">
-                    <tr>
-                      <th>Nª de Recepcion</th>
-                      <th>Fecha de Factura</th>
-                      <th>Fecha de Recepcion</th>
-                      <th>Modalidad de Compra</th>
-                      <th>Monto de Recepcion</th>
-                      <th>Nª de Factura</th>
-                      <th>Origen Presupuesto</th>
-                      <th>Rut Proveedor</th>
-                      <th>Dependencia</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {elementosActuales.map((datosListaInventario, index) => (
-                      <tr key={index}>
-                        <td>{datosListaInventario.aF_CLAVE}</td>
-                        <td>{datosListaInventario.aF_FECHAFAC}</td>
-                        <td>{datosListaInventario.aF_FINGRESO}</td>
-                        <td>{datosListaInventario.idmodalidadcompra}</td>
-                        <td>{datosListaInventario.aF_MONTOFACTURA}</td>
-                        <td>{datosListaInventario.aF_NUM_FAC}</td>
-                        <td>{datosListaInventario.aF_ORIGEN}</td>
-                        <td>{datosListaInventario.proV_RUN}</td>
-                        <td>{datosListaInventario.deP_CORR}</td>
-                        <td>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() =>
-                              handleAnular(index, datosListaInventario.aF_CLAVE)
-                            }
-                          >
-                            Anular
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                {error.fechaInicio && (
+                  <div className="invalid-feedback d-block">
+                    {error.fechaInicio}
+                  </div>
+                )}
               </div>
-            )}
-            {/* Paginador */}
-            <Pagination className="d-flex justify-content-end">
-              <Pagination.First
-                onClick={() => paginar(1)}
-                disabled={paginaActual === 1}
-              />
-              <Pagination.Prev
-                onClick={() => paginar(paginaActual - 1)}
-                disabled={paginaActual === 1}
-              />
+              <div className="p-2  w-81">
+                <label htmlFor="fechaTermino" className="text-muted">Fecha Término</label>
+                <input
+                  aria-label="Archivo de autorización"
+                  type="date"
+                  className={`form-control text-center ${error.fechaTermino ? "is-invalid" : ""
+                    }`}
+                  name="fechaTermino"
+                  onChange={handleChange}
+                  value={Inventario.fechaTermino}
+                />
+                {error.fechaTermino && (
+                  <div className="invalid-feedback">{error.fechaTermino}</div>
+                )}
+              </div>
+            </Col>
+          </Row>
+          {/* Tabla*/}
+          {loading ? (
+            <>
+              <SkeletonLoader rowCount={elementosPorPagina} />
+            </>
+          ) : (
+            <div className='skeleton-table'>
+              <Table striped bordered hover>
+                <thead className="table-light sticky-top">
+                  <tr>
+                    <th>Nª de Recepcion</th>
+                    <th>Fecha de Factura</th>
+                    <th>Fecha de Recepcion</th>
+                    <th>Modalidad de Compra</th>
+                    <th>Monto de Recepcion</th>
+                    <th>Nª de Factura</th>
+                    <th>Origen Presupuesto</th>
+                    <th>Rut Proveedor</th>
+                    <th>Dependencia</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {elementosActuales.map((datosListaInventario, index) => (
+                    <tr key={index}>
+                      <td>{datosListaInventario.aF_CLAVE}</td>
+                      <td>{datosListaInventario.aF_FECHAFAC}</td>
+                      <td>{datosListaInventario.aF_FINGRESO}</td>
+                      <td>{datosListaInventario.idmodalidadcompra}</td>
+                      <td>{datosListaInventario.aF_MONTOFACTURA}</td>
+                      <td>{datosListaInventario.aF_NUM_FAC}</td>
+                      <td>{datosListaInventario.aF_ORIGEN}</td>
+                      <td>{datosListaInventario.proV_RUN}</td>
+                      <td>{datosListaInventario.deP_CORR}</td>
+                      <td>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() =>
+                            handleAnular(index, datosListaInventario.aF_CLAVE)
+                          }
+                        >
+                          Anular
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+          {/* Paginador */}
+          <Pagination className="d-flex justify-content-end">
+            <Pagination.First
+              onClick={() => paginar(1)}
+              disabled={paginaActual === 1}
+            />
+            <Pagination.Prev
+              onClick={() => paginar(paginaActual - 1)}
+              disabled={paginaActual === 1}
+            />
 
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === paginaActual}
-                  onClick={() => paginar(i + 1)}
-                >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => paginar(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-              />
-              <Pagination.Last
-                onClick={() => paginar(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
-              />
-            </Pagination>
-          </div>
-        </form>
-      </div>
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <Pagination.Item
+                key={i + 1}
+                active={i + 1 === paginaActual}
+                onClick={() => paginar(i + 1)}
+              >
+                {i + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next
+              onClick={() => paginar(paginaActual + 1)}
+              disabled={paginaActual === totalPaginas}
+            />
+            <Pagination.Last
+              onClick={() => paginar(totalPaginas)}
+              disabled={paginaActual === totalPaginas}
+            />
+          </Pagination>
+        </div>
+      </form>
     </Layout>
   );
 };

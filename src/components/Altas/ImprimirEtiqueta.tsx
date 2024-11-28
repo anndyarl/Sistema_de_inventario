@@ -83,27 +83,30 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
     return (
         <Layout>
             <MenuAltas />
-            <div className="container mt-2">
-                <div className="row justify-content-center w-100">
+            <form onSubmit={handleFormSubmit}>
+                <div className="border-bottom shadow-sm p-4 rounded">
                     <h3 className="form-title fw-semibold border-bottom p-1">Generación código QR</h3>
-                    <form className="text-center mx-auto" onSubmit={handleFormSubmit} style={{ maxWidth: "400px" }}>
-                        <div className="m-1">
+                    <div className="row justify-content-center">
+                        {/* Contenedor de Input */}
+                        <div className="col-12 col-md-6 text-center">
                             <input
                                 aria-label="aF_CLAVE"
                                 type="text"
-                                className={`form-control text-center  ${error.aF_CLAVE ? "is-invalid" : ""
-                                    } `}
+                                className={`form-control text-center ${error.aF_CLAVE ? "is-invalid" : ""}`}
                                 maxLength={12}
                                 name="aF_CLAVE"
                                 placeholder="Ingrese un número de inventario"
                                 onChange={handleChange}
                                 value={Inventario.aF_CLAVE}
-
                             />
                             {error.aF_CLAVE && (
                                 <div className="invalid-feedback">{error.aF_CLAVE}</div>
                             )}
-                            <button type="submit" disabled={loading} className="btn btn-primary text-center m-1">
+                        </div>
+
+                        {/* Contenedor del Botón */}
+                        <div className="col-12 text-center">
+                            <button type="submit" disabled={loading} className="btn btn-primary mt-3">
                                 {loading ? (
                                     <>
                                         {" Generando... "}
@@ -113,25 +116,25 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                                     "Generar"
                                 )}
                             </button>
-
-                            {datosEtiqueta.map((traeEtiqueta) => (
-                                <div key={traeEtiqueta.aF_CODIGO_LARGO}>
-                                    <p className="fw-semibold border-bottom p-1 w-100"></p>
-                                    <h3 className="mb-1 text-semibold">{traeEtiqueta.aF_CODIGO_LARGO}</h3>
-                                    <p className="mb-1 text-muted" >{traeEtiqueta.aF_DESCRIPCION}</p>
-                                    <p className="mb-3 text-muted">{traeEtiqueta.aF_UBICACION}</p>
-                                    <div className="mb-1">
-                                        <QRCodeSVG value={traeEtiqueta.aF_CODIGO_LARGO} size={200} level="L" />
-                                    </div>
-                                    {/* <QRCodeCanvas value={traeEtiqueta.aF_CODIGO_LARGO} size={128} /> */}
-
-                                </div>
-                            ))}
-
                         </div>
-                    </form>
+
+                        {/* Contenedor del QR y sus datos */}
+                        {datosEtiqueta.map((traeEtiqueta) => (
+                            <div key={traeEtiqueta.aF_CODIGO_LARGO} className="col-12 text-center mt-4">
+                                <p className="fw-semibold border-bottom p-1 w-100"></p>
+                                <h3 className="mb-1 text-semibold">{traeEtiqueta.aF_CODIGO_LARGO}</h3>
+                                <p className="mb-1 text-muted">{traeEtiqueta.aF_DESCRIPCION}</p>
+                                <p className="mb-3 text-muted">{traeEtiqueta.aF_UBICACION}</p>
+                                <div className="mb-1 d-flex justify-content-center">
+                                    <QRCodeSVG value={traeEtiqueta.aF_CODIGO_LARGO} size={200} level="L" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </form>
+
+
         </Layout>
     );
 };

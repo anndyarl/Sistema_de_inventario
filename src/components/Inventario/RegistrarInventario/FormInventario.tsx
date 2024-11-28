@@ -149,51 +149,46 @@ const FormInventario: React.FC<FormInventarioProps> = ({
 
   return (
     <Layout>
-
       <MenuInventario />
+      <Timeline Formulario_actual={step} />
+      {step === 0 && (
+        <DatosInventario
+          onNext={handleNext}
+          comboOrigen={comboOrigen}
+          comboModalidad={comboModalidad}
+          comboProveedor={comboProveedor}
+        />
+      )}
 
-      <div className="container mt-2">
-        <Timeline Formulario_actual={step} />
-        {step === 0 && (
-          <DatosInventario
-            onNext={handleNext}
-            comboOrigen={comboOrigen}
-            comboModalidad={comboModalidad}
-            comboProveedor={comboProveedor}
-          />
-        )}
+      {step === 1 && (
+        <DatosCuenta
+          onBack={handleBack}
+          onNext={handleNext}
+          comboServicio={comboServicio}
+          comboCuenta={comboCuenta}
+          listaEspecie={listaEspecie}
+          comboBien={comboBien}
+          comboDependencia={comboDependencia}
+          comboDetalle={comboDetalle}
+          onServicioSeleccionado={handleServicioSeleccionado}
+          onBienSeleccionado={handleBienSeleccionado}
+          onDetalleSeleccionado={handleDetalleSeleccionado}
+          onEspecieSeleccionado={handleEspecieSeleccionado}
+          servicioSeleccionado={servicioSeleccionado}
+          bienSeleccionado={bienSeleccionado}
+          detalleSeleccionado={detalleSeleccionado}
+          especieSeleccionado={especieSeleccionado}
+        />
+      )}
 
-        {step === 1 && (
-          <DatosCuenta
-            onBack={handleBack}
-            onNext={handleNext}
-            comboServicio={comboServicio}
-            comboCuenta={comboCuenta}
-            listaEspecie={listaEspecie}
-            comboBien={comboBien}
-            comboDependencia={comboDependencia}
-            comboDetalle={comboDetalle}
-            onServicioSeleccionado={handleServicioSeleccionado}
-            onBienSeleccionado={handleBienSeleccionado}
-            onDetalleSeleccionado={handleDetalleSeleccionado}
-            onEspecieSeleccionado={handleEspecieSeleccionado}
-            servicioSeleccionado={servicioSeleccionado}
-            bienSeleccionado={bienSeleccionado}
-            detalleSeleccionado={detalleSeleccionado}
-            especieSeleccionado={especieSeleccionado}
-          />
-        )}
-
-        {step === 2 && (
-          <DatosActivoFijo
-            onBack={handleBack}
-            onNext={handleNext}
-            onReset={handleReset}
-            formInventario={formularios}
-          />
-        )}
-      </div>
-
+      {step === 2 && (
+        <DatosActivoFijo
+          onBack={handleBack}
+          onNext={handleNext}
+          onReset={handleReset}
+          formInventario={formularios}
+        />
+      )}
     </Layout>
   );
 };

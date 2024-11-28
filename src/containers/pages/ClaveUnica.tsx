@@ -106,7 +106,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
                     Clave única
                   </a>
                 </div>
-                <p className="text-muted text-center">
+                <p className="text-muted text-center fs-xs">
                   Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
                 </p>
               </div>

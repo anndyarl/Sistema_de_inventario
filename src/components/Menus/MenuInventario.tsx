@@ -56,7 +56,7 @@ const MenuInventario: React.FC = ({ }) => {
     return (
         <>
             {/* Mobile Navbar y Desktop*/}
-            <nav className="navbar navbar-expand-lg navbar-light justify-content-end">
+            <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3">
                 <button className="navbar-toggler m-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
@@ -68,7 +68,7 @@ const MenuInventario: React.FC = ({ }) => {
                                     key={index}
                                     to={item.href}
                                     className={classNames(
-                                        'btn btn-outline-primary py-2 px-3 m-1 rounded text-decoration-none',
+                                        'btn btn-outline-secondary py-2 px-3 m-1 rounded-2 text-decoration-none',
                                         activeItem === item.name ? 'active' : ''
                                     )}
                                     onClick={() => handleClick(item.name)}
