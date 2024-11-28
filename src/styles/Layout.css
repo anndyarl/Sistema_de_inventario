@@ -11,20 +11,9 @@ body::-webkit-scrollbar {
 }
 
 .fixed-width {
-    width: 9rem; /* O el ancho que prefieras */
+    width: 9rem;
    
   }
-
-.sidebar-left {
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
-    transition: all 0.3s;
-    top: 0;
-    bottom: 0;
-    z-index: 1000;
-    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
-}
 
 .navbar-header{
     /* box-shadow: 1px 1px 1px 1px rgba(12, 12, 12, 0.2); */

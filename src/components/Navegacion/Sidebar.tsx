@@ -35,8 +35,8 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <nav className="flex-grow-1">
-      <div className="d-flex position-absolute mx-2 top-0 w-50">
+    <nav className="flex-grow-1 ">
+      <div className="d-flex position-absolute mx-2 top-0 w-50 ">
         <div className="text-bg-primary p-1 flex-grow-1"></div>
         <div className="text-bg-danger p-1 flex-grow-1"></div>
       </div>
@@ -51,24 +51,26 @@ const Sidebar: React.FC = () => {
       </div>
 
 
-      {navigation.map((item) => (
-        <NavLink
-          key={item.name}
-          to={item.href}
-          className={({ isActive }) =>
-            classNames(
-              isActive ? 'bg-light text-dark' : 'text-white',
-              'd-flex align-items-center py-2 px-3 mb-2 rounded text-decoration-none nav-item',
-              activeItem === item.name ? 'active' : ''
-            )
-          }
-          onClick={() => handleClick(item.name)}
-        >
-          <item.icon className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-          {item.name}
-        </NavLink>
+      {
+        navigation.map((item) => (
+          <NavLink
+            key={item.name}
+            to={item.href}
+            className={({ isActive }) =>
+              classNames(
+                isActive ? 'bg-light text-dark' : 'text-white',
+                'd-flex align-items-center py-2 px-3 mb-2 rounded text-decoration-none nav-item',
+                activeItem === item.name ? 'active' : ''
+              )
+            }
+            onClick={() => handleClick(item.name)}
+          >
+            <item.icon className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+            {item.name}
+          </NavLink>
 
-      ))}
+        ))
+      }
       <div className="bg-color position-values-3">
         <img
           src={ondas}

@@ -75,7 +75,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
       </nav>
 
       <div className="d-flex flex-grow-1">
-        {/* Sidebar */}
+        {/* Background de Sidebar */}
         <div
           className={`bg-color sidebar-left ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}
           style={{

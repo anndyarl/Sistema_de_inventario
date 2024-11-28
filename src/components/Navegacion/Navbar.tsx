@@ -22,7 +22,6 @@ function Navbar() {
         { name: 'Registrar Altas', path: '/RegistrarAltas' },
         { name: 'Anular Altas', path: '/AnularAltas' },
         { name: 'Imprimir Etiqueta', path: '/ImprimirEtiqueta', keywords: ['qr', 'Etiquetas', 'Imprimir', 'generar'] },
-        { name: 'Configuración', path: '/Configuracion' },
         { name: 'Bajas', path: '/Bajas' },
         { name: 'Donaciones', path: '/Donaciones' },
         { name: 'Informes', path: '/Informes' }
@@ -71,8 +70,8 @@ function Navbar() {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end">
-            <div className="d-flex align-items-center">
+        <nav id="navbar" className="navbar navbar-expand-lg navbar-light  justify-content-end">
+            <div className="d-flex align-items-center ">
                 <Search
                     className={classNames("mx-2 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
@@ -105,7 +104,7 @@ function Navbar() {
                 </div>
             </div>
 
-        </nav>
+        </nav >
 
     );
 }

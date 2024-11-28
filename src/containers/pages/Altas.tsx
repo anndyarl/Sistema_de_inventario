@@ -2,11 +2,8 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { Plus, PlusCircle, Printer, SlashCircle, Trash } from "react-bootstrap-icons";
+import { PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-  return classes.filter(Boolean).join(" ");
-};
 const Altas: React.FC = () => {
 
   const pageVariants = {

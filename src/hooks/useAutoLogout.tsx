@@ -47,8 +47,8 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
             dispatch(logout());
             Swal.fire({
                 icon: "info",
-                title: "Su sesión ha expirado :'(",
-                text: `Vuelva a ingresar`,
+                title: "Su sesión expiró",
+                text: `Por favor, vuelva a ingresar`,
             });
             return <Navigate to="/" />;
         }, logoutTime);

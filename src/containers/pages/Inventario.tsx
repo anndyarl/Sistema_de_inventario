@@ -14,11 +14,6 @@ import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comb
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { motion, AnimatePresence } from "framer-motion";
 
-
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-  return classes.filter(Boolean).join(" ");
-};
-
 interface FormInventarioProps {
   //Trae props combos de Datos_inventario(formulario 1)
   comboOrigen: ORIGEN[];
