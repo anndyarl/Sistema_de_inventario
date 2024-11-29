@@ -66,7 +66,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
     //                 </a> */}
 
     //       {/**Desarrollo */}
-    //       {/* <Button onClick={handleEnviar}  type="submit" classNameNameName="btn btn-primary text-center me-2">Clave Unica </Button> */}
+    // {/* <Button onClick={handleEnviar}  type="submit" classNameNameName="btn btn-primary text-center me-2">Clave Unica </Button> */}
 
     //       {/**Prueba */}
     //       <a href="/Login" classNameNameName="btn btn-primary">
@@ -103,9 +103,17 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
                 </p>
                 <div className="mb-4 text-center">
                   <a href="/Login" className="btn btn-primary btn-lg btn-block">
-                    Clave única
+                    Clave Única demo
                   </a>
                 </div>
+                {/* <div className="mb-4 text-center">
+                  <a
+                    href="/claveunica"
+                    className="btn btn-primary btn-lg btn-block"
+                  >
+                    Clave Única
+                  </a>
+                </div> */}
                 <p className="text-muted text-center fs-xs">
                   Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
                 </p>

@@ -166,9 +166,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
     else if (isNaN(parseInt(currentActivo.cantidad)))
       tempErrors.cantidad = "Cantidad debe ser un número";
     if (!currentActivo.precio) tempErrors.precio = "Precio es obligatorio";
-    if (!/^\d+(\.\d{1,2})?$/.test(currentActivo.precio))
-      tempErrors.precio =
-        "Precio debe ser un número válido con hasta dos decimales";
+    if (!/^\d+$/.test(currentActivo.precio))
+      tempErrors.precio = "Precio debe ser un número entero";
     if (!currentActivo.observaciones)
       tempErrors.observaciones = "Observaciones es obligatorio";
 
@@ -667,7 +666,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     minimumFractionDigits: 0,
                   })}
                 </p>
-                <p><strong>Monto Pendiente:</strong> ${montoRecepcion - totalSum}</p>
+                <p><strong>Monto Pendiente:</strong> ${(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                  minimumFractionDigits: 0,
+                })}</p>
                 <Button type="submit" variant="primary">
                   <Plus
                     className={classNames("flex-shrink-0", "h-5 w-5")}
@@ -800,6 +801,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     aria-label="observaciones"
                     name="observaciones"
                     rows={4}
+                    // maxLength={500}
                     // style={{ minHeight: "8px", resize: "none" }}
                     onChange={handleChange}
                     value={currentActivo.observaciones}

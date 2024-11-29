@@ -1,7 +1,9 @@
 html {
   overflow-y: scroll; /* Fuerza la barra de scroll */
 }
-
+body{
+  font-family: "Roboto";
+}
 body::-webkit-scrollbar {
   width: 0; /* Chrome y Safari */
 }

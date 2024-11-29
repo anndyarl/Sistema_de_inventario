@@ -4,7 +4,7 @@ import {
   LOGIN_FAIL,
   LOGOUT,
   SET_TOKEN,
-} from "../../actions/Inventario/types";
+} from "../../actions/auth/types";
 
 // Define la estructura del estado
 interface AuthState {

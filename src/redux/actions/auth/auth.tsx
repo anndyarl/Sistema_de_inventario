@@ -3,10 +3,13 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
+  CLAVE_UNICA_REQUEST,
+  CLAVE_UNICA_SUCCESS,
+  CLAVE_UNICA_FAIL,
   SET_TOKEN,
   LOGOUT,
 
-} from '../Inventario/types';
+} from './types';
 import { Dispatch } from 'redux';
 import { DatosPersona } from "../../interfaces"
 import { persistor } from '../../../store';
@@ -36,7 +39,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
       const token = res.data.access_token;
       if (token) {
         dispatch({ type: LOGIN_SUCCESS, payload: token });
-        dispatch({ type: "SET_TOKEN", payload: token });
+        dispatch({ type: SET_TOKEN, payload: token });
 
       } else {
         // console.error('Token no encontrado en la respuesta del servidor');
@@ -54,14 +57,12 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
 };
 
 export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: Dispatch) => {
-
-
   const config = {
     headers: {
       'Content-Type': 'application/json',
     },
   };
-
+  dispatch({ type: CLAVE_UNICA_REQUEST });
   try {
 
     //Desarollo(aqui se obtiene el token)
@@ -71,21 +72,14 @@ export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: 
     //const res = await axios.post('https://sidra.ssmso.cl/Wcf_ClaveUnica/?url_solicitud=http://localhost:44364/SSMSO_BIENESTAR/ClaveUnica/validarportal/');
 
     if (res.status === 200) {
-      const token = res.data.access_token;
-      if (token) {
-        dispatch({ type: LOGIN_SUCCESS, payload: res.data });
-        dispatch({ type: SET_TOKEN, payload: token });
-      } else {
-        // console.error('Token no encontrado en la respuesta del servidor');
-        dispatch({ type: LOGIN_FAIL });
-      }
+      dispatch({ type: CLAVE_UNICA_SUCCESS, payload: res.data });
     } else {
       // console.error('Error en la respuesta del servidor:', res.status);
-      dispatch({ type: LOGIN_FAIL });
+      dispatch({ type: CLAVE_UNICA_FAIL });
     }
   } catch (err) {
     // console.error('Error en la solicitud:', err);
-    dispatch({ type: LOGIN_FAIL });
+    dispatch({ type: CLAVE_UNICA_FAIL });
   }
 };
 

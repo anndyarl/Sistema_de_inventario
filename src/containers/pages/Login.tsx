@@ -5,7 +5,7 @@ import { login } from "../../redux/actions/auth/auth";
 import { RootState } from "../../redux/reducers";
 import "../../styles/Login.css";
 import { Spinner } from "react-bootstrap";
-
+import clave_unica_svg from "../../assets/img/clave_unica_color.png"
 interface Props {
   login: (usuario: string, password: string) => void;
   isAuthenticated: boolean | null;
@@ -59,83 +59,91 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
   // }, [submitCount]); // Mostrar cuántas veces se ha ejecutado el useEffect
 
   return (
-    <div className="container d-flex justify-content-center align-items-center vh-100 ">
-      <div className="col-12 col-md-5 border p-4 rounded shadow-sm bg-white">
-        <h1 className="form-heading">Clave única demo</h1>
-        <p className="form-heading fs-09em">
-          Sistema de apoyo en la gestión administrativa, Servicio de Salud
-          Metropolitano Sur Oriente Departamento de Informática Unidad de
-          Desarrollo 2024
-        </p>
-        <form
-          id="Login"
-          className="text-center mx-auto"
-          onSubmit={onSubmit}
-          style={{ maxWidth: "300px" }}
-        >
-          <div className="form-group ">
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="border p-3 rounded-0 border-dark bg-white"
+        style={{ width: '100%', maxWidth: '400px', height: '60%', maxHeight: '500px', minHeight: "500px" }}>
+
+        {/* Elemento decorativo */}
+        <div className="d-flex position-relative mb-3" style={{ width: "116px", left: "0px", bottom: "16px" }}>
+          <div className="text-bg-primary  flex-grow-1" style={{ padding: "3px" }}></div>
+          <div className="text-bg-danger flex-grow-1 w-25" style={{ padding: "3px" }}></div>
+        </div>
+
+        <img
+          src={clave_unica_svg}
+          alt="clave_unica_svg"
+          width={125}
+          className="img-fluid position-relative" style={{ bottom: "33px" }}
+        />
+
+        <h1 className="text-bold text-center mb-0" style={{ fontFamily: 'Roboto Slab', fontWeight: "bold", fontSize: "1.60rem", color: "#575757" }}>
+          SSMSO
+        </h1>
+
+        <form id="Login" className="text-start mx-auto" onSubmit={onSubmit} >
+          <label htmlFor="run" className="form-group group-label" style={{ fontSize: "12px" }}>Ingresa tu Run</label>
+          <div className="form-group mb-3">
             <input
               type="text"
-              className="form-control w-100 mx-auto m-1"
+              className="form-control w-100 mx-auto m-1 border-dark rounded-0"
               id="inputusuario"
               name="usuario"
               value={usuario}
-              placeholder="usuario"
+              placeholder="Ingresa tu RUN"
               onChange={onChange}
               required
             />
           </div>
-          <div className="form-group">
+
+          <label htmlFor="claveunica" className="form-group group-label" style={{ fontSize: "12px" }}>Ingresa tu ClaveÚnica</label>
+          <div className="form-group mb-3">
             <input
               type="password"
-              className="form-control w-100 mx-auto m-1"
+              className="form-control w-100 mx-auto m-1 border-dark rounded-0"
               id="inputPassword"
               name="password"
               value={password}
-              placeholder="Password"
+              placeholder="Ingresa tu ClaveÚnica"
               onChange={onChange}
               required
             />
           </div>
-
-          {/* <div className="forgot">
-                        <Link to="/forgot_password" className="underlineHover">Forgot password?</Link>
-                    </div> */}
-          <button type="submit" className="btn btn-primary text-center m-1">
-            {loading ? (
-              <>
-                {" "}
-                {" Ingresando..."}{" "}
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />{" "}
-              </>
-            ) : (
-              "Ingresar"
-            )}{" "}
-          </button>
-        </form>
-        {error ? (
-          <div
-            className="alert alert-danger text-center p-2 m-2 fs-05em "
-            role="alert"
-          >
-            Ocurrió un error al procesar la solicitud. Si el problema persiste,
-            por favor pongase en contacto con la mesa de ayuda
+          <p className="text-primary" style={{ fontSize: "12px" }}>
+            <u> Recupera tu ClaveÚnica</u>
+          </p>
+          <p className="text-primary" style={{ fontSize: "12px" }}>
+            <u>Solicita tu ClaveÚnica</u>
+          </p>
+          {/* Botón de ingresar */}
+          <div className="form-group text-center">
+            <button type="submit" className="btn btn-primary w-100 m-1" style={{ background: "#0062cc" }}>
+              {loading ? (
+                <>
+                  {"Ingresando... "}
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                </>
+              ) : (
+                "Ingresar"
+              )}
+            </button>
           </div>
-        ) : (
-          <> </>
+        </form>
+
+        {/* Mensaje de error */}
+        {error && (
+          <div className="alert alert-danger text-center p-2 m-2 fs-6" role="alert">
+            Ocurrió un error al procesar la solicitud. Si el problema persiste, por favor póngase en contacto con la mesa de ayuda.
+          </div>
         )}
 
-        <p className="botto-text">
-          Diseñado por Departamento de Informática - Unidad de Desarrollo 2024
+        {/* Ayuda */}
+        <p className="text-center mt-3">
+          <u> Ayuda al 600 360 33 03</u>
         </p>
       </div>
-    </div>
+
+    </div >
+
   );
 };
 

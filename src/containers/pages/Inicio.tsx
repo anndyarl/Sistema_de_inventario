@@ -22,7 +22,7 @@ const Inicio: React.FC = () => {
     <Layout>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
-          <div className="container  border-1">
+          <div className="container">
             <Row className="g-1">
               <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
@@ -42,7 +42,7 @@ const Inicio: React.FC = () => {
                   </NavLink>
                 </Card>
               </Col>
-              <Col lg={3} md={6} sm={12}>
+              {/* <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
                     <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
@@ -59,7 +59,7 @@ const Inicio: React.FC = () => {
                     Modificar
                   </NavLink>
                 </Card>
-              </Col>
+              </Col> */}
               <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
@@ -97,7 +97,7 @@ const Inicio: React.FC = () => {
                   </NavLink>
                 </Card>
               </Col>
-              <Col lg={4} md={6} sm={12}>
+              <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
                     <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
@@ -115,7 +115,7 @@ const Inicio: React.FC = () => {
                   </NavLink>
                 </Card>
               </Col>
-              <Col lg={4} md={6} sm={12}>
+              <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
@@ -133,7 +133,7 @@ const Inicio: React.FC = () => {
                   </NavLink>
                 </Card>
               </Col>
-              <Col lg={4} md={6} sm={12}>
+              <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
@@ -151,7 +151,7 @@ const Inicio: React.FC = () => {
                   </NavLink>
                 </Card>
               </Col>
-              <Col lg={4} md={6} sm={12}>
+              <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
                     <Printer className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
@@ -169,12 +169,30 @@ const Inicio: React.FC = () => {
                   </NavLink>
                 </Card>
               </Col>
+              <Col lg={3} md={6} sm={12}>
+                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                  <div className="mb-3">
+                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                  </div>
+                  <Card.Title className="fw-bold"> Registrar Bajas</Card.Title>
+                  <Card.Text className="fw-light flex-grow-1">
+                    Busque el activo o los activos que desee dar de Bajas
+                  </Card.Text>
+                  <NavLink
+                    key="RegistrarBajas"
+                    to="/RegistrarBajas"
+                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
+                  >
+                    Nuevo
+                  </NavLink>
+                </Card>
+              </Col>
             </Row>
           </div>
 
         </motion.div>
       </AnimatePresence>
-    </Layout>
+    </Layout >
   );
 };
 
