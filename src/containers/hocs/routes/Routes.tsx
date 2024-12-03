@@ -16,20 +16,22 @@ import SesionExpirada from '../../errors/SesionExpirada';
 // import { checkAuthStatus } from '../../../redux/actions/auth/auth';
 // import { AppDispatch } from '../../../store';
 
-import FormBienesFuncionarios from '../../../components/Inventario/BienesFuncionarios/FormBienesFuncionarios';
-import ModificarInventario from '../../../components/Inventario/ModificarInventario/ModificarInventario';
 
-import AnularInventario from '../../../components/Inventario/AnularInventario/AnularInventario';
+import ModificarInventario from '../../../components/Inventario/ModificarInventario';
+
+import AnularInventario from '../../../components/Inventario/AnularInventario';
 import Inicio from '../../pages/Inicio';
 import FormInventario from '../../../components/Inventario/RegistrarInventario/FormInventario';
-import CargaMasiva from '../../../components/Inventario/CargaMasiva/CargaMasiva';
+import CargaMasiva from '../../../components/Inventario/CargaMasiva';
 
-import AnularAltas from '../../../components/Altas/AnularAltas/AnularAltas';
-import RegistrarAltas from '../../../components/Altas/RegistrarAltas/RegistrarAltas';
+import AnularAltas from '../../../components/Altas/AnularAltas';
+import RegistrarAltas from '../../../components/Altas/RegistrarAltas';
 
 import Error404 from '../../errors/Error404';
 import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta';
 import RegistrarBajas from '../../../components/Bajas/RegistrarBajas';
+import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
+import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
 
 
 const AnimatedRoutes: React.FC = () => {
@@ -73,9 +75,10 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/RegistrarAltas" element={<RegistrarAltas />} />
                 <Route path="/AnularAltas" element={<AnularAltas />} />
                 {/* Fin Módulo Altas */}
-                {/* Módulo Altas */}
+                {/* Módulo Bajas */}
                 <Route path="/Bajas" element={<Bajas />} />
                 <Route path="/RegistrarBajas" element={<RegistrarBajas />} />
+                <Route path="/BodegaExcluidos" element={<BodegaExcluidos />} />
                 {/* Fin Módulo Bajas */}
                 <Route path="/Donaciones" element={<Donaciones />} />
                 <Route path="/Informes" element={<Informes />} />

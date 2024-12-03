@@ -1,15 +1,17 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button, Form, Spinner } from "react-bootstrap";
-import { connect } from "react-redux";
-import Swal from "sweetalert2";
-import Layout from "../../containers/hocs/layout/Layout";
-import SkeletonLoader from "../Utils/SkeletonLoader";
+import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
 import { RootState } from "../../store";
-import { registrarBajasActions } from "../../redux/actions/Bajas/registrarBajasActions";
+import { connect } from "react-redux";
+import Layout from "../../containers/hocs/layout/Layout";
+import Swal from "sweetalert2";
+import { Search } from "react-bootstrap-icons";
+
+import SkeletonLoader from "..//Utils/SkeletonLoader";
 import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions";
 import MenuBajas from "../Menus/MenuBajas";
-
+import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions";
+import { obtenerListaBajasActions } from "../../redux/actions/Bajas/obtenerListaBajasActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -34,22 +36,27 @@ export interface ListaBajas {
 interface DatosBajas {
   listaBajas: ListaBajas[];
   listaBajasActions: () => Promise<boolean>;
-  registrarBajasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
+  obtenerListaBajasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
+  excluirBajasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
 }
 
-const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, registrarBajasActions, token }) => {
+const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerListaBajasActions, excluirBajasActions, token }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaBajas[]>([]);
-  const [loadingRegistro, setLoadingRegistro] = useState(false);
+  const [loadingAnular, setLoadingAnular] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
 
-  const listaABajasAuto = async () => {
+  const [Inventario, setInventario] = useState({
+    aF_CLAVE: 0,
+    fechaInicio: "",
+    fechaTermino: "",
+  });
+  const listaBajasAuto = async () => {
     if (token) {
       if (listaBajas.length === 0) {
         setLoading(true);
@@ -67,11 +74,23 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
       }
     }
   };
+
   useEffect(() => {
-    listaABajasAuto();
+    listaBajasAuto();
   }, [listaBajasActions, token, listaBajas.length]); // Asegúrate de incluir dependencias relevantes
 
+  const validate = () => {
+    let tempErrors: Partial<any> & {} = {};
+    // Validación para N° de Recepción (debe ser un número)
+    if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
+    if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
+    if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
+    // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
 
+
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     let newValue: string | number = [
@@ -81,7 +100,48 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
+    setInventario((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
+
+    setInventario((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
+
+  const handleBuscarAltas = async () => {
+    let resultado = false;
+
+    setLoading(true);
+    if (Inventario.fechaInicio != "" && Inventario.fechaTermino != "") {
+      if (validate()) {
+        resultado = await obtenerListaBajasActions(Inventario.fechaInicio, Inventario.fechaTermino);
+      }
+    }
+    setInventario((prevState) => ({
+      ...prevState,
+      aF_CLAVE: 0,
+      fechaInicio: "",
+      fechaTermino: ""
+    }));
+    setError({});
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
+        confirmButtonText: "Ok",
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      setLoading(false); //Finaliza estado de carga
+    }
+
+  };
+
   const setSeleccionaFilas = (index: number) => {
     setFilasSeleccionadas((prev) =>
       prev.includes(index.toString())
@@ -104,7 +164,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
     }
   };
 
-  const handleAgrearSeleccionados = async () => {
+  const handleAnularSeleccionados = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
@@ -114,18 +174,18 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
     });
     const result = await Swal.fire({
       icon: "info",
-      title: "Registrar Bajas",
-      text: `Confirme para registrar las Bajas seleccionadas`,
+      title: "Anular Altas",
+      text: `Confirme para excluir las Bajas seleccionadas`,
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Confirmar y Registrar",
-
+      confirmButtonText: "Confirmar y Anular",
+      confirmButtonColor: '#dc3545',
     });
 
     // selectedIndices.map(async (index) => {
 
     if (result.isConfirmed) {
-      setLoadingRegistro(true);
+      setLoadingAnular(true);
       // const elemento = listaAltas[index].aF_CLAVE;
       // console.log("despues del confirm elemento", elemento);
 
@@ -136,61 +196,66 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
 
       // console.log("Activos seleccionados para registrar:", activosSeleccionados);
 
-      const resultado = await registrarBajasActions(activosSeleccionados);
+      const resultado = await excluirBajasActions(activosSeleccionados);
       if (resultado) {
         Swal.fire({
           icon: "success",
-          title: "Bajas Registradas",
-          text: `Se han registrado correctamente las Bajas seleccionadas`,
+          title: "Altas anuladas",
+          text: `Se han anulado correctamente las altas seleccionadas`,
         });
-        setLoadingRegistro(false);
+        setLoadingAnular(false);
         listaBajasActions();
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
           icon: "error",
           title: ":'(",
-          text: `Hubo un problema al registrar las Bajas`,
+          text: `Hubo un problema al anular las Altas`,
         });
-        setLoadingRegistro(false);
+        setLoadingAnular(false);
       }
 
     }
     // })
   };
-
-  // const handleRegistrar = async (index: number, aF_CLAVE: number,) => {
+  // const handleAnular = async (index: number, aF_CLAVE: number) => {
   //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
 
   //   const result = await Swal.fire({
   //     icon: "warning",
-  //     title: "Registrar Bajas",
-  //     text: `Confirmar Baja del Nº de registro ${aF_CLAVE}`,
+  //     title: "Anular Registro",
+  //     text: `Confirma anular el registro Nº ${aF_CLAVE}`,
   //     showDenyButton: false,
   //     showCancelButton: true,
-  //     confirmButtonText: "Confirmar y Registrar",
+  //     confirmButtonText: "Confirmar y Anular",
   //   });
 
   //   if (result.isConfirmed) {
-  //     const resultado = await registrarBajasActions(aF_CLAVE);
+  //     const resultado = await anularAltasActions(aF_CLAVE);
   //     if (resultado) {
   //       Swal.fire({
   //         icon: "success",
-  //         title: "Registro exitoso",
-  //         text: `Se ha registrado el Baja ${aF_CLAVE} correctamente`,
+  //         title: "Registro anulado",
+  //         text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
   //       });
-  //       listaABajasAuto();
+  //       listaAltasAuto();
   //     } else {
   //       Swal.fire({
   //         icon: "error",
-  //         title: "Error",
-  //         text: `Hubo un problema al registrar la Baja seleccionado Nª ${aF_CLAVE}.`,
+  //         title: ":'(",
+  //         text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
   //       });
   //     }
   //   }
   // };
 
-
+  // const handleLimpiar = () => {
+  //   setInventario((prevInventario) => ({
+  //     ...prevInventario,
+  //     fechaInicio: "",
+  //     fechaTermino: "",
+  //   }));
+  // };
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -210,45 +275,112 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
       <MenuBajas />
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold border-bottom p-1">Registrar Bajas</h3>
-          {/* Boton registrar filas seleccionadas */}
+          <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
+          <Row>
+            <Col md={3}>
+              <div className="mb-1">
+                <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
+                <input
+                  aria-label="fechaInicio"
+                  type="date"
+                  className={`form-control  ${error.fechaInicio ? "is-invalid" : ""
+                    }`}
+                  name="fechaInicio"
+                  onChange={handleChange}
+                  value={Inventario.fechaInicio}
+                />
+                {error.fechaInicio && (
+                  <div className="invalid-feedback d-block">{error.fechaInicio}</div>
+                )}
+              </div>
+              <div className="mb-1">
+                <label htmlFor="fechaTermino" className="text-muted">Fecha Término</label>
+                <input
+                  aria-label="fechaTermino"
+                  type="date"
+                  className={`form-control  ${error.fechaTermino ? "is-invalid" : ""
+                    }`}
+                  name="fechaTermino"
+                  onChange={handleChange}
+                  value={Inventario.fechaTermino}
+                />
+                {error.fechaTermino && (
+                  <div className="invalid-feedback">{error.fechaTermino}</div>
+                )}
+              </div>
+
+            </Col>
+            <Col md={2}>
+              <div className="mb-1">
+                <label htmlFor="nInventario" className="text-muted">Nº Inventario</label>
+                <input
+                  aria-label="nInventario"
+                  type="text"
+                  className='form-control'
+                  name="aF_CLAVE"
+                  onChange={handleChange}
+                  value={Inventario.aF_CLAVE}
+                />
+              </div></Col>
+            <Col md={5}>
+              <div className="mb-1 mt-4">
+                <Button onClick={handleBuscarAltas} variant="primary" className="ms-1">
+                  {loading ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                    </>
+                  ) : (
+                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                  )}
+                </Button>
+              </div>
+            </Col>
+          </Row>
+          {/* Boton anular filas seleccionadas */}
           <div className="d-flex justify-content-start">
             {filasSeleccionadas.length > 0 ? (
               <Button
-                variant="primary"
-                onClick={handleAgrearSeleccionados}
+                variant="danger"
+                onClick={handleAnularSeleccionados}
                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                disabled={loadingAnular}  // Desactiva el botón mientras carga
               >
-                {loadingRegistro ? (
+                {loadingAnular ? (
                   <>
-                    {" Registrando... "}
+                    {" Anulando... "}
                     <Spinner
                       as="span"
                       animation="border"
                       size="sm"
                       role="status"
                       aria-hidden="true"
-                      className="me-2"
+                      className="me-2"  // Espaciado entre el spinner y el texto
                     />
 
                   </>
                 ) : (
                   <>
-                    Registrar{" "}
+                    Anular{" "}
                     <span className="badge bg-light text-dark mx-2">
                       {filasSeleccionadas.length}
                     </span>{" "}
-                    {filasSeleccionadas.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"}
+                    {filasSeleccionadas.length === 1 ? "Alta seleccionada" : "Altas seleccionadas"}
                   </>
                 )}
               </Button>
             ) : (
               <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                No hay altas seleccionadas para registrar
+                No hay altas seleccionadas para anular
               </strong>
             )}
           </div>
+
           {/* Tabla*/}
           {loading ? (
             <>
@@ -256,11 +388,12 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
             </>
           ) : (
             <div className='table-responsive'>
-              <Table striped bordered hover>
+              <Table striped bordered hover  >
                 <thead className="table-light sticky-top">
                   <tr>
                     <th >
                       <Form.Check
+                        className="check-danger"
                         type="checkbox"
                         onChange={handleSeleccionaTodos}
                         checked={
@@ -270,22 +403,22 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                         }
                       />
                     </th>
-                    <th scope="col">Codigo</th>
-                    <th scope="col">N° Inventario</th>
-                    <th scope="col">Servicio</th>
-                    <th scope="col">Dependencia</th>
-                    <th scope="col">Especie</th>
-                    <th scope="col">N° Cuenta</th>
-                    <th scope="col">Marca</th>
-                    <th scope="col">Modelo</th>
-                    <th scope="col">Serie</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col" >N° Recepcion</th>
-                    {/* <th scope="col">Acción</th> */}
+                    <th>Codigo</th>
+                    <th>N° Inventario</th>
+                    <th>Servicio</th>
+                    <th>Dependencia</th>
+                    <th>Especie</th>
+                    <th>N° Cuenta</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Serie</th>
+                    <th>Precio</th>
+                    <th>N° Recepcion</th>
+                    {/* <th>Acción</th> */}
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((ListaBajas, index) => (
+                  {elementosActuales.map((listaAltas, index) => (
                     <tr key={index}>
                       <td>
                         <Form.Check
@@ -296,23 +429,24 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                           )}
                         />
                       </td>
-                      <td>{ListaBajas.aF_CLAVE}</td>
-                      <td>{ListaBajas.ninv}</td>
-                      <td>{ListaBajas.serv}</td>
-                      <td>{ListaBajas.dep}</td>
-                      <td>{ListaBajas.esp}</td>
-                      <td>{ListaBajas.ncuenta}</td>
-                      <td>{ListaBajas.marca}</td>
-                      <td>{ListaBajas.modelo}</td>
-                      <td>{ListaBajas.serie}</td>
-                      <td>{ListaBajas.precio}</td>
-                      <td>{ListaBajas.mrecepcion}</td>
+                      <td>{listaAltas.aF_CLAVE}</td>
+                      <td>{listaAltas.ninv}</td>
+                      <td>{listaAltas.serv}</td>
+                      <td>{listaAltas.dep}</td>
+                      <td>{listaAltas.esp}</td>
+                      <td>{listaAltas.ncuenta}</td>
+                      <td>{listaAltas.marca}</td>
+                      <td>{listaAltas.modelo}</td>
+                      <td>{listaAltas.serie}</td>
+                      <td>{listaAltas.precio}</td>
+                      <td>{listaAltas.mrecepcion}</td>
                       {/* <td>
                           <Button
                             variant="outline-danger"
                             size="sm"
-                            onClick={() => handleRegistrar(index, ListaBajas.aF_CLAVE)}>
-                            Registrar
+                            onClick={() => handleAnular(index, listaAltas.aF_CLAVE)}
+                          >
+                            Anular
                           </Button>
                         </td> */}
                     </tr>
@@ -321,6 +455,8 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
               </Table>
             </div>
           )}
+
+
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">
             <Pagination.First
@@ -363,5 +499,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   listaBajasActions,
-  registrarBajasActions
-})(RegistrarBajas);
+  excluirBajasActions,
+  obtenerListaBajasActions
+})(BodegaExcluidos);

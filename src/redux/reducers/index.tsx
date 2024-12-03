@@ -26,6 +26,7 @@ import datosListaInventarioReducers from "./Inventario/AnularInventario/datosLis
 import datosListaAltasReducers from "./Altas/AnularAltas/datosListaAltasReducers";
 import obtenerEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerEtiquetasAltasReducers";
 import datosListaBajasReducers from "./Bajas/datosListaBajasReducers";
+import datosBienesFuncionarioReducers from "./Inventario/BienesFuncionario/datosBienesFuncionarioReducers";
 
 
 
@@ -57,7 +58,10 @@ const appReducer = combineReducers({
 
   datosListaAltasReducers,
   datosListaBajasReducers,
-  obtenerEtiquetasAltasReducers
+  obtenerEtiquetasAltasReducers,
+
+  //-----------Bienes Funcioanrio--------------//
+  datosBienesFuncionarioReducers
 
 });
 

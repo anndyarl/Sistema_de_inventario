@@ -141,7 +141,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Si el campo debe ser numérico, convierte `value` a número; de lo contrario, manténlo como string
+    // Convierte `value` a número
     let newValue: string | number = ["servicio", "dependencia", "especie", "cuenta"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;

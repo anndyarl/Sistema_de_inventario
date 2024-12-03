@@ -1,57 +1,70 @@
-import React, { useRef, useState } from "react";
-import Layout from "../../../containers/hocs/layout/Layout";
+import React, { useEffect, useRef, useState } from "react";
+import Layout from "../../containers/hocs/layout/Layout";
 import { Col, Row } from "react-bootstrap";
-import "../../../styles/BienesFuncionario.css";
+import "../../styles/BienesFuncionario.css";
 import {
   CuentaProps,
   DEPENDENCIA,
   SERVICIO,
-} from "../RegistrarInventario/Datos_cuenta";
+} from "./RegistrarInventario/Datos_cuenta";
 import Swal from "sweetalert2";
-import { connect } from "react-redux";
-import { RootState } from "../../../store";
+import { connect, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
 
-import { registrarBienFuncionarioActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/registrarBienFuncionarioActions";
-import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
-import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
-import MenuInventario from "../../Menus/MenuInventario";
+import { registrarBienFuncionarioActions } from "../../redux/actions/Inventario/RegistroBienesFuncionario/registrarBienFuncionarioActions";
+import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
+import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions";
+import MenuInventario from "../Menus/MenuInventario";
+import { setDependenciaBienesFuncionarioActions, setRutBienesFuncionarioActions, setServicioBienesFuncionarioActions } from "../../redux/actions/Inventario/RegistroBienesFuncionario/datosRegistroBeneficiarioActions";
+import { validate, format } from 'rut.js';
 
 
 interface FuncionarioProps {
-  rutFuncionario: string;
+  rutFuncionario?: string;  // Opcional si no siempre es necesario
   servicio: number;
   dependencia: number;
-  autorizacion: string;
-  comprobanteDePago: string;
+  autorizacion?: string;
+  comprobanteDePago?: string;
 }
-interface FormFuncionarioProps {
+
+interface FormFuncionarioProps extends FuncionarioProps {
   comboServicio: SERVICIO[];
   comboDependencia: DEPENDENCIA[];
+  comboServicioActions: () => void;
   comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   registrarBienFuncionarioActions: (
     rutFuncionario: string,
     comboServicio: number,
     comboDependencia: number,
     comprobanteDePago: File,
-    autorizacion: File
-  ) => Promise<Boolean>;
+    autorizacion: File,
+  ) => Promise<boolean>;
+  token: string | null;
 }
 const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
+  token,
   comboServicio,
   comboDependencia,
+  rutFuncionario,
+  servicio,
+  dependencia,
+  comprobanteDePago,
+  autorizacion,
+  comboServicioActions,
   comboDependenciaActions,
   registrarBienFuncionarioActions,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef2 = useRef<HTMLInputElement>(null);
   const [selectedFileComprobante, setSelectedFileComprobante] = useState<File | null>(null);
   const [selectedFileAutorizacion, setSelectedFileAutorizacion] = useState<File | null>(null);
   const [isDraggingComprobante, setIsDraggingComprobante] = useState(false);
   const [isDraggingAutorizacion, setIsDraggingAutorizacion] = useState(false);
-  const [error, setError] = useState<
-    Partial<FuncionarioProps> & Partial<CuentaProps> & {}
-  >({});
-  const [Funcionario, setFuncionario] = useState({
+  const [error, setError] = useState<Partial<FuncionarioProps> & Partial<CuentaProps> & {}>({});
+  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+
+  const [Funcionario, setFuncionario] = useState<FuncionarioProps>({
     rutFuncionario: "",
     servicio: 0,
     dependencia: 0,
@@ -59,7 +72,65 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
     autorizacion: "",
   });
 
-  const validate = () => {
+  useEffect(() => {
+    setFuncionario({
+      rutFuncionario,
+      servicio,
+      dependencia,
+      comprobanteDePago,
+      autorizacion,
+    });
+  }, [rutFuncionario, servicio, dependencia, comprobanteDePago, autorizacion]);
+
+  useEffect(() => {
+    //carga automaticamente si no se ha llamado a combo servicios
+    if (token) {
+      if (comboServicio.length === 0) comboServicioActions();
+    }
+  }, [comboServicioActions]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    let newValue = value;
+    setFuncionario((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+
+    if (name === "rutFuncionario") {
+      setFuncionario((prevState) => ({
+        ...prevState,
+        rutFuncionario: format(newValue),
+      }));
+      dispatch(setRutBienesFuncionarioActions(format(newValue)));
+    }
+
+    if (name === "servicio") {
+      comboDependenciaActions(value);
+      dispatch(setServicioBienesFuncionarioActions(parseInt(value)));
+    }
+    if (name === "dependencia") {
+      dispatch(setDependenciaBienesFuncionarioActions(parseInt(value)));
+    }
+
+    // Verificar si es un input de tipo "file" y si tiene archivos seleccionados
+    if (e.target instanceof HTMLInputElement && e.target.type === "file") {
+      const file = e.target.files?.[0];
+      if (file) {
+        // Si el archivo es válido, establecerlo en el estado correspondiente
+        if (name === "comprobanteDePago") {
+          setSelectedFileComprobante(file);
+          setError({ ...error, comprobanteDePago: "" }); // Limpiar errores si el archivo es válido
+        } else if (name === "autorizacion") {
+          setSelectedFileAutorizacion(file);
+          setError({ ...error, autorizacion: "" }); // Limpiar errores si el archivo es válido
+        }
+      }
+    }
+  };
+
+  const validateForm = () => {
     let tempErrors: Partial<any> & {} = {};
     const allowelabelypes = [
       "application/pdf",
@@ -68,44 +139,31 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
       "image/png",
       "image/jpg",
     ];
-    // Validación para N° de Recepción (debe ser un número)
+
     if (!Funcionario.rutFuncionario)
       tempErrors.rutFuncionario = "El rut del funcionario es obligatorio.";
+    else if (!validate(Funcionario.rutFuncionario)) {
+      tempErrors.rutFuncionario = "El rut es incorrecto";
+      console.log(validate(Funcionario.rutFuncionario));
+    }
     if (!Funcionario.servicio)
       tempErrors.servicio = "El Servicio es obligatoria.";
     if (!Funcionario.dependencia)
       tempErrors.dependencia = "La dependencia es obligatoria.";
-
     // Validación de archivos: autorizacion
     if (!selectedFileAutorizacion) {
       tempErrors.autorizacion = "La autorización es obligatoria.";
     } else if (!allowelabelypes.includes(selectedFileAutorizacion.type)) {
       tempErrors.autorizacion = "Solo se permiten archivos PDF, DOCX o JPG.";
     }
-
     // Validación de archivos: comprobanteDePago
     if (!selectedFileComprobante) {
       tempErrors.comprobanteDePago = "El comprobante de pago es obligatorio.";
     } else if (!allowelabelypes.includes(selectedFileComprobante.type)) {
-      tempErrors.comprobanteDePago =
-        "Solo se permiten archivos PDF, DOCX o JPG.";
+      tempErrors.comprobanteDePago = "Solo se permiten archivos PDF, DOCX o JPG.";
     }
-
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
-  };
-
-  // Función para formatear el RUT
-  const formatRut = (rut: string) => {
-    // Remover puntos y guion para limpiar el formato
-    const cleanRut = rut.replace(/[.-]/g, "");
-
-    // Separar el número del dígito verificador
-    const number = cleanRut.slice(0, -1);
-    const verifier = cleanRut.slice(-1);
-
-    // Formatear con puntos y guion
-    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "-" + verifier;
   };
   //----------------Comprobante de Pago --------------//
   //Habilita el estado arrastrar
@@ -164,92 +222,69 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
     }
   };
   //----------------Fin Autorización --------------//
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFuncionario((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-    if (name === "servicio") {
-      comboDependenciaActions(value);
-    }
-    // Formatear si el campo es rutFuncionario
-    if (name === "rutFuncionario") {
-      const cleanedValue = value
-        .toUpperCase() // Convierte a mayúscula para permitir la "K"
-        .replace(/[^0-9K.-]/g, ""); // Permite solo números, ".", "-", y "K"
-
-      const formattedRut = formatRut(cleanedValue); // Aplica el formato
-      setFuncionario((prevFuncionario) => ({
-        ...prevFuncionario,
-        [name]: formattedRut,
-      }));
-    } else {
-      setFuncionario((prevFuncionario) => ({
-        ...prevFuncionario,
-        [name]: value,
-      }));
-    }
-
-    // Verificar si es un input de tipo "file" y si tiene archivos seleccionados
-    if (e.target instanceof HTMLInputElement && e.target.type === "file") {
-      const file = e.target.files?.[0];
-      if (file) {
-        // Si el archivo es válido, establecerlo en el estado correspondiente
-        if (name === "comprobanteDePago") {
-          setSelectedFileComprobante(file);
-          setError({ ...error, comprobanteDePago: "" }); // Limpiar errores si el archivo es válido
-        } else if (name === "autorizacion") {
-          setSelectedFileAutorizacion(file);
-          setError({ ...error, autorizacion: "" }); // Limpiar errores si el archivo es válido
-        }
-      }
-    }
-  };
-
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (validate()) {
-      if (selectedFileComprobante && selectedFileAutorizacion) {
-        const resultado = await registrarBienFuncionarioActions(
-          Funcionario.rutFuncionario,
-          Funcionario.servicio,
-          Funcionario.dependencia,
-          selectedFileComprobante,
-          selectedFileAutorizacion
-        );
-
-        if (resultado) {
-          Swal.fire({
-            icon: "success",
-            title: "Envío exitoso",
-            text: "¡Se ha registrado con éxito!",
-          });
+    if (validateForm()) {
+      const result = await Swal.fire({
+        icon: "info",
+        title: "Confirmar registro",
+        text: "¿Desea registrar los bienes del funcionario con la información proporcionada?",
+        showCancelButton: true,
+        confirmButtonText: "Confirmar y registrar",
+        cancelButtonText: "Cancelar",
+      });
+      if (result.isConfirmed) {
+        setLoading(true);
+        if (selectedFileComprobante && selectedFileAutorizacion) {
+          const resultado = await registrarBienFuncionarioActions(
+            Funcionario.rutFuncionario || "",
+            Funcionario.servicio,
+            Funcionario.dependencia,
+            selectedFileComprobante,
+            selectedFileAutorizacion
+          );
+          if (resultado) {
+            Swal.fire({
+              icon: "success",
+              title: "Registro exitoso",
+              text: "¡Se ha registrado con éxito!",
+            });
+            setLoading(false);
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Hubo un problema al enviar el registro.",
+            });
+            setLoading(false);
+          }
         } else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Hubo un problema al enviar el registro.",
+          setError({
+            ...error,
+            comprobanteDePago: selectedFileComprobante ? "" : "El comprobante de pago es obligatorio.",
+            autorizacion: selectedFileAutorizacion ? "" : "La autorización es obligatoria.",
           });
+          setLoading(false);
         }
-      } else {
-        setError({
-          ...error,
-          comprobanteDePago: selectedFileComprobante ? "" : "El comprobante de pago es obligatorio.",
-          autorizacion: selectedFileAutorizacion ? "" : "La autorización es obligatoria.",
+        dispatch(setRutBienesFuncionarioActions(""));
+        dispatch(setServicioBienesFuncionarioActions(0));
+        dispatch(setDependenciaBienesFuncionarioActions(0));
+        setSelectedFileComprobante(null);
+        setSelectedFileAutorizacion(null);
+        setFuncionario({
+          ...Funcionario,
+          comprobanteDePago: "",
+          autorizacion: "",
         });
       }
+
     }
   };
 
   return (
     <Layout>
       <MenuInventario />
-      <div className="border-bottom shadow-sm p-4 rounded">
+      <div className="border-bottom shadow-sm p-2 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">
           Registro Bienes de Funcioanarios
         </h3>
@@ -266,7 +301,8 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   maxLength={12}
                   name="rutFuncionario"
                   onChange={handleChange}
-                  value={Funcionario.rutFuncionario}
+                  value={Funcionario.rutFuncionario || ""}
+                  placeholder="12.345.678-9"
                 />
                 {error.rutFuncionario && (
                   <div className="invalid-feedback d-block">
@@ -274,8 +310,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   </div>
                 )}
               </div>
-              <div className="border shadow-sm p-4 rounded">
-                <h5 className="fw-semibold border-bottom p-1">Destino</h5>
+
+              <div className="border shadow-sm p-2 rounded">
+                <h6 className="text-muted text-center fw-semibold">Destino</h6>
                 <div className="mb-1">
                   <label htmlFor="servicio" className="text-muted fw-semibold fw-semibold">Servicio</label>
                   <select
@@ -283,7 +320,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                     className="form-select"
                     name="servicio"
                     onChange={handleChange}
-                    value={Funcionario.servicio || ""}
+                    value={Funcionario.servicio || 0}
                   >
                     <option value="">Seleccione un origen</option>
                     {comboServicio.map((traeServicio) => (
@@ -309,7 +346,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                     name="dependencia"
                     disabled={!Funcionario.servicio}
                     onChange={handleChange}
-                    value={Funcionario.dependencia}
+                    value={Funcionario.dependencia || 0}
                   >
                     <option value="">Selecciona una opción</option>
                     {comboDependencia.map((traeDependencia) => (
@@ -340,7 +377,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   onClick={handleFileSelectComprobante}
                 >
                   {selectedFileComprobante ? (
-                    <p>Archivo seleccionado: {selectedFileComprobante.name}</p>
+                    <p className="file-name text-primary">{selectedFileComprobante.name}</p>
                   ) : (
                     <p>
                       Arrastra y suelta el archivo aquí, o haz clic para
@@ -377,7 +414,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   onClick={handleFileSelectAutorizacion}
                 >
                   {selectedFileAutorizacion ? (
-                    <p>Archivo seleccionado: {selectedFileAutorizacion.name}</p>
+                    <p>{selectedFileAutorizacion.name}</p>
                   ) : (
                     <p>
                       Arrastra y suelta el archivo aquí, o haz clic para
@@ -406,9 +443,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
           </Row>
 
           <div className="p-1 rounded bg-white d-flex justify-content-end ">
-            <button type="submit" className="btn btn-primary">
-              Validar
-            </button>
+            <button type="submit" className="btn btn-primary">Validar</button>
           </div>
         </form>
       </div>
@@ -416,13 +451,20 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   );
 };
 
+
 const mapStateToProps = (state: RootState) => ({
+  token: state.loginReducer.token,
   comboServicio: state.comboServicioReducer.comboServicio,
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
+  rutFuncionario: state.datosBienesFuncionarioReducers.rutFuncionario,
+  servicio: state.datosBienesFuncionarioReducers?.servicio || 0,
+  dependencia: state.datosBienesFuncionarioReducers?.dependencia || 0,
+  // comprobanteDePago: state.datosBienesFuncionarioReducers?.comprobanteDePago || "",
+  // autorizacion: state.datosBienesFuncionarioReducers?.autorizacion || "",
 });
 
 export default connect(mapStateToProps, {
   comboServicioActions,
   comboDependenciaActions,
-  registrarBienFuncionarioActions,
+  registrarBienFuncionarioActions
 })(FormInventarioFuncionario);

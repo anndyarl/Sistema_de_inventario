@@ -79,3 +79,9 @@ p {
   margin: 0;
   font-size: 16px;
 }
+.file-name {
+  width: 100%;                /* Ocupa todo el ancho del contenedor */
+  white-space: nowrap;        /* Evita saltos de línea */
+  overflow: hidden;           /* Oculta el contenido que se desborda */
+  text-overflow: ellipsis;    /* Agrega puntos suspensivos (...) al final */
+}

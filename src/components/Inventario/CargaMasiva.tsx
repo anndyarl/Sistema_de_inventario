@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
-import Layout from "../../../containers/hocs/layout/Layout";
+import Layout from "../../containers/hocs/layout/Layout";
 import { Col, Row } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { FileEarmarkExcel } from "react-bootstrap-icons";
-import MenuInventario from "../../Menus/MenuInventario";
+import MenuInventario from "../Menus/MenuInventario";
 
 
 interface AdjuntoProps {

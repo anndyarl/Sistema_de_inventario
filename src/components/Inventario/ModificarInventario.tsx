@@ -1,22 +1,22 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Table, Form, Row, Col, Modal, Pagination, Spinner, } from "react-bootstrap";
-import { RootState } from "../../../store";
+import { RootState } from "../../store";
 import { connect } from "react-redux";
-import Layout from "../../../containers/hocs/layout/Layout";
-import { obtenerInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
-import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "../RegistrarInventario/Datos_inventario";
-import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "../RegistrarInventario/Datos_cuenta";
+import Layout from "../../containers/hocs/layout/Layout";
+import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
+import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/Datos_inventario";
+import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/Datos_cuenta";
 
 import Swal from "sweetalert2";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
-import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
-import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
-import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
-import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
-import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
-import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
-import MenuInventario from "../../Menus/MenuInventario";
+import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
+import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions";
+import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
+import { comboListadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
+import { comboCuentaActions } from "../../redux/actions/Inventario/Combos/comboCuentaActions";
+import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
+import MenuInventario from "../Menus/MenuInventario";
 
 
 export interface InventarioCompleto {
@@ -665,6 +665,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   name="rutProveedor"
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
+                  disabled={isDisabled}
                 >
                   <option value="0">Seleccione un Proveedor</option>
                   {comboProveedor.map((traeProveedor) => (

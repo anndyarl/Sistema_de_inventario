@@ -1,14 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
-import { RootState } from "../../../store";
+import { RootState } from "../../store";
 import { connect } from "react-redux";
-import Layout from "../../../containers/hocs/layout/Layout";
+import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { listaAltasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasActions";
-import { registrarAltasActions } from "../../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
-import MenuAltas from "../../Menus/MenuAltas";
-import SkeletonLoader from "../../Utils/SkeletonLoader";
+import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions";
+import { registrarAltasActions } from "../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
+import MenuAltas from "../Menus/MenuAltas";
+import SkeletonLoader from "../Utils/SkeletonLoader";
 
 export interface ListaAltas {
   aF_CLAVE: number,

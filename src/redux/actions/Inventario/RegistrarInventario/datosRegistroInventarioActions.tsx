@@ -28,7 +28,7 @@ export const setFechaFacturaActions = (fechaFactura: string) => ({
   type: 'SET_FECHA_FACTURA',
   payload: fechaFactura,
 });
-export const setRutProveedorActions = (rutProveedor: string) => ({
+export const setRutProveedorActions = (rutProveedor: number | string) => ({
   type: 'SET_RUT_PROVEEDOR',
   payload: rutProveedor,
 });

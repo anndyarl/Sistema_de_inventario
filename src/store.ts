@@ -21,7 +21,8 @@ const persistConfig = {
     'comboServicioReducer',
     'comboDependenciaReducer',
     'comboListadoDeEspeciesBien',
-    'comboCuentaReducer']
+    'comboCuentaReducer',
+    'datosBienesFuncionarioReducers']
 };
 
 // Reducer persistente

@@ -1,5 +1,5 @@
 
-import { InventarioCompleto } from '../../../../components/Inventario/ModificarInventario/ModificarInventario';
+import { InventarioCompleto } from '../../../../components/Inventario/ModificarInventario';
 import {
   INVENTARIO_REQUEST,
   INVENTARIO_SUCCESS,

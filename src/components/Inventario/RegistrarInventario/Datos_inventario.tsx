@@ -138,8 +138,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Si el campo debe ser numérico, convierte `value` a número; de lo contrario, manténlo como string
-    let newValue: string | number = ["montoRecepcion", "nOrdenCompra", "nRecepcion"].includes(name)
+    // Convierte `value` a número
+    let newValue: string | number = ["montoRecepcion", "nOrdenCompra", "nRecepcion", "rutProveedor"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -154,18 +154,21 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     } else if (name === "fechaRecepcion") {
       dispatch(setFechaRecepcionActions(newValue as string));
     } else if (name === "nFactura") {
-      dispatch(setNFacturaActions(newValue as string)); // Convertido a número
+      dispatch(setNFacturaActions(newValue as string));
     } else if (name === "nOrdenCompra") {
       newValue = parseFloat(value) || 0;
-      console.log("nOrdenCompra", nOrdenCompra);
       dispatch(setNOrdenCompraActions(newValue as number)); // Convertido a número
     } else if (name === "nRecepcion") {
       dispatch(setNRecepcionActions(newValue as number)); // Convertido a número
     } else if (name === "origenPresupuesto") {
       newValue = parseFloat(value) || 0;
-      dispatch(setOrigenPresupuestoActions(newValue as number));
+      dispatch(setOrigenPresupuestoActions(newValue as number)); // Convertido a número
     } else if (name === "rutProveedor") {
-      dispatch(setRutProveedorActions(newValue as string));
+      newValue = parseFloat(value) || 0;
+      dispatch(setRutProveedorActions(newValue as number));
+    } else if (name === "montoRecepcion") {
+      newValue = parseFloat(value) || 0;
+      dispatch(setMontoRecepcionActions(newValue as number)); // Convertido a número
     }
 
     if (name === "montoRecepcion" && datosTablaActivoFijo.length > 0) {
@@ -176,7 +179,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
           text: "Si modifica el monto recepción se perderán los datos en la tabla activos fijos.",
           showCancelButton: true,
           confirmButtonText: "Si, Modificar",
-          cancelButtonText: "No, Cancelar",
+          cancelButtonText: "Cancelar",
         }).then((result) => {
           if (result.isConfirmed) {
             setInventario((prevInventario) => ({
@@ -237,6 +240,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     origenPresupuesto,
     rutProveedor,
   ]);
+
   const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
@@ -273,10 +277,10 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   // }
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (validate()) {
       dispatch(setMontoRecepcionActions(Inventario.montoRecepcion)); // Convertido a número
       onNext(Inventario);
+      console.log(Inventario);
     }
   };
 
@@ -451,7 +455,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
                 >
-                  <option value="">Seleccione un Proovedor</option>
+                  <option value="0">Seleccione un Proovedor</option>
                   {comboProveedor.map((traeProveedor) => (
                     <option key={traeProveedor.rut} value={traeProveedor.rut}>
                       {traeProveedor.nomprov}

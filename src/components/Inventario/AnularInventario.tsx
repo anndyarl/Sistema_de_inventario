@@ -1,17 +1,17 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Table, Row, Col, Pagination, Button, Spinner } from "react-bootstrap";
-import { RootState } from "../../../store";
+import { RootState } from "../../store";
 import { connect } from "react-redux";
-import Layout from "../../../containers/hocs/layout/Layout";
+import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 
-import { InventarioCompleto } from "../ModificarInventario/ModificarInventario";
 import { Eraser, Search } from "react-bootstrap-icons";
-import { obtenerListaInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
-import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
-import MenuInventario from "../../Menus/MenuInventario";
-import SkeletonLoader from "../../Utils/SkeletonLoader";
+import { obtenerListaInventarioActions } from "../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
+import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
+import MenuInventario from "../Menus/MenuInventario";
+import SkeletonLoader from "../Utils/SkeletonLoader";
+import { InventarioCompleto } from "./ModificarInventario";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
@@ -92,13 +92,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
 
     const result = await Swal.fire({
-      icon: "warning",
+      icon: "info",
       title: "Anular Registro",
       text: `Confirma anular el registro Nº ${aF_CLAVE}`,
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Anular",
-
     });
 
     if (result.isConfirmed) {

@@ -20,15 +20,15 @@ interface FormInventarioProps {
   comboOrigenPresupuestosActions: () => void;
   comboModalidad: MODALIDAD[];
   comboModalidadesActions: () => void;
+  comboProveedor: PROVEEDOR[];
+  comboProveedorActions: () => void;
 
   //Trae props combos de Datos_cuenta(formulario 2)
   comboServicio: SERVICIO[];
   comboServicioActions: () => void;
-
   comboBien: BIEN[];
   comboDetalleActions: (bienSeleccionado: string) => void;
-  comboProveedor: PROVEEDOR[];
-  comboProveedorActions: () => void;
+
   token: string | null;
 }
 const Inventario: React.FC<FormInventarioProps> = ({
@@ -44,6 +44,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
   comboDetalleActions,
   comboProveedorActions
 }) => {
+
   useEffect(() => {
     // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
     if (token) {

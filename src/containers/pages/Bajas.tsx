@@ -56,8 +56,8 @@ const Bajas: React.FC = () => {
                     Busque lo sinventarios que han sido dados de baja
                   </Card.Text>
                   <NavLink
-                    key="#"
-                    to="#"
+                    key="BodegaExcluidos"
+                    to="/BodegaExcluidos"
                     className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
                   >
                     Excluir

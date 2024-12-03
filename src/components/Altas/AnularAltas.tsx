@@ -1,18 +1,18 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
-import { RootState } from "../../../store";
+import { RootState } from "../../store";
 import { connect } from "react-redux";
-import Layout from "../../../containers/hocs/layout/Layout";
+import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { Search } from "react-bootstrap-icons";
-import { listaAltasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasActions";
+import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions";
 
-import { obtenerListaAltasActions } from "../../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
-import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
-import MenuAltas from "../../Menus/MenuAltas";
-import { obtenerAltasPorCorrActions } from "../../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
-import SkeletonLoader from "../../Utils/SkeletonLoader";
+import { obtenerListaAltasActions } from "../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
+import { anularAltasActions } from "../../redux/actions/Altas/AnularAltas/anularAltasActions";
+import MenuAltas from "../Menus/MenuAltas";
+import { obtenerAltasPorCorrActions } from "../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
+import SkeletonLoader from "../Utils/SkeletonLoader";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };

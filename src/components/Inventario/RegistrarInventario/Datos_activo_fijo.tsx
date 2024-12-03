@@ -350,54 +350,62 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
     onBack();
   };
 
-  const handleValidar = () => {
+  const handleValidar = async (): Promise<boolean> => {
     const serieVacia = activosFijos.some((activo) => !activo.serie.trim());
 
     if (serieVacia) {
-      Swal.fire({
+      await Swal.fire({
         icon: "warning",
         title: "Serie Faltante",
         text: "Por favor, verifique que todos sus registros contengan su número de serie.",
       });
-      return; // Detener el proceso
+      return false;
     }
 
     if (isRepeatSerie) {
-      Swal.fire({
+      await Swal.fire({
         icon: "warning",
         title: "Serie Duplicada",
         text: "Por favor, verifique que no existan series duplicadas en el registro.",
       });
-      return; // Detener el proceso
+      return false;
     }
 
-    if (pendiente == 0) {
-      Swal.fire({
+    if (pendiente === 0) {
+      const result = await Swal.fire({
         icon: "info",
-        text: "Confirmar el envío del formulario",
+        title: "Confirmar registro",
+        text: "¿Desea registrar el inventario de activos con la información proporcionada?",
         showCancelButton: true,
-        confirmButtonText: "Confirmar y Enviar",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire("Registrado!", "", "success");
-          handleFinalSubmit();
-        }
+        confirmButtonText: "Confirmar y registrar",
+        cancelButtonText: "Cancelar",
       });
+
+      if (result.isConfirmed) {
+        await Swal.fire("Registrado!", "", "success");
+        handleFinalSubmit();  // Función de envío final
+        return true;
+      } else {
+        return false;
+      }
     } else {
-      Swal.fire({
+      const result = await Swal.fire({
         icon: "warning",
         title: "Pendiente",
         text: `Tienes un monto pendiente de $${pendiente}`,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          setMostrarModal(true);
-        }
       });
+
+      if (result.isConfirmed) {
+        setMostrarModal(true);
+      }
+      return false;
     }
   };
 
+
   const handleFinalSubmit = async () => {
     // Combina todos los datos en un solo objeto
+
     const FormulariosCombinados = {
       ...formInventario.datosInventario,
       ...formInventario.datosCuenta,

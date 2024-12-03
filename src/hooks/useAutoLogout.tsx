@@ -24,10 +24,10 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
             Swal.fire({
                 icon: "warning",
                 title: "Su sesión expirará pronto",
-                text: "Si desea continuar presione Si o recargue nuevamente",
+                text: "¿Desea Continuar?",
                 showCancelButton: true,
-                confirmButtonText: "Sí",
-                cancelButtonText: "No",
+                confirmButtonText: "Continuar",
+                cancelButtonText: "Salir",
                 backdrop: true, // Asegura que no se cierre al hacer clic fuera
                 allowOutsideClick: false, // Evita el cierre cuando se haga clic fuera del modal
             }).then((result) => {

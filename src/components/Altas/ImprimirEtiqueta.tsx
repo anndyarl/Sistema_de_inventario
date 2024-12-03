@@ -10,7 +10,8 @@ import { connect } from "react-redux";
 
 import { RootState } from "../../store";
 import { obtenerEtiquetasAltasActions } from "../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
-import { InventarioCompleto } from "../Inventario/ModificarInventario/ModificarInventario";
+import { InventarioCompleto } from "../Inventario/ModificarInventario";
+
 
 interface DatosEtiquetaPrps {
     aF_CODIGO_LARGO: string,
@@ -65,8 +66,11 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
             if (resultado) {
                 Swal.fire({
                     icon: "success",
-                    // title: "Código QR generado correctamente",
-                    text: "Código QR generado correctamente",
+                    title: "QR disponible",
+                    text: "Código QR generado correctamente.",
+                    showCancelButton: true,
+                    showConfirmButton: false,
+                    cancelButtonText: "Cerrar",
                 });
                 setLoading(false);
             } else {
@@ -84,11 +88,11 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
         <Layout>
             <MenuAltas />
             <form onSubmit={handleFormSubmit}>
-                <div className="border-bottom shadow-sm p-4 rounded">
+                <div className="border-bottom shadow-sm p-4 rounded vh-100">
                     <h3 className="form-title fw-semibold border-bottom p-1">Generación código QR</h3>
                     <div className="row justify-content-center">
                         {/* Contenedor de Input */}
-                        <div className="col-12 col-md-6 text-center">
+                        <div className="col-12 col-md-6 text-center" style={{ maxWidth: "300px" }}>
                             <input
                                 aria-label="aF_CLAVE"
                                 type="text"
@@ -121,7 +125,6 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                         {/* Contenedor del QR y sus datos */}
                         {datosEtiqueta.map((traeEtiqueta) => (
                             <div key={traeEtiqueta.aF_CODIGO_LARGO} className="col-12 text-center mt-4">
-                                <p className="fw-semibold border-bottom p-1 w-100"></p>
                                 <h3 className="mb-1 text-semibold">{traeEtiqueta.aF_CODIGO_LARGO}</h3>
                                 <p className="mb-1 text-muted">{traeEtiqueta.aF_DESCRIPCION}</p>
                                 <p className="mb-3 text-muted">{traeEtiqueta.aF_UBICACION}</p>
