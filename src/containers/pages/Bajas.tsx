@@ -2,11 +2,9 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { DashCircle, Exclude } from "react-bootstrap-icons";
+import { Exclude, PlusCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-  return classes.filter(Boolean).join(" ");
-};
+
 const Bajas: React.FC = () => {
 
   const pageVariants = {
@@ -31,10 +29,10 @@ const Bajas: React.FC = () => {
               <Col lg={4} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
-                    <DashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Registrar Bajas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque el activo o los activos que desee dar de Baja
                   </Card.Text>
                   <NavLink
@@ -52,7 +50,7 @@ const Bajas: React.FC = () => {
                     <Exclude className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Bodeja de excluidos</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque lo sinventarios que han sido dados de baja
                   </Card.Text>
                   <NavLink

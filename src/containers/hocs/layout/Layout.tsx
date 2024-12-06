@@ -100,19 +100,15 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
 
           {/* Main Content with Talana-like Transition */}
           <div className="flex-grow-1 p-3 overflow-auto">
-
             {/* <AnimatePresence mode="wait">
                 <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}> */}
-
-
             {children}
-
             {/* </motion.div>
               </AnimatePresence> */}
-
           </div>
         </div>
       </div>
+
     </div>
   );
 };

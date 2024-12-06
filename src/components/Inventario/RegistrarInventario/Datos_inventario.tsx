@@ -94,9 +94,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
   const dispatch = useDispatch<AppDispatch>();
   const [showInput, setShowInput] = useState(false);
-  const [error, setError] = useState<
-    Partial<InventarioProps> & { general?: string; generalTabla?: string }
-  >({});
+  const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");

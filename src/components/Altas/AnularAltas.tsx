@@ -285,7 +285,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
           <Row>
             <Col md={3}>
               <div className="mb-1">
-                <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
+                <label htmlFor="fechaInicio" className="text-muted fw-semibold">Fecha Inicio</label>
                 <input
                   aria-label="fechaInicio"
                   type="date"
@@ -300,7 +300,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                 )}
               </div>
               <div className="mb-1">
-                <label htmlFor="fechaTermino" className="text-muted">Fecha Término</label>
+                <label htmlFor="fechaTermino" className="text-muted fw-semibold">Fecha Término</label>
                 <input
                   aria-label="fechaTermino"
                   type="date"
@@ -318,7 +318,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
             </Col>
             <Col md={2}>
               <div className="mb-1">
-                <label htmlFor="nInventario" className="text-muted">Nº Inventario</label>
+                <label htmlFor="nInventario" className="text-muted fw-semibold">Nº Inventario</label>
                 <input
                   aria-label="nInventario"
                   type="text"

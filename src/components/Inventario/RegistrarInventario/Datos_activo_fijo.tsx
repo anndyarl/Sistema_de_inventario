@@ -686,7 +686,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
               </div>
               <Col md={6}>
                 <div className="mb-1">
-                  <label htmlFor="vidaUtil" className="form-label">
+                  <label htmlFor="vidaUtil" className="text-muted fw-semibold">
                     Vida Útil
                   </label>
                   <input
@@ -705,7 +705,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="fechaIngreso" className="form-label">
+                  <label htmlFor="fechaIngreso" className="text-muted fw-semibold">
                     Fecha Ingreso
                   </label>
                   <input
@@ -723,7 +723,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="marca" className="form-label">
+                  <label htmlFor="marca" className="text-muted fw-semibold">
                     Marca
                   </label>
                   <input
@@ -742,7 +742,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="modelo" className="form-label">
+                  <label htmlFor="modelo" className="text-muted fw-semibold">
                     Modelo
                   </label>
                   <input
@@ -762,7 +762,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
               </Col>
               <Col md={6}>
                 <div className="mb-1">
-                  <label htmlFor="precio" className="form-label">
+                  <label htmlFor="precio" className="text-muted fw-semibold">
                     Precio
                   </label>
                   <input
@@ -781,7 +781,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="cantidad" className="form-label">
+                  <label htmlFor="cantidad" className="text-muted fw-semibold">
                     Cantidad
                   </label>
                   <input
@@ -798,9 +798,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     <div className="invalid-feedback">{error.cantidad}</div>
                   )}
                 </div>
-
                 <div className="mb-1">
-                  <label htmlFor="observaciones" className="form-label">
+                  <label htmlFor="observaciones" className="text-muted fw-semibold">
                     Observaciones
                   </label>
                   <textarea

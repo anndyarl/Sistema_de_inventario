@@ -1,26 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
-import { Sun, Moon, LogOut, User2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Sun, Moon, LogOut, UserCircle, Bitcoin } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
 import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers";
 import { logout } from "../../redux/actions/auth/auth";
 import { Navigate, NavLink } from "react-router-dom";
-import { Building, Coin, Gear, Geo } from "react-bootstrap-icons";
+import { Building, Coin, CurrencyBitcoin, CurrencyDollar, Gear, Geo } from "react-bootstrap-icons";
 import ondas from "../../assets/img/ondas.png"
+import { indicadoresActions } from "../../redux/actions/Indicadores/indicadoresActions";
+import { Col, Row } from "react-bootstrap";
+
+export interface IndicadoresProps {
+  valor: number;
+}
 interface ProfileProps {
   // onToggleDarkMode: () => void;
   // isDarkMode: boolean;
   logout: () => Promise<boolean>;
+  indicadoresActions: () => Promise<boolean>;
+  utm: IndicadoresProps;
+  uf: IndicadoresProps;
+  dolar: IndicadoresProps;
+  bitcoin: IndicadoresProps;
 }
 
-const Profile: React.FC<ProfileProps> = ({
-  // onToggleDarkMode,
-  // isDarkMode,
+const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
   logout,
-
+  indicadoresActions,
+  utm,
+  uf,
+  dolar,
+  bitcoin
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
@@ -33,6 +46,12 @@ const Profile: React.FC<ProfileProps> = ({
     exit: { opacity: 0, x: 100 }, // Se desvanece hacia la derecha en la salida
   };
 
+  //aqui se hace la petición a la api mindicador.cl
+  useEffect(() => {
+    indicadoresActions();
+  }, [indicadoresActions]);
+
+
   const panelTransition = {
     type: "tween",
     easeOut: [0, 0, 0.58, 1],
@@ -44,14 +63,15 @@ const Profile: React.FC<ProfileProps> = ({
       return <Navigate to="/" />;
     }
   };
+
   return (
     <>
-      <button type="button" onClick={togglePanel} className="btn btn-outline-light text-black w-100 ">
-        <User2
-          className={classNames("flex-shrink-0", "h-3 w-3")}
+      <button type="button" onClick={togglePanel} className="btn btn-outline-light text-black w-100">
+        <UserCircle
+          className={classNames("mx-1 text-primary", "flex-shrink-0", "h-5 w-5")}
           aria-hidden="true"
         />
-        <span className="font-bold ">Andy Riquelme  </span>
+        <span className="font-bold fs-6" >Andy Riquelme</span>
       </button >
       <AnimatePresence >
         {isOpen && (
@@ -67,12 +87,36 @@ const Profile: React.FC<ProfileProps> = ({
             <motion.div onClick={(e) => e.stopPropagation()}>
               <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0 text-white close-btn" onClick={togglePanel}>×</button>
               <h3 className="fw-semibold  p-1 text-center border-bottom text-white">Andy Riquelme</h3>
-              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                <strong> <Coin
-                  className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                  aria-hidden="true"
-                />UTM: </strong> $47.396
-              </p>
+              <Row>
+                <Col>
+                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                    <strong> <Coin
+                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />UTM: </strong>${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                  </p>
+                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                    <strong> <Coin
+                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />UF: </strong>${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                  </p>
+                </Col>
+                <Col>
+                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                    <strong> <CurrencyDollar
+                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />Dólar: </strong>${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                  </p>
+                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                    <strong> <CurrencyBitcoin
+                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />Bitcoin: </strong>${bitcoin.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                  </p>
+                </Col>
+              </Row>
               <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
                 <strong> <Building
                   className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
@@ -155,8 +199,13 @@ const Profile: React.FC<ProfileProps> = ({
 //mapea los valores del estado global de Redux
 const mapStateToProps = (state: RootState) => ({
   logout: state.loginReducer.logout,
+  utm: state.indicadoresReducers.utm,
+  uf: state.indicadoresReducers.uf,
+  dolar: state.indicadoresReducers.dolar,
+  bitcoin: state.indicadoresReducers.bitcoin
 });
 
 export default connect(mapStateToProps, {
   logout,
+  indicadoresActions
 })(Profile);

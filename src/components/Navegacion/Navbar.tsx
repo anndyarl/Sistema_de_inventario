@@ -18,11 +18,13 @@ function Navbar() {
         { name: 'Bienes de Funcionarios', path: '/FormBienesFuncionarios', keywords: ['bienes', 'crear bienes'] },
         { name: 'Carga Masiva', path: '/CargaMasiva' },
         { name: 'Traslados', path: '/Traslados' },
+        { name: 'Registrar Traslados', path: '/RegistrarTraslados' },
         { name: 'Altas', path: '/Altas' },
         { name: 'Registrar Altas', path: '/RegistrarAltas' },
         { name: 'Anular Altas', path: '/AnularAltas' },
         { name: 'Imprimir Etiqueta', path: '/ImprimirEtiqueta', keywords: ['qr', 'Etiquetas', 'Imprimir', 'generar'] },
         { name: 'Bajas', path: '/Bajas' },
+        { name: 'Bodega de exluidos', path: '/BodegaExcluidos' },
         { name: 'Donaciones', path: '/Donaciones' },
         { name: 'Informes', path: '/Informes' }
 
@@ -70,16 +72,16 @@ function Navbar() {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-        <nav id="navbar" className="navbar navbar-expand-lg navbar-light  justify-content-end">
-            <div className="d-flex align-items-center ">
+        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end">
+            <div className="d-flex align-items-center">
                 <Search
                     className={classNames("mx-2 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
                 />
                 <input
                     type="text"
-                    className="form-control"
-                    placeholder="Buscar..."
+                    className="form-control rounded-4"
+                    placeholder="Buscar"
                     value={search}
                     size={40}
                     onChange={(e) => setSearch(e.target.value)}
@@ -87,11 +89,11 @@ function Navbar() {
                 {search && (
                     <ul
                         className="position-absolute mx-5 mt-4 top-50 z-3 bg-white rounded shadow list-group list-group-flush overflow-auto"
-                        style={{ maxHeight: '200px' }}>
+                        style={{ maxHeight: '250px', width: "290px" }}>
                         {filteredRoutes.map((route) => (
                             <li
                                 key={route.path}
-                                className="list-group-item list-group-item-action"
+                                className="list-group-item list-group-item-action "
                                 onClick={() => handleSelectRoute(route.path)}
                             >
                                 {route.name}
@@ -99,7 +101,7 @@ function Navbar() {
                         ))}
                     </ul>
                 )}
-                <div className='w-100 ms-3'>
+                <div className='w-75'>
                     <Profile />
                 </div>
             </div>

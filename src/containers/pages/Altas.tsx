@@ -114,7 +114,7 @@ const Altas: React.FC = () => {
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold"> Registrar Altas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque el activo o los activos que desee dar de Alta
                   </Card.Text>
                   <NavLink
@@ -132,7 +132,7 @@ const Altas: React.FC = () => {
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold"> Anular Altas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque el activo o los activos de altas que desee anular
                   </Card.Text>
                   <NavLink
@@ -150,7 +150,7 @@ const Altas: React.FC = () => {
                     <Printer className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Imprimir Etiquetas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque y genere un codigo QR de los inventarios de altas
                   </Card.Text>
                   <NavLink

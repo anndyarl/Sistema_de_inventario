@@ -10,7 +10,7 @@ const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(' ');
 };
 
-interface NavItem {
+export interface NavItem {
   name: string;
   href: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -38,7 +38,7 @@ const Sidebar: React.FC = () => {
     <nav className="flex-grow-1 ">
       <div className="d-flex position-absolute mx-2 top-0 w-50 ">
         <div className="text-bg-primary p-1 flex-grow-1"></div>
-        <div className="text-bg-danger p-1 flex-grow-1"></div>
+        <div className="text-bg-danger p-1 flex-grow-1 w-25"></div>
       </div>
       <div className="text-center text-white m-4">
         <NavLink className="navbar-brand fw-semibold fs-5" to="/Inicio">SSMSO</NavLink>

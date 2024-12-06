@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Card, Row, Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { Plus, Pencil, Trash, Box, Arrows, FileText, PencilFill, PlusCircle, DatabaseAdd, BoxSeam, SlashCircle } from "react-bootstrap-icons";
+import { PencilFill, PlusCircle, BoxSeam, SlashCircle } from "react-bootstrap-icons";
 import Layout from "../hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "../../components/Inventario/RegistrarInventario/Datos_inventario";
 import { BIEN, SERVICIO } from "../../components/Inventario/RegistrarInventario/Datos_cuenta";
@@ -233,7 +233,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Registrar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Complete el registro de un nuevo inventario en tres sencillos pasos.
                   </Card.Text>
                   <NavLink
@@ -251,7 +251,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                     <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Modificar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Encuentre y modifique el inventario existente.
                   </Card.Text>
                   <NavLink
@@ -269,7 +269,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Anular Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Para anular un inventario, búsquelo previamente por fecha de
                     inicio y término.
                   </Card.Text>
@@ -288,7 +288,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                     <BoxSeam className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold"> Bienes de Funcionarios</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Registre los bienes asignados a funcionarios.
                   </Card.Text>
                   <NavLink
@@ -306,7 +306,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                     <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Carga Masiva</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Adjunte el documento correspondiente para la carga masiva del inventario
                   </Card.Text>
                   <NavLink

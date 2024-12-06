@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 
 import AnimatedRoutes from './containers/hocs/routes/Routes';
 import { PersistGate } from 'redux-persist/integration/react';
-
 const App: React.FC = () => {
   return (
     <HelmetProvider>
@@ -20,16 +19,15 @@ const App: React.FC = () => {
         <meta name="publisher" content="SSMSO" />
 
         {/* Social Media Tags */}
-        <meta property="og:title" content="Sistema de Inventario | Inicio" />
+        <meta property="og:title" content="Sistema de Inventario" />
         <meta property="og:description" content="Sistema de Inventario" />
         <meta property="og:url" content="https://www.ssmso.cl" />
         {/* <meta property="og:image" content="https://bafybeicwrhxloesdlojn3bxyjqnxgsagtd4sl53a7t4cn4vfe2abmybzua.ipfs.w3s.link/lightbnuilbg.jpg" /> */}
 
-        <meta name="twitter:title" content="Sistema de Inventario | Inicio" />
+
         <meta name="twitter:description" content="Sistema de Inventario" />
         {/* <meta name="twitter:image" content="https://bafybeicwrhxloesdlojn3bxyjqnxgsagtd4sl53a7t4cn4vfe2abmybzua.ipfs.w3s.link/lightbnuilbg.jpg" /> */}
         <meta name="twitter:card" content="summary_large_image" />
-
       </Helmet>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>

@@ -89,14 +89,9 @@ interface InventarioCompletoProps {
   comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   obtenerInventarioActions: (aF_CLAVE: string) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
-  comboListadoDeEspeciesBienActions: (
-    EST: number,
-    IDBIEN: string
-  ) => Promise<void>;
+  comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
   comboCuentaActions: (nombreEspecie: string) => void;
-  modificarFormInventarioActions: (
-    formInventario: Record<string, any>
-  ) => Promise<Boolean>;
+  modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
 }
 
@@ -149,8 +144,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       .toISOString()
       .split("T")[0]
     : "";
-  const modalidadDeCompra =
-    datosInventarioCompleto[index]?.idmodalidadcompra || 0;
+  const modalidadDeCompra = datosInventarioCompleto[index]?.idmodalidadcompra || 0;
   const montoRecepcion = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0;
   const nFactura = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
   const nOrdenCompra = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0; //falta

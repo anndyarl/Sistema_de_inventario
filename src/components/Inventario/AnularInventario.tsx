@@ -151,7 +151,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
           <Row>
             <Col md={5}>
               <div className="p-2 w-100">
-                <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
+                <label htmlFor="fechaInicio" className="text-muted fw-semibold">Fecha Inicio</label>
                 <div className=" d-flex mb-2 w-100 ">
                   <input
                     id="fechaInicio"
@@ -191,7 +191,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                 )}
               </div>
               <div className="p-2  w-81">
-                <label htmlFor="fechaTermino" className="text-muted">Fecha Término</label>
+                <label htmlFor="fechaTermino" className="text-muted fw-semibold">Fecha Término</label>
                 <input
                   aria-label="Archivo de autorización"
                   type="date"

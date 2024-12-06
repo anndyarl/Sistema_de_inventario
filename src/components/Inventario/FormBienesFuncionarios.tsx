@@ -379,7 +379,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   {selectedFileComprobante ? (
                     <p className="file-name text-primary">{selectedFileComprobante.name}</p>
                   ) : (
-                    <p>
+                    <p className="file-name text-primary">
                       Arrastra y suelta el archivo aquí, o haz clic para
                       seleccionar
                     </p>
@@ -414,9 +414,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   onClick={handleFileSelectAutorizacion}
                 >
                   {selectedFileAutorizacion ? (
-                    <p>{selectedFileAutorizacion.name}</p>
+                    <p className="file-name text-primary">{selectedFileAutorizacion.name}</p>
                   ) : (
-                    <p>
+                    <p className="file-name text-primary">
                       Arrastra y suelta el archivo aquí, o haz clic para
                       seleccionar
                     </p>

@@ -24,11 +24,20 @@ export const listaBajasActions = () => async (dispatch: Dispatch, getState: any)
       // console.log("Respuesta del servidor obtener lista altas:", res);
 
       if (res.status === 200) {
-        dispatch({
-          type: LISTA_BAJAS_SUCCESS,
-          payload: res.data,
-        });
-        return true;
+        if (res.data?.length) {
+          dispatch({
+            type: LISTA_BAJAS_SUCCESS,
+            payload: res.data,
+          });
+          return true;
+        } else {
+          dispatch({
+            type: LISTA_BAJAS_FAIL,
+            error:
+              "Status 200, pero con arreglo de datos vacío",
+          });
+          return false;
+        }
       } else {
         dispatch({
           type: LISTA_BAJAS_FAIL,

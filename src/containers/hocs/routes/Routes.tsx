@@ -32,6 +32,7 @@ import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta';
 import RegistrarBajas from '../../../components/Bajas/RegistrarBajas';
 import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
+import RegistrarTraslados from '../../../components/Traslados/RegistrarTraslados';
 
 
 const AnimatedRoutes: React.FC = () => {
@@ -70,6 +71,7 @@ const AnimatedRoutes: React.FC = () => {
 
                 {/* Fin Menu Inventario */}
                 <Route path="/Traslados" element={<Traslados />} />
+                <Route path="/RegistrarTraslados" element={<RegistrarTraslados />} />
                 {/* Módulo Altas */}
                 <Route path="/Altas" element={<Altas />} />
                 <Route path="/RegistrarAltas" element={<RegistrarAltas />} />

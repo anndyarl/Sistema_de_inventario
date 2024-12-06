@@ -24,11 +24,20 @@ export const listaAltasActions = () => async (dispatch: Dispatch, getState: any)
       // console.log("Respuesta del servidor obtener lista altas:", res);
 
       if (res.status === 200) {
-        dispatch({
-          type: LISTA_ALTAS_SUCCESS,
-          payload: res.data,
-        });
-        return true;
+        if (res.data?.length) {
+          dispatch({
+            type: LISTA_ALTAS_SUCCESS,
+            payload: res.data,
+          });
+          return true;
+        } else {
+          dispatch({
+            type: LISTA_ALTAS_FAIL,
+            error:
+              "Status 200, pero con arreglo de datos vacío",
+          });
+          return false;
+        }
       } else {
         dispatch({
           type: LISTA_ALTAS_FAIL,
@@ -38,7 +47,7 @@ export const listaAltasActions = () => async (dispatch: Dispatch, getState: any)
         return false;
       }
     } catch (err) {
-      console.error("Error en la solicitud:", err);
+      // console.error("Error en la solicitud:", err);
       dispatch({
         type: LISTA_ALTAS_FAIL,
         error: "Error en la solicitud. Por favor, intente nuevamente.",

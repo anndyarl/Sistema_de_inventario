@@ -19,3 +19,4 @@ bootstrap@5.3.3
 react-bootstrap bootstrap
 sweetalert2@11.14.2
 qrcode.react@4.1.0
+rut.js

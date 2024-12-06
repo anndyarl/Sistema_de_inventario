@@ -6,7 +6,6 @@ import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { Search } from "react-bootstrap-icons";
-
 import SkeletonLoader from "..//Utils/SkeletonLoader";
 import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions";
 import MenuBajas from "../Menus/MenuBajas";
@@ -46,7 +45,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
 
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [loadingAnular, setLoadingAnular] = useState(false);
+  const [loadingExcluir, setLoadingExcluir] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
@@ -111,7 +110,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
     }));
   };
 
-  const handleBuscarAltas = async () => {
+  const handleBuscarBajas = async () => {
     let resultado = false;
 
     setLoading(true);
@@ -164,7 +163,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
     }
   };
 
-  const handleAnularSeleccionados = async () => {
+  const handleExcluirSeleccionados = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
@@ -174,18 +173,18 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
     });
     const result = await Swal.fire({
       icon: "info",
-      title: "Anular Altas",
+      title: "Excluir Bajas",
       text: `Confirme para excluir las Bajas seleccionadas`,
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Confirmar y Anular",
+      confirmButtonText: "Confirmar y excluir",
       confirmButtonColor: '#dc3545',
     });
 
     // selectedIndices.map(async (index) => {
 
     if (result.isConfirmed) {
-      setLoadingAnular(true);
+      setLoadingExcluir(true);
       // const elemento = listaAltas[index].aF_CLAVE;
       // console.log("despues del confirm elemento", elemento);
 
@@ -200,19 +199,19 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
       if (resultado) {
         Swal.fire({
           icon: "success",
-          title: "Altas anuladas",
-          text: `Se han anulado correctamente las altas seleccionadas`,
+          title: "Bajas Excluidas",
+          text: `Se han excluido correctamente las bajas seleccionadas`,
         });
-        setLoadingAnular(false);
+        setLoadingExcluir(false);
         listaBajasActions();
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
           icon: "error",
           title: ":'(",
-          text: `Hubo un problema al anular las Altas`,
+          text: `Hubo un problema al excluir las bajas`,
         });
-        setLoadingAnular(false);
+        setLoadingExcluir(false);
       }
 
     }
@@ -279,7 +278,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
           <Row>
             <Col md={3}>
               <div className="mb-1">
-                <label htmlFor="fechaInicio" className="text-muted">Fecha Inicio</label>
+                <label htmlFor="fechaInicio" className="text-muted fw-semibold">Fecha Inicio</label>
                 <input
                   aria-label="fechaInicio"
                   type="date"
@@ -294,7 +293,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                 )}
               </div>
               <div className="mb-1">
-                <label htmlFor="fechaTermino" className="text-muted">Fecha Término</label>
+                <label htmlFor="fechaTermino" className="text-muted fw-semibold">Fecha Término</label>
                 <input
                   aria-label="fechaTermino"
                   type="date"
@@ -310,21 +309,9 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
               </div>
 
             </Col>
-            <Col md={2}>
-              <div className="mb-1">
-                <label htmlFor="nInventario" className="text-muted">Nº Inventario</label>
-                <input
-                  aria-label="nInventario"
-                  type="text"
-                  className='form-control'
-                  name="aF_CLAVE"
-                  onChange={handleChange}
-                  value={Inventario.aF_CLAVE}
-                />
-              </div></Col>
             <Col md={5}>
               <div className="mb-1 mt-4">
-                <Button onClick={handleBuscarAltas} variant="primary" className="ms-1">
+                <Button onClick={handleBuscarBajas} variant="primary" className="ms-1">
                   {loading ? (
                     <>
                       <Spinner
@@ -347,13 +334,13 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
             {filasSeleccionadas.length > 0 ? (
               <Button
                 variant="danger"
-                onClick={handleAnularSeleccionados}
+                onClick={handleExcluirSeleccionados}
                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loadingAnular}  // Desactiva el botón mientras carga
+                disabled={loadingExcluir}  // Desactiva el botón mientras carga
               >
-                {loadingAnular ? (
+                {loadingExcluir ? (
                   <>
-                    {" Anulando... "}
+                    {" Excluyendo... "}
                     <Spinner
                       as="span"
                       animation="border"
@@ -366,17 +353,17 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                   </>
                 ) : (
                   <>
-                    Anular{" "}
+                    Excluir{" "}
                     <span className="badge bg-light text-dark mx-2">
                       {filasSeleccionadas.length}
                     </span>{" "}
-                    {filasSeleccionadas.length === 1 ? "Alta seleccionada" : "Altas seleccionadas"}
+                    {filasSeleccionadas.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"}
                   </>
                 )}
               </Button>
             ) : (
               <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                No hay altas seleccionadas para anular
+                No hay bajas seleccionadas para excluir
               </strong>
             )}
           </div>

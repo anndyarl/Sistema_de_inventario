@@ -269,7 +269,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
           <Row>
             <Col md={6}>
               <div className="mb-1">
-                <label className="text-muted">Servicio</label>
+                <label className="text-muted fw-semibold">Servicio</label>
                 <select
                   aria-label="servicio"
                   className={`form-select ${error.servicio ? "is-invalid" : ""
@@ -293,7 +293,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted">Dependencia</label>
+                <label className="text-muted fw-semibold">Dependencia</label>
                 <select
                   aria-label="dependencia"
                   className={`form-select ${error.dependencia ? "is-invalid" : ""
@@ -320,7 +320,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             </Col>
             <Col md={6}>
               <div className="mb-1">
-                <label className="text-muted">Especie</label>
+                <label className="text-muted fw-semibold">Especie</label>
                 <dd className="d-flex align-items-center">
                   <input
                     aria-label="especie"
@@ -355,7 +355,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted">Cuenta</label>
+                <label className="text-muted fw-semibold">Cuenta</label>
                 <select
                   aria-label="cuenta"
                   className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
@@ -402,7 +402,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
               <Col md={12}>
                 <div className="d-flex justify-content-between">
                   <div className="mb-1 w-50">
-                    <label className="text-muted">Bien</label>
+                    <label className="text-muted fw-semibold">Bien</label>
                     <dd className="d-flex align-items-center">
                       <select
                         aria-label="bien"
@@ -429,7 +429,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                   </div>
                 </div>
                 <div className="mb-1 w-50">
-                  <label className="text-muted">Detalles</label>
+                  <label className="text-muted fw-semibold">Detalles</label>
                   <dd className="d-flex align-items-center">
                     <select
                       aria-label="detalles"

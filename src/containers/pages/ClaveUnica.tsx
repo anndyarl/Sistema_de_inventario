@@ -95,13 +95,13 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
                 Sistema de apoyo en la gestión administrativa
               </p> */}
             </div>
-            <div className="row align-items-center justify-content-center h-50 p-5">
+            <div className="row align-items-center justify-content-center h-50 p-1">
               <div className="w-100">
-                <h3 className="text-muted border-bottom text-center p-1"> Sistema de apoyo en la gestión administrativa</h3>
-                <p className="text-muted fs-09em ">
+                <h3 className="text-muted border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
+                <p className="text-muted fs-09em mb-4">
                   Servicio de Salud Metropolitano Sur Oriente
                 </p>
-                <div className="mb-4 text-center">
+                <div className="text-center mb-4 ">
                   <a href="/Login" className="btn btn-primary btn-lg btn-block">
                     Clave Única demo
                   </a>
@@ -123,7 +123,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
           <div className="col-sm-6 px-0 d-none d-sm-block">
             <div className="d-flex position-absolute mx-5 w-25">
               <div className="text-bg-primary p-1 flex-grow-1"></div>
-              <div className="text-bg-danger p-1 flex-grow-1"></div>
+              <div className="text-bg-danger p-1 flex-grow-1 w-25"></div>
             </div>
             <div className="bg-color position-values-1">
               <img

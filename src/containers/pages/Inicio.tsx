@@ -30,7 +30,7 @@ const Inicio: React.FC = () => {
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Registrar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Complete el registro de un nuevo inventario en tres sencillos pasos.
                   </Card.Text>
                   <NavLink
@@ -48,7 +48,7 @@ const Inicio: React.FC = () => {
                     <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Modificar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Encuentre y modifique el inventario existente.
                   </Card.Text>
                   <NavLink
@@ -66,7 +66,7 @@ const Inicio: React.FC = () => {
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Anular Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Para anular un inventario, búsquelo previamente por fecha de
                     inicio y término.
                   </Card.Text>
@@ -85,7 +85,7 @@ const Inicio: React.FC = () => {
                     <BoxSeam className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold"> Bienes de Funcionarios</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Registre los bienes asignados a funcionarios.
                   </Card.Text>
                   <NavLink
@@ -103,7 +103,7 @@ const Inicio: React.FC = () => {
                     <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Carga Masiva</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Adjunte el documento correspondiente para la carga masiva del inventario
                   </Card.Text>
                   <NavLink
@@ -121,7 +121,7 @@ const Inicio: React.FC = () => {
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold"> Registrar Altas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque el activo o los activos que desee dar de Alta
                   </Card.Text>
                   <NavLink
@@ -139,7 +139,7 @@ const Inicio: React.FC = () => {
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold"> Anular Altas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque el activo o los activos de altas que desee anular
                   </Card.Text>
                   <NavLink
@@ -157,7 +157,7 @@ const Inicio: React.FC = () => {
                     <Printer className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Imprimir Etiquetas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque y genere un codigo QR de los inventarios de altas
                   </Card.Text>
                   <NavLink
@@ -175,7 +175,7 @@ const Inicio: React.FC = () => {
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold"> Registrar Bajas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1">
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque el activo o los activos que desee dar de Bajas
                   </Card.Text>
                   <NavLink
