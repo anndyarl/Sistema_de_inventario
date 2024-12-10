@@ -1,44 +1,54 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Sun, Moon, LogOut, UserCircle, Bitcoin } from "lucide-react";
+import { Sun, Moon, LogOut, UserCircle } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { RootState } from "../../redux/reducers";
 import { logout } from "../../redux/actions/auth/auth";
 import { Navigate, NavLink } from "react-router-dom";
 import { Building, Coin, CurrencyBitcoin, CurrencyDollar, Gear, Geo } from "react-bootstrap-icons";
 import ondas from "../../assets/img/ondas.png"
-import { indicadoresActions } from "../../redux/actions/Indicadores/indicadoresActions";
+import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
 import { Col, Row } from "react-bootstrap";
-
+import { darkModeActions } from "../../redux/actions/Otros/darkModeActions";
 export interface IndicadoresProps {
   valor: number;
+
 }
 interface ProfileProps {
-  // onToggleDarkMode: () => void;
-  // isDarkMode: boolean;
   logout: () => Promise<boolean>;
   indicadoresActions: () => Promise<boolean>;
   utm: IndicadoresProps;
   uf: IndicadoresProps;
   dolar: IndicadoresProps;
   bitcoin: IndicadoresProps;
+  ipc: IndicadoresProps;
+  isDarkMode: boolean;
 }
 
-const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
+const Profile: React.FC<ProfileProps> = ({
   logout,
   indicadoresActions,
   utm,
   uf,
   dolar,
-  bitcoin
+  bitcoin,
+  ipc,
+  isDarkMode
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
+  };
+  const dispatch = useDispatch();
+  const [darkMode, setDarkMode] = useState(false);
+
+  const onToggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode);
+    dispatch(darkModeActions());
   };
   const panelVariants = {
     initial: { opacity: 0, x: 100 }, // Comienza con transparencia y desplazamiento desde la izquierda
@@ -48,14 +58,16 @@ const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
 
   //aqui se hace la petición a la api mindicador.cl
   useEffect(() => {
-    indicadoresActions();
+    if (uf.valor === 0 || utm.valor === 0 || dolar.valor === 0 || bitcoin.valor === 0 || ipc.valor === 0) {
+      indicadoresActions();
+    }
   }, [indicadoresActions]);
 
 
   const panelTransition = {
     type: "tween",
     easeOut: [0, 0, 0.58, 1],
-    duration: 0.2,
+    duration: 0.3,
   };
   const handleLogout = async () => {
     let resultado = await logout();
@@ -66,17 +78,17 @@ const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
 
   return (
     <>
-      <button type="button" onClick={togglePanel} className="btn btn-outline-light text-black w-100">
+      <button type="button" onClick={togglePanel} className="btn btn-outline-secondary w-100 border-0  mx-1">
         <UserCircle
-          className={classNames("mx-1 text-primary", "flex-shrink-0", "h-5 w-5")}
+          className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
           aria-hidden="true"
         />
-        <span className="font-bold fs-6" >Andy Riquelme</span>
+        <span className={`font-bold fs-6 ${isDarkMode ? "text-white" : ""}`} >Andy Riquelme</span>
       </button >
       <AnimatePresence >
         {isOpen && (
           <motion.div
-            className="slide-panel-overlay slide-panel bg-color color-white"
+            className={`slide-panel-overlay slide-panel ${isDarkMode ? "bg-color-dark" : "bg-color"} color-white`}
             initial="initial"
             animate="animate"
             exit="exit"
@@ -87,7 +99,7 @@ const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
             <motion.div onClick={(e) => e.stopPropagation()}>
               <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0 text-white close-btn" onClick={togglePanel}>×</button>
               <h3 className="fw-semibold  p-1 text-center border-bottom text-white">Andy Riquelme</h3>
-              <Row>
+              <Row className="g-1">
                 <Col>
                   <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
                     <strong> <Coin
@@ -109,12 +121,18 @@ const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
                       aria-hidden="true"
                     />Dólar: </strong>${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
                   </p>
-                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                  <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
+                    <strong> <Coin
+                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />IPC: </strong>{ipc.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}%
+                  </p>
+                  {/* <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
                     <strong> <CurrencyBitcoin
                       className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                       aria-hidden="true"
                     />Bitcoin: </strong>${bitcoin.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
-                  </p>
+                  </p> */}
                 </Col>
               </Row>
               <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
@@ -139,6 +157,36 @@ const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
                   aria-hidden="true"
                 />Configuración</strong>
               </NavLink>
+
+              <div className="d-flex justify-content-around align-content-center m-2">
+                <p className="navbar-nav nav-item nav-link mb-1">
+                  <strong className="text-white">Modo </strong>
+                </p>
+                <div className={`button-moon-sun w-50  ${isDarkMode ? "bg-primary" : "bg-warning"}`}>
+                  <motion.div
+                    className="icon-moon-sun "
+                    style={{
+                      transform: isDarkMode
+                        ? "translateX(330%)"
+                        : "translateX(10%)",
+                    }}
+                    aria-hidden="true"
+                  >
+                    {isDarkMode ? (
+                      <Moon className="text-dark" size={18} />
+                    ) : (
+                      <Sun className="text-dark" size={18} />
+                    )}
+                  </motion.div>
+                  <button onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent text-dark"
+                    aria-label={
+                      darkMode
+                        ? "Cambiar a modo claro"
+                        : "Cambiar a modo oscuro"
+                    }
+                  ></button>
+                </div>
+              </div>
               <button onClick={handleLogout} type="button" className="btn btn-outline-light w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
                 Cerrar Sesión
                 <LogOut
@@ -146,7 +194,7 @@ const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
                   aria-hidden="true"
                 />
               </button>
-              <div className="bg-color position-values-4">
+              <div className="position-values-4">
                 <img
                   src={ondas}
                   alt="ondas"
@@ -155,37 +203,6 @@ const Profile: React.FC<ProfileProps> = ({  // onToggleDarkMode,  // isDarkMode,
                 />
               </div>
 
-              {/* <div className="d-flex justify-content-around align-content-center ">
-              <p className="navbar-nav nav-item nav-link mb-1">
-                <strong>Modo </strong>
-              </p>
-              <div className={`button-moon-sun w-50  ${isDarkMode ? "bg-primary" : "bg-warning"}`}>
-                <motion.div
-                  className="icon-moon-sun "
-                  style={{
-                    transform: isDarkMode
-                      ? "translateX(330%)"
-                      : "translateX(10%)",
-                  }}
-                  aria-hidden="true"
-                >
-                  {isDarkMode ? (
-                    <Moon className="text-dark" size={18} />
-                  ) : (
-                    <Sun className="text-dark" size={18} />
-                  )}
-                </motion.div>
-                <button
-                  onClick={onToggleDarkMode}
-                  className="w-100 h-100 border-0 bg-transparent text-dark"
-                  aria-label={
-                    isDarkMode
-                      ? "Cambiar a modo claro"
-                      : "Cambiar a modo oscuro"
-                  }
-                ></button>
-              </div>
-            </div> */}
 
             </motion.div>
           </motion.div>
@@ -202,10 +219,12 @@ const mapStateToProps = (state: RootState) => ({
   utm: state.indicadoresReducers.utm,
   uf: state.indicadoresReducers.uf,
   dolar: state.indicadoresReducers.dolar,
-  bitcoin: state.indicadoresReducers.bitcoin
+  bitcoin: state.indicadoresReducers.bitcoin,
+  ipc: state.indicadoresReducers.ipc,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {
   logout,
-  indicadoresActions
+  indicadoresActions,
 })(Profile);

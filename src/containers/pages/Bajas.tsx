@@ -4,8 +4,13 @@ import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { Exclude, PlusCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
+import { RootState } from "../../store";
+import { connect } from "react-redux";
 
-const Bajas: React.FC = () => {
+interface Props {
+  isDarkMode: boolean;
+}
+const Bajas: React.FC<Props> = ({ isDarkMode }) => {
 
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
@@ -27,7 +32,7 @@ const Bajas: React.FC = () => {
           <div className="container mt-2">
             <Row className="g-1">
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -42,10 +47,10 @@ const Bajas: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <Exclude className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -60,7 +65,7 @@ const Bajas: React.FC = () => {
                   >
                     Excluir
                   </NavLink>
-                </Card>
+                </div>
               </Col>
             </Row>
           </div>
@@ -70,4 +75,10 @@ const Bajas: React.FC = () => {
   );
 };
 
-export default Bajas;
+const mapStateToProps = (state: RootState) => ({
+  isDarkMode: state.darkModeReducer.isDarkMode
+});
+
+export default connect(mapStateToProps, {
+})(Bajas);
+

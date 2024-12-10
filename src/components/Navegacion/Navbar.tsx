@@ -2,11 +2,16 @@ import React, { useEffect, useState } from 'react';
 import Profile from './Profile';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'react-bootstrap-icons';
+import { RootState } from '../../store';
+import { connect } from 'react-redux';
+import { darkModeActions } from '../../redux/actions/Otros/darkModeActions';
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
-
-function Navbar() {
+interface DarkMode {
+    isDarkMode: boolean;
+}
+const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
     const [search, setSearch] = useState('');
     const navigate = useNavigate();
 
@@ -58,6 +63,8 @@ function Navbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    console.log("isDarkMode", isDarkMode)
+
     // const searchRoutes = (query: string) => {
     //     return routes.filter(route =>
     //         route.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -72,8 +79,9 @@ function Navbar() {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-        <nav id="navbar" className="navbar navbar-expand-lg navbar-light justify-content-end">
-            <div className="d-flex align-items-center">
+        <nav id="navbar" className={`navbar navbar-expand-lg justify-content-end rounded-3 shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+
+            <div className="d-flex align-items-center ">
                 <Search
                     className={classNames("mx-2 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
@@ -107,8 +115,14 @@ function Navbar() {
             </div>
 
         </nav >
-
     );
 }
 
-export default Navbar;
+//mapea los valores del estado global de Redux
+const mapStateToProps = (state: RootState) => ({
+    isDarkMode: state.darkModeReducer.isDarkMode
+});
+
+export default connect(mapStateToProps, {
+    darkModeActions
+})(Navbar);

@@ -26,7 +26,7 @@ const Traslados: React.FC = () => {
           <div className="container mt-2">
             <Row className="g-1">
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -41,7 +41,7 @@ const Traslados: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
             </Row>
           </div>

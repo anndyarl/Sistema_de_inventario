@@ -1,5 +1,6 @@
 html {
   overflow-y: scroll; /* Fuerza la barra de scroll */
+ 
 }
 body{
   font-family: "Roboto";
@@ -9,7 +10,11 @@ body::-webkit-scrollbar {
 }
 
 .bg-color{
-    background:  linear-gradient(30.09deg, #0d4582 0%, #0d4582 176.73%)  
+    background:  #0d4582  ;
+}
+
+.bg-color-dark{
+  background:  #1e3855  ;
 }
 
 .fixed-width {
@@ -17,12 +22,9 @@ body::-webkit-scrollbar {
    
   }
 
-.navbar-header{
-    /* box-shadow: 1px 1px 1px 1px rgba(12, 12, 12, 0.2); */
-    border-radius: 0.1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+.nav{
+  border-color: #2b3035;
 }
-
 /* Tablas */
 
   th, td { 
@@ -54,4 +56,23 @@ body::-webkit-scrollbar {
   z-index:0;
  }
 
- 
+ .darkModePrincipal {
+  background-color: #30353a;
+  color: white;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave */
+}
+
+.form-control-dark {
+  background-color: #2b3035;
+  color: white;
+  font-size: bold;
+  border: 1px solid #444;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 6px;
+  padding-bottom: 6px;
+  padding-left: 12px;
+  padding-top: 6px;
+}
+.form-control-dark:focus {
+  border: none !important;
+}

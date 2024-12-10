@@ -31,8 +31,7 @@ export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (di
       } else {
         dispatch({
           type: ANULAR_ALTAS_FAIL,
-          error:
-            "No se pudo anular la alta seleccionada. Por favor, intente nuevamente.",
+          error: "No se pudo anular la alta seleccionada. Por favor, intente nuevamente.",
         });
         return false;
       }

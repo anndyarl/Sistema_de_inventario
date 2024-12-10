@@ -15,9 +15,10 @@ interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   token: string | null;
+  isDarkMode: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token, isDarkMode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
@@ -63,9 +64,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className={`d-flex flex-column min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
       {/* Mobile Navbar */}
-      <nav className="navbar navbar-expand-md navbar-light bg-light d-md-none border-bottom">
+      <nav className={`navbar navbar-expand-md ${isDarkMode ? "darkMode" : "navbar-light bg-light"} d-md-none border-bottom`}>
         <div className="container-fluid">
           <button className="navbar-toggler border-bottom" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={24} />
@@ -77,7 +78,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
       <div className="d-flex flex-grow-1">
         {/* Background de Sidebar */}
         <div
-          className={`bg-color sidebar-left ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}
+          className={`${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}
           style={{
             position: isDesktop ? "relative" : "fixed",
             left: isDesktop ? "0" : sidebarOpen ? "0" : "-250px",
@@ -94,12 +95,12 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
           }}
         >
           {/* Desktop Navbar */}
-          <div className="d-none d-md-block navbar-header">
+          <div className="d-none d-md-block mx-2 mt-1 mb-1 rounded-3 ">
             <Navbar />
           </div>
 
           {/* Main Content with Talana-like Transition */}
-          <div className="flex-grow-1 p-3 overflow-auto">
+          <div className={`flex-grow-1 p-3 overflow-auto ${isDarkMode ? "darkModePrincipal" : ""}`}>
             {/* <AnimatePresence mode="wait">
                 <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}> */}
             {children}
@@ -109,13 +110,14 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token }) => 
         </div>
       </div>
 
-    </div>
+    </div >
   );
 };
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.loginReducer.isAuthenticated,
-  token: state.loginReducer.token
+  token: state.loginReducer.token,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

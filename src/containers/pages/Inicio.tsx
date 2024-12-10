@@ -4,7 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
 import { BoxSeam, DatabaseAdd, PencilFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
-const Inicio: React.FC = () => {
+import { RootState } from "../../store";
+import { connect } from "react-redux";
+
+interface Props {
+  isDarkMode: boolean;
+}
+
+const Inicio: React.FC<Props> = ({ isDarkMode }) => {
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
     // in: { opacity: 1, scale: 1 },
@@ -25,7 +32,7 @@ const Inicio: React.FC = () => {
           <div className="container">
             <Row className="g-1">
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -40,7 +47,7 @@ const Inicio: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               {/* <Col lg={3} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
@@ -61,7 +68,7 @@ const Inicio: React.FC = () => {
                 </Card>
               </Col> */}
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -77,10 +84,10 @@ const Inicio: React.FC = () => {
                   >
                     Anular
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <BoxSeam className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -95,10 +102,10 @@ const Inicio: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -113,10 +120,10 @@ const Inicio: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -131,10 +138,10 @@ const Inicio: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -149,10 +156,10 @@ const Inicio: React.FC = () => {
                   >
                     Anular
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <Printer className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -167,10 +174,10 @@ const Inicio: React.FC = () => {
                   >
                     Generar
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -185,7 +192,7 @@ const Inicio: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
             </Row>
           </div>
@@ -196,4 +203,11 @@ const Inicio: React.FC = () => {
   );
 };
 
-export default Inicio;
+
+const mapStateToProps = (state: RootState) => ({
+  isDarkMode: state.darkModeReducer.isDarkMode
+});
+
+export default connect(mapStateToProps, {
+
+})(Inicio);

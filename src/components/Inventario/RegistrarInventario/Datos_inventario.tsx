@@ -60,6 +60,7 @@ interface Datos_inventarioProps extends InventarioProps {
   comboProveedor: PROVEEDOR[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
+  isDarkMode: boolean;
 }
 
 // Define el componente `Datos_inventario` del props
@@ -78,6 +79,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   origenPresupuesto,
   rutProveedor,
   datosTablaActivoFijo,
+  isDarkMode,
   obtenerRecepcionActions,
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
@@ -290,12 +292,12 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
           <Row>
             <Col md={4}>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Nº Recepción</label>
+                <label className={`fw-semibold  ${isDarkMode ? "text-white" : "text-muted"}`}> Nº Recepción</label>
                 <div className="d-flex align-items-center">
                   <input
                     aria-label="nRecepcion"
                     type="text"
-                    className={`form-control ${error.nRecepcion ? "is-invalid" : ""
+                    className={` ${isDarkMode ? "form-control-dark" : "form-control"} ${error.nRecepcion ? "is-invalid" : ""
                       } w-100`}
                     maxLength={12}
                     name="nRecepcion"
@@ -525,7 +527,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             </button>
           </div>
         </div>
-      </form>
+      </form >
     </>
   );
 };
@@ -543,7 +545,7 @@ const mapStateToProps = (state: RootState) => ({
   origenPresupuesto: state.obtenerRecepcionReducers.origenPresupuesto,
   rutProveedor: state.obtenerRecepcionReducers.rutProveedor,
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
-
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

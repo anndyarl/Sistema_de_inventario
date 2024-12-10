@@ -28,8 +28,8 @@ interface FormInventarioProps {
   comboServicioActions: () => void;
   comboBien: BIEN[];
   comboDetalleActions: (bienSeleccionado: string) => void;
-
   token: string | null;
+  isDarkMode: boolean;
 }
 const Inventario: React.FC<FormInventarioProps> = ({
   token,
@@ -38,6 +38,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
   comboServicio,
   comboBien,
   comboProveedor,
+  isDarkMode,
   comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboServicioActions,
@@ -228,7 +229,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
 
             <Row className="g-1">
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -243,10 +244,10 @@ const Inventario: React.FC<FormInventarioProps> = ({
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -261,10 +262,10 @@ const Inventario: React.FC<FormInventarioProps> = ({
                   >
                     Modificar
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -280,10 +281,10 @@ const Inventario: React.FC<FormInventarioProps> = ({
                   >
                     Anular
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <BoxSeam className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -298,7 +299,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               {/* <Col lg={4} md={6} sm={12}>
                 <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
@@ -334,7 +335,8 @@ const mapStateToProps = (state: RootState) => ({
   comboCuenta: state.comboCuentaReducer.comboCuenta,
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboBien: state.detallesReducer.comboBien,
-  comboProveedor: state.comboProveedorReducers.comboProveedor
+  comboProveedor: state.comboProveedorReducers.comboProveedor,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

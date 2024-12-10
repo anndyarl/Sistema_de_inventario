@@ -6,6 +6,7 @@ import {
   LISTA_UF_SUCCESS,
   LISTA_DOLAR_SUCCESS,
   LISTA_BITCOIN_SUCCESS,
+  LISTA_IPC_SUCCESS,
   LISTA_INDICADORES_FAIL,
 } from "./types";
 
@@ -18,7 +19,7 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
     const uf = res.data.uf;
     const dolar = res.data.dolar;
     const bitcoin = res.data.bitcoin;
-
+    const ipc = res.data.ipc;
 
     console.log("Respuesta del servidor miidicador:", res.data);
     if (res.status === 200) {
@@ -37,6 +38,10 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
       dispatch({
         type: LISTA_BITCOIN_SUCCESS,
         payload: bitcoin,
+      });
+      dispatch({
+        type: LISTA_IPC_SUCCESS,
+        payload: ipc,
       });
       return true;
     } else {

@@ -4,7 +4,14 @@ import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
-const Altas: React.FC = () => {
+import { connect } from "react-redux";
+import { RootState } from "../../store";
+
+interface Props {
+  isDarkMode: boolean;
+}
+
+const Altas: React.FC<Props> = ({ isDarkMode }) => {
 
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
@@ -109,7 +116,7 @@ const Altas: React.FC = () => {
             </Row>  */}
             <Row className="g-1">
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -124,10 +131,10 @@ const Altas: React.FC = () => {
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -142,10 +149,10 @@ const Altas: React.FC = () => {
                   >
                     Anular
                   </NavLink>
-                </Card>
+                </div>
               </Col>
               <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <Printer className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -160,7 +167,7 @@ const Altas: React.FC = () => {
                   >
                     Generar
                   </NavLink>
-                </Card>
+                </div>
               </Col>
             </Row>
           </div>
@@ -169,5 +176,10 @@ const Altas: React.FC = () => {
     </Layout>
   );
 };
+const mapStateToProps = (state: RootState) => ({
+  isDarkMode: state.darkModeReducer.isDarkMode
+});
 
-export default Altas;
+export default connect(mapStateToProps, {
+})(Altas);
+

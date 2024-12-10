@@ -9,12 +9,24 @@ import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comb
 import { ArrowBarDown, ArrowBarUp, ArrowUp, CaretDown, CaretUp, CaretUpFill, Dash, Plus } from "react-bootstrap-icons";
 import { motion, AnimatePresence, easeInOut, easeOut } from "framer-motion";
 import "../../styles/Traslados.css"
-// Define el tipo de los elementos del combo `servicio`
-interface TrasladosProps {
-  comboServicio: SERVICIO[];
-  comboServicioActions: () => void;
-  // listaEspecie: ListaEspecie[];
-  token: string | null;
+import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
+import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
+import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
+
+// Define el tipo de los elementos del combo `Establecimiento`
+interface ESTABLECIMIENTO {
+  codigo: number;
+  descripcion: string;
+}
+// Define el tipo de los elementos del combo `traslado servicio`
+interface TRASLADOSERVICIO {
+  codigo: number;
+  descripcion: string;
+}
+// Define el tipo de los elementos del combo `traslado especie`
+interface TRASLADOESPECIE {
+  codigo: number;
+  descripcion: string;
 }
 interface BusquedaProps {
   establecimiento: number;
@@ -56,9 +68,18 @@ interface DatosRecepcion {
 // "f_CREA": "2024-12-06T13:34:57.021Z",
 // "estaD_D": 0,
 
+interface TrasladosProps {
+  comboTrasladoServicio: TRASLADOSERVICIO[];
+  comboTrasladoServicioActions: () => void;
+  comboEstablecimiento: ESTABLECIMIENTO[];
+  comboEstablecimientoActions: () => void;
+  comboTrasladoEspecie: TRASLADOESPECIE[];
+  comboTrasladoEspecieActions: () => void;
+  token: string | null;
+}
 
 
-const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServicioActions, token }) => {
+const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, comboEstablecimiento, comboTrasladoEspecie, comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, token }) => {
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [error, setError] = useState<Partial<BusquedaProps> & Partial<UbicacionDestino> & Partial<DatosRecepcion>>({});
@@ -75,14 +96,18 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
     traS_NOM_ENTREG: "",
     traS_NOM_RECIBE: "",
     traS_NOM_AUTORIZA: "",
-    n_TRASLADO: 0
+    n_TRASLADO: 0,
+    establecimiento: 0,
+    especie: 0
   });
   useEffect(() => {
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboServicio.length === 0) comboServicioActions();
+      if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions();
+      if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
+      if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions();
     }
-  }, [comboServicioActions]);
+  }, [comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -131,20 +156,20 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
                     <div className="mb-1">
                       <label className=" text-muted fw-semibold">Establecimiento</label>
                       <select
-                        aria-label="servicio"
-                        className={`form-select ${error.servicio ? "is-invalid" : ""
+                        aria-label="establecimiento"
+                        className={`form-select ${error.establecimiento ? "is-invalid" : ""
                           }`}
-                        name="servicio"
+                        name="establecimiento"
                         onChange={handleChange}
-                        value={Traslados.servicio}
+                        value={Traslados.establecimiento}
                       >
                         <option value="">Seleccione un origen</option>
-                        {comboServicio.map((traeServicio) => (
+                        {comboEstablecimiento.map((traeEstablecimiento) => (
                           <option
-                            key={traeServicio.codigo}
-                            value={traeServicio.codigo}
+                            key={traeEstablecimiento.codigo}
+                            value={traeEstablecimiento.codigo}
                           >
-                            {traeServicio.nombrE_ORD}
+                            {traeEstablecimiento.descripcion}
                           </option>
                         ))}
                       </select>
@@ -163,12 +188,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
                         value={Traslados.servicio}
                       >
                         <option value="">Seleccione un origen</option>
-                        {comboServicio.map((traeServicio) => (
+                        {comboTrasladoServicio.map((traeServicio) => (
                           <option
                             key={traeServicio.codigo}
                             value={traeServicio.codigo}
                           >
-                            {traeServicio.nombrE_ORD}
+                            {traeServicio.descripcion}
                           </option>
                         ))}
                       </select>
@@ -187,12 +212,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
                         value={Traslados.deP_CORR_ORIGEN}
                       >
                         <option value="">Seleccione un origen</option>
-                        {comboServicio.map((traeServicio) => (
+                        {comboTrasladoServicio.map((traeServicio) => (
                           <option
                             key={traeServicio.codigo}
                             value={traeServicio.codigo}
                           >
-                            {traeServicio.nombrE_ORD}
+                            {traeServicio.descripcion}
                           </option>
                         ))}
                       </select>
@@ -203,25 +228,25 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
                     <div className="mb-1">
                       <label className="text-muted fw-semibold">Especie</label>
                       <select
-                        aria-label="servicio"
-                        className={`form-select ${error.servicio ? "is-invalid" : ""
+                        aria-label="especie"
+                        className={`form-select ${error.especie ? "is-invalid" : ""
                           }`}
                         name="servicio"
                         onChange={handleChange}
-                        value={Traslados.servicio}
+                        value={Traslados.especie}
                       >
                         <option value="">Seleccione un origen</option>
-                        {comboServicio.map((traeServicio) => (
+                        {comboTrasladoEspecie.map((traeEspecie) => (
                           <option
-                            key={traeServicio.codigo}
-                            value={traeServicio.codigo}
+                            key={traeEspecie.codigo}
+                            value={traeEspecie.codigo}
                           >
-                            {traeServicio.nombrE_ORD}
+                            {traeEspecie.descripcion}
                           </option>
                         ))}
                       </select>
-                      {error.servicio && (
-                        <div className="invalid-feedback">{error.servicio}</div>
+                      {error.especie && (
+                        <div className="invalid-feedback">{error.especie}</div>
                       )}
                     </div>
                   </Col>
@@ -321,12 +346,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
                         value={Traslados.servicio}
                       >
                         <option value="">Seleccione un origen</option>
-                        {comboServicio.map((traeServicio) => (
+                        {comboTrasladoServicio.map((traeServicio) => (
                           <option
                             key={traeServicio.codigo}
                             value={traeServicio.codigo}
                           >
-                            {traeServicio.nombrE_ORD}
+                            {traeServicio.descripcion}
                           </option>
                         ))}
                       </select>
@@ -345,12 +370,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
                         value={Traslados.deP_CORR}
                       >
                         <option value="">Seleccione un origen</option>
-                        {comboServicio.map((traeServicio) => (
+                        {comboTrasladoServicio.map((traeServicio) => (
                           <option
                             key={traeServicio.codigo}
                             value={traeServicio.codigo}
                           >
-                            {traeServicio.nombrE_ORD}
+                            {traeServicio.descripcion}
                           </option>
                         ))}
                       </select>
@@ -516,9 +541,13 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboServicio, comboServ
 
 const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
-  comboServicio: state.comboServicioReducer.comboServicio,
+  comboTrasladoServicio: state.comboTrasladoServicioReducer.comboTrasladoServicio,
+  comboEstablecimiento: state.comboEstablecimientoReducer.comboEstablecimiento,
+  comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie,
 });
 
 export default connect(mapStateToProps, {
-  comboServicioActions
+  comboTrasladoServicioActions,
+  comboEstablecimientoActions,
+  comboTrasladoEspecieActions
 })(RegistrarTraslados);

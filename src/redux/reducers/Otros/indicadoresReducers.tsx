@@ -5,8 +5,9 @@ import {
   LISTA_UF_SUCCESS,
   LISTA_DOLAR_SUCCESS,
   LISTA_BITCOIN_SUCCESS,
+  LISTA_IPC_SUCCESS,
   LISTA_INDICADORES_FAIL
-} from '../../actions/Indicadores/types'
+} from '../../actions/Otros/types'
 
 // Define el tipo para el estado inicial
 interface IndicadoresState {
@@ -22,6 +23,9 @@ interface IndicadoresState {
   bitcoin: {
     valor: number;
   };
+  ipc: {
+    valor: number;
+  };
 }
 // Estado inicial tipado
 const initialState: IndicadoresState = {
@@ -35,6 +39,9 @@ const initialState: IndicadoresState = {
     valor: 0,
   },
   bitcoin: {
+    valor: 0,
+  },
+  ipc: {
     valor: 0,
   },
 };
@@ -67,6 +74,12 @@ const indicadoresReducers = (state = initialState, action: any) => {
         ...state,
         loading: false,
         bitcoin: action.payload,
+      };
+    case LISTA_IPC_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        ipc: action.payload,
       };
     case LISTA_INDICADORES_FAIL:
       return { ...state, loading: false, error: action.error };

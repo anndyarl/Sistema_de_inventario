@@ -4,6 +4,8 @@ import { Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText } from 'react-
 import "../../styles/Sidebar.css"
 import SSMSO_LOGO from "../../assets/img/SSMSO-LOGO.png"
 import ondas from "../../assets/img/ondas.png"
+import { RootState } from '../../store';
+import { connect } from 'react-redux';
 // import Logout from './Logout';
 // Function to combine classes conditionally
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -15,8 +17,10 @@ export interface NavItem {
   href: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
-
-const Sidebar: React.FC = () => {
+interface Props {
+  isDarkMode: boolean;
+}
+const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
 
   const navigation: NavItem[] = [
@@ -71,7 +75,7 @@ const Sidebar: React.FC = () => {
 
         ))
       }
-      <div className="bg-color position-values-3">
+      <div className="position-values-3">
         <img
           src={ondas}
           alt="ondas"
@@ -83,4 +87,10 @@ const Sidebar: React.FC = () => {
   );
 };
 
-export default Sidebar;
+const mapStateToProps = (state: RootState) => ({
+  isDarkMode: state.darkModeReducer.isDarkMode
+});
+
+export default connect(mapStateToProps, {
+})(Sidebar);
+
