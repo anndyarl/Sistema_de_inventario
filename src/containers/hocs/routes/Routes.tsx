@@ -33,6 +33,7 @@ import RegistrarBajas from '../../../components/Bajas/RegistrarBajas';
 import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
 import RegistrarTraslados from '../../../components/Traslados/RegistrarTraslados';
+import FirmarAltas from '../../../components/Altas/FirmarAltas';
 
 
 const AnimatedRoutes: React.FC = () => {
@@ -76,6 +77,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Altas" element={<Altas />} />
                 <Route path="/RegistrarAltas" element={<RegistrarAltas />} />
                 <Route path="/AnularAltas" element={<AnularAltas />} />
+                <Route path="/FirmarAltas" element={<FirmarAltas />} />
                 {/* Fin Módulo Altas */}
                 {/* Módulo Bajas */}
                 <Route path="/Bajas" element={<Bajas />} />

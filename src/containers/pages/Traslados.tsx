@@ -4,6 +4,8 @@ import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { PlusCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
+import { connect } from "react-redux";
+import { RootState } from "../../store";
 
 const pageVariants = {
   // initial: { opacity: 0, scale: 0.98 },
@@ -18,7 +20,11 @@ const pageTransition = {
   duration: 0.4,
   // delay: 0.05,
 };
-const Traslados: React.FC = () => {
+
+interface Props {
+  isDarkMode: boolean;
+}
+const Traslados: React.FC<Props> = ({ isDarkMode }) => {
   return (
     <Layout>
       <AnimatePresence mode="wait">
@@ -26,7 +32,7 @@ const Traslados: React.FC = () => {
           <div className="container mt-2">
             <Row className="g-1">
               <Col lg={4} md={6} sm={12}>
-                <div className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -51,4 +57,11 @@ const Traslados: React.FC = () => {
   );
 };
 
-export default Traslados;
+const mapStateToProps = (state: RootState) => ({
+  isDarkMode: state.darkModeReducer.isDarkMode
+});
+
+export default connect(mapStateToProps, {
+})(Traslados);
+
+

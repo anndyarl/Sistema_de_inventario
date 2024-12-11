@@ -6,6 +6,7 @@ import { PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
+import { Signature } from "lucide-react";
 
 interface Props {
   isDarkMode: boolean;
@@ -166,6 +167,24 @@ const Altas: React.FC<Props> = ({ isDarkMode }) => {
                     className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
                   >
                     Generar
+                  </NavLink>
+                </div>
+              </Col>
+              <Col lg={4} md={6} sm={12}>
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
+                  <div className="mb-3">
+                    <Signature className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                  </div>
+                  <Card.Title className="fw-bold">Firmar Altas</Card.Title>
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
+                    Busque, verifique y autorice las altas mediante firmas.
+                  </Card.Text>
+                  <NavLink
+                    key="FirmarAltas"
+                    to="/FirmarAltas"
+                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
+                  >
+                    Firmar
                   </NavLink>
                 </div>
               </Col>

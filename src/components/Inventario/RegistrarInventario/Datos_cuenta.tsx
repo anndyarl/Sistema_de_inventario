@@ -78,6 +78,7 @@ interface Datos_cuentaProps extends CuentaProps {
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
   // bien?: number;
   // detalles?: number;
+  isDarkMode: boolean;
 }
 
 const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
@@ -98,6 +99,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
   // bien,
   // detalles,
   descripcionEspecie,
+  isDarkMode,
   onServicioSeleccionado,
   onBienSeleccionado,
   onDetalleSeleccionado,
@@ -261,29 +263,25 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <div className="border-bottom shadow-sm p-4 rounded">
+      <form onSubmit={handleSubmit} className={isDarkMode ? "bg-dark text-light" : ""}>
+        <div className={`border-bottom shadow-sm p-4 rounded ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Detalles de Inventario
           </h3>
           <Row>
             <Col md={6}>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Servicio</label>
+              <div className="mt-1">
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Servicio</label>
                 <select
                   aria-label="servicio"
-                  className={`form-select ${error.servicio ? "is-invalid" : ""
-                    }`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
                   name="servicio"
                   onChange={handleChange}
                   value={Cuenta.servicio}
                 >
                   <option value="">Seleccione un origen</option>
                   {comboServicio.map((traeServicio) => (
-                    <option
-                      key={traeServicio.codigo}
-                      value={traeServicio.codigo}
-                    >
+                    <option key={traeServicio.codigo} value={traeServicio.codigo}>
                       {traeServicio.nombrE_ORD}
                     </option>
                   ))}
@@ -292,12 +290,11 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                   <div className="invalid-feedback">{error.servicio}</div>
                 )}
               </div>
-              <div className="mb-1">
-                <label className="text-muted fw-semibold">Dependencia</label>
+              <div className="mt-1">
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Dependencia</label>
                 <select
                   aria-label="dependencia"
-                  className={`form-select ${error.dependencia ? "is-invalid" : ""
-                    }`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependencia ? "is-invalid" : ""}`}
                   name="dependencia"
                   onChange={handleChange}
                   value={Cuenta.dependencia}
@@ -305,10 +302,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 >
                   <option value="">Selecciona una opción</option>
                   {comboDependencia.map((traeDependencia) => (
-                    <option
-                      key={traeDependencia.codigo}
-                      value={traeDependencia.codigo}
-                    >
+                    <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
                       {traeDependencia.nombrE_ORD}
                     </option>
                   ))}
@@ -320,32 +314,23 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             </Col>
             <Col md={6}>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Especie</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Especie</label>
                 <dd className="d-flex align-items-center">
                   <input
                     aria-label="especie"
-                    className={`form-control ${error.especie ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.especie ? "is-invalid" : ""}`}
                     type="text"
                     name="especie"
-                    value={
-                      Especies.descripcionEspecie ||
-                      descripcionEspecie ||
-                      "Haz clic en más para seleccionar una especie"
-                    }
+                    value={Especies.descripcionEspecie || descripcionEspecie || "Haz clic en más para seleccionar una especie"}
                     onChange={handleChange}
                     disabled
                   />
-                  {/* Botón para abrir el modal y seleccionar una especie */}
                   <Button
                     variant="primary"
                     onClick={() => setMostrarModal(true)}
-                    className="ms-1"
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}
                   >
-                    <Plus
-                      className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />
+                    <Plus className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                   </Button>
                 </dd>
                 {error.especie && (
@@ -355,10 +340,10 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Cuenta</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Cuenta</label>
                 <select
                   aria-label="cuenta"
-                  className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.cuenta ? "is-invalid" : ""}`}
                   name="cuenta"
                   disabled={!Cuenta.especie}
                   onChange={handleChange}
@@ -377,22 +362,18 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
               </div>
             </Col>
           </Row>
-          <div className="p-1 rounded bg-white d-flex justify-content-between">
-            <Button onClick={handleVolver} className="btn btn-primary m-1">
+          <div className={`p-1 rounded d-flex justify-content-between ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
+            <Button onClick={handleVolver} className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
               Volver
             </Button>
-            <Button type="submit" className="btn btn-primary m-1">
+            <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
               Siguiente
             </Button>
           </div>
         </div>
       </form>
       {/* Modal formulario Activos Fijo*/}
-      <Modal
-        show={mostrarModal}
-        onHide={() => setMostrarModal(false)}
-        size="lg"
-      >
+      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Listado de Especies</Modal.Title>
         </Modal.Header>
@@ -407,7 +388,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                       <select
                         aria-label="bien"
                         name="bien"
-                        className="form-select"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                         onChange={handleChange}
                       >
                         {comboBien.map((traeBien) => (
@@ -543,6 +524,7 @@ const mapStateToProps = (state: RootState) => ({
   // bien: state.datosCuentaReducers.bien,
   // detalles: state.datosCuentaReducers.detalle,
   descripcionEspecie: state.datosCuentaReducers.descripcionEspecie,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {})(Datos_cuenta);

@@ -66,15 +66,12 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token, isDar
   return (
     <div className={`d-flex flex-column min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
       {/* Mobile Navbar */}
-      <nav className={`navbar navbar-expand-md ${isDarkMode ? "darkMode" : "navbar-light bg-light"} d-md-none border-bottom`}>
-        <div className="container-fluid">
-          <button className="navbar-toggler border-bottom" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
-            <List size={24} />
-          </button>
-          <Navbar />
-        </div>
-      </nav>
-
+      <div className={`d-flex shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
+        <button className="navbar-toggler m-4 " aria-label="button-mobile" type="button" onClick={toggleSidebar}>
+          <List size={30}></List>
+        </button>
+        <Navbar />
+      </div>
       <div className="d-flex flex-grow-1">
         {/* Background de Sidebar */}
         <div
@@ -109,7 +106,6 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token, isDar
           </div>
         </div>
       </div>
-
     </div >
   );
 };

@@ -62,17 +62,3 @@ body::-webkit-scrollbar {
   transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave */
 }
 
-.form-control-dark {
-  background-color: #2b3035;
-  color: white;
-  font-size: bold;
-  border: 1px solid #444;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  border-radius: 6px;
-  padding-bottom: 6px;
-  padding-left: 12px;
-  padding-top: 6px;
-}
-.form-control-dark:focus {
-  border: none !important;
-}

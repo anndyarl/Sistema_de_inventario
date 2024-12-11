@@ -350,20 +350,26 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
     onBack();
   };
 
-  const handleValidar = async (): Promise<boolean> => {
-    const serieVacia = activosFijos.some((activo) => !activo.serie.trim());
-
+  // const handleValidar = async (): Promise<boolean> => {
+  const handleValidar = () => {
+    // Verifica si hay series vacías
+    const serieVacia = activosFijos?.some(
+      (activo) => !activo.serie || !activo.serie.trim()
+    );
+    console.log(" datos ACtivo fijo", datosTablaActivoFijo);
+    // Verifica si hay series vacias
     if (serieVacia) {
-      await Swal.fire({
+      Swal.fire({
         icon: "warning",
         title: "Serie Faltante",
-        text: "Por favor, verifique que todos sus registros contengan su número de serie.",
+        text: "Por favor, verifique que todos los registros contengan su número de serie.",
       });
       return false;
     }
 
+    // Verifica si hay series duplicadas
     if (isRepeatSerie) {
-      await Swal.fire({
+      Swal.fire({
         icon: "warning",
         title: "Serie Duplicada",
         text: "Por favor, verifique que no existan series duplicadas en el registro.",
@@ -371,8 +377,23 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
       return false;
     }
 
-    if (pendiente === 0) {
-      const result = await Swal.fire({
+    // Verifica si hay un monto pendiente
+    if (pendiente > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Serie Pendiente",
+        text: `Tienes un monto pendiente de $${pendiente.toLocaleString("es-CL")}.`,
+      });
+      return false;
+    }
+
+    // Si pasa todas las validaciones
+    return true;
+  };
+
+  const handleFinalSubmit = async () => {
+    if (handleValidar()) {
+      const confirmResult = await Swal.fire({
         icon: "info",
         title: "Confirmar registro",
         text: "¿Desea registrar el inventario de activos con la información proporcionada?",
@@ -381,82 +402,67 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         cancelButtonText: "Cancelar",
       });
 
-      if (result.isConfirmed) {
-        await Swal.fire("Registrado!", "", "success");
-        handleFinalSubmit();  // Función de envío final
-        return true;
-      } else {
-        return false;
+      // Si el usuario confirma
+      if (confirmResult.isConfirmed) {
+        const FormulariosCombinados = {
+          ...formInventario.datosInventario,
+          ...formInventario.datosCuenta,
+          activosFijos: datosTablaActivoFijo,
+        };
+
+        try {
+          // Intenta registrar el formulario
+          const resultado = await registrarFormInventarioActions(FormulariosCombinados);
+
+          if (resultado) {
+            console.log("tabla activo fijo", datosTablaActivoFijo);
+            // Resetea todo el formulario al estado inicial
+            dispatch(setNRecepcionActions(0));
+            dispatch(setFechaRecepcionActions(""));
+            dispatch(setNOrdenCompraActions(0));
+            dispatch(setNFacturaActions(""));
+            dispatch(setOrigenPresupuestoActions(0));
+            dispatch(setMontoRecepcionActions(0));
+            dispatch(setFechaFacturaActions(""));
+            dispatch(setRutProveedorActions(""));
+            dispatch(setModalidadCompraActions(0));
+            dispatch(setServicioActions(0));
+            dispatch(setDependenciaActions(0));
+            dispatch(setCuentaActions(0));
+            dispatch(setBienActions(0));
+            dispatch(setDetalleActions(0));
+            dispatch(setEspecieActions(""));
+            dispatch(vaciarDatosTabla());
+            onReset(); // Vuelve al estado inicial
+
+            // Muestra el mensaje de éxito
+            await Swal.fire({
+              icon: "success",
+              title: "Registro exitoso",
+              text: "El formulario se ha enviado y registrado con éxito!",
+            });
+          } else {
+            // Si ocurre un error en el registro
+            await Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Hubo un problema al enviar el formulario.",
+            });
+          }
+        } catch (error) {
+          // Captura errores imprevistos
+          console.error("Error al registrar el formulario:", error);
+          await Swal.fire({
+            icon: "error",
+            title: "Error inesperado",
+            text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
+          });
+        }
       }
-    } else {
-      const result = await Swal.fire({
-        icon: "warning",
-        title: "Pendiente",
-        text: `Tienes un monto pendiente de $${pendiente}`,
-      });
-
-      if (result.isConfirmed) {
-        setMostrarModal(true);
-      }
-      return false;
     }
-  };
-
-
-  const handleFinalSubmit = async () => {
-    // Combina todos los datos en un solo objeto
-
-    const FormulariosCombinados = {
-      ...formInventario.datosInventario,
-      ...formInventario.datosCuenta,
-      activosFijos: activosFijos,
-    };
-
-    const resultado = await registrarFormInventarioActions(
-      FormulariosCombinados
-    );
-    if (resultado) {
-      // console.log("FormulariosCombinados", FormulariosCombinados);
-      //Resetea todo el formualario al estado inicial
-      // dispatch(setTotalActivoFijoActions(total));
-      dispatch(setNRecepcionActions(0));
-      dispatch(setFechaRecepcionActions(""));
-      dispatch(setNOrdenCompraActions(0));
-      dispatch(setNFacturaActions(""));
-      dispatch(setOrigenPresupuestoActions(0));
-      dispatch(setMontoRecepcionActions(0));
-      dispatch(setFechaFacturaActions(""));
-      dispatch(setRutProveedorActions(""));
-      dispatch(setnombreProveedorActions(""));
-      dispatch(setModalidadCompraActions(0));
-      dispatch(setServicioActions(0));
-      dispatch(setDependenciaActions(0));
-      dispatch(setCuentaActions(0));
-      dispatch(setBienActions(0));
-      dispatch(setDetalleActions(0));
-      dispatch(setEspecieActions(""));
-      dispatch(vaciarDatosTabla());
-      onReset(); // retorna a Datos_inventario
-      Swal.fire({
-        icon: "success",
-        title: "Registro exitoso",
-        text: "El formulario se ha enviado y registrado con éxito!",
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Hubo un problema al enviar el formulario.",
-      });
-    }
-
   };
 
   const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
-
-  if (datosTablaActivoFijo.length === 0) {
-    console.log("datosTablaActivoFijo está vacío");
-  }
 
   return (
     <>
@@ -641,7 +647,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
           {elementosActuales.length > 0 && (
             <Button variant="btn btn-primary m-1"
-              onClick={handleValidar} >
+              onClick={handleFinalSubmit} >
               Validar
             </Button>
           )}
@@ -732,7 +738,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                       }`}
                     id="marca"
                     name="marca"
-                    maxLength={10}
+                    maxLength={20}
                     onChange={handleChange}
                     value={currentActivo.marca}
                   />
@@ -751,7 +757,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                       }`}
                     id="modelo"
                     name="modelo"
-                    maxLength={10}
+                    maxLength={20}
                     onChange={handleChange}
                     value={currentActivo.modelo}
                   />

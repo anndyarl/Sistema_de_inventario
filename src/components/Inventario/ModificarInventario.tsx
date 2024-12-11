@@ -1,8 +1,8 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Table, Form, Row, Col, Modal, Pagination, Spinner, } from "react-bootstrap";
-import { RootState } from "../../store";
-import { connect } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
+import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
 import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/Datos_inventario";
@@ -17,6 +17,7 @@ import { comboListadoDeEspeciesBienActions } from "../../redux/actions/Inventari
 import { comboCuentaActions } from "../../redux/actions/Inventario/Combos/comboCuentaActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import MenuInventario from "../Menus/MenuInventario";
+import { setModalidadCompraActions } from "../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 
 
 export interface InventarioCompleto {
@@ -93,6 +94,7 @@ interface InventarioCompletoProps {
   comboCuentaActions: (nombreEspecie: string) => void;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
+  isDarkMode: boolean;
 }
 
 const ModificarInventario: React.FC<InventarioCompletoProps> = ({
@@ -107,6 +109,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboProveedor,
   listaEspecie,
   descripcionEspecie,
+  isDarkMode,
   comboDependenciaActions,
   obtenerInventarioActions,
   comboDetalleActions,
@@ -114,6 +117,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboCuentaActions,
   modificarFormInventarioActions,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalLista, setMostrarModalLista] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -128,7 +132,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     return classes.filter(Boolean).join(" ");
   };
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-
+  const [showInput, setShowInput] = useState(false);
   // Asegúrate de que el array tiene datos
   const index = 0; // Cambia esto al índice que desees
   //-------------------------Formulario---------------------------//
@@ -319,6 +323,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (name === "rutProveedor") {
       console.log("rutProveedor", value);
     }
+    if (name === "modalidadDeCompra") {
+      if (value === "7") {
+        newValue = parseFloat(value) || 0;
+        dispatch(setModalidadCompraActions(newValue as number));
+        setShowInput(true);
+      } else {
+        newValue = parseFloat(value) || 0;
+        dispatch(setModalidadCompraActions(newValue as number));
+        setShowInput(false);
+      }
+    }
   };
 
   const handleEdit = () => {
@@ -486,13 +501,14 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           <Row>
             <Col md={3}>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Nº Inventario</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Nº Inventario
+                </label>
                 <div className="d-flex align-items-center">
                   <input
                     aria-label="nRecepcion"
                     type="text"
-                    className={`form-control ${error.nRecepcion ? "is-invalid" : ""
-                      } w-100`}
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.nRecepcion ? "is-invalid" : ""}`}
                     maxLength={12}
                     name="nRecepcion"
                     onChange={handleChange}
@@ -503,7 +519,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   <Button
                     onClick={handleInventarioSubmit}
                     variant="primary"
-                    className="ms-1"
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                   >
                     {loading ? (
                       <>
@@ -526,7 +542,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   <Button
                     onClick={handleEdit}
                     variant="primary"
-                    className="ms-1"
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                   >
                     <Pencil
                       className={classNames("flex-shrink-0", "h-5 w-5")}
@@ -541,12 +557,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Fecha Recepción</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Fecha Recepción
+                </label>
                 <input
                   aria-label="fechaRecepcion"
                   type="date"
-                  className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaRecepcion ? "is-invalid" : ""}`}
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion || fechaRecepcion}
@@ -557,12 +574,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">N° Orden de compra</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  N° Orden de compra
+                </label>
                 <input
                   aria-label="nOrdenCompra"
                   type="text"
-                  className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.nOrdenCompra ? "is-invalid" : ""}`}
                   maxLength={12}
                   name="nOrdenCompra"
                   onChange={handleChange}
@@ -574,12 +592,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Nº factura</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Nº factura
+                </label>
                 <input
                   aria-label="nFactura"
                   type="text"
-                  className={`form-control ${error.nFactura ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.nFactura ? "is-invalid" : ""}`}
                   maxLength={12}
                   name="nFactura"
                   onChange={handleChange}
@@ -594,11 +613,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Col>
             <Col md={3}>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Origen Presupuesto</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Origen Presupuesto</label>
                 <select
                   aria-label="origenPresupuesto"
-                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.origenPresupuesto ? "is-invalid" : ""}`}
                   name="origenPresupuesto"
                   onChange={handleChange}
                   value={Inventario.origenPresupuesto || origenPresupuesto}
@@ -618,12 +637,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Monto Recepción</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Monto Recepción
+                </label>
                 <input
                   aria-label="montoRecepcion"
                   type="text"
-                  className={`form-select ${error.montoRecepcion ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.montoRecepcion ? "is-invalid" : ""}`}
                   maxLength={12}
                   name="montoRecepcion"
                   onChange={handleChange}
@@ -635,12 +655,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Fecha Factura</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Fecha Factura</label>
                 <input
                   aria-label="fechaFactura"
                   type="date"
-                  className={`form-select ${error.fechaFactura ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaFactura ? "is-invalid" : ""}`}
                   name="fechaFactura"
                   onChange={handleChange}
                   value={Inventario.fechaFactura || fechaFactura}
@@ -651,11 +671,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Proveedor</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Proveedor</label>
                 <select
                   aria-label="rutProveedor"
-                  className={`form-select ${error.rutProveedor ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.rutProveedor ? "is-invalid" : ""}`}
                   name="rutProveedor"
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
@@ -677,11 +697,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Col>
             <Col md={3}>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Servicio</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Servicio
+                </label>
                 <select
                   aria-label="servicio"
-                  className={`form-select ${error.servicio ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
                   name="servicio"
                   onChange={handleChange}
                   value={Inventario.servicio || servicio}
@@ -702,11 +723,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Dependencia</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Dependencia
+                </label>
                 <select
                   aria-label="dependencia"
-                  className={`form-select ${error.dependencia ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependencia ? "is-invalid" : ""}`}
                   name="dependencia"
                   onChange={handleChange}
                   value={Inventario.dependencia || dependencia}
@@ -727,15 +749,15 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Modalida de Compra</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Modalidad de Compra
+                </label>
                 <select
                   aria-label="modalidadDeCompra"
-                  className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""
-                    }`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
                   name="modalidadDeCompra"
                   onChange={handleChange}
-                  value={Inventario.modalidadDeCompra || modalidadDeCompra}
-                  disabled={isDisabled}
+                  value={Inventario.modalidadDeCompra}
                 >
                   <option value="">Seleccione una modalidad</option>
                   {comboModalidad.map((traeModalidad) => (
@@ -753,10 +775,37 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                 )}
               </div>
+              {showInput && (
+                <div className="mb-1">
+                  {/* <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                    Modalidad de Compra
+                  </label> */}
+                  <input
+                    aria-label="modalidadDeCompra"
+                    type="text"
+                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
+                    name="modalidadDeCompra"
+                    placeholder="Especifique otro"
+                    onChange={(e) =>
+                      setInventario({
+                        ...Inventario,
+                        modalidadDeCompra: parseInt(e.target.value),
+                      })
+                    }
+                  />
+                  {error.modalidadDeCompra && (
+                    <div className="invalid-feedback">
+                      {error.modalidadDeCompra}
+                    </div>
+                  )}
+                </div>
+              )}
             </Col>
             <Col md={3}>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Especie</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Especie
+                </label>
                 <div className="d-flex align-items-center">
                   <input
                     aria-label="especie"
@@ -770,13 +819,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     onChange={handleChange}
                     disabled
                     // className={`form-select ${error.especie ? "is-invalid" : ""}`}
-                    className="form-control"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.especie ? "is-invalid" : ""}`}
                   />
                   {/* Botón para abrir el modal y seleccionar una especie */}
                   <Button
                     variant="primary"
                     onClick={() => setMostrarModal(true)}
-                    className="ms-1"
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                     disabled={isDisabled}
                   >
                     <Pencil
@@ -792,10 +841,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   )} */}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Cuenta</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Cuenta</label>
                 <select
                   aria-label="cuenta"
-                  className={`form-select ${error.cuenta ? "is-invalid" : ""}`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.cuenta ? "is-invalid" : ""}`}
                   name="cuenta"
                   onChange={handleChange}
                   value={Inventario.cuenta || cuenta || 0}
@@ -813,7 +863,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Activos fijos</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Activos fijos</label>
                 <div className="d-flex align-items-center">
                   <p className="text-right w-100 border p-2 m-0 rounded">
                     Detalles activos fijos
@@ -822,7 +873,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   <Button
                     variant="primary"
                     onClick={() => setMostrarModalLista(true)}
-                    className="ms-1"
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                     disabled={isDisabled}
                   >
                     <Eye
@@ -835,12 +886,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </div>
             </Col>
           </Row>
-          <div className="p-1 rounded bg-white d-flex justify-content-end">
-            <Button
-              variant="btn btn-primary m-1"
-              disabled={isDisabled}
-              onClick={handleValidar}
-            >
+          <div className="rounded d-flex justify-content-end m-2">
+            <Button disabled={isDisabled} onClick={handleValidar} className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
               Validar
             </Button>
           </div>
@@ -1069,7 +1116,8 @@ const mapStateToProps = (state: RootState) => ({
   comboBien: state.detallesReducer.comboBien,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
-  descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie
+  descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

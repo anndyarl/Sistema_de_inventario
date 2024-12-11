@@ -45,6 +45,7 @@ import darkModeReducer from "./Otros/darkModeReducer";
 import comboTrasladoServicioReducer from "./Traslados/Combos/comboTrasladoServicioReducers";
 import comboEstablecimientoReducer from "./Traslados/Combos/comboEstablecimientoReducer";
 import comboTrasladoEspecieReducer from "./Traslados/Combos/comboTrasladoEspecieReducers";
+import comboDepartamentoReducer from "./Traslados/Combos/comboDepartamentoReducer";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -89,6 +90,7 @@ const appReducer = combineReducers({
   comboEstablecimientoReducer,
   comboTrasladoServicioReducer,
   comboTrasladoEspecieReducer,
+  comboDepartamentoReducer,
 
   // Indicadores
   indicadoresReducers,

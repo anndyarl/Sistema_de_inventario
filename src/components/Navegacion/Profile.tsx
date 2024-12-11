@@ -78,13 +78,18 @@ const Profile: React.FC<ProfileProps> = ({
 
   return (
     <>
-      <button type="button" onClick={togglePanel} className="btn btn-outline-secondary w-100 border-0  mx-1">
-        <UserCircle
-          className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
-          aria-hidden="true"
-        />
-        <span className={`font-bold fs-6 ${isDarkMode ? "text-white" : ""}`} >Andy Riquelme</span>
-      </button >
+      <div className="d-flex w-50 justify-content-end mx-2">
+        <button type="button" onClick={togglePanel} className="btn btn-outline-secondary border-0">
+          <UserCircle
+            className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
+            aria-hidden="true"
+          />
+          <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
+            Andy Riquelme
+          </span>
+
+        </button >
+      </div>
       <AnimatePresence >
         {isOpen && (
           <motion.div

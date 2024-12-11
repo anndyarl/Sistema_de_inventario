@@ -8,6 +8,7 @@ import { darkModeActions } from '../../redux/actions/Otros/darkModeActions';
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
+import "../../styles/Layout.css"
 interface DarkMode {
     isDarkMode: boolean;
 }
@@ -25,6 +26,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         { name: 'Traslados', path: '/Traslados' },
         { name: 'Registrar Traslados', path: '/RegistrarTraslados' },
         { name: 'Altas', path: '/Altas' },
+        { name: 'Firmar Altas', path: '/FirmarAltas' },
         { name: 'Registrar Altas', path: '/RegistrarAltas' },
         { name: 'Anular Altas', path: '/AnularAltas' },
         { name: 'Imprimir Etiqueta', path: '/ImprimirEtiqueta', keywords: ['qr', 'Etiquetas', 'Imprimir', 'generar'] },
@@ -63,8 +65,6 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    console.log("isDarkMode", isDarkMode)
-
     // const searchRoutes = (query: string) => {
     //     return routes.filter(route =>
     //         route.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -79,24 +79,23 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-        <nav id="navbar" className={`navbar navbar-expand-lg justify-content-end rounded-3 shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
 
-            <div className="d-flex align-items-center ">
-                <Search
-                    className={classNames("mx-2 flex-shrink-0", "h-5 w-5")}
-                    aria-hidden="true"
-                />
+        <nav id="navbar" className={`navbar justify-content-end  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+            <div className="d-flex align-items-center">
+                <Search className={classNames("mx-2 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+
                 <input
                     type="text"
-                    className="form-control rounded-4"
+                    className={`form-select rounded-4 ${isDarkMode ? "bg-dark text-light " : ""}`}
                     placeholder="Buscar"
                     value={search}
                     size={40}
                     onChange={(e) => setSearch(e.target.value)}
                 />
+
                 {search && (
                     <ul
-                        className="position-absolute mx-5 mt-4 top-50 z-3 bg-white rounded shadow list-group list-group-flush overflow-auto"
+                        className="position-absolute  mx-5 mt-4 top-50 z-3 bg-white rounded shadow list-group list-group-flush overflow-auto"
                         style={{ maxHeight: '250px', width: "290px" }}>
                         {filteredRoutes.map((route) => (
                             <li
@@ -109,12 +108,11 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
                         ))}
                     </ul>
                 )}
-                <div className='w-75'>
-                    <Profile />
-                </div>
+                <Profile />
             </div>
 
         </nav >
+
     );
 }
 

@@ -17,6 +17,12 @@ import {
   setnombreProveedorActions,
   setModalidadCompraActions,
   vaciarDatosTabla,
+  setServicioActions,
+  setDependenciaActions,
+  setCuentaActions,
+  setBienActions,
+  setDetalleActions,
+  setEspecieActions,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./Datos_activo_fijo";
@@ -260,21 +266,52 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
       setLoading(false);
     }
   };
-  // const handleLimpiar = () => {
-  //   setInventario((prevInventario) => ({
-  //     ...prevInventario,
-  //     fechaFactura: "",
-  //     fechaRecepcion: "",
-  //     modalidadDeCompra: 0,
-  //     montoRecepcion: 0,
-  //     nFactura: "",
-  //     nOrdenCompra: 0,
-  //     nRecepcion: 0,
-  //     nombreProveedor: "",
-  //     origenPresupuesto: 0,
-  //     rutProveedor: "",
-  //   }));
-  // }
+  const handleLimpiar = () => {
+    const tieneDatos = Object.values(Inventario).some((valor) => valor !== "" && valor !== 0);
+    if (tieneDatos) {
+      Swal.fire({
+        icon: "warning",
+        title: "¿Está seguro de que desea limpiar el formulario?",
+        text: "Esta acción eliminará todos los datos ingresados en los pasos completados.",
+        showCancelButton: true,
+        confirmButtonText: "Si, Limpiar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setInventario((prevInventario) => ({
+            ...prevInventario,
+            fechaFactura: "",
+            fechaRecepcion: "",
+            modalidadDeCompra: 0,
+            montoRecepcion: 0,
+            nFactura: "",
+            nOrdenCompra: 0,
+            nRecepcion: 0,
+            nombreProveedor: "",
+            origenPresupuesto: 0,
+            rutProveedor: "",
+          }));
+          dispatch(setNRecepcionActions(0));
+          dispatch(setFechaRecepcionActions(""));
+          dispatch(setNOrdenCompraActions(0));
+          dispatch(setNFacturaActions(""));
+          dispatch(setOrigenPresupuestoActions(0));
+          dispatch(setMontoRecepcionActions(0));
+          dispatch(setFechaFacturaActions(""));
+          dispatch(setRutProveedorActions(""));
+          dispatch(setModalidadCompraActions(0));
+          dispatch(setModalidadCompraActions(0));
+          dispatch(setServicioActions(0));
+          dispatch(setDependenciaActions(0));
+          dispatch(setCuentaActions(0));
+          dispatch(setBienActions(0));
+          dispatch(setDetalleActions(0));
+          dispatch(setEspecieActions(""));
+          dispatch(vaciarDatosTabla());
+        }
+      });
+    }
+  }
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
@@ -287,18 +324,22 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold border-bottom p-1">Registrar Inventario </h3>
+        <div className={`border-bottom shadow-sm p-4 rounded ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
+          <h3 className="form-title fw-semibold border-bottom p-1">
+            Registrar Inventario
+          </h3>
           <Row>
             <Col md={4}>
+              {/* Nº Recepción */}
               <div className="mb-1">
-                <label className={`fw-semibold  ${isDarkMode ? "text-white" : "text-muted"}`}> Nº Recepción</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Nº Recepción
+                </label>
                 <div className="d-flex align-items-center">
                   <input
                     aria-label="nRecepcion"
                     type="text"
-                    className={` ${isDarkMode ? "form-control-dark" : "form-control"} ${error.nRecepcion ? "is-invalid" : ""
-                      } w-100`}
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.nRecepcion ? "is-invalid" : ""}`}
                     maxLength={12}
                     name="nRecepcion"
                     onChange={handleChange}
@@ -307,18 +348,16 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   <Button
                     onClick={handleRecepcionSubmit}
                     variant="primary"
-                    className="ms-1"
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}
                   >
                     {loading ? (
-                      <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                        />
-                      </>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
                     ) : (
                       <Search
                         className={classNames("flex-shrink-0", "h-5 w-5")}
@@ -326,12 +365,12 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                       />
                     )}
                   </Button>
-                  {/* <Button
-                    onClick={handleLimpiar}
-                    variant="primary"
-                    className="ms-1"                    >
-                    <Eraser className={classNames('flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                  </Button> */}
+                  <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
+                    <Eraser
+                      className={classNames("flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    />
+                  </Button>
                 </div>
                 {error.nRecepcion && (
                   <div className="invalid-feedback d-block">
@@ -339,13 +378,17 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Fecha Recepción */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Fecha Recepción</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Fecha Recepción
+                </label>
                 <input
                   aria-label="fechaRecepcion"
                   type="date"
-                  className={`form-control ${error.fechaRecepcion ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    } ${error.fechaRecepcion ? "is-invalid" : ""}`}
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion}
@@ -354,13 +397,17 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   <div className="invalid-feedback">{error.fechaRecepcion}</div>
                 )}
               </div>
+
+              {/* N° Orden de Compra */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">N° Orden de compra</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  N° Orden de Compra
+                </label>
                 <input
                   aria-label="nOrdenCompra"
                   type="text"
-                  className={`form-control ${error.nOrdenCompra ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    } ${error.nOrdenCompra ? "is-invalid" : ""}`}
                   maxLength={12}
                   name="nOrdenCompra"
                   onChange={handleChange}
@@ -371,14 +418,18 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
             </Col>
+
             <Col md={4}>
+              {/* Nº Factura */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Nº factura</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Nº Factura
+                </label>
                 <input
                   aria-label="nFactura"
                   type="text"
-                  className={`form-control ${error.nFactura ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    } ${error.nFactura ? "is-invalid" : ""}`}
                   maxLength={12}
                   name="nFactura"
                   onChange={handleChange}
@@ -388,12 +439,16 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   <div className="invalid-feedback">{error.nFactura}</div>
                 )}
               </div>
+
+              {/* Origen Presupuesto */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Origen Presupuesto</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Origen Presupuesto
+                </label>
                 <select
                   aria-label="origenPresupuesto"
-                  className={`form-select ${error.origenPresupuesto ? "is-invalid" : ""
-                    }`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    } ${error.origenPresupuesto ? "is-invalid" : ""}`}
                   name="origenPresupuesto"
                   onChange={handleChange}
                   value={Inventario.origenPresupuesto}
@@ -406,22 +461,23 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   ))}
                 </select>
                 {error.origenPresupuesto && (
-                  <div className="invalid-feedback">
-                    {error.origenPresupuesto}
-                  </div>
+                  <div className="invalid-feedback">{error.origenPresupuesto}</div>
                 )}
               </div>
+
+              {/* Monto Recepción */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Monto Recepción</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Monto Recepción
+                </label>
                 <input
                   aria-label="montoRecepcion"
                   type="text"
-                  className={`form-control ${error.montoRecepcion ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    } ${error.montoRecepcion ? "is-invalid" : ""}`}
                   maxLength={12}
                   name="montoRecepcion"
                   onChange={handleChange}
-                  // value={isMontoRecepcionEdited ? Inventario.montoRecepcion : montoRecepcion}
                   value={Inventario.montoRecepcion}
                 />
                 {error.montoRecepcion && (
@@ -429,14 +485,18 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 )}
               </div>
             </Col>
+
             <Col md={4}>
+              {/* Fecha Factura */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Fecha Factura</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Fecha Factura
+                </label>
                 <input
                   aria-label="fechaFactura"
                   type="date"
-                  className={`form-control ${error.fechaFactura ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    } ${error.fechaFactura ? "is-invalid" : ""}`}
                   name="fechaFactura"
                   onChange={handleChange}
                   value={Inventario.fechaFactura}
@@ -445,17 +505,20 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   <div className="invalid-feedback">{error.fechaFactura}</div>
                 )}
               </div>
+
+              {/* Proveedor */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Proveedor</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Proveedor
+                </label>
                 <select
                   aria-label="rutProveedor"
-                  className={`form-select ${error.rutProveedor ? "is-invalid" : ""
-                    }`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.rutProveedor ? "is-invalid" : ""}`}
                   name="rutProveedor"
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
                 >
-                  <option value="0">Seleccione un Proovedor</option>
+                  <option value="0">Seleccione un Proveedor</option>
                   {comboProveedor.map((traeProveedor) => (
                     <option key={traeProveedor.rut} value={traeProveedor.rut}>
                       {traeProveedor.nomprov}
@@ -463,17 +526,18 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   ))}
                 </select>
                 {error.rutProveedor && (
-                  <div className="invalid-feedback">
-                    {error.rutProveedor}
-                  </div>
+                  <div className="invalid-feedback">{error.rutProveedor}</div>
                 )}
               </div>
+
+              {/* Modalidad de Compra */}
               <div className="mb-1">
-                <label className="text-muted fw-semibold">Modalida de Compra</label>
+                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  Modalidad de Compra
+                </label>
                 <select
                   aria-label="modalidadDeCompra"
-                  className={`form-select ${error.modalidadDeCompra ? "is-invalid" : ""
-                    }`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
                   name="modalidadDeCompra"
                   onChange={handleChange}
                   value={Inventario.modalidadDeCompra}
@@ -496,12 +560,13 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
               </div>
               {showInput && (
                 <div className="mb-1">
-                  <label className="text-muted fw-semibold">Modalida de Compra</label>
+                  {/* <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                    Modalidad de Compra
+                  </label> */}
                   <input
                     aria-label="modalidadDeCompra"
                     type="text"
-                    className={`form-control ${error.modalidadDeCompra ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
                     name="modalidadDeCompra"
                     placeholder="Especifique otro"
                     onChange={(e) =>
@@ -519,15 +584,15 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 </div>
               )}
             </Col>
-
           </Row>
-          <div className="rounded bg-white d-flex justify-content-end m-2">
-            <button type="submit" className="btn btn-primary ">
+          <div className="rounded d-flex justify-content-end m-2">
+            <button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
               Siguiente
             </button>
           </div>
         </div>
-      </form >
+      </form>
+
     </>
   );
 };
