@@ -4,12 +4,14 @@ import { RootState } from "../../../redux/reducers";
 import Sidebar from "../../../components/Navegacion/Sidebar";
 import Navbar from "../../../components/Navegacion/Navbar";
 import { List } from "react-bootstrap-icons";
-import { motion, AnimatePresence, easeIn } from "framer-motion";
 import { Navigate } from "react-router-dom";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
 import "../../../styles/Layout.css"
 import useAutoLogout from "../../../hooks/useAutoLogout";
+import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css"
+import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js"
+
 
 interface LayoutProps {
   children: ReactNode;

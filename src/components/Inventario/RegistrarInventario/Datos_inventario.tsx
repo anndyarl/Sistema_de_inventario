@@ -332,7 +332,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             <Col md={4}>
               {/* Nº Recepción */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Nº Recepción
                 </label>
                 <div className="d-flex align-items-center">
@@ -381,7 +381,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
               {/* Fecha Recepción */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Fecha Recepción
                 </label>
                 <input
@@ -400,7 +400,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
               {/* N° Orden de Compra */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   N° Orden de Compra
                 </label>
                 <input
@@ -422,7 +422,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             <Col md={4}>
               {/* Nº Factura */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Nº Factura
                 </label>
                 <input
@@ -442,7 +442,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
               {/* Origen Presupuesto */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Origen Presupuesto
                 </label>
                 <select
@@ -467,7 +467,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
               {/* Monto Recepción */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Monto Recepción
                 </label>
                 <input
@@ -489,7 +489,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
             <Col md={4}>
               {/* Fecha Factura */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Fecha Factura
                 </label>
                 <input
@@ -508,7 +508,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
               {/* Proveedor */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Proveedor
                 </label>
                 <select
@@ -532,7 +532,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
 
               {/* Modalidad de Compra */}
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Modalidad de Compra
                 </label>
                 <select
@@ -560,7 +560,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
               </div>
               {showInput && (
                 <div className="mb-1">
-                  {/* <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  {/* <label className="fw-semibold">
                     Modalidad de Compra
                   </label> */}
                   <input

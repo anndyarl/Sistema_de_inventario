@@ -126,8 +126,8 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                         {datosEtiqueta.map((traeEtiqueta) => (
                             <div key={traeEtiqueta.aF_CODIGO_LARGO} className="col-12 text-center mt-4">
                                 <h3 className="mb-1 text-semibold">{traeEtiqueta.aF_CODIGO_LARGO}</h3>
-                                <p className="mb-1 text-muted">{traeEtiqueta.aF_DESCRIPCION}</p>
-                                <p className="mb-3 text-muted">{traeEtiqueta.aF_UBICACION}</p>
+                                <p className="mb-1">{traeEtiqueta.aF_DESCRIPCION}</p>
+                                <p className="mb-3">{traeEtiqueta.aF_UBICACION}</p>
                                 <div className="mb-1 d-flex justify-content-center">
                                     <QRCodeSVG value={traeEtiqueta.aF_CODIGO_LARGO} size={200} level="L" />
                                 </div>

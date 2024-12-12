@@ -153,7 +153,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
           <div className="mb-3 border p-1 rounded-4">
             <div
               className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : "bg-light text-dark"}`} onClick={() => toggleRow("fila1")}>
-              <h5 className={` ${isDarkMode ? "text-light" : "text-muted fw-semibold"}`}>Parámetros de Búsqueda</h5>
+              <h5 className="fw-semibold">Parámetros de Búsqueda</h5>
               {isExpanded.fila1 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -166,7 +166,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                   <Col>
                     {/* Establecimiento */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Establecimiento
                       </label>
                       <select
@@ -196,7 +196,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Servicio */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Servicio
                       </label>
                       <select
@@ -224,7 +224,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Departamento */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Departamento
                       </label>
                       <select
@@ -254,7 +254,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Especie */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Especie
                       </label>
                       <select
@@ -280,7 +280,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                   <Col>
                     {/* N° Inventario */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         N° Inventario
                       </label>
                       <input
@@ -300,7 +300,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Marca */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Marca
                       </label>
                       <input
@@ -320,7 +320,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Modelo */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Modelo
                       </label>
                       <input
@@ -340,7 +340,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Serie */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Serie
                       </label>
                       <input
@@ -366,7 +366,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
           {/* Fila 2 */}
           <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
             <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : "bg-light text-dark"}`} onClick={() => toggleRow("fila2")}>
-              <h5 className={` ${isDarkMode ? "text-light" : "text-muted fw-semibold"}`}>Seleccione ubicación de destino</h5>
+              <h5 className="fw-semibold">Seleccione ubicación de destino</h5>
               {isExpanded.fila2 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -379,7 +379,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                   <Col>
                     {/* Servicio */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Servicio
                       </label>
                       <select
@@ -407,7 +407,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Departamento */}
                     <div className="mb-3">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Departamento
                       </label>
                       <select
@@ -465,7 +465,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                   <Col>
                     {/* N° Memo Ref */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         N° Memo Ref
                       </label>
                       <input
@@ -485,7 +485,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Fecha Memo */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Fecha Memo
                       </label>
                       <input
@@ -500,7 +500,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Observaciones */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Observaciones
                       </label>
                       <textarea
@@ -527,7 +527,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
           {/* Fila 3 */}
           <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
             <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : "bg-light text-dark"}`} onClick={() => toggleRow("fila3")}>
-              <h5 className={` ${isDarkMode ? "text-light" : "text-muted fw-semibold"}`}>Datos de recepción</h5>
+              <h5 className="fw-semibold">Datos de recepción</h5>
               {isExpanded.fila3 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -540,7 +540,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                   <Col>
                     {/* Entregado Por */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Entregado Por
                       </label>
                       <input
@@ -560,7 +560,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Recibido Por */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Recibido Por
                       </label>
                       <input
@@ -580,7 +580,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
                     {/* Jefe que Autoriza */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         Jefe que Autoriza
                       </label>
                       <input
@@ -601,7 +601,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                   <Col>
                     {/* N° de Traslado */}
                     <div className="mb-1">
-                      <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                      <label className="fw-semibold">
                         N° de Traslado
                       </label>
                       <p className={`${isDarkMode ? "text-light" : "text-dark"}`}>

@@ -166,14 +166,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
   //   }));
   // };
 
+
   const setSeleccionaFilas = (index: number) => {
+    const indexReal = indicePrimerElemento + index;
     setFilasSeleccionadas((prev) =>
-      prev.includes(index.toString())
-        ? prev.filter((rowIndex) => rowIndex !== index.toString())
-        : [...prev, index.toString()]
+      prev.includes(indexReal.toString())
+        ? prev.filter((rowIndex) => rowIndex !== indexReal.toString())
+        : [...prev, indexReal.toString()]
     );
-    console.log("indices seleccionmados", index);
+    console.log("indices seleccionmados", indexReal);
   };
+
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -182,7 +185,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
           (indicePrimerElemento + index).toString()
         )
       );
-      console.log("filas Seleccionadas ", filasSeleccionadas);
+
     } else {
       setFilasSeleccionadas([]);
     }
@@ -205,7 +208,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
       confirmButtonText: "Confirmar y Registrar",
 
     });
-
+    console.log("filas Seleccionadas ", filasSeleccionadas);
     // selectedIndices.map(async (index) => {
 
     if (result.isConfirmed) {
@@ -337,41 +340,31 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((listaAltas, index) => (
-                    <tr key={index}>
-                      <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => setSeleccionaFilas(index)}
-                          checked={filasSeleccionadas.includes(
-                            index.toString()
-                          )}
-                        />
-                      </td>
-                      <td>{listaAltas.aF_CLAVE}</td>
-                      <td>{listaAltas.ninv}</td>
-                      <td>{listaAltas.serv}</td>
-                      <td>{listaAltas.dep}</td>
-                      <td>{listaAltas.esp}</td>
-                      <td>{listaAltas.ncuenta}</td>
-                      <td>{listaAltas.marca}</td>
-                      <td>{listaAltas.modelo}</td>
-                      <td>{listaAltas.serie}</td>
-                      <td>{listaAltas.precio}</td>
-                      <td>{listaAltas.mrecepcion}</td>
-                      {/* <td>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleRegistrar(index, listaAltas.aF_CLAVE)}>
-                            Registrar
-                          </Button>
-                        </td> */}
-
-                    </tr>
-
-                  ))}
-
+                  {elementosActuales.map((listaAltas, index) => {
+                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                    return (
+                      <tr key={indexReal}>
+                        <td>
+                          <Form.Check
+                            type="checkbox"
+                            onChange={() => setSeleccionaFilas(index)}
+                            checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
+                          />
+                        </td>
+                        <td>{listaAltas.aF_CLAVE}</td>
+                        <td>{listaAltas.ninv}</td>
+                        <td>{listaAltas.serv}</td>
+                        <td>{listaAltas.dep}</td>
+                        <td>{listaAltas.esp}</td>
+                        <td>{listaAltas.ncuenta}</td>
+                        <td>{listaAltas.marca}</td>
+                        <td>{listaAltas.modelo}</td>
+                        <td>{listaAltas.serie}</td>
+                        <td>{listaAltas.precio}</td>
+                        <td>{listaAltas.mrecepcion}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
 
               </Table>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Layout from "../../containers/hocs/layout/Layout";
-import { Col, Row } from "react-bootstrap";
+import { Button, Col, Row } from "react-bootstrap";
 import "../../styles/BienesFuncionario.css";
 import {
   CuentaProps,
@@ -40,6 +40,7 @@ interface FormFuncionarioProps extends FuncionarioProps {
     autorizacion: File,
   ) => Promise<boolean>;
   token: string | null;
+  isDarkMode: boolean;
 }
 const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   token,
@@ -50,6 +51,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   dependencia,
   comprobanteDePago,
   autorizacion,
+  isDarkMode,
   comboServicioActions,
   comboDependenciaActions,
   registrarBienFuncionarioActions,
@@ -284,21 +286,22 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   return (
     <Layout>
       <MenuInventario />
-      <div className="border-bottom shadow-sm p-2 rounded">
-        <h3 className="form-title fw-semibold border-bottom p-1">
-          Registro Bienes de Funcioanarios
-        </h3>
-        <form onSubmit={handleFormSubmit}>
+      <form onSubmit={handleFormSubmit}>
+        <div className={`border-bottom shadow-sm p-4 rounded ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
+          <h3 className="form-title fw-semibold border-bottom p-1">
+            Registro Bienes de Funcioanarios
+          </h3>
           <Row className="d-flex align-items-center">
             <Col md={4}>
               <div className="mb-1">
-                <label htmlFor="rutFuncionario" className="text-muted fw-semibold fw-semibold">Rut Funcionario</label>
+                <label htmlFor="rutFuncionario" className="fw-semibold">Rut Funcionario</label>
                 <input
                   aria-label="rutFuncionario"  // Asociado al label
                   type="text"
-                  className={`form-control ${error.rutFuncionario ? "is-invalid" : ""
-                    } w-100`}
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    } ${error.rutFuncionario ? "is-invalid" : ""} w-100`}
                   maxLength={12}
+                  size={10}
                   name="rutFuncionario"
                   onChange={handleChange}
                   value={Funcionario.rutFuncionario || ""}
@@ -312,12 +315,13 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
               </div>
 
               <div className="border shadow-sm p-2 rounded">
-                <h6 className="text-muted text-center fw-semibold">Destino</h6>
+                <h6 className="text-center fw-semibold">Destino</h6>
                 <div className="mb-1">
                   <label htmlFor="servicio" className="text-muted fw-semibold fw-semibold">Servicio</label>
                   <select
                     aria-label="servicio"
-                    className="form-select"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                      } ${error.servicio ? "is-invalid" : ""}`}
                     name="servicio"
                     onChange={handleChange}
                     value={Funcionario.servicio || 0}
@@ -339,10 +343,11 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   )}
                 </div>
                 <div className="mb-1">
-                  <label htmlFor="dependencia" className="text-muted fw-semibold fw-semibold">Dependencia</label>
+                  <label htmlFor="dependencia" className="fw-semibold">Dependencia</label>
                   <select
                     aria-label="dependencia"
-                    className="form-select"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                      } ${error.dependencia ? "is-invalid" : ""}`}
                     name="dependencia"
                     disabled={!Funcionario.servicio}
                     onChange={handleChange}
@@ -368,7 +373,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
             </Col>
             <Col md={4} className="d-flex align-items-center">
               <div className="mb-1 w-100">
-                <label htmlFor="comprobanteDePago" className="text-muted fw-semibold fw-semibold ">Comprobante de Pago</label>
+                <label htmlFor="comprobanteDePago" className="fw-semibold ">Comprobante de Pago</label>
                 <div
                   className={`dropzone p-1 ${isDraggingComprobante ? "dragging" : ""
                     }`}
@@ -377,9 +382,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   onClick={handleFileSelectComprobante}
                 >
                   {selectedFileComprobante ? (
-                    <p className="file-name text-primary">{selectedFileComprobante.name}</p>
+                    <p className="file-name fw-semibold">{selectedFileComprobante.name}</p>
                   ) : (
-                    <p className="file-name text-primary">
+                    <p className="file-name fw-semibold">
                       Arrastra y suelta el archivo aquí, o haz clic para
                       seleccionar
                     </p>
@@ -405,7 +410,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
             </Col>
             <Col md={4} className="d-flex align-items-center">
               <div className="mb-1 w-100">
-                <label htmlFor="autorizacion" className="text-muted fw-semibold fw-semibold">Autorización</label>
+                <label htmlFor="autorizacion" className="fw-semibold">Autorización</label>
                 <div
                   className={`dropzone p-1 ${isDraggingAutorizacion ? "dragging" : ""
                     }`}
@@ -414,9 +419,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   onClick={handleFileSelectAutorizacion}
                 >
                   {selectedFileAutorizacion ? (
-                    <p className="file-name text-primary">{selectedFileAutorizacion.name}</p>
+                    <p className="file-name fw-semibold">{selectedFileAutorizacion.name}</p>
                   ) : (
-                    <p className="file-name text-primary">
+                    <p className="file-name fw-semibold">
                       Arrastra y suelta el archivo aquí, o haz clic para
                       seleccionar
                     </p>
@@ -442,11 +447,11 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
             </Col>
           </Row>
 
-          <div className="p-1 rounded bg-white d-flex justify-content-end ">
-            <button type="submit" className="btn btn-primary">Validar</button>
+          <div className="d-flex justify-content-end p-1">
+            <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>Validar</Button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </Layout>
   );
 };
@@ -459,6 +464,7 @@ const mapStateToProps = (state: RootState) => ({
   rutFuncionario: state.datosBienesFuncionarioReducers.rutFuncionario,
   servicio: state.datosBienesFuncionarioReducers?.servicio || 0,
   dependencia: state.datosBienesFuncionarioReducers?.dependencia || 0,
+  isDarkMode: state.darkModeReducer.isDarkMode,
   // comprobanteDePago: state.datosBienesFuncionarioReducers?.comprobanteDePago || "",
   // autorizacion: state.datosBienesFuncionarioReducers?.autorizacion || "",
 });

@@ -84,18 +84,18 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
       <div className="container-fluid">
         <div className="row">
           <div className="col-sm-6 text-black">
-            <div className="d-flex px-5 p-3 ms-xl-4 justify-content-start">
+            <div className="d-flex px-5 p-3 ms-xl-4 justify-content-center">
               <img
                 src={ssmso_logo}
                 alt="SSMSO-LOGO"
-                width={200}
+                width={150}
                 className="img-fluid "
               />
               {/* <p className="align-content-center text-muted fs-09em px-2 ">
                 Sistema de apoyo en la gestión administrativa
               </p> */}
             </div>
-            <div className="row align-items-center justify-content-center h-50 p-1">
+            <div className="row align-items-center justify-content-center h-50">
               <div className="w-100">
                 <h3 className="text-muted border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
                 <p className="text-muted fs-09em mb-4">
@@ -106,14 +106,14 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
                     Clave Única demo
                   </a>
                 </div>
-                {/* <div className="mb-4 text-center">
+                <div className="mb-4 text-center">
                   <a
                     href="/claveunica"
                     className="btn btn-primary btn-lg btn-block"
                   >
                     Clave Única
                   </a>
-                </div> */}
+                </div>
                 <p className="text-muted text-center fs-xs">
                   Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
                 </p>

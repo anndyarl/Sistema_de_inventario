@@ -271,7 +271,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
           <Row>
             <Col md={6}>
               <div className="mt-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Servicio</label>
+                <label className="fw-semibold">Servicio</label>
                 <select
                   aria-label="servicio"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
@@ -291,7 +291,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 )}
               </div>
               <div className="mt-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Dependencia</label>
+                <label className="fw-semibold">Dependencia</label>
                 <select
                   aria-label="dependencia"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependencia ? "is-invalid" : ""}`}
@@ -314,7 +314,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             </Col>
             <Col md={6}>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Especie</label>
+                <label className="fw-semibold">Especie</label>
                 <dd className="d-flex align-items-center">
                   <input
                     aria-label="especie"
@@ -340,7 +340,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>Cuenta</label>
+                <label className="fw-semibold">Cuenta</label>
                 <select
                   aria-label="cuenta"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.cuenta ? "is-invalid" : ""}`}

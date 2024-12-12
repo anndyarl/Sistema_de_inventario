@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Modal,
   Button,
@@ -8,6 +8,7 @@ import {
   Pagination,
   Row,
   Col,
+  Spinner,
 } from "react-bootstrap";
 import {
   PencilFill, Plus, Trash
@@ -85,7 +86,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
 
-  const [currentActivo, setCurrentActivo] = useState<ActivoFijo>({
+  const [activoActual, setActivoActual] = useState<ActivoFijo>({
     id: "",
     vidaUtil: "",
     fechaIngreso: "",
@@ -112,18 +113,16 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
   //-------Tabla-------//
   const [editingSerie, setEditingSerie] = useState<string | null>(null);
-  const [serie, setSerie] = useState<string>();
-
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-  const [paginaActual, setCurrentPage] = useState(1);
+  const [paginaActual, setPaginaActual] = useState(1);
   const [elementosPorPagina] = useState(10);
   // Estado para errores específicos por serie
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
   const [isRepeatSerie, setIsRepeatSerie] = useState(false);
   //-------Fin Tabla-------//
 
-  const precio = parseFloat(currentActivo.precio) || 0;
-  const cantidad = parseInt(currentActivo.cantidad, 10) || 0;
+  const precio = parseFloat(activoActual.precio) || 0;
+  const cantidad = parseInt(activoActual.cantidad, 10) || 0;
 
   // Combina el estado local de react con el estado local de redux
   const datos = useMemo(() => {
@@ -152,23 +151,23 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   //Validaciones
   const validate = () => {
     let tempErrors: Partial<ActivoFijo> & { general?: string } = {};
-    if (!currentActivo.vidaUtil)
+    if (!activoActual.vidaUtil)
       tempErrors.vidaUtil = "Vida útil es obligatorio";
-    if (!/^\d+$/.test(currentActivo.vidaUtil))
+    if (!/^\d+$/.test(activoActual.vidaUtil))
       tempErrors.vidaUtil = "Vida útil debe ser un número";
-    if (!currentActivo.fechaIngreso)
+    if (!activoActual.fechaIngreso)
       tempErrors.fechaIngreso = "Fecha de Ingreso es obligatorio";
-    if (!currentActivo.marca) tempErrors.marca = "Marca es obligatorio";
-    if (!currentActivo.modelo) tempErrors.modelo = "Modelo es obligatorio";
-    // if (!currentActivo.serie) tempErrors.serie = "Serie es obligatoria";
-    if (!currentActivo.cantidad)
+    if (!activoActual.marca) tempErrors.marca = "Marca es obligatorio";
+    if (!activoActual.modelo) tempErrors.modelo = "Modelo es obligatorio";
+    // if (!activoActual.serie) tempErrors.serie = "Serie es obligatoria";
+    if (!activoActual.cantidad)
       tempErrors.cantidad = "Cantidad es obligatorio";
-    else if (isNaN(parseInt(currentActivo.cantidad)))
+    else if (isNaN(parseInt(activoActual.cantidad)))
       tempErrors.cantidad = "Cantidad debe ser un número";
-    if (!currentActivo.precio) tempErrors.precio = "Precio es obligatorio";
-    if (!/^\d+$/.test(currentActivo.precio))
+    if (!activoActual.precio) tempErrors.precio = "Precio es obligatorio";
+    if (!/^\d+$/.test(activoActual.precio))
       tempErrors.precio = "Precio debe ser un número entero";
-    if (!currentActivo.observaciones)
+    if (!activoActual.observaciones)
       tempErrors.observaciones = "Observaciones es obligatorio";
 
     if (newTotal == 0) {
@@ -188,26 +187,25 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setCurrentActivo((prevData) => ({ ...prevData, [name]: value }));
+    setActivoActual((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleCambiaSerie = (indexVisible: number, newSerie: string) => {
     const indexReal = indicePrimerElemento + indexVisible;
 
     setActivosFijos((prevActivos) => {
-      // Actualizar la serie del activo correspondiente
       const actualizaActivos = prevActivos.map((activo, i) =>
         i === indexReal ? { ...activo, serie: newSerie } : activo
       );
 
       // Validar si hay series vacías
       const serieVacia = actualizaActivos.some((activo) => !activo.serie.trim());
-      setCurrentActivo((prevData) => ({
+      setActivoActual((prevData) => ({
         ...prevData,
         activo: serieVacia,
       }));
 
-      // Validar si hay series duplicadas (ignorando vacías)
+      // Validar duplicados
       const serieNoVacia = actualizaActivos
         .map((activo) => activo.serie.trim())
         .filter((serie) => serie !== "");
@@ -215,7 +213,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         (serie, index, arr) => arr.indexOf(serie) !== index
       );
 
-      // Actualizar estado de duplicados y errores
       if (duplicados.length > 0) {
         setIsRepeatSerie(true);
         setErroresSerie((prevErrores) => ({
@@ -226,17 +223,25 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         setIsRepeatSerie(false);
         setErroresSerie((prevErrores) => {
           const newErrores = { ...prevErrores };
-          delete newErrores[indexReal]; // Limpiar error si ya no hay conflicto
+          delete newErrores[indexReal];
           return newErrores;
         });
       }
 
-      // Despachar la acción para actualizar Redux
+      // Despacha la serie actualizada al estado global de Redux
       dispatch(actualizarSerieEnTabla(indexReal, newSerie));
 
-      return actualizaActivos; // Retornar el array actualizado
+      return actualizaActivos;
     });
   };
+
+
+  //Sincroniza los numero de serie de la tabla datosTablaActivoFijo con el estado global de redux
+  useEffect(() => {
+    if (datosTablaActivoFijo.length > 0) {
+      setActivosFijos(datosTablaActivoFijo);
+    }
+  }, [datosTablaActivoFijo, paginaActual]);
 
   //-------------Funciones de la tabla --------------------//
   const handleSerieBlur = () => {
@@ -249,6 +254,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
+    console.log("indices seleccionmados", index);
   };
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,8 +265,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         )
       );
     } else {
+
       setFilasSeleccionadas([]);
     }
+    console.log("indices seleccionmados", filasSeleccionadas);
   };
 
   // const handleClone = (activo: ActivoFijo) => {
@@ -277,7 +285,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
     // };
 
     if (validate()) {
-      const cantidad = parseInt(currentActivo.cantidad, 10);
+      const cantidad = parseInt(activoActual.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || "";
 
       // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
@@ -296,7 +304,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
           ?.color || getRandomPastelColor();
 
       const newActivos = Array.from({ length: cantidad }, (_, index) => ({
-        ...currentActivo,
+        ...activoActual,
         id: String(Date.now() + index),
         especie: ultimaEspecie,
         color: colorUltimaEspecie, // Asigna el color correspondiente
@@ -306,7 +314,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
       // Despacha el array de nuevos activos a Redux
       dispatch(setDatosTablaActivoFijo(newActivos));
       //Limpia campos despues de crearlos
-      setCurrentActivo({
+      setActivoActual({
         id: "",
         vidaUtil: "",
         fechaIngreso: "",
@@ -462,7 +470,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
     }
   };
 
-  const paginar = (numeroPagina: number) => setCurrentPage(numeroPagina);
+  const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
   return (
     <>
@@ -494,15 +502,22 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         </div>
 
         {/* Boton elimina filas seleccionadas */}
-        {filasSeleccionadas.length > 0 && (
-          <Button
-            variant="danger"
-            onClick={handleEliminarSeleccionados}
-            className="mb-1 me-2"
-          >
-            Eliminar Seleccionados
-          </Button>
-        )}
+
+        <div className="d-flex justify-content-start">
+          {filasSeleccionadas.length > 0 && (
+            <Button
+              variant="danger"
+              onClick={handleEliminarSeleccionados}
+              className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+            >
+              Eliminar{" "}
+              <span className="badge bg-light text-dark mx-2">
+                {filasSeleccionadas.length}
+              </span>{" "}
+              {filasSeleccionadas.length === 1 ? "Activo seleccionado" : "Activos seleccionados"}
+            </Button>
+          )}
+        </div>
         {/* Mostrar errores generales */}
         {error.generalTabla && (
           <div className="alert alert-danger" role="alert">
@@ -511,12 +526,12 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         )}
         {/* Tabla */}
         {datos.length === 0 ? (
-          <p className="d-flex justify-content-center alert alert-light m-1 p-1 ">
+          <p className="d-flex justify-content-center m-1 p-1 ">
             Haz clic en (+) para agregar aquí los detalles de cada activo.
           </p>
         ) : (
           <div className="overflow-auto">
-            <Table responsive className="mb-0">
+            <Table responsive className="mb-0 ">
               <thead className="table-light sticky-top">
                 <tr>
                   <th >
@@ -541,74 +556,75 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {elementosActuales.map((activo, indexReal) => (
-                  <tr key={indexReal}>
-                    <td>
-                      <Form.Check
-                        type="checkbox"
-                        onChange={() => setSeleccionaFilas(indexReal)}
-                        checked={filasSeleccionadas.includes(
-                          indexReal.toString()
-                        )}
-                      />
-                    </td>
-                    <td>{activo.vidaUtil}</td>
-                    <td>{activo.fechaIngreso}</td>
-                    <td>{activo.marca}</td>
-                    <td>{activo.modelo}</td>
-                    <td
-                      className="w-15"
-                      onClick={() => setEditingSerie(indexReal.toString())}
-                    >
-                      <div className="d-flex align-items-center ">
-                        <Form.Control
-                          type="text"
-                          value={activo.serie}
-                          onChange={(e) => handleCambiaSerie(indexReal, e.target.value)}
-                          onBlur={handleSerieBlur}
-                          autoFocus
-                          maxLength={10}
-                          pattern="\d*"
-                          placeholder="editar"
-                          data-index={indexReal}
-                          // Agregar clase condicional si hay un error en la serie
-                          className={
-                            erroresSerie[indexReal] ? "is-invalid" : ""
-                          }
+                {elementosActuales.map((activo, index) => {
+                  const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                  return (
+                    <tr key={indexReal}>
+                      <td>
+                        <Form.Check
+                          type="checkbox"
+                          onChange={() => setSeleccionaFilas(indexReal)}
+                          checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
-                        <PencilFill
-                          style={{ marginLeft: "1rem", color: "#6c757d" }}
-                        />{" "}
-                        {/* Ícono de lápiz */}
-                      </div>
-                      {erroresSerie[indexReal] && (
-                        <div className="invalid-feedback d-block">
-                          {erroresSerie[indexReal]}
+                      </td>
+                      <td>{activo.vidaUtil}</td>
+                      <td>{activo.fechaIngreso}</td>
+                      <td>{activo.marca}</td>
+                      <td>{activo.modelo}</td>
+                      <td
+                        className="w-15"
+                        onClick={() => setEditingSerie(indexReal.toString())}
+                      >
+                        <div className="d-flex align-items-center ">
+                          <Form.Control
+                            type="text"
+                            value={activo.serie}
+                            onChange={(e) => handleCambiaSerie(index, e.target.value)}
+                            onBlur={handleSerieBlur}
+                            autoFocus
+                            maxLength={10}
+                            pattern="\d*"
+                            placeholder="editar"
+                            data-index={indexReal}
+                            // Agregar clase condicional si hay un error en la serie
+                            className={
+                              erroresSerie[indexReal] ? "is-invalid" : ""
+                            }
+                          />
+                          <PencilFill
+                            style={{ marginLeft: "1rem", color: "#6c757d" }}
+                          />{" "}
+                          {/* Ícono de lápiz */}
                         </div>
-                      )}
-                    </td>
+                        {erroresSerie[indexReal] && (
+                          <div className="invalid-feedback d-block">
+                            {erroresSerie[indexReal]}
+                          </div>
+                        )}
+                      </td>
 
-                    <td>
-                      $
-                      {parseFloat(activo.precio).toLocaleString("es-ES", {
-                        minimumFractionDigits: 0,
-                      })}
-                    </td>
-                    <td className="fw-bold" style={{ backgroundColor: activo.color || "transparent" }}> {" "}  {activo.especie}</td>
-                    <td>
-                      {/* Clonar */}
-                      {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">*/}
+                      <td>
+                        $
+                        {parseFloat(activo.precio).toLocaleString("es-ES", {
+                          minimumFractionDigits: 0,
+                        })}
+                      </td>
+                      <td className="fw-bold" style={{ backgroundColor: activo.color || "transparent" }}> {" "}  {activo.especie}</td>
+                      <td>
+                        {/* Clonar */}
+                        {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">*/}
 
-                      {/* </Button> */}
-                      <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
-                        <Trash
-                          className={classNames("flex-shrink-0", "h-5 w-5")}
-                          aria-hidden="true"
-                        />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                        {/* </Button> */}
+                        <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
+                          <Trash
+                            className={classNames("flex-shrink-0", "h-5 w-5")}
+                            aria-hidden="true"
+                          />
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr>
@@ -703,7 +719,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     name="vidaUtil"
                     maxLength={10}
                     onChange={handleChange}
-                    value={currentActivo.vidaUtil}
+                    value={activoActual.vidaUtil}
                   />
                   {error.vidaUtil && (
                     <div className="invalid-feedback">{error.vidaUtil}</div>
@@ -721,7 +737,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     id="fechaIngreso"
                     name="fechaIngreso"
                     onChange={handleChange}
-                    value={currentActivo.fechaIngreso}
+                    value={activoActual.fechaIngreso}
                   />
                   {error.fechaIngreso && (
                     <div className="invalid-feedback">{error.fechaIngreso}</div>
@@ -740,7 +756,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     name="marca"
                     maxLength={20}
                     onChange={handleChange}
-                    value={currentActivo.marca}
+                    value={activoActual.marca}
                   />
                   {error.marca && (
                     <div className="invalid-feedback">{error.marca}</div>
@@ -759,7 +775,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     name="modelo"
                     maxLength={20}
                     onChange={handleChange}
-                    value={currentActivo.modelo}
+                    value={activoActual.modelo}
                   />
                   {error.modelo && (
                     <div className="invalid-feedback">{error.modelo}</div>
@@ -779,7 +795,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     name="precio"
                     maxLength={12}
                     onChange={handleChange}
-                    value={currentActivo.precio}
+                    value={activoActual.precio}
                   />
                   {error.precio && (
                     <div className="invalid-feedback">{error.precio}</div>
@@ -798,7 +814,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     name="cantidad"
                     maxLength={6}
                     onChange={handleChange}
-                    value={currentActivo.cantidad}
+                    value={activoActual.cantidad}
                   />
                   {error.cantidad && (
                     <div className="invalid-feedback">{error.cantidad}</div>
@@ -817,7 +833,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     // maxLength={500}
                     // style={{ minHeight: "8px", resize: "none" }}
                     onChange={handleChange}
-                    value={currentActivo.observaciones}
+                    value={activoActual.observaciones}
                   />
                   {error.observaciones && (
                     <div className="invalid-feedback">

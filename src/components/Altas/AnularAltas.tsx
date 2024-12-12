@@ -424,29 +424,29 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((listaAltas, index) => (
-                    <tr key={index}>
-                      <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => setSeleccionaFilas(index)}
-                          checked={filasSeleccionadas.includes(
-                            index.toString()
-                          )}
-                        />
-                      </td>
-                      <td>{listaAltas.aF_CLAVE}</td>
-                      <td>{listaAltas.ninv}</td>
-                      <td>{listaAltas.serv}</td>
-                      <td>{listaAltas.dep}</td>
-                      <td>{listaAltas.esp}</td>
-                      <td>{listaAltas.ncuenta}</td>
-                      <td>{listaAltas.marca}</td>
-                      <td>{listaAltas.modelo}</td>
-                      <td>{listaAltas.serie}</td>
-                      <td>{listaAltas.precio}</td>
-                      <td>{listaAltas.mrecepcion}</td>
-                      {/* <td>
+                  {elementosActuales.map((listaAltas, index) => {
+                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                    return (
+                      <tr key={index}>
+                        <td>
+                          <Form.Check
+                            type="checkbox"
+                            onChange={() => setSeleccionaFilas(indexReal)}
+                            checked={filasSeleccionadas.includes(indexReal.toString())}
+                          />
+                        </td>
+                        <td>{listaAltas.aF_CLAVE}</td>
+                        <td>{listaAltas.ninv}</td>
+                        <td>{listaAltas.serv}</td>
+                        <td>{listaAltas.dep}</td>
+                        <td>{listaAltas.esp}</td>
+                        <td>{listaAltas.ncuenta}</td>
+                        <td>{listaAltas.marca}</td>
+                        <td>{listaAltas.modelo}</td>
+                        <td>{listaAltas.serie}</td>
+                        <td>{listaAltas.precio}</td>
+                        <td>{listaAltas.mrecepcion}</td>
+                        {/* <td>
                           <Button
                             variant="outline-danger"
                             size="sm"
@@ -455,8 +455,9 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                             Anular
                           </Button>
                         </td> */}
-                    </tr>
-                  ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </Table>
             </div>

@@ -61,7 +61,7 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
       <div className="border p-3 rounded-0 border-dark bg-white"
-        style={{ width: '100%', maxWidth: '400px', height: '60%', maxHeight: '500px', minHeight: "500px" }}>
+        style={{ width: '100%', maxWidth: '450px', height: '40%', maxHeight: '600px', minHeight: "500px" }}>
 
         {/* Elemento decorativo */}
         <div className="d-flex position-relative mb-3" style={{ width: "116px", left: "0px", bottom: "16px" }}>
@@ -76,11 +76,11 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
           className="img-fluid position-relative" style={{ bottom: "33px" }}
         />
 
-        <h1 className="text-bold text-center mb-0" style={{ fontFamily: 'Roboto Slab', fontWeight: "bold", fontSize: "1.60rem", color: "#575757" }}>
+        <h1 className="fw-bold text-center" style={{ fontFamily: 'Roboto Slab', fontWeight: "bold", fontSize: "1.60rem", color: "#575757" }}>
           SSMSO
         </h1>
 
-        <form id="Login" className="text-start mx-auto" onSubmit={onSubmit} >
+        <form id="Login" className="text-start" onSubmit={onSubmit} >
           <label htmlFor="run" className="form-group group-label" style={{ fontSize: "12px" }}>Ingresa tu Run</label>
           <div className="form-group mb-3">
             <input
@@ -116,14 +116,14 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
           </p>
           {/* Botón de ingresar */}
           <div className="form-group text-center">
-            <button type="submit" className="btn btn-primary w-100 m-1" style={{ background: "#0062cc" }}>
+            <button type="submit" className="btn btn-primary w-100 m-1 rounded-0" style={{ background: "#0062cc" }}>
               {loading ? (
                 <>
-                  {"Ingresando... "}
+                  <u>INGRESANDO...</u>
                   <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                 </>
               ) : (
-                "Ingresar"
+                <u>INGRESA</u>
               )}
             </button>
           </div>

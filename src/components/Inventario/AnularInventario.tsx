@@ -213,7 +213,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
               <SkeletonLoader rowCount={elementosPorPagina} />
             </>
           ) : (
-            <div className='skeleton-table'>
+            <div className='skeleton-table table-responsive'>
               <Table striped bordered hover>
                 <thead className="table-light sticky-top">
                   <tr>

@@ -501,7 +501,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           <Row>
             <Col md={3}>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Nº Inventario
                 </label>
                 <div className="d-flex align-items-center">
@@ -557,7 +557,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Fecha Recepción
                 </label>
                 <input
@@ -574,7 +574,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   N° Orden de compra
                 </label>
                 <input
@@ -592,7 +592,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Nº factura
                 </label>
                 <input
@@ -613,7 +613,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Col>
             <Col md={3}>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Origen Presupuesto</label>
                 <select
                   aria-label="origenPresupuesto"
@@ -637,7 +637,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Monto Recepción
                 </label>
                 <input
@@ -655,7 +655,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Fecha Factura</label>
                 <input
                   aria-label="fechaFactura"
@@ -671,7 +671,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Proveedor</label>
                 <select
                   aria-label="rutProveedor"
@@ -697,7 +697,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Col>
             <Col md={3}>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Servicio
                 </label>
                 <select
@@ -723,7 +723,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Dependencia
                 </label>
                 <select
@@ -749,7 +749,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Modalidad de Compra
                 </label>
                 <select
@@ -777,7 +777,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </div>
               {showInput && (
                 <div className="mb-1">
-                  {/* <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                  {/* <label className="fw-semibold">
                     Modalidad de Compra
                   </label> */}
                   <input
@@ -803,7 +803,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Col>
             <Col md={3}>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Especie
                 </label>
                 <div className="d-flex align-items-center">
@@ -841,7 +841,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   )} */}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Cuenta</label>
                 <select
                   aria-label="cuenta"
@@ -863,7 +863,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className={`fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                <label className="fw-semibold">
                   Activos fijos</label>
                 <div className="d-flex align-items-center">
                   <p className="text-right w-100 border p-2 m-0 rounded">

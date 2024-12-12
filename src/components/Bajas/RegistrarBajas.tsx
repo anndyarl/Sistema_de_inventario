@@ -245,7 +245,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
               </Button>
             ) : (
               <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                No hay altas seleccionadas para registrar
+                No hay bajas seleccionadas para registrar
               </strong>
             )}
           </div>
@@ -285,29 +285,29 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((ListaBajas, index) => (
-                    <tr key={index}>
-                      <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => setSeleccionaFilas(index)}
-                          checked={filasSeleccionadas.includes(
-                            index.toString()
-                          )}
-                        />
-                      </td>
-                      <td>{ListaBajas.aF_CLAVE}</td>
-                      <td>{ListaBajas.ninv}</td>
-                      <td>{ListaBajas.serv}</td>
-                      <td>{ListaBajas.dep}</td>
-                      <td>{ListaBajas.esp}</td>
-                      <td>{ListaBajas.ncuenta}</td>
-                      <td>{ListaBajas.marca}</td>
-                      <td>{ListaBajas.modelo}</td>
-                      <td>{ListaBajas.serie}</td>
-                      <td>{ListaBajas.precio}</td>
-                      <td>{ListaBajas.mrecepcion}</td>
-                      {/* <td>
+                  {elementosActuales.map((ListaBajas, index) => {
+                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                    return (
+                      <tr key={indexReal}>
+                        <td>
+                          <Form.Check
+                            type="checkbox"
+                            onChange={() => setSeleccionaFilas(indexReal)}
+                            checked={filasSeleccionadas.includes(indexReal.toString())}
+                          />
+                        </td>
+                        <td>{ListaBajas.aF_CLAVE}</td>
+                        <td>{ListaBajas.ninv}</td>
+                        <td>{ListaBajas.serv}</td>
+                        <td>{ListaBajas.dep}</td>
+                        <td>{ListaBajas.esp}</td>
+                        <td>{ListaBajas.ncuenta}</td>
+                        <td>{ListaBajas.marca}</td>
+                        <td>{ListaBajas.modelo}</td>
+                        <td>{ListaBajas.serie}</td>
+                        <td>{ListaBajas.precio}</td>
+                        <td>{ListaBajas.mrecepcion}</td>
+                        {/* <td>
                           <Button
                             variant="outline-danger"
                             size="sm"
@@ -315,8 +315,9 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                             Registrar
                           </Button>
                         </td> */}
-                    </tr>
-                  ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </Table>
             </div>
