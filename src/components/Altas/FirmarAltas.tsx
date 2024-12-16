@@ -21,9 +21,9 @@ interface DatosEtiquetaPrps {
 interface DatosProps {
     obtenerEtiquetasAltasActions: (aF_CLAVE: string) => Promise<boolean>;
     datosEtiqueta: DatosEtiquetaPrps[];
-
+    isDarkMode: boolean;
 }
-const FirmarAltas: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datosEtiqueta }) => {
+const FirmarAltas: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datosEtiqueta, isDarkMode }) => {
 
     const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
     const [Inventario, setInventario] = useState({ aF_CLAVE: "" });
@@ -78,7 +78,7 @@ const FirmarAltas: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datos
         <Layout>
             <MenuAltas />
             <form onSubmit={handleFormSubmit}>
-                <div className="border-bottom shadow-sm p-4 rounded vh-100">
+                <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>
                     <div className="row justify-content-center">
                         {/* Contenedor de Input */}
@@ -134,6 +134,7 @@ const FirmarAltas: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datos
 
 const mapStateToProps = (state: RootState) => ({
     datosEtiqueta: state.obtenerEtiquetasAltasReducers.datosEtiqueta,
+    isDarkMode: state.darkModeReducer.isDarkMode,
 });
 
 export default connect(mapStateToProps, { obtenerEtiquetasAltasActions })(FirmarAltas);

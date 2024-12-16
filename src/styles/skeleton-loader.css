@@ -1,4 +1,4 @@
-.skeleton-loader {
+/* .skeleton-loader {
     height: 20px;
     width: 100%;
     background-color: #e0e0e0;
@@ -20,4 +20,22 @@
     100% {
       opacity: 0.6;
     }
-  }
+  } */
+
+  /* Estilo base para los loaders */
+.skeleton-loader {
+  background-color: #e0e0e0; /* Color claro para el fondo */
+  height: 20px; /* Altura del loader */
+  border-radius: 4px; /* Bordes redondeados */
+}
+
+/* Modo oscuro */
+.skeleton-loader.dark-mode {
+  background-color: #555; /* Color oscuro */
+}
+
+/* Estilo para la tabla en modo oscuro */
+.skeleton-table.dark-mode {
+  background-color: #333; /* Fondo oscuro */
+  border-color: #444; /* Bordes oscuros */
+}

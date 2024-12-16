@@ -1,7 +1,7 @@
 // Importa componentes al FormularioCompleto.tsx
 import React, { useEffect, useState } from "react";
 import Layout from "../../../containers/hocs/layout/Layout";
-import DatosInventario, { ORIGEN, MODALIDAD, PROVEEDOR } from "./Datos_inventario";
+import DatosInventario, { ORIGEN, MODALIDAD, PROVEEDOR } from "./DatosInventario";
 import DatosCuenta, {
   SERVICIO,
   CUENTA,
@@ -9,8 +9,8 @@ import DatosCuenta, {
   ListaEspecie,
   BIEN,
   DETALLE,
-} from "./Datos_cuenta";
-import DatosActivoFijo from "./Datos_activo_fijo";
+} from "./DatosCuenta";
+import DatosActivoFijo from "./DatosActivoFijo";
 import Timeline from "./Timeline";
 
 // Redux global

@@ -14,7 +14,6 @@ import {
   setMontoRecepcionActions,
   setFechaFacturaActions,
   setRutProveedorActions,
-  setnombreProveedorActions,
   setModalidadCompraActions,
   vaciarDatosTabla,
   setServicioActions,
@@ -25,7 +24,7 @@ import {
   setEspecieActions,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
-import { ActivoFijo } from "./Datos_activo_fijo";
+import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, Search } from "react-bootstrap-icons";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
@@ -38,14 +37,13 @@ export interface MODALIDAD {
   codigo: string;
   descripcion: string;
 }
-
+// Define el tipo de los elementos del combo `Proveedor`
 export interface PROVEEDOR {
   rut: number,
   nomprov: string
 }
 
-
-// Define el tipo de los datos que se manejarán en el componente
+// Props del formulario
 export interface InventarioProps {
   fechaFactura: string;
   fechaRecepcion: string;
@@ -59,8 +57,8 @@ export interface InventarioProps {
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
-interface Datos_inventarioProps extends InventarioProps {
-  onNext: (Inventario: InventarioProps) => void;
+interface DatosInventarioProps extends InventarioProps {
+  onNext: (Inventario: InventarioProps) => void; //Se pasan los datos a medida que se da siguiente al siguiente componente
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
   comboProveedor: PROVEEDOR[];
@@ -69,8 +67,8 @@ interface Datos_inventarioProps extends InventarioProps {
   isDarkMode: boolean;
 }
 
-// Define el componente `Datos_inventario` del props
-const Datos_inventario: React.FC<Datos_inventarioProps> = ({
+//Paso 1 del Formulario
+const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
   comboOrigen,
   comboModalidad,
@@ -108,6 +106,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     return classes.filter(Boolean).join(" ");
   };
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
+
+  //Validaciones del formulario
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -205,10 +205,8 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
         return;
       }
     }
-    // setError((prevErrors) => ({ ...prevErrors, [name]: "" }));
 
     //Al seleccionar "otros" es decir el valor 7 este habilitará el input text
-
     if (name === "modalidadDeCompra") {
       if (value === "7") {
         newValue = parseFloat(value) || 0;
@@ -317,14 +315,14 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
     if (validate()) {
       dispatch(setMontoRecepcionActions(Inventario.montoRecepcion)); // Convertido a número
       onNext(Inventario);
-      console.log(Inventario);
+      // console.log(Inventario);
     }
   };
 
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className={`border-bottom shadow-sm p-4 rounded ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
+        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Registrar Inventario
           </h3>
@@ -373,7 +371,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   </Button>
                 </div>
                 {error.nRecepcion && (
-                  <div className="invalid-feedback d-block">
+                  <div className="invalid-feedback fw-semibold d-block">
                     {error.nRecepcion}
                   </div>
                 )}
@@ -387,14 +385,13 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                 <input
                   aria-label="fechaRecepcion"
                   type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                    } ${error.fechaRecepcion ? "is-invalid" : ""}`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaRecepcion ? "is-invalid" : ""}`}
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion}
                 />
                 {error.fechaRecepcion && (
-                  <div className="invalid-feedback">{error.fechaRecepcion}</div>
+                  <div className="invalid-feedback fw-semibold">{error.fechaRecepcion}</div>
                 )}
               </div>
 
@@ -414,11 +411,10 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   value={Inventario.nOrdenCompra}
                 />
                 {error.nOrdenCompra && (
-                  <div className="invalid-feedback">{error.nOrdenCompra}</div>
+                  <div className="invalid-feedback fw-semibold">{error.nOrdenCompra}</div>
                 )}
               </div>
             </Col>
-
             <Col md={4}>
               {/* Nº Factura */}
               <div className="mb-1">
@@ -436,7 +432,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   value={Inventario.nFactura}
                 />
                 {error.nFactura && (
-                  <div className="invalid-feedback">{error.nFactura}</div>
+                  <div className="invalid-feedback fw-semibold">{error.nFactura}</div>
                 )}
               </div>
 
@@ -461,7 +457,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   ))}
                 </select>
                 {error.origenPresupuesto && (
-                  <div className="invalid-feedback">{error.origenPresupuesto}</div>
+                  <div className="invalid-feedback fw-semibold">{error.origenPresupuesto}</div>
                 )}
               </div>
 
@@ -481,11 +477,10 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   value={Inventario.montoRecepcion}
                 />
                 {error.montoRecepcion && (
-                  <div className="invalid-feedback">{error.montoRecepcion}</div>
+                  <div className="invalid-feedback fw-semibold">{error.montoRecepcion}</div>
                 )}
               </div>
             </Col>
-
             <Col md={4}>
               {/* Fecha Factura */}
               <div className="mb-1">
@@ -502,7 +497,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   value={Inventario.fechaFactura}
                 />
                 {error.fechaFactura && (
-                  <div className="invalid-feedback">{error.fechaFactura}</div>
+                  <div className="invalid-feedback fw-semibold">{error.fechaFactura}</div>
                 )}
               </div>
 
@@ -526,7 +521,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   ))}
                 </select>
                 {error.rutProveedor && (
-                  <div className="invalid-feedback">{error.rutProveedor}</div>
+                  <div className="invalid-feedback fw-semibold">{error.rutProveedor}</div>
                 )}
               </div>
 
@@ -553,7 +548,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                   ))}
                 </select>
                 {error.modalidadDeCompra && (
-                  <div className="invalid-feedback">
+                  <div className="invalid-feedback fw-semibold">
                     {error.modalidadDeCompra}
                   </div>
                 )}
@@ -577,7 +572,7 @@ const Datos_inventario: React.FC<Datos_inventarioProps> = ({
                     }
                   />
                   {error.modalidadDeCompra && (
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback fw-semibold">
                       {error.modalidadDeCompra}
                     </div>
                   )}
@@ -615,4 +610,4 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   obtenerRecepcionActions,
-})(Datos_inventario);
+})(DatosInventario);

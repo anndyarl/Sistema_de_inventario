@@ -21,7 +21,7 @@ export const registrarBajasActions = (activos: { aF_CLAVE: number }[]) => async 
     dispatch({ type: REGISTRAR_BAJAS_REQUEST });
 
     try {
-      const res = await axios.post("/api_inv/api/inventario/CrearAltas", body, config);
+      const res = await axios.post("/api_inv/api/inventario/CrearBajas", body, config);
 
       if (res.status === 200) {
         dispatch({

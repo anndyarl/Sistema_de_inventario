@@ -5,8 +5,8 @@ import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
-import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/Datos_inventario";
-import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/Datos_cuenta";
+import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
+import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/DatosCuenta";
 
 import Swal from "sweetalert2";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
@@ -494,7 +494,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     <Layout>
       <MenuInventario />
       <form onSubmit={handleSubmit}>
-        <div className="border-bottom shadow-sm p-4 rounded">
+        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Modificar Inventario
           </h3>
@@ -551,7 +551,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </Button>
                 </div>
                 {error.nRecepcion && (
-                  <div className="invalid-feedback d-block">
+                  <div className="invalid-feedback fw-semibold d-block">
                     {error.nRecepcion}
                   </div>
                 )}
@@ -570,7 +570,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   disabled={isDisabled}
                 />
                 {error.fechaRecepcion && (
-                  <div className="invalid-feedback">{error.fechaRecepcion}</div>
+                  <div className="invalid-feedback fw-semibold">{error.fechaRecepcion}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -588,7 +588,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   disabled={isDisabled}
                 />
                 {error.nOrdenCompra && (
-                  <div className="invalid-feedback">{error.nOrdenCompra}</div>
+                  <div className="invalid-feedback fw-semibold">{error.nOrdenCompra}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -606,7 +606,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   disabled={isDisabled}
                 />
                 {error.nFactura && (
-                  <div className="invalid-feedback">{error.nFactura}</div>
+                  <div className="invalid-feedback fw-semibold">{error.nFactura}</div>
                 )}
               </div>
 
@@ -631,7 +631,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   ))}
                 </select>
                 {error.origenPresupuesto && (
-                  <div className="invalid-feedback">
+                  <div className="invalid-feedback fw-semibold">
                     {error.origenPresupuesto}
                   </div>
                 )}
@@ -651,7 +651,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   disabled={isDisabled}
                 />
                 {error.montoRecepcion && (
-                  <div className="invalid-feedback">{error.montoRecepcion}</div>
+                  <div className="invalid-feedback fw-semibold">{error.montoRecepcion}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -667,7 +667,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   disabled={isDisabled}
                 />
                 {error.fechaFactura && (
-                  <div className="invalid-feedback">{error.fechaFactura}</div>
+                  <div className="invalid-feedback fw-semibold">{error.fechaFactura}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -689,7 +689,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   ))}
                 </select>
                 {error.rutProveedor && (
-                  <div className="invalid-feedback d-block">
+                  <div className="invalid-feedback fw-semibold d-block">
                     {error.rutProveedor}
                   </div>
                 )}
@@ -719,7 +719,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   ))}
                 </select>
                 {error.servicio && (
-                  <div className="invalid-feedback">{error.servicio}</div>
+                  <div className="invalid-feedback fw-semibold">{error.servicio}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -745,7 +745,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   ))}
                 </select>
                 {error.dependencia && (
-                  <div className="invalid-feedback">{error.dependencia}</div>
+                  <div className="invalid-feedback fw-semibold">{error.dependencia}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -770,7 +770,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   ))}
                 </select>
                 {error.modalidadDeCompra && (
-                  <div className="invalid-feedback">
+                  <div className="invalid-feedback fw-semibold">
                     {error.modalidadDeCompra}
                   </div>
                 )}
@@ -794,7 +794,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     }
                   />
                   {error.modalidadDeCompra && (
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback fw-semibold">
                       {error.modalidadDeCompra}
                     </div>
                   )}
@@ -835,7 +835,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </Button>
                 </div>
                 {/* {error.especie && (
-                    <div className="invalid-feedback d-block">
+                    <div className="invalid-feedback fw-semibold d-block">
                       {error.especie}
                     </div>
                   )} */}
@@ -859,7 +859,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   ))}
                 </select>
                 {error.cuenta && (
-                  <div className="invalid-feedback">{error.cuenta}</div>
+                  <div className="invalid-feedback fw-semibold">{error.cuenta}</div>
                 )}
               </div>
               <div className="mb-1">

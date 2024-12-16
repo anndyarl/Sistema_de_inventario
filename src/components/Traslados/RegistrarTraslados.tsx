@@ -4,7 +4,7 @@ import { Row, Col, Collapse, Button, } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CuentaProps, ListaEspecie, SERVICIO } from "../Inventario/RegistrarInventario/Datos_cuenta";
+import { CuentaProps, ListaEspecie, SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
 import { ArrowBarDown, ArrowBarUp, ArrowUp, CaretDown, CaretUp, CaretUpFill, Dash, Plus } from "react-bootstrap-icons";
 import { motion, AnimatePresence, easeInOut, easeOut } from "framer-motion";
@@ -147,12 +147,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
   return (
     <Layout>
       <form onSubmit={handleFormSubmit}>
-        <div className={`border-bottom shadow-sm p-4 rounded ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
+        <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traslados</h3>
           {/* Fila 1 */}
           <div className="mb-3 border p-1 rounded-4">
             <div
-              className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : "bg-light text-dark"}`} onClick={() => toggleRow("fila1")}>
+              className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
               <h5 className="fw-semibold">Parámetros de Búsqueda</h5>
               {isExpanded.fila1 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
@@ -171,8 +171,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                       </label>
                       <select
                         aria-label="establecimiento"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.establecimiento ? "is-invalid" : ""}`}
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.establecimiento ? "is-invalid" : ""}`}
                         name="establecimiento"
                         onChange={handleChange}
                         value={Traslados.establecimiento}
@@ -185,7 +184,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                           >
                             {traeEstablecimiento.descripcion}
                           </option>
+
                         ))}
+
                       </select>
                       {error.establecimiento && (
                         <div className="invalid-feedback">
@@ -364,8 +365,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
           </div>
 
           {/* Fila 2 */}
-          <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
-            <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : "bg-light text-dark"}`} onClick={() => toggleRow("fila2")}>
+          <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
+            <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
               <h5 className="fw-semibold">Seleccione ubicación de destino</h5>
               {isExpanded.fila2 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
@@ -525,8 +526,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
           </div>
 
           {/* Fila 3 */}
-          <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
-            <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : "bg-light text-dark"}`} onClick={() => toggleRow("fila3")}>
+          <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
+            <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila3")}>
               <h5 className="fw-semibold">Datos de recepción</h5>
               {isExpanded.fila3 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />

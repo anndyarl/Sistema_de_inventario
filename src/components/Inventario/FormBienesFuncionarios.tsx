@@ -6,7 +6,7 @@ import {
   CuentaProps,
   DEPENDENCIA,
   SERVICIO,
-} from "./RegistrarInventario/Datos_cuenta";
+} from "./RegistrarInventario/DatosCuenta";
 import Swal from "sweetalert2";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
@@ -287,7 +287,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
     <Layout>
       <MenuInventario />
       <form onSubmit={handleFormSubmit}>
-        <div className={`border-bottom shadow-sm p-4 rounded ${isDarkMode ? "darkModePrincipal text-light" : "bg-light text-dark"}`}>
+        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Registro Bienes de Funcioanarios
           </h3>
@@ -308,20 +308,19 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   placeholder="12.345.678-9"
                 />
                 {error.rutFuncionario && (
-                  <div className="invalid-feedback d-block">
+                  <div className="invalid-feedback fw-semibold d-block">
                     {error.rutFuncionario}
                   </div>
                 )}
               </div>
 
-              <div className="border shadow-sm p-2 rounded">
+              <div className={`border p-2 ${isDarkMode ? "border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`} >
                 <h6 className="text-center fw-semibold">Destino</h6>
                 <div className="mb-1">
                   <label htmlFor="servicio" className="text-muted fw-semibold fw-semibold">Servicio</label>
                   <select
                     aria-label="servicio"
-                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                      } ${error.servicio ? "is-invalid" : ""}`}
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
                     name="servicio"
                     onChange={handleChange}
                     value={Funcionario.servicio || 0}
@@ -337,7 +336,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                     ))}
                   </select>
                   {error.servicio && (
-                    <div className="invalid-feedback d-block">
+                    <div className="invalid-feedback fw-semibold d-block">
                       {error.servicio}
                     </div>
                   )}
@@ -364,7 +363,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                     ))}
                   </select>
                   {error.dependencia && (
-                    <div className="invalid-feedback d-block">
+                    <div className="invalid-feedback fw-semibold d-block">
                       {error.dependencia}
                     </div>
                   )}
@@ -402,7 +401,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   value=""
                 />
                 {error.comprobanteDePago && (
-                  <div className="invalid-feedback d-block">
+                  <div className="invalid-feedback fw-semibold d-block">
                     {error.comprobanteDePago}
                   </div>
                 )}
@@ -439,7 +438,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                   value=""
                 />
                 {error.autorizacion && (
-                  <div className="invalid-feedback d-block">
+                  <div className="invalid-feedback fw-semibold d-block">
                     {error.autorizacion}
                   </div>
                 )}

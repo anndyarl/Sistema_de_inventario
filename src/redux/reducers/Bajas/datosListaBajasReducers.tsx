@@ -8,17 +8,20 @@ import {
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
   listaBajas: Array<{
-    aF_CLAVE: number,
-    ninv: string,
-    serv: string,
-    dep: string,
-    esp: string,
-    ncuenta: string,
-    marca: string,
-    modelo: string,
-    serie: string,
-    precio: string,
-    mrecepcion: string
+    bajaS_CORR: string;
+    aF_CLAVE: number;
+    id: number;
+    vutiL_RESTANTE: number;
+    vutiL_AGNOS: number;
+    useR_MOD: number;
+    saldO_VALOR: number;
+    observaciones: string;
+    nresolucion: number;
+    ncuenta: string;
+    iniciaL_VALOR: number;
+    fechA_BAJA: string;
+    especie: string;
+    deP_ACUMULADA: number;
   }>;
 }
 // Estado inicial tipado

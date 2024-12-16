@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions";
 import { registrarAltasActions } from "../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
-import SkeletonLoader from "../Utils/SkeletonLoader";
+import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 
 export interface ListaAltas {
   aF_CLAVE: number,
@@ -28,9 +28,10 @@ interface DatosAltas {
   listaAltasActions: () => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
+  isDarkMode: boolean;
 }
 
-const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, registrarAltasActions, token }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, registrarAltasActions, token, isDarkMode }) => {
   // const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -264,10 +265,10 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
     <Layout>
       <MenuAltas />
       <form>
-        <div className="border-bottom shadow-sm p-4 rounded">
+        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
           {/* Boton registrar filas seleccionadas */}
-          <div className="d-flex justify-content-start">
+          <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
               <Button
                 variant="primary"
@@ -290,17 +291,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                   </>
                 ) : (
                   <>
-                    Registrar{" "}
-                    <span className="badge bg-light text-dark mx-2">
+                    Registrar
+                    <span className="badge bg-light text-dark mx-1">
                       {filasSeleccionadas.length}
-                    </span>{" "}
-                    {filasSeleccionadas.length === 1 ? "Alta seleccionada" : "Altas seleccionadas"}
+                    </span>
+                    {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
                   </>
                 )}
               </Button>
             ) : (
-              <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                No hay altas seleccionadas para registrar
+              <strong className="alert alert-dark border m-1 p-2 mx-2">
+                No hay filas seleccionadas
               </strong>
             )}
           </div>
@@ -311,31 +312,27 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
             </>
           ) : (
             <div className='table-responsive'>
-              <Table striped bordered hover>
-                <thead className="table-light sticky-top">
+              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
                     <th >
                       <Form.Check
                         type="checkbox"
                         onChange={handleSeleccionaTodos}
-                        checked={
-                          filasSeleccionadas.length ===
-                          elementosActuales.length &&
-                          elementosActuales.length > 0
-                        }
+                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col">Codigo</th>
-                    <th scope="col">N° Inventario</th>
-                    <th scope="col">Servicio</th>
-                    <th scope="col">Dependencia</th>
-                    <th scope="col">Especie</th>
-                    <th scope="col">N° Cuenta</th>
-                    <th scope="col">Marca</th>
-                    <th scope="col">Modelo</th>
-                    <th scope="col">Serie</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col" >N° Recepcion</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Codigo</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Inventario</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Servicio</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Dependencia</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Cuenta</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Marca</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modelo</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Serie</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Precio</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Recepcion</th>
                     {/* <th scope="col">Acción</th> */}
                   </tr>
                 </thead>
@@ -351,24 +348,24 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                             checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
                           />
                         </td>
-                        <td>{listaAltas.aF_CLAVE}</td>
-                        <td>{listaAltas.ninv}</td>
-                        <td>{listaAltas.serv}</td>
-                        <td>{listaAltas.dep}</td>
-                        <td>{listaAltas.esp}</td>
-                        <td>{listaAltas.ncuenta}</td>
-                        <td>{listaAltas.marca}</td>
-                        <td>{listaAltas.modelo}</td>
-                        <td>{listaAltas.serie}</td>
-                        <td>{listaAltas.precio}</td>
-                        <td>{listaAltas.mrecepcion}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.aF_CLAVE}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ninv}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serv}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.dep}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.esp}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ncuenta}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.marca}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.modelo}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serie}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.precio}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.mrecepcion}</td>
                       </tr>
                     );
                   })}
                 </tbody>
-
-              </Table>
+              </table>
             </div>
+
           )}
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">
@@ -407,7 +404,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
 
 const mapStateToProps = (state: RootState) => ({
   listaAltas: state.datosListaAltasReducers.listaAltas,
-  token: state.loginReducer.token
+  token: state.loginReducer.token,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

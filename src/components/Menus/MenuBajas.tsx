@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, Exclude, List } from "react-bootstrap-icons";
+import { Plus, Exclude, List, BoxSeamFill } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -31,6 +31,12 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             description: 'Busque el activo o los activos de Bajas que desee Excluir.',
             href: '/BodegaExcluidos',
             icon: Exclude
+        },
+        {
+            name: 'Bienes Rematados',
+            description: 'Busque los bienes exluidos.',
+            href: '/BienesRematados',
+            icon: BoxSeamFill
         },
 
     ];

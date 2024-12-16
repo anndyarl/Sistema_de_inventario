@@ -10,7 +10,7 @@ import { Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaInventarioActions } from "../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import MenuInventario from "../Menus/MenuInventario";
-import SkeletonLoader from "../Utils/SkeletonLoader";
+import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { InventarioCompleto } from "./ModificarInventario";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -20,6 +20,7 @@ interface ListaInventarioProps {
   datosListaInventario: InventarioCompleto[];
   obtenerListaInventarioActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
   anularInventarioActions: (nInventario: string) => Promise<boolean>;
+  isDarkMode: boolean;
 }
 
 interface FechasProps {
@@ -27,12 +28,12 @@ interface FechasProps {
   fechaTermino: string;
 }
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario, obtenerListaInventarioActions, anularInventarioActions }) => {
+const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario, obtenerListaInventarioActions, anularInventarioActions, isDarkMode }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [elementoSeleccionado, setElementoSeleccionado] = useState<FechasProps[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 40;
+  const elementosPorPagina = 20;
 
   const [Inventario, setInventario] = useState({
     fechaInicio: "",
@@ -144,66 +145,59 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     <Layout>
       <MenuInventario />
       <form>
-        <div className="border-bottom shadow-sm p-4 rounded">
+        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Anular Inventario
           </h3>
           <Row>
-            <Col md={5}>
-              <div className="p-2 w-100">
-                <label htmlFor="fechaInicio" className="text-muted fw-semibold">Fecha Inicio</label>
-                <div className=" d-flex mb-2 w-100 ">
-                  <input
-                    id="fechaInicio"
-                    type="date"
-                    className={`form-control text-center ${error.fechaInicio ? "is-invalid" : ""
-                      }`}
-                    name="fechaInicio"
-                    onChange={handleChange}
-                    value={Inventario.fechaInicio}
-                  />
-                  <Button onClick={handleBuscarInventario} variant="primary" className="ms-1">
-                    {loading ? (
-                      <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                        />
-                      </>
-                    ) : (
-                      <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
-                    )}
-                  </Button>
-                  <Button onClick={handleLimpiar} variant="primary" className="ms-1">
-                    <Eraser
-                      className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />
-                  </Button>
-                </div>
+            <Col md={3}>
+              <div className="mb-1">
+                <label htmlFor="fechaInicio" className="fw-semibold">Fecha Inicio</label>
+                <input
+                  aria-label="fechaInicio"
+                  type="date"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
+                  name="fechaInicio"
+                  onChange={handleChange}
+                  value={Inventario.fechaInicio}
+                />
                 {error.fechaInicio && (
-                  <div className="invalid-feedback d-block">
-                    {error.fechaInicio}
-                  </div>
+                  <div className="invalid-feedback fw-semibold d-block">{error.fechaInicio}</div>
                 )}
               </div>
-              <div className="p-2  w-81">
-                <label htmlFor="fechaTermino" className="text-muted fw-semibold">Fecha Término</label>
+              <div className="mb-1">
+                <label htmlFor="fechaTermino" className="fw-semibold">Fecha Término</label>
                 <input
-                  aria-label="Archivo de autorización"
+                  aria-label="fechaTermino"
                   type="date"
-                  className={`form-control text-center ${error.fechaTermino ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
                   name="fechaTermino"
                   onChange={handleChange}
                   value={Inventario.fechaTermino}
                 />
                 {error.fechaTermino && (
-                  <div className="invalid-feedback">{error.fechaTermino}</div>
+                  <div className="invalid-feedback fw-semibold">{error.fechaTermino}</div>
                 )}
+              </div>
+
+            </Col>
+            <Col md={5}>
+              <div className="mb-1 mt-4">
+                <Button onClick={handleBuscarInventario} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
+                  {loading ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                    </>
+                  ) : (
+                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                  )}
+                </Button>
               </div>
             </Col>
           </Row>
@@ -214,52 +208,46 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
             </>
           ) : (
             <div className='skeleton-table table-responsive'>
-              <Table striped bordered hover>
-                <thead className="table-light sticky-top">
+              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
-                    <th>Nª de Recepcion</th>
-                    <th>Fecha de Factura</th>
-                    <th>Fecha de Recepcion</th>
-                    <th>Modalidad de Compra</th>
-                    <th>Monto de Recepcion</th>
-                    <th>Nª de Factura</th>
-                    <th>Origen Presupuesto</th>
-                    <th>Rut Proveedor</th>
-                    <th>Dependencia</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nª de Recepcion</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Fecha de Factura</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Fecha de Recepcion</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Monto de Recepcion</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modalidad de Compra</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nª de Factura</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Origen Presupuesto</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Rut Proveedor</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Dependencia</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {elementosActuales.map((datosListaInventario, index) => (
                     <tr key={index}>
-                      <td>{datosListaInventario.aF_CLAVE}</td>
-                      <td>{datosListaInventario.aF_FECHAFAC}</td>
-                      <td>{datosListaInventario.aF_FINGRESO}</td>
-                      <td>{datosListaInventario.idmodalidadcompra}</td>
-                      <td>{datosListaInventario.aF_MONTOFACTURA}</td>
-                      <td>{datosListaInventario.aF_NUM_FAC}</td>
-                      <td>{datosListaInventario.aF_ORIGEN}</td>
-                      <td>{datosListaInventario.proV_RUN}</td>
-                      <td>{datosListaInventario.deP_CORR}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_CLAVE}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_FECHAFAC}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_FINGRESO}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.idmodalidadcompra}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_MONTOFACTURA}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_NUM_FAC}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_ORIGEN}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.proV_RUN}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.deP_CORR}</td>
                       <td>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() =>
-                            handleAnular(index, datosListaInventario.aF_CLAVE)
-                          }
-                        >
+                        <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}>
                           Anular
                         </Button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </Table>
+              </table>
             </div>
           )}
           {/* Paginador */}
-          <Pagination className="d-flex justify-content-end">
+          <Pagination className="d-flex justify-content-end mt-2">
             <Pagination.First
               onClick={() => paginar(1)}
               disabled={paginaActual === 1}
@@ -295,6 +283,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
 
 const mapStateToProps = (state: RootState) => ({
   datosListaInventario: state.datosListaInventarioReducers.datosListaInventario,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

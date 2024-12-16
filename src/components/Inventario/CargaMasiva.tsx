@@ -166,7 +166,7 @@ const CargaMasiva: React.FC = () => {
               />
             </div>
             {error.archivoExcel && (
-              <div className="invalid-feedback d-block">
+              <div className="invalid-feedback fw-semibold d-block">
                 {error.archivoExcel}
               </div>
             )}

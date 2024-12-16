@@ -1,18 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useMemo, useEffect } from "react";
-import {
-  Modal,
-  Button,
-  Table,
-  Form,
-  Pagination,
-  Row,
-  Col,
-  Spinner,
-} from "react-bootstrap";
-import {
-  PencilFill, Plus, Trash
-} from "react-bootstrap-icons";
+import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
+import { PencilFill, Plus, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
 
@@ -40,13 +29,12 @@ import {
   setMontoRecepcionActions,
   setFechaFacturaActions,
   setRutProveedorActions,
-  setnombreProveedorActions,
   setModalidadCompraActions,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
-import { LucideTrash, Trash2Icon } from "lucide-react";
 
+// Props del formulario
 export interface ActivoFijo {
   id: string;
   vidaUtil: string;
@@ -61,8 +49,8 @@ export interface ActivoFijo {
   color?: string;
 }
 
-interface Datos_activo_fijoProps {
-  onNext: (data: ActivoFijo[]) => void;
+interface DatosActivoFijoProps {
+  // onNext: (data: ActivoFijo[]) => void;
   onBack: () => void;
   onReset: () => void; // vuelva a al componente Datos_inventario
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
@@ -72,16 +60,18 @@ interface Datos_activo_fijoProps {
   generalTabla?: string;
   formInventario: FormInventario;
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
+  isDarkMode: boolean;
 }
 
-const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
-  onNext,
+//Paso 3 del Formulario
+const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   onBack,
   onReset,
   montoRecepcion,
   nombreEspecie,
   datosTablaActivoFijo,
   formInventario,
+  isDarkMode,
   registrarFormInventarioActions,
 }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
@@ -148,7 +138,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
   //---------------------------------------------------------//
 
-  //Validaciones
+  //Validaciones del formulario
   const validate = () => {
     let tempErrors: Partial<ActivoFijo> & { general?: string } = {};
     if (!activoActual.vidaUtil)
@@ -234,7 +224,6 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
       return actualizaActivos;
     });
   };
-
 
   //Sincroniza los numero de serie de la tabla datosTablaActivoFijo con el estado global de redux
   useEffect(() => {
@@ -474,7 +463,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
 
   return (
     <>
-      <div className="border-bottom shadow-sm p-4 rounded">
+      <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
         <h3 className="form-title fw-semibold border-bottom">
           Detalles activo
         </h3>
@@ -490,13 +479,10 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
           {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
             <Button
               className="align-content-center"
-              variant="primary"
+              variant={`${isDarkMode ? "secondary" : "primary"}`}
               onClick={() => setMostrarModal(true)}
             >
-              <Plus
-                className={classNames("flex-shrink-0", "h-5 w-5")}
-                aria-hidden="true"
-              />
+              <Plus className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
             </Button>
           )}
         </div>
@@ -511,7 +497,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
               className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
             >
               Eliminar{" "}
-              <span className="badge bg-light text-dark mx-2">
+              <span className="badge bg-light text-dark">
                 {filasSeleccionadas.length}
               </span>{" "}
               {filasSeleccionadas.length === 1 ? "Activo seleccionado" : "Activos seleccionados"}
@@ -531,9 +517,9 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
           </p>
         ) : (
           <div className="overflow-auto">
-            <Table responsive className="mb-0 ">
-              <thead className="table-light sticky-top">
-                <tr>
+            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                <tr >
                   <th >
                     <Form.Check
                       type="checkbox"
@@ -545,13 +531,13 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                       }
                     />
                   </th>
-                  <th>Vida Útil</th>
-                  <th>Fecha Ingreso</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>Serie</th>
-                  <th>Precio</th>
-                  <th>Especie</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Vida Útil</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Fecha Ingreso</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Marca</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modelo</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Serie</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Precio</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
                   <th></th>
                 </tr>
               </thead>
@@ -567,15 +553,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                           checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
-                      <td>{activo.vidaUtil}</td>
-                      <td>{activo.fechaIngreso}</td>
-                      <td>{activo.marca}</td>
-                      <td>{activo.modelo}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.vidaUtil}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.fechaIngreso}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.marca}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.modelo}</td>
                       <td
-                        className="w-15"
+                        className={`${isDarkMode ? "text-light" : "text-dark"} w-15`}
                         onClick={() => setEditingSerie(indexReal.toString())}
                       >
-                        <div className="d-flex align-items-center ">
+                        <div className={`d-flex align-items-center ${isDarkMode ? "text-light" : "text-dark"}`}>
                           <Form.Control
                             type="text"
                             value={activo.serie}
@@ -584,12 +570,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                             autoFocus
                             maxLength={10}
                             pattern="\d*"
-                            placeholder="editar"
+                            placeholder="Editar"
                             data-index={indexReal}
                             // Agregar clase condicional si hay un error en la serie
-                            className={
-                              erroresSerie[indexReal] ? "is-invalid" : ""
-                            }
+                            className={`${erroresSerie[indexReal] ? "is-invalid" : ""} ${isDarkMode ? "bg-secondary-subtle" : ""}`}
+
                           />
                           <PencilFill
                             style={{ marginLeft: "1rem", color: "#6c757d" }}
@@ -597,25 +582,25 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                           {/* Ícono de lápiz */}
                         </div>
                         {erroresSerie[indexReal] && (
-                          <div className="invalid-feedback d-block">
+                          <div className="invalid-feedback fw-semibold d-block">
                             {erroresSerie[indexReal]}
                           </div>
                         )}
                       </td>
 
-                      <td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>
                         $
                         {parseFloat(activo.precio).toLocaleString("es-ES", {
                           minimumFractionDigits: 0,
                         })}
                       </td>
-                      <td className="fw-bold" style={{ backgroundColor: activo.color || "transparent" }}> {" "}  {activo.especie}</td>
+                      <td className="fw-bold" style={{ backgroundColor: activo.color || "transparent" }}> {activo.especie}</td>
                       <td>
                         {/* Clonar */}
                         {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">*/}
 
                         {/* </Button> */}
-                        <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
+                        <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
                           <Trash
                             className={classNames("flex-shrink-0", "h-5 w-5")}
                             aria-hidden="true"
@@ -628,20 +613,17 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={6} className="text-right">
-                    <strong>Total activo fijo:</strong>
+                  <td colSpan={6} className={`text-right ${isDarkMode ? "text-light" : "text-dark"}`}>
+                    <strong className={`${isDarkMode ? "text-light" : "text-dark"}`}>Total activo fijo:</strong>
                   </td>
-                  <td>
-                    <strong>
-                      $
-                      {totalSum.toLocaleString("es-ES", {
-                        minimumFractionDigits: 0,
-                      })}
+                  <td colSpan={3}>
+                    <strong className={`${isDarkMode ? "text-light" : "text-dark"}`}>
+                      ${totalSum.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
                     </strong>
                   </td>
                 </tr>
               </tfoot>
-            </Table>
+            </table>
           </div>
         )}
 
@@ -657,7 +639,8 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         )}
         {/* Botones volver y confirmar*/}
         <div className="d-flex justify-content-end mt-3 justify-content-between">
-          <Button onClick={handleVolver} className="btn btn-primary m-1">
+
+          <Button onClick={handleVolver} variant={` m-1 btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
             Volver
           </Button>
 
@@ -675,11 +658,11 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
         onHide={() => setMostrarModal(false)}
         size="lg"
       >
-        <Modal.Header closeButton>
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Agregar activo fijo</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           {/* Mostrar errores generales en el modal */}
           {error.general && (
             <div className="alert alert-danger" role="alert">
@@ -699,7 +682,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                 <p><strong>Monto Pendiente:</strong> ${(montoRecepcion - totalSum).toLocaleString("es-ES", {
                   minimumFractionDigits: 0,
                 })}</p>
-                <Button type="submit" variant="primary">
+                <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "}`}>
                   <Plus
                     className={classNames("flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
@@ -708,13 +691,12 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
               </div>
               <Col md={6}>
                 <div className="mb-1">
-                  <label htmlFor="vidaUtil" className="text-muted fw-semibold">
+                  <label htmlFor="vidaUtil" className="fw-semibold">
                     Vida Útil
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${error.vidaUtil ? "is-invalid" : ""
-                      }`}
+                    className={`form-select ${error.vidaUtil ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="vidaUtil"
                     name="vidaUtil"
                     maxLength={10}
@@ -722,36 +704,34 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     value={activoActual.vidaUtil}
                   />
                   {error.vidaUtil && (
-                    <div className="invalid-feedback">{error.vidaUtil}</div>
+                    <div className="invalid-feedback fw-semibold">{error.vidaUtil}</div>
                   )}
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="fechaIngreso" className="text-muted fw-semibold">
+                  <label htmlFor="fechaIngreso" className="fw-semibold">
                     Fecha Ingreso
                   </label>
                   <input
                     type="date"
-                    className={`form-control ${error.fechaIngreso ? "is-invalid" : ""
-                      }`}
+                    className={`form-select ${error.fechaIngreso ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="fechaIngreso"
                     name="fechaIngreso"
                     onChange={handleChange}
                     value={activoActual.fechaIngreso}
                   />
                   {error.fechaIngreso && (
-                    <div className="invalid-feedback">{error.fechaIngreso}</div>
+                    <div className="invalid-feedback fw-semibold">{error.fechaIngreso}</div>
                   )}
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="marca" className="text-muted fw-semibold">
+                  <label htmlFor="marca" className="fw-semibold">
                     Marca
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${error.marca ? "is-invalid" : ""
-                      }`}
+                    className={`form-select ${error.marca ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="marca"
                     name="marca"
                     maxLength={20}
@@ -759,18 +739,17 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     value={activoActual.marca}
                   />
                   {error.marca && (
-                    <div className="invalid-feedback">{error.marca}</div>
+                    <div className="invalid-feedback fw-semibold">{error.marca}</div>
                   )}
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="modelo" className="text-muted fw-semibold">
+                  <label htmlFor="modelo" className="fw-semibold">
                     Modelo
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${error.modelo ? "is-invalid" : ""
-                      }`}
+                    className={`form-select ${error.modelo ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="modelo"
                     name="modelo"
                     maxLength={20}
@@ -778,19 +757,18 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     value={activoActual.modelo}
                   />
                   {error.modelo && (
-                    <div className="invalid-feedback">{error.modelo}</div>
+                    <div className="invalid-feedback fw-semibold">{error.modelo}</div>
                   )}
                 </div>
               </Col>
               <Col md={6}>
                 <div className="mb-1">
-                  <label htmlFor="precio" className="text-muted fw-semibold">
+                  <label htmlFor="precio" className="fw-semibold">
                     Precio
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${error.precio ? "is-invalid" : ""
-                      }`}
+                    className={`form-select ${error.precio ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="precio"
                     name="precio"
                     maxLength={12}
@@ -798,18 +776,17 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     value={activoActual.precio}
                   />
                   {error.precio && (
-                    <div className="invalid-feedback">{error.precio}</div>
+                    <div className="invalid-feedback fw-semibold">{error.precio}</div>
                   )}
                 </div>
 
                 <div className="mb-1">
-                  <label htmlFor="cantidad" className="text-muted fw-semibold">
+                  <label htmlFor="cantidad" className="fw-semibold">
                     Cantidad
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${error.cantidad ? "is-invalid" : ""
-                      }`}
+                    className={`form-select ${error.cantidad ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="cantidad"
                     name="cantidad"
                     maxLength={6}
@@ -817,16 +794,15 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     value={activoActual.cantidad}
                   />
                   {error.cantidad && (
-                    <div className="invalid-feedback">{error.cantidad}</div>
+                    <div className="invalid-feedback fw-semibold">{error.cantidad}</div>
                   )}
                 </div>
                 <div className="mb-1">
-                  <label htmlFor="observaciones" className="text-muted fw-semibold">
+                  <label htmlFor="observaciones" className="fw-semibold">
                     Observaciones
                   </label>
                   <textarea
-                    className={`form-control ${error.observaciones ? "is-invalid" : ""
-                      }`}
+                    className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     aria-label="observaciones"
                     name="observaciones"
                     rows={4}
@@ -836,7 +812,7 @@ const Datos_activo_fijo: React.FC<Datos_activo_fijoProps> = ({
                     value={activoActual.observaciones}
                   />
                   {error.observaciones && (
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback fw-semibold">
                       {error.observaciones}
                     </div>
                   )}
@@ -855,7 +831,8 @@ const mapStateToProps = (state: RootState) => ({
   nombreEspecie: state.datosActivoFijoReducers.nombreEspecie,
   resetFormulario: state.datosActivoFijoReducers.resetFormulario,
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,
-})(Datos_activo_fijo);
+})(DatosActivoFijo);

@@ -20,7 +20,7 @@ export const listaBajasActions = () => async (dispatch: Dispatch, getState: any)
     dispatch({ type: LISTA_BAJAS_REQUEST });
 
     try {
-      const res = await axios.get(`/api_inv/api/inventario/TraeAFAltas`, config);
+      const res = await axios.get(`/api_inv/api/inventario/TraeBajas`, config);
       // console.log("Respuesta del servidor obtener lista altas:", res);
 
       if (res.status === 200) {

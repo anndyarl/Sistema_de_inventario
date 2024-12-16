@@ -21,9 +21,9 @@ interface DatosEtiquetaPrps {
 interface DatosProps {
     obtenerEtiquetasAltasActions: (aF_CLAVE: string) => Promise<boolean>;
     datosEtiqueta: DatosEtiquetaPrps[];
-
+    isDarkMode: boolean;
 }
-const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datosEtiqueta }) => {
+const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datosEtiqueta, isDarkMode }) => {
 
     const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
     const [Inventario, setInventario] = useState({ aF_CLAVE: "" });
@@ -88,7 +88,7 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
         <Layout>
             <MenuAltas />
             <form onSubmit={handleFormSubmit}>
-                <div className="border-bottom shadow-sm p-4 rounded vh-100">
+                <div className={`border border-botom p-4 rounded v-100 ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Generación código QR</h3>
                     <div className="row justify-content-center">
                         {/* Contenedor de Input */}
@@ -96,21 +96,21 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                             <input
                                 aria-label="aF_CLAVE"
                                 type="text"
-                                className={`form-control text-center ${error.aF_CLAVE ? "is-invalid" : ""}`}
+                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CLAVE ? "is-invalid" : ""}`}
                                 maxLength={12}
                                 name="aF_CLAVE"
-                                placeholder="Ingrese un número de inventario"
+                                placeholder="Ingrese número de Inventario"
                                 onChange={handleChange}
                                 value={Inventario.aF_CLAVE}
                             />
                             {error.aF_CLAVE && (
-                                <div className="invalid-feedback">{error.aF_CLAVE}</div>
+                                <div className="invalid-feedback fw-semibold">{error.aF_CLAVE}</div>
                             )}
                         </div>
 
                         {/* Contenedor del Botón */}
                         <div className="col-12 text-center">
-                            <button type="submit" disabled={loading} className="btn btn-primary mt-3">
+                            <button type="submit" disabled={loading} className={`btn mt-3 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                                 {loading ? (
                                     <>
                                         {" Generando... "}
@@ -144,6 +144,7 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
 
 const mapStateToProps = (state: RootState) => ({
     datosEtiqueta: state.obtenerEtiquetasAltasReducers.datosEtiqueta,
+    isDarkMode: state.darkModeReducer.isDarkMode,
 });
 
 export default connect(mapStateToProps, { obtenerEtiquetasAltasActions })(ImprimirEtiqueta);

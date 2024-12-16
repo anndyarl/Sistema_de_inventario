@@ -1,16 +1,16 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
-import { RootState } from "../../store";
+import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
-import Layout from "../../containers/hocs/layout/Layout";
+import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import { Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions";
-import MenuBajas from "../Menus/MenuBajas";
-import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions";
-import { obtenerListaBajasActions } from "../../redux/actions/Bajas/obtenerListaBajasActions";
+import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions.tsx";
+import MenuBajas from "../Menus/MenuBajas.tsx";
+import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions.tsx";
+import { obtenerListaBajasActions } from "../../redux/actions/Bajas/obtenerListaBajasActions.tsx";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -44,7 +44,7 @@ interface DatosBajas {
   isDarkMode: boolean;
 }
 
-const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerListaBajasActions, excluirBajasActions, token, isDarkMode }) => {
+const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerListaBajasActions, excluirBajasActions, token, isDarkMode }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -142,7 +142,6 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
     } else {
       setLoading(false); //Finaliza estado de carga
     }
-
   };
 
   const setSeleccionaFilas = (index: number) => {
@@ -151,7 +150,6 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
-    console.log("indices seleccionmados", index);
   };
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,7 +159,6 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
           (indicePrimerElemento + index).toString()
         )
       );
-      console.log("filas Seleccionadas ", filasSeleccionadas);
     } else {
       setFilasSeleccionadas([]);
     }
@@ -185,19 +182,8 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
       confirmButtonColor: '#dc3545',
     });
 
-    // selectedIndices.map(async (index) => {
-
     if (result.isConfirmed) {
       setLoadingExcluir(true);
-      // const elemento = listaAltas[index].aF_CLAVE;
-      // console.log("despues del confirm elemento", elemento);
-
-      // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);      
-      // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
-      // Crear un array de objetos con aF_CLAVE y nombre
-
-
-      // console.log("Activos seleccionados para registrar:", activosSeleccionados);
 
       const resultado = await excluirBajasActions(activosSeleccionados);
       if (resultado) {
@@ -278,7 +264,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
       <MenuBajas />
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
-          <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
+          <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
           {/* <Row>
             <Col md={3}>
               <div className="mb-1">
@@ -310,32 +296,32 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                 )}
               </div>
 
-            </Col>
-            <Col md={5}>
-              <div className="mb-1 mt-4">
-                <Button onClick={handleBuscarBajas} variant="primary" className="ms-1">
-                  {loading ? (
-                    <>
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                    </>
-                  ) : (
-                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
-                  )}
-                </Button>
-              </div>
-            </Col>
-          </Row> */}
+            </Col> 
+          <Col md={5}>
+            <div className="mb-1 mt-4">
+              <Button onClick={handleBuscarBajas} variant="primary" className="ms-1">
+                {loading ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  </>
+                ) : (
+                  <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                )}
+              </Button>
+            </div>
+          </Col>
+        </Row>  */}
           {/* Boton anular filas seleccionadas */}
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
               <Button
-                variant="warning"
+                variant="danger"
                 onClick={handleExcluirSeleccionados}
                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                 disabled={loadingExcluir}  // Desactiva el botón mientras carga
@@ -355,7 +341,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                   </>
                 ) : (
                   <>
-                    Excluir
+                    Rematar
                     <span className="badge bg-light text-dark mx-1">
                       {filasSeleccionadas.length}
                     </span>
@@ -369,6 +355,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
               </strong>
             )}
           </div>
+
           {/* Tabla*/}
           {loading ? (
             <>
@@ -469,4 +456,4 @@ export default connect(mapStateToProps, {
   listaBajasActions,
   excluirBajasActions,
   obtenerListaBajasActions
-})(BodegaExcluidos);
+})(BienesRematados);

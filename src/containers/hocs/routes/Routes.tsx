@@ -34,6 +34,7 @@ import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFun
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
 import RegistrarTraslados from '../../../components/Traslados/RegistrarTraslados';
 import FirmarAltas from '../../../components/Altas/FirmarAltas';
+import BienesRematados from '../../../components/Bajas/BienesRematados';
 
 
 const AnimatedRoutes: React.FC = () => {
@@ -69,7 +70,6 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
                 <Route path="/CargaMasiva" element={<CargaMasiva />} />
                 <Route path="/ImprimirEtiqueta" element={<ImprimirEtiqueta />} />
-
                 {/* Fin Menu Inventario */}
                 <Route path="/Traslados" element={<Traslados />} />
                 <Route path="/RegistrarTraslados" element={<RegistrarTraslados />} />
@@ -83,6 +83,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Bajas" element={<Bajas />} />
                 <Route path="/RegistrarBajas" element={<RegistrarBajas />} />
                 <Route path="/BodegaExcluidos" element={<BodegaExcluidos />} />
+                <Route path="/BienesRematados" element={<BienesRematados />} />
                 {/* Fin Módulo Bajas */}
                 <Route path="/Donaciones" element={<Donaciones />} />
                 <Route path="/Informes" element={<Informes />} />

@@ -41,9 +41,11 @@ interface DatosAltas {
   obtenerAltasPorCorrActions: (altasCorr: number) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
+  isDarkMode: boolean;
+
 }
 
-const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, obtenerAltasPorCorrActions, anularAltasActions, token }) => {
+const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, obtenerAltasPorCorrActions, anularAltasActions, token, isDarkMode }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -209,6 +211,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
           title: "Altas anuladas",
           text: `Se han anulado correctamente las altas seleccionadas`,
         });
+
         setLoadingAnular(false);
         listaAltasActions();
         setFilasSeleccionadas([]);
@@ -280,17 +283,16 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
     <Layout>
       <MenuAltas />
       <form>
-        <div className="border-bottom shadow-sm p-4 rounded">
+        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Anular Altas</h3>
           <Row>
             <Col md={3}>
               <div className="mb-1">
-                <label htmlFor="fechaInicio" className="text-muted fw-semibold">Fecha Inicio</label>
+                <label htmlFor="fechaInicio" className="fw-semibold">Fecha Inicio</label>
                 <input
                   aria-label="fechaInicio"
                   type="date"
-                  className={`form-control  ${error.fechaInicio ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
                   name="fechaInicio"
                   onChange={handleChange}
                   value={Inventario.fechaInicio}
@@ -300,12 +302,11 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                 )}
               </div>
               <div className="mb-1">
-                <label htmlFor="fechaTermino" className="text-muted fw-semibold">Fecha Término</label>
+                <label htmlFor="fechaTermino" className="fw-semibold">Fecha Término</label>
                 <input
                   aria-label="fechaTermino"
                   type="date"
-                  className={`form-control  ${error.fechaTermino ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
                   name="fechaTermino"
                   onChange={handleChange}
                   value={Inventario.fechaTermino}
@@ -318,11 +319,11 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
             </Col>
             <Col md={2}>
               <div className="mb-1">
-                <label htmlFor="nInventario" className="text-muted fw-semibold">Nº Inventario</label>
+                <label htmlFor="nInventario" className="fw-semibold">Nº Inventario</label>
                 <input
                   aria-label="nInventario"
                   type="text"
-                  className='form-control'
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                   name="aF_CLAVE"
                   onChange={handleChange}
                   value={Inventario.aF_CLAVE}
@@ -330,7 +331,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
               </div></Col>
             <Col md={5}>
               <div className="mb-1 mt-4">
-                <Button onClick={handleBuscarAltas} variant="primary" className="ms-1">
+                <Button onClick={handleBuscarAltas} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
                   {loading ? (
                     <>
                       <Spinner
@@ -349,7 +350,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
             </Col>
           </Row>
           {/* Boton anular filas seleccionadas */}
-          <div className="d-flex justify-content-start">
+          <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
               <Button
                 variant="danger"
@@ -372,17 +373,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                   </>
                 ) : (
                   <>
-                    Anular{" "}
-                    <span className="badge bg-light text-dark mx-2">
+                    Anular
+                    <span className="badge bg-light text-dark mx-1">
                       {filasSeleccionadas.length}
-                    </span>{" "}
-                    {filasSeleccionadas.length === 1 ? "Alta seleccionada" : "Altas seleccionadas"}
+                    </span>
+                    {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
                   </>
                 )}
               </Button>
             ) : (
-              <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                No hay altas seleccionadas para anular
+              <strong className="alert alert-dark border m-1 p-2 mx-2">
+                No hay filas seleccionadas
               </strong>
             )}
           </div>
@@ -390,36 +391,33 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
           {/* Tabla*/}
           {loading ? (
             <>
-              <SkeletonLoader rowCount={elementosPorPagina} />
+              {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+              <SkeletonLoader rowCount={10} columnCount={10} />
             </>
           ) : (
             <div className='table-responsive'>
-              <Table striped bordered hover  >
-                <thead className="table-light sticky-top">
+              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
                     <th >
                       <Form.Check
                         className="check-danger"
                         type="checkbox"
                         onChange={handleSeleccionaTodos}
-                        checked={
-                          filasSeleccionadas.length ===
-                          elementosActuales.length &&
-                          elementosActuales.length > 0
-                        }
+                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th>Codigo</th>
-                    <th>N° Inventario</th>
-                    <th>Servicio</th>
-                    <th>Dependencia</th>
-                    <th>Especie</th>
-                    <th>N° Cuenta</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Serie</th>
-                    <th>Precio</th>
-                    <th>N° Recepcion</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Codigo</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Inventario</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Servicio</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Dependencia</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Cuenta</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Marca</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modelo</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Serie</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Precio</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Recepcion</th>
                     {/* <th>Acción</th> */}
                   </tr>
                 </thead>
@@ -435,17 +433,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td>{listaAltas.aF_CLAVE}</td>
-                        <td>{listaAltas.ninv}</td>
-                        <td>{listaAltas.serv}</td>
-                        <td>{listaAltas.dep}</td>
-                        <td>{listaAltas.esp}</td>
-                        <td>{listaAltas.ncuenta}</td>
-                        <td>{listaAltas.marca}</td>
-                        <td>{listaAltas.modelo}</td>
-                        <td>{listaAltas.serie}</td>
-                        <td>{listaAltas.precio}</td>
-                        <td>{listaAltas.mrecepcion}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.aF_CLAVE}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ninv}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serv}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.dep}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.esp}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ncuenta}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.marca}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.modelo}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serie}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.precio}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.mrecepcion}</td>
                         {/* <td>
                           <Button
                             variant="outline-danger"
@@ -459,7 +457,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                     );
                   })}
                 </tbody>
-              </Table>
+              </table>
             </div>
           )}
 
@@ -501,7 +499,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 
 const mapStateToProps = (state: RootState) => ({
   listaAltas: state.datosListaAltasReducers.listaAltas,
-  token: state.loginReducer.token
+  token: state.loginReducer.token,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

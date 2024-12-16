@@ -1,11 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Table, Form, Pagination, Row, Col, } from "react-bootstrap";
+import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
 import React, { useState, useMemo, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
-import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
+import { AppDispatch, RootState } from "../../../store.ts";
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
 import { Check2Circle, Plus } from "react-bootstrap-icons";
-import SkeletonLoader from "../../Utils/SkeletonLoader";
+import SkeletonLoader from "../../Utils/SkeletonLoader.tsx";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -47,7 +47,7 @@ export interface ListaEspecie {
   esP_CODIGO: string;
   nombrE_ESP: string;
 }
-
+//Props del formulario
 export interface CuentaProps {
   servicio: number;
   cuenta: number;
@@ -56,7 +56,7 @@ export interface CuentaProps {
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
-interface Datos_cuentaProps extends CuentaProps {
+interface DatosCuentaProps extends CuentaProps {
   onNext: (Cuenta: CuentaProps) => void;
   onBack: () => void;
   comboServicio: SERVICIO[];
@@ -74,14 +74,11 @@ interface Datos_cuentaProps extends CuentaProps {
   detalleSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
   onEspecieSeleccionado: (nombreEspecie: string) => void; // Nueva prop para pasar el detalle seleccionado
   especieSeleccionado: string | null | undefined;
-
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
-  // bien?: number;
-  // detalles?: number;
   isDarkMode: boolean;
 }
-
-const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
+//Paso 2 del Formulario
+const DatosCuenta: React.FC<DatosCuentaProps> = ({
   onNext,
   onBack,
   //Combos
@@ -128,6 +125,8 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
   const [error, setError] = useState<Partial<CuentaProps>>({});
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
+
+  //Validaciones del formulario
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -206,7 +205,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
     e.preventDefault();
     if (validate()) {
       onNext(Cuenta);
-      console.log("Formulario Datos cuenta:", Cuenta);
+      // console.log("Formulario Datos cuenta:", Cuenta);
     }
   };
   const handleVolver = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -264,7 +263,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
   return (
     <>
       <form onSubmit={handleSubmit} className={isDarkMode ? "bg-dark text-light" : ""}>
-        <div className={`border-bottom shadow-sm p-4 rounded ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
+        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Detalles de Inventario
           </h3>
@@ -287,7 +286,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                   ))}
                 </select>
                 {error.servicio && (
-                  <div className="invalid-feedback">{error.servicio}</div>
+                  <div className="invalid-feedback fw-semibold">{error.servicio}</div>
                 )}
               </div>
               <div className="mt-1">
@@ -308,7 +307,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                   ))}
                 </select>
                 {error.dependencia && (
-                  <div className="invalid-feedback">{error.dependencia}</div>
+                  <div className="invalid-feedback fw-semibold">{error.dependencia}</div>
                 )}
               </div>
             </Col>
@@ -328,13 +327,12 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                   <Button
                     variant="primary"
                     onClick={() => setMostrarModal(true)}
-                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}
-                  >
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
                     <Plus className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                   </Button>
                 </dd>
                 {error.especie && (
-                  <div className="invalid-feedback d-block">
+                  <div className="invalid-feedback fw-semibold d-block">
                     {error.especie}
                   </div>
                 )}
@@ -357,7 +355,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                   ))}
                 </select>
                 {error.cuenta && (
-                  <div className="invalid-feedback">{error.cuenta}</div>
+                  <div className="invalid-feedback fw-semibold">{error.cuenta}</div>
                 )}
               </div>
             </Col>
@@ -373,17 +371,17 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
         </div>
       </form>
       {/* Modal formulario Activos Fijo*/}
-      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
-        <Modal.Header closeButton>
+      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg" >
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title>Listado de Especies</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <form onSubmit={handleSubmitSeleccionado}>
             <Row>
               <Col md={12}>
                 <div className="d-flex justify-content-between">
                   <div className="mb-1 w-50">
-                    <label className="text-muted fw-semibold">Bien</label>
+                    <label className="fw-semibold">Bien</label>
                     <dd className="d-flex align-items-center">
                       <select
                         aria-label="bien"
@@ -400,22 +398,18 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                     </dd>
                   </div>
                   <div className="d-flex justify-content-end p-4">
-                    <Button variant="primary" type="submit">
-                      Seleccionar{" "}
-                      <Check2Circle
-                        className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />
+                    <Button variant={`${isDarkMode ? "secondary" : "primary"}`} type="submit"> Seleccionar{" "}
+                      <Check2Circle className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
                     </Button>
                   </div>
                 </div>
                 <div className="mb-1 w-50">
-                  <label className="text-muted fw-semibold">Detalles</label>
+                  <label className="fw-semibold">Detalles</label>
                   <dd className="d-flex align-items-center">
                     <select
                       aria-label="detalles"
                       name="detalles"
-                      className="form-select"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       onChange={handleChange}
                     >
                       <option value="">Selecciona una opción</option>
@@ -447,13 +441,13 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             </>
           ) : (
             <div className='table-responsive'>
-              <Table striped bordered hover>
-                <thead className="table-light sticky-top">
+              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
                     <th></th>
-                    <th>Establecimiento</th>
-                    <th>Nombre</th>
-                    <th>Especie</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Establecimiento</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nombre</th>
+                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -462,21 +456,17 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
                       <td>
                         <Form.Check
                           type="checkbox"
-                          onChange={() =>
-                            handleSeleccionFila(indicePrimerElemento + index)
-                          }
-                          checked={filasSeleccionadas.includes(
-                            (indicePrimerElemento + index).toString()
-                          )}
+                          onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
+                          checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
                         />
                       </td>
-                      <td>{listadoEspecies.estabL_CORR}</td>
-                      <td>{listadoEspecies.esP_CODIGO}</td>
-                      <td>{listadoEspecies.nombrE_ESP}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.estabL_CORR}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.esP_CODIGO}</td>
+                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.nombrE_ESP}</td>
                     </tr>
                   ))}
                 </tbody>
-              </Table>
+              </table>
 
             </div>
           )}
@@ -510,7 +500,7 @@ const Datos_cuenta: React.FC<Datos_cuentaProps> = ({
             />
           </Pagination>
         </Modal.Body>
-      </Modal>
+      </Modal >
     </>
   );
 };
@@ -521,10 +511,8 @@ const mapStateToProps = (state: RootState) => ({
   cuenta: state.datosCuentaReducers.cuenta,
   dependencia: state.datosCuentaReducers.dependencia,
   especie: state.datosCuentaReducers.especie,
-  // bien: state.datosCuentaReducers.bien,
-  // detalles: state.datosCuentaReducers.detalle,
   descripcionEspecie: state.datosCuentaReducers.descripcionEspecie,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 
-export default connect(mapStateToProps, {})(Datos_cuenta);
+export default connect(mapStateToProps, {})(DatosCuenta);

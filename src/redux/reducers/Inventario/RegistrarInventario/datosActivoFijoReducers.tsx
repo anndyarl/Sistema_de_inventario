@@ -1,4 +1,4 @@
-import { ActivoFijo } from '../../../../components/Inventario/RegistrarInventario/Datos_activo_fijo';
+import { ActivoFijo } from '../../../../components/Inventario/RegistrarInventario/DatosActivoFijo';
 
 
 // Define el tipo para el estado inicial

@@ -2,7 +2,7 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { Exclude, PlusCircle } from "react-bootstrap-icons";
+import { BoxSeamFill, Exclude, PlusCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -56,11 +56,30 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                   </div>
                   <Card.Title className="fw-bold">Bodeja de excluidos</Card.Title>
                   <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque lo sinventarios que han sido dados de baja
+                    Busque el activo o los activos de Bajas que desee Excluir.
                   </Card.Text>
                   <NavLink
                     key="BodegaExcluidos"
                     to="/BodegaExcluidos"
+                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
+                  >
+                    Excluir
+                  </NavLink>
+                </div>
+              </Col>
+              <Col lg={4} md={6} sm={12}>
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
+                  <div className="mb-3">
+                    <BoxSeamFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+
+                  </div>
+                  <Card.Title className="fw-bold">Bienes Rematados</Card.Title>
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
+                    Busque los bienes exluidos.
+                  </Card.Text>
+                  <NavLink
+                    key="BienesRematados"
+                    to="/BienesRematados"
                     className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
                   >
                     Excluir
