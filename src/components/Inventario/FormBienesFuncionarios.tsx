@@ -234,6 +234,12 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
         showCancelButton: true,
         confirmButtonText: "Confirmar y registrar",
         cancelButtonText: "Cancelar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       if (result.isConfirmed) {
         setLoading(true);
@@ -250,6 +256,12 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
               icon: "success",
               title: "Registro exitoso",
               text: "¡Se ha registrado con éxito!",
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+              }
             });
             setLoading(false);
           } else {
@@ -257,6 +269,12 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
               icon: "error",
               title: "Error",
               text: "Hubo un problema al enviar el registro.",
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+              }
             });
             setLoading(false);
           }
@@ -317,7 +335,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
               <div className={`border p-2 ${isDarkMode ? "border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`} >
                 <h6 className="text-center fw-semibold">Destino</h6>
                 <div className="mb-1">
-                  <label htmlFor="servicio" className="text-muted fw-semibold fw-semibold">Servicio</label>
+                  <label htmlFor="servicio" className="fw-semibold fw-semibold">Servicio</label>
                   <select
                     aria-label="servicio"
                     className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}

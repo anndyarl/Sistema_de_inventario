@@ -67,7 +67,6 @@ const Profile: React.FC<ProfileProps> = ({
   const panelTransition = {
     type: "tween",
     easeOut: [0, 0, 0.58, 1],
-    duration: 0.3,
   };
   const handleLogout = async () => {
     let resultado = await logout();
@@ -75,6 +74,7 @@ const Profile: React.FC<ProfileProps> = ({
       return <Navigate to="/" />;
     }
   };
+
 
   return (
     <>
@@ -90,6 +90,7 @@ const Profile: React.FC<ProfileProps> = ({
 
         </button >
       </div>
+
       <AnimatePresence >
         {isOpen && (
           <motion.div
@@ -102,118 +103,115 @@ const Profile: React.FC<ProfileProps> = ({
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0 text-white close-btn" onClick={togglePanel}>×</button>
-              <h3 className="fw-semibold  p-1 text-center border-bottom text-white">Andy Riquelme</h3>
-              <Row className="g-1">
-                <Col>
-                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                    <strong> <Coin
-                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />UTM: </strong>${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
-                  </p>
-                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                    <strong> <Coin
-                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />UF: </strong>${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
-                  </p>
-                </Col>
-                <Col>
-                  <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                    <strong> <CurrencyDollar
-                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />Dólar: </strong>${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
-                  </p>
-                  <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
-                    <strong> <Coin
-                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />IPC: </strong>{ipc.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}%
-                  </p>
-                  {/* <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
+              <nav className="flex-grow-1 min-vh-100">
+                <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0 text-white close-btn" onClick={togglePanel}>×</button>
+                <h3 className="fw-semibold  p-1 text-center border-bottom text-white">Andy Riquelme</h3>
+                <Row className="g-1">
+                  <Col>
+                    <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                      <strong> <Coin
+                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />UTM: </strong>${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                    </p>
+                    <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                      <strong> <Coin
+                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />UF: </strong>${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                    </p>
+                  </Col>
+                  <Col>
+                    <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                      <strong> <CurrencyDollar
+                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />Dólar: </strong>${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                    </p>
+                    <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
+                      <strong> <Coin
+                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />IPC: </strong>{ipc.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}%
+                    </p>
+                    {/* <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
                     <strong> <CurrencyBitcoin
                       className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                       aria-hidden="true"
                     />Bitcoin: </strong>${bitcoin.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
                   </p> */}
-                </Col>
-              </Row>
-              <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                <strong> <Building
-                  className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                  aria-hidden="true"
-                />Dependencia: </strong> Finanzas
-              </p>
-              <p className="mb-0 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                <strong> <Geo
-                  className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                  aria-hidden="true"
-                /> Establecimiento: </strong> Hospital San José de Maipo
-              </p>
-              <NavLink
-                key="Configuracion"
-                to="/Configuracion"
-                className="navbar-nav nav-link mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white"
-              >
-                <strong> <Gear
-                  className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                  aria-hidden="true"
-                />Configuración</strong>
-              </NavLink>
-
-              <div className="d-flex justify-content-around align-content-center m-2">
-                <p className="navbar-nav nav-item nav-link mb-1">
-                  <strong className="text-white">Modo </strong>
-                </p>
-                <div className={`button-moon-sun w-50  ${isDarkMode ? "bg-primary" : "bg-warning"}`}>
-                  <motion.div
-                    className="icon-moon-sun "
-                    style={{
-                      transform: isDarkMode
-                        ? "translateX(330%)"
-                        : "translateX(10%)",
-                    }}
+                  </Col>
+                </Row>
+                <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                  <strong> <Building
+                    className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
-                  >
-                    {isDarkMode ? (
-                      <Moon className="text-dark" size={18} />
-                    ) : (
-                      <Sun className="text-dark" size={18} />
-                    )}
-                  </motion.div>
-                  <button onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent text-dark"
-                    aria-label={
-                      darkMode
-                        ? "Cambiar a modo claro"
-                        : "Cambiar a modo oscuro"
-                    }
-                  ></button>
-                </div>
-              </div>
-              <button onClick={handleLogout} type="button" className="btn btn-outline-light w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
-                Cerrar Sesión
-                <LogOut
-                  className={classNames("ms-1 p-1 flex-shrink-0", "h-5 w-5")}
-                  aria-hidden="true"
-                />
-              </button>
-              <div className="position-values-4">
-                <img
-                  src={ondas}
-                  alt="ondas"
-                  width={200}
-                  className="img-fluid"
-                />
-              </div>
+                  />Dependencia: </strong> Finanzas
+                </p>
+                <p className="mb-0 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                  <strong> <Geo
+                    className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                    aria-hidden="true"
+                  /> Establecimiento: </strong> Hospital San José de Maipo
+                </p>
+                <NavLink
+                  key="Configuracion"
+                  to="/Configuracion"
+                  className="navbar-nav nav-link  fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white"
+                >
+                  <strong> <Gear
+                    className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                    aria-hidden="true"
+                  />Configuración</strong>
+                </NavLink>
 
+                <div className="d-flex justify-content-around m-3">
+                  <p>
+                    <strong className="text-white">
+                      {isDarkMode ? (
+                        <p>Modo Oscuro</p>
+                      ) : (
+                        <p>Modo Claro</p>
+                      )} </strong>
+                  </p>
+                  <div className={`button-moon-sun w-25  ${isDarkMode ? "bg-primary" : "bg-warning"}`}>
+                    <motion.div
+                      className="icon-moon-sun"
+                      style={{
+                        transform: isDarkMode
+                          ? "translateX(160%)"
+                          : "translateX(10%)",
+                      }}
+                      aria-hidden="true"
+                    >
+                      {isDarkMode ? (
+                        <Moon className="text-dark" size={18} />
+                      ) : (
+                        <Sun className="text-dark" size={18} />
+                      )}
+                    </motion.div>
+                    <button aria-label="sun-moon" onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent text-dark"
+
+                    ></button>
+                  </div>
+                </div>
+                <button onClick={handleLogout} type="button" className="btn btn-outline-light w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
+                  Cerrar Sesión
+                  <LogOut
+                    className="ms-1 p-1 flex-shrink-0 h-5 w-5"
+                    aria-hidden="true"
+                  />
+                </button>
+
+              </nav>
 
             </motion.div>
           </motion.div>
 
         )}
       </AnimatePresence>
+
+
     </>
   );
 };

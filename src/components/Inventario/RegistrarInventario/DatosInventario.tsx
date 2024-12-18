@@ -186,6 +186,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           showCancelButton: true,
           confirmButtonText: "Si, Modificar",
           cancelButtonText: "Cancelar",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         }).then((result) => {
           if (result.isConfirmed) {
             setInventario((prevInventario) => ({
@@ -253,6 +259,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         icon: "warning",
         title: "Por favor, ingrese un número de recepción.",
         confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       setLoading(false);
       return;
@@ -274,6 +286,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         showCancelButton: true,
         confirmButtonText: "Si, Limpiar",
         cancelButtonText: "Cancelar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       }).then((result) => {
         if (result.isConfirmed) {
           setInventario((prevInventario) => ({

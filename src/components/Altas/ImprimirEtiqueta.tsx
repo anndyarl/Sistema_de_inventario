@@ -71,6 +71,12 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                     showCancelButton: true,
                     showConfirmButton: false,
                     cancelButtonText: "Cerrar",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
                 });
                 setLoading(false);
             } else {
@@ -78,6 +84,12 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                     icon: "error",
                     title: ":'(",
                     text: "No se encontraron resultados, inténte otro registro.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
                 });
                 setLoading(false);
             }

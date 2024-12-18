@@ -64,3 +64,7 @@ body::-webkit-scrollbar {
 .darkModePrincipal .btn-close {
   filter: invert(1); /* Invierte el color del botón para hacerlo claro */
 }
+.custom-border {
+  border: 3px solid #62626296; /* Borde azul */
+  border-radius: 10px; /* Bordes redondeados opcionales */ 
+}

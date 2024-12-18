@@ -80,6 +80,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
           title: ":'(",
           text: "No se encontraron resultados, inténte otro registro.",
           confirmButtonText: "Ok",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
         setLoading(false); //Finaliza estado de carga
         return;
@@ -99,6 +105,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Anular",
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      customClass: {
+        popup: "custom-border", // Clase personalizada para el borde
+      }
     });
 
     if (result.isConfirmed) {
@@ -108,6 +120,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
           icon: "success",
           title: "Registro anulado",
           text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
         handleBuscarInventario();
       } else {
@@ -115,6 +133,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
           icon: "error",
           title: ":'(",
           text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
       }
     }

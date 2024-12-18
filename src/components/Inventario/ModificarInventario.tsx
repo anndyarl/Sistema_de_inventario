@@ -396,6 +396,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         icon: "warning",
         title: "Por favor, ingrese un número de inventario",
         confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       setLoading(false); //Finaliza estado de carga
       return;
@@ -408,6 +414,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         title: ":'(",
         text: "No se encontraron resultados, inténte otro registro.",
         confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       setIsDisabled(true);
       setIsDisabledNRecepcion(false);
@@ -429,10 +441,26 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         showDenyButton: false,
         showCancelButton: true,
         confirmButtonText: "Confirmar y modificar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
-          Swal.fire("Modificación realizada corectamente", "", "success");
+          Swal.fire({
+            icon: "success",
+            title: "Inventario Modificado",
+            text: "Se ha modificado correctamente",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
           handleSubmit();
         }
       });
@@ -446,6 +474,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         icon: "success",
         title: "Actualización exitosa",
         text: "Se ha actualizado el registro con éxito!",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       setInventario((inventarioPrevia) => ({
         ...inventarioPrevia,
@@ -475,6 +509,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         icon: "error",
         title: "Error",
         text: "Hubo un problema al actualizar el registro.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
     }
   };

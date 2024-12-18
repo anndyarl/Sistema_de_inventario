@@ -7,7 +7,14 @@ interface DatosRecepcionState {
     especie: string;
     descripcionEspecie: string;
     nombreEspecie: string[];
-    datosTablaActivoFijo: ActivoFijo[]
+    datosTablaActivoFijo: ActivoFijo[];
+    vidaUtil: string;
+    fechaIngreso: string;
+    marca: string;
+    cantidad: string;
+    modelo: string;
+    observaciones: string;
+    precio: string;
 }
 
 // Estado inicial tipado
@@ -17,6 +24,13 @@ const initialState: DatosRecepcionState = {
     descripcionEspecie: '',
     nombreEspecie: [],
     datosTablaActivoFijo: [],
+    vidaUtil: "",
+    fechaIngreso: "",
+    marca: "",
+    cantidad: "",
+    modelo: "",
+    observaciones: "",
+    precio: "",
 };
 
 
@@ -65,6 +79,20 @@ const datosActivoFijoReducers = (state = initialState, action: any) => {
             return { ...initialState, payload: initialState };
         default:
             return state;
+        case 'SET_VIDA_UTIL':
+            return { ...state, vidaUtil: action.payload };
+        case 'SET_FECHA_INGRESO':
+            return { ...state, fechaIngreso: action.payload };
+        case 'SET_MARCA':
+            return { ...state, marca: action.payload };
+        case 'SET_MODELO':
+            return { ...state, modelo: action.payload };
+        case 'SET_PRECIO':
+            return { ...state, precio: action.payload };
+        case 'SET_CANTIDAD':
+            return { ...state, cantidad: action.payload };
+        case 'SET_OBSERVACIONES':
+            return { ...state, observaciones: action.payload };
     }
 };
 

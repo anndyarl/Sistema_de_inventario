@@ -1,14 +1,17 @@
 import React, { useRef, useState } from "react";
 import Layout from "../../containers/hocs/layout/Layout";
-import { FileEarmarkExcel } from "react-bootstrap-icons";
+import { Download, FileEarmarkArrowDown, FileEarmarkExcel } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
+import { RootState } from "../../store";
+import { connect } from "react-redux";
 
 
 interface AdjuntoProps {
   archivoExcel: string;
+  isDarkMode: boolean;
 }
 
-const CargaMasiva: React.FC = () => {
+const CargaMasiva: React.FC<AdjuntoProps> = ({ isDarkMode }) => {
 
   const fileInputRefArchivoExcel = useRef<HTMLInputElement>(null);
   const [selectedArchivoExcel, setSelectedArchivoExcel] = useState<File | null>(null);
@@ -124,14 +127,14 @@ const CargaMasiva: React.FC = () => {
         </h3>
         <form onSubmit={handleFormSubmit}>
           <div className="mb-1">
-            <label className="text-muted">Descargar formato</label>
+            <label className="fw-semibold">Descargar plantilla Excel</label>
             <div className="d-flex align-items-center">
               <button
                 onClick={handleDescargaExcel}
                 className="btn btn-success d-flex align-items-center justify-content-center"
-                title="Descargar plantilla Excel"
-              >
-                <FileEarmarkExcel className="h-5 w-5" aria-hidden="true" />
+                title="Descargar plantilla Excel"              >
+                <FileEarmarkArrowDown className="h-5 w-5 m-1" aria-hidden="true" />
+
               </button>
             </div>
           </div>
@@ -158,8 +161,7 @@ const CargaMasiva: React.FC = () => {
                 aria-label="Archivo de autorización"
                 type="file"
                 ref={fileInputRefArchivoExcel} // Asigna la referencia al input
-                className={`file-input ${error.archivoExcel ? "is-invalid" : ""
-                  } w-100`}
+                className={`file-input ${error.archivoExcel ? "is-invalid" : ""} w-100`}
                 name="archivoExcel"
                 onChange={handleChange}
                 value=""
@@ -172,8 +174,8 @@ const CargaMasiva: React.FC = () => {
             )}
           </div>
 
-          <div className="p-1 rounded bg-white d-flex justify-content-center ">
-            <button type="submit" className="btn btn-primary">
+          <div className="p-1 rounded d-flex justify-content-center ">
+            <button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
               Enviar
             </button>
           </div>
@@ -184,4 +186,12 @@ const CargaMasiva: React.FC = () => {
   );
 };
 
-export default CargaMasiva;
+//mapea los valores del estado global de Redux
+const mapStateToProps = (state: RootState) => ({
+  isDarkMode: state.darkModeReducer.isDarkMode
+});
+
+export default connect(mapStateToProps, {
+
+})(CargaMasiva);
+

@@ -11,9 +11,10 @@ import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
 import ondas from "../../assets/img/ondas.png"
 interface Props {
   isAuthenticated: boolean | null;
+  isDarkMode: boolean;
 }
 
-const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
+const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
   const dispatch = useAppDispatch();
 
   const handleEnviar = () => {
@@ -80,10 +81,10 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
     // </div>
 
 
-    <section className="vh-100">
+    <section className={`vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
       <div className="container-fluid">
         <div className="row">
-          <div className="col-sm-6 text-black">
+          <div className="col-sm-6">
             <div className="d-flex px-5 p-3 ms-xl-4 justify-content-center">
               <img
                 src={ssmso_logo}
@@ -91,30 +92,30 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
                 width={150}
                 className="img-fluid "
               />
-              {/* <p className="align-content-center text-muted fs-09em px-2 ">
+              {/* <p className="align-content-center fs-09em px-2 ">
                 Sistema de apoyo en la gestión administrativa
               </p> */}
             </div>
             <div className="row align-items-center justify-content-center h-50">
               <div className="w-100">
-                <h3 className="text-muted border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
-                <p className="text-muted fs-09em mb-4">
+                <h3 className="border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
+                <p className="fs-09em mb-4">
                   Servicio de Salud Metropolitano Sur Oriente
                 </p>
                 <div className="text-center mb-4 ">
-                  <a href="/Login" className="btn btn-primary btn-lg btn-block">
+                  <a href="/Login"
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Clave Única demo
                   </a>
                 </div>
                 <div className="mb-4 text-center">
                   <a
                     href="/claveunica"
-                    className="btn btn-primary btn-lg btn-block"
-                  >
+                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Clave Única
                   </a>
                 </div>
-                <p className="text-muted text-center fs-xs">
+                <p className="text-center fs-xs">
                   Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
                 </p>
               </div>
@@ -125,7 +126,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
               <div className="text-bg-primary p-1 flex-grow-1"></div>
               <div className="text-bg-danger p-1 flex-grow-1 w-25"></div>
             </div>
-            <div className="bg-color position-values-1">
+            <div className={` ${isDarkMode ? "bg-color-dark" : "bg-color"} position-values-1`}>
               <img
                 src={ondas}
                 alt="ondas"
@@ -133,7 +134,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
                 className="img-fluid"
               />
             </div>
-            <div className="w-100 vh-100 bg-color d-flex justify-content-center align-items-center ">
+            <div className={`w-100 vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"} d-flex justify-content-center align-items-center`}>
               <img
                 src={ssmso_background}
                 alt="SSMSO"
@@ -141,7 +142,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
                 className="img-fluid position-absolute z-1"
               />
             </div>
-            <div className="bg-color position-values-2">
+            <div className={` ${isDarkMode ? "bg-color-dark" : "bg-color"} position-values-2`}>
               <img
                 src={ondas}
                 alt="ondas"
@@ -160,6 +161,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.loginReducer.isAuthenticated,
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

@@ -74,6 +74,12 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
             icon: "error",
             title: "Error",
             text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
           });
         }
       }
@@ -141,6 +147,12 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
         title: ":'(",
         text: "No se encontraron resultados, inténte otro registro.",
         confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       setLoading(false); //Finaliza estado de carga
       return;
@@ -187,7 +199,12 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Anular",
-      confirmButtonColor: '#dc3545',
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      customClass: {
+        popup: "custom-border", // Clase personalizada para el borde
+      }
     });
 
     // selectedIndices.map(async (index) => {
@@ -210,6 +227,12 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
           icon: "success",
           title: "Altas anuladas",
           text: `Se han anulado correctamente las altas seleccionadas`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
 
         setLoadingAnular(false);
@@ -220,6 +243,12 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
           icon: "error",
           title: ":'(",
           text: `Hubo un problema al anular las Altas`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
         setLoadingAnular(false);
       }

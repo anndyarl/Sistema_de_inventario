@@ -102,11 +102,17 @@ const appReducer = combineReducers({
 //--------------------- Root Reducer ---------------------//
 const rootReducer = (state: any, action: any) => {
   if (action.type === "LOGOUT") {
-    // Reinicia el estado a su valor inicial
-    state = undefined;
+    // Guarda el estado actual de darkModeReducer
+    const { darkModeReducer } = state || {};
+
+    // Reinicia el estado general a su valor inicial, preservando darkModeReducer
+    state = {
+      darkModeReducer, // Mantén el estado de darkModeReducer     
+    };
   }
   return appReducer(state, action);
 };
+
 
 //--------------------- Exportación ---------------------//
 export type RootState = ReturnType<typeof rootReducer>;

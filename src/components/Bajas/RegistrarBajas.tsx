@@ -10,7 +10,7 @@ import { registrarBajasActions } from "../../redux/actions/Bajas/registrarBajasA
 import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions";
 import MenuBajas from "../Menus/MenuBajas";
 import { Plus } from "react-bootstrap-icons";
-
+import "../../styles/Layout.css";
 // interface FechasProps {
 //   fechaInicio: string;
 //   fechaTermino: string;
@@ -83,7 +83,9 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       if (result.isConfirmed) {
         setLoadingRegistro(true);
@@ -99,7 +101,13 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
           Swal.fire({
             icon: "success",
             title: "Bajas Registradas",
-            text: "Se han registrado correctamente las Bajas seleccionadas",
+            text: "Se han registrado correctamente",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
           });
 
           setLoadingRegistro(false);
@@ -109,7 +117,13 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
           Swal.fire({
             icon: "error",
             title: ":'(",
-            text: "Hubo un problema al registrar las Bajas",
+            text: "Hubo un problema al registrar",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
           });
           setLoadingRegistro(false);
         }
@@ -130,11 +144,18 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
             icon: "error",
             title: "Error",
             text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
           });
         }
       }
     }
   };
+
   useEffect(() => {
     listaABajasAuto();
   }, [listaBajasActions, token, listaBajas.length]); // Asegúrate de incluir dependencias relevantes
@@ -412,8 +433,9 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
       {/* Modal formulario Registro Bajas*/}
       < Modal show={mostrarModal}
         onHide={() => handleCerrarModal(indexReal)}
-        backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-        keyboard={false}     // Evita el cierre al presionar la tecla Esc
+        dialogClassName="modal-right" // Clase personalizada
+      // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+      // keyboard={false}     // Evita el cierre al presionar la tecla Esc
       >
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Complete los detalles de registro</Modal.Title>

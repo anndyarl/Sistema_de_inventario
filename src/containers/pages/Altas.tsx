@@ -11,7 +11,6 @@ import { Signature } from "lucide-react";
 interface Props {
   isDarkMode: boolean;
 }
-
 const Altas: React.FC<Props> = ({ isDarkMode }) => {
 
   const pageVariants = {

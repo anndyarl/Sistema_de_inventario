@@ -55,6 +55,12 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
               icon: "error",
               title: "Error",
               text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+              }
             });
           }
         }
@@ -207,7 +213,12 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Registrar",
-
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      customClass: {
+        popup: "custom-border", // Clase personalizada para el borde
+      }
     });
     console.log("filas Seleccionadas ", filasSeleccionadas);
     // selectedIndices.map(async (index) => {
@@ -230,6 +241,12 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
           icon: "success",
           title: "Altas Registradas",
           text: `Se han registrado correctamente las Altas seleccionadas`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
         setLoadingRegistro(false);
         listaAltasActions();
@@ -239,6 +256,12 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
           icon: "error",
           title: ":'(",
           text: `Hubo un problema al registrar las Altas`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
         setLoadingRegistro(false);
       }

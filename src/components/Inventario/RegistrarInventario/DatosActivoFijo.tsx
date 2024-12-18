@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useMemo, useEffect } from "react";
 import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
-import { PencilFill, Plus, Trash } from "react-bootstrap-icons";
+import { Eraser, PencilFill, Plus, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
 
@@ -17,6 +17,13 @@ import {
   vaciarDatosTabla,
   setBienActions,
   setDetalleActions,
+  setVidaUtilActions,
+  setFechaIngresoActions,
+  setMarcaActions,
+  setModeloActions,
+  setPrecioActions,
+  setCantidadActions,
+  setObservacionesActions,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/registrarFormInventarioActions";
 
@@ -50,7 +57,7 @@ export interface ActivoFijo {
 }
 
 interface DatosActivoFijoProps {
-  // onNext: (data: ActivoFijo[]) => void;
+  onNext: (data: ActivoFijo[]) => void;
   onBack: () => void;
   onReset: () => void; // vuelva a al componente Datos_inventario
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
@@ -61,6 +68,13 @@ interface DatosActivoFijoProps {
   formInventario: FormInventario;
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   isDarkMode: boolean;
+  vidaUtil: string;
+  fechaIngreso: string;
+  marca: string;
+  cantidad: string;
+  modelo: string;
+  observaciones: string;
+  precio: string;
 }
 
 //Paso 3 del Formulario
@@ -72,6 +86,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   datosTablaActivoFijo,
   formInventario,
   isDarkMode,
+  vidaUtil,
+  fechaIngreso,
+  marca,
+  cantidad,
+  modelo,
+  observaciones,
+  precio,
   registrarFormInventarioActions,
 }) => {
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
@@ -111,8 +132,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const [isRepeatSerie, setIsRepeatSerie] = useState(false);
   //-------Fin Tabla-------//
 
-  const precio = parseFloat(activoActual.precio) || 0;
-  const cantidad = parseInt(activoActual.cantidad, 10) || 0;
+  const vPrecio = parseFloat(activoActual.precio) || 0;
+  const vCantidad = parseInt(activoActual.cantidad, 10) || 0;
 
   // Combina el estado local de react con el estado local de redux
   const datos = useMemo(() => {
@@ -133,7 +154,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   }, [datos]);
 
   // Calcular cantidad por precio
-  const newTotal = cantidad * precio;
+  const newTotal = vCantidad * vPrecio;
   const pendiente = montoRecepcion - totalSum;
 
   //---------------------------------------------------------//
@@ -232,6 +253,31 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     }
   }, [datosTablaActivoFijo, paginaActual]);
 
+  useEffect(() => {
+    setActivoActual({
+      id: "",
+      vidaUtil,
+      fechaIngreso,
+      marca,
+      cantidad,
+      modelo,
+      observaciones,
+      serie: "",
+      precio,
+      especie: ""
+    });
+  }, [
+
+    vidaUtil,
+    fechaIngreso,
+    marca,
+    cantidad,
+    modelo,
+    observaciones,
+    precio
+  ]);
+
+
   //-------------Funciones de la tabla --------------------//
   const handleSerieBlur = () => {
     setEditingSerie(null);
@@ -302,25 +348,41 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
       // Despacha el array de nuevos activos a Redux
       dispatch(setDatosTablaActivoFijo(newActivos));
+      dispatch(setVidaUtilActions(activoActual.vidaUtil));
+      dispatch(setFechaIngresoActions(activoActual.fechaIngreso));
+      dispatch(setMarcaActions(activoActual.marca));
+      dispatch(setModeloActions(activoActual.modelo));
+      dispatch(setPrecioActions(activoActual.precio));
+      dispatch(setCantidadActions(activoActual.cantidad));
+      dispatch(setObservacionesActions(activoActual.observaciones));
       //Limpia campos despues de crearlos
-      setActivoActual({
-        id: "",
-        vidaUtil: "",
-        fechaIngreso: "",
-        marca: "",
-        cantidad: "",
-        modelo: "",
-        observaciones: "",
-        serie: "",
-        precio: "",
-        especie: "",
-        color: "",
-      });
+      // setActivoActual({
+      //   id: "",
+      //   vidaUtil: "",
+      //   fechaIngreso: "",
+      //   marca: "",
+      //   cantidad: "",
+      //   modelo: "",
+      //   observaciones: "",
+      //   serie: "",
+      //   precio: "",
+      //   especie: "",
+      //   color: "",
+      // });
 
       setMostrarModal(false); //Cierra modal
     }
   };
 
+  const handleLimpiar = () => {
+    dispatch(setVidaUtilActions(""));
+    dispatch(setFechaIngresoActions(""));
+    dispatch(setMarcaActions(""));
+    dispatch(setModeloActions(""));
+    dispatch(setPrecioActions(""));
+    dispatch(setCantidadActions(""));
+    dispatch(setObservacionesActions(""));
+  }
   const handleEliminar = (index: number /*, precio: number*/) => {
     setActivosFijos((prev) => prev.filter((_, i) => i !== index));
     dispatch(eliminarActivoDeTabla(index));
@@ -360,6 +422,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         icon: "warning",
         title: "Serie Faltante",
         text: "Por favor, verifique que todos los registros contengan su número de serie.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       return false;
     }
@@ -370,6 +438,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         icon: "warning",
         title: "Serie Duplicada",
         text: "Por favor, verifique que no existan series duplicadas en el registro.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       return false;
     }
@@ -378,8 +452,14 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     if (pendiente > 0) {
       Swal.fire({
         icon: "warning",
-        title: "Serie Pendiente",
-        text: `Tienes un monto pendiente de $${pendiente.toLocaleString("es-CL")}.`,
+        title: "Monto Pendiente",
+        text: `Tiene un monto pendiente de $${pendiente.toLocaleString("es-CL")}.`,
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       return false;
     }
@@ -397,6 +477,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         showCancelButton: true,
         confirmButtonText: "Confirmar y registrar",
         cancelButtonText: "Cancelar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
 
       // Si el usuario confirma
@@ -437,6 +523,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               icon: "success",
               title: "Registro exitoso",
               text: "El formulario se ha enviado y registrado con éxito!",
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+              }
             });
           } else {
             // Si ocurre un error en el registro
@@ -444,6 +536,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               icon: "error",
               title: "Error",
               text: "Hubo un problema al enviar el formulario.",
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+              }
             });
           }
         } catch (error) {
@@ -453,6 +551,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             icon: "error",
             title: "Error inesperado",
             text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
           });
         }
       }
@@ -496,10 +600,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               onClick={handleEliminarSeleccionados}
               className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
             >
-              Eliminar{" "}
-              <span className="badge bg-light text-dark">
+              Eliminar
+              <span className="badge bg-light text-dark mx-1">
                 {filasSeleccionadas.length}
-              </span>{" "}
+              </span>
               {filasSeleccionadas.length === 1 ? "Activo seleccionado" : "Activos seleccionados"}
             </Button>
           )}
@@ -645,7 +749,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           </Button>
 
           {elementosActuales.length > 0 && (
-            <Button variant="btn btn-primary m-1"
+            <Button variant={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}
               onClick={handleFinalSubmit} >
               Validar
             </Button>
@@ -672,18 +776,30 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
           <form onSubmit={handleAgregar}>
             <Row>
-              <div className="d-flex justify-content-between p-2">
-                <p>
+              <div className="d-flex justify-content-start">
+                <p className="mx-0">
                   <strong>Monto Recepción:</strong> $
                   {montoRecepcion.toLocaleString("es-ES", {
                     minimumFractionDigits: 0,
                   })}
                 </p>
-                <p><strong>Monto Pendiente:</strong> ${(montoRecepcion - totalSum).toLocaleString("es-ES", {
-                  minimumFractionDigits: 0,
-                })}</p>
-                <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "}`}>
+                <p className="ms-3">
+                  <strong>Monto Pendiente:</strong> </p>
+                <p className="ms-1 text-danger fw-semibold">
+                  ${(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                    minimumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+              <div className="d-flex justify-content-end">
+                <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} mx-2`}>
                   <Plus
+                    className={classNames("flex-shrink-0", "h-5 w-5")}
+                    aria-hidden="true"
+                  />
+                </Button>
+                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary "}`}>
+                  <Eraser
                     className={classNames("flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
                   />
@@ -831,7 +947,14 @@ const mapStateToProps = (state: RootState) => ({
   nombreEspecie: state.datosActivoFijoReducers.nombreEspecie,
   resetFormulario: state.datosActivoFijoReducers.resetFormulario,
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  vidaUtil: state.datosActivoFijoReducers.vidaUtil,
+  fechaIngreso: state.datosActivoFijoReducers.fechaIngreso,
+  marca: state.datosActivoFijoReducers.marca,
+  cantidad: state.datosActivoFijoReducers.cantidad,
+  modelo: state.datosActivoFijoReducers.modelo,
+  observaciones: state.datosActivoFijoReducers.observaciones,
+  precio: state.datosActivoFijoReducers.precio,
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,

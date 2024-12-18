@@ -61,6 +61,12 @@ const FirmarAltas: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datos
                     showCancelButton: true,
                     showConfirmButton: false,
                     cancelButtonText: "Cerrar",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
                 });
                 setLoading(false);
             } else {
@@ -68,6 +74,12 @@ const FirmarAltas: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datos
                     icon: "error",
                     title: ":'(",
                     text: "No se encontraron resultados, inténte otro registro.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
                 });
                 setLoading(false);
             }

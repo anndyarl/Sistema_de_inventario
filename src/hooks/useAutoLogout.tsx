@@ -4,12 +4,15 @@ import { AppDispatch } from "../store";
 import Swal from "sweetalert2";
 import { Navigate } from "react-router-dom";
 import { logout } from "../redux/actions/auth/auth";
+import { useSelector } from "react-redux";
+import { RootState } from "../store"; // Ajusta la ruta a tu store de Redux
 
 const useAutoLogout = (warningTime: number, logoutTime: number) => {
     const warningTimeout = useRef<number | null>(null);
     const logoutTimeout = useRef<number | null>(null);
     const dispatch = useDispatch<AppDispatch>();
-
+    // Accede al estado global de Redux para el modo nocturno
+    const isDarkMode = useSelector((state: RootState) => state.darkModeReducer.isDarkMode);
     const resetTimers = () => {
 
         if (warningTimeout.current !== null) {
@@ -30,6 +33,12 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 cancelButtonText: "Salir",
                 backdrop: true, // Asegura que no se cierre al hacer clic fuera
                 allowOutsideClick: false, // Evita el cierre cuando se haga clic fuera del modal
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
             }).then((result) => {
                 // Si se confirma, reiniciamos los temporizadores
                 if (result.isConfirmed) {
@@ -49,6 +58,12 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 icon: "info",
                 title: "Su sesión expiró",
                 text: `Por favor, vuelva a ingresar`,
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
             });
             return <Navigate to="/" />;
         }, logoutTime);
@@ -85,3 +100,4 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
 };
 
 export default useAutoLogout;
+

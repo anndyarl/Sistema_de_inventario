@@ -72,6 +72,12 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
             icon: "error",
             title: "Error",
             text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
           });
         }
       }
@@ -136,6 +142,12 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
         title: ":'(",
         text: "No se encontraron resultados, inténte otro registro.",
         confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
       setLoading(false); //Finaliza estado de carga
       return;
@@ -174,12 +186,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
     });
     const result = await Swal.fire({
       icon: "info",
-      title: "Excluir Bajas",
-      text: `Confirme para excluir las Bajas seleccionadas`,
+      title: "Rematar Bienes",
+      text: `Confirme para rematar los bienes seleccionados`,
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Confirmar y excluir",
-      confirmButtonColor: '#dc3545',
+      confirmButtonText: "Confirmar y rematar",
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      customClass: {
+        popup: "custom-border", // Clase personalizada para el borde
+      }
     });
 
     if (result.isConfirmed) {
@@ -191,6 +208,12 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
           icon: "success",
           title: "Bajas Excluidas",
           text: `Se han excluido correctamente las bajas seleccionadas`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
         setLoadingExcluir(false);
         listaBajasActions();
@@ -200,6 +223,12 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
           icon: "error",
           title: ":'(",
           text: `Hubo un problema al excluir las bajas`,
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
         });
         setLoadingExcluir(false);
       }

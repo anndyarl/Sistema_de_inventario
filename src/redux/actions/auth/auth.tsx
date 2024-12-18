@@ -84,7 +84,7 @@ export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: 
 };
 
 export const logout = () => async (dispatch: Dispatch): Promise<boolean> => {
-  persistor.purge();
+  // persistor.purge();
   // persistor.flush();
   dispatch({ type: LOGOUT });
   return true;

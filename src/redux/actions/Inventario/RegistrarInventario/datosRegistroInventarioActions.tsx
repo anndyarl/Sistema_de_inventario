@@ -44,10 +44,6 @@ export const setTotalActivoFijoActions = (total: number) => ({
   type: 'SET_TOTAL_ACTIVO_FIJO',
   payload: total,
 });
-export const setPrecioActions = (precio: number) => ({
-  type: 'SET_PRECIO',
-  payload: precio,
-});
 export const setServicioActions = (servicio: number) => ({
   type: 'SET_SERVICIO',
   payload: servicio,
@@ -107,6 +103,37 @@ export const vaciarDatosTabla = () => ({
   type: 'VACIAR_DATOS_TABLA',
 });
 
+export const setVidaUtilActions = (vidaUtil: string) => ({
+  type: 'SET_VIDA_UTIL',
+  payload: vidaUtil,
+});
 
+export const setFechaIngresoActions = (fechaIngreso: string) => ({
+  type: 'SET_FECHA_INGRESO',
+  payload: fechaIngreso,
+});
 
+export const setMarcaActions = (marca: string) => ({
+  type: 'SET_MARCA',
+  payload: marca,
+});
+export const setModeloActions = (modelo: string) => ({
+  type: 'SET_MODELO',
+  payload: modelo,
+});
+
+export const setPrecioActions = (precio: string) => ({
+  type: 'SET_PRECIO',
+  payload: precio,
+});
+
+export const setCantidadActions = (cantidad: string) => ({
+  type: 'SET_CANTIDAD',
+  payload: cantidad,
+});
+
+export const setObservacionesActions = (observaciones: string) => ({
+  type: 'SET_OBSERVACIONES',
+  payload: observaciones,
+});
 

@@ -39,7 +39,7 @@ const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
   };
 
   return (
-    <nav className="flex-grow-1 ">
+    <nav className="flex-grow-1">
       <div className="d-flex position-absolute mx-2 top-0 w-50 ">
         <div className="text-bg-primary p-1 flex-grow-1"></div>
         <div className="text-bg-danger p-1 flex-grow-1 w-25"></div>
@@ -53,8 +53,6 @@ const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
           className="img-fluid"
         /> */}
       </div>
-
-
       {
         navigation.map((item) => (
           <NavLink
@@ -75,7 +73,7 @@ const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
 
         ))
       }
-      <div className="position-values-3">
+      <div className="position-values-3 d-none d-lg-block">
         <img
           src={ondas}
           alt="ondas"
