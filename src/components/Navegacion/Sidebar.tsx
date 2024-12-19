@@ -39,13 +39,15 @@ const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
   };
 
   return (
-    <nav className="flex-grow-1">
-      <div className="d-flex position-absolute mx-2 top-0 w-50 ">
-        <div className="text-bg-primary p-1 flex-grow-1"></div>
-        <div className="text-bg-danger p-1 flex-grow-1 w-25"></div>
-      </div>
-      <div className="text-center text-white m-4">
-        <NavLink className="navbar-brand fw-semibold fs-5" to="/Inicio">SSMSO</NavLink>
+    <nav>
+      <div className="text-center text-white">
+        <div className="d-flex  mx-2 top-0 w-75">
+          <div className="text-bg-primary p-1 w-50"></div>
+          <div className="text-bg-danger p-1 flex-grow-1 w-75"></div>
+        </div>
+        <div className='m-4'>
+          <NavLink className="navbar-brand fw-semibold fs-5" to="/Inicio">SSMSO</NavLink>
+        </div>
         {/* <img
           src={SSMSO_LOGO}
           alt="SSMSO-LOGO"

@@ -1,6 +1,5 @@
 html {
-  overflow-y: scroll; /* Fuerza la barra de scroll */
- 
+  /* overflow-y: scroll; Fuerza la barra de scroll  */
 }
 body{
   font-family: "Roboto";
@@ -9,10 +8,11 @@ body::-webkit-scrollbar {
   width: 0; /* Chrome y Safari */
 }
 
+/*Color Institucional principal Modo Claro*/
 .bg-color{
     background:  #0d4582  ;
 }
-
+/*Color Institucional principal Modo Oscuro*/
 .bg-color-dark{
   background:  #1e3855  ;
 }
@@ -31,6 +31,7 @@ body::-webkit-scrollbar {
     color: rgb(69, 71, 75)!important; 
  }
   
+ /*Posicionamiento de imagenes decorativas*/
 .position-values-1{
   position:absolute;
   top:10%;
@@ -55,7 +56,7 @@ body::-webkit-scrollbar {
   right: 1px;
   z-index:0;
  }
-
+/*Color principal de fondo*/
  .darkModePrincipal {
   background-color: #30353a;
   color: white;
@@ -64,11 +65,51 @@ body::-webkit-scrollbar {
 .darkModePrincipal .btn-close {
   filter: invert(1); /* Invierte el color del botón para hacerlo claro */
 }
+/*Bordes de todos los SweetAlert*/
 .custom-border {
   border: 3px solid #62626296; /* Borde azul */
   border-radius: 10px; /* Bordes redondeados opcionales */ 
 }
-.table {
-  table-layout: fixed;
-  word-wrap: break-word; /* Permite que las palabras largas se ajusten */
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  transition: margin .25s ease-out;
 }
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 15rem;
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    /* margin-left: -15rem; */
+  }
+}
+
+.show {
+  margin-left: 0 !important;
+}
+

@@ -103,7 +103,7 @@ const Profile: React.FC<ProfileProps> = ({
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <nav className="flex-grow-1 min-vh-100">
+              <div className="flex-grow-1 min-vh-100">
                 <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0 text-white close-btn" onClick={togglePanel}>×</button>
                 <h3 className="fw-semibold  p-1 text-center border-bottom text-white">Andy Riquelme</h3>
                 <Row className="g-1">
@@ -202,15 +202,20 @@ const Profile: React.FC<ProfileProps> = ({
                     aria-hidden="true"
                   />
                 </button>
-
-              </nav>
-
+                {/* <div className="position-values-4 d-none d-lg-block">
+                  <img
+                    src={ondas}
+                    alt="ondas"
+                    width={200}
+                    className="img-fluid"
+                  />
+                </div> */}
+              </div>
             </motion.div>
           </motion.div>
 
         )}
       </AnimatePresence>
-
 
     </>
   );

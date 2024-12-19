@@ -76,7 +76,7 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
           className="img-fluid position-relative" style={{ bottom: "33px" }}
         />
 
-        <h1 className="fw-bold text-center" style={{ fontFamily: 'Roboto Slab', fontWeight: "bold", fontSize: "1.60rem", color: "#575757" }}>
+        <h1 className="fw-bold text-center" style={{ fontFamily: '', fontWeight: "bold", fontSize: "1.60rem", color: "#575757" }}>
           SSMSO
         </h1>
 

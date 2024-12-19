@@ -78,7 +78,6 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-
         <nav id="navbar" className={`navbar justify-content-end rounded-3 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
             <div className="d-flex align-items-center">
                 <Search className={classNames("mx-2 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
@@ -110,7 +109,6 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
             </div>
 
         </nav >
-
     );
 }
 
