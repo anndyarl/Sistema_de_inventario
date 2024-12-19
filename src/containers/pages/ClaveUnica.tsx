@@ -96,7 +96,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
                 Sistema de apoyo en la gestión administrativa
               </p> */}
             </div>
-            <div className="row align-items-center justify-content-center h-50">
+            <div className="row align-items-center justify-content-center h-25">
               <div className="w-100">
                 <h3 className="border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
                 <p className="fs-09em mb-4">
@@ -108,19 +108,24 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
                     Clave Única demo
                   </a>
                 </div>
-                <div className="mb-4 text-center">
+                <div className="row align-content-end">
+                  <p className="text-center fs-xs">
+                    Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
+                  </p>
+                </div>
+                {/* <div className="mb-4 text-center">
                   <a
                     href="/claveunica"
                     className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Clave Única
                   </a>
-                </div>
-                <p className="text-center fs-xs">
-                  Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
-                </p>
+                </div> */}
               </div>
+
             </div>
+
           </div>
+
           <div className="col-sm-6 px-0 d-none d-sm-block">
             <div className="d-flex position-absolute mx-5 w-25">
               <div className="text-bg-primary p-1 flex-grow-1"></div>
@@ -150,11 +155,12 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
                 className="img-fluid"
               />
             </div>
-          </div>
 
+          </div>
         </div>
       </div>
     </section>
+
 
   );
 };

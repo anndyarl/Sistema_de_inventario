@@ -621,7 +621,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           </p>
         ) : (
           <div className="overflow-auto">
-            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover "}`} >
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr >
                   <th >

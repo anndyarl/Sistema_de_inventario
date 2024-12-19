@@ -423,6 +423,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                     <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Cuenta</th>
                     <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
                     <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Depreciación Acumulada</th>
+                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Fecha excluida</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -444,6 +445,7 @@ const BodegaExcluidos: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                         <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.ncuenta}</td>
                         <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.especie}</td>
                         <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.deP_ACUMULADA}</td>
+                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>19-12-2024</td>
                       </tr>
                     );
                   })}

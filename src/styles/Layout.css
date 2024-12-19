@@ -68,3 +68,7 @@ body::-webkit-scrollbar {
   border: 3px solid #62626296; /* Borde azul */
   border-radius: 10px; /* Bordes redondeados opcionales */ 
 }
+.table {
+  table-layout: fixed;
+  word-wrap: break-word; /* Permite que las palabras largas se ajusten */
+}

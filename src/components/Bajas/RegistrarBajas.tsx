@@ -306,9 +306,8 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
   return (
     <Layout>
       <MenuBajas />
-
       <div className="border-bottom shadow-sm p-4 rounded">
-        <h3 className="form-title fw-semibold border-bottom p-1">Registrar Bajas</h3>
+        <h3 className="form-title fw-semibold border-bottom p-1">Lista de Bajas</h3>
         {/* Boton registrar filas seleccionadas */}
         {/* <div className="d-flex justify-content-end">
           {filasSeleccionadas.length > 0 ? (

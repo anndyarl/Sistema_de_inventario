@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
+import { Table, Row, Col, Pagination, Button, Spinner, Form, Card, CardBody } from "react-bootstrap";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -287,6 +287,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
   return (
     <Layout>
       <MenuAltas />
+
       <form>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
@@ -334,6 +335,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
               <SkeletonLoader rowCount={elementosPorPagina} />
             </>
           ) : (
+
             <div className='table-responsive'>
               <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
@@ -389,7 +391,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
               </table>
             </div>
 
-          )}
+          )
+          }
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">
             <Pagination.First
@@ -419,8 +422,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
               disabled={paginaActual === totalPaginas}
             />
           </Pagination>
-        </div>
-      </form>
+        </div >
+      </form >
     </Layout >
   );
 };

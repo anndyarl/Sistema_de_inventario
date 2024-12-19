@@ -36,9 +36,9 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
-                  <Card.Title className="fw-bold">Registrar Bajas</Card.Title>
+                  <Card.Title className="fw-bold">Inventarios de Baja</Card.Title>
                   <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque el activo o los activos que desee dar de Baja
+                    Busque el activo o los activos que desee excluir
                   </Card.Text>
                   <NavLink
                     key="RegistrarBajas"
@@ -56,7 +56,7 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                   </div>
                   <Card.Title className="fw-bold">Bodeja de excluidos</Card.Title>
                   <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque el activo o los activos de Bajas que desee Excluir.
+                    Seleccione el activo o los activos de baja que desee enviar a remate
                   </Card.Text>
                   <NavLink
                     key="BodegaExcluidos"
@@ -75,7 +75,7 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                   </div>
                   <Card.Title className="fw-bold">Bienes Rematados</Card.Title>
                   <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque los bienes exluidos.
+                    Listado de todos los activos excluidos
                   </Card.Text>
                   <NavLink
                     key="BienesRematados"

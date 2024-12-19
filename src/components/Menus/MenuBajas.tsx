@@ -21,20 +21,20 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
     const [activeItem, setActiveItem] = useState<string | null>(null);
     const navigation: NavItem[] = [
         {
-            name: 'Registrar Bajas',
-            description: 'Busque el activo o los activos que desee dar de Alta.',
+            name: 'Inventarios de Baja',
+            description: 'Busque el activo o los activos que desee excluir',
             href: '/RegistrarBajas',
             icon: Plus
         },
         {
             name: 'Bodega de Excluidos',
-            description: 'Busque el activo o los activos de Bajas que desee Excluir.',
+            description: 'Seleccione el activo o los activos de baja que desee enviar a remate',
             href: '/BodegaExcluidos',
             icon: Exclude
         },
         {
             name: 'Bienes Rematados',
-            description: 'Busque los bienes exluidos.',
+            description: 'Listado de todos los activos excluidos',
             href: '/BienesRematados',
             icon: BoxSeamFill
         },

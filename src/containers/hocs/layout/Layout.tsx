@@ -74,7 +74,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token, isDar
         </button>
         <Navbar />
       </div>
-      <div className="d-flex flex-grow-1">
+
+      <div className="d-flex flex-grow-1">{/* desde aqui comienza el problema en desktop en mobile si se conserva bien */}
         {/* Background de Sidebar */}
         <div
           className={`${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}
@@ -98,14 +99,13 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, token, isDar
             <Navbar />
           </div>
 
-          {/* Main Content with Talana-like Transition */}
-          <div className={`flex-grow-1 p-3 overflow-auto ${isDarkMode ? "darkModePrincipal" : ""}`}>
-            {/* <AnimatePresence mode="wait">
-                <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}> */}
+          {/* Main */}
+          <div
+            className={`flex-shrink-1 ${isDarkMode ? "darkModePrincipal" : ""}`}
+          >
             {children}
-            {/* </motion.div>
-              </AnimatePresence> */}
           </div>
+
         </div>
       </div>
     </div >
