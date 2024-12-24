@@ -1,46 +1,45 @@
 
 import {
-  LISTA_BAJAS_REQUEST,
-  LISTA_BAJAS_SUCCESS,
-  LISTA_BAJAS_FAIL
+  OBTENER_REMATES_REQUEST,
+  OBTENER_REMATES_SUCCESS,
+  OBTENER_REMATES_FAIL
 } from '../../actions/Bajas/types'
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  listaBajas: Array<{
-    bajaS_CORR: string;
+  listaRemates: Array<{
     aF_CLAVE: string;
-    id: number;
+    bajaS_CORR: string;
+    especie: string;
     vutiL_RESTANTE: number;
     vutiL_AGNOS: number;
-    useR_MOD: number;
-    saldO_VALOR: number;
+    nresolucion: string;
     observaciones: string;
-    nresolucion: number;
-    ncuenta: string;
-    iniciaL_VALOR: number;
-    fechA_BAJA: string;
-    especie: string;
     deP_ACUMULADA: number;
+    ncuenta: string;
+    estado: number;
+    fechA_REMATES: string;
+    reM_CORR: string;
+    boD_CORR: string;
   }>;
 }
 // Estado inicial tipado
 const initialState: DatosInventarioState = {
-  listaBajas: []
+  listaRemates: []
 };
 
 // Reducer con tipos definidos
-const datosListaBajasReducers = (state = initialState, action: any) => {
+const obtenerListaRematesReducers = (state = initialState, action: any) => {
   switch (action.type) {
-    case LISTA_BAJAS_REQUEST:
+    case OBTENER_REMATES_REQUEST:
       return { ...state, loading: true };
-    case LISTA_BAJAS_SUCCESS:
+    case OBTENER_REMATES_SUCCESS:
       return {
         ...state,
         loading: false,
-        listaBajas: action.payload,
+        listaRemates: action.payload,
       };
-    case LISTA_BAJAS_FAIL:
+    case OBTENER_REMATES_FAIL:
       return { ...state, loading: false, error: action.error };
     default:
       return state;
@@ -49,4 +48,4 @@ const datosListaBajasReducers = (state = initialState, action: any) => {
 
 
 
-export default datosListaBajasReducers;
+export default obtenerListaRematesReducers;

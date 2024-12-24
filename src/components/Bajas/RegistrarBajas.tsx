@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Button, Form, Modal } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import Layout from "../../containers/hocs/layout/Layout";
+
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { RootState } from "../../store";
 import { registrarBajasActions } from "../../redux/actions/Bajas/registrarBajasActions";
@@ -11,6 +11,8 @@ import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions";
 import MenuBajas from "../Menus/MenuBajas";
 import { Plus } from "react-bootstrap-icons";
 import "../../styles/Layout.css";
+import Layout from "../../containers/hocs/layout/Layout.tsx";
+
 // interface FechasProps {
 //   fechaInicio: string;
 //   fechaTermino: string;
@@ -75,11 +77,11 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
 
       const result = await Swal.fire({
         icon: "info",
-        title: "Registrar Bajas",
-        text: "Confirme para registrar los datos ingresados",
+        title: "Enviar a Bodega de Excluidos",
+        text: "Confirme para enviar a Bodega de Exlcuidos",
         showDenyButton: false,
         showCancelButton: true,
-        confirmButtonText: "Confirmar y Registrar",
+        confirmButtonText: "Confirmar y Enviar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -100,8 +102,8 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
         if (resultado) {
           Swal.fire({
             icon: "success",
-            title: "Bajas Registradas",
-            text: "Se han registrado correctamente",
+            title: "Enviado a Bodega de Excluidos",
+            text: "Se han enviado su seleccion a Bodega de Exluidos correctamente",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -307,7 +309,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
     <Layout>
       <MenuBajas />
       <div className="border-bottom shadow-sm p-4 rounded">
-        <h3 className="form-title fw-semibold border-bottom p-1">Lista de Bajas</h3>
+        <h3 className="form-title fw-semibold border-bottom p-1">Bienes de Bajas</h3>
         {/* Boton registrar filas seleccionadas */}
         {/* <div className="d-flex justify-content-end">
           {filasSeleccionadas.length > 0 ? (
@@ -363,13 +365,13 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                       checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                     />
                   </th>
-                  <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Codigo</th>
-                  <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Inventario</th>
-                  <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Vidal últil</th>
-                  <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>En años</th>
-                  <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Cuenta</th>
-                  <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
-                  <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Depreciación Acumulada</th>
+                  <th scope="col">Codigo</th>
+                  <th scope="col">N° Inventario</th>
+                  <th scope="col">Vidal últil</th>
+                  <th scope="col">En años</th>
+                  <th scope="col">N° Cuenta</th>
+                  <th scope="col">Especie</th>
+                  <th scope="col">Depreciación Acumulada</th>
                 </tr>
               </thead>
               <tbody>
@@ -385,13 +387,13 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                           checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.bajaS_CORR}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.aF_CLAVE}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.vutiL_RESTANTE}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.vutiL_AGNOS}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.ncuenta}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.especie}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.deP_ACUMULADA}</td>
+                      <td>{ListaBajas.bajaS_CORR}</td>
+                      <td>{ListaBajas.aF_CLAVE}</td>
+                      <td>{ListaBajas.vutiL_RESTANTE}</td>
+                      <td>{ListaBajas.vutiL_AGNOS}</td>
+                      <td>{ListaBajas.ncuenta}</td>
+                      <td>{ListaBajas.deP_ACUMULADA}</td>
+                      <td>{ListaBajas.especie}</td>
                     </tr>
                   );
                 })}
@@ -443,8 +445,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
           <form onSubmit={handleSubmit}>
             <div className="d-flex justify-content-end">
               <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                <Plus className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
-                Registrar
+                Enviar a Bodega
               </Button>
             </div>
             <div className="mb-1">

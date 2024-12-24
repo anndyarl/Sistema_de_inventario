@@ -44,10 +44,10 @@ const Profile: React.FC<ProfileProps> = ({
     return classes.filter(Boolean).join(" ");
   };
   const dispatch = useDispatch();
-  const [darkMode, setDarkMode] = useState(false);
+
 
   const onToggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode);
+    //Dispara accion Modo Oscuro al estado global de redux
     dispatch(darkModeActions());
   };
   const panelVariants = {
@@ -190,9 +190,7 @@ const Profile: React.FC<ProfileProps> = ({
                         <Sun className="text-dark" size={18} />
                       )}
                     </motion.div>
-                    <button aria-label="sun-moon" onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent text-dark"
-
-                    ></button>
+                    <button aria-label="sun-moon" onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent text-dark"></button>
                   </div>
                 </div>
                 <button onClick={handleLogout} type="button" className="btn btn-outline-light w-100 border-light fs-6 fs-md-5 fs-lg-4 ">

@@ -36,7 +36,7 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                   <div className="mb-3">
                     <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
-                  <Card.Title className="fw-bold">Inventarios de Baja</Card.Title>
+                  <Card.Title className="fw-bold">Bienes de Bajas</Card.Title>
                   <Card.Text className="fw-light flex-grow-1 mb-2">
                     Busque el activo o los activos que desee excluir
                   </Card.Text>
@@ -45,7 +45,7 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                     to="/RegistrarBajas"
                     className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
                   >
-                    Nuevo
+                    Ver Listado
                   </NavLink>
                 </div>
               </Col>
@@ -63,7 +63,7 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                     to="/BodegaExcluidos"
                     className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
                   >
-                    Excluir
+                    Ver Listado
                   </NavLink>
                 </div>
               </Col>
@@ -82,7 +82,7 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
                     to="/BienesRematados"
                     className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
                   >
-                    Excluir
+                    Ver Listado
                   </NavLink>
                 </div>
               </Col>

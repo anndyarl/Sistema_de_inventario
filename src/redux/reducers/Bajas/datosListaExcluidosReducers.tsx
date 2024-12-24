@@ -1,46 +1,45 @@
 
 import {
-  LISTA_BAJAS_REQUEST,
-  LISTA_BAJAS_SUCCESS,
-  LISTA_BAJAS_FAIL
+  OBTENER_EXCLUIDOS_REQUEST,
+  OBTENER_EXCLUIDOS_SUCCESS,
+  OBTENER_EXCLUIDOS_FAIL
 } from '../../actions/Bajas/types'
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  listaBajas: Array<{
-    bajaS_CORR: string;
+  listaExcluidos: Array<{
     aF_CLAVE: string;
-    id: number;
+    bajaS_CORR: string;
+    especie: string;
     vutiL_RESTANTE: number;
     vutiL_AGNOS: number;
-    useR_MOD: number;
-    saldO_VALOR: number;
+    nresolucion: string;
     observaciones: string;
-    nresolucion: number;
-    ncuenta: string;
-    iniciaL_VALOR: number;
-    fechA_BAJA: string;
-    especie: string;
     deP_ACUMULADA: number;
+    ncuenta: string;
+    estado: number;
+    fechA_REMATES: string;
+    reM_CORR: string;
+    boD_CORR: string;
   }>;
 }
 // Estado inicial tipado
 const initialState: DatosInventarioState = {
-  listaBajas: []
+  listaExcluidos: []
 };
 
 // Reducer con tipos definidos
-const datosListaBajasReducers = (state = initialState, action: any) => {
+const obtenerListaExcluidosReducers = (state = initialState, action: any) => {
   switch (action.type) {
-    case LISTA_BAJAS_REQUEST:
+    case OBTENER_EXCLUIDOS_REQUEST:
       return { ...state, loading: true };
-    case LISTA_BAJAS_SUCCESS:
+    case OBTENER_EXCLUIDOS_SUCCESS:
       return {
         ...state,
         loading: false,
-        listaBajas: action.payload,
+        listaExcluidos: action.payload,
       };
-    case LISTA_BAJAS_FAIL:
+    case OBTENER_EXCLUIDOS_FAIL:
       return { ...state, loading: false, error: action.error };
     default:
       return state;
@@ -49,4 +48,4 @@ const datosListaBajasReducers = (state = initialState, action: any) => {
 
 
 
-export default datosListaBajasReducers;
+export default obtenerListaExcluidosReducers;

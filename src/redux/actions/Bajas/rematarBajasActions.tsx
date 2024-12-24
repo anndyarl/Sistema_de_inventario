@@ -1,13 +1,13 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-  REGISTRAR_EXCLUIDOS_REQUEST,
-  REGISTRAR_EXCLUIDOS_SUCCESS,
-  REGISTRAR_EXCLUIDOS_FAIL,
+  REGISTRAR_REMATES_REQUEST,
+  REGISTRAR_REMATES_SUCCESS,
+  REGISTRAR_REMATES_FAIL,
 } from "./types";
 
 // Acción para obtener la recepción por número
-export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const rematarBajasActions = (listaRemates: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -17,25 +17,25 @@ export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => asyn
         "Content-Type": "application/json",
       },
     };
-    if (!listaExcluir || Object.keys(listaExcluir).length === 0) {
+    if (!listaRemates || Object.keys(listaRemates).length === 0) {
       // console.error("El objeto datosInventario está vacío.");
       return false;
     }
-    const body = JSON.stringify(listaExcluir);
+    const body = JSON.stringify(listaRemates);
 
-    dispatch({ type: REGISTRAR_EXCLUIDOS_REQUEST });
+    dispatch({ type: REGISTRAR_REMATES_REQUEST });
 
     try {
-      const res = await axios.post(`/api_inv/api/inventario/CreaBodegaExcluido`, body, config);
+      const res = await axios.post(`/api_inv/api/inventario/CreaRemates`, body, config);
 
       if (res.status === 200) {
         dispatch({
-          type: REGISTRAR_EXCLUIDOS_SUCCESS
+          type: REGISTRAR_REMATES_SUCCESS
         });
         return true;
       } else {
         dispatch({
-          type: REGISTRAR_EXCLUIDOS_FAIL,
+          type: REGISTRAR_REMATES_FAIL,
           error:
             "No se pudo registrar en remates la lista seleccionada. Por favor, intente nuevamente.",
         });
@@ -44,14 +44,14 @@ export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => asyn
     } catch (err) {
       console.error("Error en la solicitud:", err);
       dispatch({
-        type: REGISTRAR_EXCLUIDOS_FAIL,
+        type: REGISTRAR_REMATES_FAIL,
         error: "Error en la solicitud. Por favor, intente nuevamente.",
       });
       return false;
     }
   } else {
     dispatch({
-      type: REGISTRAR_EXCLUIDOS_FAIL,
+      type: REGISTRAR_REMATES_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
     return false;

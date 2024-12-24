@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, Pencil, Trash, Arrows, List } from "react-bootstrap-icons";
-import { connect } from "react-redux";
+import { Plus, Pencil, Trash, List, Arrows } from "react-bootstrap-icons";
 import { RootState } from "../../store";
-
+import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -19,7 +18,7 @@ interface Props {
     isDarkMode: boolean;
 }
 const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
-    const [activeItem, setActiveItem] = useState<string | null>(null);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
         {
             name: 'Registrar Inventario',
@@ -51,34 +50,29 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
         //     href: '/CargaMasiva',
         //     icon: FileText
         // }
+
     ];
 
-    const handleClick = (name: string) => {
-        setActiveItem(name);
-        setTimeout(() => setActiveItem(null), 300); // Reset after animation
-    };
+    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
     return (
         <>
             {/* Mobile Navbar y Desktop*/}
             <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0">
-                <button className="navbar-toggler m-1 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
                     <List className={`${isDarkMode ? "text-light" : "tet-muted"}`} size={30} />
                 </button>
                 <div className="container-fluid">
-                    <div className="collapse navbar-collapse justify-content-start" id="navbarNav">
+
+                    <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}>
                         <div className="navbar-nav mb-2 mb-lg-0 me-3">
                             {navigation.map((item, index) => (
                                 <NavLink
                                     key={index}
                                     to={item.href}
-                                    className={classNames('btn btn-outline-secondary py-2 px-3 m-1 rounded-2 text-decoration-none', isDarkMode ? "text-light" : "", activeItem === item.name ? 'active' : '')}
-                                    onClick={() => handleClick(item.name)}
-                                >
-                                    <item.icon
-                                        className={classNames('me-3 flex-shrink-0', 'h-5 w-5')}
-                                        aria-hidden="true"
-                                    />
+                                    className={classNames('btn btn-outline-secondary py-2 px-3 m-1 rounded-2 text-decoration-none', isDarkMode ? "text-light" : "")}
+                                    onClick={toggleSidebar}                                 >
+                                    <item.icon className="me-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
                                     {item.name}
                                 </NavLink>
 
@@ -88,10 +82,10 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
                     </div>
                 </div>
             </nav>
-
         </>
     );
 };
+
 
 const mapStateToProps = (state: RootState) => ({
     isDarkMode: state.darkModeReducer.isDarkMode
@@ -99,4 +93,3 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
 })(MenuInventario);
-

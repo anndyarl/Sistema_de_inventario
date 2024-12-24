@@ -38,6 +38,14 @@
     /* Color para pasos completados */
 }
 
+.darkMode.timeline-icon {   
+    background-color: #30353a;
+    /* Color para pasos no completados */   
+}
+.darkMode.timeline-icon.completed {
+    background-color: #0d4582;
+}
+
 .timeline-connector {
     width: 100%;
     height: 2px;

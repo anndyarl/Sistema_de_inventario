@@ -1,69 +1,59 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
+import { Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import { Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
-import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions.tsx";
-import { obtenerListaBajasActions } from "../../redux/actions/Bajas/obtenerListaBajasActions.tsx";
+
+import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
+import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
-interface FechasProps {
-  fechaInicio: string;
-  fechaTermino: string;
-}
-export interface ListaBajas {
+
+export interface ListaRemates {
+  aF_CLAVE: string;
   bajaS_CORR: string;
-  aF_CLAVE: number;
-  id: number;
+  especie: string;
   vutiL_RESTANTE: number;
   vutiL_AGNOS: number;
-  useR_MOD: number;
-  saldO_VALOR: number;
+  nresolucion: string;
   observaciones: string;
-  nresolucion: number;
-  ncuenta: string;
-  iniciaL_VALOR: number;
-  fechA_BAJA: string;
-  especie: string;
   deP_ACUMULADA: number;
+  ncuenta: string;
+  estado: number;
+  fechA_REMATES: string;
 }
 
+
 interface DatosBajas {
-  listaBajas: ListaBajas[];
-  listaBajasActions: () => Promise<boolean>;
-  obtenerListaBajasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
-  excluirBajasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
+  listaRemates: ListaRemates[];
+  obtenerListaRematesActions: (aF_CLAVE: string) => Promise<boolean>;
+  rematarBajasActions: (listaRemates: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
 }
 
-const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerListaBajasActions, excluirBajasActions, token, isDarkMode }) => {
-  const [error, setError] = useState<Partial<FechasProps> & {}>({});
-
-
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [loadingExcluir, setLoadingExcluir] = useState(false);
+const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRematesActions, rematarBajasActions, token, isDarkMode }) => {
+  const [loading, setLoading] = useState(false);
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
 
   const [Inventario, setInventario] = useState({
-    aF_CLAVE: 0,
-    fechaInicio: "",
-    fechaTermino: "",
+    aF_CLAVE: "",
   });
-  const listaBajasAuto = async () => {
+
+  const listaRematesAuto = async () => {
     if (token) {
-      if (listaBajas.length === 0) {
+      if (listaRemates.length === 0) {
         setLoading(true);
-        const resultado = await listaBajasActions();
+        const resultado = await obtenerListaRematesActions("");
         if (resultado) {
           setLoading(false);
         }
@@ -71,7 +61,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+            text: `Error en la solicitud. Por favor, intentne nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -85,75 +75,15 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
   };
 
   useEffect(() => {
-    listaBajasAuto();
-  }, [listaBajasActions, token, listaBajas.length]); // Asegúrate de incluir dependencias relevantes
+    listaRematesAuto()
+  }, [obtenerListaRematesActions, token, listaRemates.length]); // Asegúrate de incluir dependencias relevantes
 
-  const validate = () => {
-    let tempErrors: Partial<any> & {} = {};
-    // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-    if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-    if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
-    // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
-
-
-    setError(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    let newValue: string | number = [
-      "aF_CLAVE"
-
-    ].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-      : value;
-
-    setInventario((prevState) => ({
-      ...prevState,
-      [name]: newValue,
-    }));
-
     setInventario((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-  };
-
-  const handleBuscarBajas = async () => {
-    let resultado = false;
-
-    setLoading(true);
-    if (Inventario.fechaInicio != "" && Inventario.fechaTermino != "") {
-      if (validate()) {
-        resultado = await obtenerListaBajasActions(Inventario.fechaInicio, Inventario.fechaTermino);
-      }
-    }
-    setInventario((prevState) => ({
-      ...prevState,
-      aF_CLAVE: 0,
-      fechaInicio: "",
-      fechaTermino: ""
-    }));
-    setError({});
-    if (!resultado) {
-      Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
-        confirmButtonText: "Ok",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-      setLoading(false); //Finaliza estado de carga
-      return;
-    } else {
-      setLoading(false); //Finaliza estado de carga
-    }
   };
 
   const setSeleccionaFilas = (index: number) => {
@@ -176,21 +106,43 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
     }
   };
 
-  const handleExcluirSeleccionados = async () => {
-    const selectedIndices = filasSeleccionadas.map(Number);
-    const activosSeleccionados = selectedIndices.map((index) => {
-      return {
-        aF_CLAVE: listaBajas[index].aF_CLAVE
-      };
 
-    });
+  const handleBuscarRemates = async () => {
+    let resultado = false;
+    setLoading(true);
+    resultado = await obtenerListaRematesActions(Inventario.aF_CLAVE);
+
+
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      setLoading(false); //Finaliza estado de carga
+    }
+
+  };
+  const handleRematarSeleccionados = async () => {
+    const selectedIndices = filasSeleccionadas.map(Number);
+
     const result = await Swal.fire({
       icon: "info",
-      title: "Rematar Bienes",
-      text: `Confirme para rematar los bienes seleccionados`,
+      title: "Quitar Bienes",
+      text: "Confirme para quitar del sistema el o los bienes seleccionados",
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Confirmar y rematar",
+      confirmButtonText: "Confirmar y Rematar",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -200,14 +152,29 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
     });
 
     if (result.isConfirmed) {
-      setLoadingExcluir(true);
+      setLoadingRegistro(true);
+      // Crear un array de objetos con aF_CLAVE y nombre
+      const Formulario = selectedIndices.map((activo) => ({
+        aF_CLAVE: listaRemates[activo].aF_CLAVE,
+        bajaS_CORR: listaRemates[activo].bajaS_CORR,
+        especie: listaRemates[activo].especie,
+        vutiL_RESTANTE: listaRemates[activo].vutiL_RESTANTE,
+        vutiL_AGNOS: listaRemates[activo].vutiL_AGNOS,
+        nresolucion: listaRemates[activo].nresolucion,
+        observaciones: listaRemates[activo].observaciones,
+        deP_ACUMULADA: listaRemates[activo].deP_ACUMULADA,
+        ncuenta: listaRemates[activo].ncuenta,
+        estado: listaRemates[activo].estado,
+        fechA_REMATES: listaRemates[activo].fechA_REMATES,
 
-      const resultado = await excluirBajasActions(activosSeleccionados);
+      }));
+      const resultado = await rematarBajasActions(Formulario);
+
       if (resultado) {
         Swal.fire({
           icon: "success",
-          title: "Bajas Excluidas",
-          text: `Se han excluido correctamente las bajas seleccionadas`,
+          title: "Bienes Rematados",
+          text: "Se han quitdo del sistema los Bienes Rematados correctamente",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -215,14 +182,15 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
             popup: "custom-border", // Clase personalizada para el borde
           }
         });
-        setLoadingExcluir(false);
-        listaBajasActions();
+
+        setLoadingRegistro(false);
+        obtenerListaRematesActions("");
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
           icon: "error",
           title: ":'(",
-          text: `Hubo un problema al excluir las bajas`,
+          text: "Hubo un problema al registrar",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -230,61 +198,22 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
             popup: "custom-border", // Clase personalizada para el borde
           }
         });
-        setLoadingExcluir(false);
+        setLoadingRegistro(false);
       }
-
     }
-    // })
+
   };
-  // const handleAnular = async (index: number, aF_CLAVE: number) => {
-  //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
-
-  //   const result = await Swal.fire({
-  //     icon: "warning",
-  //     title: "Anular Registro",
-  //     text: `Confirma anular el registro Nº ${aF_CLAVE}`,
-  //     showDenyButton: false,
-  //     showCancelButton: true,
-  //     confirmButtonText: "Confirmar y Anular",
-  //   });
-
-  //   if (result.isConfirmed) {
-  //     const resultado = await anularAltasActions(aF_CLAVE);
-  //     if (resultado) {
-  //       Swal.fire({
-  //         icon: "success",
-  //         title: "Registro anulado",
-  //         text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
-  //       });
-  //       listaAltasAuto();
-  //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: ":'(",
-  //         text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
-  //       });
-  //     }
-  //   }
-  // };
-
-  // const handleLimpiar = () => {
-  //   setInventario((prevInventario) => ({
-  //     ...prevInventario,
-  //     fechaInicio: "",
-  //     fechaTermino: "",
-  //   }));
-  // };
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
   const elementosActuales = useMemo(
     () =>
-      listaBajas.slice(indicePrimerElemento, indiceUltimoElemento),
-    [listaBajas, indicePrimerElemento, indiceUltimoElemento]
+      listaRemates.slice(indicePrimerElemento, indiceUltimoElemento),
+    [listaRemates, indicePrimerElemento, indiceUltimoElemento]
   );
   // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(listaBajas)
-    ? Math.ceil(listaBajas.length / elementosPorPagina)
+  const totalPaginas = Array.isArray(listaRemates)
+    ? Math.ceil(listaRemates.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -294,70 +223,52 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
-          {/* <Row>
+          <Row>
             <Col md={3}>
               <div className="mb-1">
-                <label htmlFor="fechaInicio" className="fw-semibold">Fecha Inicio</label>
+                <label htmlFor="aF_CLAVE" className="fw-semibold">Nº Inventario</label>
                 <input
-                  aria-label="fechaInicio"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
-                  name="fechaInicio"
+                  aria-label="aF_CLAVE"
+                  type="text"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="aF_CLAVE"
                   onChange={handleChange}
-                  value={Inventario.fechaInicio}
+                  value={Inventario.aF_CLAVE}
                 />
-                {error.fechaInicio && (
-                  <div className="invalid-feedback d-block">{error.fechaInicio}</div>
-                )}
               </div>
-              <div className="mb-1">
-                <label htmlFor="fechaTermino" className="fw-semibold">Fecha Término</label>
-                <input
-                  aria-label="fechaTermino"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
-                  name="fechaTermino"
-                  onChange={handleChange}
-                  value={Inventario.fechaTermino}
-                />
-                {error.fechaTermino && (
-                  <div className="invalid-feedback">{error.fechaTermino}</div>
-                )}
+            </Col>
+            <Col md={5}>
+              <div className="mb-1 mt-4">
+                <Button onClick={handleBuscarRemates} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
+                  {loading ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                    </>
+                  ) : (
+                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                  )}
+                </Button>
               </div>
-
-            </Col> 
-          <Col md={5}>
-            <div className="mb-1 mt-4">
-              <Button onClick={handleBuscarBajas} variant="primary" className="ms-1">
-                {loading ? (
-                  <>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                  </>
-                ) : (
-                  <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
-                )}
-              </Button>
-            </div>
-          </Col>
-        </Row>  */}
+            </Col>
+          </Row>
           {/* Boton anular filas seleccionadas */}
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
               <Button
                 variant="danger"
-                onClick={handleExcluirSeleccionados}
+                onClick={handleRematarSeleccionados}
                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loadingExcluir}  // Desactiva el botón mientras carga
+                disabled={loadingRegistro}  // Desactiva el botón mientras carga
               >
-                {loadingExcluir ? (
+                {loadingRegistro ? (
                   <>
-                    {" Excluyendo... "}
+                    {" Quitando... "}
                     <Spinner
                       as="span"
                       animation="border"
@@ -370,11 +281,10 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                   </>
                 ) : (
                   <>
-                    Rematar
+                    Quitar
                     <span className="badge bg-light text-dark mx-1">
                       {filasSeleccionadas.length}
                     </span>
-                    {filasSeleccionadas.length === 1 ? "Baja" : "Bajas"}
                   </>
                 )}
               </Button>
@@ -403,17 +313,21 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Codigo</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Inventario</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Vidal últil</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>En años</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Cuenta</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Depreciación Acumulada</th>
+                    <th scope="col">Nª Inventario</th>
+                    <th scope="col">Codigo</th>
+                    <th scope="col">Especie</th>
+                    <th scope="col">Vida UtiL Restante</th>
+                    <th scope="col">Vida Util en Años</th>
+                    <th scope="col">Nº Resolucion</th>
+                    <th scope="col">Observaciones</th>
+                    <th scope="col">Depreciacion Acumulada</th>
+                    <th scope="col">Nº Cuenta</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Fecha de Remate</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((ListaBajas, index) => {
+                  {elementosActuales.map((ListaRemates, index) => {
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={indexReal}>
@@ -424,13 +338,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.bajaS_CORR}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.aF_CLAVE}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.vutiL_RESTANTE}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.vutiL_AGNOS}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.ncuenta}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.especie}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{ListaBajas.deP_ACUMULADA}</td>
+                        <td>{ListaRemates.aF_CLAVE}</td>
+                        <td>{ListaRemates.bajaS_CORR}</td>
+                        <td>{ListaRemates.especie}</td>
+                        <td>{ListaRemates.vutiL_RESTANTE}</td>
+                        <td>{ListaRemates.vutiL_AGNOS}</td>
+                        <td>{ListaRemates.nresolucion}</td>
+                        <td>{ListaRemates.observaciones}</td>
+                        <td>{ListaRemates.deP_ACUMULADA}</td>
+                        <td>{ListaRemates.ncuenta}</td>
+                        <td>{ListaRemates.estado}</td>
+                        <td>{ListaRemates.fechA_REMATES}</td>
                       </tr>
                     );
                   })}
@@ -476,13 +394,12 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, 
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listaBajas: state.datosListaBajasReducers.listaBajas,
+  listaRemates: state.obtenerListaRematesReducers.listaRemates,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {
-  listaBajasActions,
-  excluirBajasActions,
-  obtenerListaBajasActions
+  rematarBajasActions,
+  obtenerListaRematesActions
 })(BienesRematados);

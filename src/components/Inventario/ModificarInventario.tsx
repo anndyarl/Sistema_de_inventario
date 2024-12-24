@@ -121,8 +121,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalLista, setMostrarModalLista] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-  const [elementoSeleccionado, setElementoSeleccionado] =
-    useState<ListaEspecie>();
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 50;
   const [isDisabled, setIsDisabled] = useState(true);
@@ -235,7 +234,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
-
     setInventario({
       fechaFactura,
       fechaRecepcion,
@@ -660,7 +658,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.origenPresupuesto ? "is-invalid" : ""}`}
                   name="origenPresupuesto"
                   onChange={handleChange}
-                  value={Inventario.origenPresupuesto || origenPresupuesto}
+                  value={Inventario.origenPresupuesto}
                   disabled={isDisabled}
                 >
                   <option value="">Seleccione un origen</option>
@@ -687,7 +685,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   maxLength={12}
                   name="montoRecepcion"
                   onChange={handleChange}
-                  value={Inventario.montoRecepcion || montoRecepcion}
+                  value={Inventario.montoRecepcion}
                   disabled={isDisabled}
                 />
                 {error.montoRecepcion && (
@@ -703,7 +701,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaFactura ? "is-invalid" : ""}`}
                   name="fechaFactura"
                   onChange={handleChange}
-                  value={Inventario.fechaFactura || fechaFactura}
+                  value={Inventario.fechaFactura}
                   disabled={isDisabled}
                 />
                 {error.fechaFactura && (
@@ -745,7 +743,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
                   name="servicio"
                   onChange={handleChange}
-                  value={Inventario.servicio || servicio}
+                  value={Inventario.servicio}
                   disabled={isDisabled}
                 >
                   <option value="">Seleccione un origen</option>
@@ -771,7 +769,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependencia ? "is-invalid" : ""}`}
                   name="dependencia"
                   onChange={handleChange}
-                  value={Inventario.dependencia || dependencia}
+                  value={Inventario.dependencia}
                   disabled={isDisabled ? isDisabled : !Inventario.servicio}
                 >
                   <option value="">Selecciona una opción</option>
@@ -888,7 +886,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.cuenta ? "is-invalid" : ""}`}
                   name="cuenta"
                   onChange={handleChange}
-                  value={Inventario.cuenta || cuenta || 0}
+                  value={Inventario.cuenta}
                   disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
                 >
                   <option value="">Selecciona una opción</option>

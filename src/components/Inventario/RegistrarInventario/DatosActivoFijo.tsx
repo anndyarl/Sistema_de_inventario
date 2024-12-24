@@ -635,13 +635,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       }
                     />
                   </th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Vida Útil</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Fecha Ingreso</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Marca</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modelo</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Serie</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Precio</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
+                  <th>Vida Útil</th>
+                  <th>Fecha Ingreso</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Serie</th>
+                  <th>Precio</th>
+                  <th>Especie</th>
                   <th></th>
                 </tr>
               </thead>
@@ -657,10 +657,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                           checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.vidaUtil}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.fechaIngreso}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.marca}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{activo.modelo}</td>
+                      <td>{activo.vidaUtil}</td>
+                      <td>{activo.fechaIngreso}</td>
+                      <td>{activo.marca}</td>
+                      <td>{activo.modelo}</td>
                       <td
                         className={`${isDarkMode ? "text-light" : "text-dark"} w-15`}
                         onClick={() => setEditingSerie(indexReal.toString())}
@@ -692,7 +692,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                         )}
                       </td>
 
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>
+                      <td >
                         $
                         {parseFloat(activo.precio).toLocaleString("es-ES", {
                           minimumFractionDigits: 0,
@@ -718,10 +718,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               <tfoot>
                 <tr>
                   <td colSpan={6} className={`text-right ${isDarkMode ? "text-light" : "text-dark"}`}>
-                    <strong className={`${isDarkMode ? "text-light" : "text-dark"}`}>Total activo fijo:</strong>
+                    <strong >Total activo fijo:</strong>
                   </td>
                   <td colSpan={3}>
-                    <strong className={`${isDarkMode ? "text-light" : "text-dark"}`}>
+                    <strong >
                       ${totalSum.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
                     </strong>
                   </td>

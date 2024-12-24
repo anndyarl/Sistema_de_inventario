@@ -357,7 +357,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                   onChange={handleChange}
                   value={Inventario.aF_CLAVE}
                 />
-              </div></Col>
+              </div>
+            </Col>
             <Col md={5}>
               <div className="mb-1 mt-4">
                 <Button onClick={handleBuscarAltas} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
@@ -436,17 +437,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Codigo</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Inventario</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Servicio</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Dependencia</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Cuenta</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Marca</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modelo</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Serie</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Precio</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Recepcion</th>
+                    <th>Codigo</th>
+                    <th>N° Inventario</th>
+                    <th>Servicio</th>
+                    <th>Dependencia</th>
+                    <th>Especie</th>
+                    <th>N° Cuenta</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Serie</th>
+                    <th>Precio</th>
+                    <th>N° Recepcion</th>
                     {/* <th>Acción</th> */}
                   </tr>
                 </thead>
@@ -462,17 +463,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.aF_CLAVE}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ninv}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serv}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.dep}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.esp}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ncuenta}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.marca}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.modelo}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serie}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.precio}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.mrecepcion}</td>
+                        <td>{listaAltas.aF_CLAVE}</td>
+                        <td>{listaAltas.ninv}</td>
+                        <td>{listaAltas.serv}</td>
+                        <td>{listaAltas.dep}</td>
+                        <td>{listaAltas.esp}</td>
+                        <td>{listaAltas.ncuenta}</td>
+                        <td>{listaAltas.marca}</td>
+                        <td>{listaAltas.modelo}</td>
+                        <td>{listaAltas.serie}</td>
+                        <td>{listaAltas.precio}</td>
+                        <td>{listaAltas.mrecepcion}</td>
                         {/* <td>
                           <Button
                             variant="outline-danger"

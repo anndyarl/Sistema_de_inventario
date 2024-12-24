@@ -347,17 +347,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Codigo</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Inventario</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Servicio</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Dependencia</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Cuenta</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Marca</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modelo</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Serie</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>Precio</th>
-                    <th scope="col" className={`${isDarkMode ? "text-light" : "text-dark"}`}>N° Recepcion</th>
+                    <th scope="col">Codigo</th>
+                    <th scope="col">N° Inventario</th>
+                    <th scope="col">Servicio</th>
+                    <th scope="col">Dependencia</th>
+                    <th scope="col">Especie</th>
+                    <th scope="col">N° Cuenta</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Modelo</th>
+                    <th scope="col">Serie</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">N° Recepcion</th>
                     {/* <th scope="col">Acción</th> */}
                   </tr>
                 </thead>
@@ -373,17 +373,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                             checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
                           />
                         </td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.aF_CLAVE}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ninv}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serv}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.dep}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.esp}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.ncuenta}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.marca}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.modelo}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.serie}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.precio}</td>
-                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listaAltas.mrecepcion}</td>
+                        <td>{listaAltas.aF_CLAVE}</td>
+                        <td>{listaAltas.ninv}</td>
+                        <td>{listaAltas.serv}</td>
+                        <td>{listaAltas.dep}</td>
+                        <td>{listaAltas.esp}</td>
+                        <td>{listaAltas.ncuenta}</td>
+                        <td>{listaAltas.marca}</td>
+                        <td>{listaAltas.modelo}</td>
+                        <td>{listaAltas.serie}</td>
+                        <td>{listaAltas.precio}</td>
+                        <td>{listaAltas.mrecepcion}</td>
                       </tr>
                     );
                   })}

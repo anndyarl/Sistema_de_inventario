@@ -307,7 +307,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
       <form onSubmit={handleFormSubmit}>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
-            Registro Bienes de Funcioanarios
+            Registro Bienes de Funcionarios
           </h3>
           <Row className="d-flex align-items-center">
             <Col md={4}>

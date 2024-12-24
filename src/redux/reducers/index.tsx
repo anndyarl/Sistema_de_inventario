@@ -46,6 +46,8 @@ import comboTrasladoServicioReducer from "./Traslados/Combos/comboTrasladoServic
 import comboEstablecimientoReducer from "./Traslados/Combos/comboEstablecimientoReducer";
 import comboTrasladoEspecieReducer from "./Traslados/Combos/comboTrasladoEspecieReducers";
 import comboDepartamentoReducer from "./Traslados/Combos/comboDepartamentoReducer";
+import obtenerListaRematesReducers from "./Bajas/datosListaRematesReducers";
+import obtenerListaExcluidosReducers from "./Bajas/datosListaExcluidosReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -82,6 +84,8 @@ const appReducer = combineReducers({
 
   // Bajas
   datosListaBajasReducers,
+  obtenerListaRematesReducers,
+  obtenerListaExcluidosReducers,
 
   // Bienes de Funcionarios
   datosBienesFuncionarioReducers,

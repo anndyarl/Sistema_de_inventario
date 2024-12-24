@@ -235,30 +235,30 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
               <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nª de Recepcion</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Fecha de Factura</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Fecha de Recepcion</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Monto de Recepcion</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Modalidad de Compra</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nª de Factura</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Origen Presupuesto</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Rut Proveedor</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Dependencia</th>
+                    <th>Nª de Recepcion</th>
+                    <th>Fecha de Factura</th>
+                    <th>Fecha de Recepcion</th>
+                    <th>Monto de Recepcion</th>
+                    <th>Modalidad de Compra</th>
+                    <th>Nª de Factura</th>
+                    <th>Origen Presupuesto</th>
+                    <th>Rut Proveedor</th>
+                    <th>Dependencia</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {elementosActuales.map((datosListaInventario, index) => (
                     <tr key={index}>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_CLAVE}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_FECHAFAC}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_FINGRESO}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.idmodalidadcompra}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_MONTOFACTURA}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_NUM_FAC}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.aF_ORIGEN}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.proV_RUN}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{datosListaInventario.deP_CORR}</td>
+                      <td>{datosListaInventario.aF_CLAVE}</td>
+                      <td>{datosListaInventario.aF_FECHAFAC}</td>
+                      <td>{datosListaInventario.aF_FINGRESO}</td>
+                      <td>{datosListaInventario.idmodalidadcompra}</td>
+                      <td>{datosListaInventario.aF_MONTOFACTURA}</td>
+                      <td>{datosListaInventario.aF_NUM_FAC}</td>
+                      <td>{datosListaInventario.aF_ORIGEN}</td>
+                      <td>{datosListaInventario.proV_RUN}</td>
+                      <td>{datosListaInventario.deP_CORR}</td>
                       <td>
                         <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}>
                           Anular
