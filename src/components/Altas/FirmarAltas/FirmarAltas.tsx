@@ -4,13 +4,15 @@ import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import SignatureCanvas from 'react-signature-canvas';
 import { Pencil } from "react-bootstrap-icons";
-
-import SkeletonLoader from "../Utils/SkeletonLoader";
-import { RootState } from "../../store";
-import { registrarBajasActions } from "../../redux/actions/Bajas/registrarBajasActions";
-import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions";
-import MenuAltas from "../Menus/MenuAltas";
-import Layout from "../../containers/hocs/layout/Layout";
+import { pdf } from "@react-pdf/renderer";
+import SkeletonLoader from "../../Utils/SkeletonLoader";
+import { RootState } from "../../../store";
+import { registrarBajasActions } from "../../../redux/actions/Bajas/registrarBajasActions";
+import { listaBajasActions } from "../../../redux/actions/Bajas/listaBajasActions";
+import MenuAltas from "../../Menus/MenuAltas";
+import Layout from "../../../containers/hocs/layout/Layout";
+import PDFRowDocument from './PDFRowDocument';
+import { BlobProvider, PDFDownloadLink } from '@react-pdf/renderer';
 
 export interface ListaBajas {
     bajaS_CORR: string;
@@ -40,15 +42,17 @@ interface DatosBajas {
 const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, registrarBajasActions, token, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Partial<ListaBajas>>({});
-    const [mostrarModal, setMostrarModal] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
-    const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    //-------------Modal-------------//
+    const [mostrarModal, setMostrarModal] = useState<number | null>(null);
+    const [filaActiva, setFilaActiva] = useState<ListaBajas | null>(null);
+    //------------Fin Modal----------//
+    const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 10;
-    let indexReal = 0;//Indice para manejar el valor real de cada fila y para manejar check
     const sigCanvas = useRef<SignatureCanvas>(null);
     const [isSigned, setIsSigned] = useState(false);
-    const [bajas, setBajas] = useState({
+    const [altas, setAltas] = useState({
         nresolucion: 0,
         observaciones: "",
         fechA_BAJA: ""
@@ -57,8 +61,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
     const validate = () => {
         let tempErrors: Partial<ListaBajas> = {};
         // if (!bajas.nresolucion) tempErrors.nresolucion = "Número de resolución es obligatorio.";
-        if (!bajas.fechA_BAJA) tempErrors.fechA_BAJA = "Fecha de Baja es obligatoria.";
-        if (!bajas.observaciones) tempErrors.observaciones = "Observación es obligatoria.";
+        if (!altas.fechA_BAJA) tempErrors.fechA_BAJA = "Fecha de Baja es obligatoria.";
+        if (!altas.observaciones) tempErrors.observaciones = "Observación es obligatoria.";
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -83,7 +87,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
         }
 
         const signatureImage = sigCanvas.current.toDataURL();
-        const selectedIndices = filasSeleccionadas.map(Number);
+        const selectedIndices = filaSeleccionada.map(Number);
 
         const result = await Swal.fire({
             icon: "info",
@@ -102,7 +106,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
             const formularioBajas = selectedIndices.map(index => ({
                 aF_CLAVE: listaBajas[index].aF_CLAVE,
                 bajaS_CORR: listaBajas[index].bajaS_CORR,
-                ...bajas,
+                ...altas,
                 firma: signatureImage
             }));
 
@@ -120,8 +124,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                         customClass: { popup: "custom-border" }
                     });
                     await listaBajasActions();
-                    setFilasSeleccionadas([]);
-                    setMostrarModal(false);
+                    setFilaSeleccionada([]);
+                    setMostrarModal(null);
                 } else {
                     throw new Error("Fallo al registrar bajas");
                 }
@@ -168,39 +172,23 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
         fetchBajas();
     }, [listaBajasActions, token, listaBajas.length, isDarkMode]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setBajas(prev => ({
-            ...prev,
-            [name]: name === "nresolucion" ? parseFloat(value) || 0 : value,
-        }));
-    };
-
-    const setSeleccionaFilas = (index: number) => {
-        setFilasSeleccionadas(prev =>
+    const setSeleccionaFila = (index: number) => {
+        setMostrarModal(index); //Abre modal del indice seleccionado
+        setFilaSeleccionada(prev =>
             prev.includes(index.toString())
                 ? prev.filter(rowIndex => rowIndex !== index.toString())
                 : [...prev, index.toString()]
         );
-        setMostrarModal(true);
     };
 
-    const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked) {
-            setFilasSeleccionadas(
-                elementosActuales.map((_, index) => (indicePrimerElemento + index).toString())
-            );
-        } else {
-            setFilasSeleccionadas([]);
-        }
-    };
-
-    const handleCerrarModal = (indexReal: number) => {
-        setMostrarModal(false);
-        setFilasSeleccionadas((prevSeleccionadas) =>
-            prevSeleccionadas.filter((fila) => fila !== indexReal.toString())
+    const handleCerrarModal = (index: number) => {
+        setFilaSeleccionada((prevSeleccionadas) =>
+            prevSeleccionadas.filter((fila) => fila !== index.toString())
         );
+        setMostrarModal(null); //Cierra modal del indice seleccionado
+        setFilaActiva(null); // Limpia la fila activa
     };
+
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
@@ -210,6 +198,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
     const totalPaginas = Math.ceil(listaBajas.length / elementosPorPagina);
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
+    const handleDescargarPDF = async (fila: any) => {
+        const blob = await pdf(<PDFRowDocument row={fila} />).toBlob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Firma_Alta_${fila?.aF_CLAVE}.pdf`;
+        link.click();
+    };
+    const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
     return (
         <Layout>
             <MenuAltas />
@@ -218,17 +214,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                 {loading ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
+
                     <div className='table-responsive'>
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                 <tr>
-                                    <th>
-                                        <Form.Check
-                                            type="checkbox"
-                                            onChange={handleSeleccionaTodos}
-                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                        />
-                                    </th>
                                     <th scope="col">Codigo</th>
                                     <th scope="col">N° Inventario</th>
                                     <th scope="col">Vida útil</th>
@@ -239,27 +229,30 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                                 </tr>
                             </thead>
                             <tbody>
-                                {elementosActuales.map((listaBaja, index) => (
+                                {elementosActuales.map((fila, index) => (
                                     <tr key={indicePrimerElemento + index}>
                                         <td>
                                             <Form.Check
                                                 type="checkbox"
-                                                onChange={() => setSeleccionaFilas(indicePrimerElemento + index)}
-                                                checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
+                                                onChange={() => setSeleccionaFila(index)}
+                                                checked={filaSeleccionada.includes(
+                                                    (indicePrimerElemento + index).toString()
+                                                )}
                                             />
                                         </td>
-                                        <td>{listaBaja.bajaS_CORR}</td>
-                                        <td>{listaBaja.aF_CLAVE}</td>
-                                        <td>{listaBaja.vutiL_RESTANTE}</td>
-                                        <td>{listaBaja.vutiL_AGNOS}</td>
-                                        <td>{listaBaja.ncuenta}</td>
-                                        <td>{listaBaja.especie}</td>
-                                        <td>{listaBaja.deP_ACUMULADA}</td>
+                                        <td>{fila.bajaS_CORR}</td>
+                                        <td>{fila.aF_CLAVE}</td>
+                                        <td>{fila.vutiL_RESTANTE}</td>
+                                        <td>{fila.vutiL_AGNOS}</td>
+                                        <td>{fila.ncuenta}</td>
+                                        <td>{fila.especie}</td>
+                                        <td>{fila.deP_ACUMULADA}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+
                 )}
                 <Pagination className="d-flex justify-content-end">
                     <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
@@ -277,55 +270,99 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                     <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
                 </Pagination>
             </div>
-            <Modal show={mostrarModal}
-                onHide={() => handleCerrarModal(indexReal)}
-                dialogClassName="modal-right" >
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Firme Alta seleccionada</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-3 ">
-                            <label htmlFor="signature" className="fw-semibold">Ingrese su firma</label>
-                            <div className={`border ${isDarkMode ? "border-secondary" : "border-primary"} rounded p-2`}>
-                                <SignatureCanvas
-                                    ref={sigCanvas}
-                                    canvasProps={{
-                                        className: 'signature-canvas',
-                                    }}
-                                    backgroundColor={isDarkMode ? '#343a40' : '#f8f9fa'}
-                                    penColor={isDarkMode ? '#ffffff' : '#000000'}
-                                    onEnd={handleSignatureEnd}
-                                />
-                            </div>
-                            {/* {error.signature && <div className="text-danger">{error.signature}</div>} */}
-                            <div className="mt-2 d-flex justify-content-between">
-                                <Button
-                                    type="button"
-                                    variant={isDarkMode ? "outline-secondary" : "outline-primary"}
-                                    onClick={clearSignature}
-                                    disabled={!isSigned}
-                                >
-                                    Limpiar firma
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    variant={isDarkMode ? "secondary" : "primary"}
-                                    disabled={!isSigned || loadingRegistro}
-                                >
-                                    {loadingRegistro ? "Procesando..." : (
-                                        <>
-                                            <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
-                                            Firmar y enviar
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        </div>
+            {elementosActuales.map((fila, index) => (
+                <div key={index}>
+                    <Modal
+                        show={mostrarModal === index}
+                        onHide={() => handleCerrarModal(index)}
+                        dialogClassName="modal-right" >
+                        <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                            <Modal.Title className="fw-semibold">Firme Alta seleccionada</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                            <form onSubmit={handleSubmit}>
+                                <div className="d-flex justify-content-end mb-2">
+                                    <button className="btn btn-primary" onClick={() => handleDescargarPDF(fila)}>
+                                        Descargar PDF
+                                    </button>
+                                </div>
+                                <BlobProvider document={<PDFRowDocument row={fila} />}>
+                                    {({ url, loading }) =>
+                                        loading ? (
+                                            <p>Generando vista previa...</p>
+                                        ) : (
 
-                    </form>
-                </Modal.Body>
-            </Modal>
+
+                                            <iframe
+                                                src={url ? `${url}${isFirefox ? "" : "#toolbar=0&navpanes=0&scrollbar=0"}` : ''}
+                                                title="Vista Previa del PDF"
+                                                style={{
+                                                    width: "100%",
+                                                    height: "500px",
+                                                    border: "none",
+                                                    pointerEvents: isFirefox ? "none" : "auto", // Deshabilita interacciones en Firefox
+                                                }}
+                                            ></iframe>
+
+                                        )
+                                    }
+                                </BlobProvider>
+                                <div className="mb-3 ">
+                                    <label htmlFor="signature" className="fw-semibold">Ingrese su firma</label>
+                                    <div className={`border ${isDarkMode ? "border-secondary" : "border-primary"} rounded p-2`}>
+                                        <SignatureCanvas
+                                            ref={sigCanvas}
+                                            canvasProps={{
+                                                className: 'signature-canvas',
+                                            }}
+                                            backgroundColor={isDarkMode ? '#343a40' : '#f8f9fa'}
+                                            penColor={isDarkMode ? '#ffffff' : '#000000'}
+                                            onEnd={handleSignatureEnd}
+                                        />
+                                    </div>
+                                    {filaActiva && (
+                                        <PDFDownloadLink
+                                            document={<PDFRowDocument row={filaActiva} />}
+                                            fileName={`Alta_${filaActiva?.aF_CLAVE}.pdf`}
+                                        >
+                                            {loading ? (
+                                                <button className="btn btn-secondary">Generando PDF...</button>
+                                            ) : (
+                                                <button className="btn btn-primary">Descargar PDF</button>
+                                            )
+                                            }
+                                        </PDFDownloadLink>
+                                    )}
+                                    {/* {error.signature && <div className="text-danger">{error.signature}</div>} */}
+                                    <div className="mt-2 d-flex justify-content-between">
+                                        <Button
+                                            type="button"
+                                            variant={isDarkMode ? "outline-secondary" : "outline-primary"}
+                                            onClick={clearSignature}
+                                            disabled={!isSigned}
+                                        >
+                                            Limpiar firma
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            variant={isDarkMode ? "secondary" : "primary"}
+                                            disabled={!isSigned || loadingRegistro}
+                                        >
+                                            {loadingRegistro ? "Procesando..." : (
+                                                <>
+                                                    <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
+                                                    Firmar y enviar
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </Modal.Body>
+                    </Modal>
+                </div>
+            ))}
         </Layout>
     );
 };

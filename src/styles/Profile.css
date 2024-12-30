@@ -25,17 +25,12 @@
  
   /* Botón de cierre */
   .close-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
     background: none;
     border: none;
-    font-size: 2rem;
-    /* cursor: pointer; */
+        /* cursor: pointer; */
     /* color: #000; Color del botón de cierre */
   }
-  .button-moon-sun{
-    
+  .button-moon-sun{    
     height: 30px;
     border-radius: 20px;
     transition: background-color 0.3s;

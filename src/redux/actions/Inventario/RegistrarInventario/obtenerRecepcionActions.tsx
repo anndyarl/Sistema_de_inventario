@@ -22,11 +22,16 @@ export const obtenerRecepcionActions =
           const res = await axios.get(`/api_inv/api/inventario/comboTraeRecepcion?numero=${nRecepcion}`, config);
 
           if (res.status === 200) {
-            dispatch({
-              type: RECEPCION_SUCCESS,
-              payload: res.data,
-            });
-            return true;
+            const isEmpty = res.data && Object.values(res.data).every((value) => value == 0 || value == null || value == undefined);
+            if (!isEmpty) {
+              dispatch({
+                type: RECEPCION_SUCCESS,
+                payload: res.data,
+              });
+              return true;
+            } else {
+              return false;
+            }
           } else {
             dispatch({
               type: RECEPCION_FAIL,

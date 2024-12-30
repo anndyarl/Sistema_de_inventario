@@ -1,9 +1,9 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-  INVENTARIO_REQUEST,
-  INVENTARIO_SUCCESS,
-  INVENTARIO_FAIL,
+  OBTENER_INVENTARIO_REQUEST,
+  OBTENER_INVENTARIO_SUCCESS,
+  OBTENER_INVENTARIO_FAIL
 } from "../types";
 
 // Acción para obtener la recepción por af_clave
@@ -20,15 +20,16 @@ export const obtenerInventarioActions =
           },
         };
 
-        dispatch({ type: INVENTARIO_REQUEST });
+        dispatch({ type: OBTENER_INVENTARIO_REQUEST });
 
         try {
           const res = await axios.get(`/api_inv/api/inventario/TraeInvxID?AF_CLAVE=${nInventario}`, config);
 
           if (res.status === 200) {
-            if (res.data?.length) {
+            const isEmpty = res.data && Object.values(res.data).every((value) => value === 0 || value === null || value === undefined);
+            if (!isEmpty) {
               dispatch({
-                type: INVENTARIO_SUCCESS,
+                type: OBTENER_INVENTARIO_SUCCESS,
                 payload: res.data,
               });
               return true;
@@ -37,7 +38,7 @@ export const obtenerInventarioActions =
             }
           } else {
             dispatch({
-              type: INVENTARIO_FAIL,
+              type: OBTENER_INVENTARIO_FAIL,
               error:
                 "No se pudo obtener el inventario. Por favor, intente nuevamente.",
             });
@@ -46,14 +47,14 @@ export const obtenerInventarioActions =
         } catch (err) {
           // console.error("Error en la solicitud:", err);
           dispatch({
-            type: INVENTARIO_FAIL,
+            type: OBTENER_INVENTARIO_FAIL,
             error: "Error en la solicitud. Por favor, intente nuevamente.",
           });
           return false;
         }
       } else {
         dispatch({
-          type: INVENTARIO_FAIL,
+          type: OBTENER_INVENTARIO_FAIL,
           error: "No se encontró un token de autenticación válido.",
         });
         return false;

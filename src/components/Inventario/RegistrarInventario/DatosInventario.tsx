@@ -269,11 +269,25 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       setLoading(false);
       return;
     }
-
     // Despacha la acción para obtener la recepción en el formulario de activos fijos
     const resultado = await obtenerRecepcionActions(Inventario.nRecepcion);
-    if (resultado) {
-      setLoading(false);
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      setLoading(false); //Finaliza estado de carga
     }
   };
   const handleLimpiar = () => {

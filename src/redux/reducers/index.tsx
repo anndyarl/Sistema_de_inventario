@@ -48,6 +48,7 @@ import comboTrasladoEspecieReducer from "./Traslados/Combos/comboTrasladoEspecie
 import comboDepartamentoReducer from "./Traslados/Combos/comboDepartamentoReducer";
 import obtenerListaRematesReducers from "./Bajas/datosListaRematesReducers";
 import obtenerListaExcluidosReducers from "./Bajas/datosListaExcluidosReducers";
+import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerInventarioReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -73,7 +74,7 @@ const appReducer = combineReducers({
   datosActivoFijoReducers,
 
   // Modificar Inventario
-  datosInventarioReducers,
+  obtenerInventarioReducers,
 
   // Anular Inventario
   datosListaInventarioReducers,

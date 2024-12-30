@@ -1,6 +1,6 @@
 .timeline {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     /* margin-bottom: 20px; */
      margin-top: 20px;
 }
@@ -47,7 +47,7 @@
 }
 
 .timeline-connector {
-    width: 100%;
+    width: 30%;
     height: 2px;
     background-color: #a6a6a6;
     /* Color para conectores no activos */

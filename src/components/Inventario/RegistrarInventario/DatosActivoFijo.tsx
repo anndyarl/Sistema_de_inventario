@@ -185,7 +185,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       tempErrors.general = `Debe ingresar un valor mayor a cero`;
     }
     if (newTotal > pendiente) {
-      tempErrors.general = `El precio por cantidad ingresado es mayor al monto de recepción pendiente $${pendiente}`;
+      tempErrors.general = `La cantidad por precio ingresado supera al monto de recepción.`;
     }
     if (newTotal > montoRecepcion) {
       tempErrors.general = `La cantidad ingresada excede al facturado $${montoRecepcion}`;
@@ -375,6 +375,16 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   };
 
   const handleLimpiar = () => {
+    setActivoActual((prevData) => ({
+      ...prevData,
+      vidaUtil: "",
+      fechaIngreso: "",
+      marca: "",
+      modelo: "",
+      precio: "",
+      cantidad: "",
+      observaciones: ""
+    }));
     dispatch(setVidaUtilActions(""));
     dispatch(setFechaIngresoActions(""));
     dispatch(setMarcaActions(""));
@@ -571,25 +581,44 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         <h3 className="form-title fw-semibold border-bottom">
           Detalles activo
         </h3>
-        <div className="d-flex justify-content-between  m-1">
-          {/* Monto Recepción*/}
-          <div className=" align-content-center">
-            <strong>Monto Recepción:</strong> $
-            {montoRecepcion.toLocaleString("es-ES", {
-              minimumFractionDigits: 0,
-            })}
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          {/* Contenedor para Monto Recepción y Monto Pendiente */}
+          <div className="d-flex">
+            <div className="mx-1 bg-primary text-white p-1 rounded">
+              <p className="text-center">Monto Recepción</p>
+              <p className="fw-semibold text-center">
+                $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+              </p>
+            </div>
+            <div className=" mx-1 bg-secondary text-white p-1 rounded">
+              <p className="text-center">Monto Pendiente</p>
+              <p className="fw-semibold text-center">
+                $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                  minimumFractionDigits: 0,
+                })}
+              </p>
+            </div>
           </div>
-          {/* habilita Boton Modal formulario si solo monto recepcion y total coinciden y si la especie tiene datos */}
-          {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
-            <Button
-              className="align-content-center"
-              variant={`${isDarkMode ? "secondary" : "primary"}`}
-              onClick={() => setMostrarModal(true)}
-            >
-              <Plus className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-            </Button>
-          )}
+
+          {/* Contenedor para los Botones */}
+          <div className="d-flex">
+            <div className="mb-1 mx-1">
+              {/* habilita Boton Modal formulario si solo monto recepcion y total coinciden y si la especie tiene datos */}
+              {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
+                <Button
+                  className="align-content-center"
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  onClick={() => setMostrarModal(true)}
+                >
+                  <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                  Agregar
+                </Button>
+
+              )}
+            </div>
+          </div>
         </div>
+
 
         {/* Boton elimina filas seleccionadas */}
 
@@ -617,7 +646,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         {/* Tabla */}
         {datos.length === 0 ? (
           <p className="d-flex justify-content-center m-1 p-1 ">
-            Haz clic en (+) para agregar aquí los detalles de cada activo.
+            Haz clic en (+) para listar aquí los detalles de cada activo.
           </p>
         ) : (
           <div className="overflow-auto">
@@ -751,7 +780,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           {elementosActuales.length > 0 && (
             <Button variant={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}
               onClick={handleFinalSubmit} >
-              Validar
+              Registrar
             </Button>
           )}
         </div>
@@ -763,7 +792,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         size="lg"
       >
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Agregar activo fijo</Modal.Title>
+          <Modal.Title className="fw-semibold">Agregar activos fijos</Modal.Title>
         </Modal.Header>
 
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -776,34 +805,46 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
           <form onSubmit={handleAgregar}>
             <Row>
-              <div className="d-flex justify-content-start">
-                <p className="mx-0">
-                  <strong>Monto Recepción:</strong> $
-                  {montoRecepcion.toLocaleString("es-ES", {
-                    minimumFractionDigits: 0,
-                  })}
-                </p>
-                <p className="ms-3">
-                  <strong>Monto Pendiente:</strong> </p>
-                <p className="ms-1 text-danger fw-semibold">
-                  ${(montoRecepcion - totalSum).toLocaleString("es-ES", {
-                    minimumFractionDigits: 0,
-                  })}
-                </p>
-              </div>
-              <div className="d-flex justify-content-end">
-                <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} mx-2`}>
-                  <Plus
-                    className={classNames("flex-shrink-0", "h-5 w-5")}
-                    aria-hidden="true"
-                  />
-                </Button>
-                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary "}`}>
-                  <Eraser
-                    className={classNames("flex-shrink-0", "h-5 w-5")}
-                    aria-hidden="true"
-                  />
-                </Button>
+              <div className="d-flex justify-content-end align-items-center mb-4">
+                {/* Contenedor para Monto Recepción y Monto Pendiente */}
+                {/* <div className="d-flex">
+                  <div className="mx-1 bg-primary text-white p-1 rounded">
+                    <p className="text-center">Monto Recepción</p>
+                    <p className="fw-semibold text-center">
+                      $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                  <div className=" mx-1 bg-secondary text-white p-1 rounded">
+                    <p className="text-center">Monto Pendiente</p>
+                    <p className="fw-semibold text-center">
+                      $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                        minimumFractionDigits: 0,
+                      })}
+                    </p>
+                  </div>
+                </div> */}
+
+                {/* Contenedor para los Botones */}
+                <div className="d-flex">
+                  <div className="mb-1 mx-1">
+                    <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} mx-2`}>
+                      <Plus
+                        className={classNames("flex-shrink-0 me-1", "h-5 w-5")}
+                        aria-hidden="true"
+                      />
+                      Guardar
+                    </Button>
+                  </div>
+                  <div className="mb-1 mx-1">
+                    <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary "}`}>
+                      <Eraser
+                        className={classNames("flex-shrink-0 me-1", "h-5 w-5")}
+                        aria-hidden="true"
+                      />
+                      Limpiar
+                    </Button>
+                  </div>
+                </div>
               </div>
               <Col md={6}>
                 <div className="mb-1">
@@ -812,7 +853,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-select ${error.vidaUtil ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${error.vidaUtil ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="vidaUtil"
                     name="vidaUtil"
                     maxLength={10}
@@ -830,7 +871,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </label>
                   <input
                     type="date"
-                    className={`form-select ${error.fechaIngreso ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${error.fechaIngreso ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="fechaIngreso"
                     name="fechaIngreso"
                     onChange={handleChange}
@@ -847,7 +888,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-select ${error.marca ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${error.marca ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="marca"
                     name="marca"
                     maxLength={20}
@@ -865,7 +906,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-select ${error.modelo ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${error.modelo ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="modelo"
                     name="modelo"
                     maxLength={20}
@@ -884,7 +925,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-select ${error.precio ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${error.precio ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="precio"
                     name="precio"
                     maxLength={12}
@@ -902,7 +943,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </label>
                   <input
                     type="text"
-                    className={`form-select ${error.cantidad ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${error.cantidad ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     id="cantidad"
                     name="cantidad"
                     maxLength={6}
@@ -918,12 +959,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                     Observaciones
                   </label>
                   <textarea
-                    className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     aria-label="observaciones"
                     name="observaciones"
                     rows={4}
                     // maxLength={500}
-                    // style={{ minHeight: "8px", resize: "none" }}
+                    style={{ minHeight: "8px", resize: "none" }}
                     onChange={handleChange}
                     value={activoActual.observaciones}
                   />
@@ -936,7 +977,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               </Col>
             </Row>
           </form>
-        </Modal.Body>
+        </Modal.Body >
       </Modal >
     </>
   );

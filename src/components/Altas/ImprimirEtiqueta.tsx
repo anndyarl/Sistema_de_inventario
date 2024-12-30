@@ -108,8 +108,9 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                             <input
                                 aria-label="aF_CLAVE"
                                 type="text"
-                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CLAVE ? "is-invalid" : ""}`}
+                                className={`form-select text-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CLAVE ? "is-invalid" : ""}`}
                                 maxLength={12}
+                                size={50}
                                 name="aF_CLAVE"
                                 placeholder="Ingrese número de Inventario"
                                 onChange={handleChange}

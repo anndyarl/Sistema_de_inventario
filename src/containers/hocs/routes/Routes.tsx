@@ -33,7 +33,7 @@ import RegistrarBajas from '../../../components/Bajas/RegistrarBajas';
 import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
 import RegistrarTraslados from '../../../components/Traslados/RegistrarTraslados';
-import FirmarAltas from '../../../components/Altas/FirmarAltas';
+import FirmarAltas from '../../../components/Altas/FirmarAltas/FirmarAltas';
 import BienesRematados from '../../../components/Bajas/BienesRematados';
 
 

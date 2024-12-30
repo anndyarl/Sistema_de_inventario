@@ -21,7 +21,7 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
     const bitcoin = res.data.bitcoin;
     const ipc = res.data.ipc;
 
-    console.log("Respuesta del servidor miidicador:", res.data);
+    // console.log("Respuesta del servidor miidicador:", res.data);
     if (res.status === 200) {
       dispatch({
         type: LISTA_UTM_SUCCESS,

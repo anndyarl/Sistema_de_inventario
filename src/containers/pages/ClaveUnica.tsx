@@ -84,48 +84,41 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
     <section className={`vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
       <div className="container-fluid">
         <div className="row">
-          <div className="col-sm-6">
-            <div className="d-flex px-5 p-3 ms-xl-4 justify-content-center">
-              <img
-                src={ssmso_logo}
-                alt="SSMSO-LOGO"
-                width={150}
-                className="img-fluid "
-              />
-              {/* <p className="align-content-center fs-09em px-2 ">
-                Sistema de apoyo en la gestión administrativa
-              </p> */}
-            </div>
-            <div className="row align-items-center justify-content-center h-25">
-              <div className="w-100">
-                <h3 className="border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
-                <p className="fs-09em mb-4">
-                  Servicio de Salud Metropolitano Sur Oriente
-                </p>
-                <div className="text-center mb-4 ">
-                  <a href="/Login"
-                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                    Clave Única demo
-                  </a>
-                </div>
-                <div className="row align-content-end">
-                  <p className="text-center fs-xs">
-                    Diseñado por el Departamento de Informática ♥ Unidad de Desarrollo 2024
-                  </p>
-                </div>
-                {/* <div className="mb-4 text-center">
+          <div className="col-sm-6 row align-content-around">
+            <div>
+              <div className="d-flex justify-content-center">
+                <img
+                  src={ssmso_logo}
+                  alt="SSMSO-LOGO"
+                  width={200}
+                  className="img-fluid"
+                />
+              </div>
+              <h3 className="border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
+              <p className="fs-09em mb-1">
+                Servicio de Salud Metropolitano Sur Oriente
+              </p>
+              <div className="text-center">
+                <a href="/Login"
+                  className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                  Clave Única demo
+                </a>
+              </div>
+              {/* <div className="mb-4 text-center">
                   <a
                     href="/claveunica"
                     className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Clave Única
                   </a>
                 </div> */}
-              </div>
-
+            </div>
+            <div>
+              <p className="text-center fs-xs ">
+                Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
+              </p>
             </div>
 
           </div>
-
           <div className="col-sm-6 px-0 d-none d-sm-block">
             <div className="d-flex position-absolute mx-5 w-25">
               <div className="text-bg-primary p-1 flex-grow-1"></div>

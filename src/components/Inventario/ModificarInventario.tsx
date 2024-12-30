@@ -1,12 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Table, Form, Row, Col, Modal, Pagination, Spinner, } from "react-bootstrap";
+import { Button, Form, Row, Col, Modal, Pagination, Spinner, } from "react-bootstrap";
 import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
-import { InventarioProps, MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
-import { BIEN, CUENTA, CuentaProps, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/DatosCuenta";
+import { MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
+import { BIEN, CUENTA, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/DatosCuenta";
 
 import Swal from "sweetalert2";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
@@ -20,63 +20,85 @@ import MenuInventario from "../Menus/MenuInventario";
 import { setModalidadCompraActions } from "../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 
 
+// export interface InventarioCompleto {
+//   aF_CLAVE: string;
+//   aF_CODIGO_GENERICO: string;
+//   aF_CODIGO_LARGO: string;
+//   deP_CORR: number;
+//   esP_CODIGO: string;
+//   aF_SECUENCIA: number;
+//   itE_CLAVE: number;
+//   aF_DESCRIPCION: string;
+//   aF_FINGRESO: string;
+//   aF_ESTADO: string;
+//   aF_CODIGO: string;
+//   aF_TIPO: string;
+//   aF_ALTA: string;
+//   aF_PRECIO_REF: number;
+//   aF_CANTIDAD: number;
+//   aF_ORIGEN: number;
+//   aF_RESOLUCION: string;
+//   aF_FECHA_SOLICITUD: string;
+//   aF_OCO_NUMERO_REF: number;
+//   usuariO_CREA: string;
+//   f_CREA: string;
+//   iP_CREA: string;
+//   usuariO_MOD: string;
+//   f_MOD: string;
+//   iP_MOlabel: string;
+//   aF_TIPO_DOC: number;
+//   proV_RUN: number;
+//   reG_EQM: string;
+//   aF_NUM_FAC: string;
+//   aF_FECHAFAC: string;
+//   aF_3UTM: string;
+//   iD_GRUPO: number;
+//   ctA_COD: string;
+//   transitoria: string;
+//   aF_MONTOFACTURA: number;
+//   esP_DESCOMPONE: string;
+//   aF_ETIQUETA: string;
+//   aF_VIDAUTIL: number;
+//   aF_VIGENTE: string;
+//   idprograma: number;
+//   idmodalidadcompra: number;
+//   idpropiedad: number;
+//   especie: string;
+//   deT_MARCA: string;
+//   deT_MODELO: string;
+//   deT_SERIE: string;
+//   deT_LOTE: string;
+//   deT_OBS: string;
+//   iP_MOD: string;
+//   deT_PRECIO: number;
+//   deT_RECEPCION: number;
+//   propietario: number;
+//   tipopropietario: number;
+// }
+
 export interface InventarioCompleto {
-  aF_CLAVE: string;
-  aF_CODIGO_GENERICO: string;
-  aF_CODIGO_LARGO: string;
-  deP_CORR: number;
-  esP_CODIGO: string;
-  aF_SECUENCIA: number;
-  itE_CLAVE: number;
-  aF_DESCRIPCION: string;
-  aF_FINGRESO: string;
-  aF_ESTADO: string;
-  aF_CODIGO: string;
-  aF_TIPO: string;
-  aF_ALTA: string;
-  aF_PRECIO_REF: number;
-  aF_CANTIDAD: number;
-  aF_ORIGEN: number;
-  aF_RESOLUCION: string;
-  aF_FECHA_SOLICITUD: string;
-  aF_OCO_NUMERO_REF: string;
-  usuariO_CREA: string;
-  f_CREA: string;
-  iP_CREA: string;
-  usuariO_MOD: string;
-  f_MOD: string;
-  iP_MOlabel: string;
-  aF_TIPO_DOC: number;
-  proV_RUN: number;
-  reG_EQM: string;
-  aF_NUM_FAC: string;
-  aF_FECHAFAC: string;
-  aF_3UTM: string;
-  iD_GRUPO: number;
+  aF_CLAVE: string; // nRecepcion
+  aF_FECHA_SOLICITUD: string; // fechaRecepcion 
+  aF_OCO_NUMERO_REF: number // nOrdenCompra
+  aF_NUM_FAC: string; // nFactura
+  aF_ORIGEN: number;  //origenPresupuesto
+  aF_MONTOFACTURA: number; //montoRecepcion
+  aF_FECHAFAC: string; //fechaFactura
+  proV_RUN: number; // rutProveedor
+  idprograma: number; //servicio
+  deP_CORR: number; //dependencia
+  idmodalidadcompra: number; // modalidadDeCompra
+  especie: string; //especie
   ctA_COD: string;
-  transitoria: string;
-  aF_MONTOFACTURA: number;
-  esP_DESCOMPONE: string;
-  aF_ETIQUETA: string;
+  //-------Tabla---------//
   aF_VIDAUTIL: number;
-  aF_VIGENTE: string;
-  idprograma: number;
-  idmodalidadcompra: number;
-  idpropiedad: number;
-  especie: string;
+  aF_FINGRESO: string;
   deT_MARCA: string;
   deT_MODELO: string;
   deT_SERIE: string;
-  deT_LOTE: string;
-  deT_OBS: string;
-  iP_MOD: string;
   deT_PRECIO: number;
-  deT_RECEPCION: number;
-  propietario: number;
-  tipopropietario: number;
 }
-interface InventarioCompletoProps {
-  datosInventarioCompleto: InventarioCompleto[];
+interface InventarioCompletoProps extends InventarioCompleto {
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
   comboServicio: SERVICIO[];
@@ -92,13 +114,13 @@ interface InventarioCompletoProps {
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
   comboCuentaActions: (nombreEspecie: string) => void;
+  comboProveedorActions: (rutProveedor: string) => void;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
   isDarkMode: boolean;
 }
 
 const ModificarInventario: React.FC<InventarioCompletoProps> = ({
-  datosInventarioCompleto,
   comboOrigen,
   comboModalidad,
   comboServicio,
@@ -108,13 +130,33 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboDetalle,
   comboProveedor,
   listaEspecie,
-  descripcionEspecie,
+  aF_CLAVE, // nRecepcion
+  aF_FECHA_SOLICITUD,// fechaRecepcion 
+  aF_OCO_NUMERO_REF, // nOrdenCompra
+  aF_NUM_FAC,// nFactura
+  aF_ORIGEN, //origenPresupuesto
+  aF_MONTOFACTURA, //montoRecepcion
+  aF_FECHAFAC, //fechaFactura
+  proV_RUN, // rutProveedor
+  idprograma, //servicio
+  deP_CORR, //dependencia
+  idmodalidadcompra, // modalidadDeCompra
+  especie,// descripcion especie
+  ctA_COD,
+  //-------Tabla---------//
+  aF_VIDAUTIL,
+  aF_FINGRESO,
+  deT_MARCA,
+  deT_MODELO,
+  deT_SERIE,
+  deT_PRECIO,
   isDarkMode,
   comboDependenciaActions,
   obtenerInventarioActions,
   comboDetalleActions,
   comboListadoDeEspeciesBienActions,
   comboCuentaActions,
+  comboProveedorActions,
   modificarFormInventarioActions,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -126,7 +168,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const elementosPorPagina = 50;
   const [isDisabled, setIsDisabled] = useState(true);
   const [isDisabledNRecepcion, setIsDisabledNRecepcion] = useState(false);
-  const [error, setError] = useState<Partial<InventarioProps> & Partial<CuentaProps> & {}>({});
+  const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
   };
@@ -136,57 +178,66 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const index = 0; // Cambia esto al índice que desees
   //-------------------------Formulario---------------------------//
   // Campos principales
-  const fechaFactura = datosInventarioCompleto[index]?.aF_FECHAFAC
-    ? new Date(datosInventarioCompleto[index]?.aF_FECHAFAC)
-      .toISOString()
-      .split("T")[0]
-    : "";
-
-  const fechaRecepcion = datosInventarioCompleto[index]?.aF_FINGRESO
-    ? new Date(datosInventarioCompleto[index]?.aF_FINGRESO)
-      .toISOString()
-      .split("T")[0]
-    : "";
-  const modalidadDeCompra = datosInventarioCompleto[index]?.idmodalidadcompra || 0;
-  const montoRecepcion = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0;
-  const nFactura = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
-  const nOrdenCompra = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0; //falta
-  const nRecepcion = datosInventarioCompleto[index]?.aF_CLAVE || "";
-  const nombreProveedor = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
-  const origenPresupuesto = datosInventarioCompleto[index]?.aF_ORIGEN || 0;
-  const rutProveedor = datosInventarioCompleto[index]?.proV_RUN || 0; //falta
-  const dependencia = datosInventarioCompleto[index]?.deP_CORR || 0;
-  const servicio = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
-  const cuenta = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
+  // const fechaFactura = datosInventarioCompleto[index]?.aF_FECHAFAC
+  //   ? new Date(datosInventarioCompleto[index]?.aF_FECHAFAC)
+  //     .toISOString()
+  //     .split("T")[0]
+  //   : "";
+  // const fechaRecepcion = datosInventarioCompleto[index]?.aF_FINGRESO
+  //   ? new Date(datosInventarioCompleto[index]?.aF_FINGRESO)
+  //     .toISOString()
+  //     .split("T")[0]
+  //   : "";
+  // const modalidadDeCompra = datosInventarioCompleto[index]?.idmodalidadcompra || 0;
+  // const montoRecepcion = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0;
+  // const nFactura = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
+  // const nOrdenCompra = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0; //falta
+  // const nRecepcion = datosInventarioCompleto[index]?.aF_CLAVE || "";
+  // const nombreProveedor = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
+  // const origenPresupuesto = datosInventarioCompleto[index]?.aF_ORIGEN || 0;
+  // const rutProveedor = datosInventarioCompleto[index]?.proV_RUN || 0; //falta
+  // const dependencia = datosInventarioCompleto[index]?.deP_CORR || 0;
+  // const servicio = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
+  // const cuenta = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
 
   // Tabla
-  const vidaUtil = datosInventarioCompleto[index]?.aF_VIDAUTIL || 0;
-  const marca = datosInventarioCompleto[index]?.deT_MARCA || "";
-  const modelo = datosInventarioCompleto[index]?.deT_MODELO || "";
-  const serie = datosInventarioCompleto[index]?.deT_SERIE || "";
-  const precio = datosInventarioCompleto[index]?.deT_PRECIO || 0;
-  const especie = datosInventarioCompleto[index]?.esP_CODIGO || "";
+  // const vidaUtil = datosInventarioCompleto[index]?.aF_VIDAUTIL || 0;
+  // const marca = datosInventarioCompleto[index]?.deT_MARCA || "";
+  // const modelo = datosInventarioCompleto[index]?.deT_MODELO || "";
+  // const serie = datosInventarioCompleto[index]?.deT_SERIE || "";
+  // const precio = datosInventarioCompleto[index]?.deT_PRECIO || 0;
+  // const especie = datosInventarioCompleto[index]?.esP_CODIGO || "";
 
+  const fechaRecepcion = aF_FECHA_SOLICITUD
+    ? new Date(aF_FECHA_SOLICITUD).toISOString().split("T")[0]
+    : "";
+  const fechaFactura = aF_FECHAFAC
+    ? new Date(aF_FECHAFAC).toISOString().split("T")[0]
+    : "";
+  const fechaIngreso = aF_FINGRESO
+    ? new Date(aF_FINGRESO).toISOString().split("T")[0]
+    : "";
   const [Inventario, setInventario] = useState({
-    fechaFactura: "",
-    fechaRecepcion: "",
-    modalidadDeCompra: 0,
-    montoRecepcion: 0,
-    nFactura: "",
-    nOrdenCompra: 0,
-    nRecepcion: "",
-    nombreProveedor: "",
-    origenPresupuesto: 0,
-    rutProveedor: 0,
-    dependencia: 0,
-    servicio: 0,
-    cuenta: 0,
-    vidaUtil: 0,
-    marca: "",
-    modelo: "",
-    serie: "",
-    precio: 0,
-    especie: "",
+    aF_CLAVE: "", // nRecepcion
+    fechaRecepcion, // fechaRecepcion 
+    aF_OCO_NUMERO_REF: 0, // nOrdenCompra
+    aF_NUM_FAC: "",// nFactura
+    aF_ORIGEN: 0,  //origenPresupuesto
+    aF_MONTOFACTURA: 0, //montoRecepcion
+    fechaFactura: "", //fechaFactura
+    proV_RUN: 0, // rutProveedor
+    idprograma: 0, //servicio
+    deP_CORR: 0, //dependencia
+    idmodalidadcompra: 0, // modalidadDeCompra
+    especie: "", //especie
+    ctA_COD: "",
+    //-------Tabla---------//
+    aF_VIDAUTIL: 0,
+    fechaIngreso: "",
+    deT_MARCA: "",
+    deT_MODELO: "",
+    deT_SERIE: "",
+    deT_PRECIO: 0,
   });
   const [Especies, setEspecies] = useState({
     estableEspecie: 0,
@@ -198,62 +249,62 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.nRecepcion)
-      tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
+    if (!Inventario.aF_CLAVE)
+      tempErrors.aF_CLAVE = "El N° de Recepción es obligatorio.";
     if (!Inventario.fechaRecepcion)
-      tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
-    if (!Inventario.nOrdenCompra)
-      tempErrors.nOrdenCompra = "El N° de Orden de Compra es obligatorio.";
-    else if (isNaN(Inventario.nOrdenCompra))
-      tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
-    if (!Inventario.nFactura || Inventario.nFactura === "0")
-      tempErrors.nFactura = "El N° de Factura es obligatorio.";
-    if (!Inventario.origenPresupuesto)
-      tempErrors.origenPresupuesto = "El Origen de Presupuesto es obligatorio.";
-    if (!Inventario.montoRecepcion || Inventario.montoRecepcion === 0)
-      tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
-    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion)))
-      tempErrors.montoRecepcion =
+      tempErrors.aF_FECHA_SOLICITUD = "La Fecha de Recepción es obligatoria.";
+    if (!Inventario.aF_OCO_NUMERO_REF || Inventario.aF_OCO_NUMERO_REF == 0)
+      tempErrors.aF_OCO_NUMERO_REF = "El N° de Orden de Compra es obligatorio.";
+    else if (isNaN(Inventario.aF_OCO_NUMERO_REF))
+      tempErrors.aF_OCO_NUMERO_REF = "El N° de Orden de Compra debe ser numérico.";
+    if (!Inventario.aF_NUM_FAC || Inventario.aF_NUM_FAC == "0")
+      tempErrors.aF_NUM_FAC = "El N° de Factura es obligatorio.";
+    if (!Inventario.aF_ORIGEN)
+      tempErrors.aF_ORIGEN = "El Origen de Presupuesto es obligatorio.";
+    if (!Inventario.aF_MONTOFACTURA || Inventario.aF_MONTOFACTURA == 0)
+      tempErrors.aF_MONTOFACTURA = "El Monto de Recepción es obligatorio.";
+    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.aF_MONTOFACTURA)))
+      tempErrors.aF_MONTOFACTURA =
         "El Monto debe ser un número válido con hasta dos decimales.";
     if (!Inventario.fechaFactura)
-      tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
-    if (!Inventario.rutProveedor || Inventario.rutProveedor === 0)
-      tempErrors.rutProveedor = "El Proveedor es obligatorio.";
-
-    if (!Inventario.modalidadDeCompra)
-      tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
-    if (!Inventario.servicio)
-      tempErrors.servicio = "EL Servicio es obligatoria.";
-    if (!Inventario.dependencia)
-      tempErrors.dependencia = "La Dependencia es obligatoria.";
-    if (!Inventario.cuenta || Inventario.cuenta === 0)
-      tempErrors.cuenta = "La Cuenta es obligatoria.";
-    // if (!Inventario.especie) tempErrors.especie = "La Especie es obligatoria.";
+      tempErrors.aF_FECHAFAC = "La Fecha de Factura es obligatoria.";
+    if (!Inventario.proV_RUN || Inventario.proV_RUN === 0)
+      tempErrors.proV_RUN = "El Proveedor es obligatorio.";
+    if (!Inventario.idmodalidadcompra)
+      tempErrors.idmodalidadcompra = "La Modalidad de Compra es obligatoria.";
+    if (!Inventario.idprograma)
+      tempErrors.idprograma = "EL Servicio es obligatoria.";
+    if (!Inventario.deP_CORR)
+      tempErrors.deP_CORR = "La Dependencia es obligatoria.";
+    if (!Inventario.ctA_COD || Inventario.ctA_COD === "")
+      tempErrors.ctA_COD = "La Cuenta es obligatoria.";
+    if (!Inventario.especie) tempErrors.especie = "La Especie es obligatoria.";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
     setInventario({
-      fechaFactura,
-      fechaRecepcion,
-      modalidadDeCompra,
-      montoRecepcion,
-      nFactura,
-      nOrdenCompra,
-      nRecepcion,
-      nombreProveedor,
-      origenPresupuesto,
-      rutProveedor,
-      dependencia,
-      servicio,
-      cuenta,
-      vidaUtil,
-      marca,
-      modelo,
-      serie,
-      precio,
-      especie,
+      aF_CLAVE, // nRecepcion
+      fechaRecepcion,// fechaRecepcion 
+      aF_OCO_NUMERO_REF, // nOrdenCompra
+      aF_NUM_FAC,// nFactura
+      aF_ORIGEN, //origenPresupuesto
+      aF_MONTOFACTURA, //montoRecepcion
+      fechaFactura, //fechaFactura
+      proV_RUN, // rutProveedor
+      idprograma, //servicio
+      deP_CORR, //dependencia
+      idmodalidadcompra, // modalidadDeCompra
+      especie,//especie
+      ctA_COD,
+      //-------Tabla---------//
+      aF_VIDAUTIL,
+      fechaIngreso,
+      deT_MARCA,
+      deT_MODELO,
+      deT_SERIE,
+      deT_PRECIO
 
     });
     //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
@@ -263,42 +314,43 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       // console.log("Código de especie seleccionado:", Especies.codigoEspecie);
     }
   }, [
-    fechaFactura,
-    fechaRecepcion,
-    modalidadDeCompra,
-    montoRecepcion,
-    nFactura,
-    nOrdenCompra,
-    nRecepcion,
-    nombreProveedor,
-    origenPresupuesto,
-    rutProveedor,
-    dependencia,
-    servicio,
-    cuenta,
-    vidaUtil,
-    marca,
-    modelo,
-    serie,
-    precio,
-    especie,
+    aF_CLAVE, // nRecepcion
+    fechaRecepcion,//fechaRecepcion 
+    aF_OCO_NUMERO_REF, //nOrdenCompra
+    aF_NUM_FAC, //nFactura
+    aF_ORIGEN, //origenPresupuesto
+    aF_MONTOFACTURA, //montoRecepcion
+    fechaFactura, //fechaFactura
+    proV_RUN, // rutProveedor
+    idprograma, //servicio
+    deP_CORR, //dependencia
+    idmodalidadcompra, // modalidadDeCompra
+    especie,//especie
+    ctA_COD, //cuenta
+    //-------Tabla---------//
+    aF_VIDAUTIL,
+    fechaIngreso,
+    deT_MARCA,
+    deT_MODELO,
+    deT_SERIE,
+    deT_PRECIO,
     Especies.codigoEspecie,
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     let newValue: string | number = [
-      "modalidadDeCompra",
-      "montoRecepcion",
-      "nFactura",
-      "nOrdenCompra",
-      "origenPresupuesto",
-      "rutProveedor",
-      "dependencia",
-      "servicio",
-      "cuenta",
-      "vidaUtil",
-      "precio"
+      "idmodalidadcompra", //modalidadDeCompra
+      "aF_MONTOFACTURA",//montoRecepcion
+      "aF_NUM_FAC", //nFactura
+      "aF_OCO_NUMERO_REF", //nOrdenCompra
+      "aF_ORIGEN", //origenPresupuesto
+      "proV_RUN", //rutProveedor
+      "deP_CORR", //dependencia
+      "idprograma", //servicio
+      "ctA_COD", //cuenta
+      "aF_VIDAUTIL", //vidaUtil
+      "deT_PRECIO" //precio
 
     ].includes(name)
 
@@ -309,19 +361,21 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       [name]: newValue,
     }));
 
-    if (name === "servicio") {
+    if (name === "idprograma") { //servicio
       comboDependenciaActions(value);
     }
+    if (comboBien.length === 0) comboDetalleActions("0");
+
     if (name === "bien") {
       comboDetalleActions(value);
     }
     if (name === "detalles") {
       comboListadoDeEspeciesBienActions(1, value);
     }
-    if (name === "rutProveedor") {
-      console.log("rutProveedor", value);
+    if (name === "proV_RUN") { //rutProveedor
+      comboProveedorActions(value);
     }
-    if (name === "modalidadDeCompra") {
+    if (name === "idmodalidadcompra") { //modalidadDeCompra
       if (value === "7") {
         newValue = parseFloat(value) || 0;
         dispatch(setModalidadCompraActions(newValue as number));
@@ -337,7 +391,26 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const handleEdit = () => {
     setInventario((prevInventario) => ({
       ...prevInventario,
-      nRecepcion: "",
+      aF_CLAVE: "", // nRecepcion
+      fechaRecepcion, // fechaRecepcion 
+      aF_OCO_NUMERO_REF: 0, // nOrdenCompra
+      aF_NUM_FAC: "",// nFactura
+      aF_ORIGEN: 0,  //origenPresupuesto
+      aF_MONTOFACTURA: 0, //montoRecepcion
+      fechaFactura: "", //fechaFactura
+      proV_RUN: 0, // rutProveedor
+      idprograma: 0, //servicio
+      deP_CORR: 0, //dependencia
+      idmodalidadcompra: 0, // modalidadDeCompra
+      especie: "", //especie
+      ctA_COD: "",
+      //-------Tabla---------//
+      aF_VIDAUTIL: 0,
+      fechaIngreso: "",
+      deT_MARCA: "",
+      deT_MODELO: "",
+      deT_SERIE: "",
+      deT_PRECIO: 0,
     }));
     setIsDisabled(true);
     setIsDisabledNRecepcion(false);
@@ -389,7 +462,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     let resultado = false;
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
-    if (!Inventario.nRecepcion || Inventario.nRecepcion === "") {
+    if (!Inventario.aF_CLAVE || Inventario.aF_CLAVE === "") {
       Swal.fire({
         icon: "warning",
         title: "Por favor, ingrese un número de inventario",
@@ -404,8 +477,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setLoading(false); //Finaliza estado de carga
       return;
     }
-    resultado = await obtenerInventarioActions(Inventario.nRecepcion);
-
+    resultado = await obtenerInventarioActions(Inventario.aF_CLAVE);
     if (!resultado) {
       Swal.fire({
         icon: "error",
@@ -481,25 +553,26 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       });
       setInventario((inventarioPrevia) => ({
         ...inventarioPrevia,
-        fechaFactura: "",
-        fechaRecepcion: "",
-        modalidadDeCompra: 0,
-        montoRecepcion: 0,
-        nFactura: "",
-        nOrdenCompra: 0,
-        nRecepcion: "",
-        nombreProveedor: "",
-        origenPresupuesto: 0,
-        rutProveedor: 0,
-        dependencia: 0,
-        servicio: 0,
-        cuenta: 0,
-        vidaUtil: 0,
-        marca: "",
-        modelo: "",
-        serie: "",
-        precio: 0,
-        especie: ""
+        aF_CLAVE: "", // nRecepcion
+        fechaRecepcion, // fechaRecepcion 
+        aF_OCO_NUMERO_REF: 0, // nOrdenCompra
+        aF_NUM_FAC: "",// nFactura
+        aF_ORIGEN: 0,  //origenPresupuesto
+        aF_MONTOFACTURA: 0, //montoRecepcion
+        fechaFactura: "", //fechaFactura
+        proV_RUN: 0, // rutProveedor
+        idprograma: 0, //servicio
+        deP_CORR: 0, //dependencia
+        idmodalidadcompra: 0, // modalidadDeCompra
+        especie: "", //especie
+        ctA_COD: "",
+        //-------Tabla---------//
+        aF_VIDAUTIL: 0,
+        fechaIngreso: "",
+        deT_MARCA: "",
+        deT_MODELO: "",
+        deT_SERIE: "",
+        deT_PRECIO: 0,
       }));
 
     } else {
@@ -544,16 +617,15 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 </label>
                 <div className="d-flex align-items-center">
                   <input
-                    aria-label="nRecepcion"
+                    aria-label="aF_CLAVE"
                     type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.nRecepcion ? "is-invalid" : ""}`}
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CLAVE ? "is-invalid" : ""}`}
                     maxLength={12}
-                    name="nRecepcion"
+                    name="aF_CLAVE"
                     onChange={handleChange}
-                    value={Inventario.nRecepcion}
+                    value={Inventario.aF_CLAVE}
                     disabled={isDisabledNRecepcion}
                   />
-
                   <Button
                     onClick={handleInventarioSubmit}
                     variant="primary"
@@ -588,10 +660,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     />
                   </Button>
                 </div>
-                {error.nRecepcion && (
-                  <div className="invalid-feedback fw-semibold d-block">
-                    {error.nRecepcion}
-                  </div>
+                {error.aF_CLAVE && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CLAVE}
+                </div>
                 )}
               </div>
               <div className="mb-1">
@@ -601,14 +671,14 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <input
                   aria-label="fechaRecepcion"
                   type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaRecepcion ? "is-invalid" : ""}`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_FECHA_SOLICITUD ? "is-invalid" : ""}`}
                   name="fechaRecepcion"
                   onChange={handleChange}
-                  value={Inventario.fechaRecepcion || fechaRecepcion}
+                  value={Inventario.fechaRecepcion}
                   disabled={isDisabled}
                 />
-                {error.fechaRecepcion && (
-                  <div className="invalid-feedback fw-semibold">{error.fechaRecepcion}</div>
+                {error.aF_FECHA_SOLICITUD && (
+                  <div className="invalid-feedback fw-semibold">{error.aF_FECHA_SOLICITUD}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -616,17 +686,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   N° Orden de compra
                 </label>
                 <input
-                  aria-label="nOrdenCompra"
+                  aria-label="aF_OCO_NUMERO_REF"
                   type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.nOrdenCompra ? "is-invalid" : ""}`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_OCO_NUMERO_REF ? "is-invalid" : ""}`}
                   maxLength={12}
-                  name="nOrdenCompra"
+                  name="aF_OCO_NUMERO_REF"
                   onChange={handleChange}
-                  value={Inventario.nOrdenCompra || nOrdenCompra}
+                  value={Inventario.aF_OCO_NUMERO_REF}
                   disabled={isDisabled}
                 />
-                {error.nOrdenCompra && (
-                  <div className="invalid-feedback fw-semibold">{error.nOrdenCompra}</div>
+                {error.aF_OCO_NUMERO_REF && (
+                  <div className="invalid-feedback fw-semibold">{error.aF_OCO_NUMERO_REF}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -634,17 +704,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   Nº factura
                 </label>
                 <input
-                  aria-label="nFactura"
+                  aria-label="aF_NUM_FAC"
                   type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.nFactura ? "is-invalid" : ""}`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_NUM_FAC ? "is-invalid" : ""}`}
                   maxLength={12}
-                  name="nFactura"
+                  name="aF_NUM_FAC"
                   onChange={handleChange}
-                  value={Inventario.nFactura || nFactura}
+                  value={Inventario.aF_NUM_FAC}
                   disabled={isDisabled}
                 />
-                {error.nFactura && (
-                  <div className="invalid-feedback fw-semibold">{error.nFactura}</div>
+                {error.aF_NUM_FAC && (
+                  <div className="invalid-feedback fw-semibold">{error.aF_NUM_FAC}</div>
                 )}
               </div>
 
@@ -654,11 +724,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <label className="fw-semibold">
                   Origen Presupuesto</label>
                 <select
-                  aria-label="origenPresupuesto"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.origenPresupuesto ? "is-invalid" : ""}`}
-                  name="origenPresupuesto"
+                  aria-label="aF_ORIGEN"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_ORIGEN ? "is-invalid" : ""}`}
+                  name="aF_ORIGEN"
                   onChange={handleChange}
-                  value={Inventario.origenPresupuesto}
+                  value={Inventario.aF_ORIGEN}
                   disabled={isDisabled}
                 >
                   <option value="">Seleccione un origen</option>
@@ -668,10 +738,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </option>
                   ))}
                 </select>
-                {error.origenPresupuesto && (
-                  <div className="invalid-feedback fw-semibold">
-                    {error.origenPresupuesto}
-                  </div>
+                {error.aF_ORIGEN && (<div className="invalid-feedback fw-semibold">{error.aF_ORIGEN}
+                </div>
                 )}
               </div>
               <div className="mb-1">
@@ -679,17 +747,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   Monto Recepción
                 </label>
                 <input
-                  aria-label="montoRecepcion"
+                  aria-label="aF_MONTOFACTURA"
                   type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.montoRecepcion ? "is-invalid" : ""}`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_MONTOFACTURA ? "is-invalid" : ""}`}
                   maxLength={12}
-                  name="montoRecepcion"
+                  name="aF_MONTOFACTURA"
                   onChange={handleChange}
-                  value={Inventario.montoRecepcion}
+                  value={Inventario.aF_MONTOFACTURA}
                   disabled={isDisabled}
                 />
-                {error.montoRecepcion && (
-                  <div className="invalid-feedback fw-semibold">{error.montoRecepcion}</div>
+                {error.aF_MONTOFACTURA && (
+                  <div className="invalid-feedback fw-semibold">{error.aF_MONTOFACTURA}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -698,25 +766,25 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <input
                   aria-label="fechaFactura"
                   type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaFactura ? "is-invalid" : ""}`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_FECHAFAC ? "is-invalid" : ""}`}
                   name="fechaFactura"
                   onChange={handleChange}
                   value={Inventario.fechaFactura}
                   disabled={isDisabled}
                 />
-                {error.fechaFactura && (
-                  <div className="invalid-feedback fw-semibold">{error.fechaFactura}</div>
+                {error.aF_FECHAFAC && (
+                  <div className="invalid-feedback fw-semibold">{error.aF_FECHAFAC}</div>
                 )}
               </div>
               <div className="mb-1">
                 <label className="fw-semibold">
                   Proveedor</label>
                 <select
-                  aria-label="rutProveedor"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.rutProveedor ? "is-invalid" : ""}`}
-                  name="rutProveedor"
+                  aria-label="proV_RUN"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.proV_RUN ? "is-invalid" : ""}`}
+                  name="proV_RUN"
                   onChange={handleChange}
-                  value={Inventario.rutProveedor}
+                  value={Inventario.proV_RUN}
                   disabled={isDisabled}
                 >
                   <option value="0">Seleccione un Proveedor</option>
@@ -726,10 +794,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </option>
                   ))}
                 </select>
-                {error.rutProveedor && (
-                  <div className="invalid-feedback fw-semibold d-block">
-                    {error.rutProveedor}
-                  </div>
+                {error.proV_RUN && (<div className="invalid-feedback fw-semibold d-block">{error.proV_RUN}
+                </div>
                 )}
               </div>
             </Col>
@@ -739,11 +805,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   Servicio
                 </label>
                 <select
-                  aria-label="servicio"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
-                  name="servicio"
+                  aria-label="idprograma"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.idprograma ? "is-invalid" : ""}`}
+                  name="idprograma"
                   onChange={handleChange}
-                  value={Inventario.servicio}
+                  value={Inventario.idprograma}
                   disabled={isDisabled}
                 >
                   <option value="">Seleccione un origen</option>
@@ -756,8 +822,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </option>
                   ))}
                 </select>
-                {error.servicio && (
-                  <div className="invalid-feedback fw-semibold">{error.servicio}</div>
+                {error.idprograma && (
+                  <div className="invalid-feedback fw-semibold">{error.idprograma}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -765,12 +831,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   Dependencia
                 </label>
                 <select
-                  aria-label="dependencia"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependencia ? "is-invalid" : ""}`}
-                  name="dependencia"
+                  aria-label="deP_CORR"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR ? "is-invalid" : ""}`}
+                  name="deP_CORR"
                   onChange={handleChange}
-                  value={Inventario.dependencia}
-                  disabled={isDisabled ? isDisabled : !Inventario.servicio}
+                  value={Inventario.deP_CORR}
+                  disabled={isDisabled ? isDisabled : !Inventario.idprograma}
                 >
                   <option value="">Selecciona una opción</option>
                   {comboDependencia.map((traeDependencia) => (
@@ -782,8 +848,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </option>
                   ))}
                 </select>
-                {error.dependencia && (
-                  <div className="invalid-feedback fw-semibold">{error.dependencia}</div>
+                {error.deP_CORR && (
+                  <div className="invalid-feedback fw-semibold">{error.deP_CORR}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -791,11 +857,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   Modalidad de Compra
                 </label>
                 <select
-                  aria-label="modalidadDeCompra"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
-                  name="modalidadDeCompra"
+                  aria-label="idmodalidadcompra"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.idmodalidadcompra ? "is-invalid" : ""}`}
+                  name="idmodalidadcompra"
                   onChange={handleChange}
-                  value={Inventario.modalidadDeCompra}
+                  value={Inventario.idmodalidadcompra}
                 >
                   <option value="">Seleccione una modalidad</option>
                   {comboModalidad.map((traeModalidad) => (
@@ -807,10 +873,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </option>
                   ))}
                 </select>
-                {error.modalidadDeCompra && (
-                  <div className="invalid-feedback fw-semibold">
-                    {error.modalidadDeCompra}
-                  </div>
+                {error.idmodalidadcompra && (<div className="invalid-feedback fw-semibold">{error.idmodalidadcompra}
+                </div>
                 )}
               </div>
               {showInput && (
@@ -819,21 +883,21 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     Modalidad de Compra
                   </label> */}
                   <input
-                    aria-label="modalidadDeCompra"
+                    aria-label="idmodalidadcompra"
                     type="text"
-                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
-                    name="modalidadDeCompra"
+                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.idmodalidadcompra ? "is-invalid" : ""}`}
+                    name="idmodalidadcompra"
                     placeholder="Especifique otro"
                     onChange={(e) =>
                       setInventario({
                         ...Inventario,
-                        modalidadDeCompra: parseInt(e.target.value),
+                        idmodalidadcompra: parseInt(e.target.value),
                       })
                     }
                   />
-                  {error.modalidadDeCompra && (
+                  {error.idmodalidadcompra && (
                     <div className="invalid-feedback fw-semibold">
-                      {error.modalidadDeCompra}
+                      {error.idmodalidadcompra}
                     </div>
                   )}
                 </div>
@@ -846,18 +910,15 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 </label>
                 <div className="d-flex align-items-center">
                   <input
-                    aria-label="especie"
+                    aria-label="codigo"
                     type="text"
-                    name="especie"
-                    value={
-                      Especies.descripcionEspecie ||
-                      especie ||
+                    name="codigo"
+                    value={Especies.codigoEspecie || Inventario.especie ||
                       "Haz clic en más para seleccionar una especie"
                     }
                     onChange={handleChange}
                     disabled
-                    // className={`form-select ${error.especie ? "is-invalid" : ""}`}
-                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.especie ? "is-invalid" : ""}`}
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.especie ? "is-invalid" : ""}`}
                   />
                   {/* Botón para abrir el modal y seleccionar una especie */}
                   <Button
@@ -872,22 +933,22 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     />
                   </Button>
                 </div>
-                {/* {error.especie && (
-                    <div className="invalid-feedback fw-semibold d-block">
-                      {error.especie}
-                    </div>
-                  )} */}
+                {error.especie && (
+                  <div className="invalid-feedback fw-semibold d-block">
+                    {error.especie}
+                  </div>
+                )}
               </div>
               <div className="mb-1">
                 <label className="fw-semibold">
                   Cuenta</label>
                 <select
-                  aria-label="cuenta"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.cuenta ? "is-invalid" : ""}`}
-                  name="cuenta"
+                  aria-label="ctA_COD"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.ctA_COD ? "is-invalid" : ""}`}
+                  name="ctA_COD"
                   onChange={handleChange}
-                  value={Inventario.cuenta}
-                  disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                  value={Inventario.ctA_COD}
+                // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
                 >
                   <option value="">Selecciona una opción</option>
                   {comboCuenta.map((traeCuentas) => (
@@ -896,8 +957,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </option>
                   ))}
                 </select>
-                {error.cuenta && (
-                  <div className="invalid-feedback fw-semibold">{error.cuenta}</div>
+                {error.ctA_COD && (
+                  <div className="invalid-feedback fw-semibold">{error.ctA_COD}</div>
                 )}
               </div>
               <div className="mb-1">
@@ -909,7 +970,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </p>
                   {/* Botón para abrir el modal y seleccionar una especie */}
                   <Button
-                    variant="primary"
                     onClick={() => setMostrarModalLista(true)}
                     className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                     disabled={isDisabled}
@@ -937,21 +997,21 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         onHide={() => setMostrarModal(false)}
         size="lg"
       >
-        <Modal.Header closeButton>
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Listado de Especies</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <form onSubmit={handleSubmitSeleccionado}>
             <Row>
               <Col md={12}>
                 <div className="d-flex justify-content-between">
                   <div className="mb-1 w-50">
-                    <label className="text-muted fw-semibold">Bien</label>
+                    <label className="fw-semibold">Bien</label>
                     <div className="d-flex align-items-center">
                       <select
                         aria-label="bien"
                         name="bien"
-                        className="form-select"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                         onChange={handleChange}
                       >
                         {comboBien.map((traeBien) => (
@@ -963,7 +1023,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </div>
                   </div>
                   <div className="d-flex justify-content-end p-4">
-                    <Button variant="primary" type="submit">
+                    <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "}`}>
                       Seleccionar{" "}
                       <Check2Circle
                         className={classNames("flex-shrink-0", "h-5 w-5")}
@@ -973,12 +1033,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                 </div>
                 <div className="mb-1 w-50">
-                  <label className="text-muted fw-semibold">Detalles</label>
+                  <label className="fw-semibold">Detalles</label>
                   <div className="d-flex align-items-center">
                     <select
                       aria-label="detalles"
                       name="detalles"
-                      className="form-select"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       onChange={handleChange}
                     >
                       <option value="">Selecciona una opción</option>
@@ -1004,38 +1064,36 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           </form>
 
           {/* Tabla*/}
-          <div className="table-responsive overflow-auto" style={{ maxHeight: "500px" }}>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Establecimiento</th>
-                  <th>Nombre</th>
-                  <th>Especie</th>
+          <table className={`table  ${isDarkMode ? "table-dark" : "table-hover "}`} >
+            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+              <tr>
+                <th></th>
+                <th>Establecimiento</th>
+                <th>Nombre</th>
+                <th>Especie</th>
+              </tr>
+            </thead>
+            <tbody>
+              {elementosActuales.map((listadoEspecies, index) => (
+                <tr key={index}>
+                  <td>
+                    <Form.Check
+                      type="checkbox"
+                      onChange={() =>
+                        handleSeleccionFila(indicePrimerElemento + index)
+                      }
+                      checked={filasSeleccionadas.includes(
+                        (indicePrimerElemento + index).toString()
+                      )}
+                    />
+                  </td>
+                  <td>{listadoEspecies.estabL_CORR}</td>
+                  <td>{listadoEspecies.esP_CODIGO}</td>
+                  <td>{listadoEspecies.nombrE_ESP}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {elementosActuales.map((listadoEspecies, index) => (
-                  <tr key={index}>
-                    <td>
-                      <Form.Check
-                        type="checkbox"
-                        onChange={() =>
-                          handleSeleccionFila(indicePrimerElemento + index)
-                        }
-                        checked={filasSeleccionadas.includes(
-                          (indicePrimerElemento + index).toString()
-                        )}
-                      />
-                    </td>
-                    <td>{listadoEspecies.estabL_CORR}</td>
-                    <td>{listadoEspecies.esP_CODIGO}</td>
-                    <td>{listadoEspecies.nombrE_ESP}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
+              ))}
+            </tbody>
+          </table>
 
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">
@@ -1069,57 +1127,56 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         </Modal.Body>
       </Modal>
 
-      {/* Modal tabla detalles ativos Fijo*/}
+      {/* Modal tabla detalles activos Fijo*/}
       <Modal
         show={mostrarModalLista}
         onHide={() => setMostrarModalLista(false)}
         size="xl"
       >
-        <Modal.Header closeButton>
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">
             Detalles activo fijo
           </Modal.Title>
         </Modal.Header>
-
-        <Modal.Body>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <div className="shadow-sm">
             <div className="overflow-auto">
-              <Table bordered hover>
-                <thead>
+              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover "}`} >
+                <thead className={`sticky-top ${isDarkMode ? "table-" : "text-dark table-light "}`}>
                   <tr>
-                    <th className="bg-primary text-white" >
+                    <th>
                       Vida Útil
                     </th>
-                    <th className="bg-primary text-white">
+                    <th>
                       Fecha Ingreso
                     </th>
-                    <th className="bg-primary text-white">
+                    <th>
                       Marca
                     </th>
-                    <th className="bg-primary text-white">
+                    <th>
                       Modelo
                     </th>
-                    <th className="bg-primary text-white">
+                    <th>
                       Serie
                     </th>
-                    <th className="bg-primary text-white">
+                    <th>
                       Precio
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{vidaUtil}</td>
-                    <td>{fechaRecepcion}</td>
-                    <td>{marca}</td>
-                    <td>{modelo}</td>
-                    <td className="d-flex align-items-center p-1">
+                    <td>{aF_VIDAUTIL}</td>
+                    <td>{fechaIngreso}</td>
+                    <td>{deT_MARCA}</td>
+                    <td>{deT_MODELO}</td>
+                    <td className={`d-flex align-items-center p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>
                       <input
-                        aria-label="serie"
+                        aria-label="deT_SERIE"
                         type="text"
-                        name="serie"
-                        className="form-control border border-0 rounded-0 "
-                        value={Inventario.serie || serie}
+                        name="deT_SERIE"
+                        className={` form-control border border-0 rounded-0  ${isDarkMode ? "bg-secondary text-white" : ""}`}
+                        value={Inventario.deT_SERIE}
                         onChange={(e) => handleChange(e)}
                       />
                       <Pencil
@@ -1128,13 +1185,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       />
                     </td>
                     <td>
-                      {precio.toLocaleString("es-ES", {
+                      {deT_PRECIO.toLocaleString("es-ES", {
                         minimumFractionDigits: 0,
                       })}
                     </td>
                   </tr>
                 </tbody>
-              </Table>
+              </table>
             </div>
           </div>
         </Modal.Body>
@@ -1144,7 +1201,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 };
 
 const mapStateToProps = (state: RootState) => ({
-  datosInventarioCompleto: state.datosInventarioReducers.datosInventarioCompleto,
   comboOrigen: state.origenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
   comboModalidad: state.modalidadCompraReducer.comboModalidad,
@@ -1155,15 +1211,36 @@ const mapStateToProps = (state: RootState) => ({
   comboProveedor: state.comboProveedorReducers.comboProveedor,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
   descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  aF_CLAVE: state.obtenerInventarioReducers.aF_CLAVE,// nRecepcion
+  aF_FECHA_SOLICITUD: state.obtenerInventarioReducers.aF_FECHA_SOLICITUD,// fechaRecepcion 
+  aF_OCO_NUMERO_REF: state.obtenerInventarioReducers.aF_OCO_NUMERO_REF, // nOrdenCompra
+  aF_NUM_FAC: state.obtenerInventarioReducers.aF_NUM_FAC,// nFactura
+  aF_ORIGEN: state.obtenerInventarioReducers.aF_ORIGEN, //origenPresupuesto
+  aF_MONTOFACTURA: state.obtenerInventarioReducers.aF_MONTOFACTURA, //montoRecepcion
+  aF_FECHAFAC: state.obtenerInventarioReducers.aF_FECHAFAC, //fechaFactura
+  proV_RUN: state.obtenerInventarioReducers.proV_RUN, // rutProveedor
+  idprograma: state.obtenerInventarioReducers.idprograma, //servicio
+  deP_CORR: state.obtenerInventarioReducers.deP_CORR, //dependencia
+  idmodalidadcompra: state.obtenerInventarioReducers.idmodalidadcompra, // modalidadDeCompra
+  especie: state.obtenerInventarioReducers.especie,//especie
+  ctA_COD: state.obtenerInventarioReducers.ctA_COD,
+  //-------Tabla---------//
+  aF_VIDAUTIL: state.obtenerInventarioReducers.aF_VIDAUTIL,
+  aF_FINGRESO: state.obtenerInventarioReducers.aF_FINGRESO,
+  deT_MARCA: state.obtenerInventarioReducers.deT_MARCA,
+  deT_MODELO: state.obtenerInventarioReducers.deT_MODELO,
+  deT_SERIE: state.obtenerInventarioReducers.deT_SERIE,
+  deT_PRECIO: state.obtenerInventarioReducers.deT_PRECIO,
 });
 
 export default connect(mapStateToProps, {
-  comboDependenciaActions,
   obtenerInventarioActions,
+  comboDependenciaActions,
   comboDetalleActions,
   comboListadoDeEspeciesBienActions,
   comboCuentaActions,
+  comboProveedorActions,
   modificarFormInventarioActions,
-  comboProveedorActions
+
 })(ModificarInventario);

@@ -12,8 +12,7 @@ import useAutoLogout from "../../../hooks/useAutoLogout";
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css"
 import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js"
 import { Container } from "react-bootstrap";
-
-
+import ssmso_negro from "../../../assets/img/ssmso_negro.png"
 
 interface LayoutProps {
   children: ReactNode;

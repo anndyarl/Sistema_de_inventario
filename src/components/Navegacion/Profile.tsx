@@ -104,8 +104,10 @@ const Profile: React.FC<ProfileProps> = ({
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
               <div className="flex-grow-1 min-vh-100">
-                <button className="navbar-nav fs-1 nav-link close-btn mx-1 mt-0 p-0 text-white close-btn" onClick={togglePanel}>×</button>
-                <h3 className="fw-semibold  p-1 text-center border-bottom text-white">Andy Riquelme</h3>
+                <div className="d-flex justify-content-end ">
+                  <button className="fw-semibold  fs-2 close-btn text-white" onClick={togglePanel}>×</button>
+                </div>
+                <div className="fw-semibold fs-3 text-center border-bottom text-white">Andy Riquelme</div>
                 <Row className="g-1">
                   <Col>
                     <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">

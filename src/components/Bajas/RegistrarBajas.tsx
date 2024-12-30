@@ -47,10 +47,10 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [error, setError] = useState<Partial<ListaBajas>>({});
   //-------------Modal-------------//
-  const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   //------------Fin Modal----------//
   const [loadingRegistro, setLoadingRegistro] = useState(false);
-  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+  const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
   let indexReal = 0;//Indice para manejar el valor real de cada fila y para manejar check
@@ -73,7 +73,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      const selectedIndices = filasSeleccionadas.map(Number);
+      const selectedIndices = filasSeleccionada.map(Number);
 
       const result = await Swal.fire({
         icon: "info",
@@ -114,7 +114,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
 
           setLoadingRegistro(false);
           listaBajasActions();
-          setFilasSeleccionadas([]);
+          setFilaSeleccionada([]);
         } else {
           Swal.fire({
             icon: "error",
@@ -175,36 +175,27 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
     }));
 
   };
-  const setSeleccionaFilas = (index: number) => {
-    setFilasSeleccionadas((prev) =>
+  const setSeleccionaFila = (index: number) => {
+    setMostrarModal(index); //Abre modal del indice seleccionado
+    setFilaSeleccionada((prev) =>
       prev.includes(index.toString())
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
+    console.log("indice", index);
 
   };
 
-  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setFilasSeleccionadas(
-        elementosActuales.map((_, index) =>
-          (indicePrimerElemento + index).toString()
-        )
-      );
-    } else {
-      setFilasSeleccionadas([]);
-    }
-  };
-
-  const handleCerrarModal = (indexReal: number) => {
-    setMostrarModal(false);
-    setFilasSeleccionadas((prevSeleccionadas) =>
-      prevSeleccionadas.filter((fila) => fila !== indexReal.toString())
+  const handleCerrarModal = (index: number) => {
+    setFilaSeleccionada((prevSeleccionadas) =>
+      prevSeleccionadas.filter((fila) => fila !== index.toString())
     );
+    setMostrarModal(null); //Cierra modal del indice seleccionado
   };
+
 
   // const handleAgrearSeleccionados = async () => {
-  //   const selectedIndices = filasSeleccionadas.map(Number);
+  //   const selectedIndices = filasSeleccionada.map(Number);
   //   const activosSeleccionados = selectedIndices.map((index) => {
   //     return {
   //       aF_CLAVE: listaBajas[index].aF_CLAVE
@@ -244,7 +235,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
   //       });
   //       setLoadingRegistro(false);
   //       listaBajasActions();
-  //       setFilasSeleccionadas([]);
+  //       setFilaSeleccionada([]);
   //     } else {
   //       Swal.fire({
   //         icon: "error",
@@ -312,7 +303,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
         <h3 className="form-title fw-semibold border-bottom p-1">Bienes de Bajas</h3>
         {/* Boton registrar filas seleccionadas */}
         {/* <div className="d-flex justify-content-end">
-          {filasSeleccionadas.length > 0 ? (
+          {filasSeleccionada.length > 0 ? (
             <Button
               variant="primary"
               onClick={handleAgrearSeleccionados}
@@ -336,9 +327,9 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                 <>
                   Registrar{" "}
                   <span className="badge bg-light text-dark mx-2">
-                    {filasSeleccionadas.length}
+                    {filasSeleccionada.length}
                   </span>{" "}
-                  {filasSeleccionadas.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"}
+                  {filasSeleccionada.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"}
                 </>
               )}
             </Button>
@@ -358,13 +349,6 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
-                  <th >
-                    <Form.Check
-                      type="checkbox"
-                      onChange={handleSeleccionaTodos}
-                      checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                    />
-                  </th>
                   <th scope="col">Codigo</th>
                   <th scope="col">N° Inventario</th>
                   <th scope="col">Vidal últil</th>
@@ -382,9 +366,8 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                       <td>
                         <Form.Check
                           type="checkbox"
-                          onChange={() => setSeleccionaFilas(indexReal)}
-                          onClick={() => setMostrarModal(true)}
-                          checked={filasSeleccionadas.includes(indexReal.toString())}
+                          onChange={() => setSeleccionaFila(index)}
+                          checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                       </td>
                       <td>{ListaBajas.bajaS_CORR}</td>
@@ -432,77 +415,82 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
         </Pagination>
       </div>
       {/* Modal formulario Registro Bajas*/}
-      < Modal show={mostrarModal}
-        onHide={() => handleCerrarModal(indexReal)}
-        dialogClassName="modal-right" // Clase personalizada
-      // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-      // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-      >
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Complete los detalles de registro</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <form onSubmit={handleSubmit}>
-            <div className="d-flex justify-content-end">
-              <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                Enviar a Bodega
-              </Button>
-            </div>
-            <div className="mb-1">
-              <label htmlFor="nresolucion" className="fw-semibold">
-                Nª Resolución
-              </label>
-              <input
-                aria-label="nresolucion"
-                type="text"
-                className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="nresolucion"
-                maxLength={100}
-                onChange={handleChange}
-                value={Bajas.nresolucion}
-              />
-              {error.nresolucion && (
-                <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
-              )}
-            </div>
-            <div className="mb-1">
-              <label htmlFor="fechA_BAJA" className="fw-semibold">
-                Fecha Baja
-              </label>
-              <input
-                aria-label="fechA_BAJA"
-                type="date"
-                className={`form-select ${error.fechA_BAJA ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="fechA_BAJA"
-                onChange={handleChange}
-                value={Bajas.fechA_BAJA}
-              />
-              {error.fechA_BAJA && (
-                <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
-              )}
-            </div>
-            <div className="mb-1">
-              <label htmlFor="observaciones" className="fw-semibold">
-                Observaciones
-              </label>
-              <textarea
-                className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                aria-label="observaciones"
-                name="observaciones"
-                rows={4}
-                onChange={handleChange}
-                value={Bajas.observaciones}
-              />
-              {error.observaciones && (
-                <div className="invalid-feedback fw-semibold">
-                  {error.observaciones}
+      {elementosActuales.map((_, index) => (
+        <div key={index}>
+          <Modal
+            show={mostrarModal === index}
+            onHide={() => handleCerrarModal(index)}
+            dialogClassName="modal-right" // Clase personalizada
+          // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+          // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+          >
+            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+              <Modal.Title className="fw-semibold">Complete los detalles de registro</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+              <form onSubmit={handleSubmit}>
+                <div className="d-flex justify-content-end">
+                  <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                    Enviar a Bodega
+                  </Button>
                 </div>
-              )}
-            </div>
+                <div className="mb-1">
+                  <label htmlFor="nresolucion" className="fw-semibold">
+                    Nª Resolución
+                  </label>
+                  <input
+                    aria-label="nresolucion"
+                    type="text"
+                    className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nresolucion"
+                    maxLength={100}
+                    onChange={handleChange}
+                    value={Bajas.nresolucion}
+                  />
+                  {error.nresolucion && (
+                    <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label htmlFor="fechA_BAJA" className="fw-semibold">
+                    Fecha Baja
+                  </label>
+                  <input
+                    aria-label="fechA_BAJA"
+                    type="date"
+                    className={`form-select ${error.fechA_BAJA ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="fechA_BAJA"
+                    onChange={handleChange}
+                    value={Bajas.fechA_BAJA}
+                  />
+                  {error.fechA_BAJA && (
+                    <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label htmlFor="observaciones" className="fw-semibold">
+                    Observaciones
+                  </label>
+                  <textarea
+                    className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    aria-label="observaciones"
+                    name="observaciones"
+                    rows={4}
+                    onChange={handleChange}
+                    value={Bajas.observaciones}
+                  />
+                  {error.observaciones && (
+                    <div className="invalid-feedback fw-semibold">
+                      {error.observaciones}
+                    </div>
+                  )}
+                </div>
 
-          </form>
-        </Modal.Body>
-      </Modal >
+              </form>
+            </Modal.Body>
+          </Modal >
+        </div>
+      ))}
     </Layout >
   );
 };
