@@ -27,6 +27,7 @@ const App: React.FC = () => {
         <meta name="twitter:description" content="Sistema de Inventario" />
         {/* <meta name="twitter:image" content="https://bafybeicwrhxloesdlojn3bxyjqnxgsagtd4sl53a7t4cn4vfe2abmybzua.ipfs.w3s.link/lightbnuilbg.jpg" /> */}
         <meta name="twitter:card" content="summary_large_image" />
+        {/* <link rel="icon" href="%PUBLIC_URL%/favicon.ico" /> */}
       </Helmet>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>

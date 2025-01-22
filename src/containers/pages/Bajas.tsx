@@ -2,7 +2,7 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { BoxSeamFill, Exclude, PlusCircle } from "react-bootstrap-icons";
+import { Boxes, BoxSeamFill, DashCircle, Exclude, PlusCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -34,7 +34,25 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
               <Col lg={4} md={6} sm={12}>
                 <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
-                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                    <Boxes className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                  </div>
+                  <Card.Title className="fw-bold">Listado General</Card.Title>
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
+                    Busque el activo o los activos que desee dar de baja
+                  </Card.Text>
+                  <NavLink
+                    key="ListadoGeneral"
+                    to="/ListadoGeneral"
+                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
+                  >
+                    Ver Listado
+                  </NavLink>
+                </div>
+              </Col>
+              <Col lg={4} md={6} sm={12}>
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
+                  <div className="mb-3">
+                    <DashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
                   <Card.Title className="fw-bold">Bienes de Bajas</Card.Title>
                   <Card.Text className="fw-light flex-grow-1 mb-2">
@@ -70,10 +88,11 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
               <Col lg={4} md={6} sm={12}>
                 <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
+
                     <BoxSeamFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
 
                   </div>
-                  <Card.Title className="fw-bold">Bienes Rematados</Card.Title>
+                  <Card.Title className="fw-bold">Bienes Rematados </Card.Title>
                   <Card.Text className="fw-light flex-grow-1 mb-2">
                     Listado de todos los activos excluidos
                   </Card.Text>

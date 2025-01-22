@@ -229,9 +229,9 @@ const FormInventario: React.FC<FormInventarioProps> = ({
 //mapea los valores del estado global de Redux
 const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
-  comboOrigen: state.origenPresupuestoReducer.comboOrigen,
+  comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
-  comboModalidad: state.modalidadCompraReducer.comboModalidad,
+  comboModalidad: state.comboModalidadCompraReducer.comboModalidad,
   comboCuenta: state.comboCuentaReducer.comboCuenta,
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboDetalle: state.detallesReducer.comboDetalle,

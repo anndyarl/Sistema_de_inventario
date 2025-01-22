@@ -14,8 +14,8 @@ interface Props {
 
 const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
   const [formData, setFormData] = useState({
-    usuario: "",
-    password: "",
+    usuario: process.env.VITE_USUARIO_API_LOGIN || "",
+    password: process.env.VITE_PASSWORD_API_LOGIN || "",
   });
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
 

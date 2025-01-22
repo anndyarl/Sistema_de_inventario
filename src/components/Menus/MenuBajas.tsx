@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, List, Exclude, BoxSeamFill } from "react-bootstrap-icons";
+import { Plus, List, Exclude, BoxSeamFill, Boxes, DashCircle } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -21,10 +21,16 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
         {
+            name: 'Listado General',
+            description: 'Busque el activo o los activos que desee dar de baja',
+            href: '/ListadoGeneral',
+            icon: Boxes
+        },
+        {
             name: 'Bienes de Bajas',
             description: 'Busque el activo o los activos que desee excluir',
             href: '/RegistrarBajas',
-            icon: Plus
+            icon: DashCircle
         },
         {
             name: 'Bodega de Excluidos',
@@ -48,7 +54,7 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             {/* Mobile Navbar y Desktop*/}
             <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0">
                 <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
-                    <List className={`${isDarkMode ? "text-light" : "tet-muted"}`} size={30} />
+                    <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />
                 </button>
                 <div className="container-fluid">
 

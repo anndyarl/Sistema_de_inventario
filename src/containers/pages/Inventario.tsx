@@ -302,7 +302,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                 </div>
               </Col>
               {/* <Col lg={4} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                   </div>
@@ -317,7 +317,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
                   >
                     Nuevo
                   </NavLink>
-                </Card>
+                </div>
               </Col> */}
             </Row>
           </div>
@@ -329,9 +329,9 @@ const Inventario: React.FC<FormInventarioProps> = ({
 
 const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
-  comboOrigen: state.origenPresupuestoReducer.comboOrigen,
+  comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
-  comboModalidad: state.modalidadCompraReducer.comboModalidad,
+  comboModalidad: state.comboModalidadCompraReducer.comboModalidad,
   comboCuenta: state.comboCuentaReducer.comboCuenta,
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboBien: state.detallesReducer.comboBien,

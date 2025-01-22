@@ -8,3 +8,30 @@
   z-index: 1000;
   box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
+
+.img-ondas {
+  position: fixed; /* Se fija respecto a la ventana del navegador */
+  bottom: 0; /* Se alinea al fondo de la ventana */
+  left: 0; /* Se alinea al lado derecho de la ventana */
+  width: 150px; /* Ancho fijo de la imagen */
+  height: 150px; /* Altura fija de la imagen */
+  background-image: url('../assets/img/ondas.png'); /* Ruta de la imagen */
+  background-size: contain; /* Escala la imagen dentro del div sin distorsión */
+  background-repeat: no-repeat; /* No permite que la imagen se repita */
+  background-position: center; /* Centra la imagen dentro del div */
+  z-index: 0; /* Asegura que el elemento esté por encima de otros */
+}
+
+.nav-item {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+
+}
+.nav-item:hover {  
+  background-color: rgba(255, 255, 255, 0.1);
+
+}
+.nav-item.active {
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.2);
+ 
+}

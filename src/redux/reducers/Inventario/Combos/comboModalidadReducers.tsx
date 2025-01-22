@@ -18,7 +18,7 @@ const initialState: ModalidadCompraState = {
   error: null,
 };
 
-const modalidadCompraReducer = (state = initialState, action: any): ModalidadCompraState => {
+const comboModalidadCompraReducer = (state = initialState, action: any): ModalidadCompraState => {
   switch (action.type) {
     case MODALIDAD_COMPRA_REQUEST:
       return {
@@ -43,4 +43,4 @@ const modalidadCompraReducer = (state = initialState, action: any): ModalidadCom
   }
 };
 
-export default modalidadCompraReducer;
+export default comboModalidadCompraReducer;

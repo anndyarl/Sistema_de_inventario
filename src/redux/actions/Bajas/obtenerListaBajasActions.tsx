@@ -20,7 +20,7 @@ export const obtenerListaBajasActions = (FechaInicio: string, FechaTermino: stri
     dispatch({ type: OBTENER_BAJAS_REQUEST });
 
     try {
-      const res = await axios.get(`/api_inv/api/inventario/traeAltas?FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
+      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/traeAltas?FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

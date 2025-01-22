@@ -5,7 +5,7 @@ import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store.ts";
 import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
 import { Check2Circle, Plus } from "react-bootstrap-icons";
-import SkeletonLoader from "../../Utils/SkeletonLoader.tsx";
+
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -123,8 +123,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 50;
   const [error, setError] = useState<Partial<CuentaProps>>({});
-
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
 
   //Validaciones del formulario
   const validate = () => {
@@ -435,41 +433,36 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
           </form>
 
           {/* Tabla*/}
-          {loading ? (
-            <>
-              <SkeletonLoader rowCount={elementosPorPagina} />
-            </>
-          ) : (
-            <div className='table-responsive'>
-              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                  <tr>
-                    <th></th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Establecimiento</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nombre</th>
-                    <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
+          <div className='table-responsive'>
+            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                <tr>
+                  <th></th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Establecimiento</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nombre</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
+                </tr>
+              </thead>
+              <tbody>
+                {elementosActuales.map((listadoEspecies, index) => (
+                  <tr key={index}>
+                    <td>
+                      <Form.Check
+                        type="checkbox"
+                        onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
+                        checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
+                      />
+                    </td>
+                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.estabL_CORR}</td>
+                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.esP_CODIGO}</td>
+                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.nombrE_ESP}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {elementosActuales.map((listadoEspecies, index) => (
-                    <tr key={index}>
-                      <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
-                          checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
-                        />
-                      </td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.estabL_CORR}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.esP_CODIGO}</td>
-                      <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.nombrE_ESP}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
 
-            </div>
-          )}
+          </div>
+
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">
             <Pagination.First

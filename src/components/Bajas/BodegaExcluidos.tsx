@@ -8,9 +8,10 @@ import Swal from "sweetalert2";
 import { Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
-import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
-import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
+
 import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions.tsx";
+import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
+
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -256,7 +257,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
               </div>
             </Col>
           </Row>
-          {/* Boton anular filas seleccionadas */}
+          {/* Boton filas seleccionadas */}
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
               <Button
@@ -280,7 +281,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                   </>
                 ) : (
                   <>
-                    Enviar a remate
+                    Enviar a Remate
                     <span className="badge bg-light text-dark mx-2">
                       {filasSeleccionadas.length}
                     </span>
@@ -326,7 +327,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((ListaRemates, index) => {
+                  {elementosActuales.map((Lista, index) => {
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={indexReal}>
@@ -337,17 +338,17 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td>{ListaRemates.aF_CLAVE}</td>
-                        <td>{ListaRemates.bajaS_CORR}</td>
-                        <td>{ListaRemates.especie}</td>
-                        <td>{ListaRemates.vutiL_RESTANTE}</td>
-                        <td>{ListaRemates.vutiL_AGNOS}</td>
-                        <td>{ListaRemates.nresolucion}</td>
-                        <td>{ListaRemates.observaciones}</td>
-                        <td>{ListaRemates.deP_ACUMULADA}</td>
-                        <td>{ListaRemates.ncuenta}</td>
-                        <td>{ListaRemates.estado}</td>
-                        <td>{ListaRemates.fechA_REMATES}</td>
+                        <td>{Lista.aF_CLAVE}</td>
+                        <td>{Lista.bajaS_CORR}</td>
+                        <td>{Lista.especie}</td>
+                        <td>{Lista.vutiL_RESTANTE}</td>
+                        <td>{Lista.vutiL_AGNOS}</td>
+                        <td>{Lista.nresolucion}</td>
+                        <td>{Lista.observaciones}</td>
+                        <td>{Lista.deP_ACUMULADA}</td>
+                        <td>{Lista.ncuenta}</td>
+                        <td>{Lista.estado}</td>
+                        <td>{Lista.fechA_REMATES}</td>
                       </tr>
                     );
                   })}

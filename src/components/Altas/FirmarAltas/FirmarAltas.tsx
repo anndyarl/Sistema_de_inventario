@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Pagination, Button, Form, Modal } from "react-bootstrap";
+import { Pagination, Button, Form, Modal, Col, Row } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import SignatureCanvas from 'react-signature-canvas';
@@ -11,8 +11,9 @@ import { registrarBajasActions } from "../../../redux/actions/Bajas/registrarBaj
 import { listaBajasActions } from "../../../redux/actions/Bajas/listaBajasActions";
 import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
-import PDFRowDocument from './PDFRowDocument';
+import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, PDFDownloadLink } from '@react-pdf/renderer';
+import { ORIGEN } from "../../Inventario/RegistrarInventario/DatosInventario";
 
 export interface ListaBajas {
     bajaS_CORR: string;
@@ -37,12 +38,14 @@ interface DatosBajas {
     registrarBajasActions: (activos: { aF_CLAVE: number; bajaS_CORR: string; nresolucion: number; observaciones: string; fechA_BAJA: string }[]) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
+    comboOrigen: ORIGEN[];
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, registrarBajasActions, token, isDarkMode }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, token, isDarkMode, comboOrigen }) => {
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<Partial<ListaBajas>>({});
+    const [_, setError] = useState<Partial<ListaBajas>>({});
     const [loadingRegistro, setLoadingRegistro] = useState(false);
+    const [isDisabled, setIsDisabled] = useState(true);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [filaActiva, setFilaActiva] = useState<ListaBajas | null>(null);
@@ -52,20 +55,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
     const elementosPorPagina = 10;
     const sigCanvas = useRef<SignatureCanvas>(null);
     const [isSigned, setIsSigned] = useState(false);
-    const [altas, setAltas] = useState({
-        nresolucion: 0,
-        observaciones: "",
-        fechA_BAJA: ""
-    });
-
-    const validate = () => {
-        let tempErrors: Partial<ListaBajas> = {};
-        // if (!bajas.nresolucion) tempErrors.nresolucion = "Número de resolución es obligatorio.";
-        if (!altas.fechA_BAJA) tempErrors.fechA_BAJA = "Fecha de Baja es obligatoria.";
-        if (!altas.observaciones) tempErrors.observaciones = "Observación es obligatoria.";
-        setError(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
+    const [signatureImage, setSignatureImage] = useState<string | undefined>();
+    const [fechaDescarga, setfechaDescarga] = useState<string | undefined>();
 
     const clearSignature = () => {
         if (sigCanvas.current) {
@@ -78,70 +69,96 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
         setIsSigned(sigCanvas.current ? !sigCanvas.current.isEmpty() : false);
     };
 
+    const [AltaInventario, setAltaInventario] = useState({
+        unidadAdministrativa: "",
+        ajustarFirma: false,
+        titularInventario: false,
+        subroganteInventario: false,
+        opcional1: false,
+        titularFinanzas: false,
+        subroganteFinanzas: false,
+        opcional2: false,
+        titularDemandante: false,
+        subroganteDemandante: false,
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setAltaInventario((prevAltaInventario) => ({
+            ...prevAltaInventario,
+            [name]: value,
+        }));
+    }
+
+    const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setAltaInventario((prevAltaInventario) => {
+            const updatedState = {
+                ...prevAltaInventario,
+                [name]: checked,
+            };
+
+            // Si se desmarca "ajustarFirma", desmarcar también los otros checkboxes
+            if (name === "ajustarFirma" && !checked) {
+                updatedState.titularInventario = false;
+                updatedState.subroganteInventario = false;
+                updatedState.opcional1 = false;
+                updatedState.opcional2 = false;
+                updatedState.titularFinanzas = false;
+                updatedState.subroganteFinanzas = false;
+                updatedState.titularDemandante = false;
+                updatedState.subroganteDemandante = false;
+                setIsDisabled(true); // Deshabilitar los otros checkboxes
+            } else {
+                if (name === "titularInventario" && checked) {
+                    updatedState.subroganteInventario = false;
+                }
+                if (name === "subroganteInventario" && checked) {
+                    updatedState.titularInventario = false;
+                }
+                setIsDisabled(false); // Habilitar los otros checkboxes
+            }
+
+            // Si se desmarca "Opcional", desmarcar también los otros checkboxes
+            if (name === "opcional1" && !checked) {
+                updatedState.titularFinanzas = false;
+                updatedState.subroganteFinanzas = false;
+                setIsDisabled(true); // Deshabilitar los otros checkboxes
+            } else {
+                if (name === "titularFinanzas" && checked) {
+                    updatedState.subroganteFinanzas = false;
+                }
+                if (name === "subroganteFinanzas" && checked) {
+                    updatedState.titularFinanzas = false;
+                }
+                setIsDisabled(false); // Habilitar los otros checkboxes
+            }
+
+            // Si se desmarca "Opcional", desmarcar también los otros checkboxes
+            if (name === "opcional2" && !checked) {
+                updatedState.titularDemandante = false;
+                updatedState.subroganteDemandante = false;
+                setIsDisabled(true); // Deshabilitar los otros checkboxes
+            } else {
+                if (name === "titularDemandante" && checked) {
+                    updatedState.subroganteDemandante = false;
+                }
+                if (name === "subroganteDemandante" && checked) {
+                    updatedState.titularDemandante = false;
+                }
+                setIsDisabled(false); // Habilitar los otros checkboxes
+            }
+            return updatedState;
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!validate()) return;
-        if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
-            setError(prev => ({ ...prev, signature: "La firma es obligatoria." }));
-            return;
-        }
-
-        const signatureImage = sigCanvas.current.toDataURL();
-        const selectedIndices = filaSeleccionada.map(Number);
-
-        const result = await Swal.fire({
-            icon: "info",
-            title: "Registrar Bajas",
-            text: "Confirme para registrar los datos ingresados",
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Registrar",
-            background: isDarkMode ? "#1e1e1e" : "#ffffff",
-            color: isDarkMode ? "#ffffff" : "#000000",
-            confirmButtonColor: isDarkMode ? "#007bff" : "#444",
-            customClass: { popup: "custom-border" }
-        });
-
-        if (result.isConfirmed) {
-            setLoadingRegistro(true);
-            const formularioBajas = selectedIndices.map(index => ({
-                aF_CLAVE: listaBajas[index].aF_CLAVE,
-                bajaS_CORR: listaBajas[index].bajaS_CORR,
-                ...altas,
-                firma: signatureImage
-            }));
-
-            try {
-                console.log("formulario", formularioBajas);
-                const resultado = await registrarBajasActions(formularioBajas);
-                if (resultado) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Bajas Registradas",
-                        text: "Se han registrado correctamente",
-                        background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                        color: isDarkMode ? "#ffffff" : "#000000",
-                        confirmButtonColor: isDarkMode ? "#007bff" : "#444",
-                        customClass: { popup: "custom-border" }
-                    });
-                    await listaBajasActions();
-                    setFilaSeleccionada([]);
-                    setMostrarModal(null);
-                } else {
-                    throw new Error("Fallo al registrar bajas");
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Hubo un problema al registrar",
-                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: isDarkMode ? "#007bff" : "#444",
-                    customClass: { popup: "custom-border" }
-                });
-            } finally {
-                setLoadingRegistro(false);
-            }
+        if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
+            const firma = sigCanvas.current.toDataURL('image/png'); //capta la firma dibujada en una imagen
+            setSignatureImage(firma);// Asigna la imagen al estado para poder renderizarlo
+        } else {
+            setError((prev) => ({ ...prev, firma: "La firma es obligatoria." }));
         }
     };
 
@@ -187,6 +204,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
         );
         setMostrarModal(null); //Cierra modal del indice seleccionado
         setFilaActiva(null); // Limpia la fila activa
+        setSignatureImage("");
     };
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -199,22 +217,25 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     const handleDescargarPDF = async (fila: any) => {
-        const blob = await pdf(<PDFRowDocument row={fila} />).toBlob();
+        const fecha = Date.now();
+        const fechaDescarga = new Date(fecha).toLocaleString('es-CL');
+        setfechaDescarga(fechaDescarga);// Asigna la imagen al estado para poder renderizarlo
+        const blob = await pdf(<DocumentoPDF row={fila} firma={signatureImage} fechaDescarga={fechaDescarga} />).toBlob();
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = `Firma_Alta_${fila?.aF_CLAVE}.pdf`;
+
         link.click();
     };
     const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
     return (
         <Layout>
             <MenuAltas />
-            <div className="border-bottom shadow-sm p-4 rounded">
+            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>
                 {loading ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
-
                     <div className='table-responsive'>
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
@@ -252,7 +273,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                             </tbody>
                         </table>
                     </div>
-
                 )}
                 <Pagination className="d-flex justify-content-end">
                     <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
@@ -275,30 +295,134 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                     <Modal
                         show={mostrarModal === index}
                         onHide={() => handleCerrarModal(index)}
-                        dialogClassName="modal-right" >
+                        dialogClassName="modal-right" size="lg">
                         <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                            <Modal.Title className="fw-semibold">Firme Alta seleccionada</Modal.Title>
+                            <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <form onSubmit={handleSubmit}>
-                                <div className="d-flex justify-content-end mb-2">
-                                    <button className="btn btn-primary" onClick={() => handleDescargarPDF(fila)}>
-                                        Descargar PDF
-                                    </button>
+
+                                <div className="d-flex bg-secondary w-50 text-white justify-content-around rounded p-1 mb-2">
+                                    <p className="ms-2 fw-semibold">Seleccione quienes firmarán el alta</p>
+                                    <Form.Check
+                                        onChange={handleCheck}
+                                        name="ajustarFirma"
+                                        type="checkbox"
+                                        className="mx-3 rounded text-white"
+                                        checked={AltaInventario.ajustarFirma}
+                                    />
+
                                 </div>
-                                <BlobProvider document={<PDFRowDocument row={fila} />}>
+                                <Row className="m-1 p-3 rounded rounded-4 border">
+                                    {/* Ajustar Firma */}
+                                    <Col md={4}>
+                                        <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.ajustarFirma}
+                                                name="titularInventario"
+                                                type="checkbox"
+                                                checked={AltaInventario.titularInventario}
+                                            />
+                                            <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                        </div>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.ajustarFirma}
+                                                name="subroganteInventario"
+                                                type="checkbox"
+                                                checked={AltaInventario.subroganteInventario}
+                                            />
+                                            <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                        </div>
+                                    </Col>
+
+                                    {/* Opcional1 */}
+                                    <Col md={4}>
+                                        <p className="border-bottom fw-semibold text-center">Unidad Finanzas</p>
+                                        <div className="d-flex">
+                                            <label htmlFor="opcional1" className="me-2">Opcional</label>
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.ajustarFirma}
+                                                name="opcional1"
+                                                type="checkbox"
+                                                checked={AltaInventario.opcional1}
+                                            />
+                                        </div>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.opcional1}
+                                                name="titularFinanzas"
+                                                type="checkbox"
+                                                checked={AltaInventario.titularFinanzas}
+                                            />
+                                            <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                        </div>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.opcional1}
+                                                name="subroganteFinanzas"
+                                                type="checkbox"
+                                                checked={AltaInventario.subroganteFinanzas}
+                                            />
+                                            <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                        </div>
+                                    </Col>
+
+                                    {/* Opcional2 */}
+                                    <Col md={4}>
+                                        <p className="border-bottom fw-semibold text-center">Unidad Demandante</p>
+                                        <div className="d-flex">
+                                            <label htmlFor="opcional2" className="me-2">Opcional</label>
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.ajustarFirma}
+                                                name="opcional2"
+                                                type="checkbox"
+                                                checked={AltaInventario.opcional2}
+                                            />
+                                        </div>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.opcional2}
+                                                name="titularDemandante"
+                                                type="checkbox"
+                                                checked={AltaInventario.titularDemandante}
+                                            />
+                                            <label htmlFor="titularDemandante" className="ms-2">Titular Demandante</label>
+                                        </div>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.opcional2}
+                                                name="subroganteDemandante"
+                                                type="checkbox"
+                                                checked={AltaInventario.subroganteDemandante}
+                                            />
+                                            <label htmlFor="subroganteDemandante" className="ms-2">Subrogante Demandante</label>
+                                        </div>
+                                    </Col>
+                                </Row>
+
+
+                                <BlobProvider document={<DocumentoPDF row={fila} firma={signatureImage} fechaDescarga={fechaDescarga} />}>
                                     {({ url, loading }) =>
                                         loading ? (
                                             <p>Generando vista previa...</p>
                                         ) : (
 
-
                                             <iframe
-                                                src={url ? `${url}${isFirefox ? "" : "#toolbar=0&navpanes=0&scrollbar=0"}` : ''}
+                                                src={url ? `${url}${isFirefox ? "" : "#toolbar=0&navpanes=0&scrollbar=1"}` : ''}
                                                 title="Vista Previa del PDF"
                                                 style={{
                                                     width: "100%",
-                                                    height: "500px",
+                                                    height: "900px",
                                                     border: "none",
                                                     pointerEvents: isFirefox ? "none" : "auto", // Deshabilita interacciones en Firefox
                                                 }}
@@ -322,7 +446,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                                     </div>
                                     {filaActiva && (
                                         <PDFDownloadLink
-                                            document={<PDFRowDocument row={filaActiva} />}
+                                            document={<DocumentoPDF row={filaActiva} firma={signatureImage} fechaDescarga={fechaDescarga} />}
                                             fileName={`Alta_${filaActiva?.aF_CLAVE}.pdf`}
                                         >
                                             {loading ? (
@@ -343,34 +467,33 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regi
                                         >
                                             Limpiar firma
                                         </Button>
-                                        <Button
-                                            type="submit"
-                                            variant={isDarkMode ? "secondary" : "primary"}
-                                            disabled={!isSigned || loadingRegistro}
-                                        >
-                                            {loadingRegistro ? "Procesando..." : (
-                                                <>
-                                                    <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
-                                                    Firmar y enviar
-                                                </>
-                                            )}
+
+                                        <Button type="submit" variant={isDarkMode ? "secondary" : "primary"}>
+                                            <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
+                                            Firmar
                                         </Button>
                                     </div>
                                 </div>
-
+                                <div className="d-flex justify-content-end mb-2">
+                                    <button className="btn btn-primary" disabled onClick={() => handleDescargarPDF(fila)}>
+                                        Descargar PDF
+                                    </button>
+                                </div>
                             </form>
                         </Modal.Body>
                     </Modal>
                 </div>
-            ))}
-        </Layout>
+            ))
+            }
+        </Layout >
     );
 };
 
 const mapStateToProps = (state: RootState) => ({
     listaBajas: state.datosListaBajasReducers.listaBajas,
     token: state.loginReducer.token,
-    isDarkMode: state.darkModeReducer.isDarkMode
+    isDarkMode: state.darkModeReducer.isDarkMode,
+    comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
 });
 
 export default connect(mapStateToProps, {

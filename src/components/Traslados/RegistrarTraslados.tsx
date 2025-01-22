@@ -1,13 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
-import { Row, Col, Collapse, Button, } from "react-bootstrap";
+import { Row, Col, Collapse } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CuentaProps, ListaEspecie, SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta";
-import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
-import { ArrowBarDown, ArrowBarUp, ArrowUp, CaretDown, CaretUp, CaretUpFill, Dash, Plus } from "react-bootstrap-icons";
-import { motion, AnimatePresence, easeInOut, easeOut } from "framer-motion";
+import { CaretDown, CaretUpFill } from "react-bootstrap-icons";
+
 import "../../styles/Traslados.css"
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
@@ -90,8 +88,8 @@ interface TrasladosProps {
 
 const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, comboEstablecimiento, comboTrasladoEspecie, comboDepartamento, comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, comboDepartamentoActions, token, isDarkMode }) => {
 
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [error, setError] = useState<Partial<BusquedaProps> & Partial<UbicacionDestino> & Partial<DatosRecepcion>>({});
+  // const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [error, _] = useState<Partial<BusquedaProps> & Partial<UbicacionDestino> & Partial<DatosRecepcion>>({});
   const [Traslados, setTraslados] = useState({
     aF_CLAVE: 0, //nInventario
     deP_CORR_ORIGEN: 0,//departmento
@@ -141,7 +139,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
   };
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("formulario", Traslados)
+    // console.log("formulario", Traslados)
   }
 
   return (

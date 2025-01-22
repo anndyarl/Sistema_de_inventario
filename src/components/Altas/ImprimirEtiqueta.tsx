@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 
-import { Button, Col, Row, Spinner } from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import Layout from "../../containers/hocs/layout/Layout";
 import MenuAltas from "../Menus/MenuAltas";
 

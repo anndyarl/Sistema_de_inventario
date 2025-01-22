@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
+import { Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -50,7 +50,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
+  // const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
   const [loadingAnular, setLoadingAnular] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -168,7 +168,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
-    console.log("indices seleccionmados", index);
+    // console.log("indices seleccionmados", index);
   };
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +178,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
           (indicePrimerElemento + index).toString()
         )
       );
-      console.log("filas Seleccionadas ", filasSeleccionadas);
+      // console.log("filas Seleccionadas ", filasSeleccionadas);
     } else {
       setFilasSeleccionadas([]);
     }
@@ -452,7 +452,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((listaAltas, index) => {
+                  {elementosActuales.map((Lista, index) => {
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={index}>
@@ -463,17 +463,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td>{listaAltas.aF_CLAVE}</td>
-                        <td>{listaAltas.ninv}</td>
-                        <td>{listaAltas.serv}</td>
-                        <td>{listaAltas.dep}</td>
-                        <td>{listaAltas.esp}</td>
-                        <td>{listaAltas.ncuenta}</td>
-                        <td>{listaAltas.marca}</td>
-                        <td>{listaAltas.modelo}</td>
-                        <td>{listaAltas.serie}</td>
-                        <td>{listaAltas.precio}</td>
-                        <td>{listaAltas.mrecepcion}</td>
+                        <td>{Lista.aF_CLAVE}</td>
+                        <td>{Lista.ninv}</td>
+                        <td>{Lista.serv}</td>
+                        <td>{Lista.dep}</td>
+                        <td>{Lista.esp}</td>
+                        <td>{Lista.ncuenta}</td>
+                        <td>{Lista.marca}</td>
+                        <td>{Lista.modelo}</td>
+                        <td>{Lista.serie}</td>
+                        <td>{Lista.precio}</td>
+                        <td>{Lista.mrecepcion}</td>
                         {/* <td>
                           <Button
                             variant="outline-danger"

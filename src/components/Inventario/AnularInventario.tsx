@@ -1,12 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button, Spinner } from "react-bootstrap";
+import React, { useMemo, useState } from "react";
+import { Row, Col, Pagination, Button, Spinner } from "react-bootstrap";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Search } from "react-bootstrap-icons";
 import { obtenerListaInventarioActions } from "../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import MenuInventario from "../Menus/MenuInventario";
@@ -31,7 +31,7 @@ interface FechasProps {
 const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario, obtenerListaInventarioActions, anularInventarioActions, isDarkMode }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<FechasProps[]>([]);
+  const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 20;
 
@@ -144,13 +144,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     }
   };
 
-  const handleLimpiar = () => {
-    setInventario((prevInventario) => ({
-      ...prevInventario,
-      fechaInicio: "",
-      fechaTermino: "",
-    }));
-  };
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;

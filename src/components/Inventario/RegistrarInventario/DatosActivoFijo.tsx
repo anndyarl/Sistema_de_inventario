@@ -95,8 +95,11 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   precio,
   registrarFormInventarioActions,
 }) => {
+
+  //Estado que guarda en un array los objetos que irán en la tabla
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
 
+  //Estado que guarda los objetos del formulario(dentro del Modal)
   const [activoActual, setActivoActual] = useState<ActivoFijo>({
     id: "",
     vidaUtil: "",
@@ -109,27 +112,26 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     precio: "",
     especie: "",
   });
-  const dispatch = useDispatch();
 
+  const dispatch = useDispatch();
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
   };
-  const [error, setError] = useState<
-    Partial<ActivoFijo> & { general?: string; generalTabla?: string }
-  >({});
+  const [error, setError] = useState<Partial<ActivoFijo> & { general?: string; generalTabla?: string }>({});
+
   //-------Modal-------//
   const [mostrarModal, setMostrarModal] = useState(false);
   // const [mostrarModalConfirmar, setMostrarModalConfirmar] = useState(false);
   //-------Fin Modal-------//
 
   //-------Tabla-------//
-  const [editingSerie, setEditingSerie] = useState<string | null>(null);
+  const [_, setEditingSerie] = useState<string | null>(null);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const [elementosPorPagina] = useState(10);
   // Estado para errores específicos por serie
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
-  const [isRepeatSerie, setIsRepeatSerie] = useState(false);
+  // const [isRepeatSerie, setIsRepeatSerie] = useState(false);
   //-------Fin Tabla-------//
 
   const vPrecio = parseFloat(activoActual.precio) || 0;
@@ -217,27 +219,57 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       }));
 
       // Validar duplicados
-      const serieNoVacia = actualizaActivos
-        .map((activo) => activo.serie.trim())
-        .filter((serie) => serie !== "");
-      const duplicados = serieNoVacia.filter(
-        (serie, index, arr) => arr.indexOf(serie) !== index
-      );
+      const seriesMap = new Map<string, number[]>(); // Mapeo de series a índices
+      actualizaActivos.forEach((activo, index) => {
+        const serie = activo.serie.trim();
+        if (serie) {
+          if (seriesMap.has(serie)) {
+            seriesMap.get(serie)!.push(index); // Agregar índice al array existente
+          } else {
+            seriesMap.set(serie, [index]); // Crear un nuevo array con el índice
+          }
+        }
+      });
 
-      if (duplicados.length > 0) {
-        setIsRepeatSerie(true);
-        setErroresSerie((prevErrores) => ({
-          ...prevErrores,
-          [indexReal]: "Esta serie ya existe en otro activo.",
-        }));
-      } else {
-        setIsRepeatSerie(false);
+      // Obtener los índices de duplicados
+      const duplicadosIndices: number[] = [];
+      seriesMap.forEach((indices) => {
+        if (indices.length > 1) {
+          duplicadosIndices.push(...indices); // Agregar todos los índices duplicados
+        }
+      });
+
+      // Actualizar errores para los índices duplicados
+      if (duplicadosIndices.length > 0) {
+        // setIsRepeatSerie(true);
         setErroresSerie((prevErrores) => {
           const newErrores = { ...prevErrores };
-          delete newErrores[indexReal];
+
+          // Pintar error en todos los índices duplicados
+          duplicadosIndices.forEach((index) => {
+            newErrores[index] = "Esta serie ya existe en otro activo.";
+          });
+
+          return newErrores;
+        });
+      } else {
+        // setIsRepeatSerie(false);
+
+        // Limpiar errores para índices que ya no son duplicados
+        setErroresSerie((prevErrores) => {
+          const newErrores = { ...prevErrores };
+
+          Object.keys(newErrores).forEach((key) => {
+            const index = parseInt(key, 10);
+            if (!duplicadosIndices.includes(index)) {
+              delete newErrores[index]; // Eliminar errores de índices no duplicados
+            }
+          });
+
           return newErrores;
         });
       }
+
 
       // Despacha la serie actualizada al estado global de Redux
       dispatch(actualizarSerieEnTabla(indexReal, newSerie));
@@ -253,6 +285,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     }
   }, [datosTablaActivoFijo, paginaActual]);
 
+  //Renderiza los datos almacenados en el estado global de redux
   useEffect(() => {
     setActivoActual({
       id: "",
@@ -277,7 +310,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     precio
   ]);
 
-
   //-------------Funciones de la tabla --------------------//
   const handleSerieBlur = () => {
     setEditingSerie(null);
@@ -289,7 +321,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
-    console.log("indices seleccionmados", index);
+    // console.log("indices seleccionmados", index);
   };
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,7 +335,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
       setFilasSeleccionadas([]);
     }
-    console.log("indices seleccionmados", filasSeleccionadas);
+    // console.log("indices seleccionmados", filasSeleccionadas);
   };
 
   // const handleClone = (activo: ActivoFijo) => {
@@ -334,15 +366,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       };
 
       // Buscar el color del último activo con la misma especie, si existe
-      const colorUltimaEspecie =
-        activosFijos.find((activo) => activo.especie === ultimaEspecie)
-          ?.color || getRandomPastelColor();
+      const colorUltimaEspecie = activosFijos.find((activo) => activo.especie === ultimaEspecie)?.color || getRandomPastelColor();
 
-      const newActivos = Array.from({ length: cantidad }, (_, index) => ({
+      const newActivos = Array.from({ length: cantidad }, (_,) => ({
         ...activoActual,
-        id: String(Date.now() + index),
+        id: `${Math.floor(performance.now())}${Math.floor(Math.random() * 1000)}`,
         especie: ultimaEspecie,
-        color: colorUltimaEspecie, // Asigna el color correspondiente
+        color: colorUltimaEspecie, // Asigna el color correspondiente a la ultima especie
       }));
       setActivosFijos((prev) => [...prev, ...newActivos]);
 
@@ -355,21 +385,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       dispatch(setPrecioActions(activoActual.precio));
       dispatch(setCantidadActions(activoActual.cantidad));
       dispatch(setObservacionesActions(activoActual.observaciones));
-      //Limpia campos despues de crearlos
-      // setActivoActual({
-      //   id: "",
-      //   vidaUtil: "",
-      //   fechaIngreso: "",
-      //   marca: "",
-      //   cantidad: "",
-      //   modelo: "",
-      //   observaciones: "",
-      //   serie: "",
-      //   precio: "",
-      //   especie: "",
-      //   color: "",
-      // });
-
       setMostrarModal(false); //Cierra modal
     }
   };
@@ -393,8 +408,21 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     dispatch(setCantidadActions(""));
     dispatch(setObservacionesActions(""));
   }
-  const handleEliminar = (index: number /*, precio: number*/) => {
-    setActivosFijos((prev) => prev.filter((_, i) => i !== index));
+  const handleEliminar = (index: number) => {
+    setActivosFijos((prev) => {
+      const actualizados = prev.filter((_, i) => i !== index);
+
+      // Limpia los errores asociados al índice eliminado
+      setErroresSerie((prevErrores) => {
+        const newErrores = { ...prevErrores };
+        delete newErrores[index];
+        return newErrores;
+      });
+
+      return actualizados;
+    });
+
+    // Despachar acción para actualizar el estado global
     dispatch(eliminarActivoDeTabla(index));
   };
 
@@ -402,10 +430,23 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     // Convertir los índices seleccionados a números
     const selectedIndices = filasSeleccionadas.map(Number);
 
-    // Filtrar los activos para eliminar los seleccionados
-    setActivosFijos((prev) =>
-      prev.filter((_, index) => !selectedIndices.includes(index))
-    );
+    // Filtrar los activos y eliminar los seleccionados
+    setActivosFijos((prev) => {
+      const actualizados = prev.filter((_, index) => !selectedIndices.includes(index));
+
+      // Limpia los errores asociados a los índices eliminados
+      setErroresSerie((prevErrores) => {
+        const newErrores = { ...prevErrores };
+        selectedIndices.forEach((index) => {
+          delete newErrores[index];
+        });
+        return newErrores;
+      });
+
+      return actualizados;
+    });
+
+    // Despachar acción para actualizar el estado global
     dispatch(eliminarMultiplesActivosDeTabla(selectedIndices));
 
     // Limpiar las filas seleccionadas
@@ -425,8 +466,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     const serieVacia = activosFijos?.some(
       (activo) => !activo.serie || !activo.serie.trim()
     );
-    console.log(" datos ACtivo fijo", datosTablaActivoFijo);
-    // Verifica si hay series vacias
+
     if (serieVacia) {
       Swal.fire({
         icon: "warning",
@@ -442,8 +482,34 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       return false;
     }
 
-    // Verifica si hay series duplicadas
-    if (isRepeatSerie) {
+    // Verifica si hay series duplicadas y obtiene índices
+    const seriesMap = new Map();
+    const duplicados: { serie: string; index: number }[] = []; // Tipado explícito
+
+    activosFijos.forEach((activo, index) => {
+      const serie = activo.serie?.trim();
+      if (serie) {
+        if (seriesMap.has(serie)) {
+          duplicados.push({ serie, index });
+        } else {
+          seriesMap.set(serie, index);
+        }
+      }
+    });
+
+
+    if (duplicados.length > 0) {
+      // setIsRepeatSerie(true);
+
+      // Agrega errores para los índices duplicados
+      setErroresSerie((prevErrores) => {
+        const newErrores = { ...prevErrores };
+        duplicados.forEach(({ index }) => {
+          newErrores[index] = "Esta serie ya existe en otro activo.";
+        });
+
+        return newErrores;
+      });
       Swal.fire({
         icon: "warning",
         title: "Serie Duplicada",
@@ -453,17 +519,41 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
-        }
+        },
       });
       return false;
     }
+    else {
+      // setIsRepeatSerie(false);
+      // Limpia errores relacionados con duplicados
+      setErroresSerie((prevErrores) => {
+        const newErrores = { ...prevErrores };
+        // Recalcula errores para los índices restantes
+        Object.keys(newErrores).forEach((key) => {
+          const index = parseInt(key, 10);
+          const serie = activosFijos[index]?.serie?.trim();
+          if (
+            !serie || // Si la serie está vacía
+            !duplicados.some(({ index: dupIndex }) => dupIndex === index) // Si ya no está duplicada
+          ) {
+            delete newErrores[index];
+          }
+        });
+
+        return newErrores;
+      });
+
+    }
+
+
+
 
     // Verifica si hay un monto pendiente
     if (pendiente > 0) {
       Swal.fire({
         icon: "warning",
         title: "Monto Pendiente",
-        text: `Tiene un monto pendiente de $${pendiente.toLocaleString("es-CL")}.`,
+        text: `Tiene un monto pendiente de $${pendiente.toLocaleString("es-CL")}.-`,
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -477,6 +567,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     // Si pasa todas las validaciones
     return true;
   };
+
 
   const handleFinalSubmit = async () => {
     if (handleValidar()) {
@@ -508,7 +599,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           const resultado = await registrarFormInventarioActions(FormulariosCombinados);
 
           if (resultado) {
-            console.log("tabla activo fijo", datosTablaActivoFijo);
+            // console.log("tabla activo fijo", datosTablaActivoFijo);
             // Resetea todo el formulario al estado inicial
             dispatch(setNRecepcionActions(0));
             dispatch(setFechaRecepcionActions(""));
@@ -646,7 +737,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         {/* Tabla */}
         {datos.length === 0 ? (
           <p className="d-flex justify-content-center m-1 p-1 ">
-            Haz clic en (+) para listar aquí los detalles de cada activo.
+            Haz clic en (+ Agregar) para listar aquí los detalles de cada activo.
           </p>
         ) : (
           <div className="overflow-auto">
@@ -664,6 +755,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       }
                     />
                   </th>
+                  <th>Código</th>
                   <th>Vida Útil</th>
                   <th>Fecha Ingreso</th>
                   <th>Marca</th>
@@ -686,6 +778,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                           checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
+                      <td>{activo.id}</td>
                       <td>{activo.vidaUtil}</td>
                       <td>{activo.fechaIngreso}</td>
                       <td>{activo.marca}</td>
@@ -780,7 +873,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           {elementosActuales.length > 0 && (
             <Button variant={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}
               onClick={handleFinalSubmit} >
-              Registrar
+              Validar
             </Button>
           )}
         </div>
@@ -805,9 +898,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
           <form onSubmit={handleAgregar}>
             <Row>
-              <div className="d-flex justify-content-end align-items-center mb-4">
+              <div className="d-flex justify-content-between align-items-center mb-4">
                 {/* Contenedor para Monto Recepción y Monto Pendiente */}
-                {/* <div className="d-flex">
+                <div className="d-flex">
                   <div className="mx-1 bg-primary text-white p-1 rounded">
                     <p className="text-center">Monto Recepción</p>
                     <p className="fw-semibold text-center">
@@ -822,7 +915,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       })}
                     </p>
                   </div>
-                </div> */}
+                </div>
 
                 {/* Contenedor para los Botones */}
                 <div className="d-flex">

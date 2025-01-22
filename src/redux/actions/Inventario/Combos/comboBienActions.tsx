@@ -20,7 +20,7 @@ export const comboBien = (token: string) => async (dispatch: Dispatch) => {
         dispatch({ type: BIEN_REQUEST });
 
         try {
-            const res = await axios.get('/api_inv/api/inventario/comboTraeBien', config);
+            const res = await axios.get('https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeBien', config);
 
             if (res.status === 200) {
                 dispatch({

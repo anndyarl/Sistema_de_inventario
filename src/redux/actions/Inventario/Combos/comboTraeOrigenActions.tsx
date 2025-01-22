@@ -20,7 +20,7 @@ export const comboTraeOrigen = (token: string) => async (dispatch: Dispatch) => 
         dispatch({ type: ORIGEN_REQUEST });
 
         try {
-            const res = await axios.get('/api_inv/api/inventario/comboTraeOrigen', config);
+            const res = await axios.get('https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeOrigen', config);
 
             if (res.status === 200) {
                 dispatch({

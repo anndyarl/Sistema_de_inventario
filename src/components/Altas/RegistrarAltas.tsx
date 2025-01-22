@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Row, Col, Pagination, Button, Spinner, Form, Card, CardBody } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form } from "react-bootstrap";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -181,7 +181,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
         ? prev.filter((rowIndex) => rowIndex !== indexReal.toString())
         : [...prev, indexReal.toString()]
     );
-    console.log("indices seleccionmados", indexReal);
+    // console.log("indices seleccionmados", indexReal);
   };
 
 
@@ -220,7 +220,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
         popup: "custom-border", // Clase personalizada para el borde
       }
     });
-    console.log("filas Seleccionadas ", filasSeleccionadas);
+    // console.log("filas Seleccionadas ", filasSeleccionadas);
     // selectedIndices.map(async (index) => {
 
     if (result.isConfirmed) {
@@ -335,7 +335,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
               <SkeletonLoader rowCount={elementosPorPagina} />
             </>
           ) : (
-
             <div className='table-responsive'>
               <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
@@ -362,7 +361,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((listaAltas, index) => {
+                  {elementosActuales.map((Lista, index) => {
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={indexReal}>
@@ -373,26 +372,24 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                             checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
                           />
                         </td>
-                        <td>{listaAltas.aF_CLAVE}</td>
-                        <td>{listaAltas.ninv}</td>
-                        <td>{listaAltas.serv}</td>
-                        <td>{listaAltas.dep}</td>
-                        <td>{listaAltas.esp}</td>
-                        <td>{listaAltas.ncuenta}</td>
-                        <td>{listaAltas.marca}</td>
-                        <td>{listaAltas.modelo}</td>
-                        <td>{listaAltas.serie}</td>
-                        <td>{listaAltas.precio}</td>
-                        <td>{listaAltas.mrecepcion}</td>
+                        <td>{Lista.aF_CLAVE}</td>
+                        <td>{Lista.ninv}</td>
+                        <td>{Lista.serv}</td>
+                        <td>{Lista.dep}</td>
+                        <td>{Lista.esp}</td>
+                        <td>{Lista.ncuenta}</td>
+                        <td>{Lista.marca}</td>
+                        <td>{Lista.modelo}</td>
+                        <td>{Lista.serie}</td>
+                        <td>{Lista.precio}</td>
+                        <td>{Lista.mrecepcion}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-
-          )
-          }
+          )}
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">
             <Pagination.First

@@ -13,6 +13,35 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
     const dispatch = useDispatch<AppDispatch>();
     // Accede al estado global de Redux para el modo nocturno
     const isDarkMode = useSelector((state: RootState) => state.darkModeReducer.isDarkMode);
+
+    useEffect(() => {
+
+        //Inicializando auto logout
+        const handleActivity = () => {
+            //Si hay Actividad detectada, reinicia los temporizadores
+            resetTimers();
+        };
+
+        // Listeners de actividad del usuario
+        window.addEventListener("mousemove", handleActivity);
+        window.addEventListener("keydown", handleActivity);
+
+        // Inicializar los temporizadores
+        resetTimers();
+
+        return () => {
+            //Limpiando listeners y temporizadores
+            if (warningTimeout.current !== null) {
+                window.clearTimeout(warningTimeout.current);
+            }
+            if (logoutTimeout.current !== null) {
+                window.clearTimeout(logoutTimeout.current);
+            }
+            window.removeEventListener("mousemove", handleActivity);
+            window.removeEventListener("keydown", handleActivity);
+        };
+    }, [dispatch, warningTime, logoutTime]);
+
     const resetTimers = () => {
 
         if (warningTimeout.current !== null) {
@@ -54,6 +83,7 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
 
         logoutTimeout.current = window.setTimeout(() => {
             dispatch(logout());
+
             Swal.fire({
                 icon: "info",
                 title: "Su sesión expiró",
@@ -69,32 +99,7 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
         }, logoutTime);
     };
 
-    useEffect(() => {
-        //Inicializando auto logout
-        const handleActivity = () => {
-            //Si hay Actividad detectada, reinicia los temporizadores
-            resetTimers();
-        };
 
-        // Listeners de actividad del usuario
-        window.addEventListener("mousemove", handleActivity);
-        window.addEventListener("keydown", handleActivity);
-
-        // Inicializar los temporizadores
-        resetTimers();
-
-        return () => {
-            //Limpiando listeners y temporizadores
-            if (warningTimeout.current !== null) {
-                window.clearTimeout(warningTimeout.current);
-            }
-            if (logoutTimeout.current !== null) {
-                window.clearTimeout(logoutTimeout.current);
-            }
-            window.removeEventListener("mousemove", handleActivity);
-            window.removeEventListener("keydown", handleActivity);
-        };
-    }, [dispatch, warningTime, logoutTime]);
 
     return null; // No renderiza nada, es solo para la lógica
 };

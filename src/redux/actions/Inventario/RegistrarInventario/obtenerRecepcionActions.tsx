@@ -19,7 +19,7 @@ export const obtenerRecepcionActions =
         dispatch({ type: RECEPCION_REQUEST });
 
         try {
-          const res = await axios.get(`/api_inv/api/inventario/comboTraeRecepcion?numero=${nRecepcion}`, config);
+          const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeRecepcion?numero=${nRecepcion}`, config);
 
           if (res.status === 200) {
             const isEmpty = res.data && Object.values(res.data).every((value) => value == 0 || value == null || value == undefined);

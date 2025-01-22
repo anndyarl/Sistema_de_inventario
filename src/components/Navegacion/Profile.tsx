@@ -1,22 +1,34 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Sun, Moon, LogOut, UserCircle } from "lucide-react";
+import React, { useState } from "react";
+import { LogOut, Signature, UserCircle } from 'lucide-react';
 import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers";
 import { logout } from "../../redux/actions/auth/auth";
-import { Navigate, NavLink } from "react-router-dom";
-import { Building, Coin, CurrencyBitcoin, CurrencyDollar, Gear, Geo } from "react-bootstrap-icons";
-import ondas from "../../assets/img/ondas.png"
+import { Navigate } from 'react-router-dom';
+import { BarChart, Building, Coin, CurrencyDollar, Database, Gear, Geo, Git } from "react-bootstrap-icons";
 import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
-import { Col, Row } from "react-bootstrap";
-import { darkModeActions } from "../../redux/actions/Otros/darkModeActions";
+import { Col, Modal, Row } from "react-bootstrap";
+
+import General from "../Configuracion/General";
+import Datos from "../Configuracion/Datos";
+import Firma from "../Configuracion/Firma";
+import Versionamiento from "../Configuracion/Versionamiento";
+import Indicadores from "../Configuracion/Indicadores";
+const classNames = (...classes: (string | boolean | undefined)[]): string => {
+  return classes.filter(Boolean).join(" ");
+};
+export interface NavItem {
+  name: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
+
 export interface IndicadoresProps {
   valor: number;
-
 }
+
 interface ProfileProps {
   logout: () => Promise<boolean>;
   indicadoresActions: () => Promise<boolean>;
@@ -28,51 +40,35 @@ interface ProfileProps {
   isDarkMode: boolean;
 }
 
-const Profile: React.FC<ProfileProps> = ({
-  logout,
-  indicadoresActions,
-  utm,
-  uf,
-  dolar,
-  bitcoin,
-  ipc,
-  isDarkMode
-}) => {
+const Profile: React.FC<ProfileProps> = ({ logout, isDarkMode }) => {
+
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
-  const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(" ");
-  };
-  const dispatch = useDispatch();
+  const [mostrarModal, setMostrarModal] = useState(false);
 
+  // useEffect(() => {
+  //   if (uf.valor === 0 || utm.valor === 0 || dolar.valor === 0 || bitcoin.valor === 0 || ipc.valor === 0) {
+  //     indicadoresActions();
+  //   }
+  // }, [indicadoresActions]);
 
-  const onToggleDarkMode = () => {
-    //Dispara accion Modo Oscuro al estado global de redux
-    dispatch(darkModeActions());
-  };
-  const panelVariants = {
-    initial: { opacity: 0, x: 100 }, // Comienza con transparencia y desplazamiento desde la izquierda
-    animate: { opacity: 1, x: 0 }, // Llega a opacidad completa y posición natural
-    exit: { opacity: 0, x: 100 }, // Se desvanece hacia la derecha en la salida
-  };
-
-  //aqui se hace la petición a la api mindicador.cl
-  useEffect(() => {
-    if (uf.valor === 0 || utm.valor === 0 || dolar.valor === 0 || bitcoin.valor === 0 || ipc.valor === 0) {
-      indicadoresActions();
-    }
-  }, [indicadoresActions]);
-
-
-  const panelTransition = {
-    type: "tween",
-    easeOut: [0, 0, 0.58, 1],
-  };
   const handleLogout = async () => {
     let resultado = await logout();
     if (resultado) {
       return <Navigate to="/" />;
     }
+  };
+
+  //Efectos de transicion apertura profile
+  const panelVariants = {
+    initial: { opacity: 0, x: 100 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 100 },
+  };
+
+  const panelTransition = {
+    type: "tween",
+    easeOut: [0, 0, 0.58, 1],
   };
 
 
@@ -87,7 +83,6 @@ const Profile: React.FC<ProfileProps> = ({
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
             Andy Riquelme
           </span>
-
         </button >
       </div>
 
@@ -114,13 +109,15 @@ const Profile: React.FC<ProfileProps> = ({
                       <strong> <Coin
                         className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                         aria-hidden="true"
-                      />UTM: </strong>${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                      /> UTM: </strong>
+                      {/* ${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })} */}
                     </p>
                     <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
                       <strong> <Coin
                         className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                         aria-hidden="true"
-                      />UF: </strong>${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                      />UF: </strong>
+                      {/* ${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })} */}
                     </p>
                   </Col>
                   <Col>
@@ -128,20 +125,16 @@ const Profile: React.FC<ProfileProps> = ({
                       <strong> <CurrencyDollar
                         className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                         aria-hidden="true"
-                      />Dólar: </strong>${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                      />Dólar: </strong>
+                      {/* ${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })} */}
                     </p>
                     <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
                       <strong> <Coin
                         className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                         aria-hidden="true"
-                      />IPC: </strong>{ipc.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}%
+                      />IPC: </strong>
+                      {/* {ipc.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}% */}
                     </p>
-                    {/* <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
-                    <strong> <CurrencyBitcoin
-                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />Bitcoin: </strong>${bitcoin.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
-                  </p> */}
                   </Col>
                 </Row>
                 <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
@@ -156,45 +149,13 @@ const Profile: React.FC<ProfileProps> = ({
                     aria-hidden="true"
                   /> Establecimiento: </strong> Hospital San José de Maipo
                 </p>
-                <NavLink
-                  key="Configuracion"
-                  to="/Configuracion"
-                  className="navbar-nav nav-link  fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white"
-                >
+                <button onClick={() => setMostrarModal(true)} className="navbar-nav nav-link fw-fw-normal nav-item text-white fs-6 fs-md-5 fs-lg-4 w-100 text-start mb-2">
                   <strong> <Gear
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
                   />Configuración</strong>
-                </NavLink>
+                </button>
 
-                <div className="d-flex justify-content-around m-3">
-                  <p>
-                    <strong className="text-white">
-                      {isDarkMode ? (
-                        <p>Modo Oscuro</p>
-                      ) : (
-                        <p>Modo Claro</p>
-                      )} </strong>
-                  </p>
-                  <div className={`button-moon-sun w-25  ${isDarkMode ? "bg-primary" : "bg-warning"}`}>
-                    <motion.div
-                      className="icon-moon-sun"
-                      style={{
-                        transform: isDarkMode
-                          ? "translateX(160%)"
-                          : "translateX(10%)",
-                      }}
-                      aria-hidden="true"
-                    >
-                      {isDarkMode ? (
-                        <Moon className="text-dark" size={18} />
-                      ) : (
-                        <Sun className="text-dark" size={18} />
-                      )}
-                    </motion.div>
-                    <button aria-label="sun-moon" onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent text-dark"></button>
-                  </div>
-                </div>
                 <button onClick={handleLogout} type="button" className="btn btn-outline-light w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
                   Cerrar Sesión
                   <LogOut
@@ -202,26 +163,64 @@ const Profile: React.FC<ProfileProps> = ({
                     aria-hidden="true"
                   />
                 </button>
-                {/* <div className="position-values-4 d-none d-lg-block">
-                  <img
-                    src={ondas}
-                    alt="ondas"
-                    width={200}
-                    className="img-fluid"
-                  />
-                </div> */}
               </div>
             </motion.div>
           </motion.div>
-
         )}
       </AnimatePresence>
 
+      <Modal size="lg" show={mostrarModal} onHide={() => setMostrarModal(false)} /* backdrop="static" keyboard={false} */>
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+          <Modal.Title>Preferencias</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <ModalContent />
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
 
-//mapea los valores del estado global de Redux
+const ModalContent: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('General');
+  const navigation: NavItem[] = [
+    { name: 'General', icon: Gear },
+    { name: 'Datos', icon: Database },
+    { name: 'Firma', icon: Signature },
+    { name: 'Indicadores', icon: BarChart },
+    { name: 'Versionamiento', icon: Git },
+  ];
+
+  const handleClick = (name: string) => {
+    setActiveTab(name);
+  };
+
+  return (
+    <Row>
+      <Col md={4}>
+        {navigation.map((item) => (
+          <button
+            key={item.name}
+            onClick={() => handleClick(item.name)}
+            type="button"
+            className={`  ${activeTab === item.name ? 'bg-secondary text-white' : ''} btn btn-outline-secondary fw-semibold d-flex align-items-center py-2 px-3 mb-2 rounded w-100 border-0 `}
+          >
+            <item.icon className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+            {item.name}
+          </button>
+        ))}
+      </Col>
+      <Col md={8}>
+        {activeTab === 'General' && <General />}
+        {activeTab === 'Datos' && <Datos />}
+        {activeTab === 'Firma' && <Firma />}
+        {activeTab === 'Indicadores' && <Indicadores />}
+        {activeTab === 'Versionamiento' && <Versionamiento />}
+      </Col>
+    </Row >
+  );
+};
+
 const mapStateToProps = (state: RootState) => ({
   logout: state.loginReducer.logout,
   utm: state.indicadoresReducers.utm,
@@ -236,3 +235,4 @@ export default connect(mapStateToProps, {
   logout,
   indicadoresActions,
 })(Profile);
+

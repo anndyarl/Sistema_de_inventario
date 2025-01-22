@@ -17,7 +17,7 @@ export const comboCuentaActions =
       dispatch({ type: CUENTA_REQUEST });
 
       try {
-        const res = await axios.get(`/api_inv/api/inventario/comboTraeCuenta?ESP_CODIGO=${ESP_CODIGO}`, config);
+        const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeCuenta?ESP_CODIGO=${ESP_CODIGO}`, config);
 
         if (res.status === 200) {
           dispatch({

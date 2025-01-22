@@ -7,35 +7,34 @@ import {
 import { Dispatch } from "redux";
 
 // Acción para obtener servicio
-export const comboModalidadesActions =
-  () => async (dispatch: Dispatch, getState: any) => {
-    const token = getState().loginReducer.token; //token está en el estado de autenticación
-    if (token) {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      };
+export const comboModalidadesActions = () => async (dispatch: Dispatch, getState: any) => {
+  const token = getState().loginReducer.token; //token está en el estado de autenticación
+  if (token) {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    };
 
-      dispatch({ type: MODALIDAD_COMPRA_REQUEST });
+    dispatch({ type: MODALIDAD_COMPRA_REQUEST });
 
-      try {
-        const res = await axios.get("/api_inv/api/inventario/comboTraeModalidad", config);
+    try {
+      const res = await axios.get("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeModalidad", config);
 
-        if (res.status === 200) {
-          dispatch({
-            type: MODALIDAD_COMPRA_SUCCESS,
-            payload: res.data,
-          });
-        } else {
-          dispatch({ type: MODALIDAD_COMPRA_FAIL });
-        }
-      } catch (err) {
-        console.error("Error en la solicitud:", err);
+      if (res.status === 200) {
+        dispatch({
+          type: MODALIDAD_COMPRA_SUCCESS,
+          payload: res.data,
+        });
+      } else {
         dispatch({ type: MODALIDAD_COMPRA_FAIL });
       }
-    } else {
+    } catch (err) {
+      console.error("Error en la solicitud:", err);
       dispatch({ type: MODALIDAD_COMPRA_FAIL });
     }
-  };
+  } else {
+    dispatch({ type: MODALIDAD_COMPRA_FAIL });
+  }
+};

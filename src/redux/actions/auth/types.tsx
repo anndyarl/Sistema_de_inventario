@@ -13,8 +13,7 @@ export const SET_TOKEN = 'SET_TOKEN';
 // Acción de cierre de sesión
 export const LOGOUT = 'LOGOUT';
 
-// Acción de clave unica
-export const CLAVE_UNICA_REQUEST = 'CLAVE_UNICA_REQUEST';
-export const CLAVE_UNICA_SUCCESS = 'CLAVE_UNICA_SUCCESS';
-export const CLAVE_UNICA_FAIL = 'CLAVE_UNICA_FAIL';
-
+// Acción de valida portal
+export const VALIDA_PORTAL_REQUEST = 'VALIDA_PORTAL_REQUEST';
+export const VALIDA_PORTAL_SUCCESS = 'VALIDA_PORTAL_SUCCESS';
+export const VALIDA_PORTAL_FAIL = 'VALIDA_PORTAL_FAIL';

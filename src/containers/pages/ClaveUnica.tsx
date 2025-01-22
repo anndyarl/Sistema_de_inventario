@@ -1,158 +1,99 @@
 // ClaveUnica.tsx
-import React from "react";
-import { loginClaveUnica } from "../../redux/actions/auth/auth";
-import { DatosPersona } from "../../redux/interfaces"; // Importa la interfaz
+import React, { useState } from "react";
+// import { DatosPersona } from "../../redux/interfaces"; 
 import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de tener este tipo definido correctamente
 import { Navigate } from "react-router-dom";
-import { useAppDispatch } from "../../hooks/hook";
+// import { useAppDispatch } from "../../hooks/hook";
 import ssmso_background from "../../assets/img/ssmso_imagen.png";
 import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
 import ondas from "../../assets/img/ondas.png"
+import { Button, Spinner } from "react-bootstrap";
+// import { useAppDispatch } from "../../hooks/hook";
 interface Props {
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
 }
 
 const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
-  const dispatch = useAppDispatch();
-
+  const [loading, setLoading] = useState(false);
+  // Función para redirigir a Clave Única
   const handleEnviar = () => {
-    const params = new URLSearchParams(window.location.search);
-
-    /*rut = "12870560";*/
-    /*rut = "12585045";*/
-    //rut = "15621643";
-    //rut = "14197140";
-    //rut = "17489749";
-
-    // const rut = params.get('14197140');
-
-    // Define el objeto `datosPersona` con el formato adecuado
-    const datosPersona: DatosPersona = {
-      RolUnico: { DV: "0", numero: "14197140", tipo: "RUN" },
-      sub: "2253944",
-      name: {
-        apellidos: ["Jaque", "Garcia"],
-        nombres: ["Margarita", "Andrea"],
-      },
-    };
-
-    if (datosPersona) {
-      dispatch(loginClaveUnica(datosPersona));
-    } else {
-      console.error("Datos de la persona no encontrados", datosPersona);
-    }
+    setLoading(true);
+    const redirectUrl = `https://sidra.ssmso.cl/wcf_claveunica/?url_solicitud=http://localhost:3002/ValidaPortal`;
+    // const redirectUrl = `https://sidra.ssmso.cl/wcf_claveunica/?url_solicitud=http://10.6.50.15:88/ValidaPortal`;
+    window.location.href = redirectUrl;
   };
 
   if (isAuthenticated) {
     return <Navigate to="/Inicio" />;
   }
   return (
-    // <div classNameNameName="container d-flex justify-content-center align-items-center vh-100">
-    //   <div classNameNameName="col-12 col-md-8 border p-4 rounded shadow-sm bg-white">
-    //     <h1 classNameNameName="form-heading">Sistema de Inventario</h1>
-    //     <p classNameNameName="form-heading fs-09em">
-    //       Sistema de apoyo en la gestión administrativa, Servicio de Salud
-    //       Metropolitano Sur Oriente Departamento de Informática Unidad de
-    //       Desarrollo 2024
-    //     </p>
-    //     <div classNameNameName="p-4 rounded shadow-sm bg-white d-flex justify-content-center">
-    //       {/**Producciòn */}
-    //       {/* <a
-    //                      href="/claveunica"
-    //                     classNameNameName="btn btn-primary"
-    //                 >
-    //                     Clave Única
-    //                 </a> */}
+    <div className="vh-100 d-flex flex-column">
+      <div className="body d-md-flex align-items-center justify-content-between flex-grow-1">
 
-    //       {/**Desarrollo */}
-    // {/* <Button onClick={handleEnviar}  type="submit" classNameNameName="btn btn-primary text-center me-2">Clave Unica </Button> */}
+        <div className={`box-2 d-flex flex-column w-100 h-100 justify-content-center align-items-center text-center ${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <div className="mt-5">
+            <img
+              src={ssmso_logo}
+              alt="SSMSO-LOGO"
+              width={150}
+              className="img-fluid mb-5"
+            />
 
-    //       {/**Prueba */}
-    //       <a href="/Login" classNameNameName="btn btn-primary">
-    //         Clave Única
-    //       </a>
-    //     </div>
-    //     <p classNameNameName="botto-text">
-    //       Diseñado por Departamento de Informática - Unidad de Desarrollo 2024
-    //     </p>
-    //   </div>
-    // </div>
+          </div>
+          <h4 className="border-bottom mb-3">
+            Sistema de apoyo en la gestión administrativa
+          </h4>
 
-
-    <section className={`vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col-sm-6 row align-content-around">
-            <div>
-              <div className="d-flex justify-content-center">
-                <img
-                  src={ssmso_logo}
-                  alt="SSMSO-LOGO"
-                  width={200}
-                  className="img-fluid"
+          <p className="fs-09em mb-3">
+            Servicio de Salud Metropolitano Sur Oriente
+          </p>
+          <Button onClick={handleEnviar} disabled={loading == true} className={`btn btn-primary text-center mb-2 border-0 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >Clave Única
+            {loading && (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="ms-1"
                 />
-              </div>
-              <h3 className="border-bottom text-center"> Sistema de apoyo en la gestión administrativa</h3>
-              <p className="fs-09em mb-1">
-                Servicio de Salud Metropolitano Sur Oriente
-              </p>
-              <div className="text-center">
-                <a href="/Login"
-                  className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                  Clave Única demo
-                </a>
-              </div>
-              {/* <div className="mb-4 text-center">
-                  <a
-                    href="/claveunica"
-                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                    Clave Única
-                  </a>
-                </div> */}
-            </div>
-            <div>
-              <p className="text-center fs-xs ">
-                Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
-              </p>
-            </div>
+              </>
+            )}
+          </Button>
 
-          </div>
-          <div className="col-sm-6 px-0 d-none d-sm-block">
-            <div className="d-flex position-absolute mx-5 w-25">
-              <div className="text-bg-primary p-1 flex-grow-1"></div>
-              <div className="text-bg-danger p-1 flex-grow-1 w-25"></div>
-            </div>
-            <div className={` ${isDarkMode ? "bg-color-dark" : "bg-color"} position-values-1`}>
-              <img
-                src={ondas}
-                alt="ondas"
-                width={200}
-                className="img-fluid"
-              />
-            </div>
-            <div className={`w-100 vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"} d-flex justify-content-center align-items-center`}>
-              <img
-                src={ssmso_background}
-                alt="SSMSO"
-                width={280}
-                className="img-fluid position-absolute z-1"
-              />
-            </div>
-            <div className={` ${isDarkMode ? "bg-color-dark" : "bg-color"} position-values-2`}>
-              <img
-                src={ondas}
-                alt="ondas"
-                width={200}
-                className="img-fluid"
-              />
-            </div>
+          {/* <a href="/Login" className={`btn  ${isDarkMode ? "btn-secondary" : "btn-primary"} mb-4`}>
+            Clave Única demo
+          </a> */}
 
-          </div>
+          <footer className="mt-auto fs-05em m-4">
+            Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
+          </footer>
+        </div>
+        <div className={`mt-md-0 text-center w-100 h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>
+          <img
+            src={ondas}
+            alt="ondas"
+            width={200}
+            className="img-fluid position-values-1 d-none d-md-block"
+          />
+          <img
+            src={ssmso_background}
+            width={280}
+            alt="Imagen de Fondo"
+            className="img-fluid rounded position-relative z-1"
+          />
+          <img
+            src={ondas}
+            alt="ondas"
+            width={200}
+            className="img-fluid position-values-2 d-none d-md-block"
+          />
         </div>
       </div>
-    </section>
+    </div >
 
 
   );
@@ -164,5 +105,4 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-  loginClaveUnica,
 })(ClaveUnica);

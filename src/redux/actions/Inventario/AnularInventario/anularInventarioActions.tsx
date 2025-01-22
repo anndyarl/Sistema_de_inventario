@@ -21,7 +21,7 @@ export const anularInventarioActions = (AF_CLAVE: string) => async (dispatch: Di
     dispatch({ type: ANULAR_INVENTARIO_REQUEST });
 
     try {
-      const res = await axios.get(`/api_inv/api/inventario/AnulaInventario?AF_CLAVE=${AF_CLAVE}`, config);
+      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/AnulaInventario?AF_CLAVE=${AF_CLAVE}`, config);
 
       if (res.status === 200) {
         dispatch({

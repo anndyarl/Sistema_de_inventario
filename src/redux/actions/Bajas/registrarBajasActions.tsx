@@ -21,7 +21,7 @@ export const registrarBajasActions = (activos: { aF_CLAVE: number }[]) => async 
     dispatch({ type: REGISTRAR_BAJAS_REQUEST });
 
     try {
-      const res = await axios.post("/api_inv/api/inventario/CrearBajasManual", body, config);
+      const res = await axios.post("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/CrearBajasManual", body, config);
 
       if (res.status === 200) {
         dispatch({

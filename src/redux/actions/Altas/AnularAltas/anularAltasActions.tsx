@@ -21,7 +21,7 @@ export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (di
     dispatch({ type: ANULAR_ALTAS_REQUEST });
 
     try {
-      const res = await axios.post(`/api_inv/api/inventario/AnularAltas`, body, config);
+      const res = await axios.post(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/AnularAltas`, body, config);
 
       if (res.status === 200) {
         dispatch({

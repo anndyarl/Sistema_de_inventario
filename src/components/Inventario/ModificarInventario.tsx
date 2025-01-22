@@ -175,7 +175,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [showInput, setShowInput] = useState(false);
   // Asegúrate de que el array tiene datos
-  const index = 0; // Cambia esto al índice que desees
   //-------------------------Formulario---------------------------//
   // Campos principales
   // const fechaFactura = datosInventarioCompleto[index]?.aF_FECHAFAC
@@ -419,18 +418,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (
-      typeof elementoSeleccionado === "object" &&
-      elementoSeleccionado !== null
-    ) {
+    if (typeof elementoSeleccionado === "object" && elementoSeleccionado !== null) {
       const estableEspecie = (elementoSeleccionado as ListaEspecie).estabL_CORR;
       const codigoEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO;
-      const nombreEspecie = `${(elementoSeleccionado as ListaEspecie).nombrE_ESP
-        }`;
-      const descripcionEspecie =
-        (elementoSeleccionado as ListaEspecie).esP_CODIGO +
-        " | " +
-        `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
+      const nombreEspecie = `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
+      const descripcionEspecie = (elementoSeleccionado as ListaEspecie).esP_CODIGO + " | " + `${(elementoSeleccionado as ListaEspecie).nombrE_ESP}`;
       // Actualiza tanto el estado 'Especies' como el estado 'Cuenta.especie'
       setEspecies({
         estableEspecie,
@@ -502,7 +494,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   };
   const handleValidar = () => {
-    console.log("campos", Inventario);
+    console.log("campos", JSON.stringify(Inventario, null, 2));
     if (validate()) {
       Swal.fire({
         icon: "info",
@@ -1201,9 +1193,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 };
 
 const mapStateToProps = (state: RootState) => ({
-  comboOrigen: state.origenPresupuestoReducer.comboOrigen,
+  comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
-  comboModalidad: state.modalidadCompraReducer.comboModalidad,
+  comboModalidad: state.comboModalidadCompraReducer.comboModalidad,
   comboCuenta: state.comboCuentaReducer.comboCuenta,
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboDetalle: state.detallesReducer.comboDetalle,

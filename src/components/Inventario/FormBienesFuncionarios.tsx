@@ -64,7 +64,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   const [isDraggingComprobante, setIsDraggingComprobante] = useState(false);
   const [isDraggingAutorizacion, setIsDraggingAutorizacion] = useState(false);
   const [error, setError] = useState<Partial<FuncionarioProps> & Partial<CuentaProps> & {}>({});
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  // const [loading, setLoading] = useState(false); // Estado para controlar la carga
 
   const [Funcionario, setFuncionario] = useState<FuncionarioProps>({
     rutFuncionario: "",
@@ -146,12 +146,12 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
       tempErrors.rutFuncionario = "El rut del funcionario es obligatorio.";
     else if (!validate(Funcionario.rutFuncionario)) {
       tempErrors.rutFuncionario = "El rut es incorrecto";
-      console.log(validate(Funcionario.rutFuncionario));
+      // console.log(validate(Funcionario.rutFuncionario));
     }
     if (!Funcionario.servicio)
       tempErrors.servicio = "El Servicio es obligatoria.";
     if (!Funcionario.dependencia)
-      tempErrors.dependencia = "La dependencia es obligatoria.";
+      tempErrors.dependencia = "La Dependencia es obligatoria.";
     // Validación de archivos: autorizacion
     if (!selectedFileAutorizacion) {
       tempErrors.autorizacion = "La autorización es obligatoria.";
@@ -242,7 +242,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
         }
       });
       if (result.isConfirmed) {
-        setLoading(true);
+        // setLoading(true);
         if (selectedFileComprobante && selectedFileAutorizacion) {
           const resultado = await registrarBienFuncionarioActions(
             Funcionario.rutFuncionario || "",
@@ -263,7 +263,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                 popup: "custom-border", // Clase personalizada para el borde
               }
             });
-            setLoading(false);
+            // setLoading(false);
           } else {
             Swal.fire({
               icon: "error",
@@ -276,7 +276,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                 popup: "custom-border", // Clase personalizada para el borde
               }
             });
-            setLoading(false);
+            // setLoading(false);
           }
         } else {
           setError({
@@ -284,7 +284,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
             comprobanteDePago: selectedFileComprobante ? "" : "El comprobante de pago es obligatorio.",
             autorizacion: selectedFileAutorizacion ? "" : "La autorización es obligatoria.",
           });
-          setLoading(false);
+          // setLoading(false);
         }
         dispatch(setRutBienesFuncionarioActions(""));
         dispatch(setServicioBienesFuncionarioActions(0));

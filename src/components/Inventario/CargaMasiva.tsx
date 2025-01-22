@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import Layout from "../../containers/hocs/layout/Layout";
-import { Download, FileEarmarkArrowDown, FileEarmarkExcel } from "react-bootstrap-icons";
+import { FileEarmarkArrowDown } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -17,7 +17,7 @@ const CargaMasiva: React.FC<AdjuntoProps> = ({ isDarkMode }) => {
   const [selectedArchivoExcel, setSelectedArchivoExcel] = useState<File | null>(null);
   const [isDraggingAutorizacion, setIsDraggingAutorizacion] = useState(false);
   const [error, setError] = useState<Partial<AdjuntoProps> & {}>({});
-  const [Adjunto, setAdjunto] = useState({ archivoExcel: "" });
+  const [__, setAdjunto] = useState({ archivoExcel: "" });
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     const allowedTypes = [
@@ -85,7 +85,7 @@ const CargaMasiva: React.FC<AdjuntoProps> = ({ isDarkMode }) => {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      console.log("archivo excel", Adjunto);
+      // console.log("archivo excel", Adjunto);
 
       // const resultado = await cargaMasivaActions(Adjunto.file);
 

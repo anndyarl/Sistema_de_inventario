@@ -3,94 +3,68 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
-  CLAVE_UNICA_REQUEST,
-  CLAVE_UNICA_SUCCESS,
-  CLAVE_UNICA_FAIL,
   SET_TOKEN,
   LOGOUT,
 
 } from './types';
 import { Dispatch } from 'redux';
-import { DatosPersona } from "../../interfaces"
-import { persistor } from '../../../store';
-
 
 export const login = (usuario: string, password: string) => async (dispatch: Dispatch) => {
-
+  // Configuración de los headers
   const config = {
     headers: {
       'Content-Type': 'application/json',
     },
   };
 
+  // Cuerpo de la solicitud
   const body = JSON.stringify({
     usuario,
     password,
   });
+
+  // Dispatch de inicio de solicitud
   dispatch({ type: LOGIN_REQUEST });
 
   try {
-    const res = await axios.post('/api_inv/api/data/Login', body, config);
-
-    // console.log('Respuesta del servidor:', res);
-
+    // Realizar la solicitud POST a la API
+    const res = await axios.post('https://sidra.ssmso.cl/api_erp_inv_qa/api/data/Login', body, config);
+    // Validar si la respuesta es exitosa
     if (res.status === 200) {
-
       const token = res.data.access_token;
+
       if (token) {
+        // Si se obtiene el token, realizar los dispatch correspondientes
         dispatch({ type: LOGIN_SUCCESS, payload: token });
         dispatch({ type: SET_TOKEN, payload: token });
-
       } else {
-        // console.error('Token no encontrado en la respuesta del servidor');
-        dispatch({ type: LOGIN_FAIL, payload: { error: 'Token no encontrado en la respuesta del servidor' } });
-
+        // Si no se encuentra el token, manejar el error
+        dispatch({
+          type: LOGIN_FAIL,
+          payload: { error: 'Token no encontrado en la respuesta del servidor' },
+        });
       }
     } else {
-      // console.error('Error en la respuesta del servidor:', res.status);
-      dispatch({ type: LOGIN_FAIL, payload: { error: 'Error en la respuesta del servidor' } });
+      // Si la respuesta no es 200, manejar el error
+      dispatch({
+        type: LOGIN_FAIL,
+        payload: { error: `Error en la respuesta del servidor: ${res.status}` },
+      });
     }
-  } catch (err) {
-    // console.error('Error en la solicitud:', err);
-    dispatch({ type: LOGIN_FAIL, payload: { error: '500 (Internal Server Error)' } });
-  }
-};
-
-export const loginClaveUnica = (datosPersona: DatosPersona) => async (dispatch: Dispatch) => {
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-  dispatch({ type: CLAVE_UNICA_REQUEST });
-  try {
-
-    //Desarollo(aqui se obtiene el token)
-    const res = await axios.post('https://sidra.ssmso.cl/Wcf_ClaveUnica/?url_solicitud=http://localhost:44364/SSMSO_BIENESTAR/ClaveUnica/validarportal/', datosPersona, config);
-
-    //Producción sin parametros
-    //const res = await axios.post('https://sidra.ssmso.cl/Wcf_ClaveUnica/?url_solicitud=http://localhost:44364/SSMSO_BIENESTAR/ClaveUnica/validarportal/');
-
-    if (res.status === 200) {
-      dispatch({ type: CLAVE_UNICA_SUCCESS, payload: res.data });
-    } else {
-      // console.error('Error en la respuesta del servidor:', res.status);
-      dispatch({ type: CLAVE_UNICA_FAIL });
-    }
-  } catch (err) {
-    // console.error('Error en la solicitud:', err);
-    dispatch({ type: CLAVE_UNICA_FAIL });
+  } catch (err: any) {
+    // Manejo de errores en la solicitud
+    dispatch({
+      type: LOGIN_FAIL,
+      payload: { error: err.response?.data?.message || '500 (Internal Server Error)' },
+    });
   }
 };
 
 export const logout = () => async (dispatch: Dispatch): Promise<boolean> => {
-  // persistor.purge();
-  // persistor.flush();
   dispatch({ type: LOGOUT });
   return true;
 };
 
-// export const checkAuthStatus = () => (dispatch: Dispatch) => {
 //   const token = localStorage.getItem('token');
 
 //   if (token) {

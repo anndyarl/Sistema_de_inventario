@@ -20,7 +20,7 @@ export const obtenerAltasPorCorrActions = (altasCorr: number) => async (dispatch
     dispatch({ type: OBTENER_ALTAS_REQUEST });
 
     try {
-      const res = await axios.get(`/api_inv/api/inventario/TraeAltas?altasCorr=${altasCorr}`, config);
+      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/TraeAltas?altasCorr=${altasCorr}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

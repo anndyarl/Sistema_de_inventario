@@ -26,7 +26,7 @@ export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => asyn
     dispatch({ type: REGISTRAR_EXCLUIDOS_REQUEST });
 
     try {
-      const res = await axios.post(`/api_inv/api/inventario/CreaBodegaExcluido`, body, config);
+      const res = await axios.post(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/CreaBodegaExcluido`, body, config);
 
       if (res.status === 200) {
         dispatch({

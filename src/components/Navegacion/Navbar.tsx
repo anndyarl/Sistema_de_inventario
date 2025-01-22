@@ -14,7 +14,6 @@ interface DarkMode {
 const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
     const [search, setSearch] = useState('');
     const navigate = useNavigate();
-
     const routes = [
         { name: 'Inventario', path: '/Inventario' },
         { name: 'Registrar Inventario', path: '/FormInventario', keywords: ['crear', 'registrar'] },
@@ -33,7 +32,6 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         { name: 'Bodega de exluidos', path: '/BodegaExcluidos' },
         { name: 'Donaciones', path: '/Donaciones' },
         { name: 'Informes', path: '/Informes' }
-
 
     ];
 

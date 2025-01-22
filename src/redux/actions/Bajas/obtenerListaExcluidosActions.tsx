@@ -20,7 +20,7 @@ export const obtenerListaExcluidosActions = (af_clave: string) => async (dispatc
     dispatch({ type: OBTENER_EXCLUIDOS_REQUEST });
 
     try {
-      const res = await axios.get(`/api_inv/api/inventario/TraeBodegaExcluido?af_clave=${af_clave}`, config);
+      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/TraeBodegaExcluido?af_clave=${af_clave}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

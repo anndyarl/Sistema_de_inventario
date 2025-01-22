@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect } from "react";
+import React, { ReactNode, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../../redux/reducers";
 import Sidebar from "../../../components/Navegacion/Sidebar";
@@ -12,40 +12,34 @@ import useAutoLogout from "../../../hooks/useAutoLogout";
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css"
 import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js"
 import { Container } from "react-bootstrap";
-import ssmso_negro from "../../../assets/img/ssmso_negro.png"
 
 interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
+  user: string | null;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode, user }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   //Se pasan parametros del tiempo en milisegundos en que se mostrará mensaje y cierre de sesion por inactividad
-  useAutoLogout(300000, 600000);
+  useAutoLogout(600000, 1200000);
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setIsDesktop(window.innerWidth >= 768);
-  //   };
-
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
-
+  //Si la autentificacon es falsa retorna a clave unica
   if (!isAuthenticated) {
     return <Navigate to="/" />;
   }
+  if (user) {
+    console.log("user", user);
+  }
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
     <>
-      <div className={`d-flex min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+      <div className={`d-flex min-vh-100  ${isDarkMode ? "darkModePrincipal" : ""}`}>
         {/* Background de Sidebar */}
-        <div className={`min-vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}>
+        <div className={`min-vh-100  ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left ${sidebarOpen ? "d-block" : "d-none"} d-md-block`}>
           <Sidebar />
         </div>
 
@@ -75,6 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.loginReducer.isAuthenticated,
+  user: state.validaPortalReducer.user,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 

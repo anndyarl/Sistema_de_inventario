@@ -29,7 +29,7 @@ export const registrarFormInventarioActions = (FormulariosCombinados: Record<str
             dispatch({ type: POST_FORMULARIO_REQUEST });
 
             try {
-                const response = await axios.post("/api_inv/api/inventario/crearActivoFijo", body, config);
+                const response = await axios.post("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/crearActivoFijo", body, config);
 
                 // Si el POST es exitoso
                 if (response.status === 200) {

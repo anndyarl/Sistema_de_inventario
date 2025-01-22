@@ -18,7 +18,7 @@ const initialState: OrigenPresupuestoState = {
   error: null,
 };
 
-const origenPresupuestoReducer = (state = initialState, action: any): OrigenPresupuestoState => {
+const comboOrigenPresupuestoReducer = (state = initialState, action: any): OrigenPresupuestoState => {
   switch (action.type) {
     case ORIGEN_REQUEST:
       return {
@@ -43,4 +43,4 @@ const origenPresupuestoReducer = (state = initialState, action: any): OrigenPres
   }
 };
 
-export default origenPresupuestoReducer;
+export default comboOrigenPresupuestoReducer;

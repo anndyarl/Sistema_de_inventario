@@ -6,8 +6,8 @@ import loginReducer from "./auth/auth";
 //--------------------- Registro de Inventario ---------------------//
 // Formulario 1
 import obtenerRecepcionReducers from "./Inventario/RegistrarInventario/obtenerRecepcionReducers";
-import origenPresupuestoReducer from "./Inventario/Combos/comboOrigenReducers"; // Cambiar nombre a combo
-import modalidadCompraReducer from "./Inventario/Combos/comboModalidadReducers"; // Cambiar nombre a combo
+import comboOrigenPresupuestoReducer from "./Inventario/Combos/comboOrigenReducers";
+import comboModalidadCompraReducer from "./Inventario/Combos/comboModalidadReducers";
 import comboProveedorReducers from "./Inventario/Combos/comboProveedorReducers";
 
 // Formulario 2
@@ -22,7 +22,7 @@ import detallesReducer from "./Inventario/Combos/comboDetallesReducers";
 import datosActivoFijoReducers from "./Inventario/RegistrarInventario/datosActivoFijoReducers";
 
 //--------------------- Modificar Inventario ---------------------//
-import datosInventarioReducers from "./Inventario/ModificarInventario/datosInventarioReducer";
+// import datosInventarioReducers from "./Inventario/ModificarInventario/datosInventarioReducer";
 
 //--------------------- Anular Inventario ---------------------//
 import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
@@ -49,17 +49,21 @@ import comboDepartamentoReducer from "./Traslados/Combos/comboDepartamentoReduce
 import obtenerListaRematesReducers from "./Bajas/datosListaRematesReducers";
 import obtenerListaExcluidosReducers from "./Bajas/datosListaExcluidosReducers";
 import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerInventarioReducers";
+import validaPortalReducer from "./auth/validaPortalReducers";
+import respuestaReducer from "./Otros/respuestaReducer";
+
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
   // Autenticación
   loginReducer,
+  validaPortalReducer,
 
-  // Inventario
+  // Registro de Inventario
   // Formulario 1
   obtenerRecepcionReducers,
-  origenPresupuestoReducer, // Cambiar nombre a combo
-  modalidadCompraReducer, // Cambiar nombre a combo
+  comboOrigenPresupuestoReducer,
+  comboModalidadCompraReducer,
   comboProveedorReducers,
 
   // Formulario 2
@@ -102,6 +106,9 @@ const appReducer = combineReducers({
 
   // Modo Oscuro
   darkModeReducer,
+
+  //Pregunta/Respuesta IA
+  respuestaReducer
 });
 
 //--------------------- Root Reducer ---------------------//
@@ -109,15 +116,51 @@ const rootReducer = (state: any, action: any) => {
   if (action.type === "LOGOUT") {
     // Guarda el estado actual de darkModeReducer
     const { darkModeReducer } = state || {};
-
     // Reinicia el estado general a su valor inicial, preservando darkModeReducer
     state = {
-      darkModeReducer, // Mantén el estado de darkModeReducer     
+      darkModeReducer, // Mantiene el estado de darkModeReducer     
+    };
+  }
+  if (action.type === "LIMPIAR_DATA") {
+    //Se limpian todo los datos menos los listados aquí
+    const {
+      loginReducer,
+      comboOrigenPresupuestoReducer,
+      comboModalidadCompraReducer,
+      comboProveedorReducers,
+      comboServicioReducer,
+      comboCuentaReducer,
+      comboDependenciaReducer,
+      comboListadoDeEspeciesBien,
+      detallesReducer,
+      comboEstablecimientoReducer,
+      comboTrasladoServicioReducer,
+      comboTrasladoEspecieReducer,
+      comboDepartamentoReducer,
+      indicadoresReducers,
+      darkModeReducer,
+    } = state || {};
+
+    state = {
+      loginReducer,
+      comboOrigenPresupuestoReducer,
+      comboModalidadCompraReducer,
+      comboProveedorReducers,
+      comboServicioReducer,
+      comboCuentaReducer,
+      comboDependenciaReducer,
+      comboListadoDeEspeciesBien,
+      detallesReducer,
+      comboEstablecimientoReducer,
+      comboTrasladoServicioReducer,
+      comboTrasladoEspecieReducer,
+      comboDepartamentoReducer,
+      indicadoresReducers,
+      darkModeReducer,
     };
   }
   return appReducer(state, action);
 };
-
 
 //--------------------- Exportación ---------------------//
 export type RootState = ReturnType<typeof rootReducer>;

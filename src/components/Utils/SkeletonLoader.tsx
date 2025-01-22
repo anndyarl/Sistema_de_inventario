@@ -1,5 +1,4 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
 import SkeletonRow from './SkeletonRow'; // Importa el componente de fila
 import '../../styles/skeleton-loader.css'; // Importa los estilos
 import { RootState } from '../../store';

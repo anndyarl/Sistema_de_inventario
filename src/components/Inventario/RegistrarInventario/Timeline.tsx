@@ -16,7 +16,7 @@ const Timeline: React.FC<TimelineProps> = ({ Formulario_actual, isDarkMode }) =>
   return (
     //mapeamos el arreglo(formulario) en un indice pasa saber su posicion, con un nombre(formulario) para identificarlo
     <div className="timeline">
-      {formularios.map((formulario, index) => (
+      {formularios.map((_, index) => (
 
         <React.Fragment key={index}>
           {/* Icono del paso */}

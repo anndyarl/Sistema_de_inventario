@@ -27,7 +27,7 @@ export const modificarFormInventarioActions = (FormulariosCombinados: Record<str
     dispatch({ type: POST_FORMULARIO_REQUEST });
 
     try {
-      const response = await axios.post(`/api_inv/api/inventario/actualizaActivoFijo/`, body, config);
+      const response = await axios.post(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/actualizaActivoFijo/`, body, config);
 
       if (response.status === 200) {
         dispatch({

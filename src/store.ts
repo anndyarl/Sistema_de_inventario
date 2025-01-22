@@ -10,24 +10,31 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 const persistConfig = {
   key: 'root',
   storage,
+  //Se persisten todos los datos listado aquí
   whitelist: [
     'loginReducer',
+    'validaPortalReducer',
+    'darkModeReducer',
     'obtenerRecepcionReducers',
     'datosCuentaReducers',
     'datosActivoFijoReducers',
-    'origenPresupuestoReducer',
-    'modalidadCompraReducer',
+    'comboOrigenPresupuestoReducer',
+    'comboModalidadCompraReducer',
     'comboProveedorReducers',
     'comboServicioReducer',
     'comboDependenciaReducer',
     'comboListadoDeEspeciesBien',
     'comboCuentaReducer',
-    'datosBienesFuncionarioReducers',
-    'darkModeReducer',
+    'datosListaAltasReducers',
+    'datosListaBajasReducers',
+    'obtenerListaRematesReducers',
+    'obtenerListaExcluidosReducers',
+    'datosBienesFuncionarioReducers',  
     'comboEstablecimientoReducer',
     'comboTrasladoServicioReducer',
     'comboTrasladoEspecieReducer',
-    'comboDepartamentoReducer',]
+    'comboDepartamentoReducer',    
+  ]
 };
 
 // Reducer persistente

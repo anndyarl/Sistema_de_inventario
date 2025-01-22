@@ -1,15 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Form, Modal } from "react-bootstrap";
+import { Pagination, Button, Form, Modal, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { RootState } from "../../store";
-import { registrarBajasActions } from "../../redux/actions/Bajas/registrarBajasActions";
-import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions";
-import MenuBajas from "../Menus/MenuBajas";
-import { Plus } from "react-bootstrap-icons";
+import { RootState } from "../../store.ts";
+import { registrarBajasActions } from "../../redux/actions/Bajas/registrarBajasActions.tsx";
+import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions.tsx";
+import MenuBajas from "../Menus/MenuBajas.tsx";
 import "../../styles/Layout.css";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 
@@ -42,7 +41,7 @@ interface DatosBajas {
   isDarkMode: boolean;
 }
 
-const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, registrarBajasActions, token, isDarkMode }) => {
+const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, registrarBajasActions, token, isDarkMode }) => {
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [error, setError] = useState<Partial<ListaBajas>>({});
@@ -182,7 +181,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
-    console.log("indice", index);
+    // console.log("indice", index);
 
   };
 
@@ -349,6 +348,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
+                  <th scope="col"></th>
                   <th scope="col">Codigo</th>
                   <th scope="col">N° Inventario</th>
                   <th scope="col">Vidal últil</th>
@@ -359,7 +359,7 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                 </tr>
               </thead>
               <tbody>
-                {elementosActuales.map((ListaBajas, index) => {
+                {elementosActuales.map((Lista, index) => {
                   indexReal = indicePrimerElemento + index; // Índice real basado en la página
                   return (
                     <tr key={indexReal}>
@@ -370,13 +370,13 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                       </td>
-                      <td>{ListaBajas.bajaS_CORR}</td>
-                      <td>{ListaBajas.aF_CLAVE}</td>
-                      <td>{ListaBajas.vutiL_RESTANTE}</td>
-                      <td>{ListaBajas.vutiL_AGNOS}</td>
-                      <td>{ListaBajas.ncuenta}</td>
-                      <td>{ListaBajas.deP_ACUMULADA}</td>
-                      <td>{ListaBajas.especie}</td>
+                      <td>{Lista.bajaS_CORR}</td>
+                      <td>{Lista.aF_CLAVE}</td>
+                      <td>{Lista.vutiL_RESTANTE}</td>
+                      <td>{Lista.vutiL_AGNOS}</td>
+                      <td>{Lista.ncuenta}</td>
+                      <td>{Lista.deP_ACUMULADA}</td>
+                      <td>{Lista.especie}</td>
                     </tr>
                   );
                 })}
@@ -429,10 +429,43 @@ const RegistrarBajas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, r
             </Modal.Header>
             <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
               <form onSubmit={handleSubmit}>
-                <div className="d-flex justify-content-end">
+                {/* <div className="d-flex justify-content-end">
                   <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Enviar a Bodega
                   </Button>
+                </div> */}
+                <div className="d-flex justify-content-end">
+                  {filasSeleccionada.length > 0 ? (
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                      disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                    >
+                      {loadingRegistro ? (
+                        <>
+                          {" Enviando a Bodega... "}
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="me-2"
+                          />
+
+                        </>
+                      ) : (
+                        <>
+                          Enviar a Bodega{" "}
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
+                      No hay bajas seleccionadas para registrar
+                    </strong>
+                  )}
                 </div>
                 <div className="mb-1">
                   <label htmlFor="nresolucion" className="fw-semibold">
@@ -504,4 +537,4 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   listaBajasActions,
   registrarBajasActions
-})(RegistrarBajas);
+})(BienesBaja);

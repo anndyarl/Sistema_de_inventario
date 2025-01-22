@@ -3,11 +3,10 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [react()],
- 
   server: {
-    proxy: {
-     
+    proxy: {     
       '/api_inv': {
         target: 'https://sidra.ssmso.cl/api_erp_inv_qa',// Utiliza process.env para acceder a la variable de entorno
        changeOrigin: true, // Cambia el origen del host en el encabezado de la solicitud
@@ -34,6 +33,9 @@ export default defineConfig({
   build: {
     sourcemap: true,  // Habilitar source maps en la construcción
    
+  },
+  define: {
+    'process.env': process.env,
   },
  
 });

@@ -327,7 +327,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
                   </tr>
                 </thead>
                 <tbody>
-                  {elementosActuales.map((ListaRemates, index) => {
+                  {elementosActuales.map((Lista, index) => {
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={indexReal}>
@@ -338,17 +338,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td>{ListaRemates.aF_CLAVE}</td>
-                        <td>{ListaRemates.bajaS_CORR}</td>
-                        <td>{ListaRemates.especie}</td>
-                        <td>{ListaRemates.vutiL_RESTANTE}</td>
-                        <td>{ListaRemates.vutiL_AGNOS}</td>
-                        <td>{ListaRemates.nresolucion}</td>
-                        <td>{ListaRemates.observaciones}</td>
-                        <td>{ListaRemates.deP_ACUMULADA}</td>
-                        <td>{ListaRemates.ncuenta}</td>
-                        <td>{ListaRemates.estado}</td>
-                        <td>{ListaRemates.fechA_REMATES}</td>
+                        <td>{Lista.aF_CLAVE}</td>
+                        <td>{Lista.bajaS_CORR}</td>
+                        <td>{Lista.especie}</td>
+                        <td>{Lista.vutiL_RESTANTE}</td>
+                        <td>{Lista.vutiL_AGNOS}</td>
+                        <td>{Lista.nresolucion}</td>
+                        <td>{Lista.observaciones}</td>
+                        <td>{Lista.deP_ACUMULADA}</td>
+                        <td>{Lista.ncuenta}</td>
+                        <td>{Lista.estado}</td>
+                        <td>{Lista.fechA_REMATES}</td>
                       </tr>
                     );
                   })}
@@ -356,7 +356,6 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
               </table>
             </div>
           )}
-
 
           {/* Paginador */}
           <Pagination className="d-flex justify-content-end">

@@ -2,7 +2,7 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
-import { BoxSeam, DatabaseAdd, PencilFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
+import { BoxSeam, PencilFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -29,7 +29,7 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
     <Layout>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
-          <div className="container">
+          <div className="container mt-2">
             <Row className="g-1">
               <Col lg={3} md={6} sm={12}>
                 <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
@@ -49,24 +49,6 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
                   </NavLink>
                 </div>
               </Col>
-              {/* <Col lg={3} md={6} sm={12}>
-                <Card className="text-center bg-color text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column">
-                  <div className="mb-3">
-                    <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Modificar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Encuentre y modifique el inventario existente.
-                  </Card.Text>
-                  <NavLink
-                    key="ModificarInventario"
-                    to="/ModificarInventario"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Modificar
-                  </NavLink>
-                </Card>
-              </Col> */}
               <Col lg={3} md={6} sm={12}>
                 <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
@@ -104,7 +86,7 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
                   </NavLink>
                 </div>
               </Col>
-              <Col lg={3} md={6} sm={12}>
+              {/* <Col lg={3} md={6} sm={12}>
                 <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
                     <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
@@ -121,7 +103,7 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
                     Nuevo
                   </NavLink>
                 </div>
-              </Col>
+              </Col> */}
               <Col lg={3} md={6} sm={12}>
                 <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
                   <div className="mb-3">
@@ -194,12 +176,30 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
                   </NavLink>
                 </div>
               </Col>
+              <Col lg={3} md={6} sm={12}>
+                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
+                  <div className="mb-3">
+                    <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                  </div>
+                  <Card.Title className="fw-bold">Modificar Inventario</Card.Title>
+                  <Card.Text className="fw-light flex-grow-1 mb-2">
+                    Encuentre y modifique el inventario existente.
+                  </Card.Text>
+                  <NavLink
+                    key="ModificarInventario"
+                    to="/ModificarInventario"
+                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
+                  >
+                    Modificar
+                  </NavLink>
+                </div>
+              </Col>
             </Row>
           </div>
 
         </motion.div>
       </AnimatePresence>
-    </Layout >
+    </ Layout>
   );
 };
 

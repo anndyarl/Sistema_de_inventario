@@ -1,26 +1,18 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Box, ArrowsMove, PlusCircle, DashCircle, Heart, FileText } from 'react-bootstrap-icons';
+import { Box, ArrowsMove, PlusCircle, DashCircle, FileText } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css"
-import SSMSO_LOGO from "../../assets/img/SSMSO-LOGO.png"
-import ondas from "../../assets/img/ondas.png"
-import { RootState } from '../../store';
-import { connect } from 'react-redux';
-// import Logout from './Logout';
-// Function to combine classes conditionally
+
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(' ');
 };
-
 export interface NavItem {
   name: string;
   href: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
-interface Props {
-  isDarkMode: boolean;
-}
-const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
+
+const Sidebar: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
 
   const navigation: NavItem[] = [
@@ -28,9 +20,9 @@ const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
     { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
     { name: 'Altas', href: '/Altas', icon: PlusCircle },
     { name: 'Bajas', href: '/Bajas', icon: DashCircle },
-    { name: 'Donaciones', href: '/Donaciones', icon: Heart },
+    // { name: 'Donaciones', href: '/Donaciones', icon: Heart },
     { name: 'Informes', href: '/Informes', icon: FileText },
-    // { name: 'Configuración', href: '/Configuracion', icon: Gear }
+    // { name: 'IA', href: '/IA', icon: ChatDots }
   ];
 
   const handleClick = (name: string) => {
@@ -48,12 +40,7 @@ const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
         <div className='m-4'>
           <NavLink className="navbar-brand fw-semibold fs-5" to="/Inicio">SSMSO</NavLink>
         </div>
-        {/* <img
-          src={SSMSO_LOGO}
-          alt="SSMSO-LOGO"
-          width={150}
-          className="img-fluid"
-        /> */}
+        {/* <div className='img-ondas'> </div> */}
       </div>
       {
         navigation.map((item) => (
@@ -75,22 +62,18 @@ const Sidebar: React.FC<Props> = ({ isDarkMode }) => {
 
         ))
       }
-      <div className="position-values-3 d-none d-lg-block">
+      {/* <div className="position-values-3 d-none d-lg-block">
         <img
           src={ondas}
           alt="ondas"
           width={200}
-          className="img-fluid"
+          className="img-fluid d-none d-lg-block"
         />
-      </div>
+      </div> */}
     </nav >
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  isDarkMode: state.darkModeReducer.isDarkMode
-});
 
-export default connect(mapStateToProps, {
-})(Sidebar);
+export default (Sidebar);
 

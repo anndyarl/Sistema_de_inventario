@@ -34,7 +34,7 @@ export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_COR
         dispatch({ type: POST_FORMULARIO_BIENES_REQUEST });
 
         try {
-            const response = await axios.post("/api_inv/api/inventario/crearBienFuncionario", formBienesFormulario, config);
+            const response = await axios.post("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/crearBienFuncionario", formBienesFormulario, config);
 
             if (response.status === 200) {
                 dispatch({
@@ -77,7 +77,7 @@ export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_COR
 //         const AUTORIZACION = String(IMAGEN_AUTORIZACION.name);
 
 //         // Define la URL con los parámetros query
-//         const url = `/api_inv/api/inventario/crearBienFuncionario?RUT_FUNCIONARIO=${RUT_FUNCIONARIO}&DEP_CORR=${DEP_CORR}&SER_CORR=${SER_CORR}&COMPROBANTE_PAGO=${COMPROBANTE_PAGO}&AUTORIZACION=${AUTORIZACION}`;
+//         const url = `https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/crearBienFuncionario?RUT_FUNCIONARIO=${RUT_FUNCIONARIO}&DEP_CORR=${DEP_CORR}&SER_CORR=${SER_CORR}&COMPROBANTE_PAGO=${COMPROBANTE_PAGO}&AUTORIZACION=${AUTORIZACION}`;
 
 //         const formBienesFormulario = new FormData();
 
