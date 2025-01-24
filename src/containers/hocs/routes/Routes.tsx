@@ -37,8 +37,9 @@ import FirmarAltas from '../../../components/Altas/FirmarAltas/FirmarAltas';
 import BienesRematados from '../../../components/Bajas/BienesRematados';
 import ValidaPortal from '../../pages/ValidaPortal';
 import Denegado from '../../errors/Denegado';
-import ListadoGeneral from '../../../components/Bajas/listadoGeneral';
-import IA from '../../pages/IA';
+import ListadoGeneral from '../../../components/Bajas/ListadoGeneral';
+
+
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -94,7 +95,6 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Donaciones" element={<Donaciones />} />
                 <Route path="/Informes" element={<Informes />} />
                 <Route path="/Configuracion" element={<Configuracion />} />
-                <Route path="/IA" element={<IA />} />
             </Routes>
         </AnimatePresence>
     );

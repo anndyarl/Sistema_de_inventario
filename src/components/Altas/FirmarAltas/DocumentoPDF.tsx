@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
 });
 const fecha = Date.now();
 const fechaHoy = new Date(fecha);
-const DocumentoPDF = ({ row, firma, fechaDescarga }: { row: ListaBajas; firma?: string, fechaDescarga: string | undefined }) => (
+const DocumentoPDF = ({ row, firma, fechaDescarga, AltaInventario }: { row: ListaBajas; firma?: string, fechaDescarga: string | undefined, AltaInventario: any }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -141,47 +141,65 @@ const DocumentoPDF = ({ row, firma, fechaDescarga }: { row: ListaBajas; firma?: 
                     <Text style={styles.tableCell}>{row.deP_ACUMULADA}</Text>
                 </View>
             </View>
-
             {/* Área de firmas */}
             <View style={styles.firmaContainer}>
-                {/* Firma del empleador */}
-                <View style={styles.firmaBox}>
-                    {firma ? (
-                        <Image
-                            src={firma}
-                            style={{
-                                position: 'absolute',
-                                bottom: 35,
-                                width: 150,
-                                height: 50,
-                            }}
-                        />
-                    ) : (
+                {/* Firma Unidad Inventario */}
+                {AltaInventario.ajustarFirma && (
+                    <View style={styles.firmaBox}>
+                        {firma ? (
+                            <Image
+                                src={firma}
+                                style={{
+                                    position: 'absolute',
+                                    bottom: 35,
+                                    width: 150,
+                                    height: 50,
+                                }}
+                            />
+                        ) : (
+                            <Text
+                                style={{
+                                    position: 'absolute',
+                                    bottom: 35,
+                                }}>
+                                Falta Visar Documento
+                            </Text>
+                        )}
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>Andy Riquelme</Text>
+                        <Text style={styles.firmaLabel}>Unidad Inventario</Text>
+                    </View>
+                )}
 
+                {/* Firma Unidad Finanzas */}
+                {AltaInventario.finanzas && (
+                    <View style={styles.firmaBox}>
                         <Text
                             style={{
                                 position: 'absolute',
                                 bottom: 35,
                             }}>Falta Visar Documento
                         </Text>
-                    )}
-                    <Text>__________________________</Text>
-                    <Text style={styles.firmaLabel}>Andy Riquelme</Text>
-                    <Text style={styles.firmaLabel}>Unidad Inventarios</Text>
-                </View>
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>Rodrigo Toledo</Text>
+                        <Text style={styles.firmaLabel}>Unidad de Finanzas</Text>
+                    </View>
+                )}
 
-                {/* Firma del trabajador */}
-                <View style={styles.firmaBox}>
-                    <Text
-                        style={{
-                            position: 'absolute',
-                            bottom: 35,
-                        }}>Falta Visar Documento
-                    </Text>
-                    <Text>__________________________</Text>
-                    <Text style={styles.firmaLabel}>Rodrigo Toledo</Text>
-                    <Text style={styles.firmaLabel}>Departamento de Informática</Text>
-                </View>
+                {/* Firma Unidad Demandante */}
+                {AltaInventario.administrativa && (
+                    <View style={styles.firmaBox}>
+                        <Text
+                            style={{
+                                position: 'absolute',
+                                bottom: 35,
+                            }}>Falta Visar Documento
+                        </Text>
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>Rodrigo Toledo</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.unidadAdministrativa}</Text>
+                    </View>
+                )}
             </View>
             <Text style={styles.line}></Text>
             <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text>

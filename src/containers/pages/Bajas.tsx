@@ -2,7 +2,7 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { Boxes, BoxSeamFill, DashCircle, Exclude, PlusCircle } from "react-bootstrap-icons";
+import { Boxes, BoxSeamFill, DashCircle, Exclude } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../store";
 import { connect } from "react-redux";

@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Pagination, Button, Form, Modal, Col, Row } from "react-bootstrap";
+import { Pagination, Form, Modal, Col, Row, Collapse } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import SignatureCanvas from 'react-signature-canvas';
-import { Pencil } from "react-bootstrap-icons";
+
 import { pdf } from "@react-pdf/renderer";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
@@ -12,7 +12,7 @@ import { listaBajasActions } from "../../../redux/actions/Bajas/listaBajasAction
 import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import DocumentoPDF from './DocumentoPDF';
-import { BlobProvider, PDFDownloadLink } from '@react-pdf/renderer';
+import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { ORIGEN } from "../../Inventario/RegistrarInventario/DatosInventario";
 
 export interface ListaBajas {
@@ -39,45 +39,47 @@ interface DatosBajas {
     token: string | null;
     isDarkMode: boolean;
     comboOrigen: ORIGEN[];
+
 }
 
 const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, token, isDarkMode, comboOrigen }) => {
     const [loading, setLoading] = useState(false);
     const [_, setError] = useState<Partial<ListaBajas>>({});
-    const [loadingRegistro, setLoadingRegistro] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(true);
+    const [__, setIsDisabled] = useState(true);
+
+    const [isExpanded, setIsExpanded] = useState(false);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
-    const [filaActiva, setFilaActiva] = useState<ListaBajas | null>(null);
+    // const [filaActiva, setFilaActiva] = useState<ListaBajas | null>(null);
     //------------Fin Modal----------//
     const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 10;
     const sigCanvas = useRef<SignatureCanvas>(null);
-    const [isSigned, setIsSigned] = useState(false);
+    // const [isSigned, setIsSigned] = useState(false);
     const [signatureImage, setSignatureImage] = useState<string | undefined>();
     const [fechaDescarga, setfechaDescarga] = useState<string | undefined>();
 
-    const clearSignature = () => {
-        if (sigCanvas.current) {
-            sigCanvas.current.clear();
-            setIsSigned(false);
-        }
-    };
+    // const clearSignature = () => {
+    //     if (sigCanvas.current) {
+    //         sigCanvas.current.clear();
+    //         setIsSigned(false);
+    //     }
+    // };
 
-    const handleSignatureEnd = () => {
-        setIsSigned(sigCanvas.current ? !sigCanvas.current.isEmpty() : false);
-    };
+    // const handleSignatureEnd = () => {
+    //     setIsSigned(sigCanvas.current ? !sigCanvas.current.isEmpty() : false);
+    // };
 
     const [AltaInventario, setAltaInventario] = useState({
-        unidadAdministrativa: "",
+        unidadAdministrativa: 0,
         ajustarFirma: false,
         titularInventario: false,
         subroganteInventario: false,
-        opcional1: false,
+        finanzas: false,
         titularFinanzas: false,
         subroganteFinanzas: false,
-        opcional2: false,
+        administrativa: false,
         titularDemandante: false,
         subroganteDemandante: false,
     });
@@ -100,15 +102,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
 
             // Si se desmarca "ajustarFirma", desmarcar también los otros checkboxes
             if (name === "ajustarFirma" && !checked) {
+                //Inicia cada seleccion desmarcada
                 updatedState.titularInventario = false;
                 updatedState.subroganteInventario = false;
-                updatedState.opcional1 = false;
-                updatedState.opcional2 = false;
+                updatedState.finanzas = false;
+                updatedState.administrativa = false;
                 updatedState.titularFinanzas = false;
                 updatedState.subroganteFinanzas = false;
                 updatedState.titularDemandante = false;
                 updatedState.subroganteDemandante = false;
                 setIsDisabled(true); // Deshabilitar los otros checkboxes
+                setIsExpanded(false);
             } else {
                 if (name === "titularInventario" && checked) {
                     updatedState.subroganteInventario = false;
@@ -117,10 +121,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                     updatedState.titularInventario = false;
                 }
                 setIsDisabled(false); // Habilitar los otros checkboxes
+                setIsExpanded(true);
             }
 
             // Si se desmarca "Opcional", desmarcar también los otros checkboxes
-            if (name === "opcional1" && !checked) {
+            if (name === "finanzas" && !checked) {
                 updatedState.titularFinanzas = false;
                 updatedState.subroganteFinanzas = false;
                 setIsDisabled(true); // Deshabilitar los otros checkboxes
@@ -135,7 +140,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
             }
 
             // Si se desmarca "Opcional", desmarcar también los otros checkboxes
-            if (name === "opcional2" && !checked) {
+            if (name === "administrativa" && !checked) {
                 updatedState.titularDemandante = false;
                 updatedState.subroganteDemandante = false;
                 setIsDisabled(true); // Deshabilitar los otros checkboxes
@@ -203,7 +208,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
             prevSeleccionadas.filter((fila) => fila !== index.toString())
         );
         setMostrarModal(null); //Cierra modal del indice seleccionado
-        setFilaActiva(null); // Limpia la fila activa
+        // setFilaActiva(null); // Limpia la fila activa
         setSignatureImage("");
     };
 
@@ -216,17 +221,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
     const totalPaginas = Math.ceil(listaBajas.length / elementosPorPagina);
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
-    const handleDescargarPDF = async (fila: any) => {
-        const fecha = Date.now();
-        const fechaDescarga = new Date(fecha).toLocaleString('es-CL');
-        setfechaDescarga(fechaDescarga);// Asigna la imagen al estado para poder renderizarlo
-        const blob = await pdf(<DocumentoPDF row={fila} firma={signatureImage} fechaDescarga={fechaDescarga} />).toBlob();
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Firma_Alta_${fila?.aF_CLAVE}.pdf`;
+    // const handleDescargarPDF = async (fila: any) => {
+    //     const fecha = Date.now();
+    //     const fechaDescarga = new Date(fecha).toLocaleString('es-CL');
+    //     setfechaDescarga(fechaDescarga);// Asigna la imagen al estado para poder renderizarlo
+    //     const blob = await pdf(<DocumentoPDF row={fila} firma={signatureImage} fechaDescarga={fechaDescarga} AltaInventario={AltaInventario} />).toBlob();
+    //     const link = document.createElement("a");
+    //     link.href = URL.createObjectURL(blob);
+    //     link.download = `Firma_Alta_${fila?.aF_CLAVE}.pdf`;
 
-        link.click();
-    };
+    //     link.click();
+    // };
     const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
     return (
         <Layout>
@@ -301,117 +306,140 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                         </Modal.Header>
                         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <form onSubmit={handleSubmit}>
-
-                                <div className="d-flex bg-secondary w-50 text-white justify-content-around rounded p-1 mb-2">
-                                    <p className="ms-2 fw-semibold">Seleccione quienes firmarán el alta</p>
+                                <div className="d-flex align-items-center  rounded p-2 mb-3 shadow-sm">
+                                    <p className="fw-semibold mb-0 me-3">
+                                        Ajustar firma:
+                                    </p>
                                     <Form.Check
                                         onChange={handleCheck}
                                         name="ajustarFirma"
                                         type="checkbox"
-                                        className="mx-3 rounded text-white"
+                                        className="form-switch"
                                         checked={AltaInventario.ajustarFirma}
+                                        label=""
                                     />
-
                                 </div>
-                                <Row className="m-1 p-3 rounded rounded-4 border">
-                                    {/* Ajustar Firma */}
-                                    <Col md={4}>
-                                        <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
-                                        <div className="d-flex">
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.ajustarFirma}
-                                                name="titularInventario"
-                                                type="checkbox"
-                                                checked={AltaInventario.titularInventario}
-                                            />
-                                            <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
-                                        </div>
-                                        <div className="d-flex">
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.ajustarFirma}
-                                                name="subroganteInventario"
-                                                type="checkbox"
-                                                checked={AltaInventario.subroganteInventario}
-                                            />
-                                            <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
-                                        </div>
-                                    </Col>
 
-                                    {/* Opcional1 */}
-                                    <Col md={4}>
-                                        <p className="border-bottom fw-semibold text-center">Unidad Finanzas</p>
-                                        <div className="d-flex">
-                                            <label htmlFor="opcional1" className="me-2">Opcional</label>
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.ajustarFirma}
-                                                name="opcional1"
-                                                type="checkbox"
-                                                checked={AltaInventario.opcional1}
-                                            />
-                                        </div>
-                                        <div className="d-flex">
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.opcional1}
-                                                name="titularFinanzas"
-                                                type="checkbox"
-                                                checked={AltaInventario.titularFinanzas}
-                                            />
-                                            <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
-                                        </div>
-                                        <div className="d-flex">
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.opcional1}
-                                                name="subroganteFinanzas"
-                                                type="checkbox"
-                                                checked={AltaInventario.subroganteFinanzas}
-                                            />
-                                            <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
-                                        </div>
-                                    </Col>
+                                <Collapse in={isExpanded} dimension="height">
+                                    <Row className="m-1 p-3 rounded rounded-4 border">
+                                        <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
+                                        {/* Ajustar Firma | Unidad Inventario */}
+                                        <Col md={4} >
+                                            <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.ajustarFirma}
+                                                    name="titularInventario"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.titularInventario}
+                                                />
+                                                <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                            </div>
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.ajustarFirma}
+                                                    name="subroganteInventario"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.subroganteInventario}
+                                                />
+                                                <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                            </div>
+                                        </Col>
 
-                                    {/* Opcional2 */}
-                                    <Col md={4}>
-                                        <p className="border-bottom fw-semibold text-center">Unidad Demandante</p>
-                                        <div className="d-flex">
-                                            <label htmlFor="opcional2" className="me-2">Opcional</label>
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.ajustarFirma}
-                                                name="opcional2"
-                                                type="checkbox"
-                                                checked={AltaInventario.opcional2}
-                                            />
-                                        </div>
-                                        <div className="d-flex">
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.opcional2}
-                                                name="titularDemandante"
-                                                type="checkbox"
-                                                checked={AltaInventario.titularDemandante}
-                                            />
-                                            <label htmlFor="titularDemandante" className="ms-2">Titular Demandante</label>
-                                        </div>
-                                        <div className="d-flex">
-                                            <Form.Check
-                                                onChange={handleCheck}
-                                                disabled={!AltaInventario.opcional2}
-                                                name="subroganteDemandante"
-                                                type="checkbox"
-                                                checked={AltaInventario.subroganteDemandante}
-                                            />
-                                            <label htmlFor="subroganteDemandante" className="ms-2">Subrogante Demandante</label>
-                                        </div>
-                                    </Col>
-                                </Row>
+                                        {/* Opcional1 | Unidad Finanzas*/}
+                                        <Col md={4}>
+                                            <p className="border-bottom fw-semibold text-center">Unidad Finanzas</p>
+                                            <div className="d-flex">
+                                                <label htmlFor="finanzas" className="me-2">Opcional</label>
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.ajustarFirma}
+                                                    name="finanzas"
+                                                    type="checkbox"
+                                                    className="form-switch"
+                                                    checked={AltaInventario.finanzas}
+                                                />
+                                            </div>
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.finanzas}
+                                                    name="titularFinanzas"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.titularFinanzas}
+                                                />
+                                                <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                            </div>
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.finanzas}
+                                                    name="subroganteFinanzas"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.subroganteFinanzas}
+                                                />
+                                                <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                            </div>
+                                        </Col>
 
-
-                                <BlobProvider document={<DocumentoPDF row={fila} firma={signatureImage} fechaDescarga={fechaDescarga} />}>
+                                        {/* Opcional2 | Unidad Administrativa */}
+                                        <Col md={4}>
+                                            <p className="border-bottom fw-semibold text-center">Unidad Administrativa</p>
+                                            <div className="d-flex">
+                                                <label htmlFor="administrativa" className="me-2">Opcional</label>
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.ajustarFirma}
+                                                    name="administrativa"
+                                                    type="checkbox"
+                                                    className="form-switch"
+                                                    checked={AltaInventario.administrativa}
+                                                />
+                                            </div>
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.administrativa}
+                                                    name="titularDemandante"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.titularDemandante}
+                                                />
+                                                <label htmlFor="titularDemandante" className="ms-2">Titular Demandante</label>
+                                            </div>
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.administrativa}
+                                                    name="subroganteDemandante"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.subroganteDemandante}
+                                                />
+                                                <label htmlFor="subroganteDemandante" className="ms-2">Subrogante Demandante</label>
+                                            </div>
+                                            <div className="mb-1">
+                                                <label className="fw-semibold">
+                                                    Unidad Administrativa
+                                                </label>
+                                                <select
+                                                    aria-label="unidadAdministrativa"
+                                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                    name="unidadAdministrativa"
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="">Seleccione un origen</option>
+                                                    {comboOrigen.map((traeOrigen) => (
+                                                        <option key={traeOrigen.codigo} value={traeOrigen.descripcion}>
+                                                            {traeOrigen.descripcion}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Collapse>
+                                <BlobProvider document={<DocumentoPDF row={fila} firma={signatureImage} fechaDescarga={fechaDescarga} AltaInventario={AltaInventario} />}>
                                     {({ url, loading }) =>
                                         loading ? (
                                             <p>Generando vista previa...</p>
@@ -431,8 +459,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                                         )
                                     }
                                 </BlobProvider>
-                                <div className="mb-3 ">
-                                    <label htmlFor="signature" className="fw-semibold">Ingrese su firma</label>
+                                {/* <div className="mb-3 "> */}
+                                {/* <label htmlFor="signature" className="fw-semibold">Ingrese su firma</label>
                                     <div className={`border ${isDarkMode ? "border-secondary" : "border-primary"} rounded p-2`}>
                                         <SignatureCanvas
                                             ref={sigCanvas}
@@ -443,10 +471,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                                             penColor={isDarkMode ? '#ffffff' : '#000000'}
                                             onEnd={handleSignatureEnd}
                                         />
-                                    </div>
-                                    {filaActiva && (
+                                    </div> */}
+                                {/* {filaActiva && (
                                         <PDFDownloadLink
-                                            document={<DocumentoPDF row={filaActiva} firma={signatureImage} fechaDescarga={fechaDescarga} />}
+                                            document={<DocumentoPDF row={filaActiva} firma={signatureImage} fechaDescarga={fechaDescarga} AltaInventario={AltaInventario} />}
                                             fileName={`Alta_${filaActiva?.aF_CLAVE}.pdf`}
                                         >
                                             {loading ? (
@@ -456,9 +484,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                                             )
                                             }
                                         </PDFDownloadLink>
-                                    )}
-                                    {/* {error.signature && <div className="text-danger">{error.signature}</div>} */}
-                                    <div className="mt-2 d-flex justify-content-between">
+                                    )} */}
+                                {/* {error.signature && <div className="text-danger">{error.signature}</div>} */}
+                                {/* <div className="mt-2 d-flex justify-content-between">
                                         <Button
                                             type="button"
                                             variant={isDarkMode ? "outline-secondary" : "outline-primary"}
@@ -472,13 +500,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                                             <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
                                             Firmar
                                         </Button>
-                                    </div>
-                                </div>
-                                <div className="d-flex justify-content-end mb-2">
+                                    </div> */}
+                                {/* </div> */}
+                                {/* <div className="d-flex justify-content-end mb-2">
                                     <button className="btn btn-primary" disabled onClick={() => handleDescargarPDF(fila)}>
                                         Descargar PDF
                                     </button>
-                                </div>
+                                </div> */}
                             </form>
                         </Modal.Body>
                     </Modal>
