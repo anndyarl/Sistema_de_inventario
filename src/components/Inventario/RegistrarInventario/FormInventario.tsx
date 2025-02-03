@@ -22,9 +22,9 @@ import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Invent
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
 import MenuInventario from "../../Menus/MenuInventario";
-import { comboOrigenPresupuestosActions } from "../../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
+import { comboTraeOrigenActions } from "../../../redux/actions/Inventario/Combos/comboTraeOrigenActions";
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -35,7 +35,7 @@ export interface FormInventario {
 interface FormInventarioProps {
   //Trae props combos de Datos_inventario(formulario 1)
   comboOrigen: ORIGEN[];
-  comboOrigenPresupuestosActions: () => void;
+  comboTraeOrigenActions: () => void;
   comboModalidad: MODALIDAD[];
 
   comboModalidadesActions: () => void;
@@ -71,7 +71,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   listaEspecie,
   comboDetalle,
   comboBien,
-  comboOrigenPresupuestosActions,
+  comboTraeOrigenActions,
   comboModalidadesActions,
   comboProveedorActions,
   comboCuentaActions,
@@ -97,7 +97,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
+      if (comboOrigen.length === 0) comboTraeOrigenActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
       if (comboServicio.length === 0) comboServicioActions();
       if (comboBien.length === 0) comboDetalleActions("0");
@@ -107,7 +107,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     //Carga combo bien con valor 0
     comboDetalleActions("0");
   }, [
-    comboOrigenPresupuestosActions,
+    comboTraeOrigenActions,
     comboModalidadesActions,
     comboServicioActions,
     comboDetalleActions,
@@ -246,7 +246,7 @@ export default connect(mapStateToProps, {
   comboListadoDeEspeciesBienActions,
   comboDetalleActions,
   comboCuentaActions,
-  comboOrigenPresupuestosActions,
+  comboTraeOrigenActions,
   comboModalidadesActions,
   comboProveedorActions
 })(FormInventario);

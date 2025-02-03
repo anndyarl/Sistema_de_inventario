@@ -21,7 +21,7 @@ export const comboDependenciaActions = (serCorr: string) => async (dispatch: Dis
     dispatch({ type: DEPENDENCIA_REQUEST });
     // const serCorr = 0; // O cualquier otro valor dinámico
     try {
-      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/traeDependencias?ser_corr=${serCorr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeDependencias?ser_corr=${serCorr}`, config);
 
       if (res.status === 200) {
         dispatch({

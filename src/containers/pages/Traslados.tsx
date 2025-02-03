@@ -32,22 +32,21 @@ const Traslados: React.FC<Props> = ({ isDarkMode }) => {
           <div className="container mt-2">
             <Row className="g-1">
               <Col lg={4} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                <NavLink
+                  key="RegistrarTraslados"
+                  to="/RegistrarTraslados"
+                  className={`text-white btn-sm mt-auto text-decoration-none `}
+                >
+                  <div className={`text-center  ${isDarkMode ? "bg-color-dark" : "bg-color"} p-4 border-0 shadow-lg rounded h-100 d-flex flex-column card-hover`}>
+                    <div className="mb-3">
+                      <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                    </div>
+                    <Card.Title className="fw-bold">Registrar Traslados</Card.Title>
+                    <Card.Text className="fw-light flex-grow-1 mb-2">
+                      Complete el registro de de traslados
+                    </Card.Text>
                   </div>
-                  <Card.Title className="fw-bold">Registrar Traslados</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Complete el registro de de traslados
-                  </Card.Text>
-                  <NavLink
-                    key="RegistrarTraslados"
-                    to="/RegistrarTraslados"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
-                  </NavLink>
-                </div>
+                </NavLink>
               </Col>
             </Row>
           </div>

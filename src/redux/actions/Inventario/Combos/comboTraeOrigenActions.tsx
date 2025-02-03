@@ -8,7 +8,8 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener origen
-export const comboTraeOrigen = (token: string) => async (dispatch: Dispatch) => {
+export const comboTraeOrigenActions = () => async (dispatch: Dispatch, getState: any) => {
+    const token = getState().loginReducer.token; //token está en el estado de autenticación
     if (token) {
         const config = {
             headers: {
@@ -20,7 +21,7 @@ export const comboTraeOrigen = (token: string) => async (dispatch: Dispatch) => 
         dispatch({ type: ORIGEN_REQUEST });
 
         try {
-            const res = await axios.get('https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeOrigen', config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeOrigen`, config);
 
             if (res.status === 200) {
                 dispatch({

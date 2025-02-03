@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import SignatureCanvas from 'react-signature-canvas';
 
-import { pdf } from "@react-pdf/renderer";
+// import { pdf } from "@react-pdf/renderer";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
 import { registrarBajasActions } from "../../../redux/actions/Bajas/registrarBajasActions";
@@ -58,7 +58,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
     const sigCanvas = useRef<SignatureCanvas>(null);
     // const [isSigned, setIsSigned] = useState(false);
     const [signatureImage, setSignatureImage] = useState<string | undefined>();
-    const [fechaDescarga, setfechaDescarga] = useState<string | undefined>();
+    // const [fechaDescarga, setfechaDescarga] = useState<string | undefined>();
 
     // const clearSignature = () => {
     //     if (sigCanvas.current) {
@@ -180,11 +180,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                     Swal.fire({
                         icon: "error",
                         title: "Error",
-                        text: "Error en la solicitud. Por favor, recargue nuevamente la página.",
-                        background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                        color: isDarkMode ? "#ffffff" : "#000000",
-                        confirmButtonColor: isDarkMode ? "#007bff" : "#444",
-                        customClass: { popup: "custom-border" }
+                        text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
                     });
                 } finally {
                     setLoading(false);
@@ -279,21 +281,23 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                         </table>
                     </div>
                 )}
-                <Pagination className="d-flex justify-content-end">
-                    <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                    <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                    {Array.from({ length: totalPaginas }, (_, i) => (
-                        <Pagination.Item
-                            key={i + 1}
-                            active={i + 1 === paginaActual}
-                            onClick={() => paginar(i + 1)}
-                        >
-                            {i + 1}
-                        </Pagination.Item>
-                    ))}
-                    <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                    <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                </Pagination>
+                <div className="paginador-container">
+                    <Pagination className="paginador-scroll">
+                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                        {Array.from({ length: totalPaginas }, (_, i) => (
+                            <Pagination.Item
+                                key={i + 1}
+                                active={i + 1 === paginaActual}
+                                onClick={() => paginar(i + 1)}
+                            >
+                                {i + 1}
+                            </Pagination.Item>
+                        ))}
+                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                    </Pagination>
+                </div>
             </div>
             {elementosActuales.map((fila, index) => (
                 <div key={index}>
@@ -420,7 +424,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                                             </div>
                                             <div className="mb-1">
                                                 <label className="fw-semibold">
-                                                    Unidad Administrativa
+                                                    Seleccione una Unidad
                                                 </label>
                                                 <select
                                                     aria-label="unidadAdministrativa"
@@ -439,7 +443,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                                         </Col>
                                     </Row>
                                 </Collapse>
-                                <BlobProvider document={<DocumentoPDF row={fila} firma={signatureImage} fechaDescarga={fechaDescarga} AltaInventario={AltaInventario} />}>
+                                <BlobProvider document={<DocumentoPDF row={fila} firma={signatureImage} /*fechaDescarga={fechaDescarga} */ AltaInventario={AltaInventario} />}>
                                     {({ url, loading }) =>
                                         loading ? (
                                             <p>Generando vista previa...</p>

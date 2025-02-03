@@ -46,10 +46,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
 
-  const [Inventario, setInventario] = useState({
+  const [Bajas, setBajas] = useState({
     aF_CLAVE: "",
   });
 
+  //Se lista automaticamente apenas entra al componente
   const listaExcluidosAuto = async () => {
     if (token) {
       if (listaExcluidos.length === 0) {
@@ -81,7 +82,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    setInventario((prevState) => ({
+    setBajas((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -111,7 +112,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
   const handleBuscarRemates = async () => {
     let resultado = false;
     setLoading(true);
-    resultado = await obtenerListaExcluidosActions(Inventario.aF_CLAVE);
+    resultado = await obtenerListaExcluidosActions(Bajas.aF_CLAVE);
 
 
     if (!resultado) {
@@ -233,7 +234,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                   name="aF_CLAVE"
                   onChange={handleChange}
-                  value={Inventario.aF_CLAVE}
+                  value={Bajas.aF_CLAVE}
                 />
               </div>
             </Col>
@@ -359,34 +360,36 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
 
 
           {/* Paginador */}
-          <Pagination className="d-flex justify-content-end">
-            <Pagination.First
-              onClick={() => paginar(1)}
-              disabled={paginaActual === 1}
-            />
-            <Pagination.Prev
-              onClick={() => paginar(paginaActual - 1)}
-              disabled={paginaActual === 1}
-            />
+          <div className="paginador-container">
+            <Pagination className="paginador-scroll">
+              <Pagination.First
+                onClick={() => paginar(1)}
+                disabled={paginaActual === 1}
+              />
+              <Pagination.Prev
+                onClick={() => paginar(paginaActual - 1)}
+                disabled={paginaActual === 1}
+              />
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={i + 1 === paginaActual}
-                onClick={() => paginar(i + 1)}
-              >
-                {i + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => paginar(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas}
-            />
-            <Pagination.Last
-              onClick={() => paginar(totalPaginas)}
-              disabled={paginaActual === totalPaginas}
-            />
-          </Pagination>
+              {Array.from({ length: totalPaginas }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === paginaActual}
+                  onClick={() => paginar(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() => paginar(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+              />
+              <Pagination.Last
+                onClick={() => paginar(totalPaginas)}
+                disabled={paginaActual === totalPaginas}
+              />
+            </Pagination>
+          </div>
         </div>
       </form>
     </Layout >

@@ -17,12 +17,11 @@ interface Props {
 
 const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
+
   // Función para redirigir a Clave Única
   const handleEnviar = () => {
     setLoading(true);
-    const redirectUrl = `https://sidra.ssmso.cl/wcf_claveunica/?url_solicitud=http://localhost:3002/ValidaPortal`;
-    // const redirectUrl = `https://sidra.ssmso.cl/wcf_claveunica/?url_solicitud=http://10.6.50.15:88/ValidaPortal`;
-    // const redirectUrl = `https://sidra.ssmso.cl/wcf_claveunica/?url_solicitud=http://qa.inventario.ssmso.cl/ValidaPortal`;
+    const redirectUrl = import.meta.env.VITE_CSRF_CLAVE_UNICA;
     window.location.href = redirectUrl;
   };
 
@@ -94,8 +93,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
           />
         </div>
       </div>
-    </div >
-
+    </div>
 
   );
 };

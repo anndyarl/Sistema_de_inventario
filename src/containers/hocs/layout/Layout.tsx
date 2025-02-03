@@ -17,10 +17,9 @@ interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
-  user: string | null;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode, user }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   //Se pasan parametros del tiempo en milisegundos en que se mostrará mensaje y cierre de sesion por inactividad
@@ -30,10 +29,6 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode, 
   if (!isAuthenticated) {
     return <Navigate to="/" />;
   }
-  if (user) {
-    console.log("user", user);
-  }
-
 
   return (
     <>

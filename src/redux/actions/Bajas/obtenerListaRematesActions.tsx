@@ -20,7 +20,7 @@ export const obtenerListaRematesActions = (af_clave: string) => async (dispatch:
     dispatch({ type: OBTENER_REMATES_REQUEST });
 
     try {
-      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/TraeRemates?af_clave=${af_clave}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeRemates?af_clave=${af_clave}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

@@ -30,8 +30,6 @@ const ValidaPortal: React.FC<Props> = ({ login, validaPortalActions }) => {
         await login(usuario, password); // Obtengo el token correspondiente     
         validaPortalActions(rutUsuario, "1"); // Valida el usuario        
         navigate("/Inicio");
-
-        // console.log("rut user", user);
       } catch (error) {
         console.error("Error al convertir datosPersona a JSON:", error);
       }

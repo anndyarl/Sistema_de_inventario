@@ -28,7 +28,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
 
   try {
     // Realizar la solicitud POST a la API
-    const res = await axios.post('https://sidra.ssmso.cl/api_erp_inv_qa/api/data/Login', body, config);
+    const res = await axios.post(`${import.meta.env.VITE_CSRF_API_LOGIN}`, body, config);
     // Validar si la respuesta es exitosa
     if (res.status === 200) {
       const token = res.data.access_token;

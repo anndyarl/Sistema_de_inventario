@@ -20,7 +20,7 @@ export const comboTraeServicio = (token: string) => async (dispatch: Dispatch) =
         dispatch({ type: SERVICIO_REQUEST });
 
         try {
-            const res = await axios.get('https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeServicio', config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeServici`, config);
 
             if (res.status === 200) {
                 dispatch({

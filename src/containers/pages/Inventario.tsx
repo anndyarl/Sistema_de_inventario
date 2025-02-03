@@ -7,17 +7,18 @@ import { PencilFill, PlusCircle, BoxSeam, SlashCircle } from "react-bootstrap-ic
 import Layout from "../hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "../../components/Inventario/RegistrarInventario/DatosInventario";
 import { BIEN, SERVICIO } from "../../components/Inventario/RegistrarInventario/DatosCuenta";
-import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
+import { comboTraeOrigenActions } from "../../redux/actions/Inventario/Combos/comboTraeOrigenActions";
 import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { motion, AnimatePresence } from "framer-motion";
 
+
 interface FormInventarioProps {
   //Trae props combos de Datos_inventario(formulario 1)
   comboOrigen: ORIGEN[];
-  comboOrigenPresupuestosActions: () => void;
+  comboTraeOrigenActions: () => void;
   comboModalidad: MODALIDAD[];
   comboModalidadesActions: () => void;
   comboProveedor: PROVEEDOR[];
@@ -31,6 +32,14 @@ interface FormInventarioProps {
   token: string | null;
   isDarkMode: boolean;
 }
+interface NavItem {
+  name: string;
+  descripcion: string;
+  href: string;
+  title: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
+
 const Inventario: React.FC<FormInventarioProps> = ({
   token,
   comboOrigen,
@@ -39,7 +48,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
   comboBien,
   comboProveedor,
   isDarkMode,
-  comboOrigenPresupuestosActions,
+  comboTraeOrigenActions,
   comboModalidadesActions,
   comboServicioActions,
   comboDetalleActions,
@@ -50,7 +59,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
     // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
+      if (comboOrigen.length === 0) comboTraeOrigenActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
       if (comboServicio.length === 0) comboServicioActions();
       if (comboBien.length === 0) comboDetalleActions("0");
@@ -60,12 +69,13 @@ const Inventario: React.FC<FormInventarioProps> = ({
     //Carga combo bien con valor 0
     comboDetalleActions("0");
   }, [
-    comboOrigenPresupuestosActions,
+    comboTraeOrigenActions,
     comboModalidadesActions,
     comboServicioActions,
     comboDetalleActions,
     comboProveedorActions
   ]);
+
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
     // in: { opacity: 1, scale: 1 },
@@ -79,246 +89,43 @@ const Inventario: React.FC<FormInventarioProps> = ({
     duration: 0.4,
     // delay: 0.03,
   };
+
+  const navigation: NavItem[] = [
+
+    { descripcion: 'Complete el registro de un nuevo inventario en tres sencillos pasos.', name: 'FormInventario', title: 'Registrar Inventario', href: '/FormInventario', icon: PlusCircle },
+    { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/ModificarInventario', icon: PencilFill },
+    { descripcion: 'Para anular un inventario, búsquelo previamente por fecha de inicio y término.', name: 'AnularInventario', title: 'Anular Inventario', href: '/AnularInventario', icon: SlashCircle },
+    { descripcion: 'Registre los bienes asignados a funcionarios.', name: 'FormBienesFuncionarios', title: 'Bienes de Funcionarios', href: '/FormBienesFuncionarios', icon: BoxSeam },
+
+
+  ];
+
   return (
     <Layout>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">
-            <Row>
-              {/* <Col lg={6} md={5} className="mb-1">
-                <Card className="custom-card shadow p-3 border-0 rounded">
-                  <Card.Body>
-                    <Card.Title className="text-center fw-semibold">
-                      Registrar Inventario
-                    </Card.Title>
-                    <Card.Text className="text-center m-2">
-                      Complete el registro de un nuevo inventario en tres sencillos
-                      pasos.
-                    </Card.Text>
-                    <div className="d-flex justify-content-center">
-                      <div className="flex-grow-1">
-                        <NavLink
-                          key="FormInventario"
-                          to="/FormInventario"
-                          className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
-                        >
-                          <Plus
-                            className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
-                            aria-hidden="true"
-                          />
-                          Nuevo
-                        </NavLink>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col lg={6} md={5} className="mb-1">
-                <Card className="custom-card shadow p-3 border-0 rounded">
-                  <Card.Body>
-                    <Card.Title className="text-center fw-semibold">
-                      Modificar Inventario
 
-                    </Card.Title>
-                    <Card.Text className="text-center m-2">
-                      Encuentre y modifique el inventario existente.
-
-                    </Card.Text>
-                    <div className="d-flex justify-content-center">
-                      <div className="flex-grow-1">
-                        <NavLink
-                          key="ModificarInventario"
-                          to="/ModificarInventario"
-
-                          className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
-                        >
-                          <Trash
-                            className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
-                            aria-hidden="true"
-                          />
-                          Anular
-                        </NavLink>
+            <Row className="g-2">
+              {navigation.map((item) => (
+                <Col lg={4} md={6} sm={12}>
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    className={`text-white btn-sm mt-auto text-decoration-none `}
+                  >
+                    <div className={`text-center  ${isDarkMode ? "bg-color-dark" : "bg-color"} p-4 border-0 shadow-lg rounded h-100 d-flex flex-column card-hover`}>
+                      <div className="mb-3">
+                        <item.icon className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                       </div>
+                      <Card.Title className="fw-bold">{item.title}</Card.Title>
+                      <Card.Text className="fw-light flex-grow-1 mb-2">
+                        {item.descripcion}
+                      </Card.Text>
                     </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col lg={6} md={5} className="mb-1">
-                <Card className="custom-card shadow p-3 border-0 rounded">
-                  <Card.Body>
-                    <Card.Title className="text-center fw-semibold">
-                      Anular Inventario
-                    </Card.Title>
-                    <Card.Text className="text-center m-2">
-                      Para anular un inventario, búsquelo previamente por fecha de
-                      inicio y término.
-                    </Card.Text>
-                    <div className="d-flex justify-content-center">
-                      <div className="flex-grow-1">
-                        <NavLink
-                          key="AnularInventario"
-                          to="/AnularInventario"
-                          className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none"
-                        >
-                          <Trash
-                            className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
-                            aria-hidden="true"
-                          />
-                          Anular
-                        </NavLink>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col lg={6} md={5} className="mb-1">
-                <Card className="custom-card shadow p-3 border-0 rounded">
-                  <Card.Body>
-                    <Card.Title className="text-center fw-semibold">
-                      Bienes de Funcionarios
-                    </Card.Title>
-                    <Card.Text className="text-center m-2">
-                      Registre los bienes asignados a funcionarios.
-                    </Card.Text>
-                    <div className="d-flex justify-content-center">
-                      <div className="flex-grow-1 ">
-                        <NavLink
-                          key="FormBienesFuncionarios"
-                          to="/FormBienesFuncionarios"
-                          className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none "
-                        >
-                          <Plus
-                            className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
-                            aria-hidden="true"
-                          />
-                          Nuevo
-                        </NavLink>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col lg={6} md={5} className="mb-1">
-                <Card className="custom-card shadow p-3 border-0 rounded">
-                  <Card.Body>
-                    <Card.Title className="text-center fw-semibold">
-                      Carga Masiva
-                    </Card.Title>
-                    <Card.Text className="text-center m-2">
-                      Adjunte el documento correspondiente para la carga masiva del inventario
-                    </Card.Text>
-                    <div className="d-flex justify-content-center">
-                      <div className="flex-grow-1 ">
-                        <NavLink
-                          key="CargaMasiva"
-                          to="/CargaMasiva"
-                          className="btn btn-primary text-white d-flex align-items-center justify-content-center py-2 px-3 mb-2 rounded text-decoration-none "
-                        >
-                          <Plus
-                            className={classNames("me-3 flex-shrink-0", "h-5 w-5")}
-                            aria-hidden="true"
-                          />
-                          Nuevo
-                        </NavLink>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col> */}
-            </Row>
-
-            <Row className="g-1">
-              <Col lg={4} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Registrar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Complete el registro de un nuevo inventario en tres sencillos pasos.
-                  </Card.Text>
-                  <NavLink
-                    key="FormInventario"
-                    to="/FormInventario"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
                   </NavLink>
-                </div>
-              </Col>
-              <Col lg={4} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Modificar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Encuentre y modifique el inventario existente.
-                  </Card.Text>
-                  <NavLink
-                    key="ModificarInventario"
-                    to="/ModificarInventario"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Modificar
-                  </NavLink>
-                </div>
-              </Col>
-              <Col lg={4} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Anular Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Para anular un inventario, búsquelo previamente por fecha de
-                    inicio y término.
-                  </Card.Text>
-                  <NavLink
-                    key="AnularInventario"
-                    to="/AnularInventario"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Anular
-                  </NavLink>
-                </div>
-              </Col>
-              <Col lg={4} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <BoxSeam className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold"> Bienes de Funcionarios</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Registre los bienes asignados a funcionarios.
-                  </Card.Text>
-                  <NavLink
-                    key="FormBienesFuncionarios"
-                    to="/FormBienesFuncionarios"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
-                  </NavLink>
-                </div>
-              </Col>
-              {/* <Col lg={4} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Carga Masiva</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Adjunte el documento correspondiente para la carga masiva del inventario
-                  </Card.Text>
-                  <NavLink
-                    key="CargaMasiva"
-                    to="/CargaMasiva"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
-                  </NavLink>
-                </div>
-              </Col> */}
+                </Col>
+              ))}
             </Row>
           </div>
         </motion.div>
@@ -340,7 +147,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-  comboOrigenPresupuestosActions,
+  comboTraeOrigenActions,
   comboModalidadesActions,
   comboServicioActions,
   comboDetalleActions,

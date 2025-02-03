@@ -51,6 +51,8 @@ import obtenerListaExcluidosReducers from "./Bajas/datosListaExcluidosReducers";
 import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerInventarioReducers";
 import validaPortalReducer from "./auth/validaPortalReducers";
 import respuestaReducer from "./Otros/respuestaReducer";
+import datosListadoGeneralBajasReducers from "./Bajas/datosListadoGeneralBajasReducers";
+import listadoMantenedorDependenciasReducers from "./Mantenedores/listadoMantenedorDependenciasReducers";
 
 
 //--------------------- Combinación de Reducers ---------------------//
@@ -88,6 +90,7 @@ const appReducer = combineReducers({
   obtenerEtiquetasAltasReducers,
 
   // Bajas
+  datosListadoGeneralBajasReducers,
   datosListaBajasReducers,
   obtenerListaRematesReducers,
   obtenerListaExcluidosReducers,
@@ -108,7 +111,11 @@ const appReducer = combineReducers({
   darkModeReducer,
 
   //Pregunta/Respuesta IA
-  respuestaReducer
+  respuestaReducer,
+
+
+  //Mantenedores
+  listadoMantenedorDependenciasReducers
 });
 
 //--------------------- Root Reducer ---------------------//

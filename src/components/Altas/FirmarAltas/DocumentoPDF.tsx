@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
 });
 const fecha = Date.now();
 const fechaHoy = new Date(fecha);
-const DocumentoPDF = ({ row, firma, fechaDescarga, AltaInventario }: { row: ListaBajas; firma?: string, fechaDescarga: string | undefined, AltaInventario: any }) => (
+const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: ListaBajas; firma?: string,/* fechaDescarga: string | undefined */ AltaInventario: any }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -202,9 +202,9 @@ const DocumentoPDF = ({ row, firma, fechaDescarga, AltaInventario }: { row: List
                 )}
             </View>
             <Text style={styles.line}></Text>
-            <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text>
-        </Page>
-    </Document>
+            {/* <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text> */}
+        </Page >
+    </Document >
 
 );
 

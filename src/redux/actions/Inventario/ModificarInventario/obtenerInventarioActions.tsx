@@ -23,7 +23,7 @@ export const obtenerInventarioActions =
         dispatch({ type: OBTENER_INVENTARIO_REQUEST });
 
         try {
-          const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/TraeInvxID?AF_CLAVE=${nInventario}`, config);
+          const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInvxID?AF_CLAVE=${nInventario}`, config);
 
           if (res.status === 200) {
             const isEmpty = res.data && Object.values(res.data).every((value) => value === 0 || value === null || value === undefined);

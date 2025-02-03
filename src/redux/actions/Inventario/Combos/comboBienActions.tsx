@@ -8,7 +8,8 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
-export const comboBien = (token: string) => async (dispatch: Dispatch) => {
+export const comboBien = () => async (dispatch: Dispatch, getState: any) => {
+    const token = getState().loginReducer.token; //token está en el estado de autenticación
     if (token) {
         const config = {
             headers: {
@@ -20,7 +21,7 @@ export const comboBien = (token: string) => async (dispatch: Dispatch) => {
         dispatch({ type: BIEN_REQUEST });
 
         try {
-            const res = await axios.get('https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeBien', config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeBien`, config);
 
             if (res.status === 200) {
                 dispatch({

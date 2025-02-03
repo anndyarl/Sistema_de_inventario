@@ -21,7 +21,7 @@ export const comboListadoDeEspeciesBienActions = (EST: number, IDBIEN: string) =
 
     try {
       const res = await axios.get(
-        `https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}`, config);
+        `${import.meta.env.VITE_CSRF_API_URL}/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}`, config);
 
       if (res.status === 200) {
         dispatch({

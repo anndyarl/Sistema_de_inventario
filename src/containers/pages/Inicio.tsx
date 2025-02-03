@@ -2,13 +2,21 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
-import { BoxSeam, PencilFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
+import { Boxes, BoxSeam, DashCircle, DatabaseAdd, Exclude, PencilFill, Printer, SlashCircle } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
+import { Signature } from "lucide-react";
 
 interface Props {
   isDarkMode: boolean;
+}
+interface NavItem {
+  name: string;
+  descripcion: string;
+  href: string;
+  title: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const Inicio: React.FC<Props> = ({ isDarkMode }) => {
@@ -25,178 +33,46 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
     duration: 0.4,
     // delay: 0.05,
   };
+  const navigation: NavItem[] = [
+
+    { descripcion: 'Complete el registro de un nuevo inventario en tres sencillos pasos.', name: 'FormInventario', title: 'Registrar Inventario', href: '/FormInventario', icon: Boxes },
+    { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/ModificarInventario', icon: PencilFill },
+    { descripcion: 'Ingrese el activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Listado General', href: '/ListadoGeneral', icon: Boxes },
+    { descripcion: 'Seleccione el activo o los activos que desee excluir.', name: 'RegistrarBajas', title: 'Bienes de Bajas', href: '/RegistrarBajas', icon: DashCircle },
+    { descripcion: 'Para anular un inventario, búsquelo previamente por fecha de inicio y término.', name: 'AnularInventario', title: 'Anular Inventario', href: '/AnularInventario', icon: SlashCircle },
+    { descripcion: 'Adjunte el documento correspondiente para la carga masiva del inventario', name: 'CargaMasiva', title: 'Carga Masiva', href: '/CargaMasiva', icon: DatabaseAdd },
+    { descripcion: 'Busque, verifique y autorice las altas mediante firmas.', name: 'FirmarAltas', title: 'Firmar Altas', href: '/FirmarAltas', icon: Signature },
+    { descripcion: 'Busque y genere un codigo QR de los inventarios de altas.', name: 'ImprimirEtiqueta', title: 'Imprimir Etiquetas', href: '/ImprimirEtiqueta', icon: Printer },
+    { descripcion: 'Registre los bienes asignados a funcionarios.', name: 'FormBienesFuncionarios', title: 'Bienes de Funcionarios', href: '/FormBienesFuncionarios', icon: BoxSeam },
+
+  ];
   return (
     <Layout>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">
-            <Row className="g-1">
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Registrar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Complete el registro de un nuevo inventario en tres sencillos pasos.
-                  </Card.Text>
+            <Row className="g-2">
+              {navigation.map((item) => (
+                <Col lg={4} md={6} sm={12}>
                   <NavLink
-                    key="FormInventario"
-                    to="/FormInventario"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
+                    key={item.name}
+                    to={item.href}
+                    className={`text-white btn-sm mt-auto text-decoration-none`}
                   >
-                    Nuevo
+                    <div className={`text-center  ${isDarkMode ? "bg-color-dark" : "bg-color"}  p-4 border-0 shadow-lg rounded h-100 d-flex flex-column card-hover`}>
+                      <div className="mb-3">
+                        <item.icon className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
+                      </div>
+                      <Card.Title className="fw-bold">{item.title}</Card.Title>
+                      <Card.Text className="fw-light flex-grow-1 mb-2">
+                        {item.descripcion}
+                      </Card.Text>
+                    </div>
                   </NavLink>
-                </div>
-              </Col>
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Anular Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Para anular un inventario, búsquelo previamente por fecha de
-                    inicio y término.
-                  </Card.Text>
-                  <NavLink
-                    key="AnularInventario"
-                    to="/AnularInventario"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Anular
-                  </NavLink>
-                </div>
-              </Col>
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <BoxSeam className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold"> Bienes de Funcionarios</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Registre los bienes asignados a funcionarios.
-                  </Card.Text>
-                  <NavLink
-                    key="FormBienesFuncionarios"
-                    to="/FormBienesFuncionarios"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
-                  </NavLink>
-                </div>
-              </Col>
-              {/* <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <DatabaseAdd className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Carga Masiva</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Adjunte el documento correspondiente para la carga masiva del inventario
-                  </Card.Text>
-                  <NavLink
-                    key="CargaMasiva"
-                    to="/CargaMasiva"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
-                  </NavLink>
-                </div>
-              </Col> */}
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold"> Registrar Altas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque el activo o los activos que desee dar de Alta
-                  </Card.Text>
-                  <NavLink
-                    key="RegistrarAltas"
-                    to="/RegistrarAltas"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
-                  </NavLink>
-                </div>
-              </Col>
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <SlashCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold"> Anular Altas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque el activo o los activos de altas que desee anular
-                  </Card.Text>
-                  <NavLink
-                    key="AnularAltas"
-                    to="/AnularAltas"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Anular
-                  </NavLink>
-                </div>
-              </Col>
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <Printer className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Imprimir Etiquetas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque y genere un codigo QR de los inventarios de altas
-                  </Card.Text>
-                  <NavLink
-                    key="ImprimirEtiqueta"
-                    to="/ImprimirEtiqueta"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Generar
-                  </NavLink>
-                </div>
-              </Col>
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <PlusCircle className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold"> Registrar Bajas</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Busque el activo o los activos que desee dar de Bajas
-                  </Card.Text>
-                  <NavLink
-                    key="RegistrarBajas"
-                    to="/RegistrarBajas"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Nuevo
-                  </NavLink>
-                </div>
-              </Col>
-              <Col lg={3} md={6} sm={12}>
-                <div className={`text-center ${isDarkMode ? "bg-color-dark" : "bg-color"} text-white p-4 border-0 shadow-lg rounded h-100 d-flex flex-column`}>
-                  <div className="mb-3">
-                    <PencilFill className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
-                  </div>
-                  <Card.Title className="fw-bold">Modificar Inventario</Card.Title>
-                  <Card.Text className="fw-light flex-grow-1 mb-2">
-                    Encuentre y modifique el inventario existente.
-                  </Card.Text>
-                  <NavLink
-                    key="ModificarInventario"
-                    to="/ModificarInventario"
-                    className="btn btn-outline-light btn-sm mt-auto text-decoration-none"
-                  >
-                    Modificar
-                  </NavLink>
-                </div>
-              </Col>
+                </Col>
+              ))}
             </Row>
           </div>
-
         </motion.div>
       </AnimatePresence>
     </ Layout>

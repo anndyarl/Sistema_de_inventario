@@ -6,7 +6,7 @@ import {
 } from '../../actions/Bajas/types'
 
 // Define el tipo para el estado inicial
-interface DatosInventarioState {
+interface DatosBajasState {
   listaBajas: Array<{
     bajaS_CORR: string;
     aF_CLAVE: string;
@@ -25,7 +25,7 @@ interface DatosInventarioState {
   }>;
 }
 // Estado inicial tipado
-const initialState: DatosInventarioState = {
+const initialState: DatosBajasState = {
   listaBajas: []
 };
 

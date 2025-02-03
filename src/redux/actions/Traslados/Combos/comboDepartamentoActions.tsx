@@ -16,7 +16,7 @@ export const comboDepartamentoActions = () => async (dispatch: Dispatch, getStat
     dispatch({ type: DEPARTAMENTO_REQUEST });
 
     try {
-      const res = await axios.get("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraEstablecimientos", config);// Cambiar por Departamento
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraEstablecimientos`, config);// Cambiar por Departamento
 
       if (res.status === 200) {
         dispatch({

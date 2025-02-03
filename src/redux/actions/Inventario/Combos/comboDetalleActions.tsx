@@ -26,7 +26,7 @@ export const comboDetalleActions = (idPadre: string) => async (dispatch: Dispatc
     }
 
     try {
-      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeBienxPadre?idPadre=${idPadre}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeBienxPadre?idPadre=${idPadre}`, config);
 
       if (res.status === 200) {
         if (idPadre === "0") {

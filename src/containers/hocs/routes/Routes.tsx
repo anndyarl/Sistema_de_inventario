@@ -38,6 +38,11 @@ import BienesRematados from '../../../components/Bajas/BienesRematados';
 import ValidaPortal from '../../pages/ValidaPortal';
 import Denegado from '../../errors/Denegado';
 import ListadoGeneral from '../../../components/Bajas/ListadoGeneral';
+import Servicios from '../../../components/Mantenedores/Servicios';
+import Dependencias from '../../../components/Mantenedores/Dependencias';
+import Especies from '../../../components/Mantenedores/Especies';
+import Usuarios from '../../../components/Mantenedores/Usuarios';
+import Mantenedores from '../../pages/Mantenedores';
 
 
 
@@ -67,6 +72,14 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Menu principal */}
                 <Route path="/Inicio" element={<Inicio />} />
                 <Route path="/" element={<ClaveUnica />} />
+
+                {/* Módulo Mantenedores */}
+                <Route path="/Mantenedores" element={<Mantenedores />} />
+                <Route path="/Dependencias" element={<Dependencias />} />
+                <Route path="/Especies" element={<Especies />} />
+                <Route path="/Servicios" element={<Servicios />} />
+                <Route path="/Usuarios" element={<Usuarios />} />
+                {/* Módulo Mantenedores */}
 
                 {/* Módulo Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />

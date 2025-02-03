@@ -20,7 +20,7 @@ export const obtenerListaInventarioActions = (FechaInicio: string, FechaTermino:
     dispatch({ type: LISTA_INVENTARIO_REQUEST });
 
     try {
-      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/traeListaInventario?FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventario?FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

@@ -16,7 +16,7 @@ export const comboTrasladoServicioActions = () => async (dispatch: Dispatch, get
     dispatch({ type: TRASLADO_SERVICIO_REQUEST });
 
     try {
-      const res = await axios.get("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraeTrasladoServicio", config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeTrasladoServicio`, config);
 
       if (res.status === 200) {
         dispatch({

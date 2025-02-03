@@ -98,11 +98,17 @@ const Profile: React.FC<ProfileProps> = ({ logout, isDarkMode }) => {
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <div className="flex-grow-1 min-vh-100">
-                <div className="d-flex justify-content-end ">
-                  <button className="fw-semibold  fs-2 close-btn text-white" onClick={togglePanel}>×</button>
-                </div>
-                <div className="fw-semibold fs-3 text-center border-bottom text-white">Andy Riquelme</div>
+              <div className="flex-grow-1 min-vh-100 ">
+                <Row>
+                  <div className="row p-1 align-items-center">
+                    <Col md={10}>
+                      <div className="fw-semibold fs-3 text-end text-white">Andy Riquelme</div>
+                    </Col>
+                    <Col md={2}>
+                      <button className="fw-semibold fs-2 close-btn  text-end text-white" onClick={togglePanel}>×</button>
+                    </Col>
+                  </div>
+                </Row>
                 <Row className="g-1">
                   <Col>
                     <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">

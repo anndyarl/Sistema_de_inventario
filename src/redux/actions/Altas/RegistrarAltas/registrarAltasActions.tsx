@@ -22,7 +22,7 @@ export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async 
     dispatch({ type: REGISTRAR_ALTAS_REQUEST });
 
     try {
-      const res = await axios.post("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/CrearAltas", body, config);
+      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearAltas`, body, config);
       // console.log("Se ha registrado", res);
       if (res.status === 200) {
         dispatch({

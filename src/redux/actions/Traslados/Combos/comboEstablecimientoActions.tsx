@@ -16,7 +16,7 @@ export const comboEstablecimientoActions = () => async (dispatch: Dispatch, getS
     dispatch({ type: ESTABLECIMIENTO_REQUEST });
 
     try {
-      const res = await axios.get("https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/comboTraEstablecimientos", config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraEstablecimientos`, config);
 
       if (res.status === 200) {
         dispatch({

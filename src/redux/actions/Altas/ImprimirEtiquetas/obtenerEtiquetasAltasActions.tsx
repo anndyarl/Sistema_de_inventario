@@ -21,7 +21,7 @@ export const obtenerEtiquetasAltasActions = (af_clave: string) => async (dispatc
     dispatch({ type: ETIQUETAS_ALTAS_REQUEST });
 
     try {
-      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/DatosEtiquetas?af_clave=${af_clave}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/DatosEtiquetas?af_clave=${af_clave}`, config);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({

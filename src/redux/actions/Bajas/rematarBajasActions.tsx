@@ -26,7 +26,7 @@ export const rematarBajasActions = (listaRemates: Record<string, any>[]) => asyn
     dispatch({ type: REGISTRAR_REMATES_REQUEST });
 
     try {
-      const res = await axios.post(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/CreaRemates`, body, config);
+      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CreaRemates`, body, config);
 
       if (res.status === 200) {
         dispatch({

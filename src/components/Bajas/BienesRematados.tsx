@@ -358,34 +358,36 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
           )}
 
           {/* Paginador */}
-          <Pagination className="d-flex justify-content-end">
-            <Pagination.First
-              onClick={() => paginar(1)}
-              disabled={paginaActual === 1}
-            />
-            <Pagination.Prev
-              onClick={() => paginar(paginaActual - 1)}
-              disabled={paginaActual === 1}
-            />
+          <div className="paginador-container">
+            <Pagination className="paginador-scroll">
+              <Pagination.First
+                onClick={() => paginar(1)}
+                disabled={paginaActual === 1}
+              />
+              <Pagination.Prev
+                onClick={() => paginar(paginaActual - 1)}
+                disabled={paginaActual === 1}
+              />
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={i + 1 === paginaActual}
-                onClick={() => paginar(i + 1)}
-              >
-                {i + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => paginar(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas}
-            />
-            <Pagination.Last
-              onClick={() => paginar(totalPaginas)}
-              disabled={paginaActual === totalPaginas}
-            />
-          </Pagination>
+              {Array.from({ length: totalPaginas }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === paginaActual}
+                  onClick={() => paginar(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() => paginar(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+              />
+              <Pagination.Last
+                onClick={() => paginar(totalPaginas)}
+                disabled={paginaActual === totalPaginas}
+              />
+            </Pagination>
+          </div>
         </div>
       </form>
     </Layout >

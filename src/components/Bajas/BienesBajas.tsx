@@ -45,14 +45,11 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [error, setError] = useState<Partial<ListaBajas>>({});
-  //-------------Modal-------------//
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
-  //------------Fin Modal----------//
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
-  let indexReal = 0;//Indice para manejar el valor real de cada fila y para manejar check
 
   const [Bajas, setBajas] = useState({
     nresolucion: 0,
@@ -132,6 +129,7 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
     }
   };
 
+  //Se lista automaticamente apenas entra al componente
   const listaABajasAuto = async () => {
     if (token) {
       if (listaBajas.length === 0) {
@@ -174,6 +172,7 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
     }));
 
   };
+
   const setSeleccionaFila = (index: number) => {
     setMostrarModal(index); //Abre modal del indice seleccionado
     setFilaSeleccionada((prev) =>
@@ -360,7 +359,7 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
               </thead>
               <tbody>
                 {elementosActuales.map((Lista, index) => {
-                  indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                  let indexReal = indicePrimerElemento + index; // Índice real basado en la página
                   return (
                     <tr key={indexReal}>
                       <td>
@@ -385,34 +384,36 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
           </div>
         )}
         {/* Paginador */}
-        <Pagination className="d-flex justify-content-end">
-          <Pagination.First
-            onClick={() => paginar(1)}
-            disabled={paginaActual === 1}
-          />
-          <Pagination.Prev
-            onClick={() => paginar(paginaActual - 1)}
-            disabled={paginaActual === 1}
-          />
+        <div className="paginador-container">
+          <Pagination className="paginador-scroll">
+            <Pagination.First
+              onClick={() => paginar(1)}
+              disabled={paginaActual === 1}
+            />
+            <Pagination.Prev
+              onClick={() => paginar(paginaActual - 1)}
+              disabled={paginaActual === 1}
+            />
 
-          {Array.from({ length: totalPaginas }, (_, i) => (
-            <Pagination.Item
-              key={i + 1}
-              active={i + 1 === paginaActual}
-              onClick={() => paginar(i + 1)}
-            >
-              {i + 1}
-            </Pagination.Item>
-          ))}
-          <Pagination.Next
-            onClick={() => paginar(paginaActual + 1)}
-            disabled={paginaActual === totalPaginas}
-          />
-          <Pagination.Last
-            onClick={() => paginar(totalPaginas)}
-            disabled={paginaActual === totalPaginas}
-          />
-        </Pagination>
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <Pagination.Item
+                key={i + 1}
+                active={i + 1 === paginaActual}
+                onClick={() => paginar(i + 1)}
+              >
+                {i + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next
+              onClick={() => paginar(paginaActual + 1)}
+              disabled={paginaActual === totalPaginas}
+            />
+            <Pagination.Last
+              onClick={() => paginar(totalPaginas)}
+              disabled={paginaActual === totalPaginas}
+            />
+          </Pagination>
+        </div>
       </div>
       {/* Modal formulario Registro Bajas*/}
       {elementosActuales.map((_, index) => (

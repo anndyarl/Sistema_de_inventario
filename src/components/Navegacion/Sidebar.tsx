@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Box, ArrowsMove, PlusCircle, DashCircle, FileText } from 'react-bootstrap-icons';
+import { Box, ArrowsMove, PlusCircle, DashCircle, FileText, Database } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css"
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -16,12 +16,14 @@ const Sidebar: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
 
   const navigation: NavItem[] = [
+
     { name: 'Inventario', href: '/Inventario', icon: Box },
     { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
     { name: 'Altas', href: '/Altas', icon: PlusCircle },
     { name: 'Bajas', href: '/Bajas', icon: DashCircle },
     // { name: 'Donaciones', href: '/Donaciones', icon: Heart },
     { name: 'Informes', href: '/Informes', icon: FileText },
+    { name: 'Mantenedores', href: '/Mantenedores', icon: Database },
     // { name: 'IA', href: '/IA', icon: ChatDots }
   ];
 
