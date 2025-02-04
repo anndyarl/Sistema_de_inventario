@@ -1,22 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LogOut, Signature, UserCircle } from 'lucide-react';
 import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
-import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers";
-import { logout } from "../../redux/actions/auth/auth";
 import { Navigate } from 'react-router-dom';
-import { BarChart, Building, Coin, CurrencyDollar, Database, Gear, Geo, Git } from "react-bootstrap-icons";
-import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
-import { Col, Modal, Row } from "react-bootstrap";
-
+import { BarChart, Building, Database, Gear, Geo, Git } from "react-bootstrap-icons";
+import { Col, Modal, Row, Spinner } from "react-bootstrap";
 import General from "../Configuracion/General";
 import Datos from "../Configuracion/Datos";
 import Firma from "../Configuracion/Firma";
 import Versionamiento from "../Configuracion/Versionamiento";
 import Indicadores from "../Configuracion/Indicadores";
+import SkeletonLoader from "../Utils/SkeletonLoader";
+import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
+import { logout } from "../../redux/actions/auth/auth";
+import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -40,17 +40,26 @@ interface ProfileProps {
   isDarkMode: boolean;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, isDarkMode }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, isDarkMode, utm, uf, dolar, ipc }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (uf.valor === 0 || utm.valor === 0 || dolar.valor === 0 || bitcoin.valor === 0 || ipc.valor === 0) {
-  //     indicadoresActions();
-  //   }
-  // }, [indicadoresActions]);
+  const cargaIndicadores = async () => {
+    if (uf.valor === 0 || utm.valor === 0 || dolar.valor === 0 || ipc.valor === 0) {
+      setLoading(true);
+      const resultado = await indicadoresActions();
+      if (resultado) {
+        setLoading(false);
+      }
+    }
+  }
+  useEffect(() => {
+    cargaIndicadores();
+    indicadoresActions();
+  }, [indicadoresActions]);
 
   const handleLogout = async () => {
     let resultado = await logout();
@@ -64,18 +73,20 @@ const Profile: React.FC<ProfileProps> = ({ logout, isDarkMode }) => {
     initial: { opacity: 0, x: 100 },
     animate: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: 100 },
+
   };
 
   const panelTransition = {
     type: "tween",
     easeOut: [0, 0, 0.58, 1],
+    duration: 0.2
   };
 
 
   return (
     <>
       <div className="d-flex w-50 justify-content-end mx-2">
-        <button type="button" onClick={togglePanel} className="btn btn-outline-secondary border-0">
+        <button type="button" onClick={togglePanel} className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link`}>
           <UserCircle
             className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
             aria-hidden="true"
@@ -89,7 +100,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, isDarkMode }) => {
       <AnimatePresence >
         {isOpen && (
           <motion.div
-            className={`slide-panel-overlay slide-panel ${isDarkMode ? "bg-color-dark" : "bg-color"} color-white`}
+            className={`slide-panel-overlay slide-panel ${isDarkMode ? "bg-color-dark" : "bg-light"}  `}
             initial="initial"
             animate="animate"
             exit="exit"
@@ -98,71 +109,67 @@ const Profile: React.FC<ProfileProps> = ({ logout, isDarkMode }) => {
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <div className="flex-grow-1 min-vh-100 ">
-                <Row>
-                  <div className="row p-1 align-items-center">
-                    <Col md={10}>
-                      <div className="fw-semibold fs-3 text-end text-white">Andy Riquelme</div>
-                    </Col>
-                    <Col md={2}>
-                      <button className="fw-semibold fs-2 close-btn  text-end text-white" onClick={togglePanel}>×</button>
-                    </Col>
-                  </div>
-                </Row>
-                <Row className="g-1">
-                  <Col>
-                    <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                      <strong> <Coin
-                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      /> UTM: </strong>
-                      {/* ${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })} */}
-                    </p>
-                    <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                      <strong> <Coin
-                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />UF: </strong>
-                      {/* ${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })} */}
-                    </p>
-                  </Col>
-                  <Col>
-                    <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
-                      <strong> <CurrencyDollar
-                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />Dólar: </strong>
-                      {/* ${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })} */}
-                    </p>
-                    <p className="mb-2 fw-fw-normal fs-6 fs-md-5 fs-lg-4 text-white">
-                      <strong> <Coin
-                        className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />IPC: </strong>
-                      {/* {ipc.valor.toLocaleString("es-ES", { minimumFractionDigits: 0, })}% */}
-                    </p>
-                  </Col>
-                </Row>
-                <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+              <div className="d-flex justify-content-end">
+                <button
+                  className={`btn btn-sm fs-1 p-0 ${isDarkMode ? "text-light" : "text-dark"}`}
+                  onClick={togglePanel}
+                  aria-label="Cerrar"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="flex-grow-1 min-vh-100">
+                <div className="text-center fw-semibold fs-4 border-bottom mb-4">
+                  Andy Riquelme Larenas
+                </div>
+                <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
                   <strong> <Building
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
                   />Dependencia: </strong> Finanzas
                 </p>
-                <p className="mb-0 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 text-white">
+                <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
                   <strong> <Geo
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
                   /> Establecimiento: </strong> Hospital San José de Maipo
                 </p>
-                <button onClick={() => setMostrarModal(true)} className="navbar-nav nav-link fw-fw-normal nav-item text-white fs-6 fs-md-5 fs-lg-4 w-100 text-start mb-2">
+                <button onClick={() => setMostrarModal(true)} className={`fw-fw-normal p-1 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link mb-4 mb-2 fs-6 fs-md-5 fs-lg-4 w-100 text-start rounded p-0`}>
                   <strong> <Gear
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
                   />Configuración</strong>
                 </button>
 
-                <button onClick={handleLogout} type="button" className="btn btn-outline-light w-100 border-light fs-6 fs-md-5 fs-lg-4 ">
+
+                <Row className="g-2 mb-4">
+                  {[
+                    { title: "UTM", value: `$${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0 })}` },
+                    { title: "UF", value: `$${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0 })}` },
+                    { title: "Dólar", value: `$${dolar.valor.toLocaleString("es-ES", { minimumFractionDigits: 0 })}` },
+                    { title: "IPC", value: `${ipc.valor.toLocaleString("es-ES", { minimumFractionDigits: 0 })}%` },
+                  ].map((item, index) => (
+                    <Col lg={6} md={6} sm={12} key={index}>
+                      <div
+                        className={`text-center bg-secondary p-1 text-white border-0 shadow-sm rounded h-100 d-flex flex-column align-items-center justify-content-center`}
+                      >
+                        <div className="mb-1 ">
+                          <strong className="no-cursor">{item.title}</strong>
+                        </div>
+
+                        {loading ? (
+                          <>
+                            <Spinner className="fs-6" />
+                          </>
+                        ) : (
+                          < div className="fw-semibold no-cursor">{item.value}</div>
+                        )}
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+
+                <button onClick={handleLogout} type="button" className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link w-100 border-top rounded rounded-0 fs-6 fs-md-5 fs-lg-4`}>
                   Cerrar Sesión
                   <LogOut
                     className="ms-1 p-1 flex-shrink-0 h-5 w-5"
@@ -173,7 +180,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, isDarkMode }) => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence >
 
       <Modal size="lg" show={mostrarModal} onHide={() => setMostrarModal(false)} /* backdrop="static" keyboard={false} */>
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
@@ -239,6 +246,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   logout,
-  indicadoresActions,
+  indicadoresActions
 })(Profile);
 

@@ -22,17 +22,14 @@
   z-index: 0; /* Asegura que el elemento esté por encima de otros */
 }
 
-.nav-item {
-  transition: transform 0.3s ease, background-color 0.3s ease;
 
-}
 .nav-item:hover {  
-  background-color: rgba(255, 255, 255, 0.1);
-
-}
+  /* background-color: rgba(255, 255, 255, 0.1); */
+  background-color: rgba(16, 16, 16, 0.12);
+ }
 .nav-item.active {
   transform: scale(1.05);
-  background-color: rgba(255, 255, 255, 0.2);
+  /* background-color: rgba(205, 31, 31, 0.2); */
  
 }
 

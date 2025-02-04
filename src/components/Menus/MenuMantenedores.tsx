@@ -23,25 +23,25 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
         {
             name: 'Dependencias',
             description: 'Listado de Dependencias',
-            href: '/Dependencias',
+            href: '/Mantenedores/Dependencias',
             icon: Collection
         },
         {
             name: 'Servicios',
             description: 'Listado de Servicios',
-            href: '/Servicios',
+            href: '/Mantenedores/Servicios',
             icon: Collection
         },
         {
             name: 'Usuarios',
             description: 'Listado de Usuarios',
-            href: '/Usuarios',
+            href: '/Mantenedores/Usuarios',
             icon: Collection
         },
         {
             name: 'Especies',
             description: 'Listado de Especies',
-            href: '/Especies',
+            href: '/Mantenedores/Especies',
             icon: Collection
         },
 

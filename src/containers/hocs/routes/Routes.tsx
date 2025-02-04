@@ -8,7 +8,6 @@ import Inventario from '../../pages/Inventario';
 import Bajas from '../../pages/Bajas';
 import Donaciones from '../../pages/Donaciones';
 import Informes from '../../pages/Informes';
-import Configuracion from '../../pages/Configuracion';
 import ClaveUnica from '../../pages/ClaveUnica';
 import SesionExpirada from '../../errors/SesionExpirada';
 // import { useDispatch } from 'react-redux';
@@ -75,39 +74,39 @@ const AnimatedRoutes: React.FC = () => {
 
                 {/* Módulo Mantenedores */}
                 <Route path="/Mantenedores" element={<Mantenedores />} />
-                <Route path="/Dependencias" element={<Dependencias />} />
-                <Route path="/Especies" element={<Especies />} />
-                <Route path="/Servicios" element={<Servicios />} />
-                <Route path="/Usuarios" element={<Usuarios />} />
+                <Route path="/Mantenedores/Dependencias" element={<Dependencias />} />
+                <Route path="/Mantenedores/Especies" element={<Especies />} />
+                <Route path="/Mantenedores/Servicios" element={<Servicios />} />
+                <Route path="/Mantenedores/Usuarios" element={<Usuarios />} />
                 {/* Módulo Mantenedores */}
 
                 {/* Módulo Inventario */}
                 <Route path="/Inventario" element={<Inventario />} />
-                <Route path="/FormInventario" element={<FormInventario />} />
-                <Route path="/ModificarInventario" element={<ModificarInventario />} />
-                <Route path="/AnularInventario" element={<AnularInventario />} />
-                <Route path="/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+                <Route path="/Inventario/FormInventario" element={<FormInventario />} />
+                <Route path="/Inventario/ModificarInventario" element={<ModificarInventario />} />
+                <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
+                <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
                 {/* <Route path="/CargaMasiva" element={<CargaMasiva />} /> */}
-                <Route path="/ImprimirEtiqueta" element={<ImprimirEtiqueta />} />
+
                 {/* Fin Menu Inventario */}
                 <Route path="/Traslados" element={<Traslados />} />
-                <Route path="/RegistrarTraslados" element={<RegistrarTraslados />} />
+                <Route path="/Traslados/RegistrarTraslados" element={<RegistrarTraslados />} />
                 {/* Módulo Altas */}
                 <Route path="/Altas" element={<Altas />} />
-                <Route path="/RegistrarAltas" element={<RegistrarAltas />} />
-                <Route path="/AnularAltas" element={<AnularAltas />} />
-                <Route path="/FirmarAltas" element={<FirmarAltas />} />
+                <Route path="/Altas/RegistrarAltas" element={<RegistrarAltas />} />
+                <Route path="/Altas/AnularAltas" element={<AnularAltas />} />
+                <Route path="/Altas/ImprimirEtiqueta" element={<ImprimirEtiqueta />} />
+                <Route path="/Altas/FirmarAltas" element={<FirmarAltas />} />
                 {/* Fin Módulo Altas */}
                 {/* Módulo Bajas */}
                 <Route path="/Bajas" element={<Bajas />} />
-                <Route path="/ListadoGeneral" element={<ListadoGeneral />} />
-                <Route path="/RegistrarBajas" element={<RegistrarBajas />} />
-                <Route path="/BodegaExcluidos" element={<BodegaExcluidos />} />
-                <Route path="/BienesRematados" element={<BienesRematados />} />
+                <Route path="/Bajas/ListadoGeneral" element={<ListadoGeneral />} />
+                <Route path="/Bajas/RegistrarBajas" element={<RegistrarBajas />} />
+                <Route path="/Bajas/BodegaExcluidos" element={<BodegaExcluidos />} />
+                <Route path="/Bajas/BienesRematados" element={<BienesRematados />} />
                 {/* Fin Módulo Bajas */}
                 <Route path="/Donaciones" element={<Donaciones />} />
                 <Route path="/Informes" element={<Informes />} />
-                <Route path="/Configuracion" element={<Configuracion />} />
             </Routes>
         </AnimatePresence>
     );

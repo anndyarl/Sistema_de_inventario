@@ -23,25 +23,25 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
         {
             name: 'Registrar Inventario',
             description: 'Complete el registro de un nuevo inventario en tres sencillos pasos.',
-            href: '/FormInventario',
+            href: '/Inventario/FormInventario',
             icon: Plus
         },
         {
             name: 'Modificar Inventario',
             description: 'Encuentre y modifique el inventario existente.',
-            href: '/ModificarInventario',
+            href: '/Inventario/ModificarInventario',
             icon: Pencil
         },
         {
             name: 'Anular Inventario',
             description: 'Búsquelo previamente por fecha de inicio y término.',
-            href: '/AnularInventario',
+            href: '/Inventario/AnularInventario',
             icon: Trash
         },
         {
             name: 'Bienes de Funcionarios',
             description: 'Registre los bienes asignados a funcionarios.',
-            href: '/FormBienesFuncionarios',
+            href: '/Inventario/FormBienesFuncionarios',
             icon: Arrows
         },
         // {

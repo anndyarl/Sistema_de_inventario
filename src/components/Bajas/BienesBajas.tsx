@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Button, Form, Modal, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { RootState } from "../../store.ts";
 import { registrarBajasActions } from "../../redux/actions/Bajas/registrarBajasActions.tsx";

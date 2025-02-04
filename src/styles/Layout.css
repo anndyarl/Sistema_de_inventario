@@ -2,7 +2,7 @@ html {
   /* overflow-y: scroll; Fuerza la barra de scroll  */
 }
 body{
-  font-family: "Roboto";
+  font-family: 'Roboto', sans-serif;
 }
 body::-webkit-scrollbar {
   width: 0; /* Chrome y Safari */
@@ -10,7 +10,9 @@ body::-webkit-scrollbar {
 
 /*Color Institucional principal Modo Claro*/
 .bg-color{
-    background:  #0d4582  ;
+    /* background:  #0d4582; */
+    background:  #36427f;
+    /* background: #0f69b4; */
 }
 /*Color Institucional principal Modo Oscuro*/
 .bg-color-dark{
@@ -118,11 +120,11 @@ body::-webkit-scrollbar {
   /* transform: rotate(5deg); */
   /* transform: rotate(-3deg) scale(1.05); */
   transform: translateY(-6px);
-  transition: transform 0.1s ease-in-out; 
-  background-color: #6c757d; /* Cambio de color */
+  transition: transform 0.2s ease-in-out; 
+  background-color: #2d2b68; /
 }
 
-/*Scroll Paginador cuando sea exceda la cantidad de items a mostrar*/
+/*Scroll Paginador cuando se exceda la cantidad de items a mostrar*/
 .paginador-container {
   overflow-x: auto;
   white-space: nowrap;

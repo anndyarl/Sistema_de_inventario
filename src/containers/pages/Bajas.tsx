@@ -33,10 +33,10 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
 
   const navigation: NavItem[] = [
 
-    { descripcion: 'Ingrese el activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Listado General', href: '/ListadoGeneral', icon: Boxes },
-    { descripcion: 'Seleccione el activo o los activos que desee excluir.', name: 'RegistrarBajas', title: 'Bienes de Bajas', href: '/RegistrarBajas', icon: DashCircle },
-    { descripcion: 'Seleccione el activo o los activos de baja que desee enviar a remate.', name: 'BodegaExcluidos', title: 'Bodeja de excluidos', href: '/BodegaExcluidos', icon: Exclude },
-    { descripcion: 'Listado de todos los activos excluidos.', name: 'BienesRematados', title: 'Bienes Rematados', href: '/BienesRematados', icon: BoxSeamFill },
+    { descripcion: 'Seleccione y complete registro del activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Listado General', href: '/Bajas/ListadoGeneral', icon: Boxes },
+    { descripcion: 'Seleccione el activo o los activos que desee excluir.', name: 'RegistrarBajas', title: 'Bienes de Bajas', href: '/Bajas/RegistrarBajas', icon: DashCircle },
+    { descripcion: 'Seleccione el activo o los activos de baja que desee enviar a remate.', name: 'BodegaExcluidos', title: 'Bodeja de excluidos', href: '/Bajas/BodegaExcluidos', icon: Exclude },
+    { descripcion: 'Listado de todos los activos excluidos.', name: 'BienesRematados', title: 'Bienes Rematados', href: '/Bajas/BienesRematados', icon: BoxSeamFill },
 
   ];
 

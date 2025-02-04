@@ -32,16 +32,16 @@ interface GeneralProps {
   isDarkMode: boolean;
 }
 
-const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, token, isDarkMode }) => {
+const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, token, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRegistro, setLoadingRegistro] = useState(false);
-  const [error, setError] = useState<Partial<ListadoDependencia>>({});
+  const [loadingRegistro, __] = useState(false);
+  const [_, setError] = useState<Partial<ListadoDependencia>>({});
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 10;
 
-  const [Mantenedor, setMantenedor] = useState({
+  const [Mantenedor, ___] = useState({
     deP_CORR: 0,
     deP_COD: "",
     seR_COD: "",
@@ -94,19 +94,19 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
     listadoMantenedorAuto()
   }, [listadoMantenedorDependenciasActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    // Convierte `value` a número
-    let newValue: string | number = ["nresolucion"].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-      : value;
+  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
+  //   const { name, value } = e.target;
+  //   // Convierte `value` a número
+  //   let newValue: string | number = ["nresolucion"].includes(name)
+  //     ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+  //     : value;
 
-    setMantenedor((preBajas) => ({
-      ...preBajas,
-      [name]: newValue,
-    }));
+  //   setMantenedor((preBajas) => ({
+  //     ...preBajas,
+  //     [name]: newValue,
+  //   }));
 
-  };
+  // };
 
   const setSeleccionaFila = (index: number) => {
     setMostrarModal(index); //Abre modal del indice seleccionado
@@ -127,21 +127,21 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      const selectedIndices = filasSeleccionada.map(Number);
-      const result = await Swal.fire({
-        icon: "info",
-        title: "Enviar a Bodega de Excluidos",
-        text: "Confirme para enviar a Bodega de Exlcuidos",
-        showDenyButton: false,
-        showCancelButton: true,
-        confirmButtonText: "Confirmar y Enviar",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
+      // const selectedIndices = filasSeleccionada.map(Number);
+      // const result = await Swal.fire({
+      //   icon: "info",
+      //   title: "Enviar a Bodega de Excluidos",
+      //   text: "Confirme para enviar a Bodega de Exlcuidos",
+      //   showDenyButton: false,
+      //   showCancelButton: true,
+      //   confirmButtonText: "Confirmar y Enviar",
+      //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      //   customClass: {
+      //     popup: "custom-border", // Clase personalizada para el borde
+      //   }
+      // });
       // if (result.isConfirmed) {
       //   setLoadingRegistro(true);
       //   // Crear un array de objetos con aF_CLAVE y nombre

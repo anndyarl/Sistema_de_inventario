@@ -23,25 +23,25 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
         {
             name: 'Registrar Altas',
             description: 'Busque el activo o los activos que desee dar de Alta.',
-            href: '/RegistrarAltas',
+            href: '/Altas/RegistrarAltas',
             icon: Plus
         },
         {
             name: 'Anular Altas',
             description: 'Busque el activo o los activos de altas que desee anular.',
-            href: '/AnularAltas',
+            href: '/Altas/AnularAltas',
             icon: Trash
         },
         {
             name: 'Imprimir Etiquetas',
             description: 'Encuentre y modifique el inventario existente.',
-            href: '/ImprimirEtiqueta',
+            href: '/Altas/ImprimirEtiqueta',
             icon: Pencil
         },
         {
             name: 'Firmar Altas',
             description: ' Busque, verifique y autorice las altas mediante firmas.',
-            href: '/FirmarAltas',
+            href: '/Altas/FirmarAltas',
             icon: Pencil
         },
 

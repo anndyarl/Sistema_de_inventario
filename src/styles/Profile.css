@@ -15,17 +15,15 @@
   /* Estilos para el panel deslizante */
   .slide-panel {
     /* width: 25rem; Ajusta el ancho según tus necesidades */
-    height: 100vh; /* Altura completa de la ventana */
-    background-color: #fff;
+    height: 100vh; /* Altura completa de la ventana */   
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    padding: 20px;
+    padding: 15px;
     z-index: 1050; /* Encima del overlay */  
    
   }  
  
   /* Botón de cierre */
-  .close-btn {
-    background: none;
+  .close-btn {  
     border: none;
         /* cursor: pointer; */
     /* color: #000; Color del botón de cierre */
@@ -46,4 +44,8 @@
     justify-content: center;
     align-items: center;
     transition: transform 0.3s ease-in-out;  
+  }
+
+  .no-cursor {
+    cursor: default; /* Cambia el cursor al estilo por defecto */
   }

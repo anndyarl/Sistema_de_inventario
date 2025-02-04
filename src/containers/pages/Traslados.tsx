@@ -34,7 +34,7 @@ const Traslados: React.FC<Props> = ({ isDarkMode }) => {
               <Col lg={4} md={6} sm={12}>
                 <NavLink
                   key="RegistrarTraslados"
-                  to="/RegistrarTraslados"
+                  to="/Traslados/RegistrarTraslados"
                   className={`text-white btn-sm mt-auto text-decoration-none `}
                 >
                   <div className={`text-center  ${isDarkMode ? "bg-color-dark" : "bg-color"} p-4 border-0 shadow-lg rounded h-100 d-flex flex-column card-hover`}>
@@ -43,7 +43,7 @@ const Traslados: React.FC<Props> = ({ isDarkMode }) => {
                     </div>
                     <Card.Title className="fw-bold">Registrar Traslados</Card.Title>
                     <Card.Text className="fw-light flex-grow-1 mb-2">
-                      Complete el registro de de traslados
+                      Registre el traslados de sus bienes.
                     </Card.Text>
                   </div>
                 </NavLink>

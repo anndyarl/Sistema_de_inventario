@@ -31,10 +31,10 @@ const pageTransition = {
 
 const navigation: NavItem[] = [
 
-  { name: 'Dependencias', title: 'Mantenedor de Dependencias', href: '/Dependencias', icon: Collection },
-  { name: 'Servicios', title: 'Mantenedor de Servicios', href: '/Servicios', icon: Collection },
-  { name: 'Usuarios', title: 'Mantenedor de Usuarios', href: '/Usuarios', icon: Collection },
-  { name: 'Especies', title: 'Mantenedor de Especies', href: '/Especies', icon: Collection },
+  { name: 'Dependencias', title: 'Mantenedor de Dependencias', href: '/Mantenedores/Dependencias', icon: Collection },
+  { name: 'Servicios', title: 'Mantenedor de Servicios', href: '/Mantenedores/Servicios', icon: Collection },
+  { name: 'Usuarios', title: 'Mantenedor de Usuarios', href: '/Mantenedores/Usuarios', icon: Collection },
+  { name: 'Especies', title: 'Mantenedor de Especies', href: '/Mantenedores/Especies', icon: Collection },
 
 ];
 
