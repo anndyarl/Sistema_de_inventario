@@ -1,57 +1,61 @@
 import React, { useEffect, useState } from "react";
-import { login } from "../../redux/actions/auth/auth";
+import { login, logout } from "../../redux/actions/auth/auth";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { NavLink, useNavigate } from "react-router-dom";
-import { validaPortalActions } from "../../redux/actions/auth/validaPortalActions";
+import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
+
 
 interface Props {
-  login: (usuario: string, password: string) => void;
-  validaPortalActions: (datosPersona: string, solicitudes: string) => void;
+  login: (usuario: string, password: string) => Promise<boolean>;
+  validaApiloginActions: (rut: string) => Promise<boolean>;
+  logout: () => Promise<boolean>;
 }
 
-const ValidaPortal: React.FC<Props> = ({ login, validaPortalActions }) => {
+const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions }) => {
   const navigate = useNavigate(); // Hook para redirigir
   const [showButton, setShowButton] = useState(false);
   // Leer las variables de entorno al cargar el componente
   const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
   const password = import.meta.env.VITE_PASSWORD_API_LOGIN;
 
-  // Función para capturar los datos desde la URL
+  useEffect(() => {
+    // Espera 5 segundos y muestra el botón
+    const timer = setTimeout(() => {
+      setShowButton(true);
+    }, 20000);
+
+    // Limpia el temporizador si el componente se desmonta
+    return () => clearTimeout(timer);
+  }, []);
+  useEffect(() => {
+    capturarDatosPersona();
+  }, []);
+
+  // Función para capturar los datos desde la URL y Validar Sesion
   const capturarDatosPersona = async () => {
     const params = new URLSearchParams(window.location.search);
     const datosPersona = params.get("datosPersona");
     if (datosPersona) {
       try {
-        // Convertir los datos a un objeto JSON
         const datos = JSON.parse(decodeURIComponent(datosPersona));
-        const rutUsuario = datos.sub; // Obtengo solo rut del usuario para validarlo en método validaportal
-        // Ejecutar la función login con las credenciales de la API
-        await login(usuario, password); // Obtengo el token correspondiente     
-        validaPortalActions(rutUsuario, "1"); // Valida el usuario        
-        navigate("/Inicio");
+        const rutUsuario = datos.sub;
+
+        await login(usuario, password); //Obtiene el token
+        const esValido = await validaApiloginActions(rutUsuario);// Valida usuario en Api login
+        if (esValido) {
+          navigate("/Inicio");
+        } else {
+          await logout();//Eliminados el token
+          navigate("/Denegado");
+        }
       } catch (error) {
-        console.error("Error al convertir datosPersona a JSON:", error);
+        console.error("Error al procesar datosPersona:", error);
       }
     } else {
       console.error("No se encontraron datosPersona en la URL.");
     }
   };
-
-  // Capturar datos de la persona al cargar el componente
-  useEffect(() => {
-    capturarDatosPersona();
-  }, []);
-
-  useEffect(() => {
-    // Espera 5 segundos y muestra el botón
-    const timer = setTimeout(() => {
-      setShowButton(true);
-    }, 10000);
-
-    // Limpia el temporizador si el componente se desmonta
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <>
@@ -82,5 +86,6 @@ const mapStateToProps = (_: RootState) => ({
 
 export default connect(mapStateToProps, {
   login,
-  validaPortalActions,
+  logout,
+  validaApiloginActions,
 })(ValidaPortal);

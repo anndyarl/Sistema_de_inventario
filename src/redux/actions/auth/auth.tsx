@@ -9,7 +9,7 @@ import {
 } from './types';
 import { Dispatch } from 'redux';
 
-export const login = (usuario: string, password: string) => async (dispatch: Dispatch) => {
+export const login = (usuario: string, password: string) => async (dispatch: Dispatch): Promise<boolean> => {
   // Configuración de los headers
   const config = {
     headers: {
@@ -37,12 +37,14 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
         // Si se obtiene el token, realizar los dispatch correspondientes
         dispatch({ type: LOGIN_SUCCESS, payload: token });
         dispatch({ type: SET_TOKEN, payload: token });
+        return true;
       } else {
         // Si no se encuentra el token, manejar el error
         dispatch({
           type: LOGIN_FAIL,
           payload: { error: 'Token no encontrado en la respuesta del servidor' },
         });
+        return false;
       }
     } else {
       // Si la respuesta no es 200, manejar el error
@@ -50,6 +52,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
         type: LOGIN_FAIL,
         payload: { error: `Error en la respuesta del servidor: ${res.status}` },
       });
+      return false;
     }
   } catch (err: any) {
     // Manejo de errores en la solicitud
@@ -57,6 +60,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
       type: LOGIN_FAIL,
       payload: { error: err.response?.data?.message || '500 (Internal Server Error)' },
     });
+    return false;
   }
 };
 

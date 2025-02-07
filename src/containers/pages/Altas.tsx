@@ -48,9 +48,8 @@ const Altas: React.FC<Props> = ({ isDarkMode }) => {
           <div className="container mt-2">
             <Row className="g-2">
               {navigation.map((item) => (
-                <Col lg={4} md={6} sm={12}>
+                <Col key={item.name} lg={4} md={6} sm={12}>
                   <NavLink
-                    key={item.name}
                     to={item.href}
                     className={`text-white btn-sm mt-auto text-decoration-none`}
                   >

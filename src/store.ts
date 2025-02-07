@@ -13,7 +13,7 @@ const persistConfig = {
   //Se persisten todos los datos listado aquí
   whitelist: [
     'loginReducer',
-    'validaPortalReducer',
+    'validaApiLoginReducers',
     'darkModeReducer',
     'obtenerRecepcionReducers',
     'datosCuentaReducers',

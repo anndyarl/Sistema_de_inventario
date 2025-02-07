@@ -99,7 +99,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
 };
 
 const mapStateToProps = (state: RootState) => ({
-  isAuthenticated: state.loginReducer.isAuthenticated,
+  isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 

@@ -63,8 +63,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }
 };
 
 const mapStateToProps = (state: RootState) => ({
-  isAuthenticated: state.loginReducer.isAuthenticated,
-  user: state.validaPortalReducer.user,
+  isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 

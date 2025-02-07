@@ -29,9 +29,33 @@ export interface IndicadoresProps {
   valor: number;
 }
 
+interface Role {
+  NombreRol: string;
+  Descripcion: string;
+  IdRol: number;
+  IdAplicacion: number;
+  CodigoEstablicimiento: number;
+  NombreEstablecimiento: string;
+  NombreCompletoEstab: boolean;
+  IdAppChild: number;
+}
+
+interface Objeto {
+  IdCredencial: number;
+  Nombre: string;
+  Apellido1: string;
+  Apellido2: string;
+  Correo: string;
+  Rut: string;
+  Dv: string;
+  NombreUsuario: string;
+  Roles: Role[];
+}
+
 interface ProfileProps {
   logout: () => Promise<boolean>;
   indicadoresActions: () => Promise<boolean>;
+  Objeto: Objeto[];
   utm: IndicadoresProps;
   uf: IndicadoresProps;
   dolar: IndicadoresProps;
@@ -40,7 +64,7 @@ interface ProfileProps {
   isDarkMode: boolean;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, isDarkMode, utm, uf, dolar, ipc }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, Objeto, utm, uf, dolar, ipc, isDarkMode }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
@@ -81,8 +105,9 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, isDarkMod
     easeOut: [0, 0, 0.58, 1],
     duration: 0.2
   };
+  const usuario = Objeto[0].Nombre || "andy";
 
-
+  // console.log("datos", usuario);
   return (
     <>
       <div className="d-flex w-50 justify-content-end mx-2">
@@ -92,7 +117,11 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, isDarkMod
             aria-hidden="true"
           />
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
-            Andy Riquelme
+            {usuario && (
+              <>
+                {usuario}
+              </>
+            )}
           </span>
         </button >
       </div>
@@ -235,6 +264,7 @@ const ModalContent: React.FC = () => {
 };
 
 const mapStateToProps = (state: RootState) => ({
+  Objeto: state.validaApiLoginReducers.Objeto,
   logout: state.loginReducer.logout,
   utm: state.indicadoresReducers.utm,
   uf: state.indicadoresReducers.uf,

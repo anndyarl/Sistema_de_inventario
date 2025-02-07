@@ -11,7 +11,8 @@ body::-webkit-scrollbar {
 /*Color Institucional principal Modo Claro*/
 .bg-color{
     /* background:  #0d4582; */
-    background:  #36427f;
+    /* background:  #36427f; */
+    background: rgb(9 63 117);
     /* background: #0f69b4; */
 }
 /*Color Institucional principal Modo Oscuro*/
@@ -121,7 +122,7 @@ body::-webkit-scrollbar {
   /* transform: rotate(-3deg) scale(1.05); */
   transform: translateY(-6px);
   transition: transform 0.2s ease-in-out; 
-  background-color: #2d2b68; /
+  background-color: #8c8c8c; 
 }
 
 /*Scroll Paginador cuando se exceda la cantidad de items a mostrar*/

@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 
 //--------------------- Autenticación ---------------------//
 import loginReducer from "./auth/auth";
+import validaApiLoginReducers from "./auth/validaApiLoginReducers";
 
 //--------------------- Registro de Inventario ---------------------//
 // Formulario 1
@@ -23,7 +24,7 @@ import datosActivoFijoReducers from "./Inventario/RegistrarInventario/datosActiv
 
 //--------------------- Modificar Inventario ---------------------//
 // import datosInventarioReducers from "./Inventario/ModificarInventario/datosInventarioReducer";
-
+import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerInventarioReducers";
 //--------------------- Anular Inventario ---------------------//
 import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
 
@@ -32,7 +33,10 @@ import datosListaAltasReducers from "./Altas/AnularAltas/datosListaAltasReducers
 import obtenerEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerEtiquetasAltasReducers";
 
 //--------------------- Registrar Bajas ---------------------//
+import datosListadoGeneralBajasReducers from "./Bajas/datosListadoGeneralBajasReducers";
 import datosListaBajasReducers from "./Bajas/datosListaBajasReducers";
+import obtenerListaRematesReducers from "./Bajas/datosListaRematesReducers";
+import obtenerListaExcluidosReducers from "./Bajas/datosListaExcluidosReducers";
 
 //--------------------- Bienes de Funcionarios ---------------------//
 import datosBienesFuncionarioReducers from "./Inventario/BienesFuncionario/datosBienesFuncionarioReducers";
@@ -42,24 +46,26 @@ import indicadoresReducers from "./Otros/indicadoresReducers";
 
 //--------------------- Modo Oscuro ---------------------//
 import darkModeReducer from "./Otros/darkModeReducer";
+
+//--------------------- Traslados ---------------------//
 import comboTrasladoServicioReducer from "./Traslados/Combos/comboTrasladoServicioReducers";
 import comboEstablecimientoReducer from "./Traslados/Combos/comboEstablecimientoReducer";
 import comboTrasladoEspecieReducer from "./Traslados/Combos/comboTrasladoEspecieReducers";
 import comboDepartamentoReducer from "./Traslados/Combos/comboDepartamentoReducer";
-import obtenerListaRematesReducers from "./Bajas/datosListaRematesReducers";
-import obtenerListaExcluidosReducers from "./Bajas/datosListaExcluidosReducers";
-import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerInventarioReducers";
-import validaPortalReducer from "./auth/validaPortalReducers";
+
+//--------------------- Otros ---------------------//
 import respuestaReducer from "./Otros/respuestaReducer";
-import datosListadoGeneralBajasReducers from "./Bajas/datosListadoGeneralBajasReducers";
+
+//--------------------- Mantenedores ---------------------//
 import listadoMantenedorDependenciasReducers from "./Mantenedores/listadoMantenedorDependenciasReducers";
+
 
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
   // Autenticación
   loginReducer,
-  validaPortalReducer,
+  validaApiLoginReducers,
 
   // Registro de Inventario
   // Formulario 1
@@ -132,6 +138,7 @@ const rootReducer = (state: any, action: any) => {
     //Se limpian todo los datos menos los listados aquí
     const {
       loginReducer,
+      validaApiLoginReducers,
       comboOrigenPresupuestoReducer,
       comboModalidadCompraReducer,
       comboProveedorReducers,
@@ -150,6 +157,7 @@ const rootReducer = (state: any, action: any) => {
 
     state = {
       loginReducer,
+      validaApiLoginReducers,
       comboOrigenPresupuestoReducer,
       comboModalidadCompraReducer,
       comboProveedorReducers,

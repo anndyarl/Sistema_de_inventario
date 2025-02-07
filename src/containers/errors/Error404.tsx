@@ -11,7 +11,7 @@ const Error404: React.FC<Props> = ({ isDarkMode }) => {
     <Layout>
       <div className="d-flex justify-content-center align-items-center vh-100">
         <div className="col-12 col-md-8 text-center">
-          <h1 className="display-6 mb-4">HTTP 404 - Recurso no encontrado</h1>
+          <h1 className="display-6 mb-4">404 - Recurso no encontrado</h1>
           <p className={`fs-5 mb-4`}>
             Lo sentimos, el recurso que estás buscando (o una de sus dependencias) podría haber sido eliminado, cambiado de nombre o no estar disponible temporalmente.
           </p>

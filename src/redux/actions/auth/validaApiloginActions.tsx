@@ -6,7 +6,7 @@ import {
 } from './types';
 import { Dispatch } from 'redux';
 
-export const validaPortalActions = (datosPersona: string, solicitudes: string) => async (dispatch: Dispatch, getState: any) => {
+export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,19 +20,27 @@ export const validaPortalActions = (datosPersona: string, solicitudes: string) =
     dispatch({ type: VALIDA_PORTAL_REQUEST });
 
     try {
-      const res = await axios.get(`https://sidra.ssmso.cl/api_erp_inv_qa/api/inventario/validarportal?datosPersona=${datosPersona}&solicitudes=${solicitudes}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/ValidaApilogin?rut=${rut}`, config);
 
+      const EsValido = res.data.EsValido;
       if (res.status === 200) {
-        dispatch({
-          type: VALIDA_PORTAL_SUCCESS,
-          payload: res.data,
-        });
+        // Verifica si la clave 'EsValido' existe en el objeto
+        if (EsValido === true) {
+          dispatch({
+            type: VALIDA_PORTAL_SUCCESS,
+            payload: res.data,
+          });
+          return true;
+        } else {
+          return false;
+        }
       } else {
         dispatch({
           type: VALIDA_PORTAL_FAIL,
           error:
             "No se pudo obtener los datos del usuario. Por favor, intente nuevamente.",
         });
+        return false;
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
@@ -40,11 +48,13 @@ export const validaPortalActions = (datosPersona: string, solicitudes: string) =
         type: VALIDA_PORTAL_FAIL,
         error: "Error en la solicitud. Por favor, intente nuevamente.",
       });
+      return false;
     }
   } else {
     dispatch({
       type: VALIDA_PORTAL_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    return false;
   }
 };

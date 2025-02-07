@@ -8,9 +8,6 @@ import {
 
 // Define la estructura del estado
 interface AuthState {
-  user: any; // Define el tipo de usuario si lo conoces
-  access: string | null;
-  isAuthenticated: boolean | null;
   loading: boolean;
   error: string | null; // Añade error al estado
   token: string | null;
@@ -19,9 +16,6 @@ interface AuthState {
 
 // Estado inicial
 const initialState: AuthState = {
-  user: null,
-  access: null,
-  isAuthenticated: false,
   loading: true,
   error: null,
   token: null,
@@ -33,9 +27,9 @@ function loginReducer(state = initialState, action: any): AuthState {
     case LOGIN_REQUEST:
       return { ...state, loading: true, error: null };
     case LOGIN_SUCCESS:
-      return { ...state, loading: false, token: action.payload.token, isAuthenticated: true };
+      return { ...state, loading: false, token: action.payload.token };
     case LOGIN_FAIL:
-      return { ...state, loading: false, error: action.payload, isAuthenticated: false, token: null, };
+      return { ...state, loading: false, error: action.payload, token: null, };
     case LOGOUT:
       return { ...initialState, loading: false };
     case SET_TOKEN:

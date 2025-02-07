@@ -148,7 +148,7 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
 };
 
 const mapStateToProps = (state: RootState) => ({
-  isAuthenticated: state.loginReducer.isAuthenticated,
+  isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   error: state.loginReducer.error,
 });
 
