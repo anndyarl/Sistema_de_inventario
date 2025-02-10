@@ -43,6 +43,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
 
         await login(usuario, password); //Obtiene el token
         const esValido = await validaApiloginActions(rutUsuario);// Valida usuario en Api login
+
         if (esValido) {
           navigate("/Inicio");
         } else {
@@ -56,6 +57,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
       console.error("No se encontraron datosPersona en la URL.");
     }
   };
+
 
   return (
     <>

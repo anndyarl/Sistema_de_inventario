@@ -21,9 +21,7 @@ export const registrarMantenedorDependenciasActions = (fomrModal: Record<string,
       // console.error("El objeto datosInventario está vacío.");
       return false;
     }
-    const body = JSON.stringify({
-      fomrModal,
-    });
+    const body = JSON.stringify(fomrModal);
 
     dispatch({ type: REGISTRAR_DEPENDENCIA_REQUEST });
 

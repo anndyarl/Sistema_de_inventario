@@ -22,13 +22,14 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
     try {
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/ValidaApilogin?rut=${rut}`, config);
 
-      const EsValido = res.data.EsValido;
+      const objeto = res.data[0]?.objeto ?? {};  // Acceder al primer elemento del array
+      const esValido = res.data[0]?.esValido ?? {}; // Verifica si existe, de lo contrario usa false
       if (res.status === 200) {
         // Verifica si la clave 'EsValido' existe en el objeto
-        if (EsValido === true) {
+        if (esValido) {
           dispatch({
             type: VALIDA_PORTAL_SUCCESS,
-            payload: res.data,
+            payload: objeto
           });
           return true;
         } else {

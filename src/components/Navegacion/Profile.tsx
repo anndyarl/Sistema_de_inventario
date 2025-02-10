@@ -29,7 +29,7 @@ export interface IndicadoresProps {
   valor: number;
 }
 
-interface Role {
+interface Roles {
   NombreRol: string;
   Descripcion: string;
   IdRol: number;
@@ -40,7 +40,7 @@ interface Role {
   IdAppChild: number;
 }
 
-interface Objeto {
+export interface Objeto {
   IdCredencial: number;
   Nombre: string;
   Apellido1: string;
@@ -49,13 +49,15 @@ interface Objeto {
   Rut: string;
   Dv: string;
   NombreUsuario: string;
-  Roles: Role[];
+  Roles: Roles[];
+  error: string | null;
+  isAuthenticated: boolean;
 }
 
 interface ProfileProps {
   logout: () => Promise<boolean>;
   indicadoresActions: () => Promise<boolean>;
-  Objeto: Objeto[];
+  objeto: Objeto;
   utm: IndicadoresProps;
   uf: IndicadoresProps;
   dolar: IndicadoresProps;
@@ -64,7 +66,7 @@ interface ProfileProps {
   isDarkMode: boolean;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, Objeto, utm, uf, dolar, ipc, isDarkMode }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, utm, uf, dolar, ipc, isDarkMode }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
@@ -105,23 +107,24 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, Objeto, u
     easeOut: [0, 0, 0.58, 1],
     duration: 0.2
   };
-  const usuario = Objeto[0].Nombre || "andy";
 
-  // console.log("datos", usuario);
+  //Primera Letra en mayúscula
+  const PrimeraMayuscula = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+
   return (
     <>
-      <div className="d-flex w-50 justify-content-end mx-2">
-        <button type="button" onClick={togglePanel} className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link`}>
+      <div className="d-flex w-50 justify-content-end mx-2 align-items-center">
+
+        <button type="button" onClick={togglePanel} className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link d-flex`}>
           <UserCircle
             className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
             aria-hidden="true"
           />
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
-            {usuario && (
-              <>
-                {usuario}
-              </>
-            )}
+            <p className="fs-09em"> {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
+            {/* Andy Riquelme */}
           </span>
         </button >
       </div>
@@ -149,21 +152,22 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, Objeto, u
               </div>
               <div className="flex-grow-1 min-vh-100">
                 <div className="text-center fw-semibold fs-4 border-bottom mb-4">
-                  Andy Riquelme Larenas
+                  <p className="fs-5"> {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido2)}
+                  </p>
                 </div>
                 <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
                   <strong> <Building
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
-                  />Dependencia: </strong> Finanzas
+                  />Dependencia: </strong> {objeto.Roles[0].NombreRol}
                 </p>
-                <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4">
+                <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 ">
                   <strong> <Geo
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
                   /> Establecimiento: </strong> Hospital San José de Maipo
                 </p>
-                <button onClick={() => setMostrarModal(true)} className={`fw-fw-normal p-1 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link mb-4 mb-2 fs-6 fs-md-5 fs-lg-4 w-100 text-start rounded p-0`}>
+                <button onClick={() => setMostrarModal(true)} className={`fw-fw-normal p-1 border-bottom  ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link mb-4 mb-2 fs-6 fs-md-5 fs-lg-4 w-100 text-start p-0`}>
                   <strong> <Gear
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
@@ -171,7 +175,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, Objeto, u
                 </button>
 
 
-                <Row className="g-2 mb-4">
+                <Row className="g-2 mb-5">
                   {[
                     { title: "UTM", value: `$${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0 })}` },
                     { title: "UF", value: `$${uf.valor.toLocaleString("es-ES", { minimumFractionDigits: 0 })}` },
@@ -198,7 +202,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, Objeto, u
                   ))}
                 </Row>
 
-                <button onClick={handleLogout} type="button" className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link w-100 border-top rounded rounded-0 fs-6 fs-md-5 fs-lg-4`}>
+                <button onClick={handleLogout} type="button" className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link w-100 border-bottom rounded rounded-0 fs-6 fs-md-5 fs-lg-4`}>
                   Cerrar Sesión
                   <LogOut
                     className="ms-1 p-1 flex-shrink-0 h-5 w-5"
@@ -264,7 +268,7 @@ const ModalContent: React.FC = () => {
 };
 
 const mapStateToProps = (state: RootState) => ({
-  Objeto: state.validaApiLoginReducers.Objeto,
+  objeto: state.validaApiLoginReducers,
   logout: state.loginReducer.logout,
   utm: state.indicadoresReducers.utm,
   uf: state.indicadoresReducers.uf,
