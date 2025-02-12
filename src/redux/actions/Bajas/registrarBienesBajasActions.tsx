@@ -7,7 +7,7 @@ import {
 } from "./types";
 
 // Acción para obtener la recepción por número
-export const registrarBienesBajasActions = (baja: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -17,7 +17,7 @@ export const registrarBienesBajasActions = (baja: { aF_CLAVE: number, usuariO_MO
         "Content-Type": "application/json",
       },
     };
-    const body = JSON.stringify(baja);
+    const body = JSON.stringify(activos);
     dispatch({ type: REGISTRAR_BIENES_BAJAS_REQUEST });
 
     try {

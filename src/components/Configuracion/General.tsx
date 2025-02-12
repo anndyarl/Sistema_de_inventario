@@ -37,7 +37,7 @@ const General: React.FC<Props> = ({ logout, isDarkMode }) => {
                             <p>Claro</p>
                         )} </strong>
 
-                    <div className={`button-moon-sun position-relative z-0 mx-2 align-items-center ${isDarkMode ? "bg-primary text-dark" : "bg-warning"}`} style={{ width: "60px", height: "20px" }}>
+                    <div className={`button-moon-sun position-relative z-0 mx-2 align-items-center pt0 ${isDarkMode ? "bg-primary text-dark" : "bg-warning"}`} style={{ width: "60px", height: "20px" }}>
                         <motion.div
                             className="icon-moon-sun"
                             style={{
@@ -53,7 +53,7 @@ const General: React.FC<Props> = ({ logout, isDarkMode }) => {
                                 <Sun className="fw-semibold" size={12} />
                             )}
                         </motion.div>
-                        <button aria-label="sun-moon" onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent position-relative z-1"></button>
+                        <button aria-label="sun-moon" onClick={onToggleDarkMode} className="w-100 h-100 border-0 bg-transparent position-absolute z-1  "></button>
                     </div>
                 </div>
             </div>

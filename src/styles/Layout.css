@@ -150,3 +150,14 @@ body::-webkit-scrollbar {
 .paginador-container::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
+
+
+.page-item .page-link {
+  background: #6c757dc2;
+  color: white;
+  border: 1px #6c757dc2 solid;
+  border-radius: 4px;
+}
+
+
+

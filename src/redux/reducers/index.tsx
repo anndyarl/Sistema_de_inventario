@@ -58,6 +58,7 @@ import respuestaReducer from "./Otros/respuestaReducer";
 
 //--------------------- Mantenedores ---------------------//
 import listadoMantenedorDependenciasReducers from "./Mantenedores/listadoMantenedorDependenciasReducers";
+import listadoMantenedorServiciosReducers from "./Mantenedores/listadoMantenedorServiciosReducers";
 
 
 
@@ -121,7 +122,8 @@ const appReducer = combineReducers({
 
 
   //Mantenedores
-  listadoMantenedorDependenciasReducers
+  listadoMantenedorDependenciasReducers,
+  listadoMantenedorServiciosReducers
 });
 
 //--------------------- Root Reducer ---------------------//

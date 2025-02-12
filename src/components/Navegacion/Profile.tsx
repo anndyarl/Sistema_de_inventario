@@ -124,7 +124,6 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
           />
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
             <p className="fs-09em"> {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
-            {/* Andy Riquelme */}
           </span>
         </button >
       </div>
@@ -143,7 +142,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
             <motion.div onClick={(e) => e.stopPropagation()}>
               <div className="d-flex justify-content-end">
                 <button
-                  className={`btn btn-sm fs-1 p-0 ${isDarkMode ? "text-light" : "text-dark"}`}
+                  className={`btn fs-2 p-0 ${isDarkMode ? "text-light" : "text-dark"}`}
                   onClick={togglePanel}
                   aria-label="Cerrar"
                 >

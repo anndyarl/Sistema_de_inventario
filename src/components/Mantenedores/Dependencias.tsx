@@ -17,21 +17,20 @@ import { Plus } from "react-bootstrap-icons";
 import { Objeto } from "../Navegacion/Profile.tsx";
 
 
-export interface ListadoDependencia {
+export interface ListadoMantenedor {
   deP_CORR: number;
   deP_COD: string;
-  seR_COD: string;
+  seR_COD: number;
   nombre: string;
   vig: string;
   usuario: string;
   ip: string;
   num: number;
   fechA_CREA: string;
-  id: number;
 }
 
 interface GeneralProps {
-  listadoMantenedor: ListadoDependencia[];
+  listadoMantenedor: ListadoMantenedor[];
   listadoMantenedorDependenciasActions: () => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
 
@@ -42,13 +41,12 @@ interface GeneralProps {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
-
 }
 
 const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, comboServicioActions, comboDependenciaActions, token, isDarkMode, comboServicio, comboDependencia, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
-  const [error, setError] = useState<Partial<ListadoDependencia>>({});
+  const [error, setError] = useState<Partial<ListadoMantenedor>>({});
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
@@ -71,31 +69,10 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
 
-  // if (listadoMantenedor.length === 0) return 0; // Si no hay elementos, empieza en 1
-  // Obtener todos los valores de deP_CORR en el listado completo
-  const depCorrNuevo = listadoMantenedor.length > 0
-    ? listadoMantenedor.map((item) => item.deP_CORR)
-    : [0];
-
-  const depCodNuevo = listadoMantenedor.length > 0
-    ? listadoMantenedor.map((item) => parseInt(item.deP_COD) || 0)
-    : [0];
-
-  // Encontrar el máximo valor de deP_CORR
-  const maxCodigo = Math.max(...depCorrNuevo, 0) + 1;
-  const maxCodigoDepCod = Math.max(...depCodNuevo, 0) + 1;
-
   const [Mantenedor, setMantenedor] = useState({
-    deP_CORR: maxCodigo,
-    deP_COD: maxCodigoDepCod,
-    seR_COD: "",
+    seR_COD: 0,
     nombre: "",
-    vig: "S",
-    usuario: objeto.IdCredencial,
-    ip: "1.1.1.1",
-    num: 0,
-    fechA_CREA: fechaHoy.toLocaleString('es-CL'),
-    id: 0,
+    usuario: objeto.IdCredencial.toString(),
   });
 
   const validate = () => {
@@ -144,8 +121,9 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
     // Convierte `value` a número
-    let newValue: string | number = ["deP_CORR"].includes(name)
+    let newValue: string | number = ["seR_COD"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -250,6 +228,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
             </Button>
           </div>
         </div>
+
         {loading ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
@@ -267,7 +246,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
                   <th scope="col">Vigencia</th>
                   <th scope="col">IP</th>
                   <th scope="col">Fecha de Creación</th>
-                  <th scope="col">ID</th>
                 </tr>
               </thead>
               <tbody>
@@ -289,7 +267,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
                       <td>{Lista.vig}</td>
                       <td>{Lista.ip}</td>
                       <td>{Lista.fechA_CREA}</td>
-                      <td>{Lista.id}</td>
                     </tr>
                   );
                 })}
@@ -299,7 +276,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
         )}
         {/* Paginador */}
         <div className="paginador-container">
-          <Pagination className="paginador-scroll">
+          <Pagination className="paginador-scroll ">
             <Pagination.First
               onClick={() => paginar(1)}
               disabled={paginaActual === 1}
@@ -315,8 +292,9 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
                 key={i + 1}
                 active={i + 1 === paginaActual}
                 onClick={() => paginar(i + 1)}
+
               >
-                {i + 1}
+                {i + 1} {/* adentro de aqui esta page-link */}
               </Pagination.Item>
             ))}
             <Pagination.Next
@@ -501,7 +479,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listadoMantenedor: state.listadoMantenedorDependenciasReducers.listadoMantenedorDependencias,
+  listadoMantenedor: state.listadoMantenedorDependenciasReducers.listadoMantenedor,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   comboServicio: state.comboServicioReducer.comboServicio,

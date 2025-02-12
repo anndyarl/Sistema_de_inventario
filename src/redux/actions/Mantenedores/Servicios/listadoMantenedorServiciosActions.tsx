@@ -1,14 +1,14 @@
 import axios from 'axios';
 import {
-    LISTA_MANTENEDOR_DEPENDENCIA_REQUEST,
-    LISTA_MANTENEDOR_DEPENDENCIA_SUCCESS,
-    LISTA_MANTENEDOR_DEPENDENCIA_FAIL,
+    LISTA_MANTENEDOR_SERVICIO_REQUEST,
+    LISTA_MANTENEDOR_SERVICIO_SUCCESS,
+    LISTA_MANTENEDOR_SERVICIO_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
 
 
 // Acción para obtener servicio
-export const listadoMantenedorDependenciasActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoMantenedorServiciosActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; //token está en el estado de autenticación
     if (token) {
         const config = {
@@ -18,28 +18,28 @@ export const listadoMantenedorDependenciasActions = () => async (dispatch: Dispa
             },
         };
 
-        dispatch({ type: LISTA_MANTENEDOR_DEPENDENCIA_REQUEST });
+        dispatch({ type: LISTA_MANTENEDOR_SERVICIO_REQUEST });
 
         try {
-            const res = await axios.get(`http://localhost:5076/api/inventario/TraeMantenedorDependencias`, config);
+            const res = await axios.get(`http://localhost:5076/api/inventario/TraeMantenedorServicios`, config);
 
             if (res.status === 200) {
                 dispatch({
-                    type: LISTA_MANTENEDOR_DEPENDENCIA_SUCCESS,
+                    type: LISTA_MANTENEDOR_SERVICIO_SUCCESS,
                     payload: res.data
                 });
                 return true;
             } else {
-                dispatch({ type: LISTA_MANTENEDOR_DEPENDENCIA_FAIL });
+                dispatch({ type: LISTA_MANTENEDOR_SERVICIO_FAIL });
                 return false;
             }
         } catch (err) {
             console.error("Error en la solicitud:", err);
-            dispatch({ type: LISTA_MANTENEDOR_DEPENDENCIA_FAIL });
+            dispatch({ type: LISTA_MANTENEDOR_SERVICIO_FAIL });
             return false;
         }
     } else {
-        dispatch({ type: LISTA_MANTENEDOR_DEPENDENCIA_FAIL });
+        dispatch({ type: LISTA_MANTENEDOR_SERVICIO_FAIL });
         return false;
     }
 };

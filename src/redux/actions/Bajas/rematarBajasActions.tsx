@@ -7,7 +7,7 @@ import {
 } from "./types";
 
 // Acción para obtener la recepción por número
-export const rematarBajasActions = (listaRemates: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const rematarBajasActions = (activos: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -17,11 +17,11 @@ export const rematarBajasActions = (listaRemates: Record<string, any>[]) => asyn
         "Content-Type": "application/json",
       },
     };
-    if (!listaRemates || Object.keys(listaRemates).length === 0) {
+    if (!activos || Object.keys(activos).length === 0) {
       // console.error("El objeto datosInventario está vacío.");
       return false;
     }
-    const body = JSON.stringify(listaRemates);
+    const body = JSON.stringify(activos);
 
     dispatch({ type: REGISTRAR_REMATES_REQUEST });
 
