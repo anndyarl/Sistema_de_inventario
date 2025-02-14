@@ -25,6 +25,7 @@ import MenuInventario from "../../Menus/MenuInventario";
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { comboTraeOrigenActions } from "../../../redux/actions/Inventario/Combos/comboTraeOrigenActions";
+import { Helmet } from "react-helmet-async";
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -182,6 +183,9 @@ const FormInventario: React.FC<FormInventarioProps> = ({
 
   return (
     <Layout>
+      <Helmet>
+        <title>Registrar Inventario</title>
+      </Helmet>
       <MenuInventario />
       <Timeline Formulario_actual={step} />
       {step === 0 && (

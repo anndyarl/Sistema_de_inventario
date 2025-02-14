@@ -18,6 +18,7 @@ import { comboCuentaActions } from "../../redux/actions/Inventario/Combos/comboC
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import MenuInventario from "../Menus/MenuInventario";
 import { setModalidadCompraActions } from "../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
+import { Helmet } from "react-helmet-async";
 
 
 // export interface InventarioCompleto {
@@ -595,6 +596,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   return (
     <Layout>
+      <Helmet>
+        <title>Modificar Inventario</title>
+      </Helmet>
       <MenuInventario />
       <form onSubmit={handleSubmit}>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>

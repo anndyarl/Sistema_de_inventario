@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import { Collection } from "react-bootstrap-icons";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
+import { Helmet } from "react-helmet-async";
 
 interface Props {
   isDarkMode: boolean;
@@ -40,6 +41,9 @@ const navigation: NavItem[] = [
 const Mantenedores: React.FC<Props> = ({ isDarkMode }) => {
   return (
     <Layout>
+      <Helmet>
+        <title>Mantenedores</title>
+      </Helmet>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">

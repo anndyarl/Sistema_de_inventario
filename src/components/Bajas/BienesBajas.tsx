@@ -10,6 +10,7 @@ import { listaBajasActions } from "../../redux/actions/Bajas/listaBajasActions.t
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import "../../styles/Layout.css";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
+import { Helmet } from "react-helmet-async";
 
 // interface FechasProps {
 //   fechaInicio: string;
@@ -295,6 +296,9 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
 
   return (
     <Layout>
+      <Helmet>
+        <title>Bienes de Bajas</title>
+      </Helmet>
       <MenuBajas />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Bienes de Bajas</h3>

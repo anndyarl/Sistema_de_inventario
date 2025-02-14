@@ -1,19 +1,18 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
+import { Pagination, Button, Spinner, Modal, Form } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { DEPENDENCIA, SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
-import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions.tsx";
-import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
 import { Plus } from "react-bootstrap-icons";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { listadoMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/listadoMantenedorServiciosActions.tsx";
 import { registrarMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/registrarMantenedorServiciosActions.tsx";
+import { Helmet } from "react-helmet-async";
+import { comboEstablecimientosMantenedorActions } from "../../redux/actions/Mantenedores/Servicios/comboEstablecimientosMantenedorActions.tsx";
 
 
 export interface ListadoMantenedor {
@@ -26,34 +25,32 @@ export interface ListadoMantenedor {
     seR_IP_CREA: string;
     estabL_NOMBRE: string;
 }
-
+interface ESTABLECIMIENTO {
+    codigo: number;
+    descripcion: string;
+}
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
+    comboEstablecimiento: ESTABLECIMIENTO[];
     listadoMantenedorServiciosActions: () => Promise<boolean>;
     registrarMantenedorServiciosActions: (formModal: Record<string, any>) => Promise<boolean>;
+    // registrarMantenedorServiciosActions: (registro: { formModal: Record<string, any> }[]) => Promise<boolean>;
 
-    comboServicio: SERVICIO[];
-    comboDependencia: DEPENDENCIA[];
-    comboServicioActions: () => void;
-    comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+    comboEstablecimientosMantenedorActions: () => void;
     token: string | null;
     isDarkMode: boolean;
-    objeto: Objeto;
-
+    objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, comboServicioActions, comboDependenciaActions, token, isDarkMode, comboServicio, comboDependencia, objeto }) => {
+const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, comboEstablecimientosMantenedorActions, token, isDarkMode, comboEstablecimiento, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
-    const [error, setError] = useState<Partial<ListadoMantenedor>>({});
-    const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
+    const [error, setError] = useState<Partial<ListadoMantenedor> & Partial<ESTABLECIMIENTO> & {}>({});
+    const [filasSeleccionada, setFilaSeleccionada] = useState<any[]>([]);
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 10;
-
-    const fecha = Date.now();
-    const fechaHoy = new Date(fecha);
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -69,15 +66,14 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
 
 
     const [Mantenedor, setMantenedor] = useState({
-        seR_NOMBRE: "",
-        usuario: objeto.IdCredencial,
+        descripcion: "",
+        usuario: objeto.IdCredencial.toString(),
     });
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
-        // Validación para N° de Recepción (debe ser un número)
-        // if (!Mantenedor.seR_COD) tempErrors.seR_COD = "Campo obligatorio";
-        if (!Mantenedor.seR_NOMBRE) tempErrors.seR_NOMBRE = "Campo obligatorio";
+        // Validación  
+        if (!Mantenedor.descripcion) tempErrors.Descripcion = "Campo obligatorio";
 
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
@@ -112,23 +108,43 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
     useEffect(() => {
         listadoMantenedorAuto()
         if (token) {
-            if (comboServicio.length === 0) comboServicioActions();
+            if (comboEstablecimiento.length === 0) comboEstablecimientosMantenedorActions();
         }
-    }, [listadoMantenedorServiciosActions, comboServicioActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
-
+    }, [listadoMantenedorServiciosActions, comboEstablecimientosMantenedorActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+
         // Convierte `value` a número
-        let newValue: string | number = ["deP_CORR"].includes(name)
+        let newValue: string | number = ["seR_COD"].includes(name)
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
-        setMantenedor((preBajas) => ({
-            ...preBajas,
+        setMantenedor((prevPrev) => ({
+            ...prevPrev,
             [name]: newValue,
         }));
 
+
+
+    };
+
+    const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
+        index: number
+    ) => {
+        const { name, value } = e.target;
+
+        // Actualiza el elemento correspondiente en el array
+        setFilaSeleccionada((prevElementos) =>
+            prevElementos.map((elemento, i) =>
+                i === index
+                    ? {
+                        ...elemento,
+                        [name]: value, // Actualiza solo la propiedad correspondiente
+                    }
+                    : elemento
+            )
+        );
     };
 
     const setSeleccionaFila = (index: number) => {
@@ -150,7 +166,7 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (validate()) {
-
+            const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
                 title: "Registrar",
@@ -167,49 +183,55 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
             });
             if (result.isConfirmed) {
                 setLoadingRegistro(true);
-                const resultado = await registrarMantenedorServiciosActions(Mantenedor);
-                console.log(Mantenedor);
-                if (resultado) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Registro Exitoso",
-                        text: "Se ha agregado un nueva dependencia",
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
+                const formMantenedor = selectedIndices.map((activo) => ({
+                    seR_COD: listadoMantenedor[activo].seR_COD,
+                    ...Mantenedor,
+                }));
+                // const resultado = await registrarMantenedorServiciosActions(Mantenedor);
+                console.log(formMantenedor);
+                // if (resultado) {
+                //     Swal.fire({
+                //         icon: "success",
+                //         title: "Registro Exitoso",
+                //         text: "Se ha agregado un nueva dependencia",
+                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                //         customClass: {
+                //             popup: "custom-border", // Clase personalizada para el borde
+                //         }
+                //     });
 
-                    setLoadingRegistro(false);
-                    listadoMantenedorServiciosActions();
-                    // setFilaSeleccionada([]);
-                    elementosActuales.map((_, index) => (
-                        handleCerrarModal(index)
-                    ));
+                //     setLoadingRegistro(false);
+                //     listadoMantenedorServiciosActions();
+                //     // setFilaSeleccionada([]);
+                //     elementosActuales.map((_, index) => (
+                //         handleCerrarModal(index)
+                //     ));
 
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: ":'(",
-                        text: "Hubo un problema al registrar",
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                    setLoadingRegistro(false);
-                }
+                // } else {
+                //     Swal.fire({
+                //         icon: "error",
+                //         title: ":'(",
+                //         text: "Hubo un problema al registrar",
+                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                //         customClass: {
+                //             popup: "custom-border", // Clase personalizada para el borde
+                //         }
+                //     });
+                //     setLoadingRegistro(false);
+                // }
             }
         }
     };
 
-
     return (
         <Layout>
+            <Helmet>
+                <title>Servicios</title>
+            </Helmet>
             <MenuMantenedores />
             <div className="border-bottom shadow-sm p-4 rounded">
                 <h3 className="form-title fw-semibold border-bottom p-1">Listado de Servicios</h3>
@@ -234,9 +256,9 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
                         <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                 <tr>
-                                    {/* <th scope="col"></th> */}
-                                    <th scope="col">Codigo</th>
-                                    <th scope="col">Código Dependencia</th>
+                                    <th scope="col"></th>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Código Servicio</th>
                                     <th scope="col">Nombre</th>
                                     <th scope="col">Vigencia</th>
                                     <th scope="col">Fecha de Creación</th>
@@ -249,13 +271,13 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
                                     let indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                     return (
                                         <tr key={indexReal}>
-                                            {/* <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => setSeleccionaFila(indexReal)}
-                          checked={filasSeleccionada.includes((indexReal).toString())}
-                        />
-                      </td> */}
+                                            <td>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    onChange={() => setSeleccionaFila(indexReal)}
+                                                    checked={filasSeleccionada.includes((indexReal).toString())}
+                                                />
+                                            </td>
                                             <td>{Lista.seR_CORR}</td>
                                             <td>{Lista.seR_COD}</td>
                                             <td>{Lista.seR_NOMBRE}</td>
@@ -305,7 +327,88 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
                     </Pagination>
                 </div>
             </div>
+
             {/* Modal formulario Registro*/}
+            <Modal
+                show={mostrarModalRegistrar}
+                onHide={() => setMostrarModalRegistrar(false)}
+                dialogClassName="modal-right" // Clase personalizada
+            // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+            // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+            >
+                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                    <Modal.Title className="fw-semibold">Nuevo Servicio</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <form onSubmit={handleSubmit}>
+                        {/* Boton actualizar filas seleccionadas */}
+                        <div className="d-flex justify-content-end">
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                                disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                            >
+                                {loadingRegistro ? (
+                                    <>
+                                        {"Un Momento... "}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="me-2"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        Agregar
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                        {/* <div className="mt-1">
+                            <label className="fw-semibold">Establecimiento</label>
+                            <select
+                                aria-label="codigo"
+                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.codigo ? "is-invalid" : ""}`}
+                                name="codigo"
+                                onChange={handleChange}
+                                value={Mantenedor.codigo}
+                            >
+                                <option value="">Seleccione un origen</option>
+                                {comboEstablecimiento.map((TraeEstablecimiento) => (
+                                    <option key={TraeEstablecimiento.codigo} value={TraeEstablecimiento.codigo}>
+                                        {TraeEstablecimiento.descripcion}
+                                    </option>
+                                ))}
+                            </select>
+                            {error.codigo && (
+                                <div className="invalid-feedback fw-semibold">{error.codigo}</div>
+                            )}
+                        </div> */}
+                        <div className="mt-1">
+                            <label className="fw-semibold">Servicio</label>
+                            <input
+                                aria-label="descripcion"
+                                type="text"
+                                className={`form-control ${error.descripcion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="descripcion"
+                                placeholder="Ingrese un nuevo servicio"
+                                maxLength={100}
+                                onChange={handleChange}
+                                value={Mantenedor.descripcion}
+                            />
+                            {error.descripcion && (
+                                <div className="invalid-feedback fw-semibold">{error.descripcion}</div>
+                            )}
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal >
+
+            {/* Modal formulario Actualizar*/}
             {elementosActuales.map((Lista, index) => {
                 let indexReal = indicePrimerElemento + index;
                 return (
@@ -352,18 +455,19 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
                                     </div>
 
                                     <div className="mt-1">
-                                        <label className="fw-semibold">Nombre Servicio</label>
+                                        <label className="fw-semibold">Servicio</label>
                                         <input
-                                            aria-label="seR_NOMBRE"
+                                            aria-label="descripcion"
                                             type="text"
-                                            className={`form-control ${error.seR_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                            name="seR_NOMBRE"
+                                            className={`form-control ${error.descripcion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="descripcion"
+                                            placeholder="Ingrese un nuevo servicio"
                                             maxLength={100}
-                                            onChange={handleChange}
-                                            value={Mantenedor.seR_NOMBRE}
+                                            onChange={(e) => handleActualizar(e, indexReal)} // Pasar índice real
+                                            value={Lista.seR_NOMBRE || ""} // Valor controlado
                                         />
-                                        {error.seR_NOMBRE && (
-                                            <div className="invalid-feedback fw-semibold">{error.seR_NOMBRE}</div>
+                                        {error.descripcion && (
+                                            <div className="invalid-feedback fw-semibold">{error.descripcion}</div>
                                         )}
                                     </div>
                                 </form>
@@ -372,64 +476,6 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
                     </div>
                 )
             })}
-            <Modal
-                show={mostrarModalRegistrar}
-                onHide={() => setMostrarModalRegistrar(false)}
-                dialogClassName="modal-right" // Clase personalizada
-            // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-            // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-            >
-                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                    <Modal.Title className="fw-semibold">Nuevo Servicio</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form onSubmit={handleSubmit}>
-                        {/* Boton actualizar filas seleccionadas */}
-                        <div className="d-flex justify-content-end">
-                            <Button
-                                variant="primary"
-                                type="submit"
-                                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                                disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                            >
-                                {loadingRegistro ? (
-                                    <>
-                                        {"Un Momento... "}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="me-2"
-                                        />
-                                    </>
-                                ) : (
-                                    <>
-                                        Agregar
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-
-                        <div className="mt-1">
-                            <label className="fw-semibold">Nombre Servicio</label>
-                            <input
-                                aria-label="nombre"
-                                type="text"
-                                className={`form-control ${error.seR_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                name="nombre"
-                                maxLength={100}
-                                onChange={handleChange}
-                                value={Mantenedor.seR_NOMBRE}
-                            />
-                            {error.seR_NOMBRE && (
-                                <div className="invalid-feedback fw-semibold">{error.seR_NOMBRE}</div>
-                            )}
-                        </div>
-                    </form>
-                </Modal.Body>
-            </Modal >
         </Layout >
     );
 };
@@ -438,14 +484,12 @@ const mapStateToProps = (state: RootState) => ({
     listadoMantenedor: state.listadoMantenedorServiciosReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    comboServicio: state.comboServicioReducer.comboServicio,
-    comboDependencia: state.comboDependenciaReducer.comboDependencia,
+    comboEstablecimiento: state.comboEstablecimientosMantenedorReducers.comboEstablecimiento,
     objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {
     listadoMantenedorServiciosActions,
     registrarMantenedorServiciosActions,
-    comboServicioActions,
-    comboDependenciaActions,
+    comboEstablecimientosMantenedorActions
 })(Servicios);

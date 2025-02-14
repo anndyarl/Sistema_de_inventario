@@ -10,7 +10,7 @@ const App: React.FC = () => {
   return (
     <HelmetProvider>
       <Helmet>
-        <title>Sistema de Inventario | Inicio</title>
+        <title>Sistema de Inventario</title>
         <meta name="description" content="Sistema de Inventario" />
         <meta name="keywords" content="SSMSO, Sistema de inventario ssmso, nuevo sistemas de inventario ssmso" />
         <meta name="robots" content="all" />

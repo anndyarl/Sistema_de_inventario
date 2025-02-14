@@ -6,6 +6,7 @@ import { PlusCircle } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
+import { Helmet } from "react-helmet-async";
 
 const pageVariants = {
   // initial: { opacity: 0, scale: 0.98 },
@@ -27,6 +28,9 @@ interface Props {
 const Traslados: React.FC<Props> = ({ isDarkMode }) => {
   return (
     <Layout>
+      <Helmet>
+        <title>Traslados</title>
+      </Helmet>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">

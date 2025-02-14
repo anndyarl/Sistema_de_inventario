@@ -57,8 +57,11 @@ import comboDepartamentoReducer from "./Traslados/Combos/comboDepartamentoReduce
 import respuestaReducer from "./Otros/respuestaReducer";
 
 //--------------------- Mantenedores ---------------------//
-import listadoMantenedorDependenciasReducers from "./Mantenedores/listadoMantenedorDependenciasReducers";
-import listadoMantenedorServiciosReducers from "./Mantenedores/listadoMantenedorServiciosReducers";
+import listadoMantenedorDependenciasReducers from "./Mantenedores/Dependencias/listadoMantenedorDependenciasReducers";
+import listadoMantenedorServiciosReducers from "./Mantenedores/Servicios/listadoMantenedorServiciosReducers";
+import comboEstablecimientosReducers from "./Mantenedores/Servicios/comboEstablecimientosMantenedorReducers";
+import comboEstablecimientosMantenedorReducers from "./Mantenedores/Servicios/comboEstablecimientosMantenedorReducers";
+import comboServicioMantenedorReducers from "./Mantenedores/Dependencias/comboServicioMantenedorReducers";
 
 
 
@@ -123,7 +126,9 @@ const appReducer = combineReducers({
 
   //Mantenedores
   listadoMantenedorDependenciasReducers,
-  listadoMantenedorServiciosReducers
+  listadoMantenedorServiciosReducers,
+  comboServicioMantenedorReducers,
+  comboEstablecimientosMantenedorReducers
 });
 
 //--------------------- Root Reducer ---------------------//

@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Signature } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 interface Props {
   isDarkMode: boolean;
@@ -49,6 +50,9 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
   ];
   return (
     <Layout>
+      <Helmet>
+        <title>Inicio</title>
+      </Helmet>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">

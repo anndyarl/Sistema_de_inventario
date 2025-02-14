@@ -13,6 +13,7 @@ import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comb
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { motion, AnimatePresence } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 
 
 interface FormInventarioProps {
@@ -102,6 +103,9 @@ const Inventario: React.FC<FormInventarioProps> = ({
 
   return (
     <Layout>
+      <Helmet>
+        <title>Inventario</title>
+      </Helmet>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">

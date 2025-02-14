@@ -10,6 +10,7 @@ import MenuBajas from "../Menus/MenuBajas.tsx";
 import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/listadoGeneralBajasActions.tsx";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/registrarBienesBajasActions.tsx";
 import { ListaBajas } from "./BienesBajas.tsx";
+import { Helmet } from "react-helmet-async";
 
 export interface ListadoGeneralBajas {
   aF_CLAVE: number;
@@ -238,6 +239,9 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
 
   return (
     <Layout>
+      <Helmet>
+        <title>Listado General</title>
+      </Helmet>
       <MenuBajas />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>

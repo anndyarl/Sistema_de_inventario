@@ -3,7 +3,7 @@ import {
   LISTA_MANTENEDOR_DEPENDENCIA_REQUEST,
   LISTA_MANTENEDOR_DEPENDENCIA_SUCCESS,
   LISTA_MANTENEDOR_DEPENDENCIA_FAIL
-} from '../../actions/Mantenedores/types'
+} from '../../../actions/Mantenedores/types'
 
 // Define el tipo para el estado inicial
 interface PropsState {

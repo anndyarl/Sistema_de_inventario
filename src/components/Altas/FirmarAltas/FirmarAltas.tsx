@@ -14,6 +14,7 @@ import Layout from "../../../containers/hocs/layout/Layout";
 import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { ORIGEN } from "../../Inventario/RegistrarInventario/DatosInventario";
+import { Helmet } from "react-helmet-async";
 
 export interface ListaBajas {
     bajaS_CORR: string;
@@ -237,6 +238,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
     const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
     return (
         <Layout>
+            <Helmet>
+                <title>Firmar Altas</title>
+            </Helmet>
             <MenuAltas />
             <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>

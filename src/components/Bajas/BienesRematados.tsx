@@ -11,6 +11,7 @@ import MenuBajas from "../Menus/MenuBajas.tsx";
 
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
 import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
+import { Helmet } from "react-helmet-async";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -219,6 +220,9 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
 
   return (
     <Layout>
+      <Helmet>
+        <title>Bienes Rematados</title>
+      </Helmet>
       <MenuBajas />
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">

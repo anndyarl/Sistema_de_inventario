@@ -11,6 +11,7 @@ import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combo
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
 import { comboDepartamentoActions } from "../../redux/actions/Traslados/Combos/comboDepartamentoActions";
+import { Helmet } from "react-helmet-async";
 
 // Define el tipo de los elementos del combo `Establecimiento`
 interface ESTABLECIMIENTO {
@@ -144,6 +145,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
   return (
     <Layout>
+      <Helmet>
+        <title>Registrar Traslados</title>
+      </Helmet>
       <form onSubmit={handleFormSubmit}>
         <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traslados</h3>

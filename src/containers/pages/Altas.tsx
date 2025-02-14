@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { Signature } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 interface Props {
   isDarkMode: boolean;
@@ -42,7 +43,11 @@ const Altas: React.FC<Props> = ({ isDarkMode }) => {
   ];
 
   return (
+
     <Layout>
+      <Helmet>
+        <title>Altas</title>
+      </Helmet>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">

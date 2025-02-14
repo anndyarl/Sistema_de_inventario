@@ -13,6 +13,7 @@ import { anularAltasActions } from "../../redux/actions/Altas/AnularAltas/anular
 import MenuAltas from "../Menus/MenuAltas";
 import { obtenerAltasPorCorrActions } from "../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
 import SkeletonLoader from "../Utils/SkeletonLoader";
+import { Helmet } from "react-helmet-async";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -310,6 +311,9 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 
   return (
     <Layout>
+      <Helmet>
+        <title>Anular Altas</title>
+      </Helmet>
       <MenuAltas />
       <form>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>

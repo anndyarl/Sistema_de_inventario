@@ -11,6 +11,7 @@ import MenuBajas from "../Menus/MenuBajas.tsx";
 
 import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions.tsx";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
+import { Helmet } from "react-helmet-async";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
@@ -220,6 +221,9 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
 
   return (
     <Layout>
+      <Helmet>
+        <title>Bodega de Excluidos</title>
+      </Helmet>
       <MenuBajas />
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">

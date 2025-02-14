@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { NavLink, useNavigate } from "react-router-dom";
 import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
+import { Helmet } from "react-helmet-async";
 
 
 interface Props {
@@ -61,6 +62,9 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
 
   return (
     <>
+      <Helmet>
+        <title>Validando Acceso...</title>
+      </Helmet>
       <div className="d-flex justify-content-center align-items-center vh-100">
         <div className="col-12 col-md-8 text-center">
           <div className="d-flex justify-content-center align-items-center">

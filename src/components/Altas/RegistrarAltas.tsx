@@ -9,6 +9,7 @@ import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAl
 import { registrarAltasActions } from "../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
+import { Helmet } from "react-helmet-async";
 
 export interface ListaAltas {
   aF_CLAVE: number,
@@ -286,8 +287,10 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
 
   return (
     <Layout>
+      <Helmet>
+        <title>Registrar Altas</title>
+      </Helmet>
       <MenuAltas />
-
       <form>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>

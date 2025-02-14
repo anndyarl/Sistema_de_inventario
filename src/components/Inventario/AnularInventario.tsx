@@ -12,6 +12,7 @@ import { anularInventarioActions } from "../../redux/actions/Inventario/AnularIn
 import MenuInventario from "../Menus/MenuInventario";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { InventarioCompleto } from "./ModificarInventario";
+import { Helmet } from "react-helmet-async";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
@@ -160,6 +161,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
 
   return (
     <Layout>
+      <Helmet>
+        <title>Anular Inventario</title>
+      </Helmet>
       <MenuInventario />
       <form>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>

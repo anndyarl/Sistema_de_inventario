@@ -6,6 +6,7 @@ import { Boxes, BoxSeamFill, DashCircle, Exclude } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
+import { Helmet } from "react-helmet-async";
 
 interface Props {
   isDarkMode: boolean;
@@ -42,6 +43,9 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Bajas</title>
+      </Helmet>
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">

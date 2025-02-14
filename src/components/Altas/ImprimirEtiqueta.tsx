@@ -11,6 +11,7 @@ import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { obtenerEtiquetasAltasActions } from "../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
 import { InventarioCompleto } from "../Inventario/ModificarInventario";
+import { Helmet } from "react-helmet-async";
 
 
 interface DatosEtiquetaPrps {
@@ -98,6 +99,9 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
     };
     return (
         <Layout>
+            <Helmet>
+                <title>Imprimir Etiquetas</title>
+            </Helmet>
             <MenuAltas />
             <form onSubmit={handleFormSubmit}>
                 <div className={`border border-botom p-4 rounded v-100 ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>

@@ -4,6 +4,7 @@ import { FileEarmarkArrowDown } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
+import { Helmet } from "react-helmet-async";
 
 
 interface AdjuntoProps {
@@ -120,6 +121,9 @@ const CargaMasiva: React.FC<AdjuntoProps> = ({ isDarkMode }) => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Carga Masiva</title>
+      </Helmet>
       <MenuInventario />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">

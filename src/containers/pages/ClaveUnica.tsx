@@ -42,10 +42,13 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
             />
 
           </div>
-          <h4 className="border-bottom mb-3">
-            Sistema de apoyo en la gestión administrativa
+          <h4 className="border-bottom mb-3 w-100">
+            Sistema de Inventario
           </h4>
 
+          <p className="fs-09em mb-1">
+            Subdirección Administrativa | Departamento de Finanzas | Unidad de Inventarios
+          </p>
           <p className="fs-09em mb-3">
             Servicio de Salud Metropolitano Sur Oriente
           </p>
@@ -69,7 +72,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
           </a> */}
 
           <footer className="mt-auto fs-05em m-4">
-            Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
+            Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025 | Versión 4.0.0.0
           </footer>
         </div>
         <div className={`mt-md-0 text-center w-100 h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>

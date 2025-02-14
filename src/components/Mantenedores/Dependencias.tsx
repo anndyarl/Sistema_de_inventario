@@ -10,11 +10,11 @@ import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mant
 
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
 import { listadoMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/listadoMantenedorDependenciasActions.tsx";
-import { DEPENDENCIA, SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
-import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions.tsx";
-import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
+import { SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
 import { Plus } from "react-bootstrap-icons";
 import { Objeto } from "../Navegacion/Profile.tsx";
+import { Helmet } from "react-helmet-async";
+import { comboServicioMantenedorActions } from "../../redux/actions/Mantenedores/Dependencias/comboServicioMantenedorActions.tsx";
 
 
 export interface ListadoMantenedor {
@@ -35,15 +35,13 @@ interface GeneralProps {
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
 
   comboServicio: SERVICIO[];
-  comboDependencia: DEPENDENCIA[];
-  comboServicioActions: () => void;
-  comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+  comboServicioMantenedorActions: () => void;
   token: string | null;
   isDarkMode: boolean;
-  objeto: Objeto;
+  objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, comboServicioActions, comboDependenciaActions, token, isDarkMode, comboServicio, comboDependencia, objeto }) => {
+const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, comboServicioMantenedorActions, token, isDarkMode, comboServicio, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListadoMantenedor>>({});
@@ -114,9 +112,9 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
   useEffect(() => {
     listadoMantenedorAuto()
     if (token) {
-      if (comboServicio.length === 0) comboServicioActions();
+      if (comboServicio.length === 0) comboServicioMantenedorActions();
     }
-  }, [listadoMantenedorDependenciasActions, comboServicioActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
+  }, [listadoMantenedorDependenciasActions, comboServicioMantenedorActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
 
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -213,6 +211,9 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
 
   return (
     <Layout>
+      <Helmet>
+        <title>Dependencias</title>
+      </Helmet>
       <MenuMantenedores />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Dependencias</h3>
@@ -310,7 +311,88 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
           </Pagination>
         </div>
       </div>
+
       {/* Modal formulario Registro*/}
+      <Modal
+        show={mostrarModalRegistrar}
+        onHide={() => setMostrarModalRegistrar(false)}
+        dialogClassName="modal-right" // Clase personalizada
+      // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+      // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+      >
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+          <Modal.Title className="fw-semibold">Nueva Dependencia</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <form onSubmit={handleSubmit}>
+            {/* Boton actualizar filas seleccionadas */}
+            <div className="d-flex justify-content-end">
+              <Button
+                variant="primary"
+                type="submit"
+                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                disabled={loadingRegistro}  // Desactiva el botón mientras carga
+              >
+                {loadingRegistro ? (
+                  <>
+                    {"Un Momento... "}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                  </>
+                ) : (
+                  <>
+                    Agregar
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="mt-1">
+              <label className="fw-semibold">Dependencia</label>
+              <input
+                aria-label="nombre"
+                type="text"
+                className={`form-control ${error.nombre ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="nombre"
+                placeholder="Ingrese una nueva dependencia"
+                maxLength={100}
+                onChange={handleChange}
+                value={Mantenedor.nombre}
+              />
+              {error.nombre && (
+                <div className="invalid-feedback fw-semibold">{error.nombre}</div>
+              )}
+            </div>
+            <div className="mt-1">
+              <label className="fw-semibold">Servicio</label>
+              <select
+                aria-label="seR_COD"
+                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_COD ? "is-invalid" : ""}`}
+                name="seR_COD"
+                onChange={handleChange}
+                value={Mantenedor.seR_COD}
+              >
+                <option value="">Seleccione</option>
+                {comboServicio.map((traeServicio) => (
+                  <option key={traeServicio.codigo} value={traeServicio.codigo}>
+                    {traeServicio.nombrE_ORD}
+                  </option>
+                ))}
+              </select>
+              {error.seR_COD && (
+                <div className="invalid-feedback fw-semibold">{error.seR_COD}</div>
+              )}
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal >
+
+      {/* Modal formulario Actualizar*/}
       {elementosActuales.map((Lista, index) => {
         let indexReal = indicePrimerElemento + index;
         return (
@@ -397,83 +479,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
           </div>
         )
       })}
-      <Modal
-        show={mostrarModalRegistrar}
-        onHide={() => setMostrarModalRegistrar(false)}
-        dialogClassName="modal-right" // Clase personalizada
-      // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-      // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-      >
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Nueva Dependencia</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <form onSubmit={handleSubmit}>
-            {/* Boton actualizar filas seleccionadas */}
-            <div className="d-flex justify-content-end">
-              <Button
-                variant="primary"
-                type="submit"
-                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loadingRegistro}  // Desactiva el botón mientras carga
-              >
-                {loadingRegistro ? (
-                  <>
-                    {"Un Momento... "}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"
-                    />
-                  </>
-                ) : (
-                  <>
-                    Agregar
-                  </>
-                )}
-              </Button>
-            </div>
-            <div className="mt-1">
-              <label className="fw-semibold">Servicio</label>
-              <select
-                aria-label="seR_COD"
-                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_COD ? "is-invalid" : ""}`}
-                name="seR_COD"
-                onChange={handleChange}
-                value={Mantenedor.seR_COD}
-              >
-                <option value="">Seleccione un origen</option>
-                {comboServicio.map((traeServicio) => (
-                  <option key={traeServicio.codigo} value={traeServicio.codigo}>
-                    {traeServicio.nombrE_ORD}
-                  </option>
-                ))}
-              </select>
-              {error.seR_COD && (
-                <div className="invalid-feedback fw-semibold">{error.seR_COD}</div>
-              )}
-            </div>
-            <div className="mt-1">
-              <label className="fw-semibold">Nombre Dependencia</label>
-              <input
-                aria-label="nombre"
-                type="text"
-                className={`form-control ${error.nombre ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="nombre"
-                maxLength={100}
-                onChange={handleChange}
-                value={Mantenedor.nombre}
-              />
-              {error.nombre && (
-                <div className="invalid-feedback fw-semibold">{error.nombre}</div>
-              )}
-            </div>
-          </form>
-        </Modal.Body>
-      </Modal >
     </Layout >
   );
 };
@@ -482,8 +487,7 @@ const mapStateToProps = (state: RootState) => ({
   listadoMantenedor: state.listadoMantenedorDependenciasReducers.listadoMantenedor,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  comboServicio: state.comboServicioReducer.comboServicio,
-  comboDependencia: state.comboDependenciaReducer.comboDependencia,
+  comboServicio: state.comboServicioMantenedorReducers.comboServicio,
   objeto: state.validaApiLoginReducers
 
 });
@@ -491,6 +495,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   listadoMantenedorDependenciasActions,
   registrarMantenedorDependenciasActions,
-  comboServicioActions,
-  comboDependenciaActions,
+  comboServicioMantenedorActions
 })(Dependencias);

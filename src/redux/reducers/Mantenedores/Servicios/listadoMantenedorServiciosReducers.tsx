@@ -3,7 +3,7 @@ import {
   LISTA_MANTENEDOR_SERVICIO_REQUEST,
   LISTA_MANTENEDOR_SERVICIO_SUCCESS,
   LISTA_MANTENEDOR_SERVICIO_FAIL
-} from '../../actions/Mantenedores/types'
+} from '../../../actions/Mantenedores/types'
 
 // Define el tipo para el estado inicial
 interface PropsState {

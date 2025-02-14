@@ -17,6 +17,7 @@ import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/c
 import MenuInventario from "../Menus/MenuInventario";
 import { setDependenciaBienesFuncionarioActions, setRutBienesFuncionarioActions, setServicioBienesFuncionarioActions } from "../../redux/actions/Inventario/RegistroBienesFuncionario/datosRegistroBeneficiarioActions";
 import { validate, format } from 'rut.js';
+import { Helmet } from "react-helmet-async";
 
 
 interface FuncionarioProps {
@@ -303,6 +304,9 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
 
   return (
     <Layout>
+      <Helmet>
+        <title>Bienes de Funcionarios</title>
+      </Helmet>
       <MenuInventario />
       <form onSubmit={handleFormSubmit}>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
