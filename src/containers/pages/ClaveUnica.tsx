@@ -71,8 +71,8 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
             Clave Única demo
           </a> */}
 
-          <footer className="mt-auto fs-05em m-4">
-            Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025 | Versión 4.0.0.0
+          <footer className="mt-auto fs-05em m-1">
+            Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
           </footer>
         </div>
         <div className={`mt-md-0 text-center w-100 h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>

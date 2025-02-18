@@ -33,7 +33,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <nav>
+    <div>
       <div className="text-center text-white">
         <div className="d-flex  mx-2 top-0 w-75">
           <div className="text-bg-primary p-1 w-50"></div>
@@ -72,7 +72,7 @@ const Sidebar: React.FC = () => {
           className="img-fluid d-none d-lg-block"
         />
       </div> */}
-    </nav >
+    </div >
   );
 };
 

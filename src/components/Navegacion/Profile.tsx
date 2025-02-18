@@ -13,7 +13,6 @@ import Datos from "../Configuracion/Datos";
 import Firma from "../Configuracion/Firma";
 import Versionamiento from "../Configuracion/Versionamiento";
 import Indicadores from "../Configuracion/Indicadores";
-import SkeletonLoader from "../Utils/SkeletonLoader";
 import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
 import { logout } from "../../redux/actions/auth/auth";
 import { connect } from "react-redux";
@@ -74,7 +73,8 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
   const [loading, setLoading] = useState(false);
 
   const cargaIndicadores = async () => {
-    if (uf.valor === 0 || utm.valor === 0 || dolar.valor === 0 || ipc.valor === 0) {
+
+    if (uf.valor === 0 && utm.valor === 0 && dolar.valor === 0 && ipc.valor === 0) {
       setLoading(true);
       const resultado = await indicadoresActions();
       if (resultado) {
@@ -84,7 +84,6 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
   }
   useEffect(() => {
     cargaIndicadores();
-    indicadoresActions();
   }, [indicadoresActions]);
 
   const handleLogout = async () => {
@@ -112,11 +111,9 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
   const PrimeraMayuscula = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
-
   return (
     <>
-      <div className="d-flex w-50 justify-content-end mx-2 align-items-center">
-
+      <div className="d-flex w-50 justify-content-end mx-2 align-items-center ">
         <button type="button" onClick={togglePanel} className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link d-flex`}>
           <UserCircle
             className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
@@ -149,7 +146,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
                   ×
                 </button>
               </div>
-              <div className="flex-grow-1 min-vh-100">
+              <div className="flex-grow-1 min-vh-100 ">
                 <div className="text-center fw-semibold fs-4 border-bottom mb-4">
                   <p className="fs-5"> {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido2)}
                   </p>

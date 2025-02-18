@@ -49,7 +49,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 10;
+  const elementosPorPagina = 20;
 
   const fecha = Date.now();
   const fechaHoy = new Date(fecha);
@@ -155,10 +155,10 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
       const result = await Swal.fire({
         icon: "info",
         title: "Registrar",
-        text: "Confirme para registrar nueva dependencia",
+        text: "Confirme para registrar una nueva dependencia",
         showDenyButton: false,
         showCancelButton: true,
-        confirmButtonText: "Confirmar y Enviar",
+        confirmButtonText: "Confirmar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -174,7 +174,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
           Swal.fire({
             icon: "success",
             title: "Registro Exitoso",
-            text: "Se ha agregado un nueva dependencia",
+            text: "Se ha agregado una nueva dependencia",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -186,9 +186,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
           setLoadingRegistro(false);
           listadoMantenedorDependenciasActions();
           setFilaSeleccionada([]);
-          elementosActuales.map((_, index) => (
-            handleCerrarModal(index)
-          ));
+          setMostrarModalRegistrar(false);
 
         } else {
           Swal.fire({

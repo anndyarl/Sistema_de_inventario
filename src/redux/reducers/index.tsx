@@ -62,6 +62,7 @@ import listadoMantenedorServiciosReducers from "./Mantenedores/Servicios/listado
 import comboEstablecimientosReducers from "./Mantenedores/Servicios/comboEstablecimientosMantenedorReducers";
 import comboEstablecimientosMantenedorReducers from "./Mantenedores/Servicios/comboEstablecimientosMantenedorReducers";
 import comboServicioMantenedorReducers from "./Mantenedores/Dependencias/comboServicioMantenedorReducers";
+import obtenerMaxServicioReducers from "./Mantenedores/Servicios/obtenerMaxServicioReducers";
 
 
 
@@ -71,7 +72,7 @@ const appReducer = combineReducers({
   loginReducer,
   validaApiLoginReducers,
 
-  // Registro de Inventario
+  //-------------- Registro de Inventario----------------//
   // Formulario 1
   obtenerRecepcionReducers,
   comboOrigenPresupuestoReducer,
@@ -88,6 +89,7 @@ const appReducer = combineReducers({
 
   // Formulario 3
   datosActivoFijoReducers,
+  //-------------- Fin Registro de Inventario----------------//
 
   // Modificar Inventario
   obtenerInventarioReducers,
@@ -123,24 +125,25 @@ const appReducer = combineReducers({
   //Pregunta/Respuesta IA
   respuestaReducer,
 
-
   //Mantenedores
   listadoMantenedorDependenciasReducers,
   listadoMantenedorServiciosReducers,
   comboServicioMantenedorReducers,
-  comboEstablecimientosMantenedorReducers
+  comboEstablecimientosMantenedorReducers,
+  obtenerMaxServicioReducers
 });
 
 //--------------------- Root Reducer ---------------------//
 const rootReducer = (state: any, action: any) => {
   if (action.type === "LOGOUT") {
-    // Guarda el estado actual de darkModeReducer
+    // Reinicia el estado general a su valor inicial, soloo mantiene el valor de darkModeReducer(Modo Oscuro)
     const { darkModeReducer } = state || {};
-    // Reinicia el estado general a su valor inicial, preservando darkModeReducer
     state = {
-      darkModeReducer, // Mantiene el estado de darkModeReducer     
+      darkModeReducer
     };
   }
+
+  //Esta funcion se encuentra en profile/configuraciones/datos
   if (action.type === "LIMPIAR_DATA") {
     //Se limpian todo los datos menos los listados aquí
     const {

@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pagination, Button, Spinner, Modal, Form } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
@@ -13,6 +13,7 @@ import { listadoMantenedorServiciosActions } from "../../redux/actions/Mantenedo
 import { registrarMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/registrarMantenedorServiciosActions.tsx";
 import { Helmet } from "react-helmet-async";
 import { comboEstablecimientosMantenedorActions } from "../../redux/actions/Mantenedores/Servicios/comboEstablecimientosMantenedorActions.tsx";
+import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
 
 
 export interface ListadoMantenedor {
@@ -32,6 +33,7 @@ interface ESTABLECIMIENTO {
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
     comboEstablecimiento: ESTABLECIMIENTO[];
+    obtenerMaxServicioActions: () => void;
     listadoMantenedorServiciosActions: () => Promise<boolean>;
     registrarMantenedorServiciosActions: (formModal: Record<string, any>) => Promise<boolean>;
     // registrarMantenedorServiciosActions: (registro: { formModal: Record<string, any> }[]) => Promise<boolean>;
@@ -39,10 +41,11 @@ interface GeneralProps {
     comboEstablecimientosMantenedorActions: () => void;
     token: string | null;
     isDarkMode: boolean;
-    objeto: Objeto; //Objeto que obtiene los datos del usuario
+    objeto: Objeto; //Objeto que obtiene los datos del usuario  
+    seR_CORR: number;
 }
 
-const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, comboEstablecimientosMantenedorActions, token, isDarkMode, comboEstablecimiento, objeto }) => {
+const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, comboEstablecimientosMantenedorActions, token, isDarkMode, comboEstablecimiento, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & Partial<ESTABLECIMIENTO> & {}>({});
@@ -50,7 +53,7 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 10;
+    const elementosPorPagina = 20;
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -63,21 +66,6 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
         ? Math.ceil(listadoMantenedor.length / elementosPorPagina)
         : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
-
-
-    const [Mantenedor, setMantenedor] = useState({
-        descripcion: "",
-        usuario: objeto.IdCredencial.toString(),
-    });
-
-    const validate = () => {
-        let tempErrors: Partial<any> & {} = {};
-        // Validación  
-        if (!Mantenedor.descripcion) tempErrors.Descripcion = "Campo obligatorio";
-
-        setError(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
 
     //Se lista automaticamente apenas entra al componente
     const listadoMantenedorAuto = async () => {
@@ -105,12 +93,40 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
         }
     };
 
+    const [Mantenedor, setMantenedor] = useState({
+        seR_CORR: seR_CORR,
+        estabL_corr: 1, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
+        descripcion: "",
+        usuario: objeto.IdCredencial.toString(),
+    });
+
+    console.log("seR_CORR", seR_CORR + 1);
     useEffect(() => {
-        listadoMantenedorAuto()
+
+        if (seR_CORR === 0) {
+            obtenerMaxServicioActions(); // Solo se ejecuta si seR_CORR cambió                     
+        }
+        setMantenedor((prev) => ({
+            ...prev,
+            seR_CORR: seR_CORR + 1,
+        }));
+
+        listadoMantenedorAuto();
         if (token) {
             if (comboEstablecimiento.length === 0) comboEstablecimientosMantenedorActions();
         }
-    }, [listadoMantenedorServiciosActions, comboEstablecimientosMantenedorActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
+
+    }, [listadoMantenedorServiciosActions, comboEstablecimientosMantenedorActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
+
+
+    const validate = () => {
+        let tempErrors: Partial<any> & {} = {};
+        // Validación  
+        if (!Mantenedor.descripcion) tempErrors.Descripcion = "Campo obligatorio";
+
+        setError(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -124,8 +140,6 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
             ...prevPrev,
             [name]: newValue,
         }));
-
-
 
     };
 
@@ -166,14 +180,14 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (validate()) {
-            const selectedIndices = filasSeleccionada.map(Number);
+            // const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
                 title: "Registrar",
-                text: "Confirme para registrar nueva dependencia",
+                text: "Confirme para registrar un nuevo servicio",
                 showDenyButton: false,
                 showCancelButton: true,
-                confirmButtonText: "Confirmar y Enviar",
+                confirmButtonText: "Confirmar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -183,46 +197,44 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
             });
             if (result.isConfirmed) {
                 setLoadingRegistro(true);
-                const formMantenedor = selectedIndices.map((activo) => ({
-                    seR_COD: listadoMantenedor[activo].seR_COD,
-                    ...Mantenedor,
-                }));
-                // const resultado = await registrarMantenedorServiciosActions(Mantenedor);
-                console.log(formMantenedor);
-                // if (resultado) {
-                //     Swal.fire({
-                //         icon: "success",
-                //         title: "Registro Exitoso",
-                //         text: "Se ha agregado un nueva dependencia",
-                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                //         customClass: {
-                //             popup: "custom-border", // Clase personalizada para el borde
-                //         }
-                //     });
+                // const formMantenedor = selectedIndices.map((activo) => ({
+                //     seR_COD: listadoMantenedor[activo].seR_COD,
+                //     ...Mantenedor,
+                // }));
+                const resultado = await registrarMantenedorServiciosActions(Mantenedor);
+                console.log(Mantenedor);
+                if (resultado) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Registro Exitoso",
+                        text: "Se ha agregado un nuevo servicio",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoadingRegistro(false);
+                    obtenerMaxServicioActions();
+                    listadoMantenedorServiciosActions();
+                    // setFilaSeleccionada([]);
+                    setMostrarModalRegistrar(false);
 
-                //     setLoadingRegistro(false);
-                //     listadoMantenedorServiciosActions();
-                //     // setFilaSeleccionada([]);
-                //     elementosActuales.map((_, index) => (
-                //         handleCerrarModal(index)
-                //     ));
-
-                // } else {
-                //     Swal.fire({
-                //         icon: "error",
-                //         title: ":'(",
-                //         text: "Hubo un problema al registrar",
-                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                //         customClass: {
-                //             popup: "custom-border", // Clase personalizada para el borde
-                //         }
-                //     });
-                //     setLoadingRegistro(false);
-                // }
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: ":'(",
+                        text: "Hubo un problema al registrar",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoadingRegistro(false);
+                }
             }
         }
     };
@@ -252,6 +264,7 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
                         <SkeletonLoader rowCount={elementosPorPagina} />
                     </>
                 ) : (
+
                     <div className='table-responsive'>
                         <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
@@ -481,6 +494,7 @@ const Servicios: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedo
 };
 
 const mapStateToProps = (state: RootState) => ({
+    seR_CORR: state.obtenerMaxServicioReducers.seR_CORR,//Obtiene el max correletivo para insertarlo en el formualario
     listadoMantenedor: state.listadoMantenedorServiciosReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
@@ -489,6 +503,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
+    obtenerMaxServicioActions,
     listadoMantenedorServiciosActions,
     registrarMantenedorServiciosActions,
     comboEstablecimientosMantenedorActions
