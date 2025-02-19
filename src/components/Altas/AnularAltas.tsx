@@ -55,7 +55,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
   const [loadingAnular, setLoadingAnular] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 10;
+  const elementosPorPagina = 12;
 
   const [Inventario, setInventario] = useState({
     aF_CLAVE: 0,

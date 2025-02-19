@@ -7,19 +7,20 @@ import { PencilFill, PlusCircle, BoxSeam, SlashCircle } from "react-bootstrap-ic
 import Layout from "../hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "../../components/Inventario/RegistrarInventario/DatosInventario";
 import { BIEN, SERVICIO } from "../../components/Inventario/RegistrarInventario/DatosCuenta";
-import { comboTraeOrigenActions } from "../../redux/actions/Inventario/Combos/comboTraeOrigenActions";
 import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
+import { Objeto } from "../../components/Navegacion/Profile";
 
 
 interface FormInventarioProps {
   //Trae props combos de Datos_inventario(formulario 1)
   comboOrigen: ORIGEN[];
-  comboTraeOrigenActions: () => void;
+  comboOrigenPresupuestosActions: () => void;
   comboModalidad: MODALIDAD[];
   comboModalidadesActions: () => void;
   comboProveedor: PROVEEDOR[];
@@ -27,11 +28,12 @@ interface FormInventarioProps {
 
   //Trae props combos de Datos_cuenta(formulario 2)
   comboServicio: SERVICIO[];
-  comboServicioActions: () => void;
+  comboServicioActions: (establ_corr: number) => void;
   comboBien: BIEN[];
   comboDetalleActions: (bienSeleccionado: string) => void;
   token: string | null;
   isDarkMode: boolean;
+  objeto: Objeto;
 }
 interface NavItem {
   name: string;
@@ -42,6 +44,7 @@ interface NavItem {
 }
 
 const Inventario: React.FC<FormInventarioProps> = ({
+  objeto,
   token,
   comboOrigen,
   comboModalidad,
@@ -49,7 +52,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
   comboBien,
   comboProveedor,
   isDarkMode,
-  comboTraeOrigenActions,
+  comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboServicioActions,
   comboDetalleActions,
@@ -60,9 +63,9 @@ const Inventario: React.FC<FormInventarioProps> = ({
     // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboOrigen.length === 0) comboTraeOrigenActions();
+      if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
-      if (comboServicio.length === 0) comboServicioActions();
+      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
     }
@@ -70,7 +73,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
     //Carga combo bien con valor 0
     comboDetalleActions("0");
   }, [
-    comboTraeOrigenActions,
+    comboOrigenPresupuestosActions,
     comboModalidadesActions,
     comboServicioActions,
     comboDetalleActions,
@@ -146,11 +149,12 @@ const mapStateToProps = (state: RootState) => ({
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboBien: state.detallesReducer.comboBien,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {
-  comboTraeOrigenActions,
+  comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboServicioActions,
   comboDetalleActions,

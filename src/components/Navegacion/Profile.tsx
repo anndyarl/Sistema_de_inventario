@@ -16,6 +16,9 @@ import Indicadores from "../Configuracion/Indicadores";
 import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
 import { logout } from "../../redux/actions/auth/auth";
 import { connect } from "react-redux";
+import { ESTABLECIMIENTO } from "../Traslados/RegistrarTraslados";
+import { comboEstablecimientosProfileActions } from "../../redux/actions/auth/comboEstablecimientosProfileActions";
+
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -33,10 +36,6 @@ interface Roles {
   Descripcion: string;
   IdRol: number;
   IdAplicacion: number;
-  CodigoEstablicimiento: number;
-  NombreEstablecimiento: string;
-  NombreCompletoEstab: boolean;
-  IdAppChild: number;
 }
 
 export interface Objeto {
@@ -45,10 +44,8 @@ export interface Objeto {
   Apellido1: string;
   Apellido2: string;
   Correo: string;
-  Rut: string;
-  Dv: string;
-  NombreUsuario: string;
   Roles: Roles[];
+  Establecimiento: number;
   error: string | null;
   isAuthenticated: boolean;
 }
@@ -56,6 +53,8 @@ export interface Objeto {
 interface ProfileProps {
   logout: () => Promise<boolean>;
   indicadoresActions: () => Promise<boolean>;
+  comboEstablecimiento: ESTABLECIMIENTO[];
+  comboEstablecimientosProfileActions: () => void;
   objeto: Objeto;
   utm: IndicadoresProps;
   uf: IndicadoresProps;
@@ -65,7 +64,7 @@ interface ProfileProps {
   isDarkMode: boolean;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, utm, uf, dolar, ipc, isDarkMode }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEstablecimientosProfileActions, comboEstablecimiento, objeto, utm, uf, dolar, ipc, isDarkMode }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
@@ -83,8 +82,9 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
     }
   }
   useEffect(() => {
+    if (comboEstablecimiento.length === 0) comboEstablecimientosProfileActions();
     cargaIndicadores();
-  }, [indicadoresActions]);
+  }, [indicadoresActions, comboEstablecimientosProfileActions, comboEstablecimiento]);
 
   const handleLogout = async () => {
     let resultado = await logout();
@@ -110,6 +110,15 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
   //Primera Letra en mayúscula
   const PrimeraMayuscula = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+  //Busca Establecimiento del usuario
+  let establecimientoUsuario = "Sin Información";
+  for (let i = 0; i < comboEstablecimiento.length; i++) {
+    if (String(comboEstablecimiento[i].codigo) === String(objeto.Establecimiento)) {
+      establecimientoUsuario = comboEstablecimiento[i].descripcion;
+      break;
+    }
+  }
 
   return (
     <>
@@ -161,7 +170,8 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
                   <strong> <Geo
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
-                  /> Establecimiento: </strong> Hospital San José de Maipo
+                  /> Establecimiento: </strong>{establecimientoUsuario}
+
                 </p>
                 <button onClick={() => setMostrarModal(true)} className={`fw-fw-normal p-1 border-bottom  ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link mb-4 mb-2 fs-6 fs-md-5 fs-lg-4 w-100 text-start p-0`}>
                   <strong> <Gear
@@ -264,6 +274,7 @@ const ModalContent: React.FC = () => {
 };
 
 const mapStateToProps = (state: RootState) => ({
+  comboEstablecimiento: state.comboEstablecimientosProfileReducers.comboEstablecimiento,
   objeto: state.validaApiLoginReducers,
   logout: state.loginReducer.logout,
   utm: state.indicadoresReducers.utm,
@@ -276,6 +287,7 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   logout,
-  indicadoresActions
+  indicadoresActions,
+  comboEstablecimientosProfileActions
 })(Profile);
 

@@ -24,8 +24,10 @@ import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/com
 import MenuInventario from "../../Menus/MenuInventario";
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
-import { comboTraeOrigenActions } from "../../../redux/actions/Inventario/Combos/comboTraeOrigenActions";
+
 import { Helmet } from "react-helmet-async";
+import { comboOrigenPresupuestosActions } from "../../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
+import { Objeto } from "../../Navegacion/Profile";
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -36,7 +38,7 @@ export interface FormInventario {
 interface FormInventarioProps {
   //Trae props combos de Datos_inventario(formulario 1)
   comboOrigen: ORIGEN[];
-  comboTraeOrigenActions: () => void;
+  comboOrigenPresupuestosActions: () => void;
   comboModalidad: MODALIDAD[];
 
   comboModalidadesActions: () => void;
@@ -45,7 +47,7 @@ interface FormInventarioProps {
 
   //Trae props combos de Datos_cuenta(formulario 2)
   comboServicio: SERVICIO[];
-  comboServicioActions: () => void;
+  comboServicioActions: (establ_corr: number) => void;
   comboCuenta: CUENTA[];
   comboCuentaActions: (nombreEspecie: string) => void;
   comboDependencia: DEPENDENCIA[];
@@ -59,9 +61,11 @@ interface FormInventarioProps {
   comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
 
   token: string | null;
+  objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
 const FormInventario: React.FC<FormInventarioProps> = ({
+  objeto,
   token,
   comboOrigen,
   comboModalidad,
@@ -72,7 +76,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   listaEspecie,
   comboDetalle,
   comboBien,
-  comboTraeOrigenActions,
+  comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboProveedorActions,
   comboCuentaActions,
@@ -98,9 +102,9 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     // Hace todas las llamadas a las api una vez carga el componente padre(FormInventario)
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboOrigen.length === 0) comboTraeOrigenActions();
+      if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
-      if (comboServicio.length === 0) comboServicioActions();
+      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
     }
@@ -108,7 +112,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     //Carga combo bien con valor 0
     comboDetalleActions("0");
   }, [
-    comboTraeOrigenActions,
+    comboOrigenPresupuestosActions,
     comboModalidadesActions,
     comboServicioActions,
     comboDetalleActions,
@@ -241,7 +245,8 @@ const mapStateToProps = (state: RootState) => ({
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
-  listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies
+  listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {
@@ -250,7 +255,7 @@ export default connect(mapStateToProps, {
   comboListadoDeEspeciesBienActions,
   comboDetalleActions,
   comboCuentaActions,
-  comboTraeOrigenActions,
+  comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboProveedorActions
 })(FormInventario);

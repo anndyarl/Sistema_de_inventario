@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pagination, Button, Spinner, Modal, Form } from "react-bootstrap";
+import React, { useEffect, useMemo, useState } from "react";
+import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -12,8 +12,8 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { listadoMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/listadoMantenedorServiciosActions.tsx";
 import { registrarMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/registrarMantenedorServiciosActions.tsx";
 import { Helmet } from "react-helmet-async";
-import { comboEstablecimientosMantenedorActions } from "../../redux/actions/Mantenedores/Servicios/comboEstablecimientosMantenedorActions.tsx";
 import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
+import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
 
 
 export interface ListadoMantenedor {
@@ -32,28 +32,26 @@ interface ESTABLECIMIENTO {
 }
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
-    comboEstablecimiento: ESTABLECIMIENTO[];
     obtenerMaxServicioActions: () => void;
     listadoMantenedorServiciosActions: () => Promise<boolean>;
     registrarMantenedorServiciosActions: (formModal: Record<string, any>) => Promise<boolean>;
     // registrarMantenedorServiciosActions: (registro: { formModal: Record<string, any> }[]) => Promise<boolean>;
-
-    comboEstablecimientosMantenedorActions: () => void;
+    comboServicioActions: (establ_corr: number) => void;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario  
     seR_CORR: number;
 }
 
-const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, comboEstablecimientosMantenedorActions, token, isDarkMode, comboEstablecimiento, objeto }) => {
+const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboServicioActions, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, token, isDarkMode, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & Partial<ESTABLECIMIENTO> & {}>({});
-    const [filasSeleccionada, setFilaSeleccionada] = useState<any[]>([]);
+    const [_, setFilaSeleccionada] = useState<any[]>([]);
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 20;
+    const elementosPorPagina = 12;
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -95,12 +93,11 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtene
 
     const [Mantenedor, setMantenedor] = useState({
         seR_CORR: seR_CORR,
-        estabL_corr: 1, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
+        estabL_corr: objeto.Establecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
         descripcion: "",
         usuario: objeto.IdCredencial.toString(),
     });
 
-    console.log("seR_CORR", seR_CORR + 1);
     useEffect(() => {
 
         if (seR_CORR === 0) {
@@ -112,12 +109,8 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtene
         }));
 
         listadoMantenedorAuto();
-        if (token) {
-            if (comboEstablecimiento.length === 0) comboEstablecimientosMantenedorActions();
-        }
 
-    }, [listadoMantenedorServiciosActions, comboEstablecimientosMantenedorActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
-
+    }, [listadoMantenedorServiciosActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -161,14 +154,14 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtene
         );
     };
 
-    const setSeleccionaFila = (index: number) => {
-        setMostrarModal(index); //Abre modal del indice seleccionado
-        setFilaSeleccionada((prev) =>
-            prev.includes(index.toString())
-                ? prev.filter((rowIndex) => rowIndex !== index.toString())
-                : [...prev, index.toString()]
-        );
-    };
+    // const setSeleccionaFila = (index: number) => {
+    //     setMostrarModal(index); //Abre modal del indice seleccionado
+    //     setFilaSeleccionada((prev) =>
+    //         prev.includes(index.toString())
+    //             ? prev.filter((rowIndex) => rowIndex !== index.toString())
+    //             : [...prev, index.toString()]
+    //     );
+    // };
 
     const handleCerrarModal = (index: number) => {
         setFilaSeleccionada((prevSeleccionadas) =>
@@ -202,7 +195,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtene
                 //     ...Mantenedor,
                 // }));
                 const resultado = await registrarMantenedorServiciosActions(Mantenedor);
-                console.log(Mantenedor);
+                // console.log(Mantenedor);
                 if (resultado) {
                     Swal.fire({
                         icon: "success",
@@ -216,8 +209,9 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtene
                         }
                     });
                     setLoadingRegistro(false);
-                    obtenerMaxServicioActions();
-                    listadoMantenedorServiciosActions();
+                    obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
+                    comboServicioActions(objeto.Establecimiento);//llama al nuevo servicio
+                    listadoMantenedorServiciosActions();//llama al nuevo listado de servicios
                     // setFilaSeleccionada([]);
                     setMostrarModalRegistrar(false);
 
@@ -269,7 +263,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtene
                         <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                 <tr>
-                                    <th scope="col"></th>
+                                    {/* <th scope="col"></th> */}
                                     <th scope="col">Código</th>
                                     <th scope="col">Código Servicio</th>
                                     <th scope="col">Nombre</th>
@@ -284,13 +278,13 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtene
                                     let indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                     return (
                                         <tr key={indexReal}>
-                                            <td>
+                                            {/* <td>
                                                 <Form.Check
                                                     type="checkbox"
                                                     onChange={() => setSeleccionaFila(indexReal)}
                                                     checked={filasSeleccionada.includes((indexReal).toString())}
                                                 />
-                                            </td>
+                                            </td> */}
                                             <td>{Lista.seR_CORR}</td>
                                             <td>{Lista.seR_COD}</td>
                                             <td>{Lista.seR_NOMBRE}</td>
@@ -498,7 +492,6 @@ const mapStateToProps = (state: RootState) => ({
     listadoMantenedor: state.listadoMantenedorServiciosReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    comboEstablecimiento: state.comboEstablecimientosMantenedorReducers.comboEstablecimiento,
     objeto: state.validaApiLoginReducers
 });
 
@@ -506,5 +499,5 @@ export default connect(mapStateToProps, {
     obtenerMaxServicioActions,
     listadoMantenedorServiciosActions,
     registrarMantenedorServiciosActions,
-    comboEstablecimientosMantenedorActions
+    comboServicioActions
 })(Servicios);

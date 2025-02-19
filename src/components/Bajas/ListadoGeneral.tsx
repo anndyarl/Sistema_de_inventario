@@ -74,7 +74,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 10;
+  const elementosPorPagina = 12;
 
   const [Bajas, setBajas] = useState({
     nresolucion: 0,
@@ -158,8 +158,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
       const selectedIndices = filasSeleccionada.map(Number);
       const result = await Swal.fire({
         icon: "info",
-        title: "Enviar a Bodega de Excluidos",
-        text: "Confirme para enviar a Bodega de Exlcuidos",
+        title: "Enviar a Bienes de Bajas",
+        text: "Confirme para enviar",
         showDenyButton: false,
         showCancelButton: true,
         confirmButtonText: "Confirmar y Enviar",
@@ -189,7 +189,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
           Swal.fire({
             icon: "success",
             title: "Enviado a Bodega de Excluidos",
-            text: "Se han enviado su seleccion a Bodega de Exluidos correctamente",
+            text: "Se ha enviado correctamente",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,

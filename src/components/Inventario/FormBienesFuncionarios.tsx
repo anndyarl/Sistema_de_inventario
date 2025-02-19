@@ -18,6 +18,7 @@ import MenuInventario from "../Menus/MenuInventario";
 import { setDependenciaBienesFuncionarioActions, setRutBienesFuncionarioActions, setServicioBienesFuncionarioActions } from "../../redux/actions/Inventario/RegistroBienesFuncionario/datosRegistroBeneficiarioActions";
 import { validate, format } from 'rut.js';
 import { Helmet } from "react-helmet-async";
+import { Objeto } from "../Navegacion/Profile";
 
 
 interface FuncionarioProps {
@@ -31,7 +32,7 @@ interface FuncionarioProps {
 interface FormFuncionarioProps extends FuncionarioProps {
   comboServicio: SERVICIO[];
   comboDependencia: DEPENDENCIA[];
-  comboServicioActions: () => void;
+  comboServicioActions: (establ_corr: number) => void;
   comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   registrarBienFuncionarioActions: (
     rutFuncionario: string,
@@ -42,8 +43,10 @@ interface FormFuncionarioProps extends FuncionarioProps {
   ) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
+  objeto: Objeto;
 }
 const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
+  objeto,
   token,
   comboServicio,
   comboDependencia,
@@ -88,7 +91,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   useEffect(() => {
     //carga automaticamente si no se ha llamado a combo servicios
     if (token) {
-      if (comboServicio.length === 0) comboServicioActions();
+      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
     }
   }, [comboServicioActions]);
 
@@ -347,7 +350,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
                     onChange={handleChange}
                     value={Funcionario.servicio || 0}
                   >
-                    <option value="">Seleccione un origen</option>
+                    <option value="">Seleccione</option>
                     {comboServicio.map((traeServicio) => (
                       <option
                         key={traeServicio.codigo}
@@ -486,6 +489,7 @@ const mapStateToProps = (state: RootState) => ({
   servicio: state.datosBienesFuncionarioReducers?.servicio || 0,
   dependencia: state.datosBienesFuncionarioReducers?.dependencia || 0,
   isDarkMode: state.darkModeReducer.isDarkMode,
+  objeto: state.validaApiLoginReducers
   // comprobanteDePago: state.datosBienesFuncionarioReducers?.comprobanteDePago || "",
   // autorizacion: state.datosBienesFuncionarioReducers?.autorizacion || "",
 });

@@ -1,9 +1,9 @@
 
 import {
-  COMBO_M_ESTABLECIMIENTO_REQUEST,
-  COMBO_M_ESTABLECIMIENTO_SUCCESS,
-  COMBO_M_ESTABLECIMIENTO_FAIL
-} from '../../../actions/Mantenedores/types'
+  COMBO_PROFILE_ESTABLECIMIENTO_REQUEST,
+  COMBO_PROFILE_ESTABLECIMIENTO_SUCCESS,
+  COMBO_PROFILE_ESTABLECIMIENTO_FAIL
+} from '../../actions/auth/types'
 
 // Define el tipo para el estado inicial
 interface PropsState {
@@ -21,17 +21,17 @@ const initialState: PropsState = {
 };
 
 // Reducer con tipos definidos
-const comboEstablecimientosMantenedorReducers = (state = initialState, action: any) => {
+const comboEstablecimientosProfileReducers = (state = initialState, action: any) => {
   switch (action.type) {
-    case COMBO_M_ESTABLECIMIENTO_REQUEST:
+    case COMBO_PROFILE_ESTABLECIMIENTO_REQUEST:
       return { ...state, loading: true };
-    case COMBO_M_ESTABLECIMIENTO_SUCCESS:
+    case COMBO_PROFILE_ESTABLECIMIENTO_SUCCESS:
       return {
         ...state,
         loading: false,
         comboEstablecimiento: action.payload,
       };
-    case COMBO_M_ESTABLECIMIENTO_FAIL:
+    case COMBO_PROFILE_ESTABLECIMIENTO_FAIL:
       return { ...state, loading: false, error: action.error };
     default:
       return state;
@@ -40,4 +40,4 @@ const comboEstablecimientosMantenedorReducers = (state = initialState, action: a
 
 
 
-export default comboEstablecimientosMantenedorReducers;
+export default comboEstablecimientosProfileReducers;

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, List, Printer, SlashCircle } from "react-bootstrap-icons";
+import { Plus, Pencil, Trash, List } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
-import { Signature } from "lucide-react";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -18,34 +17,21 @@ interface NavItem {
 interface Props {
     isDarkMode: boolean;
 }
-const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
+const MenuTraslados: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
         {
-            name: 'Registrar Altas',
-            description: 'Busque el activo o los activos que desee dar de Alta.',
-            href: '/Altas/RegistrarAltas',
+            name: 'Registrar Traslados',
+            description: 'Registre el traslados de sus bienes.',
+            href: '/Traslados/RegistrarTraslados',
             icon: Plus
         },
         {
-            name: 'Anular Altas',
-            description: 'Busque el activo o los activos de altas que desee anular.',
-            href: '/Altas/AnularAltas',
-            icon: SlashCircle
+            name: 'Listado de Traslados',
+            description: 'Lista de traslados registrados.',
+            href: '/Traslados/ListadoTraslados',
+            icon: Pencil
         },
-        {
-            name: 'Imprimir Etiquetas',
-            description: 'Encuentre y modifique el inventario existente.',
-            href: '/Altas/ImprimirEtiqueta',
-            icon: Printer
-        },
-        {
-            name: 'Firmar Altas',
-            description: ' Busque, verifique y autorice las altas mediante firmas.',
-            href: '/Altas/FirmarAltas',
-            icon: Signature
-        },
-
     ];
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -87,4 +73,4 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-})(MenuAltas);
+})(MenuTraslados);

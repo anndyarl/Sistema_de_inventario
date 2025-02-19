@@ -10,11 +10,15 @@ import "../../styles/Traslados.css"
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
-import { comboDepartamentoActions } from "../../redux/actions/Traslados/Combos/comboDepartamentoActions";
 import { Helmet } from "react-helmet-async";
+import { DEPENDENCIA } from "../Inventario/RegistrarInventario/DatosCuenta";
+import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
+import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
+import MenuTraslados from "../Menus/MenuTraslados";
+
 
 // Define el tipo de los elementos del combo `Establecimiento`
-interface ESTABLECIMIENTO {
+export interface ESTABLECIMIENTO {
   codigo: number;
   descripcion: string;
 }
@@ -28,15 +32,9 @@ interface TRASLADOESPECIE {
   codigo: number;
   descripcion: string;
 }
-// Define el tipo de los elementos del combo `departamento`
-interface DEPARTAMENTO {
-  codigo: number;
-  descripcion: string;
-}
 interface BusquedaProps {
-  establecimiento: number;
-  servicio: number;
-  deP_CORR_ORIGEN: number;//departamento
+  servicioOrigen: number;
+  dependenciaOrigen: number; //deP_CORR_ORIGEN
   especie: number;
   aF_CLAVE: number; //nInventario
   marca: string;
@@ -46,11 +44,11 @@ interface BusquedaProps {
 
 interface UbicacionDestino {
   servicioDestino: number;
-  deP_CORR: number; //departamentoDestino
+  dependenciaDestino: number; //deP_CORR
   enComododato: string;
   traS_CO_REAL: string; //traspasoReal
-  traS_MEMO_REF: string;//nMemoRef
-  traS_FECHA_MEMO: string; // fechaMemo
+  traS_MEMO_REF: string; //nMemoRef
+  traS_FECHA_MEMO: string; //fechaMemo
   traS_OB: string; //observaciones
 }
 
@@ -80,43 +78,60 @@ interface TrasladosProps {
   comboEstablecimientoActions: () => void;
   comboTrasladoEspecie: TRASLADOESPECIE[];
   comboTrasladoEspecieActions: () => void;
-  comboDepartamento: DEPARTAMENTO[];
-  comboDepartamentoActions: () => void;
+  comboDependenciaOrigen: DEPENDENCIA[];
+  comboDependenciaDestino: DEPENDENCIA[];
+  comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
+  comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
   token: string | null;
   isDarkMode: boolean;
 }
 
 
-const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, comboEstablecimiento, comboTrasladoEspecie, comboDepartamento, comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, comboDepartamentoActions, token, isDarkMode }) => {
+const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, comboEstablecimiento, comboTrasladoEspecie, comboDependenciaOrigen, comboDependenciaDestino, comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, comboDependenciaOrigenActions, comboDependenciaDestinoActions, token, isDarkMode }) => {
 
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [error, _] = useState<Partial<BusquedaProps> & Partial<UbicacionDestino> & Partial<DatosRecepcion>>({});
+  const [error, setError] = useState<Partial<BusquedaProps> & Partial<UbicacionDestino> & Partial<DatosRecepcion> & {}>({});
   const [Traslados, setTraslados] = useState({
     aF_CLAVE: 0, //nInventario
-    deP_CORR_ORIGEN: 0,//departmento
-    deP_CORR: 0, //departamento destino
+    dependenciaOrigen: 0,//deP_CORR_ORIGEN
+    dependenciaDestino: 0, //deP_CORR
     traS_MEMO_REF: "",
     traS_OB: "",
     marca: "",
     modelo: "",
     serie: "",
-    servicio: 0,
+    servicioOrigen: 0,
+    servicioDestino: 0,
     traS_NOM_ENTREG: "",
     traS_NOM_RECIBE: "",
     traS_NOM_AUTORIZA: "",
     n_TRASLADO: 0,
-    establecimiento: 0,
     especie: 0
   });
+  const validateForm = () => {
+    let tempErrors: Partial<any> & {} = {};
+    if (!Traslados.servicioOrigen) tempErrors.servicioOrigen = "Campo obligatorio.";
+    if (!Traslados.dependenciaOrigen) tempErrors.dependenciaOrigen = "Campo obligatorio.";
+    if (!Traslados.servicioDestino) tempErrors.servicioDestino = "Campo obligatorio.";
+    if (!Traslados.dependenciaDestino) tempErrors.dependenciaDestino = "Campo obligatorio.";
+    if (!Traslados.traS_NOM_ENTREG) tempErrors.traS_NOM_ENTREG = "Campo obligatorio.";
+    if (!Traslados.traS_OB) tempErrors.traS_OB = "Campo obligatorio.";
+    if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
+    if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
+    if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
+    // if (!Traslados.n_TRASLADO) tempErrors.n_TRASLADO = "Campo obligatorio.";
+    if (!Traslados.especie) tempErrors.especie = "Campo obligatorio.";
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
   useEffect(() => {
     if (token) {
       // Verifica si las acciones ya fueron disparadas
       if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions();
       if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
       if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions();
-      if (comboDepartamento.length === 0) comboDepartamentoActions();
     }
-  }, [comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, comboDepartamentoActions]);
+  }, [comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -124,6 +139,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
       ...prevTraslado,
       [name]: value,
     }));
+
+    if (name === "servicioOrigen") {
+      comboDependenciaOrigenActions(value);
+    }
+    if (name === "servicioDestino") {
+      comboDependenciaDestinoActions(value);
+    }
+
   };
 
   const [isExpanded, setIsExpanded] = useState({
@@ -138,9 +161,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
       [fila]: !prevState[fila],
     }));
   };
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // console.log("formulario", Traslados)
+    if (validateForm()) {
+      console.log("formulario Traslado", Traslados)
+    }
   }
 
   return (
@@ -148,6 +174,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
       <Helmet>
         <title>Registrar Traslados</title>
       </Helmet>
+      <MenuTraslados />
       <form onSubmit={handleFormSubmit}>
         <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traslados</h3>
@@ -166,51 +193,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
               <div className="border-top">
                 <Row className="p-1">
                   <Col>
-                    {/* Establecimiento */}
+                    {/* servicio Origen */}
                     <div className="mb-1">
-                      <label className="fw-semibold">
-                        Establecimiento
-                      </label>
+                      <label htmlFor="servicioOrigen" className="fw-semibold fw-semibold">Servicio Origen</label>
                       <select
-                        aria-label="establecimiento"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.establecimiento ? "is-invalid" : ""}`}
-                        name="establecimiento"
+                        aria-label="servicioOrigen"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicioOrigen ? "is-invalid" : ""}`}
+                        name="servicioOrigen"
                         onChange={handleChange}
-                        value={Traslados.establecimiento}
+                        value={Traslados.servicioOrigen || 0}
                       >
-                        <option value="">Seleccione un origen</option>
-                        {comboEstablecimiento.map((traeEstablecimiento) => (
-                          <option
-                            key={traeEstablecimiento.codigo}
-                            value={traeEstablecimiento.codigo}
-                          >
-                            {traeEstablecimiento.descripcion}
-                          </option>
-
-                        ))}
-
-                      </select>
-                      {error.establecimiento && (
-                        <div className="invalid-feedback">
-                          {error.establecimiento}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Servicio */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Servicio
-                      </label>
-                      <select
-                        aria-label="servicio"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.servicio ? "is-invalid" : ""}`}
-                        name="servicio"
-                        onChange={handleChange}
-                        value={Traslados.servicio}
-                      >
-                        <option value="">Seleccione un origen</option>
+                        <option value="">Seleccionar</option>
                         {comboTrasladoServicio.map((traeServicio) => (
                           <option
                             key={traeServicio.codigo}
@@ -220,37 +213,36 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                           </option>
                         ))}
                       </select>
-                      {error.servicio && (
-                        <div className="invalid-feedback">{error.servicio}</div>
+                      {error.servicioOrigen && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.servicioOrigen}
+                        </div>
                       )}
                     </div>
-
-                    {/* Departamento */}
+                    {/* Dependencia/ Departamento */}
                     <div className="mb-1">
-                      <label className="fw-semibold">
-                        Departamento
-                      </label>
+                      <label htmlFor="dependenciaOrigen" className="fw-semibold">Dependencia Origen</label>
                       <select
-                        aria-label="deP_CORR_ORIGEN"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
-                        name="deP_CORR_ORIGEN"
+                        aria-label="dependenciaOrigen"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependenciaOrigen ? "is-invalid" : ""}`}
+                        name="dependenciaOrigen"
+                        disabled={!Traslados.servicioOrigen}
                         onChange={handleChange}
-                        value={Traslados.deP_CORR_ORIGEN}
+                        value={Traslados.dependenciaOrigen || 0}
                       >
-                        <option value="">Seleccione un origen</option>
-                        {comboDepartamento.map((traeDepartamento) => (
+                        <option value="">Seleccionar</option>
+                        {comboDependenciaOrigen.map((traeDependencia) => (
                           <option
-                            key={traeDepartamento.codigo}
-                            value={traeDepartamento.codigo}
+                            key={traeDependencia.codigo}
+                            value={traeDependencia.codigo}
                           >
-                            {traeDepartamento.descripcion}
+                            {traeDependencia.descripcion}
                           </option>
                         ))}
                       </select>
-                      {error.deP_CORR_ORIGEN && (
-                        <div className="invalid-feedback">
-                          {error.deP_CORR_ORIGEN}
+                      {error.dependenciaOrigen && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.dependenciaOrigen}
                         </div>
                       )}
                     </div>
@@ -382,18 +374,15 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                   <Col>
                     {/* Servicio */}
                     <div className="mb-1">
-                      <label className="fw-semibold">
-                        Servicio
-                      </label>
+                      <label htmlFor="servicioDestino" className="fw-semibold fw-semibold">Servicio Destino</label>
                       <select
-                        aria-label="servicio"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.servicio ? "is-invalid" : ""}`}
-                        name="servicio"
+                        aria-label="servicioDestino"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicioDestino ? "is-invalid" : ""}`}
+                        name="servicioDestino"
                         onChange={handleChange}
-                        value={Traslados.servicio}
+                        value={Traslados.servicioDestino || 0}
                       >
-                        <option value="">Seleccione un origen</option>
+                        <option value="">Seleccionar</option>
                         {comboTrasladoServicio.map((traeServicio) => (
                           <option
                             key={traeServicio.codigo}
@@ -403,39 +392,39 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                           </option>
                         ))}
                       </select>
-                      {error.servicio && (
-                        <div className="invalid-feedback">{error.servicio}</div>
+                      {error.servicioDestino && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.servicioDestino}
+                        </div>
                       )}
                     </div>
-
-                    {/* Departamento */}
-                    <div className="mb-3">
-                      <label className="fw-semibold">
-                        Departamento
-                      </label>
+                    {/* Dependencia/ Departamento */}
+                    <div className="mb-1">
+                      <label htmlFor="dependenciaDestino" className="fw-semibold">Dependencia Destino</label>
                       <select
-                        aria-label="deP_CORR"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.deP_CORR ? "is-invalid" : ""}`}
-                        name="deP_CORR"
+                        aria-label="dependenciaDestino"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependenciaDestino ? "is-invalid" : ""}`}
+                        name="dependenciaDestino"
+                        disabled={!Traslados.servicioDestino}
                         onChange={handleChange}
-                        value={Traslados.deP_CORR}
+                        value={Traslados.dependenciaDestino || 0}
                       >
-                        <option value="">Seleccione un origen</option>
-                        {comboDepartamento.map((Departamento) => (
+                        <option value="">Seleccionar</option>
+                        {comboDependenciaDestino.map((traeDependencia) => (
                           <option
-                            key={Departamento.codigo}
-                            value={Departamento.codigo}
+                            key={traeDependencia.codigo}
+                            value={traeDependencia.codigo}
                           >
-                            {Departamento.descripcion}
+                            {traeDependencia.descripcion}
                           </option>
                         ))}
                       </select>
-                      {error.deP_CORR && (
-                        <div className="invalid-feedback">{error.deP_CORR}</div>
+                      {error.dependenciaDestino && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.dependenciaDestino}
+                        </div>
                       )}
                     </div>
-
                     {/* Radios */}
                     <div className="mb-1 p-2 d-flex justify-content-center">
                       <div className="form-check">
@@ -589,8 +578,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                       <input
                         aria-label="traS_NOM_AUTORIZA"
                         type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
                         maxLength={50}
                         name="traS_NOM_AUTORIZA"
                         onChange={handleChange}
@@ -634,7 +622,8 @@ const mapStateToProps = (state: RootState) => ({
   comboTrasladoServicio: state.comboTrasladoServicioReducer.comboTrasladoServicio,
   comboEstablecimiento: state.comboEstablecimientoReducer.comboEstablecimiento,
   comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie,
-  comboDepartamento: state.comboDepartamentoReducer.comboDepartamento,
+  comboDependenciaOrigen: state.comboDependenciaOrigenReducer.comboDependenciaOrigen,
+  comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 
@@ -642,5 +631,6 @@ export default connect(mapStateToProps, {
   comboTrasladoServicioActions,
   comboEstablecimientoActions,
   comboTrasladoEspecieActions,
-  comboDepartamentoActions
+  comboDependenciaOrigenActions,
+  comboDependenciaDestinoActions
 })(RegistrarTraslados);

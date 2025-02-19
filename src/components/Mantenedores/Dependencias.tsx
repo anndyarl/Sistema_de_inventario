@@ -14,8 +14,7 @@ import { SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
 import { Plus } from "react-bootstrap-icons";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import { comboServicioMantenedorActions } from "../../redux/actions/Mantenedores/Dependencias/comboServicioMantenedorActions.tsx";
-
+import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
 
 export interface ListadoMantenedor {
   deP_CORR: number;
@@ -35,24 +34,21 @@ interface GeneralProps {
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
 
   comboServicio: SERVICIO[];
-  comboServicioMantenedorActions: () => void;
+  comboServicioActions: (establ_corr: number) => void;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, comboServicioMantenedorActions, token, isDarkMode, comboServicio, objeto }) => {
+const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, comboServicioActions, token, isDarkMode, comboServicio, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListadoMantenedor>>({});
-  const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
+  const [_, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 20;
-
-  const fecha = Date.now();
-  const fechaHoy = new Date(fecha);
+  const elementosPorPagina = 12;
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -112,14 +108,12 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
   useEffect(() => {
     listadoMantenedorAuto()
     if (token) {
-      if (comboServicio.length === 0) comboServicioMantenedorActions();
+      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
     }
-  }, [listadoMantenedorDependenciasActions, comboServicioMantenedorActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
-
+  }, [listadoMantenedorDependenciasActions, comboServicioActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-
     // Convierte `value` a número
     let newValue: string | number = ["seR_COD"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
@@ -129,17 +123,16 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
       ...preBajas,
       [name]: newValue,
     }));
-
   };
 
-  const setSeleccionaFila = (index: number) => {
-    setMostrarModal(index); //Abre modal del indice seleccionado
-    setFilaSeleccionada((prev) =>
-      prev.includes(index.toString())
-        ? prev.filter((rowIndex) => rowIndex !== index.toString())
-        : [...prev, index.toString()]
-    );
-  };
+  // const setSeleccionaFila = (index: number) => {
+  //   setMostrarModal(index); //Abre modal del indice seleccionado
+  //   setFilaSeleccionada((prev) =>
+  //     prev.includes(index.toString())
+  //       ? prev.filter((rowIndex) => rowIndex !== index.toString())
+  //       : [...prev, index.toString()]
+  //   );
+  // };
 
   const handleCerrarModal = (index: number) => {
     setFilaSeleccionada((prevSeleccionadas) =>
@@ -205,7 +198,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
       }
     }
   };
-
 
   return (
     <Layout>
@@ -485,7 +477,7 @@ const mapStateToProps = (state: RootState) => ({
   listadoMantenedor: state.listadoMantenedorDependenciasReducers.listadoMantenedor,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  comboServicio: state.comboServicioMantenedorReducers.comboServicio,
+  comboServicio: state.comboServicioReducer.comboServicio,
   objeto: state.validaApiLoginReducers
 
 });
@@ -493,5 +485,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   listadoMantenedorDependenciasActions,
   registrarMantenedorDependenciasActions,
-  comboServicioMantenedorActions
+  comboServicioActions
 })(Dependencias);

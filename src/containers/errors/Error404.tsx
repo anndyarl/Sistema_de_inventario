@@ -2,6 +2,7 @@ import React from "react";
 import Layout from "../hocs/layout/Layout";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
+import { NavLink } from "react-router-dom";
 
 interface Props {
   isDarkMode: boolean;
@@ -19,9 +20,9 @@ const Error404: React.FC<Props> = ({ isDarkMode }) => {
             Por favor, revisa la URL e intenta de nuevo o regresa a la página principal.
           </p>
           <div className="p-4 rounded d-inline-block ">
-            <a href="/" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
+            <NavLink to="/" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
               Volver
-            </a>
+            </NavLink>
           </div>
         </div>
       </div>

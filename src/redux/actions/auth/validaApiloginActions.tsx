@@ -20,17 +20,20 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
     dispatch({ type: VALIDA_PORTAL_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/ValidaApilogin?rut=${rut}`, config);
+      const res = await axios.get(`http://localhost:5076/api/inventario/ValidaApilogin?rut=${rut}`, config);
 
-      const objeto = res.data[0]?.objeto ?? {};  // Acceder al primer elemento del array
-      const esValido = res.data[0]?.esValido ?? {}; // Verifica si existe, de lo contrario usa false
+      const respuestaApiLogin = res.data?.respuestaApiLogin || [];
+      const objeto = respuestaApiLogin.length > 0 ? respuestaApiLogin[0]?.objeto : {};
+      const esValido = respuestaApiLogin.length > 0 ? respuestaApiLogin[0]?.esValido : false;
+      const establecimiento = res.data?.establecimiento || "No disponible";
       if (res.status === 200) {
         // Verifica si la clave 'EsValido' existe en el objeto
         if (esValido) {
           dispatch({
             type: VALIDA_PORTAL_SUCCESS,
-            payload: objeto
+            payload: { ...objeto, establecimiento }
           });
+
           return true;
         } else {
           return false;

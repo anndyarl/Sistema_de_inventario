@@ -9,10 +9,6 @@ interface Roles {
   Descripcion: string;
   IdRol: number;
   IdAplicacion: number;
-  CodigoEstablicimiento: number;
-  NombreEstablecimiento: string;
-  NombreCompletoEstab: boolean;
-  IdAppChild: number;
 }
 
 interface AuthState {
@@ -21,10 +17,8 @@ interface AuthState {
   Apellido1: string;
   Apellido2: string;
   Correo: string;
-  Rut: string;
-  Dv: string;
-  NombreUsuario: string;
   Roles: Roles[];
+  Establecimiento: number;
   error: string | null;
   isAuthenticated: boolean;
 }
@@ -35,9 +29,7 @@ const initialState: AuthState = {
   Apellido1: "",
   Apellido2: "",
   Correo: "",
-  Rut: "",
-  Dv: "",
-  NombreUsuario: "",
+  Establecimiento: 0,
   Roles: [],
   error: null,
   isAuthenticated: false,
@@ -63,12 +55,9 @@ function validaApiLoginReducers(state = initialState, action: any): AuthState {
             Descripcion: rol.descripcion,
             IdRol: rol.idRol,
             IdAplicacion: rol.idAplicacion,
-            CodigoEstablicimiento: 0, // Ajusta estos valores si los necesitas
-            NombreEstablecimiento: "",
-            NombreCompletoEstab: false,
-            IdAppChild: 0,
           }))
           : [],
+        Establecimiento: action.payload.establecimiento,
       };
 
     case VALIDA_PORTAL_FAIL:

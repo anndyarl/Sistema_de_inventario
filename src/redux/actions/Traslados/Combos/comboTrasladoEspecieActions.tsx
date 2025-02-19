@@ -16,7 +16,7 @@ export const comboTrasladoEspecieActions = () => async (dispatch: Dispatch, getS
     dispatch({ type: TRASLADO_ESPECIE_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeTrasladoEspecie`, config);
+      const res = await axios.get(`http://localhost:5076/api/inventario/comboTraeTrasladoEspecie`, config);
 
       if (res.status === 200) {
         dispatch({

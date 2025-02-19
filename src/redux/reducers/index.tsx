@@ -51,18 +51,18 @@ import darkModeReducer from "./Otros/darkModeReducer";
 import comboTrasladoServicioReducer from "./Traslados/Combos/comboTrasladoServicioReducers";
 import comboEstablecimientoReducer from "./Traslados/Combos/comboEstablecimientoReducer";
 import comboTrasladoEspecieReducer from "./Traslados/Combos/comboTrasladoEspecieReducers";
-import comboDepartamentoReducer from "./Traslados/Combos/comboDepartamentoReducer";
-
+import comboEstablecimientosProfileReducers from "./auth/comboEstablecimientosProfileReducers";
+import comboDependenciaOrigenReducer from "./Traslados/Combos/comboDependenciaOrigenReducers";
+import comboDependenciaDestinoReducer from "./Traslados/Combos/comboDependenciaDestinoReducers";
 //--------------------- Otros ---------------------//
 import respuestaReducer from "./Otros/respuestaReducer";
 
 //--------------------- Mantenedores ---------------------//
+import obtenerMaxServicioReducers from "./Mantenedores/Servicios/obtenerMaxServicioReducers";
 import listadoMantenedorDependenciasReducers from "./Mantenedores/Dependencias/listadoMantenedorDependenciasReducers";
 import listadoMantenedorServiciosReducers from "./Mantenedores/Servicios/listadoMantenedorServiciosReducers";
-import comboEstablecimientosReducers from "./Mantenedores/Servicios/comboEstablecimientosMantenedorReducers";
-import comboEstablecimientosMantenedorReducers from "./Mantenedores/Servicios/comboEstablecimientosMantenedorReducers";
-import comboServicioMantenedorReducers from "./Mantenedores/Dependencias/comboServicioMantenedorReducers";
-import obtenerMaxServicioReducers from "./Mantenedores/Servicios/obtenerMaxServicioReducers";
+import listadoTrasladosReducers from "./Traslados/listadoTrasladosReducers";
+
 
 
 
@@ -114,7 +114,9 @@ const appReducer = combineReducers({
   comboEstablecimientoReducer,
   comboTrasladoServicioReducer,
   comboTrasladoEspecieReducer,
-  comboDepartamentoReducer,
+  comboDependenciaOrigenReducer,
+  comboDependenciaDestinoReducer,
+  listadoTrasladosReducers,
 
   // Indicadores
   indicadoresReducers,
@@ -128,8 +130,7 @@ const appReducer = combineReducers({
   //Mantenedores
   listadoMantenedorDependenciasReducers,
   listadoMantenedorServiciosReducers,
-  comboServicioMantenedorReducers,
-  comboEstablecimientosMantenedorReducers,
+  comboEstablecimientosProfileReducers,
   obtenerMaxServicioReducers
 });
 

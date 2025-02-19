@@ -42,6 +42,7 @@ import Dependencias from '../../../components/Mantenedores/Dependencias';
 import Especies from '../../../components/Mantenedores/Especies';
 import Usuarios from '../../../components/Mantenedores/Usuarios';
 import Mantenedores from '../../pages/Mantenedores';
+import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
 
 
 
@@ -57,20 +58,56 @@ const AnimatedRoutes: React.FC = () => {
     return (
         <AnimatePresence>
             <Routes location={location} key={location.pathname}>
-                {/* Error Display */}
-                <Route path="*" element={<Error404 />} />
-                <Route path="/Denegado" element={<Denegado />} />
 
-                {/* Access Display */}
-                <Route path="/Login" element={<Login />} />
+                {/* Accesso */}
+                <Route path="/Login" element={<Login />} />{/*Usado para pruebas */}
                 <Route path="/ValidaPortal" element={<ValidaPortal />} />
-                <Route path="/SesionExpirada" element={<SesionExpirada />} />
+                {/* <Route path="/ClaveUnica" element={<ClaveUnica/>} /> */}{/*Usado para pruebas */}
+                {/* Fin Accesso */}
 
-                {/* <Route path="/ClaveUnica" element={<ClaveUnica/>} />  */}
-
-                {/* Menu principal */}
+                {/* Principal */}
                 <Route path="/Inicio" element={<Inicio />} />
                 <Route path="/" element={<ClaveUnica />} />
+                {/* Principal */}
+
+                {/* Módulo Inventario */}
+                <Route path="/Inventario" element={<Inventario />} />
+                <Route path="/Inventario/FormInventario" element={<FormInventario />} />
+                <Route path="/Inventario/ModificarInventario" element={<ModificarInventario />} />
+                <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
+                <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+                {/* <Route path="/CargaMasiva" element={<CargaMasiva />} /> */}
+                {/* Fin Menu Inventario */}
+
+                {/* Módulo Traslados */}
+                <Route path="/Traslados" element={<Traslados />} />
+                <Route path="/Traslados/RegistrarTraslados" element={<RegistrarTraslados />} />
+                <Route path="/Traslados/ListadoTraslados" element={<ListadoTraslados />} />
+                {/* Fin Módulo Traslados */}
+
+                {/* Módulo Altas */}
+                <Route path="/Altas" element={<Altas />} />
+                <Route path="/Altas/RegistrarAltas" element={<RegistrarAltas />} />
+                <Route path="/Altas/AnularAltas" element={<AnularAltas />} />
+                <Route path="/Altas/ImprimirEtiqueta" element={<ImprimirEtiqueta />} />
+                <Route path="/Altas/FirmarAltas" element={<FirmarAltas />} />
+                {/* Fin Módulo Altas */}
+
+                {/* Módulo Bajas */}
+                <Route path="/Bajas" element={<Bajas />} />
+                <Route path="/Bajas/ListadoGeneral" element={<ListadoGeneral />} />
+                <Route path="/Bajas/RegistrarBajas" element={<RegistrarBajas />} />
+                <Route path="/Bajas/BodegaExcluidos" element={<BodegaExcluidos />} />
+                <Route path="/Bajas/BienesRematados" element={<BienesRematados />} />
+                {/* Fin Módulo Bajas */}
+
+                {/* Informes */}
+                <Route path="/Informes" element={<Informes />} />{/*Mo disponible aún*/}
+                {/* Fin Informes*/}
+
+                {/* Donaciones */}
+                <Route path="/Donaciones" element={<Donaciones />} />{/*No disponible aún*/}
+                {/* Fin Donaciones*/}
 
                 {/* Módulo Mantenedores */}
                 <Route path="/Mantenedores" element={<Mantenedores />} />
@@ -80,33 +117,11 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Mantenedores/Usuarios" element={<Usuarios />} />
                 {/* Módulo Mantenedores */}
 
-                {/* Módulo Inventario */}
-                <Route path="/Inventario" element={<Inventario />} />
-                <Route path="/Inventario/FormInventario" element={<FormInventario />} />
-                <Route path="/Inventario/ModificarInventario" element={<ModificarInventario />} />
-                <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
-                <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
-                {/* <Route path="/CargaMasiva" element={<CargaMasiva />} /> */}
-
-                {/* Fin Menu Inventario */}
-                <Route path="/Traslados" element={<Traslados />} />
-                <Route path="/Traslados/RegistrarTraslados" element={<RegistrarTraslados />} />
-                {/* Módulo Altas */}
-                <Route path="/Altas" element={<Altas />} />
-                <Route path="/Altas/RegistrarAltas" element={<RegistrarAltas />} />
-                <Route path="/Altas/AnularAltas" element={<AnularAltas />} />
-                <Route path="/Altas/ImprimirEtiqueta" element={<ImprimirEtiqueta />} />
-                <Route path="/Altas/FirmarAltas" element={<FirmarAltas />} />
-                {/* Fin Módulo Altas */}
-                {/* Módulo Bajas */}
-                <Route path="/Bajas" element={<Bajas />} />
-                <Route path="/Bajas/ListadoGeneral" element={<ListadoGeneral />} />
-                <Route path="/Bajas/RegistrarBajas" element={<RegistrarBajas />} />
-                <Route path="/Bajas/BodegaExcluidos" element={<BodegaExcluidos />} />
-                <Route path="/Bajas/BienesRematados" element={<BienesRematados />} />
-                {/* Fin Módulo Bajas */}
-                <Route path="/Donaciones" element={<Donaciones />} />
-                <Route path="/Informes" element={<Informes />} />
+                {/* Errores */}
+                <Route path="*" element={<Error404 />} />
+                <Route path="/Denegado" element={<Denegado />} />
+                <Route path="/SesionExpirada" element={<SesionExpirada />} />
+                {/* Fin Errores */}
             </Routes>
         </AnimatePresence>
     );

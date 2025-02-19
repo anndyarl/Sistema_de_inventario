@@ -34,7 +34,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 20;
+  const elementosPorPagina = 12;
 
   const [Inventario, setInventario] = useState({
     fechaInicio: "",

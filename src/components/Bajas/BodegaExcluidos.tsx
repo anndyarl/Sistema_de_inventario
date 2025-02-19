@@ -45,7 +45,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 10;
+  const elementosPorPagina = 12;
 
   const [Bajas, setBajas] = useState({
     aF_CLAVE: "",
@@ -142,7 +142,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
     const result = await Swal.fire({
       icon: "info",
       title: "Enviar a Bienes Rematados",
-      text: "Confirme para enviar a Bienes Rematados",
+      text: "Confirme para enviar",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Enviar",
@@ -176,7 +176,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
         Swal.fire({
           icon: "success",
           title: "Enviado a Bienes Rematados",
-          text: "Se han enviado su seleccion a Bienes Rematados correctamente",
+          text: "Se ha enviado correctamente",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,

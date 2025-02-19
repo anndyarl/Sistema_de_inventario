@@ -76,12 +76,12 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }
         </div>
 
         {/* Navbar para escritorio */}
-        <div className="d-none d-md-block mx-2 mt-1 mb-1 rounded-3">
+        <div className="d-none d-md-block mx-1 rounded-3">
           <Navbar />
         </div>
 
         {/* Contenido de la página */}
-        <Container fluid className="mb-1">
+        <Container fluid className="mb-1 mt-5">
           {children}
         </Container>
       </div>

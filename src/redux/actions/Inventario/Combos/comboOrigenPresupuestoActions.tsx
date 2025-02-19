@@ -16,7 +16,7 @@ export const comboOrigenPresupuestosActions = () => async (dispatch: Dispatch, g
     dispatch({ type: ORIGEN_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeOrige`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeOrigen`, config);
 
       if (res.status === 200) {
         dispatch({

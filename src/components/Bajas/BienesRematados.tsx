@@ -44,7 +44,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 10;
+  const elementosPorPagina = 12;
 
   const [Inventario, setInventario] = useState({
     aF_CLAVE: "",
@@ -175,7 +175,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
         Swal.fire({
           icon: "success",
           title: "Bienes Rematados",
-          text: "Se han quitdo del sistema los Bienes Rematados correctamente",
+          text: "Se han quitdo del sistema correctamente",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
