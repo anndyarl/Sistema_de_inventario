@@ -21,7 +21,7 @@ export const listadoTrasladosActions = () => async (dispatch: Dispatch, getState
     dispatch({ type: LISTA_TRASLADOS_REQUEST });
 
     try {
-      const res = await axios.get(`http://localhost:5076/api/inventario/TraeListaDeTraslados`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListaDeTraslados`, config);
 
       if (res.status === 200) {
         dispatch({

@@ -441,17 +441,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th>Codigo</th>
-                    <th>N° Inventario</th>
-                    <th>Servicio</th>
-                    <th>Dependencia</th>
-                    <th>Especie</th>
-                    <th>N° Cuenta</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Serie</th>
-                    <th>Precio</th>
-                    <th>N° Recepcion</th>
+                    <th scope="col" className="text-nowrap text-center">Codigo</th>
+                    <th scope="col" className="text-nowrap text-center">N° Inventario</th>
+                    <th scope="col" className="text-nowrap text-center">Servicio</th>
+                    <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                    <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
+                    <th scope="col" className="text-nowrap text-center">Marca</th>
+                    <th scope="col" className="text-nowrap text-center">Modelo</th>
+                    <th scope="col" className="text-nowrap text-center">Serie</th>
+                    <th scope="col" className="text-nowrap text-center">Precio</th>
+                    <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                     {/* <th>Acción</th> */}
                   </tr>
                 </thead>

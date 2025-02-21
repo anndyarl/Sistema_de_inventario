@@ -317,17 +317,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col">Nª Inventario</th>
-                    <th scope="col">Codigo</th>
-                    <th scope="col">Especie</th>
-                    <th scope="col">Vida UtiL Restante</th>
-                    <th scope="col">Vida Util en Años</th>
-                    <th scope="col">Nº Resolucion</th>
-                    <th scope="col">Observaciones</th>
-                    <th scope="col">Depreciacion Acumulada</th>
-                    <th scope="col">Nº Cuenta</th>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Fecha de Remate</th>
+                    <th scope="col" className="text-nowrap text-center">Nª Inventario</th>
+                    <th scope="col" className="text-nowrap text-center">Codigo</th>
+                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                    <th scope="col" className="text-nowrap text-center">Vida UtiL Restante</th>
+                    <th scope="col" className="text-nowrap text-center">Vida Util en Años</th>
+                    <th scope="col" className="text-nowrap text-center">Nº Resolucion</th>
+                    <th scope="col" className="text-nowrap text-center">Observaciones</th>
+                    <th scope="col" className="text-nowrap text-center">Depreciacion Acumulada</th>
+                    <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
+                    <th scope="col" className="text-nowrap text-center">Estado</th>
+                    <th scope="col" className="text-nowrap text-center">Fecha de Remate</th>
                   </tr>
                 </thead>
                 <tbody>

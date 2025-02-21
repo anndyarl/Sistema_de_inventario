@@ -21,7 +21,7 @@ export const comboEstablecimientosProfileActions = () => async (dispatch: Dispat
         dispatch({ type: COMBO_PROFILE_ESTABLECIMIENTO_REQUEST });
 
         try {
-            const res = await axios.get(`http://localhost:5076/api/inventario/comboTraEstablecimientos`, config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraEstablecimientos`, config);
 
             if (res.status === 200) {
                 dispatch({

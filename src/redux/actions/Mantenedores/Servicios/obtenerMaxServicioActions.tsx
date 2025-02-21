@@ -21,7 +21,7 @@ export const obtenerMaxServicioActions = () => async (dispatch: Dispatch, getSta
         dispatch({ type: OBTENER_MAX_SERVICIO_REQUEST });
 
         try {
-            const res = await axios.get(`http://localhost:5076/api/inventario/TraeMaxCorrServicios`, config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeMaxCorrServicios`, config);
 
             const seR_CORR = res.data.seR_CORR;
 

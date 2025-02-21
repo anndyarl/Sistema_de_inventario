@@ -21,7 +21,7 @@ export const listadoMantenedorDependenciasActions = () => async (dispatch: Dispa
         dispatch({ type: LISTA_MANTENEDOR_DEPENDENCIA_REQUEST });
 
         try {
-            const res = await axios.get(`http://localhost:5076/api/inventario/TraeMantenedorDependencias`, config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeMantenedorDependencias`, config);
 
             if (res.status === 200) {
                 dispatch({

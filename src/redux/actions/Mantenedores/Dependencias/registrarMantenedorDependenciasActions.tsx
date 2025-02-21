@@ -26,7 +26,7 @@ export const registrarMantenedorDependenciasActions = (formModal: Record<string,
     dispatch({ type: REGISTRAR_DEPENDENCIA_REQUEST });
 
     try {
-      const res = await axios.post(`http://localhost:5076/api/inventario/CrearDependencias`, body, config);
+      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearDependencias`, body, config);
 
       if (res.status === 200) {
         dispatch({

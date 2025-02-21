@@ -294,50 +294,50 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   <th scope="col"></th>
-                  <th scope="col">Clave</th>
-                  <th scope="col">Código Genérico</th>
-                  <th scope="col">Código Largo</th>
-                  <th scope="col">DEP Corr</th>
-                  <th scope="col">ESP Código</th>
-                  <th scope="col">Secuencia</th>
-                  <th scope="col">ITE Clave</th>
-                  <th scope="col">Descripción</th>
-                  <th scope="col">Fecha Ingreso</th>
-                  <th scope="col">Estado</th>
-                  <th scope="col">Código</th>
-                  <th scope="col">Tipo</th>
-                  <th scope="col">Alta</th>
-                  <th scope="col">Precio Ref.</th>
-                  <th scope="col">Cantidad</th>
-                  <th scope="col">Origen</th>
-                  <th scope="col">Resolución</th>
-                  <th scope="col">Fecha Solicitud</th>
-                  <th scope="col">Número Referencia</th>
-                  <th scope="col">Usuario Creación</th>
-                  <th scope="col">Fecha Creación</th>
-                  <th scope="col">IP Creación</th>
-                  <th scope="col">Usuario Modificación</th>
-                  <th scope="col">Fecha Modificación</th>
-                  <th scope="col">IP Modificación</th>
-                  <th scope="col">Tipo Documento</th>
-                  <th scope="col">Proveedor RUN</th>
-                  <th scope="col">Reg EQM</th>
-                  <th scope="col">Número Factura</th>
-                  <th scope="col">Fecha Factura</th>
-                  <th scope="col">UTM</th>
-                  <th scope="col">ID Grupo</th>
-                  <th scope="col">Nº Cuenta</th>
-                  <th scope="col">Transitoria</th>
-                  <th scope="col">Monto Factura</th>
-                  <th scope="col">ESP Descompone</th>
-                  <th scope="col">Etiqueta</th>
-                  <th scope="col">Vida Útil</th>
-                  <th scope="col">Vigente</th>
-                  <th scope="col">ID Programa</th>
-                  <th scope="col">ID Modalidad Compra</th>
-                  <th scope="col">ID Propiedad</th>
-                  <th scope="col">Especie</th>
-                  <th scope="col">Estado Inventario</th>
+                  <th scope="col" className="text-nowrap text-center">Clave</th>
+                  <th scope="col" className="text-nowrap text-center">Código Genérico</th>
+                  <th scope="col" className="text-nowrap text-center">Código Largo</th>
+                  <th scope="col" className="text-nowrap text-center">DEP Corr</th>
+                  <th scope="col" className="text-nowrap text-center">ESP Código</th>
+                  <th scope="col" className="text-nowrap text-center">Secuencia</th>
+                  <th scope="col" className="text-nowrap text-center">ITE Clave</th>
+                  <th scope="col" className="text-nowrap text-center">Descripción</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                  <th scope="col" className="text-nowrap text-center">Estado</th>
+                  <th scope="col" className="text-nowrap text-center">Código</th>
+                  <th scope="col" className="text-nowrap text-center">Tipo</th>
+                  <th scope="col" className="text-nowrap text-center">Alta</th>
+                  <th scope="col" className="text-nowrap text-center">Precio Ref.</th>
+                  <th scope="col" className="text-nowrap text-center">Cantidad</th>
+                  <th scope="col" className="text-nowrap text-center">Origen</th>
+                  <th scope="col" className="text-nowrap text-center">Resolución</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th>
+                  <th scope="col" className="text-nowrap text-center">Número Referencia</th>
+                  <th scope="col" className="text-nowrap text-center">Usuario Creación</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                  <th scope="col" className="text-nowrap text-center">IP Creación</th>
+                  <th scope="col" className="text-nowrap text-center">Usuario Modificación</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
+                  <th scope="col" className="text-nowrap text-center">IP Modificación</th>
+                  <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
+                  <th scope="col" className="text-nowrap text-center">Proveedor RUN</th>
+                  <th scope="col" className="text-nowrap text-center">Reg EQM</th>
+                  <th scope="col" className="text-nowrap text-center">Número Factura</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
+                  <th scope="col" className="text-nowrap text-center">UTM</th>
+                  <th scope="col" className="text-nowrap text-center">ID Grupo</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
+                  <th scope="col" className="text-nowrap text-center">Transitoria</th>
+                  <th scope="col" className="text-nowrap text-center">Monto Factura</th>
+                  <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
+                  <th scope="col" className="text-nowrap text-center">Etiqueta</th>
+                  <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                  <th scope="col" className="text-nowrap text-center">Vigente</th>
+                  <th scope="col" className="text-nowrap text-center">ID Programa</th>
+                  <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
+                  <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
+                  <th scope="col" className="text-nowrap text-center">Especie</th>
+                  <th scope="col" className="text-nowrap text-center">Estado Inventario</th>
                 </tr>
               </thead>
               <tbody>

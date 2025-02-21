@@ -99,6 +99,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   });
 
   const dispatch = useDispatch<AppDispatch>();
+  const [showInputProv, setShowInputProv] = useState(false);
   const [showInput, setShowInput] = useState(false);
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
@@ -145,7 +146,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     const { name, value } = e.target;
 
     // Convierte `value` a número
-    let newValue: string | number = ["montoRecepcion", "nOrdenCompra", "nRecepcion", "rutProveedor"].includes(name)
+    let newValue: string | number = ["montoRecepcion", "nOrdenCompra", "nRecepcion"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -222,6 +223,19 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         newValue = parseFloat(value) || 0;
         dispatch(setModalidadCompraActions(newValue as number));
         setShowInput(false);
+      }
+    }
+
+    //Al seleccionar "otros" es decir el valor 3132 este habilitará el input text
+    if (name === "rutProveedor") {
+      if (value === "0") {
+        newValue = value;
+        dispatch(setRutProveedorActions(newValue));
+        setShowInputProv(true);
+      } else {
+        newValue = value;
+        dispatch(setRutProveedorActions(newValue));
+        setShowInputProv(false);
       }
     }
   };
@@ -545,7 +559,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
                 >
-                  <option value="0">Seleccione un Proveedor</option>
+                  <option value="">Seleccione un Proveedor</option>
                   {comboProveedor.map((traeProveedor) => (
                     <option key={traeProveedor.rut} value={traeProveedor.rut}>
                       {traeProveedor.nomprov}
@@ -556,6 +570,30 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   <div className="invalid-feedback fw-semibold">{error.rutProveedor}</div>
                 )}
               </div>
+
+              {showInputProv && (
+                <div className="mb-1">
+                  <input
+                    aria-label="rutProveedor"
+                    type="text"
+                    pattern="[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+"
+                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.rutProveedor ? "is-invalid" : ""}`}
+                    name="rutProveedor"
+                    placeholder="Especifique otro"
+                    onChange={(e) =>
+                      setInventario({
+                        ...Inventario,
+                        rutProveedor: e.target.value,
+                      })
+                    }
+                  />
+                  {error.rutProveedor && (
+                    <div className="invalid-feedback fw-semibold">
+                      {error.rutProveedor}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Modalidad de Compra */}
               <div className="mb-1">
@@ -569,7 +607,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   onChange={handleChange}
                   value={Inventario.modalidadDeCompra}
                 >
-                  <option value="">Seleccione una modalidad</option>
+                  <option value="">Seleccionar</option>
                   {comboModalidad.map((traeModalidad) => (
                     <option
                       key={traeModalidad.codigo}
@@ -587,9 +625,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               </div>
               {showInput && (
                 <div className="mb-1">
-                  {/* <label className="fw-semibold">
-                    Modalidad de Compra
-                  </label> */}
                   <input
                     aria-label="modalidadDeCompra"
                     type="text"

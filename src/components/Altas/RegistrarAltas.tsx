@@ -349,17 +349,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col">Codigo</th>
-                    <th scope="col">N° Inventario</th>
-                    <th scope="col">Servicio</th>
-                    <th scope="col">Dependencia</th>
-                    <th scope="col">Especie</th>
-                    <th scope="col">N° Cuenta</th>
-                    <th scope="col">Marca</th>
-                    <th scope="col">Modelo</th>
-                    <th scope="col">Serie</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col">N° Recepcion</th>
+                    <th scope="col" className="text-nowrap text-center">Codigo</th>
+                    <th scope="col" className="text-nowrap text-center">N° Inventario</th>
+                    <th scope="col" className="text-nowrap text-center">Servicio</th>
+                    <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                    <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
+                    <th scope="col" className="text-nowrap text-center">Marca</th>
+                    <th scope="col" className="text-nowrap text-center">Modelo</th>
+                    <th scope="col" className="text-nowrap text-center">Serie</th>
+                    <th scope="col" className="text-nowrap text-center">Precio</th>
+                    <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                     {/* <th scope="col">Acción</th> */}
                   </tr>
                 </thead>

@@ -33,7 +33,8 @@ const persistConfig = {
     'comboEstablecimientoReducer',
     'comboTrasladoServicioReducer',
     'comboTrasladoEspecieReducer',
-    'comboDepartamentoReducer'  
+    'comboDepartamentoReducer',
+    'listadoTrasladosReducers'
   ]
 };
 

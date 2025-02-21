@@ -20,8 +20,7 @@ export const comboListadoDeEspeciesBienActions = (EST: number, IDBIEN: string) =
     dispatch({ type: LISTADO_ESPECIES_BIEN_REQUEST });
 
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_CSRF_API_URL}/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}`, config);
 
       if (res.status === 200) {
         dispatch({

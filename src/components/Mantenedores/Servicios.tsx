@@ -264,13 +264,13 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                 <tr>
                                     {/* <th scope="col"></th> */}
-                                    <th scope="col">Código</th>
-                                    <th scope="col">Código Servicio</th>
-                                    <th scope="col">Nombre</th>
-                                    <th scope="col">Vigencia</th>
-                                    <th scope="col">Fecha de Creación</th>
-                                    <th scope="col">IP</th>
-                                    <th scope="col">Establecimiento</th>
+                                    <th scope="col" className="text-nowrap text-center">Código</th>
+                                    <th scope="col" className="text-nowrap text-center">Código Servicio</th>
+                                    <th scope="col" className="text-nowrap text-center">Nombre</th>
+                                    <th scope="col" className="text-nowrap text-center">Vigencia</th>
+                                    <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
+                                    <th scope="col" className="text-nowrap text-center">IP</th>
+                                    <th scope="col" className="text-nowrap text-center">Establecimiento</th>
                                 </tr>
                             </thead>
                             <tbody>

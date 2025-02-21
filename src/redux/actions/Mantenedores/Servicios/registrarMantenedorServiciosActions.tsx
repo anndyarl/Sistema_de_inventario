@@ -26,7 +26,7 @@ export const registrarMantenedorServiciosActions = (formModal: Record<string, an
     dispatch({ type: REGISTRAR_SERVICIO_REQUEST });
 
     try {
-      const res = await axios.post(`http://localhost:5076/api/inventario/CrearServicios`, body, config);
+      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearServicios`, body, config);
 
       if (res.status === 200) {
         dispatch({

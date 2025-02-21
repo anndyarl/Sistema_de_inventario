@@ -21,7 +21,7 @@ export const listadoMantenedorServiciosActions = () => async (dispatch: Dispatch
         dispatch({ type: LISTA_MANTENEDOR_SERVICIO_REQUEST });
 
         try {
-            const res = await axios.get(`http://localhost:5076/api/inventario/TraeMantenedorServicios`, config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeMantenedorServicios`, config);
 
             if (res.status === 200) {
                 dispatch({

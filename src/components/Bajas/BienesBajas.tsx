@@ -350,14 +350,14 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
-                  <th scope="col"></th>
-                  <th scope="col">Codigo</th>
-                  <th scope="col">N° Inventario</th>
-                  <th scope="col">Vidal últil</th>
-                  <th scope="col">En años</th>
-                  <th scope="col">N° Cuenta</th>
-                  <th scope="col">Especie</th>
-                  <th scope="col">Depreciación Acumulada</th>
+                  <th scope="col" className="text-nowrap text-center"></th>
+                  <th scope="col" className="text-nowrap text-center">Codigo</th>
+                  <th scope="col" className="text-nowrap text-center">N° Inventario</th>
+                  <th scope="col" className="text-nowrap text-center">Vidal últil</th>
+                  <th scope="col" className="text-nowrap text-center">En años</th>
+                  <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
+                  <th scope="col" className="text-nowrap text-center">Especie</th>
+                  <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
                 </tr>
               </thead>
               <tbody>

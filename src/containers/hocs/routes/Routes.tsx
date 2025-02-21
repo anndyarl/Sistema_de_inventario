@@ -27,7 +27,7 @@ import AnularAltas from '../../../components/Altas/AnularAltas';
 import RegistrarAltas from '../../../components/Altas/RegistrarAltas';
 
 import Error404 from '../../errors/Error404';
-import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta';
+import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/ImprimirEtiqueta';
 import RegistrarBajas from '../../../components/Bajas/BienesBajas';
 import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';

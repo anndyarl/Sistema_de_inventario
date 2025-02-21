@@ -230,13 +230,13 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   {/* <th scope="col"></th> */}
-                  <th scope="col">Codigo</th>
-                  <th scope="col">Código Dependencia</th>
-                  <th scope="col">Código Servicio</th>
-                  <th scope="col">Nombre</th>
-                  <th scope="col">Vigencia</th>
-                  <th scope="col">IP</th>
-                  <th scope="col">Fecha de Creación</th>
+                  <th scope="col" className="text-nowrap text-center">Codigo</th>
+                  <th scope="col" className="text-nowrap text-center">Código Dependencia</th>
+                  <th scope="col" className="text-nowrap text-center">Código Servicio</th>
+                  <th scope="col" className="text-nowrap text-center">Nombre</th>
+                  <th scope="col" className="text-nowrap text-center">Vigencia</th>
+                  <th scope="col" className="text-nowrap text-center">IP</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
                 </tr>
               </thead>
               <tbody>

@@ -20,7 +20,7 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
     dispatch({ type: VALIDA_PORTAL_REQUEST });
 
     try {
-      const res = await axios.get(`http://localhost:5076/api/inventario/ValidaApilogin?rut=${rut}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/ValidaApilogin?rut=${rut}`, config);
 
       const respuestaApiLogin = res.data?.respuestaApiLogin || [];
       const objeto = respuestaApiLogin.length > 0 ? respuestaApiLogin[0]?.objeto : {};

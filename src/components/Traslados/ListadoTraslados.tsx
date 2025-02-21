@@ -1,16 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
+import { Pagination } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
-import { Plus } from "react-bootstrap-icons";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-
 import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
 
@@ -48,10 +46,10 @@ interface GeneralProps {
   objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTrasladosActions, registrarMantenedorDependenciasActions, token, isDarkMode, objeto }) => {
+const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTrasladosActions, token, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Partial<listadoTraslados>>({});
-  const [_, setFilaSeleccionada] = useState<string[]>([]);
+  // const [error, setError] = useState<Partial<listadoTraslados>>({});
+  // const [_, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 12;
   // Lógica de Paginación actualizada
@@ -67,21 +65,21 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTra
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
 
-  const [Mantenedor, setMantenedor] = useState({
-    seR_COD: 0,
-    nombre: "",
-    usuario: objeto.IdCredencial.toString(),
-  });
+  // const [Mantenedor, setMantenedor] = useState({
+  //   seR_COD: 0,
+  //   nombre: "",
+  //   usuario: objeto.IdCredencial.toString(),
+  // });
 
-  const validate = () => {
-    let tempErrors: Partial<any> & {} = {};
-    // Validación para N° de Recepción (debe ser un número)
-    if (!Mantenedor.seR_COD) tempErrors.seR_COD = "Campo obligatorio";
-    if (!Mantenedor.nombre) tempErrors.nombre = "Campo obligatorio";
+  // const validate = () => {
+  //   let tempErrors: Partial<any> & {} = {};
+  //   // Validación para N° de Recepción (debe ser un número)
+  //   if (!Mantenedor.seR_COD) tempErrors.seR_COD = "Campo obligatorio";
+  //   if (!Mantenedor.nombre) tempErrors.nombre = "Campo obligatorio";
 
-    setError(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
+  //   setError(tempErrors);
+  //   return Object.keys(tempErrors).length === 0;
+  // };
 
   //Se lista automaticamente apenas entra al componente
   const listadoTrasladosAuto = async () => {
@@ -214,28 +212,28 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTra
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   {/* <th scope="col"></th> */}
-                  <th scope="col" className="text-nowrap">N° Traslado</th>
-                  <th scope="col" className="text-nowrap">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap">Clave Activo Fijo</th>
-                  <th scope="col" className="text-nowrap">Dependencia</th>
-                  <th scope="col" className="text-nowrap">Memo de Referencia</th>
-                  <th scope="col" className="text-nowrap">Fecha Memo</th>
-                  <th scope="col" className="text-nowrap">Observaciones</th>
-                  <th scope="col" className="text-nowrap">Nombre Entrega</th>
-                  <th scope="col" className="text-nowrap">Nombre Recibe</th>
-                  <th scope="col" className="text-nowrap">Estado Activo Fijo</th>
-                  <th scope="col" className="text-nowrap">Dependencia Origen</th>
-                  <th scope="col" className="text-nowrap">Detalle de Traslado</th>
-                  <th scope="col" className="text-nowrap">Usuario Crea</th>
-                  <th scope="col" className="text-nowrap">Fecha Creación</th>
-                  <th scope="col" className="text-nowrap">IP Creación</th>
-                  <th scope="col" className="text-nowrap">Usuario Modifica</th>
-                  <th scope="col" className="text-nowrap">Fecha Modificación</th>
-                  <th scope="col" className="text-nowrap">IP Modificación</th>
-                  <th scope="col" className="text-nowrap">Número de Traslado</th>
-                  <th scope="col" className="text-nowrap">Código Real Traslado</th>
-                  <th scope="col" className="text-nowrap">Nombre Autoriza</th>
-                  <th scope="col" className="text-nowrap">Establecimiento</th>
+                  <th scope="col" className="text-nowrap text-center">N° Traslado</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
+                  <th scope="col" className="text-nowrap text-center">Clave Activo Fijo</th>
+                  <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                  <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
+                  <th scope="col" className="text-nowrap text-center">Observaciones</th>
+                  <th scope="col" className="text-nowrap text-center">Nombre Entrega</th>
+                  <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
+                  <th scope="col" className="text-nowrap text-center">Estado Activo Fijo</th>
+                  <th scope="col" className="text-nowrap text-center">Dependencia Origen</th>
+                  <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
+                  <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                  <th scope="col" className="text-nowrap text-center">IP Creación</th>
+                  <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
+                  <th scope="col" className="text-nowrap text-center">IP Modificación</th>
+                  <th scope="col" className="text-nowrap text-center">Número de Traslado</th>
+                  <th scope="col" className="text-nowrap text-center">Código Real Traslado</th>
+                  <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
+                  <th scope="col" className="text-nowrap text-center">Establecimiento</th>
                 </tr>
               </thead>
               <tbody>
