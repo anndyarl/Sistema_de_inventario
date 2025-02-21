@@ -33,6 +33,7 @@ interface obtenerRecepcionState {
     rutProveedor: string;
     nombreProveedor: string;
     modalidadDeCompra: number;
+    otraModalidad: string;
 }
 
 // Estado inicial tipado
@@ -49,13 +50,16 @@ const initialState: obtenerRecepcionState = {
     fechaFactura: '',
     rutProveedor: '',
     nombreProveedor: '',
-    modalidadDeCompra: 0
+    modalidadDeCompra: 0,
+    otraModalidad: ''
 };
 
 
 // Reducer con tipos definidos
 const obtenerRecepcionReducers = (state = initialState, action: any): obtenerRecepcionState => {
     switch (action.type) {
+
+        //Guarda el estado de cada tipeo en sus elemento de entradas
         case 'SET_N_RECEPCION':
             return { ...state, nRecepcion: action.payload };
         case 'SET_FECHA_RECEPCION':
@@ -74,8 +78,10 @@ const obtenerRecepcionReducers = (state = initialState, action: any): obtenerRec
             return { ...state, rutProveedor: action.payload };
         case 'SET_NOMBRE_PROVEEDOR':
             return { ...state, nombreProveedor: action.payload };
-        case 'SET_MODALIDAD_COMPRA':
-            return { ...state, modalidadDeCompra: action.payload };
+        // case 'SET_MODALIDAD_COMPRA':
+        //     return { ...state, modalidadDeCompra: action.payload };
+        case 'SET_OTRA_MODALIDAD':
+            return { ...state, otraModalidad: action.payload };
 
         case RECEPCION_REQUEST:
             return {
@@ -83,6 +89,7 @@ const obtenerRecepcionReducers = (state = initialState, action: any): obtenerRec
                 loading: true,
                 error: null
             };
+        //Trae la busqueda
         case RECEPCION_SUCCESS:
             return {
                 ...state,

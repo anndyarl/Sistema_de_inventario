@@ -467,17 +467,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td>{Lista.aF_CLAVE}</td>
-                        <td>{Lista.ninv}</td>
-                        <td>{Lista.serv}</td>
-                        <td>{Lista.dep}</td>
-                        <td>{Lista.esp}</td>
-                        <td>{Lista.ncuenta}</td>
-                        <td>{Lista.marca}</td>
-                        <td>{Lista.modelo}</td>
-                        <td>{Lista.serie}</td>
-                        <td>{Lista.precio}</td>
-                        <td>{Lista.mrecepcion}</td>
+                        <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
+                        <td className="text-nowrap text-center">{Lista.ninv}</td>
+                        <td className="text-nowrap text-center">{Lista.serv}</td>
+                        <td className="text-nowrap text-center">{Lista.dep}</td>
+                        <td className="text-nowrap text-center">{Lista.esp}</td>
+                        <td className="text-nowrap text-center">{Lista.ncuenta}</td>
+                        <td className="text-nowrap text-center">{Lista.marca}</td>
+                        <td className="text-nowrap text-center">{Lista.modelo}</td>
+                        <td className="text-nowrap text-center">{Lista.serie}</td>
+                        <td className="text-nowrap text-center">{Lista.precio}</td>
+                        <td className="text-nowrap text-center">{Lista.mrecepcion}</td>
                         {/* <td>
                           <Button
                             variant="outline-danger"

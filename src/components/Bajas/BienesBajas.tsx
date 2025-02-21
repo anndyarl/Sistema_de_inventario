@@ -372,13 +372,13 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                       </td>
-                      <td>{Lista.bajaS_CORR}</td>
-                      <td>{Lista.aF_CLAVE}</td>
-                      <td>{Lista.vutiL_RESTANTE}</td>
-                      <td>{Lista.vutiL_AGNOS}</td>
-                      <td>{Lista.ncuenta}</td>
-                      <td>{Lista.deP_ACUMULADA}</td>
-                      <td>{Lista.especie}</td>
+                      <td className="text-nowrap text-center">{Lista.bajaS_CORR}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
+                      <td className="text-nowrap text-center">{Lista.vutiL_RESTANTE}</td>
+                      <td className="text-nowrap text-center">{Lista.vutiL_AGNOS}</td>
+                      <td className="text-nowrap text-center">{Lista.ncuenta}</td>
+                      <td className="text-nowrap text-center">{Lista.deP_ACUMULADA}</td>
+                      <td className="text-nowrap text-center">{Lista.especie}</td>
                     </tr>
                   );
                 })}

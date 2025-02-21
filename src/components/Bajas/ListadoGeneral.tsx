@@ -352,50 +352,50 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                       </td>
-                      <td>{Lista.aF_CLAVE}</td>
-                      <td>{Lista.aF_CODIGO_GENERICO}</td>
-                      <td>{Lista.aF_CODIGO_LARGO}</td>
-                      <td>{Lista.deP_CORR}</td>
-                      <td>{Lista.esP_CODIGO}</td>
-                      <td>{Lista.aF_SECUENCIA}</td>
-                      <td>{Lista.itE_CLAVE}</td>
-                      <td>{Lista.aF_DESCRIPCION}</td>
-                      <td>{Lista.aF_FINGRESO}</td>
-                      <td>{Lista.aF_ESTADO}</td>
-                      <td>{Lista.aF_CODIGO}</td>
-                      <td>{Lista.aF_TIPO}</td>
-                      <td>{Lista.aF_ALTA}</td>
-                      <td>{Lista.aF_PRECIO_REF}</td>
-                      <td>{Lista.aF_CANTIDAD}</td>
-                      <td>{Lista.aF_ORIGEN}</td>
-                      <td>{Lista.aF_RESOLUCION}</td>
-                      <td>{Lista.aF_FECHA_SOLICITUD}</td>
-                      <td>{Lista.aF_OCO_NUMERO_REF}</td>
-                      <td>{Lista.usuariO_CREA}</td>
-                      <td>{Lista.f_CREA}</td>
-                      <td>{Lista.iP_CREA}</td>
-                      <td>{Lista.usuariO_MOD}</td>
-                      <td>{Lista.f_MOD}</td>
-                      <td>{Lista.iP_MOD}</td>
-                      <td>{Lista.aF_TIPO_DOC}</td>
-                      <td>{Lista.prov_RUN}</td>
-                      <td>{Lista.reG_EQM}</td>
-                      <td>{Lista.aF_NUM_FAC}</td>
-                      <td>{Lista.aF_FECHAFAC}</td>
-                      <td>{Lista.aF_3UTM}</td>
-                      <td>{Lista.iD_GRUPO}</td>
-                      <td>{Lista.ctA_COD}</td>
-                      <td>{Lista.transitoria}</td>
-                      <td>{Lista.aF_MONTOFACTURA}</td>
-                      <td>{Lista.esP_DESCOMPONE}</td>
-                      <td>{Lista.aF_ETIQUETA}</td>
-                      <td>{Lista.aF_VIDAUTIL}</td>
-                      <td>{Lista.aF_VIGENTE}</td>
-                      <td>{Lista.idprograma}</td>
-                      <td>{Lista.idmodalidadcompra}</td>
-                      <td>{Lista.idpropiedad}</td>
-                      <td>{Lista.especie}</td>
-                      <td>{Lista.aF_ESTADO_INV}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_CODIGO_GENERICO}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_CODIGO_LARGO}</td>
+                      <td className="text-nowrap text-center">{Lista.deP_CORR}</td>
+                      <td className="text-nowrap text-center">{Lista.esP_CODIGO}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_SECUENCIA}</td>
+                      <td className="text-nowrap text-center">{Lista.itE_CLAVE}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_DESCRIPCION}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_FINGRESO}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_ESTADO}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_CODIGO}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_TIPO}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_ALTA}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_PRECIO_REF}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_CANTIDAD}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_ORIGEN}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_RESOLUCION}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_FECHA_SOLICITUD}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_OCO_NUMERO_REF}</td>
+                      <td className="text-nowrap text-center">{Lista.usuariO_CREA}</td>
+                      <td className="text-nowrap text-center">{Lista.f_CREA}</td>
+                      <td className="text-nowrap text-center">{Lista.iP_CREA}</td>
+                      <td className="text-nowrap text-center">{Lista.usuariO_MOD}</td>
+                      <td className="text-nowrap text-center">{Lista.f_MOD}</td>
+                      <td className="text-nowrap text-center">{Lista.iP_MOD}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_TIPO_DOC}</td>
+                      <td className="text-nowrap text-center">{Lista.prov_RUN}</td>
+                      <td className="text-nowrap text-center">{Lista.reG_EQM}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_NUM_FAC}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_FECHAFAC}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_3UTM}</td>
+                      <td className="text-nowrap text-center">{Lista.iD_GRUPO}</td>
+                      <td className="text-nowrap text-center">{Lista.ctA_COD}</td>
+                      <td className="text-nowrap text-center">{Lista.transitoria}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_MONTOFACTURA}</td>
+                      <td className="text-nowrap text-center">{Lista.esP_DESCOMPONE}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_ETIQUETA}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_VIDAUTIL}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_VIGENTE}</td>
+                      <td className="text-nowrap text-center">{Lista.idprograma}</td>
+                      <td className="text-nowrap text-center">{Lista.idmodalidadcompra}</td>
+                      <td className="text-nowrap text-center">{Lista.idpropiedad}</td>
+                      <td className="text-nowrap text-center">{Lista.especie}</td>
+                      <td className="text-nowrap text-center">{Lista.aF_ESTADO_INV}</td>
                     </tr>
                   );
                 })}

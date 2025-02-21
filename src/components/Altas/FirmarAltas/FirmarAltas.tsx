@@ -273,13 +273,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                                                 )}
                                             />
                                         </td>
-                                        <td>{fila.bajaS_CORR}</td>
-                                        <td>{fila.aF_CLAVE}</td>
-                                        <td>{fila.vutiL_RESTANTE}</td>
-                                        <td>{fila.vutiL_AGNOS}</td>
-                                        <td>{fila.ncuenta}</td>
-                                        <td>{fila.especie}</td>
-                                        <td>{fila.deP_ACUMULADA}</td>
+                                        <td className="text-nowrap text-center">{fila.bajaS_CORR}</td>
+                                        <td className="text-nowrap text-center">{fila.aF_CLAVE}</td>
+                                        <td className="text-nowrap text-center">{fila.vutiL_RESTANTE}</td>
+                                        <td className="text-nowrap text-center">{fila.vutiL_AGNOS}</td>
+                                        <td className="text-nowrap text-center">{fila.ncuenta}</td>
+                                        <td className="text-nowrap text-center">{fila.especie}</td>
+                                        <td className="text-nowrap text-center">{fila.deP_ACUMULADA}</td>
                                     </tr>
                                 ))}
                             </tbody>

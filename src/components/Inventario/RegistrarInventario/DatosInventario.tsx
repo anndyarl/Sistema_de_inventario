@@ -22,6 +22,7 @@ import {
   setBienActions,
   setDetalleActions,
   setEspecieActions,
+  setOtraModalidadActions,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
@@ -54,6 +55,7 @@ export interface InventarioProps {
   nRecepcion: number;
   origenPresupuesto: number;
   rutProveedor: string;
+  otraModalidad?: string;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -76,6 +78,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   fechaFactura,
   fechaRecepcion,
   modalidadDeCompra,
+  otraModalidad,
   montoRecepcion,
   nFactura,
   nOrdenCompra,
@@ -96,6 +99,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     nRecepcion: 0,
     origenPresupuesto: 0,
     rutProveedor: "",
+    otraModalidad: ""
   });
 
   const dispatch = useDispatch<AppDispatch>();
@@ -113,30 +117,31 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
     if (!Inventario.nRecepcion)
-      tempErrors.nRecepcion = "El N° de Recepción es obligatorio.";
+      tempErrors.nRecepcion = "Campo obligatorio";
     if (!Inventario.fechaRecepcion)
-      tempErrors.fechaRecepcion = "La Fecha de Recepción es obligatoria.";
+      tempErrors.fechaRecepcion = "Campo obligatorio";
     if (!Inventario.nOrdenCompra)
-      tempErrors.nOrdenCompra = "El N° de Orden de Compra es obligatorio.";
+      tempErrors.nOrdenCompra = "Campo obligatorio";
     else if (isNaN(Inventario.nOrdenCompra))
       tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
     if (!Inventario.nFactura)
-      tempErrors.nFactura = "El N° de Factura es obligatorio.";
+      tempErrors.nFactura = "Campo obligatorio";
     if (!Inventario.origenPresupuesto)
-      tempErrors.origenPresupuesto = "El Origen de Presupuesto es obligatorio.";
+      tempErrors.origenPresupuesto = "Campo obligatorio";
     if (!Inventario.montoRecepcion)
-      tempErrors.montoRecepcion = "El Monto de Recepción es obligatorio.";
+      tempErrors.montoRecepcion = "Campo obligatorio";
     else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion)))
       tempErrors.montoRecepcion =
         "El Monto debe ser un número válido con hasta dos decimales.";
     if (!Inventario.fechaFactura)
-      tempErrors.fechaFactura = "La Fecha de Factura es obligatoria.";
+      tempErrors.fechaFactura = "Campo obligatorio";
     if (!Inventario.rutProveedor)
-      tempErrors.rutProveedor = "El Rut del Proveedor es obligatorio.";
+      tempErrors.rutProveedor = "Campo obligatorio";
     if (!Inventario.modalidadDeCompra)
-      tempErrors.modalidadDeCompra = "La Modalidad de Compra es obligatoria.";
+      tempErrors.modalidadDeCompra = "Campo obligatorio";
     else if (showInput && Inventario.modalidadDeCompra === 7) {
-      tempErrors.modalidadDeCompra = "Especifique la Modalidad de Compra.";
+      if (!Inventario.otraModalidad)
+        tempErrors.otraModalidad = "Campo obligatorio";
     }
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -177,6 +182,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       newValue = parseFloat(value) || 0;
       dispatch(setMontoRecepcionActions(newValue as number)); // Convertido a número
     }
+    else if (name === "modalidadDeCompra") {
+      newValue = parseFloat(value) || 0;
+      dispatch(setModalidadCompraActions(newValue as number)); // Convertido a número
+    } else if (name === "otraModalidad") {
+      dispatch(setOtraModalidadActions(newValue as string));
+    }
 
     if (name === "montoRecepcion" && datosTablaActivoFijo.length > 0) {
       if (!isMontoRecepcionEdited) {
@@ -216,15 +227,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     //Al seleccionar "otros" es decir el valor 7 este habilitará el input text
     if (name === "modalidadDeCompra") {
       if (value === "7") {
-        newValue = parseFloat(value) || 0;
-        dispatch(setModalidadCompraActions(newValue as number));
         setShowInput(true);
-      } else {
-        newValue = parseFloat(value) || 0;
-        dispatch(setModalidadCompraActions(newValue as number));
-        setShowInput(false);
       }
     }
+
 
     //Al seleccionar "otros" es decir el valor 3132 este habilitará el input text
     if (name === "rutProveedor") {
@@ -361,7 +367,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     if (validate()) {
       dispatch(setMontoRecepcionActions(Inventario.montoRecepcion)); // Convertido a número
       onNext(Inventario);
-      // console.log(Inventario);
+      console.log(Inventario);
     }
   };
 
@@ -495,7 +501,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   onChange={handleChange}
                   value={Inventario.origenPresupuesto}
                 >
-                  <option value="">Seleccione un origen</option>
+                  <option value="">Seleccionar</option>
                   {comboOrigen.map((traeOrigen) => (
                     <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
                       {traeOrigen.descripcion}
@@ -559,7 +565,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   onChange={handleChange}
                   value={Inventario.rutProveedor}
                 >
-                  <option value="">Seleccione un Proveedor</option>
+                  <option value="">Seleccionar</option>
                   {comboProveedor.map((traeProveedor) => (
                     <option key={traeProveedor.rut} value={traeProveedor.rut}>
                       {traeProveedor.nomprov}
@@ -626,21 +632,21 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               {showInput && (
                 <div className="mb-1">
                   <input
-                    aria-label="modalidadDeCompra"
+                    aria-label="otraModalidad"
                     type="text"
-                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
-                    name="modalidadDeCompra"
+                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.otraModalidad ? "is-invalid" : ""}`}
+                    name="otraModalidad"
                     placeholder="Especifique otro"
                     onChange={(e) =>
                       setInventario({
                         ...Inventario,
-                        modalidadDeCompra: parseInt(e.target.value),
+                        otraModalidad: e.target.value,
                       })
                     }
                   />
-                  {error.modalidadDeCompra && (
+                  {error.otraModalidad && (
                     <div className="invalid-feedback fw-semibold">
-                      {error.modalidadDeCompra}
+                      {error.otraModalidad}
                     </div>
                   )}
                 </div>

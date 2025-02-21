@@ -342,17 +342,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td>{Lista.aF_CLAVE}</td>
-                        <td>{Lista.bajaS_CORR}</td>
-                        <td>{Lista.especie}</td>
-                        <td>{Lista.vutiL_RESTANTE}</td>
-                        <td>{Lista.vutiL_AGNOS}</td>
-                        <td>{Lista.nresolucion}</td>
-                        <td>{Lista.observaciones}</td>
-                        <td>{Lista.deP_ACUMULADA}</td>
-                        <td>{Lista.ncuenta}</td>
-                        <td>{Lista.estado}</td>
-                        <td>{Lista.fechA_REMATES}</td>
+                        <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
+                        <td className="text-nowrap text-center">{Lista.bajaS_CORR}</td>
+                        <td className="text-nowrap text-center">{Lista.especie}</td>
+                        <td className="text-nowrap text-center">{Lista.vutiL_RESTANTE}</td>
+                        <td className="text-nowrap text-center">{Lista.vutiL_AGNOS}</td>
+                        <td className="text-nowrap text-center">{Lista.nresolucion}</td>
+                        <td className="text-nowrap text-center">{Lista.observaciones}</td>
+                        <td className="text-nowrap text-center">{Lista.deP_ACUMULADA}</td>
+                        <td className="text-nowrap text-center">{Lista.ncuenta}</td>
+                        <td className="text-nowrap text-center">{Lista.estado}</td>
+                        <td className="text-nowrap text-center">{Lista.fechA_REMATES}</td>
                       </tr>
                     );
                   })}

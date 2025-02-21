@@ -40,6 +40,10 @@ export const setModalidadCompraActions = (modalidadDeCompra: number) => ({
   type: 'SET_MODALIDAD_COMPRA',
   payload: modalidadDeCompra,
 });
+export const setOtraModalidadActions = (otraModalidad: string) => ({
+  type: 'SET_OTRA_MODALIDAD',
+  payload: otraModalidad,
+});
 export const setTotalActivoFijoActions = (total: number) => ({
   type: 'SET_TOTAL_ACTIVO_FIJO',
   payload: total,
