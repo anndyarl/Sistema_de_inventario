@@ -28,22 +28,35 @@ export const setFechaFacturaActions = (fechaFactura: string) => ({
   type: 'SET_FECHA_FACTURA',
   payload: fechaFactura,
 });
+/*-----------------------Proveedor----------------------*/
 export const setRutProveedorActions = (rutProveedor: number | string) => ({
   type: 'SET_RUT_PROVEEDOR',
   payload: rutProveedor,
 });
-export const setnombreProveedorActions = (nombreProveedor: string) => ({
-  type: 'SET_NOMBRE_PROVEEDOR',
-  payload: nombreProveedor,
+export const setOtroProveedorActions = (otroProveedor: string) => ({
+  type: 'SET_OTRO_PROVEEDOR',
+  payload: otroProveedor,
 });
+export const showInputProveedorActions = (showInputproveedor: boolean) => ({
+  type: 'SET_MOSTRAR_PROVEEDOR',
+  payload: showInputproveedor,
+});
+/*-----------------------Fin Proveedor----------------------*/
+
+/*-----------------------Modalidad de compra----------------------*/
 export const setModalidadCompraActions = (modalidadDeCompra: number) => ({
   type: 'SET_MODALIDAD_COMPRA',
   payload: modalidadDeCompra,
 });
 export const setOtraModalidadActions = (otraModalidad: string) => ({
-  type: 'SET_OTRA_MODALIDAD',
+  type: 'SET_OTRA_MODALIDAD_COMPRA',
   payload: otraModalidad,
 });
+export const showInputActions = (showInput: boolean) => ({
+  type: 'SET_MOSTRAR_MODALIDAD_COMPRA',
+  payload: showInput,
+});
+/*----------------------Fin Modalidad de compra----------------------*/
 export const setTotalActivoFijoActions = (total: number) => ({
   type: 'SET_TOTAL_ACTIVO_FIJO',
   payload: total,
@@ -140,4 +153,5 @@ export const setObservacionesActions = (observaciones: string) => ({
   type: 'SET_OBSERVACIONES',
   payload: observaciones,
 });
+
 

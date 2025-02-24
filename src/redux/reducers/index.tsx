@@ -161,7 +161,6 @@ const rootReducer = (state: any, action: any) => {
       comboEstablecimientoReducer,
       comboTrasladoServicioReducer,
       comboTrasladoEspecieReducer,
-      comboDepartamentoReducer,
       indicadoresReducers,
       darkModeReducer,
     } = state || {};
@@ -180,7 +179,6 @@ const rootReducer = (state: any, action: any) => {
       comboEstablecimientoReducer,
       comboTrasladoServicioReducer,
       comboTrasladoEspecieReducer,
-      comboDepartamentoReducer,
       indicadoresReducers,
       darkModeReducer,
     };

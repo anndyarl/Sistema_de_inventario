@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import Swal from "sweetalert2";
+import Select from "react-select";
 //importacion de objetos desde actions de redux
 import {
   setNRecepcionActions,
@@ -23,6 +24,9 @@ import {
   setDetalleActions,
   setEspecieActions,
   setOtraModalidadActions,
+  showInputActions,
+  setOtroProveedorActions,
+  showInputProveedorActions,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
@@ -48,14 +52,19 @@ export interface PROVEEDOR {
 export interface InventarioProps {
   fechaFactura: string;
   fechaRecepcion: string;
-  modalidadDeCompra: number;
   montoRecepcion: number;
   nFactura: string;
   nOrdenCompra: number;
   nRecepcion: number;
   origenPresupuesto: number;
-  rutProveedor: string;
+
+  modalidadDeCompra: number;
   otraModalidad?: string;
+  showInputReducer?: boolean;
+
+  rutProveedor: string;
+  otroProveedor?: string;
+  showInputProveedorReducer?: boolean;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -77,14 +86,21 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   comboProveedor,
   fechaFactura,
   fechaRecepcion,
-  modalidadDeCompra,
-  otraModalidad,
   montoRecepcion,
   nFactura,
   nOrdenCompra,
   nRecepcion,
   origenPresupuesto,
+  /*-------Modalidad compra----*/
+  modalidadDeCompra,
+  otraModalidad,
+  showInputReducer,
+  /*-------Fin Modalidad compra----*/
+  /*-------Proveedor----*/
   rutProveedor,
+  otroProveedor,
+  showInputProveedorReducer,
+  /*-------Fin Proveedor---*/
   datosTablaActivoFijo,
   isDarkMode,
   obtenerRecepcionActions,
@@ -103,14 +119,36 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   });
 
   const dispatch = useDispatch<AppDispatch>();
-  const [showInputProv, setShowInputProv] = useState(false);
-  const [showInput, setShowInput] = useState(false);
+  const [__, setShowInputProv] = useState(false);
+  const [_, setShowInput] = useState(false);
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
   };
+
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const proveedorOptions = comboProveedor.map((item) => ({
+    value: item.rut.toString(),
+    label: item.nomprov,
+  }));
+
+  const handleProveedorChange = (selectedOption: any) => {
+    const value = selectedOption ? selectedOption.value : "";
+    setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
+
+    if (value === "0") { // 0 es igual a Otros 
+      dispatch(setOtroProveedorActions(value));
+      setShowInputProv(true); //estado de react para mostrar el input Otros
+      dispatch(showInputProveedorActions(true)); //Se envia al estado de Otros a redux para guardarlo
+    } else {
+
+      setShowInputProv(false);
+      dispatch(showInputProveedorActions(false));
+      dispatch(setRutProveedorActions(value));
+      dispatch(setOtroProveedorActions(""));
+    }
+  };
 
   //Validaciones del formulario
   const validate = () => {
@@ -131,18 +169,28 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     if (!Inventario.montoRecepcion)
       tempErrors.montoRecepcion = "Campo obligatorio";
     else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion)))
-      tempErrors.montoRecepcion =
-        "El Monto debe ser un número válido con hasta dos decimales.";
+      tempErrors.montoRecepcion = "El Monto debe ser un número válido con hasta dos decimales.";
     if (!Inventario.fechaFactura)
       tempErrors.fechaFactura = "Campo obligatorio";
+    /*---------Proveedor----------*/
     if (!Inventario.rutProveedor)
       tempErrors.rutProveedor = "Campo obligatorio";
+
+    if (showInputProveedorReducer) {
+      if (!Inventario.otroProveedor)
+        tempErrors.otroProveedor = "Campo obligatorio";
+    }
+    /*---------Fin Proveedor----------*/
+
+    /*---------Modalidad Compra----------*/
     if (!Inventario.modalidadDeCompra)
       tempErrors.modalidadDeCompra = "Campo obligatorio";
-    else if (showInput && Inventario.modalidadDeCompra === 7) {
+
+    if (showInputReducer) {
       if (!Inventario.otraModalidad)
         tempErrors.otraModalidad = "Campo obligatorio";
     }
+    /*---------Fin Modalidad Compra----------*/
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -174,19 +222,41 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       dispatch(setNRecepcionActions(newValue as number)); // Convertido a número
     } else if (name === "origenPresupuesto") {
       newValue = parseFloat(value) || 0;
-      dispatch(setOrigenPresupuestoActions(newValue as number)); // Convertido a número
-    } else if (name === "rutProveedor") {
-      newValue = parseFloat(value) || 0;
-      dispatch(setRutProveedorActions(newValue as number));
+      dispatch(setOrigenPresupuestoActions(newValue as number)); // Convertido a número    
     } else if (name === "montoRecepcion") {
       newValue = parseFloat(value) || 0;
       dispatch(setMontoRecepcionActions(newValue as number)); // Convertido a número
     }
     else if (name === "modalidadDeCompra") {
       newValue = parseFloat(value) || 0;
-      dispatch(setModalidadCompraActions(newValue as number)); // Convertido a número
-    } else if (name === "otraModalidad") {
+      dispatch(setModalidadCompraActions(newValue as number)); // Convertido a número  
+      //Al seleccionar "Otros" es decir el valor 7 este habilitará el input text
+      if (value === "7") { // 7 es igual a Otros
+        setShowInput(true); //estado de react para mostrar el input Otros
+        dispatch(showInputActions(true)); //Se envia al estado de Otros a redux para guardarlo
+      } else {
+        setShowInput(false);
+        dispatch(showInputActions(false));
+        dispatch(setOtraModalidadActions(""));
+      }
+    }
+    else if (name === "otraModalidad") {
       dispatch(setOtraModalidadActions(newValue as string));
+    }
+    // else if (name === "rutProveedor") {
+    //   dispatch(setRutProveedorActions(newValue as string)); // Convertido a número  
+    //   //Al seleccionar "Otros" es decir el valor 7 este habilitará el input text
+    //   if (value === "0") { // 7 es igual a Otros
+    //     setShowInputProv(true); //estado de react para mostrar el input Otros
+    //     dispatch(showInputProveedorActions(true)); //Se envia al estado de Otros a redux para guardarlo
+    //   } else {
+    //     setShowInputProv(false);
+    //     dispatch(showInputProveedorActions(false));
+    //     dispatch(setOtroProveedorActions(""));
+    //   }
+    // }
+    else if (name === "otroProveedor") {
+      dispatch(setOtroProveedorActions(newValue as string));
     }
 
     if (name === "montoRecepcion" && datosTablaActivoFijo.length > 0) {
@@ -223,41 +293,23 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         return;
       }
     }
-
-    //Al seleccionar "otros" es decir el valor 7 este habilitará el input text
-    if (name === "modalidadDeCompra") {
-      if (value === "7") {
-        setShowInput(true);
-      }
-    }
-
-
-    //Al seleccionar "otros" es decir el valor 3132 este habilitará el input text
-    if (name === "rutProveedor") {
-      if (value === "0") {
-        newValue = value;
-        dispatch(setRutProveedorActions(newValue));
-        setShowInputProv(true);
-      } else {
-        newValue = value;
-        dispatch(setRutProveedorActions(newValue));
-        setShowInputProv(false);
-      }
-    }
   };
 
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
+
     setInventario({
       fechaFactura,
       fechaRecepcion,
       modalidadDeCompra,
+      ...(showInputReducer ? { otraModalidad } : {}), // Permite pasar el estado del input otraModalidad solo si es seleccionado
       montoRecepcion,
       nFactura,
       nOrdenCompra,
       nRecepcion,
       origenPresupuesto,
       rutProveedor,
+      ...(showInputProveedorReducer ? { otroProveedor } : {}), // Permite pasar el estado del input otroProveedor solo si es seleccionado
     });
   }, [
     fechaFactura,
@@ -269,6 +321,9 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     nRecepcion,
     origenPresupuesto,
     rutProveedor,
+    otraModalidad,
+    showInputReducer,
+    showInputProveedorReducer
   ]);
 
   const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -554,7 +609,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               </div>
 
               {/* Proveedor */}
-              <div className="mb-1">
+              {/* <div className="mb-1">
                 <label className="fw-semibold">
                   Proveedor
                 </label>
@@ -575,31 +630,46 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 {error.rutProveedor && (
                   <div className="invalid-feedback fw-semibold">{error.rutProveedor}</div>
                 )}
-              </div>
+              </div> */}
 
-              {showInputProv && (
-                <div className="mb-1">
-                  <input
-                    aria-label="rutProveedor"
-                    type="text"
-                    pattern="[A-Za-zÑñÁáÉéÍíÓóÚúÜü\s]+"
-                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.rutProveedor ? "is-invalid" : ""}`}
-                    name="rutProveedor"
-                    placeholder="Especifique otro"
-                    onChange={(e) =>
-                      setInventario({
-                        ...Inventario,
-                        rutProveedor: e.target.value,
-                      })
-                    }
-                  />
-                  {error.rutProveedor && (
-                    <div className="invalid-feedback fw-semibold">
-                      {error.rutProveedor}
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="mb-1">
+                <label className="fw-semibold">
+                  Proveedor
+                </label>
+                <Select
+                  options={proveedorOptions}
+                  onChange={handleProveedorChange}
+                  name="rutProveedor"
+                  value={proveedorOptions.find((option) => option.value === Inventario.rutProveedor) || null}
+                  placeholder="Buscar"
+                  className={`form-select-container ${error.rutProveedor ? "is-invalid" : ""}`}
+                  classNamePrefix="react-select"
+                  isClearable
+                  isSearchable
+                />
+                {error.rutProveedor && (
+                  <div className="invalid-feedback fw-semibold">
+                    {error.rutProveedor}
+                  </div>
+                )}
+                {showInputProveedorReducer && (
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.otroProveedor ? "is-invalid" : ""}`}
+                      name="otroProveedor"
+                      placeholder="Especifique otro"
+                      onChange={handleChange}
+                      value={Inventario.otroProveedor || ""}
+                    />
+                    {error.otroProveedor && (
+                      <div className="invalid-feedback fw-semibold">
+                        {error.otroProveedor}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Modalidad de Compra */}
               <div className="mb-1">
@@ -629,7 +699,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   </div>
                 )}
               </div>
-              {showInput && (
+              {showInputReducer && (
                 <div className="mb-1">
                   <input
                     aria-label="otraModalidad"
@@ -637,12 +707,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                     className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.otraModalidad ? "is-invalid" : ""}`}
                     name="otraModalidad"
                     placeholder="Especifique otro"
-                    onChange={(e) =>
-                      setInventario({
-                        ...Inventario,
-                        otraModalidad: e.target.value,
-                      })
-                    }
+                    onChange={handleChange}
+                    value={Inventario.otraModalidad || ""}
                   />
                   {error.otraModalidad && (
                     <div className="invalid-feedback fw-semibold">
@@ -669,14 +735,22 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 const mapStateToProps = (state: RootState) => ({
   fechaFactura: state.obtenerRecepcionReducers.fechaFactura,
   fechaRecepcion: state.obtenerRecepcionReducers.fechaRecepcion,
-  modalidadDeCompra: state.obtenerRecepcionReducers.modalidadDeCompra,
+
   montoRecepcion: state.obtenerRecepcionReducers.montoRecepcion,
   nFactura: state.obtenerRecepcionReducers.nFactura,
   nOrdenCompra: state.obtenerRecepcionReducers.nOrdenCompra,
   nRecepcion: state.obtenerRecepcionReducers.nRecepcion,
-  nombreProveedor: state.obtenerRecepcionReducers.nombreProveedor,
   origenPresupuesto: state.obtenerRecepcionReducers.origenPresupuesto,
+  /*--------------Modalidad Compra--------------*/
+  modalidadDeCompra: state.obtenerRecepcionReducers.modalidadDeCompra,
+  otraModalidad: state.obtenerRecepcionReducers.otraModalidad,
+  showInputReducer: state.obtenerRecepcionReducers.showInput,
+  /*--------------Fin Modalidad Compra--------------*/
+  /*--------------Proveedor--------------*/
   rutProveedor: state.obtenerRecepcionReducers.rutProveedor,
+  otroProveedor: state.obtenerRecepcionReducers.otroProveedor,
+  showInputProveedorReducer: state.obtenerRecepcionReducers.showInputProveedor,
+  /*--------------Fin Proveedor--------------*/
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
   isDarkMode: state.darkModeReducer.isDarkMode
 });

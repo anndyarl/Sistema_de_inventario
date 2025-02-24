@@ -208,15 +208,22 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   // const precio = datosInventarioCompleto[index]?.deT_PRECIO || 0;
   // const especie = datosInventarioCompleto[index]?.esP_CODIGO || "";
 
-  const fechaRecepcion = aF_FECHA_SOLICITUD
-    ? new Date(aF_FECHA_SOLICITUD).toISOString().split("T")[0]
+  const parseFecha = (fecha: string) => {
+    const [fechaPart,] = fecha.split(" "); // Tomamos solo la parte de la fecha
+    const [dia, mes, año] = fechaPart.split("/").map(Number);
+    return new Date(año, mes - 1, dia); // Meses en JS van de 0 a 11
+  };
+
+  const fechaRecepcion = aF_FECHA_SOLICITUD && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHA_SOLICITUD)
+    ? parseFecha(`${aF_FECHA_SOLICITUD}T00:00:00`).toISOString().split("T")[0]
     : "";
-  const fechaFactura = aF_FECHAFAC
-    ? new Date(aF_FECHAFAC).toISOString().split("T")[0]
+  const fechaFactura = aF_FECHAFAC && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHAFAC)
+    ? parseFecha(`${aF_FECHAFAC}T00:00:00`).toISOString().split("T")[0]
     : "";
-  const fechaIngreso = aF_FINGRESO
-    ? new Date(aF_FINGRESO).toISOString().split("T")[0]
+  const fechaIngreso = aF_FINGRESO && /^\d{4}-\d{2}-\d{2}$/.test(aF_FINGRESO)
+    ? parseFecha(`${aF_FINGRESO}T00:00:00`).toISOString().split("T")[0]
     : "";
+
   const [Inventario, setInventario] = useState({
     aF_CLAVE: "", // nRecepcion
     fechaRecepcion, // fechaRecepcion 
