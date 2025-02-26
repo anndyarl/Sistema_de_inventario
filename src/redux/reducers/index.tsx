@@ -62,6 +62,7 @@ import obtenerMaxServicioReducers from "./Mantenedores/Servicios/obtenerMaxServi
 import listadoMantenedorDependenciasReducers from "./Mantenedores/Dependencias/listadoMantenedorDependenciasReducers";
 import listadoMantenedorServiciosReducers from "./Mantenedores/Servicios/listadoMantenedorServiciosReducers";
 import listadoTrasladosReducers from "./Traslados/listadoTrasladosReducers";
+import obtenerfirmasAltasReducers from "./Altas/FirmarAltas/obtenerfirmasAltasReducers";
 
 
 
@@ -100,6 +101,7 @@ const appReducer = combineReducers({
   // Altas
   datosListaAltasReducers,
   obtenerEtiquetasAltasReducers,
+  obtenerfirmasAltasReducers,
 
   // Bajas
   datosListadoGeneralBajasReducers,

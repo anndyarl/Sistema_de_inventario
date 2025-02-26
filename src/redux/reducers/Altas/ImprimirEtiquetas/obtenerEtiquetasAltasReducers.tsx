@@ -6,7 +6,7 @@ import {
 } from '../../../actions/Altas/types';
 
 // Define el tipo para el estado inicial
-interface DatosEtiquetaState {
+interface DatosState {
     datosEtiqueta: Array<{
         aF_CODIGO_LARGO: string,
         aF_DESCRIPCION: string,
@@ -15,7 +15,7 @@ interface DatosEtiquetaState {
 }
 
 // Estado inicial tipado
-const initialState: DatosEtiquetaState = {
+const initialState: DatosState = {
     datosEtiqueta: []
 };
 

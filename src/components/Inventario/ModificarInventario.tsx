@@ -457,7 +457,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     setElementoSeleccionado(item);
     // console.log("Elemento seleccionado", item);
   };
-
   const handleInventarioSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
@@ -536,7 +535,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       });
     }
   };
-
   const handleSubmit = async () => {
     const resultado = await modificarFormInventarioActions(Inventario);
     if (resultado) {

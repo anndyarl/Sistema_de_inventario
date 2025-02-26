@@ -24,6 +24,11 @@ import {
   setPrecioActions,
   setCantidadActions,
   setObservacionesActions,
+  setOtroProveedorActions,
+  showInputActions,
+  setOtraModalidadActions,
+  setNombreEspecieActions,
+  setDescripcionEspecieActions,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/registrarFormInventarioActions";
 
@@ -164,25 +169,16 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   //Validaciones del formulario
   const validate = () => {
     let tempErrors: Partial<ActivoFijo> & { general?: string } = {};
-    if (!activoActual.vidaUtil)
-      tempErrors.vidaUtil = "Vida útil es obligatorio";
-    if (!/^\d+$/.test(activoActual.vidaUtil))
-      tempErrors.vidaUtil = "Vida útil debe ser un número";
-    if (!activoActual.fechaIngreso)
-      tempErrors.fechaIngreso = "Fecha de Ingreso es obligatorio";
-    if (!activoActual.marca) tempErrors.marca = "Marca es obligatorio";
-    if (!activoActual.modelo) tempErrors.modelo = "Modelo es obligatorio";
-    // if (!activoActual.serie) tempErrors.serie = "Serie es obligatoria";
-    if (!activoActual.cantidad)
-      tempErrors.cantidad = "Cantidad es obligatorio";
-    else if (isNaN(parseInt(activoActual.cantidad)))
-      tempErrors.cantidad = "Cantidad debe ser un número";
-    if (!activoActual.precio) tempErrors.precio = "Precio es obligatorio";
-    if (!/^\d+$/.test(activoActual.precio))
-      tempErrors.precio = "Precio debe ser un número entero";
-    if (!activoActual.observaciones)
-      tempErrors.observaciones = "Observaciones es obligatorio";
-
+    if (!activoActual.vidaUtil) tempErrors.vidaUtil = "Campo obligatorio";
+    else if (!/^\d+$/.test(activoActual.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
+    if (!activoActual.fechaIngreso) tempErrors.fechaIngreso = "Campo obligatorio";
+    if (!activoActual.marca) tempErrors.marca = "Campo obligatorio";
+    if (!activoActual.modelo) tempErrors.modelo = "Campo obligatorio";
+    if (!activoActual.cantidad) tempErrors.cantidad = "Campo obligatorio";
+    else if (isNaN(parseInt(activoActual.cantidad))) tempErrors.cantidad = "Cantidad debe ser un número";
+    if (!activoActual.precio) tempErrors.precio = "Campo obligatorio";
+    else if (!/^\d+$/.test(activoActual.precio)) tempErrors.precio = "Precio debe ser un número entero";
+    if (!activoActual.observaciones) tempErrors.observaciones = "Campo obligatorio";
     if (newTotal == 0) {
       tempErrors.general = `Debe ingresar un valor mayor a cero`;
     }
@@ -570,6 +566,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
 
   const handleFinalSubmit = async () => {
+    const FormulariosCombinados = {
+      ...formInventario.datosInventario,
+      ...formInventario.datosCuenta,
+      activosFijos: datosTablaActivoFijo,
+    };
+    console.log(FormulariosCombinados);
+
     if (handleValidar()) {
       const confirmResult = await Swal.fire({
         icon: "info",
@@ -616,7 +619,11 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             dispatch(setBienActions(0));
             dispatch(setDetalleActions(0));
             dispatch(setEspecieActions(""));
+            dispatch(setNombreEspecieActions(""));
+            dispatch(setDescripcionEspecieActions(""));
             dispatch(vaciarDatosTabla());
+            dispatch(showInputActions(false));
+            dispatch(setOtraModalidadActions(""));
             onReset(); // Vuelve al estado inicial
 
             // Muestra el mensaje de éxito

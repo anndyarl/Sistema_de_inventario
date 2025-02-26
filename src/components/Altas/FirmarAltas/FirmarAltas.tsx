@@ -15,6 +15,8 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { ORIGEN } from "../../Inventario/RegistrarInventario/DatosInventario";
 import { Helmet } from "react-helmet-async";
+import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
+import { Objeto } from "../../Navegacion/Profile";
 
 export interface ListaBajas {
     bajaS_CORR: string;
@@ -33,17 +35,33 @@ export interface ListaBajas {
     deP_ACUMULADA: number;
 }
 
+interface DatosFirmas {
+    nombre: string,
+    rut: string,
+    estabL_CORR: string,
+    estado: string,
+    firma: boolean,
+    rol: string,
+    apellidO_MATERNO: string,
+    apellidO_PATERNO: string,
+    nombrE_USUARIO: string,
+    descripcion: string,
+    url: string
+}
+
 interface DatosBajas {
     listaBajas: ListaBajas[];
     listaBajasActions: () => Promise<boolean>;
     registrarBajasActions: (activos: { aF_CLAVE: number; bajaS_CORR: string; nresolucion: number; observaciones: string; fechA_BAJA: string }[]) => Promise<boolean>;
+    obtenerfirmasAltasActions: () => Promise<boolean>;
+    datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
     comboOrigen: ORIGEN[];
-
+    objeto: Objeto;
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, token, isDarkMode, comboOrigen }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerfirmasAltasActions, token, isDarkMode, comboOrigen, datosFirmas, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [_, setError] = useState<Partial<ListaBajas>>({});
     const [__, setIsDisabled] = useState(true);
@@ -116,9 +134,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                 setIsExpanded(false);
             } else {
                 if (name === "titularInventario" && checked) {
+                    console.log("titular inventario");
                     updatedState.subroganteInventario = false;
                 }
                 if (name === "subroganteInventario" && checked) {
+                    console.log("subrogante inventario");
                     updatedState.titularInventario = false;
                 }
                 setIsDisabled(false); // Habilitar los otros checkboxes
@@ -132,9 +152,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
                 setIsDisabled(true); // Deshabilitar los otros checkboxes
             } else {
                 if (name === "titularFinanzas" && checked) {
+                    console.log("titular finanzas");
                     updatedState.subroganteFinanzas = false;
                 }
                 if (name === "subroganteFinanzas" && checked) {
+                    console.log("subrogante finanzas");
                     updatedState.titularFinanzas = false;
                 }
                 setIsDisabled(false); // Habilitar los otros checkboxes
@@ -199,6 +221,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
 
     const setSeleccionaFila = (index: number) => {
         setMostrarModal(index); //Abre modal del indice seleccionado
+        if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
         setFilaSeleccionada(prev =>
             prev.includes(index.toString())
                 ? prev.filter(rowIndex => rowIndex !== index.toString())
@@ -236,6 +259,18 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, toke
     //     link.click();
     // };
     const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
+
+    //Busca Establecimiento del usuario
+    let rutTitular = "";
+    for (let i = 0; i < datosFirmas.length; i++) {
+        if (String(datosFirmas[i].rut) === String(objeto.Usr_run)) {
+            // if (String(datosFirmas[i].rut) === "18250588") {
+            rutTitular = datosFirmas[i].rol;
+            console.log("rutTitular", rutTitular);
+            break;
+        }
+    }
+
     return (
         <Layout>
             <Helmet>
@@ -531,10 +566,13 @@ const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
+    objeto: state.validaApiLoginReducers,
 });
 
 export default connect(mapStateToProps, {
     listaBajasActions,
-    registrarBajasActions
+    registrarBajasActions,
+    obtenerfirmasAltasActions
 })(FirmarAltas);
 

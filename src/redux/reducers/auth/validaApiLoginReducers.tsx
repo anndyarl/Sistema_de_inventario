@@ -19,6 +19,7 @@ interface AuthState {
   Correo: string;
   Roles: Roles[];
   Establecimiento: number;
+  Usr_run: string;
   error: string | null;
   isAuthenticated: boolean;
 }
@@ -30,6 +31,7 @@ const initialState: AuthState = {
   Apellido2: "",
   Correo: "",
   Establecimiento: 0,
+  Usr_run: "",
   Roles: [],
   error: null,
   isAuthenticated: false,
@@ -58,6 +60,7 @@ function validaApiLoginReducers(state = initialState, action: any): AuthState {
           }))
           : [],
         Establecimiento: action.payload.establecimiento,
+        Usr_run: action.payload.usr_run
       };
 
     case VALIDA_PORTAL_FAIL:

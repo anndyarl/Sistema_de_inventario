@@ -11,6 +11,7 @@ import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/listadoGen
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/registrarBienesBajasActions.tsx";
 import { ListaBajas } from "./BienesBajas.tsx";
 import { Helmet } from "react-helmet-async";
+import { Objeto } from "../Navegacion/Profile.tsx";
 
 export interface ListadoGeneralBajas {
   aF_CLAVE: number;
@@ -65,9 +66,10 @@ interface DatosBajas {
   registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
+  objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGeneralBajasActions, registrarBienesBajasActions, token, isDarkMode }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGeneralBajasActions, registrarBienesBajasActions, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
@@ -175,7 +177,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
         // Crear un array de objetos con aF_CLAVE y nombre
         const FormularioBajas = selectedIndices.map((activo) => ({
           aF_CLAVE: listadoGeneralBajas[activo].aF_CLAVE,
-          usuariO_MOD: "123",
+          usuariO_MOD: objeto.IdCredencial.toString(),
           bajaS_CORR: listadoGeneralBajas[activo].deP_CORR,
           especie: listadoGeneralBajas[activo].especie,
           ctA_COD: listadoGeneralBajas[activo].ctA_COD,
@@ -552,7 +554,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
 const mapStateToProps = (state: RootState) => ({
   listadoGeneralBajas: state.datosListadoGeneralBajasReducers.listadoGeneralBajas,
   token: state.loginReducer.token,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

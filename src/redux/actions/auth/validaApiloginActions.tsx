@@ -26,12 +26,13 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
       const objeto = respuestaApiLogin.length > 0 ? respuestaApiLogin[0]?.objeto : {};
       const esValido = respuestaApiLogin.length > 0 ? respuestaApiLogin[0]?.esValido : false;
       const establecimiento = res.data?.establecimiento || "No disponible";
+      const usr_run = res.data?.usr_run || "No disponible";
       if (res.status === 200) {
         // Verifica si la clave 'EsValido' existe en el objeto
         if (esValido) {
           dispatch({
             type: VALIDA_PORTAL_SUCCESS,
-            payload: { ...objeto, establecimiento }
+            payload: { ...objeto, establecimiento, usr_run }
           });
 
           return true;

@@ -41,10 +41,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
     fechaTermino: "",
   });
 
-  // useEffect(() => {
-  //   datosListaInventario;
-  // }, [datosListaInventario]);
-
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)

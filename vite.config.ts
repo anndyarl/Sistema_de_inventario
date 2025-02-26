@@ -35,7 +35,7 @@ export default defineConfig({
       },
      
     },
-    port:3005
+    port:3002
   },
   build: {
     sourcemap: true,  // Habilitar source maps en la construcción

@@ -136,13 +136,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const handleProveedorChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
-
+    dispatch(setRutProveedorActions(value));
     if (value === "0") { // 0 es igual a Otros 
       dispatch(setOtroProveedorActions(value));
       setShowInputProv(true); //estado de react para mostrar el input Otros
       dispatch(showInputProveedorActions(true)); //Se envia al estado de Otros a redux para guardarlo
     } else {
-
       setShowInputProv(false);
       dispatch(showInputProveedorActions(false));
       dispatch(setRutProveedorActions(value));
@@ -177,7 +176,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       tempErrors.rutProveedor = "Campo obligatorio";
 
     if (showInputProveedorReducer) {
-      if (!Inventario.otroProveedor)
+      if (Inventario.otroProveedor === "0")
         tempErrors.otroProveedor = "Campo obligatorio";
     }
     /*---------Fin Proveedor----------*/
@@ -660,7 +659,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                       name="otroProveedor"
                       placeholder="Especifique otro"
                       onChange={handleChange}
-                      value={Inventario.otroProveedor || ""}
+                      value={otroProveedor === "0" ? Inventario.otroProveedor?.replace("0", "") : Inventario.otroProveedor}
                     />
                     {error.otroProveedor && (
                       <div className="invalid-feedback fw-semibold">
