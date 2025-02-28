@@ -236,7 +236,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
     return (
         <Layout>
             <Helmet>
-                <title>Servicios</title>
+                <title>Mantenedor de Servicios</title>
             </Helmet>
             <MenuMantenedores />
             <div className="border-bottom shadow-sm p-4 rounded">
@@ -285,13 +285,13 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                                                     checked={filasSeleccionada.includes((indexReal).toString())}
                                                 />
                                             </td> */}
-                                            <td>{Lista.seR_CORR}</td>
-                                            <td>{Lista.seR_COD}</td>
-                                            <td>{Lista.seR_NOMBRE}</td>
-                                            <td>{Lista.seR_VIGENTE}</td>
-                                            <td>{Lista.seR_F_CREA}</td>
-                                            <td>{Lista.seR_IP_CREA}</td>
-                                            <td>{Lista.estabL_NOMBRE}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.seR_CORR}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.seR_NOMBRE}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.seR_F_CREA}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
                                         </tr>
                                     );
                                 })}

@@ -202,7 +202,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
   return (
     <Layout>
       <Helmet>
-        <title>Dependencias</title>
+        <title>Mantenedor de Dependencias</title>
       </Helmet>
       <MenuMantenedores />
       <div className="border-bottom shadow-sm p-4 rounded">
@@ -251,13 +251,13 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                       </td> */}
-                      <td>{Lista.deP_CORR}</td>
-                      <td>{Lista.deP_COD}</td>
-                      <td>{Lista.seR_COD}</td>
-                      <td>{Lista.nombre}</td>
-                      <td>{Lista.vig}</td>
-                      <td>{Lista.ip}</td>
-                      <td>{Lista.fechA_CREA}</td>
+                      <td scope="col" className="text-nowrap">{Lista.deP_CORR}</td>
+                      <td scope="col" className="text-nowrap">{Lista.deP_COD}</td>
+                      <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
+                      <td scope="col" className="text-nowrap">{Lista.nombre}</td>
+                      <td scope="col" className="text-nowrap">{Lista.vig}</td>
+                      <td scope="col" className="text-nowrap">{Lista.ip}</td>
+                      <td scope="col" className="text-nowrap">{Lista.fechA_CREA}</td>
                     </tr>
                   );
                 })}

@@ -1,20 +1,15 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
-import { Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
-
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
 import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
 import { Helmet } from "react-helmet-async";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-  return classes.filter(Boolean).join(" ");
-};
 
 export interface ListaRemates {
   aF_CLAVE: string;
@@ -46,9 +41,9 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 12;
 
-  const [Inventario, setInventario] = useState({
-    aF_CLAVE: "",
-  });
+  // const [Inventario, setInventario] = useState({
+  //   aF_CLAVE: "",
+  // });
 
   const listaRematesAuto = async () => {
     if (token) {
@@ -79,13 +74,13 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
     listaRematesAuto()
   }, [obtenerListaRematesActions, token, listaRemates.length]); // Asegúrate de incluir dependencias relevantes
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setInventario((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  //   const { name, value } = e.target;
+  //   setInventario((prevState) => ({
+  //     ...prevState,
+  //     [name]: value,
+  //   }));
+  // };
 
   const setSeleccionaFilas = (index: number) => {
     setFilasSeleccionadas((prev) =>
@@ -108,32 +103,32 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
   };
 
 
-  const handleBuscarRemates = async () => {
-    let resultado = false;
-    setLoading(true);
-    resultado = await obtenerListaRematesActions(Inventario.aF_CLAVE);
+  // const handleBuscarRemates = async () => {
+  //   let resultado = false;
+  //   setLoading(true);
+  //   resultado = await obtenerListaRematesActions(Inventario.aF_CLAVE);
 
 
-    if (!resultado) {
-      Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
-        confirmButtonText: "Ok",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-      setLoading(false); //Finaliza estado de carga
-      return;
-    } else {
-      setLoading(false); //Finaliza estado de carga
-    }
+  //   if (!resultado) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: ":'(",
+  //       text: "No se encontraron resultados, inténte otro registro.",
+  //       confirmButtonText: "Ok",
+  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //       customClass: {
+  //         popup: "custom-border", // Clase personalizada para el borde
+  //       }
+  //     });
+  //     setLoading(false); //Finaliza estado de carga
+  //     return;
+  //   } else {
+  //     setLoading(false); //Finaliza estado de carga
+  //   }
 
-  };
+  // };
   const handleRematarSeleccionados = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
 

@@ -65,6 +65,7 @@ import listadoTrasladosReducers from "./Traslados/listadoTrasladosReducers";
 import obtenerfirmasAltasReducers from "./Altas/FirmarAltas/obtenerfirmasAltasReducers";
 import obtenerUnidadesReducers from "./Altas/FirmarAltas/obtenerUnidadesReducers";
 import listadoMantenedorProveedoresReducers from "./Mantenedores/Proveedores/listadoMantenedorProveedoresReducers";
+import listadoMantenedorEspeciesReducers from "./Mantenedores/Especies/listadoMantenedorEspeciesReducers";
 
 
 
@@ -136,6 +137,7 @@ const appReducer = combineReducers({
   listadoMantenedorDependenciasReducers,
   listadoMantenedorServiciosReducers,
   listadoMantenedorProveedoresReducers,
+  listadoMantenedorEspeciesReducers,
   comboEstablecimientosProfileReducers,
   obtenerMaxServicioReducers
 });

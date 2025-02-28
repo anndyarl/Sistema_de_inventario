@@ -790,8 +790,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 >
                   <option value="0">Seleccione un Proveedor</option>
                   {comboProveedor.map((traeProveedor) => (
-                    <option key={traeProveedor.rut} value={traeProveedor.rut}>
-                      {traeProveedor.nomprov}
+                    <option key={traeProveedor.proV_RUN} value={traeProveedor.proV_RUN}>
+                      {traeProveedor.proV_NOMBRE}
                     </option>
                   ))}
                 </select>

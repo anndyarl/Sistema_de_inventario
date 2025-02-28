@@ -13,7 +13,6 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
-import { ORIGEN } from "../../Inventario/RegistrarInventario/DatosInventario";
 import { Helmet } from "react-helmet-async";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -64,8 +63,6 @@ interface DatosBajas {
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
-    firmanteInventario: string;
-    firmanteFinanzas: string;
 }
 
 const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, token, isDarkMode, comboUnidades, datosFirmas }) => {
@@ -120,15 +117,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
         }));
     }
 
-
-
     const handleCheck = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
 
         setAltaInventario((prev) => {
             const updatedState = { ...prev, [name]: checked };
 
-            // 🚨 Si se desmarca "ajustarFirma", resetear todas las opciones
             if (name === "ajustarFirma" && !checked) {
                 return {
                     ...updatedState,
@@ -178,7 +172,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                 if (firmanteInventario && firmanteFinanzas) break;
             }
 
-            // ✅ Actualizar firmantes en el estado
             updatedState.firmanteInventario = firmanteInventario;
             updatedState.firmanteFinanzas = firmanteFinanzas;
 

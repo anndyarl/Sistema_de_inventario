@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Form, Modal, Spinner } from "react-bootstrap";
+import { Pagination, Button, Form, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
@@ -41,93 +41,93 @@ interface DatosBajas {
   isDarkMode: boolean;
 }
 
-const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, registrarBajasActions, token, isDarkMode }) => {
+const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, token, isDarkMode }) => {
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [error, setError] = useState<Partial<ListaBajas>>({});
+  // const [error, setError] = useState<Partial<ListaBajas>>({});
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 12;
 
-  const [Bajas, setBajas] = useState({
-    nresolucion: 0,
-    observaciones: "",
-    fechA_BAJA: ""
-  });
-  const validate = () => {
-    let tempErrors: Partial<any> & {} = {};
-    // Validación para N° de Recepción (debe ser un número)
-    if (!Bajas.nresolucion) tempErrors.nresolucion = "Número de resolución es obligatorio.";
-    if (!Bajas.fechA_BAJA) tempErrors.fechA_BAJA = "Fecha de Baja es obligatorio.";
-    if (!Bajas.observaciones) tempErrors.observaciones = "Obervacion es obligatoria.";
+  // const [Bajas, setBajas] = useState({
+  //   nresolucion: 0,
+  //   observaciones: "",
+  //   fechA_BAJA: ""
+  // });
+  // const validate = () => {
+  //   let tempErrors: Partial<any> & {} = {};
+  //   // Validación para N° de Recepción (debe ser un número)
+  //   if (!Bajas.nresolucion) tempErrors.nresolucion = "Número de resolución es obligatorio.";
+  //   if (!Bajas.fechA_BAJA) tempErrors.fechA_BAJA = "Fecha de Baja es obligatorio.";
+  //   if (!Bajas.observaciones) tempErrors.observaciones = "Obervacion es obligatoria.";
 
-    setError(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (validate()) {
-      const selectedIndices = filasSeleccionada.map(Number);
+  //   setError(tempErrors);
+  //   return Object.keys(tempErrors).length === 0;
+  // };
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   if (validate()) {
+  //     const selectedIndices = filasSeleccionada.map(Number);
 
-      const result = await Swal.fire({
-        icon: "info",
-        title: "Enviar a Bodega de Excluidos",
-        text: "Confirme para enviar",
-        showDenyButton: false,
-        showCancelButton: true,
-        confirmButtonText: "Confirmar y Enviar",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-      if (result.isConfirmed) {
-        setLoadingRegistro(true);
-        // Crear un array de objetos con aF_CLAVE y nombre
-        const FormularioBajas = selectedIndices.map((activo) => ({
-          aF_CLAVE: listaBajas[activo].aF_CLAVE,
-          bajaS_CORR: listaBajas[activo].bajaS_CORR,
-          ...Bajas,
-        }));
-        const resultado = await registrarBajasActions(FormularioBajas);
+  //     const result = await Swal.fire({
+  //       icon: "info",
+  //       title: "Enviar a Bodega de Excluidos",
+  //       text: "Confirme para enviar",
+  //       showDenyButton: false,
+  //       showCancelButton: true,
+  //       confirmButtonText: "Confirmar y Enviar",
+  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //       customClass: {
+  //         popup: "custom-border", // Clase personalizada para el borde
+  //       }
+  //     });
+  //     if (result.isConfirmed) {
+  //       setLoadingRegistro(true);
+  //       // Crear un array de objetos con aF_CLAVE y nombre
+  //       const FormularioBajas = selectedIndices.map((activo) => ({
+  //         aF_CLAVE: listaBajas[activo].aF_CLAVE,
+  //         bajaS_CORR: listaBajas[activo].bajaS_CORR,
+  //         ...Bajas,
+  //       }));
+  //       const resultado = await registrarBajasActions(FormularioBajas);
 
-        if (resultado) {
-          Swal.fire({
-            icon: "success",
-            title: "Enviado a Bodega de Excluidos",
-            text: "Se ha enviado correctamente",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
-          });
+  //       if (resultado) {
+  //         Swal.fire({
+  //           icon: "success",
+  //           title: "Enviado a Bodega de Excluidos",
+  //           text: "Se ha enviado correctamente",
+  //           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //           color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //           customClass: {
+  //             popup: "custom-border", // Clase personalizada para el borde
+  //           }
+  //         });
 
-          setLoadingRegistro(false);
-          listaBajasActions();
-          setFilaSeleccionada([]);
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: ":'(",
-            text: "Hubo un problema al registrar",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
-          });
-          setLoadingRegistro(false);
-        }
-      }
-    }
-  };
+  //         setLoadingRegistro(false);
+  //         listaBajasActions();
+  //         setFilaSeleccionada([]);
+  //       } else {
+  //         Swal.fire({
+  //           icon: "error",
+  //           title: ":'(",
+  //           text: "Hubo un problema al registrar",
+  //           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //           color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //           customClass: {
+  //             popup: "custom-border", // Clase personalizada para el borde
+  //           }
+  //         });
+  //         setLoadingRegistro(false);
+  //       }
+  //     }
+  //   }
+  // };
 
   //Se lista automaticamente apenas entra al componente
   const listaABajasAuto = async () => {
@@ -159,19 +159,19 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
     listaABajasAuto();
   }, [listaBajasActions, token, listaBajas.length]); // Asegúrate de incluir dependencias relevantes
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    // Convierte `value` a número
-    let newValue: string | number = ["nresolucion"].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-      : value;
+  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
+  //   const { name, value } = e.target;
+  //   // Convierte `value` a número
+  //   let newValue: string | number = ["nresolucion"].includes(name)
+  //     ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+  //     : value;
 
-    setBajas((preBajas) => ({
-      ...preBajas,
-      [name]: newValue,
-    }));
+  //   setBajas((preBajas) => ({
+  //     ...preBajas,
+  //     [name]: newValue,
+  //   }));
 
-  };
+  // };
 
   const setSeleccionaFila = (index: number) => {
     setMostrarModal(index); //Abre modal del indice seleccionado
@@ -184,12 +184,12 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
 
   };
 
-  const handleCerrarModal = (index: number) => {
-    setFilaSeleccionada((prevSeleccionadas) =>
-      prevSeleccionadas.filter((fila) => fila !== index.toString())
-    );
-    setMostrarModal(null); //Cierra modal del indice seleccionado
-  };
+  // const handleCerrarModal = (index: number) => {
+  //   setFilaSeleccionada((prevSeleccionadas) =>
+  //     prevSeleccionadas.filter((fila) => fila !== index.toString())
+  //   );
+  //   setMostrarModal(null); //Cierra modal del indice seleccionado
+  // };
 
 
   const handleAgrearSeleccionados = async () => {

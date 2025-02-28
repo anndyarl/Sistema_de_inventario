@@ -1,11 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Pagination, Button, Spinner, Form } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
-import { Search } from "react-bootstrap-icons";
+// import { Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 
@@ -13,9 +13,9 @@ import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActio
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
 import { Helmet } from "react-helmet-async";
 
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-  return classes.filter(Boolean).join(" ");
-};
+// const classNames = (...classes: (string | boolean | undefined)[]): string => {
+//   return classes.filter(Boolean).join(" ");
+// };
 
 export interface ListaExcluidos {
   aF_CLAVE: string;
@@ -47,9 +47,9 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 12;
 
-  const [Bajas, setBajas] = useState({
-    aF_CLAVE: "",
-  });
+  // const [Bajas, setBajas] = useState({
+  //   aF_CLAVE: "",
+  // });
 
   //Se lista automaticamente apenas entra al componente
   const listaExcluidosAuto = async () => {
@@ -81,13 +81,13 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
     listaExcluidosAuto()
   }, [obtenerListaExcluidosActions, token, listaExcluidos.length]); // Asegúrate de incluir dependencias relevantes
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setBajas((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  //   const { name, value } = e.target;
+  //   setBajas((prevState) => ({
+  //     ...prevState,
+  //     [name]: value,
+  //   }));
+  // };
 
   const setSeleccionaFilas = (index: number) => {
     setFilasSeleccionadas((prev) =>
@@ -110,32 +110,32 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
   };
 
 
-  const handleBuscarRemates = async () => {
-    let resultado = false;
-    setLoading(true);
-    resultado = await obtenerListaExcluidosActions(Bajas.aF_CLAVE);
+  // const handleBuscarRemates = async () => {
+  //   let resultado = false;
+  //   setLoading(true);
+  //   resultado = await obtenerListaExcluidosActions(Bajas.aF_CLAVE);
 
 
-    if (!resultado) {
-      Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
-        confirmButtonText: "Ok",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-      setLoading(false); //Finaliza estado de carga
-      return;
-    } else {
-      setLoading(false); //Finaliza estado de carga
-    }
+  //   if (!resultado) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: ":'(",
+  //       text: "No se encontraron resultados, inténte otro registro.",
+  //       confirmButtonText: "Ok",
+  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //       customClass: {
+  //         popup: "custom-border", // Clase personalizada para el borde
+  //       }
+  //     });
+  //     setLoading(false); //Finaliza estado de carga
+  //     return;
+  //   } else {
+  //     setLoading(false); //Finaliza estado de carga
+  //   }
 
-  };
+  // };
   const handleRematarSeleccionados = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
 

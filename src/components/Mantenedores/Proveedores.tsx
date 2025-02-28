@@ -8,8 +8,6 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
 import { Plus } from "react-bootstrap-icons";
-import { Objeto } from "../Navegacion/Profile.tsx";
-
 import { Helmet } from "react-helmet-async";
 import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
@@ -31,11 +29,10 @@ interface GeneralProps {
     registrarMantenedorProveedoresActions: (formModal: Record<string, any>) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
-    objeto: Objeto; //Objeto que obtiene los datos del usuario  
     seR_CORR: number;
 }
 
-const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtenerMaxServicioActions, listadoMantenedorProveedoresActions, registrarMantenedorProveedoresActions, token, isDarkMode, objeto }) => {
+const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtenerMaxServicioActions, listadoMantenedorProveedoresActions, registrarMantenedorProveedoresActions, token, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
@@ -230,7 +227,7 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
     return (
         <Layout>
             <Helmet>
-                <title>Proveedores</title>
+                <title>Mantenedor de Proveedores</title>
             </Helmet>
             <MenuMantenedores />
             <div className="border-bottom shadow-sm p-4 rounded">
@@ -278,12 +275,12 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                                                     checked={filasSeleccionada.includes((indexReal).toString())}
                                                 />
                                             </td> */}
-                                            <td>{Lista.proV_CORR}</td>
-                                            <td>{Lista.proV_RUN}</td>
-                                            <td>{Lista.proV_DV}</td>
-                                            <td>{Lista.proV_NOMBRE}</td>
-                                            <td>{Lista.proV_FONO}</td>
-                                            <td>{Lista.proV_DIR}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.proV_CORR}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.proV_RUN}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.proV_DV}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.proV_NOMBRE}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.proV_FONO}</td>
+                                            <td scope="col" className="text-nowrap">{Lista.proV_DIR}</td>
                                         </tr>
                                     );
                                 })}
@@ -535,7 +532,6 @@ const mapStateToProps = (state: RootState) => ({
     listadoMantenedor: state.listadoMantenedorProveedoresReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

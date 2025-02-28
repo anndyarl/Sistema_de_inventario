@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
 });
 const fecha = Date.now();
 const fechaHoy = new Date(fecha);
-const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario, firmanteInventario, firmanteFinanzas }: { row: ListaBajas; firma?: string,/* fechaDescarga: string | undefined */ AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string }) => (
+const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: ListaBajas; firma?: string,/* fechaDescarga: string | undefined */ AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
