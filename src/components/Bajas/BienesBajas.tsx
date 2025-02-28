@@ -192,60 +192,60 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
   };
 
 
-  // const handleAgrearSeleccionados = async () => {
-  //   const selectedIndices = filasSeleccionada.map(Number);
-  //   const activosSeleccionados = selectedIndices.map((index) => {
-  //     return {
-  //       aF_CLAVE: listaBajas[index].aF_CLAVE
-  //     };
+  const handleAgrearSeleccionados = async () => {
+    const selectedIndices = filasSeleccionada.map(Number);
+    const activosSeleccionados = selectedIndices.map((index) => {
+      return {
+        aF_CLAVE: listaBajas[index].aF_CLAVE
+      };
 
-  //   });
-  //   const result = await Swal.fire({
-  //     icon: "info",
-  //     title: "Registrar Bajas",
-  //     text: `Confirme para registrar las Bajas seleccionadas`,
-  //     showDenyButton: false,
-  //     showCancelButton: true,
-  //     confirmButtonText: "Confirmar y Registrar",
+    });
+    const result = await Swal.fire({
+      icon: "info",
+      title: "Enviar a Bodega de Excluidos",
+      text: `Confirme para enviar`,
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Confirmar y Registrar",
 
-  //   });
+    });
 
-  //   // selectedIndices.map(async (index) => {
+    // selectedIndices.map(async (index) => {
 
-  //   if (result.isConfirmed) {
-  //     setLoadingRegistro(true);
-  //     // const elemento = listaAltas[index].aF_CLAVE;
-  //     // console.log("despues del confirm elemento", elemento);
+    if (result.isConfirmed) {
+      setLoadingRegistro(true);
+      // const elemento = listaAltas[index].aF_CLAVE;
+      // console.log("despues del confirm elemento", elemento);
 
-  //     // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);
-  //     // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
-  //     // Crear un array de objetos con aF_CLAVE y nombre
+      // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);
+      // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
+      // Crear un array de objetos con aF_CLAVE y nombre
 
 
-  //     // console.log("Activos seleccionados para registrar:", activosSeleccionados);
+      console.log("Activos seleccionados para registrar:", activosSeleccionados);
 
-  //     const resultado = await registrarBajasActions(activosSeleccionados);
-  //     if (resultado) {
-  //       Swal.fire({
-  //         icon: "success",
-  //         title: "Bajas Registradas",
-  //         text: `Se han registrado correctamente las Bajas seleccionadas`,
-  //       });
-  //       setLoadingRegistro(false);
-  //       listaBajasActions();
-  //       setFilaSeleccionada([]);
-  //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: ":'(",
-  //         text: `Hubo un problema al registrar las Bajas`,
-  //       });
-  //       setLoadingRegistro(false);
-  //     }
+      // const resultado = await registrarBajasActions(activosSeleccionados);
+      // if (resultado) {
+      //   Swal.fire({
+      //     icon: "success",
+      //     title: "Bajas Registradas",
+      //     text: `Se han registrado correctamente las Bajas seleccionadas`,
+      //   });
+      //   setLoadingRegistro(false);
+      //   listaBajasActions();
+      //   setFilaSeleccionada([]);
+      // } else {
+      //   Swal.fire({
+      //     icon: "error",
+      //     title: ":'(",
+      //     text: `Hubo un problema al registrar las Bajas`,
+      //   });
+      //   setLoadingRegistro(false);
+      // }
 
-  //   }
-  //   // })
-  // };
+    }
+    // })
+  };
 
   // const handleRegistrar = async (index: number, aF_CLAVE: number,) => {
   //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
@@ -303,7 +303,7 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Bienes de Bajas</h3>
         {/* Boton registrar filas seleccionadas */}
-        {/* <div className="d-flex justify-content-end">
+        <div className="d-flex justify-content-end">
           {filasSeleccionada.length > 0 ? (
             <Button
               variant="primary"
@@ -326,11 +326,11 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
                 </>
               ) : (
                 <>
-                  Registrar{" "}
+                  Enviar a Bodega de Excluidos{" "}
                   <span className="badge bg-light text-dark mx-2">
                     {filasSeleccionada.length}
                   </span>{" "}
-                  {filasSeleccionada.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"}
+                  {/* {filasSeleccionada.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"} */}
                 </>
               )}
             </Button>
@@ -339,7 +339,7 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
               No hay bajas seleccionadas para registrar
             </strong>
           )}
-        </div> */}
+        </div>
         {/* Tabla*/}
         {loading ? (
           <>
@@ -418,116 +418,6 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, regis
           </Pagination>
         </div>
       </div>
-      {/* Modal formulario Registro Bajas*/}
-      {elementosActuales.map((_, index) => (
-        <div key={index}>
-          <Modal
-            show={mostrarModal === index}
-            onHide={() => handleCerrarModal(index)}
-            dialogClassName="modal-right" // Clase personalizada
-          // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-          // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-          >
-            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-              <Modal.Title className="fw-semibold">Complete los detalles de registro</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-              <form onSubmit={handleSubmit}>
-                {/* <div className="d-flex justify-content-end">
-                  <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                    Enviar a Bodega
-                  </Button>
-                </div> */}
-                <div className="d-flex justify-content-end">
-                  {filasSeleccionada.length > 0 ? (
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                      disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                    >
-                      {loadingRegistro ? (
-                        <>
-                          {" Enviando a Bodega... "}
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="me-2"
-                          />
-
-                        </>
-                      ) : (
-                        <>
-                          Enviar a Bodega{" "}
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                      No hay bajas seleccionadas para registrar
-                    </strong>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="nresolucion" className="fw-semibold">
-                    Nª Resolución
-                  </label>
-                  <input
-                    aria-label="nresolucion"
-                    type="text"
-                    className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nresolucion"
-                    maxLength={100}
-                    onChange={handleChange}
-                    value={Bajas.nresolucion}
-                  />
-                  {error.nresolucion && (
-                    <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="fechA_BAJA" className="fw-semibold">
-                    Fecha Baja
-                  </label>
-                  <input
-                    aria-label="fechA_BAJA"
-                    type="date"
-                    className={`form-select ${error.fechA_BAJA ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="fechA_BAJA"
-                    onChange={handleChange}
-                    value={Bajas.fechA_BAJA}
-                  />
-                  {error.fechA_BAJA && (
-                    <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="observaciones" className="fw-semibold">
-                    Observaciones
-                  </label>
-                  <textarea
-                    className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    aria-label="observaciones"
-                    name="observaciones"
-                    rows={4}
-                    onChange={handleChange}
-                    value={Bajas.observaciones}
-                  />
-                  {error.observaciones && (
-                    <div className="invalid-feedback fw-semibold">
-                      {error.observaciones}
-                    </div>
-                  )}
-                </div>
-
-              </form>
-            </Modal.Body>
-          </Modal >
-        </div>
-      ))}
     </Layout >
   );
 };

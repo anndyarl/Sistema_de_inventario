@@ -1,14 +1,14 @@
 // reducers/origenPresupuestoReducer.ts
 import {
-  PROVEEDORES_REQUEST,
-  PROVEEDORES_SUCCESS,
-  PROVEEDORES_FAIL
+  COMBO_PROVEEDORES_REQUEST,
+  COMBO_PROVEEDORES_SUCCESS,
+  COMBO_PROVEEDORES_FAIL
 
 } from '../../../actions/Inventario/types';
 
 interface ProveedorState {
   loading: boolean;
-  comboProveedor: Array<{ rut: number; nomprov: string; }>;
+  comboProveedor: Array<{ proV_RUN: number; proV_NOMBRE: string; }>;
   error: string | null;
 }
 
@@ -21,19 +21,19 @@ const initialState: ProveedorState = {
 
 const comboProveedorReducers = (state = initialState, action: any): ProveedorState => {
   switch (action.type) {
-    case PROVEEDORES_REQUEST:
+    case COMBO_PROVEEDORES_REQUEST:
       return {
         ...state,
         loading: true,
         error: null
       };
-    case PROVEEDORES_SUCCESS:
+    case COMBO_PROVEEDORES_SUCCESS:
       return {
         ...state,
         loading: false,
         comboProveedor: action.payload
       };
-    case PROVEEDORES_FAIL:
+    case COMBO_PROVEEDORES_FAIL:
       return {
         ...state,
         loading: false,

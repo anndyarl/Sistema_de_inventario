@@ -227,7 +227,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
-          <Row>
+          {/* <Row>
             <Col md={3}>
               <div className="mb-1">
                 <label htmlFor="aF_CLAVE" className="fw-semibold">Nº Inventario</label>
@@ -260,7 +260,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
                 </Button>
               </div>
             </Col>
-          </Row>
+          </Row> */}
           {/* Boton anular filas seleccionadas */}
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (

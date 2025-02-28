@@ -15,12 +15,18 @@ const styles = StyleSheet.create({
         // Puedes agregar un borde si lo deseas
         // border: '1px solid black'
     },
+    header: {
+        fontSize: 10,
+        textAlign: 'right',
+        color: '#555',
+        marginTop: 5,
+    },
     container: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        display: 'flex',
         justifyContent: 'center',
-        margin: 5,
-        padding: 10,
+        width: '50%',
+        margin: 1,
+        padding: 5,
         border: 0.4,
         borderColor: '#000',
     },
@@ -29,11 +35,11 @@ const styles = StyleSheet.create({
         marginRight: 20,
     },
     qrImage: {
-        width: 300,
+        width: 100,
     },
     textContainer: {
         position: 'absolute',
-        left: 230,
+        left: 60,
         right: 0,
         top: 8,
         // borderBottomWidth: 0.4,
@@ -41,29 +47,27 @@ const styles = StyleSheet.create({
         // padding: 10
     },
     title: {
-        fontSize: 16,
+        fontSize: 10,
         fontWeight: 'bold',
         marginBottom: 5,
     },
     code: {
-        fontSize: 12,
+        fontSize: 8,
         marginBottom: 3,
     },
     ubicacion: {
-        fontSize: 10,
+        fontSize: 8,
     },
-    footer: {
-        fontSize: 10,
-        textAlign: 'center',
-        color: '#555',
-        marginTop: 20,
-    },
+
 });
 
 // Componente del PDF
 const DocumentoPDF = ({ Etiqueta }: { Etiqueta: any }) => (
     <Document>
+        {/* Footer con fecha de generación */}
+
         <Page style={styles.page}>
+            <Text style={styles.header}>{fechaHoy}</Text>
             <View style={styles.container}>
                 {/* Contenedor del QR */}
                 <View style={styles.qrContainer}>
@@ -80,8 +84,7 @@ const DocumentoPDF = ({ Etiqueta }: { Etiqueta: any }) => (
                 </View>
             </View>
 
-            {/* Footer con fecha de generación */}
-            <Text style={styles.footer}>Generado el: {fechaHoy}</Text>
+
         </Page>
     </Document>
 );

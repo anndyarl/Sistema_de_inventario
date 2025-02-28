@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
 });
 const fecha = Date.now();
 const fechaHoy = new Date(fecha);
-const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: ListaBajas; firma?: string,/* fechaDescarga: string | undefined */ AltaInventario: any }) => (
+const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario, firmanteInventario, firmanteFinanzas }: { row: ListaBajas; firma?: string,/* fechaDescarga: string | undefined */ AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -166,7 +166,7 @@ const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: L
                             </Text>
                         )}
                         <Text>_______________________</Text>
-                        <Text style={styles.firmaLabel}>Andy Riquelme</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteInventario}</Text>
                         <Text style={styles.firmaLabel}>Unidad Inventario</Text>
                     </View>
                 )}
@@ -181,7 +181,7 @@ const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: L
                             }}>Falta Visar Documento
                         </Text>
                         <Text>_______________________</Text>
-                        <Text style={styles.firmaLabel}>Rodrigo Toledo</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteFinanzas}</Text>
                         <Text style={styles.firmaLabel}>Unidad de Finanzas</Text>
                     </View>
                 )}
@@ -196,7 +196,6 @@ const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: L
                             }}>Falta Visar Documento
                         </Text>
                         <Text>_______________________</Text>
-                        <Text style={styles.firmaLabel}>Rodrigo Toledo</Text>
                         <Text style={styles.firmaLabel}>{AltaInventario.unidadAdministrativa}</Text>
                     </View>
                 )}

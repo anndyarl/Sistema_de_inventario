@@ -43,6 +43,7 @@ import Especies from '../../../components/Mantenedores/Especies';
 import Usuarios from '../../../components/Mantenedores/Usuarios';
 import Mantenedores from '../../pages/Mantenedores';
 import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
+import Proveedores from '../../../components/Mantenedores/Proveedores';
 
 
 
@@ -115,6 +116,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Mantenedores/Especies" element={<Especies />} />
                 <Route path="/Mantenedores/Servicios" element={<Servicios />} />
                 <Route path="/Mantenedores/Usuarios" element={<Usuarios />} />
+                <Route path="/Mantenedores/Proveedores" element={<Proveedores />} />
                 {/* Módulo Mantenedores */}
 
                 {/* Errores */}

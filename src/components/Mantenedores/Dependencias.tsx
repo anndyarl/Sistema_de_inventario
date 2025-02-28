@@ -343,7 +343,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
               </Button>
             </div>
             <div className="mt-1">
-              <label className="fw-semibold">Dependencia</label>
+              <label className="fw-semibold">Nombre</label>
               <input
                 aria-label="nombre"
                 type="text"

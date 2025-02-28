@@ -9,44 +9,36 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
 import { Plus } from "react-bootstrap-icons";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { listadoMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/listadoMantenedorServiciosActions.tsx";
-import { registrarMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/registrarMantenedorServiciosActions.tsx";
+
 import { Helmet } from "react-helmet-async";
 import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
-
+import { listadoMantenedorProveedoresActions } from "../../redux/actions/Mantenedores/Proveedores/listadoMantenedorProveedoresActions.tsx";
+import { registrarMantenedorProveedoresActions } from "../../redux/actions/Mantenedores/Proveedores/registrarMantenedorProveedoresActions.tsx";
 
 export interface ListadoMantenedor {
-    seR_CORR: number;
-    seR_COD: string;
-    seR_NOMBRE: string;
-    seR_USER_CREA: string;
-    seR_VIGENTE: string;
-    seR_F_CREA: string;
-    seR_IP_CREA: string;
-    estabL_NOMBRE: string;
-}
-interface ESTABLECIMIENTO {
-    codigo: number;
-    descripcion: string;
+    proV_CORR: number,
+    proV_RUN: number,
+    proV_DV: string;
+    proV_NOMBRE: string,
+    proV_FONO: string,
+    proV_DIR: string
 }
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
     obtenerMaxServicioActions: () => void;
-    listadoMantenedorServiciosActions: () => Promise<boolean>;
-    registrarMantenedorServiciosActions: (formModal: Record<string, any>) => Promise<boolean>;
-    // registrarMantenedorServiciosActions: (registro: { formModal: Record<string, any> }[]) => Promise<boolean>;
-    comboServicioActions: (establ_corr: number) => void;
+    listadoMantenedorProveedoresActions: () => Promise<boolean>;
+    registrarMantenedorProveedoresActions: (formModal: Record<string, any>) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario  
     seR_CORR: number;
 }
 
-const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboServicioActions, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, token, isDarkMode, objeto }) => {
+const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtenerMaxServicioActions, listadoMantenedorProveedoresActions, registrarMantenedorProveedoresActions, token, isDarkMode, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
-    const [error, setError] = useState<Partial<ListadoMantenedor> & Partial<ESTABLECIMIENTO> & {}>({});
+    const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
     const [_, setFilaSeleccionada] = useState<any[]>([]);
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
@@ -70,7 +62,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
         if (token) {
             if (listadoMantenedor.length === 0) {
                 setLoading(true);
-                const resultado = await listadoMantenedorServiciosActions();
+                const resultado = await listadoMantenedorProveedoresActions();
                 if (resultado) {
                     setLoading(false);
                 }
@@ -92,31 +84,34 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
     };
 
     const [Mantenedor, setMantenedor] = useState({
-        seR_CORR: seR_CORR,
-        estabL_corr: objeto.Establecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
-        descripcion: "",
-        usuario: objeto.IdCredencial.toString(),
+        proV_RUN: "",
+        proV_DV: "",
+        proV_NOMBRE: "",
+        proV_FONO: "",
+        proV_DIR: ""
     });
 
     useEffect(() => {
 
-        if (seR_CORR === 0) {
-            obtenerMaxServicioActions(); // Solo se ejecuta si seR_CORR cambió                     
-        }
-        setMantenedor((prev) => ({
-            ...prev,
-            seR_CORR: seR_CORR + 1,
-        }));
+        // if (seR_CORR === 0) {
+        //     obtenerMaxServicioActions(); // Solo se ejecuta si seR_CORR cambió                     
+        // }
+        // setMantenedor((prev) => ({
+        //     ...prev,
+        //     seR_CORR: seR_CORR + 1,
+        // }));
 
         listadoMantenedorAuto();
 
-    }, [listadoMantenedorServiciosActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
+    }, [listadoMantenedorProveedoresActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
         // Validación  
-        if (!Mantenedor.descripcion) tempErrors.Descripcion = "Campo obligatorio";
-
+        if (!Mantenedor.proV_RUN) tempErrors.proV_RUN = "Campo obligatorio";
+        if (!Mantenedor.proV_NOMBRE) tempErrors.proV_NOMBRE = "Campo obligatorio";
+        if (!Mantenedor.proV_FONO) tempErrors.proV_FONO = "Campo obligatorio";
+        if (!Mantenedor.proV_DIR) tempErrors.proV_DIR = "Campo obligatorio";
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -177,7 +172,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
             const result = await Swal.fire({
                 icon: "info",
                 title: "Registrar",
-                text: "Confirme para registrar un nuevo servicio",
+                text: "Confirme para registrar un nuevo proveedor",
                 showDenyButton: false,
                 showCancelButton: true,
                 confirmButtonText: "Confirmar",
@@ -194,13 +189,13 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                 //     seR_COD: listadoMantenedor[activo].seR_COD,
                 //     ...Mantenedor,
                 // }));
-                const resultado = await registrarMantenedorServiciosActions(Mantenedor);
-                // console.log(Mantenedor);
+                const resultado = await registrarMantenedorProveedoresActions(Mantenedor);
+                console.log(Mantenedor);
                 if (resultado) {
                     Swal.fire({
                         icon: "success",
                         title: "Registro Exitoso",
-                        text: "Se ha agregado un nuevo servicio",
+                        text: "Se ha agregado un nuevo proveedor",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
                         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -209,9 +204,8 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                         }
                     });
                     setLoadingRegistro(false);
-                    obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
-                    comboServicioActions(objeto.Establecimiento);//llama al nuevo servicio
-                    listadoMantenedorServiciosActions();//llama al nuevo listado de servicios
+                    // obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
+                    listadoMantenedorProveedoresActions();//llama al nuevo listado de servicios
                     // setFilaSeleccionada([]);
                     setMostrarModalRegistrar(false);
 
@@ -236,11 +230,11 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
     return (
         <Layout>
             <Helmet>
-                <title>Servicios</title>
+                <title>Proveedores</title>
             </Helmet>
             <MenuMantenedores />
             <div className="border-bottom shadow-sm p-4 rounded">
-                <h3 className="form-title fw-semibold border-bottom p-1">Listado de Servicios</h3>
+                <h3 className="form-title fw-semibold border-bottom p-1">Listado de Proveedores</h3>
                 <div className="d-flex">
                     <div className="mb-1 mx-1">
                         <Button
@@ -265,12 +259,11 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                                 <tr>
                                     {/* <th scope="col"></th> */}
                                     <th scope="col" className="text-nowrap text-center">Código</th>
-                                    <th scope="col" className="text-nowrap text-center">Código Servicio</th>
+                                    <th scope="col" className="text-nowrap text-center">Rut</th>
+                                    <th scope="col" className="text-nowrap text-center">Dv</th>
                                     <th scope="col" className="text-nowrap text-center">Nombre</th>
-                                    <th scope="col" className="text-nowrap text-center">Vigencia</th>
-                                    <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
-                                    <th scope="col" className="text-nowrap text-center">IP</th>
-                                    <th scope="col" className="text-nowrap text-center">Establecimiento</th>
+                                    <th scope="col" className="text-nowrap text-center">Fono</th>
+                                    <th scope="col" className="text-nowrap text-center">Dirección</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -285,13 +278,12 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                                                     checked={filasSeleccionada.includes((indexReal).toString())}
                                                 />
                                             </td> */}
-                                            <td>{Lista.seR_CORR}</td>
-                                            <td>{Lista.seR_COD}</td>
-                                            <td>{Lista.seR_NOMBRE}</td>
-                                            <td>{Lista.seR_VIGENTE}</td>
-                                            <td>{Lista.seR_F_CREA}</td>
-                                            <td>{Lista.seR_IP_CREA}</td>
-                                            <td>{Lista.estabL_NOMBRE}</td>
+                                            <td>{Lista.proV_CORR}</td>
+                                            <td>{Lista.proV_RUN}</td>
+                                            <td>{Lista.proV_DV}</td>
+                                            <td>{Lista.proV_NOMBRE}</td>
+                                            <td>{Lista.proV_FONO}</td>
+                                            <td>{Lista.proV_DIR}</td>
                                         </tr>
                                     );
                                 })}
@@ -344,7 +336,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
             // keyboard={false}     // Evita el cierre al presionar la tecla Esc
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                    <Modal.Title className="fw-semibold">Nuevo Servicio</Modal.Title>
+                    <Modal.Title className="fw-semibold">Nuevo Proveedor</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form onSubmit={handleSubmit}>
@@ -375,40 +367,91 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                                 )}
                             </Button>
                         </div>
-                        {/* <div className="mt-1">
-                            <label className="fw-semibold">Establecimiento</label>
-                            <select
-                                aria-label="codigo"
-                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.codigo ? "is-invalid" : ""}`}
-                                name="codigo"
-                                onChange={handleChange}
-                                value={Mantenedor.codigo}
-                            >
-                                <option value="">Seleccione un origen</option>
-                                {comboEstablecimiento.map((TraeEstablecimiento) => (
-                                    <option key={TraeEstablecimiento.codigo} value={TraeEstablecimiento.codigo}>
-                                        {TraeEstablecimiento.descripcion}
-                                    </option>
-                                ))}
-                            </select>
-                            {error.codigo && (
-                                <div className="invalid-feedback fw-semibold">{error.codigo}</div>
-                            )}
-                        </div> */}
+
+                        <div className="d-flex ">
+                            <div className="mt-1">
+                                <label className="fw-semibold">Rut</label>
+                                <input
+                                    aria-label="proV_RUN"
+                                    type="text"
+                                    className={`form-control ${error.proV_RUN ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="proV_RUN"
+                                    placeholder="Ingrese nuevo rut"
+                                    maxLength={100}
+                                    onChange={handleChange}
+                                    value={Mantenedor.proV_RUN}
+                                />
+                                {error.proV_RUN && (
+                                    <div className="invalid-feedback fw-semibold">{error.proV_RUN}</div>
+                                )}
+                            </div>
+                            <div className="mt-1 mx-2">
+                                <label className="fw-semibold"></label>
+                                <p>-</p>
+                            </div>
+                            <div className="mt-1">
+                                <label className="fw-semibold">DV</label>
+                                <input
+                                    aria-label="proV_DV"
+                                    type="text"
+                                    className={`form-control  w-25 ${error.proV_DV ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="proV_DV"
+                                    maxLength={1}
+
+                                    onChange={handleChange}
+                                    value={Mantenedor.proV_DV}
+                                />
+                                {error.proV_DV && (
+                                    <div className="invalid-feedback fw-semibold">{error.proV_DV}</div>
+                                )}
+                            </div>
+                        </div>
                         <div className="mt-1">
                             <label className="fw-semibold">Nombre</label>
                             <input
-                                aria-label="descripcion"
+                                aria-label="proV_NOMBRE"
                                 type="text"
-                                className={`form-control ${error.descripcion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                name="descripcion"
-                                placeholder="Ingrese un nuevo servicio"
+                                className={`form-control ${error.proV_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="proV_NOMBRE"
+                                placeholder="Ingrese nuevo nombre"
                                 maxLength={100}
                                 onChange={handleChange}
-                                value={Mantenedor.descripcion}
+                                value={Mantenedor.proV_NOMBRE}
                             />
-                            {error.descripcion && (
-                                <div className="invalid-feedback fw-semibold">{error.descripcion}</div>
+                            {error.proV_NOMBRE && (
+                                <div className="invalid-feedback fw-semibold">{error.proV_NOMBRE}</div>
+                            )}
+                        </div>
+                        <div className="mt-1">
+                            <label className="fw-semibold">Fono</label>
+                            <input
+                                aria-label="proV_FONO"
+                                type="text"
+                                className={`form-control ${error.proV_FONO ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="proV_FONO"
+                                placeholder="Ingrese nuevo fono"
+                                maxLength={100}
+                                onChange={handleChange}
+                                value={Mantenedor.proV_FONO}
+                            />
+                            {error.proV_FONO && (
+                                <div className="invalid-feedback fw-semibold">{error.proV_FONO}</div>
+                            )}
+                        </div>
+                        <div className="mt-1">
+                            <label className="fw-semibold">Dirección</label>
+                            <input
+                                aria-label="proV_DIR"
+                                type="text"
+                                className={`form-control ${error.proV_DIR ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="proV_DIR"
+                                placeholder="Ingrese nueva dirección"
+                                maxLength={100}
+                                onChange={handleChange}
+                                value={Mantenedor.proV_DIR}
+                            />
+                            {error.proV_DIR && (
+                                <div className="invalid-feedback fw-semibold">{error.proV_DIR}</div>
                             )}
                         </div>
                     </form>
@@ -428,7 +471,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                         // keyboard={false}     // Evita el cierre al presionar la tecla Esc
                         >
                             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                                <Modal.Title className="fw-semibold">Servicio Nº {Lista.seR_COD}</Modal.Title>
+                                <Modal.Title className="fw-semibold">Servicio Nº {Lista.proV_CORR}</Modal.Title>
                             </Modal.Header>
                             <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                                 <form onSubmit={handleSubmit}>
@@ -462,19 +505,19 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                                     </div>
 
                                     <div className="mt-1">
-                                        <label className="fw-semibold">Servicio</label>
+                                        <label className="fw-semibold">Nombre</label>
                                         <input
-                                            aria-label="descripcion"
+                                            aria-label="proV_NOMBRE"
                                             type="text"
-                                            className={`form-control ${error.descripcion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                            name="descripcion"
-                                            placeholder="Ingrese un nuevo servicio"
+                                            className={`form-control ${error.proV_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="proV_NOMBRE"
+                                            placeholder="Ingrese un nuevo proveedor"
                                             maxLength={100}
                                             onChange={(e) => handleActualizar(e, indexReal)} // Pasar índice real
-                                            value={Lista.seR_NOMBRE || ""} // Valor controlado
+                                            value={Lista.proV_NOMBRE || ""} // Valor controlado
                                         />
-                                        {error.descripcion && (
-                                            <div className="invalid-feedback fw-semibold">{error.descripcion}</div>
+                                        {error.proV_NOMBRE && (
+                                            <div className="invalid-feedback fw-semibold">{error.proV_NOMBRE}</div>
                                         )}
                                     </div>
                                 </form>
@@ -489,7 +532,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
 
 const mapStateToProps = (state: RootState) => ({
     seR_CORR: state.obtenerMaxServicioReducers.seR_CORR,//Obtiene el max correletivo para insertarlo en el formualario
-    listadoMantenedor: state.listadoMantenedorServiciosReducers.listadoMantenedor,
+    listadoMantenedor: state.listadoMantenedorProveedoresReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     objeto: state.validaApiLoginReducers
@@ -497,7 +540,7 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
     obtenerMaxServicioActions,
-    listadoMantenedorServiciosActions,
-    registrarMantenedorServiciosActions,
+    listadoMantenedorProveedoresActions,
+    registrarMantenedorProveedoresActions,
     comboServicioActions
-})(Servicios);
+})(Proveedores);

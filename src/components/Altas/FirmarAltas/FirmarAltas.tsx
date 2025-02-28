@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Pagination, Form, Modal, Col, Row, Collapse } from "react-bootstrap";
+import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { Pagination, Form, Modal, Col, Row, Collapse, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import SignatureCanvas from 'react-signature-canvas';
@@ -16,7 +16,9 @@ import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { ORIGEN } from "../../Inventario/RegistrarInventario/DatosInventario";
 import { Helmet } from "react-helmet-async";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
-import { Objeto } from "../../Navegacion/Profile";
+import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
+import { Pencil } from "react-bootstrap-icons";
+
 
 export interface ListaBajas {
     bajaS_CORR: string;
@@ -34,7 +36,6 @@ export interface ListaBajas {
     especie: string;
     deP_ACUMULADA: number;
 }
-
 interface DatosFirmas {
     nombre: string,
     rut: string,
@@ -46,22 +47,28 @@ interface DatosFirmas {
     apellidO_PATERNO: string,
     nombrE_USUARIO: string,
     descripcion: string,
-    url: string
+    url: string,
+    iD_UNIDAD: number
 }
-
+interface Unidades {
+    iD_UNIDAD: number,
+    nombre: string
+}
 interface DatosBajas {
     listaBajas: ListaBajas[];
+    comboUnidades: Unidades[];
+    obtenerUnidadesActions: () => Promise<boolean>;
     listaBajasActions: () => Promise<boolean>;
     registrarBajasActions: (activos: { aF_CLAVE: number; bajaS_CORR: string; nresolucion: number; observaciones: string; fechA_BAJA: string }[]) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
-    comboOrigen: ORIGEN[];
-    objeto: Objeto;
+    firmanteInventario: string;
+    firmanteFinanzas: string;
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerfirmasAltasActions, token, isDarkMode, comboOrigen, datosFirmas, objeto }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, token, isDarkMode, comboUnidades, datosFirmas }) => {
     const [loading, setLoading] = useState(false);
     const [_, setError] = useState<Partial<ListaBajas>>({});
     const [__, setIsDisabled] = useState(true);
@@ -91,7 +98,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
     // };
 
     const [AltaInventario, setAltaInventario] = useState({
-        unidadAdministrativa: 0,
+        unidadAdministrativa: null,
         ajustarFirma: false,
         titularInventario: false,
         subroganteInventario: false,
@@ -101,6 +108,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
         administrativa: false,
         titularDemandante: false,
         subroganteDemandante: false,
+        firmanteInventario: "",
+        firmanteFinanzas: ""
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -111,74 +120,75 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
         }));
     }
 
-    const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+
+    const handleCheck = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
-        setAltaInventario((prevAltaInventario) => {
-            const updatedState = {
-                ...prevAltaInventario,
-                [name]: checked,
-            };
 
-            // Si se desmarca "ajustarFirma", desmarcar también los otros checkboxes
+        setAltaInventario((prev) => {
+            const updatedState = { ...prev, [name]: checked };
+
+            // 🚨 Si se desmarca "ajustarFirma", resetear todas las opciones
             if (name === "ajustarFirma" && !checked) {
-                //Inicia cada seleccion desmarcada
-                updatedState.titularInventario = false;
-                updatedState.subroganteInventario = false;
-                updatedState.finanzas = false;
-                updatedState.administrativa = false;
-                updatedState.titularFinanzas = false;
-                updatedState.subroganteFinanzas = false;
-                updatedState.titularDemandante = false;
-                updatedState.subroganteDemandante = false;
-                setIsDisabled(true); // Deshabilitar los otros checkboxes
-                setIsExpanded(false);
-            } else {
-                if (name === "titularInventario" && checked) {
-                    console.log("titular inventario");
-                    updatedState.subroganteInventario = false;
-                }
-                if (name === "subroganteInventario" && checked) {
-                    console.log("subrogante inventario");
-                    updatedState.titularInventario = false;
-                }
-                setIsDisabled(false); // Habilitar los otros checkboxes
-                setIsExpanded(true);
+                return {
+                    ...updatedState,
+                    finanzas: false,
+                    administrativa: false,
+                    titularInventario: false,
+                    subroganteInventario: false,
+                    titularFinanzas: false,
+                    subroganteFinanzas: false,
+                    titularDemandante: false,
+                    subroganteDemandante: false,
+                    firmanteInventario: "",
+                    firmanteFinanzas: "",
+                };
             }
 
-            // Si se desmarca "Opcional", desmarcar también los otros checkboxes
-            if (name === "finanzas" && !checked) {
-                updatedState.titularFinanzas = false;
-                updatedState.subroganteFinanzas = false;
-                setIsDisabled(true); // Deshabilitar los otros checkboxes
-            } else {
-                if (name === "titularFinanzas" && checked) {
-                    console.log("titular finanzas");
-                    updatedState.subroganteFinanzas = false;
+            let firmanteInventario = prev.firmanteInventario || "";
+            let firmanteFinanzas = prev.firmanteFinanzas || "";
+
+            // 🔍 Buscar firmantes en la lista de datosFirmas
+            for (const firma of datosFirmas) {
+                const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
+
+                // 🎯 Firmante de Inventario
+                if (firma.iD_UNIDAD === 1) {
+                    if (name === "titularInventario" && checked && firma.rol === "TITULAR") {
+                        firmanteInventario = nombreCompleto;
+                        updatedState.subroganteInventario = false;
+                    } else if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteInventario = nombreCompleto;
+                        updatedState.titularInventario = false;
+                    }
                 }
-                if (name === "subroganteFinanzas" && checked) {
-                    console.log("subrogante finanzas");
-                    updatedState.titularFinanzas = false;
+
+                // 🎯 Firmante de Finanzas
+                if (firma.iD_UNIDAD === 2) {
+                    if (name === "titularFinanzas" && checked && firma.rol === "TITULAR") {
+                        firmanteFinanzas = nombreCompleto;
+                        updatedState.subroganteFinanzas = false;
+                    } else if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteFinanzas = nombreCompleto;
+                        updatedState.titularFinanzas = false;
+                    }
                 }
-                setIsDisabled(false); // Habilitar los otros checkboxes
+
+                // 🚀 Si ya encontramos ambos firmantes, salimos del loop
+                if (firmanteInventario && firmanteFinanzas) break;
             }
 
-            // Si se desmarca "Opcional", desmarcar también los otros checkboxes
-            if (name === "administrativa" && !checked) {
-                updatedState.titularDemandante = false;
-                updatedState.subroganteDemandante = false;
-                setIsDisabled(true); // Deshabilitar los otros checkboxes
-            } else {
-                if (name === "titularDemandante" && checked) {
-                    updatedState.subroganteDemandante = false;
-                }
-                if (name === "subroganteDemandante" && checked) {
-                    updatedState.titularDemandante = false;
-                }
-                setIsDisabled(false); // Habilitar los otros checkboxes
-            }
+            // ✅ Actualizar firmantes en el estado
+            updatedState.firmanteInventario = firmanteInventario;
+            updatedState.firmanteFinanzas = firmanteFinanzas;
+
+            setIsDisabled(false);
+            setIsExpanded(true);
+
             return updatedState;
         });
-    };
+    }, [setAltaInventario, datosFirmas]);
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -222,6 +232,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
     const setSeleccionaFila = (index: number) => {
         setMostrarModal(index); //Abre modal del indice seleccionado
         if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
+        if (comboUnidades.length === 0) { obtenerUnidadesActions(); }
         setFilaSeleccionada(prev =>
             prev.includes(index.toString())
                 ? prev.filter(rowIndex => rowIndex !== index.toString())
@@ -259,17 +270,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
     //     link.click();
     // };
     const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
-
-    //Busca Establecimiento del usuario
-    let rutTitular = "";
-    for (let i = 0; i < datosFirmas.length; i++) {
-        if (String(datosFirmas[i].rut) === String(objeto.Usr_run)) {
-            // if (String(datosFirmas[i].rut) === "18250588") {
-            rutTitular = datosFirmas[i].rol;
-            console.log("rutTitular", rutTitular);
-            break;
-        }
-    }
 
     return (
         <Layout>
@@ -350,18 +350,37 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                         </Modal.Header>
                         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <form onSubmit={handleSubmit}>
-                                <div className="d-flex align-items-center  rounded p-2 mb-3 shadow-sm">
-                                    <p className="fw-semibold mb-0 me-3">
-                                        Ajustar firma:
-                                    </p>
-                                    <Form.Check
-                                        onChange={handleCheck}
-                                        name="ajustarFirma"
-                                        type="checkbox"
-                                        className="form-switch"
-                                        checked={AltaInventario.ajustarFirma}
-                                        label=""
-                                    />
+                                <div className="d-flex justify-content-between p-2">
+                                    <div className="d-flex align-items-center  rounded p-2 mb-3 shadow-sm">
+                                        <p className="fw-semibold mb-0 me-3">
+                                            Ajustar firma:
+                                        </p>
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            name="ajustarFirma"
+                                            type="checkbox"
+                                            className="form-switch"
+                                            checked={AltaInventario.ajustarFirma}
+                                            label=""
+                                        />
+                                    </div>
+
+                                    <Button
+                                        type="submit"
+                                        variant={isDarkMode ? "secondary" : "primary"}
+                                        disabled={
+                                            !(
+                                                (AltaInventario.titularInventario || AltaInventario.subroganteInventario) ||
+                                                (AltaInventario.firmanteFinanzas || AltaInventario.unidadAdministrativa)
+                                            )
+                                        }
+
+                                    >
+                                        <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
+                                        Firmar
+                                    </Button>
+
+
                                 </div>
 
                                 <Collapse in={isExpanded} dimension="height">
@@ -442,26 +461,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                                                     checked={AltaInventario.administrativa}
                                                 />
                                             </div>
-                                            <div className="d-flex">
-                                                <Form.Check
-                                                    onChange={handleCheck}
-                                                    disabled={!AltaInventario.administrativa}
-                                                    name="titularDemandante"
-                                                    type="checkbox"
-                                                    checked={AltaInventario.titularDemandante}
-                                                />
-                                                <label htmlFor="titularDemandante" className="ms-2">Titular Demandante</label>
-                                            </div>
-                                            <div className="d-flex">
-                                                <Form.Check
-                                                    onChange={handleCheck}
-                                                    disabled={!AltaInventario.administrativa}
-                                                    name="subroganteDemandante"
-                                                    type="checkbox"
-                                                    checked={AltaInventario.subroganteDemandante}
-                                                />
-                                                <label htmlFor="subroganteDemandante" className="ms-2">Subrogante Demandante</label>
-                                            </div>
+
                                             <div className="mb-1">
                                                 <label className="fw-semibold">
                                                     Seleccione una Unidad
@@ -471,11 +471,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                                                     className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                                     name="unidadAdministrativa"
                                                     onChange={handleChange}
+                                                    disabled={!AltaInventario.administrativa}
                                                 >
-                                                    <option value="">Seleccione un origen</option>
-                                                    {comboOrigen.map((traeOrigen) => (
-                                                        <option key={traeOrigen.codigo} value={traeOrigen.descripcion}>
-                                                            {traeOrigen.descripcion}
+                                                    <option value="">Seleccionar</option>
+                                                    {comboUnidades.map((traeUnidades) => (
+                                                        <option key={traeUnidades.iD_UNIDAD} value={traeUnidades.nombre}>
+                                                            {traeUnidades.nombre}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -483,7 +484,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                                         </Col>
                                     </Row>
                                 </Collapse>
-                                <BlobProvider document={<DocumentoPDF row={fila} firma={signatureImage} /*fechaDescarga={fechaDescarga} */ AltaInventario={AltaInventario} />}>
+                                <BlobProvider document={
+                                    <DocumentoPDF
+                                        row={fila}
+                                        firma={signatureImage}
+                                        AltaInventario={AltaInventario}
+                                        firmanteInventario={AltaInventario.firmanteInventario}
+                                        firmanteFinanzas={AltaInventario.firmanteFinanzas}
+                                    />
+                                }>
                                     {({ url, loading }) =>
                                         loading ? (
                                             <p>Generando vista previa...</p>
@@ -565,14 +574,14 @@ const mapStateToProps = (state: RootState) => ({
     listaBajas: state.datosListaBajasReducers.listaBajas,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
-    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
-    objeto: state.validaApiLoginReducers,
+    comboUnidades: state.obtenerUnidadesReducers.comboUnidades,
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas
 });
 
 export default connect(mapStateToProps, {
     listaBajasActions,
     registrarBajasActions,
-    obtenerfirmasAltasActions
+    obtenerfirmasAltasActions,
+    obtenerUnidadesActions
 })(FirmarAltas);
 

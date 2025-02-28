@@ -18,7 +18,8 @@ interface DatosState {
         apellidO_PATERNO: string,
         nombrE_USUARIO: string,
         descripcion: string,
-        url: string
+        url: string,
+        iD_UNIDAD: number
     }>;
 }
 

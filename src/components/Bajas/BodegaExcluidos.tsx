@@ -228,7 +228,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
-          <Row>
+          {/* <Row>
             <Col md={3}>
               <div className="mb-1">
                 <label htmlFor="aF_CLAVE" className="fw-semibold">Nº Inventario</label>
@@ -261,44 +261,111 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                 </Button>
               </div>
             </Col>
-          </Row>
+          </Row> */}
           {/* Boton filas seleccionadas */}
+          {/* <div className="d-flex justify-content-between"> */}
+          {/* <div className="d-flex justify-content-start">
+              <strong className="alert alert-light border m-1 p-2 mx-2">
+                <p> Filas seleccionadas: {filasSeleccionadas.length}</p>
+              </strong>
+            </div> */}
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
-              <Button
-                variant="warning"
-                onClick={handleRematarSeleccionados}
-                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loadingRegistro}  // Desactiva el botón mientras carga
-              >
-                {loadingRegistro ? (
-                  <>
-                    {" Enviando a Remate... "}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"  // Espaciado entre el spinner y el texto
-                    />
+              <>
+                {/* Botón Enviar a Remate */}
+                <Button
+                  variant="warning"
+                  onClick={handleRematarSeleccionados}
+                  className="m-1 p-2 d-flex align-items-center"
+                  disabled={loadingRegistro}
+                >
+                  {loadingRegistro ? (
+                    <>
+                      {" Enviando a Remate... "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      Enviar a Remate
+                      <span className="badge bg-light text-dark mx-2">
+                        {/* {filasSeleccionadas.length} */}
+                      </span>
+                    </>
+                  )}
+                </Button>
 
-                  </>
-                ) : (
-                  <>
-                    Enviar a Remate
-                    <span className="badge bg-light text-dark mx-2">
-                      {filasSeleccionadas.length}
-                    </span>
-                  </>
-                )}
-              </Button>
+                {/* Botón Eliminar */}
+                <Button
+                  variant="danger"
+                  // onClick={handleEliminarSeleccionados}
+                  className="m-1 p-2 d-flex align-items-center"
+                  disabled={loadingRegistro}
+                >
+                  {loadingRegistro ? (
+                    <>
+                      {" Eliminando... "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      Eliminar
+                      <span className="badge bg-light text-dark mx-2">
+                        {/* {filasSeleccionadas.length} */}
+                      </span>
+                    </>
+                  )}
+                </Button>
+
+                {/* Botón Trasladar */}
+                <Button
+                  variant="primary"
+                  // onClick={handleTrasladarSeleccionados}
+                  className="m-1 p-2 d-flex align-items-center"
+                  disabled={loadingRegistro}
+                >
+                  {loadingRegistro ? (
+                    <>
+                      {" Trasladando... "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      Trasladar
+                      <span className="badge bg-light text-dark mx-2">
+                        {/* {filasSeleccionadas.length} */}
+                      </span>
+                    </>
+                  )}
+                </Button>
+              </>
             ) : (
               <strong className="alert alert-dark border m-1 p-2 mx-2">
                 No hay filas seleccionadas
               </strong>
             )}
           </div>
+          {/* </div> */}
 
           {/* Tabla*/}
           {loading ? (
