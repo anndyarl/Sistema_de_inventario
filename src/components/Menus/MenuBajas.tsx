@@ -26,12 +26,12 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Bajas/ListadoGeneral',
             icon: Boxes
         },
-        {
-            name: 'Bienes de Bajas',
-            description: 'Busque el activo o los activos que desee excluir',
-            href: '/Bajas/RegistrarBajas',
-            icon: DashCircle
-        },
+        // {
+        //     name: 'Bienes de Bajas',
+        //     description: 'Busque el activo o los activos que desee excluir',
+        //     href: '/Bajas/RegistrarBajas',
+        //     icon: DashCircle
+        // },
         {
             name: 'Bodega de Excluidos',
             description: 'Seleccione el activo o los activos de baja que desee enviar a remate',

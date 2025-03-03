@@ -31,6 +31,8 @@ import datosListaInventarioReducers from "./Inventario/AnularInventario/datosLis
 //--------------------- Registrar Altas ---------------------//
 import datosListaAltasReducers from "./Altas/AnularAltas/datosListaAltasReducers";
 import obtenerEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerEtiquetasAltasReducers";
+import obtenerfirmasAltasReducers from "./Altas/FirmarAltas/obtenerfirmasAltasReducers";
+import obtenerUnidadesReducers from "./Altas/FirmarAltas/obtenerUnidadesReducers";
 
 //--------------------- Registrar Bajas ---------------------//
 import datosListadoGeneralBajasReducers from "./Bajas/datosListadoGeneralBajasReducers";
@@ -54,6 +56,7 @@ import comboTrasladoEspecieReducer from "./Traslados/Combos/comboTrasladoEspecie
 import comboEstablecimientosProfileReducers from "./auth/comboEstablecimientosProfileReducers";
 import comboDependenciaOrigenReducer from "./Traslados/Combos/comboDependenciaOrigenReducers";
 import comboDependenciaDestinoReducer from "./Traslados/Combos/comboDependenciaDestinoReducers";
+import listadoTrasladosReducers from "./Traslados/listadoTrasladosReducers";
 //--------------------- Otros ---------------------//
 import respuestaReducer from "./Otros/respuestaReducer";
 
@@ -61,11 +64,9 @@ import respuestaReducer from "./Otros/respuestaReducer";
 import obtenerMaxServicioReducers from "./Mantenedores/Servicios/obtenerMaxServicioReducers";
 import listadoMantenedorDependenciasReducers from "./Mantenedores/Dependencias/listadoMantenedorDependenciasReducers";
 import listadoMantenedorServiciosReducers from "./Mantenedores/Servicios/listadoMantenedorServiciosReducers";
-import listadoTrasladosReducers from "./Traslados/listadoTrasladosReducers";
-import obtenerfirmasAltasReducers from "./Altas/FirmarAltas/obtenerfirmasAltasReducers";
-import obtenerUnidadesReducers from "./Altas/FirmarAltas/obtenerUnidadesReducers";
 import listadoMantenedorProveedoresReducers from "./Mantenedores/Proveedores/listadoMantenedorProveedoresReducers";
-import listadoMantenedorEspeciesReducers from "./Mantenedores/Especies/listadoMantenedorEspeciesReducers";
+import listadoMantenedorEspeciesReducers from "./Mantenedores/Especies/listadoMantenedorEspeciesReducers copy";
+import comboCuentaMantenedorReducers from "./Mantenedores/Especies/comboCuentaMantenedorReducers";
 
 
 
@@ -139,7 +140,8 @@ const appReducer = combineReducers({
   listadoMantenedorProveedoresReducers,
   listadoMantenedorEspeciesReducers,
   comboEstablecimientosProfileReducers,
-  obtenerMaxServicioReducers
+  obtenerMaxServicioReducers,
+  comboCuentaMantenedorReducers
 });
 
 //--------------------- Root Reducer ---------------------//

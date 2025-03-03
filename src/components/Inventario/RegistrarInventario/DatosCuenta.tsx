@@ -121,7 +121,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 50;
+  const elementosPorPagina = 20;
   const [error, setError] = useState<Partial<CuentaProps>>({});
 
   //Validaciones del formulario
@@ -439,7 +439,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                 <tr>
                   <th></th>
                   <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Establecimiento</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Nombre</th>
+                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Código</th>
                   <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
                 </tr>
               </thead>
@@ -462,36 +462,37 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
             </table>
 
           </div>
-
           {/* Paginador */}
-          <Pagination className="d-flex justify-content-end">
-            <Pagination.First
-              onClick={() => paginar(1)}
-              disabled={paginaActual === 1}
-            />
-            <Pagination.Prev
-              onClick={() => paginar(paginaActual - 1)}
-              disabled={paginaActual === 1}
-            />
+          <div className="paginador-container">
+            <Pagination className="paginador-scroll">
+              <Pagination.First
+                onClick={() => paginar(1)}
+                disabled={paginaActual === 1}
+              />
+              <Pagination.Prev
+                onClick={() => paginar(paginaActual - 1)}
+                disabled={paginaActual === 1}
+              />
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={i + 1 === paginaActual}
-                onClick={() => paginar(i + 1)}
-              >
-                {i + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => paginar(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas}
-            />
-            <Pagination.Last
-              onClick={() => paginar(totalPaginas)}
-              disabled={paginaActual === totalPaginas}
-            />
-          </Pagination>
+              {Array.from({ length: totalPaginas }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === paginaActual}
+                  onClick={() => paginar(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() => paginar(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+              />
+              <Pagination.Last
+                onClick={() => paginar(totalPaginas)}
+                disabled={paginaActual === totalPaginas}
+              />
+            </Pagination>
+          </div>
         </Modal.Body>
       </Modal >
     </>

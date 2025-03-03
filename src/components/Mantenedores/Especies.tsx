@@ -10,9 +10,10 @@ import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
 import { Plus } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
-import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
-import { registrarMantenedorProveedoresActions } from "../../redux/actions/Mantenedores/Proveedores/registrarMantenedorProveedoresActions.tsx";
-import { listadoMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/listadoMantenedorProveedoresActions.tsx";
+import { listadoMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/listadoMantenedorEspeciesActions.tsx";
+import { comboCuentaMantenedorActions } from "../../redux/actions/Mantenedores/Especies/comboCuentaMantenedorActions.tsx";
+import { registrarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/registrarMantenedorEspeciesActions.tsx";
+import { Objeto } from "../Navegacion/Profile.tsx";
 
 export interface ListadoMantenedor {
     esP_CODIGO: string;
@@ -24,17 +25,25 @@ export interface ListadoMantenedor {
     esP_IP_CREA: string;
     esP_VIDAUTIL: number;
 }
+
+interface ComboCuentas {
+    codigo: string;
+    descripcion: string;
+}
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
     obtenerMaxServicioActions: () => void;
     listadoMantenedorEspeciesActions: () => Promise<boolean>;
-    registrarMantenedorProveedoresActions: (formModal: Record<string, any>) => Promise<boolean>;
+    comboCuentaMantenedorActions: () => Promise<boolean>;
+    registrarMantenedorEspeciesActions: (formModal: Record<string, any>) => Promise<boolean>;
+    comboCuentas: ComboCuentas[];
     token: string | null;
     isDarkMode: boolean;
     seR_CORR: number;
+    objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtenerMaxServicioActions, listadoMantenedorEspeciesActions, registrarMantenedorProveedoresActions, token, isDarkMode }) => {
+const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCuentas, objeto, obtenerMaxServicioActions, listadoMantenedorEspeciesActions, registrarMantenedorEspeciesActions, comboCuentaMantenedorActions, token, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
@@ -85,6 +94,8 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtener
     const [Mantenedor, setMantenedor] = useState({
         esP_NOMBRE: '',
         ctA_NOMBRE: '',
+        estabL_corr: objeto.Establecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
+        usuario: objeto.IdCredencial.toString(),
     });
 
     useEffect(() => {
@@ -96,7 +107,7 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtener
         //     ...prev,
         //     seR_CORR: seR_CORR + 1,
         // }));
-
+        comboCuentaMantenedorActions();
         listadoMantenedorAuto();
 
     }, [listadoMantenedorEspeciesActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
@@ -161,64 +172,65 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtener
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (validate()) {
-            // const selectedIndices = filasSeleccionada.map(Number);
-            const result = await Swal.fire({
-                icon: "info",
-                title: "Registrar",
-                text: "Confirme para registrar un nuevo proveedor",
-                showDenyButton: false,
-                showCancelButton: true,
-                confirmButtonText: "Confirmar",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                customClass: {
-                    popup: "custom-border", // Clase personalizada para el borde
-                }
-            });
-            if (result.isConfirmed) {
-                setLoadingRegistro(true);
-                // const formMantenedor = selectedIndices.map((activo) => ({
-                //     seR_COD: listadoMantenedor[activo].seR_COD,
-                //     ...Mantenedor,
-                // }));
-                const resultado = await registrarMantenedorProveedoresActions(Mantenedor);
-                console.log(Mantenedor);
-                if (resultado) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Registro Exitoso",
-                        text: "Se ha agregado un nuevo proveedor",
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                    setLoadingRegistro(false);
-                    // obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
-                    listadoMantenedorEspeciesActions();//llama al nuevo listado de servicios
-                    // setFilaSeleccionada([]);
-                    setMostrarModalRegistrar(false);
+        console.log(Mantenedor);
+        // if (validate()) {
+        //     // const selectedIndices = filasSeleccionada.map(Number);
+        //     const result = await Swal.fire({
+        //         icon: "info",
+        //         title: "Registrar",
+        //         text: "Confirme para registrar un nuevo proveedor",
+        //         showDenyButton: false,
+        //         showCancelButton: true,
+        //         confirmButtonText: "Confirmar",
+        //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //         customClass: {
+        //             popup: "custom-border", // Clase personalizada para el borde
+        //         }
+        //     });
+        //     if (result.isConfirmed) {
+        //         setLoadingRegistro(true);
+        //         // const formMantenedor = selectedIndices.map((activo) => ({
+        //         //     seR_COD: listadoMantenedor[activo].seR_COD,
+        //         //     ...Mantenedor,
+        //         // }));
+        //         const resultado = await registrarMantenedorEspeciesActions(Mantenedor);
+        //         console.log(Mantenedor);
+        //         if (resultado) {
+        //             Swal.fire({
+        //                 icon: "success",
+        //                 title: "Registro Exitoso",
+        //                 text: "Se ha agregado un nuevo proveedor",
+        //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //                 customClass: {
+        //                     popup: "custom-border", // Clase personalizada para el borde
+        //                 }
+        //             });
+        //             setLoadingRegistro(false);
+        //             // obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
+        //             listadoMantenedorEspeciesActions();//llama al nuevo listado de servicios
+        //             // setFilaSeleccionada([]);
+        //             setMostrarModalRegistrar(false);
 
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: ":'(",
-                        text: "Hubo un problema al registrar",
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                    setLoadingRegistro(false);
-                }
-            }
-        }
+        //         } else {
+        //             Swal.fire({
+        //                 icon: "error",
+        //                 title: ":'(",
+        //                 text: "Hubo un problema al registrar",
+        //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //                 customClass: {
+        //                     popup: "custom-border", // Clase personalizada para el borde
+        //                 }
+        //             });
+        //             setLoadingRegistro(false);
+        //         }
+        //     }
+        // }
     };
 
     return (
@@ -366,13 +378,13 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtener
                             </Button>
                         </div>
                         <div className="mt-1">
-                            <label className="fw-semibold">Nombre Especie</label>
+                            <label className="fw-semibold">Nombre</label>
                             <input
                                 aria-label="esP_NOMBRE"
                                 type="text"
                                 className={`form-control ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="esP_NOMBRE"
-                                placeholder="Ingrese nuevo rut"
+                                placeholder="Ingrese nueva especie"
                                 maxLength={100}
                                 onChange={handleChange}
                                 value={Mantenedor.esP_NOMBRE}
@@ -382,17 +394,21 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtener
                             )}
                         </div>
                         <div className="mt-1">
-                            <label className="fw-semibold">Descripción Cuenta</label>
-                            <input
+                            <label className="fw-semibold">Cuentas</label>
+                            <select
                                 aria-label="ctA_NOMBRE"
-                                type="text"
-                                className={`form-control ${error.ctA_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.ctA_NOMBRE ? "is-invalid" : ""}`}
                                 name="ctA_NOMBRE"
-                                placeholder="Ingrese nuevo nombre"
-                                maxLength={100}
                                 onChange={handleChange}
                                 value={Mantenedor.ctA_NOMBRE}
-                            />
+                            >
+                                <option value="">Seleccione</option>
+                                {comboCuentas.map((traeCuentas) => (
+                                    <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                                        {traeCuentas.descripcion}
+                                    </option>
+                                ))}
+                            </select>
                             {error.ctA_NOMBRE && (
                                 <div className="invalid-feedback fw-semibold">{error.ctA_NOMBRE}</div>
                             )}
@@ -464,17 +480,21 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtener
                                         )}
                                     </div>
                                     <div className="mt-1">
-                                        <label className="fw-semibold">Descripción Cuenta</label>
-                                        <input
-                                            aria-label="ctA_NOMBRE"
-                                            type="text"
-                                            className={`form-control ${error.ctA_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                            name="ctA_NOMBRE"
-                                            placeholder="Ingrese nueva descripción"
-                                            maxLength={100}
+                                        <label className="fw-semibold">Cuentas</label>
+                                        <select
+                                            aria-label="seR_COD"
+                                            className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.ctA_NOMBRE ? "is-invalid" : ""}`}
+                                            name="seR_COD"
                                             onChange={handleChange}
                                             value={Mantenedor.ctA_NOMBRE}
-                                        />
+                                        >
+                                            <option value="">Seleccione</option>
+                                            {comboCuentas.map((traeCuentas) => (
+                                                <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                                                    {traeCuentas.descripcion}
+                                                </option>
+                                            ))}
+                                        </select>
                                         {error.ctA_NOMBRE && (
                                             <div className="invalid-feedback fw-semibold">{error.ctA_NOMBRE}</div>
                                         )}
@@ -492,13 +512,15 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obtener
 const mapStateToProps = (state: RootState) => ({
     seR_CORR: state.obtenerMaxServicioReducers.seR_CORR,//Obtiene el max correletivo para insertarlo en el formualario
     listadoMantenedor: state.listadoMantenedorEspeciesReducers.listadoMantenedor,
+    comboCuentas: state.comboCuentaMantenedorReducers.comboCuentaMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
+    objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {
     obtenerMaxServicioActions,
     listadoMantenedorEspeciesActions,
-    registrarMantenedorProveedoresActions,
-    comboServicioActions
+    registrarMantenedorEspeciesActions,
+    comboCuentaMantenedorActions
 })(Especies);

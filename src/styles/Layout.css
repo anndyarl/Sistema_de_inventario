@@ -41,7 +41,7 @@ body::-webkit-scrollbar {
   right: 10%;
   z-index:0;
  }
- .position-values-3{
+ /* .position-values-3{
   position:absolute;
   bottom: 5%;
   left: 1px;
@@ -52,7 +52,7 @@ body::-webkit-scrollbar {
   bottom: 5%;
   right: 1px;
   z-index:0;
- }
+ } */
 /*Color principal de fondo*/
  .darkModePrincipal {
   background-color: #30353a;

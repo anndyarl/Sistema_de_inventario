@@ -492,7 +492,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
                 </div>
                 <div className="mb-1">
                   <label htmlFor="nresolucion" className="fw-semibold">
-                    Nª Resolución
+                    Nº Certificado
                   </label>
                   <input
                     aria-label="nresolucion"

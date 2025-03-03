@@ -113,9 +113,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [_, setShowInput] = useState(false);
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
-  const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(" ");
-  };
+  const classNames = (...classes: (string | boolean | undefined)[]): string => { return classes.filter(Boolean).join(" "); };
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const proveedorOptions = comboProveedor.map((item) => ({
@@ -544,8 +542,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 <input
                   aria-label="montoRecepcion"
                   type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                    } ${error.montoRecepcion ? "is-invalid" : ""}`}
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.montoRecepcion ? "is-invalid" : ""}`}
                   maxLength={12}
                   name="montoRecepcion"
                   onChange={handleChange}

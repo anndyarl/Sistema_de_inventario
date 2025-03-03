@@ -106,6 +106,7 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
         let tempErrors: Partial<any> & {} = {};
         // Validación  
         if (!Mantenedor.proV_RUN) tempErrors.proV_RUN = "Campo obligatorio";
+        if (!Mantenedor.proV_DV) tempErrors.proV_DV = "Campo obligatorio";
         if (!Mantenedor.proV_NOMBRE) tempErrors.proV_NOMBRE = "Campo obligatorio";
         if (!Mantenedor.proV_FONO) tempErrors.proV_FONO = "Campo obligatorio";
         if (!Mantenedor.proV_DIR) tempErrors.proV_DIR = "Campo obligatorio";
@@ -126,7 +127,22 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
             [name]: newValue,
         }));
 
-    };
+        if (name === "proV_RUN") {
+            newValue = parseFloat(value) || 0;
+        }
+
+        if (name === "proV_DV") {
+            // Permitir solo números del 0-9 o la letra "K" (en mayúscula)
+            if (/^[0-9Kk]$/.test(value)) {
+                newValue = value.toUpperCase(); // Convierte "k" a "K" automáticamente
+            } else {
+                return; // Si es un carácter inválido, no actualiza el estado
+            }
+        }
+        if (name === "proV_FONO") {
+            newValue = parseFloat(value) || 0;
+        }
+    }
 
     const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
         index: number
@@ -374,7 +390,7 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                                     className={`form-control ${error.proV_RUN ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="proV_RUN"
                                     placeholder="Ingrese nuevo rut"
-                                    maxLength={100}
+                                    maxLength={8}
                                     onChange={handleChange}
                                     value={Mantenedor.proV_RUN}
                                 />
@@ -384,17 +400,21 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                             </div>
                             <div className="mt-1 mx-2">
                                 <label className="fw-semibold"></label>
-                                <p>-</p>
+                                <p className="fs-4">-</p>
                             </div>
                             <div className="mt-1">
-                                <label className="fw-semibold">DV</label>
+                                <label className="fw-semibold mx-3">DV</label>
                                 <input
                                     aria-label="proV_DV"
                                     type="text"
-                                    className={`form-control  w-25 ${error.proV_DV ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    className={`form-control  w-25 px-2 ${error.proV_DV ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="proV_DV"
                                     maxLength={1}
-
+                                    onKeyPress={(e) => {
+                                        if (!/[0-9Kk]/.test(e.key)) {
+                                            e.preventDefault(); // Bloquea caracteres no permitidos
+                                        }
+                                    }}
                                     onChange={handleChange}
                                     value={Mantenedor.proV_DV}
                                 />
@@ -427,7 +447,7 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                                 className={`form-control ${error.proV_FONO ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="proV_FONO"
                                 placeholder="Ingrese nuevo fono"
-                                maxLength={100}
+                                maxLength={9}
                                 onChange={handleChange}
                                 value={Mantenedor.proV_FONO}
                             />

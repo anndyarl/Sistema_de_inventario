@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useMemo, useEffect } from "react";
 import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
-import { Eraser, PencilFill, Plus, Trash } from "react-bootstrap-icons";
+import { Eraser, PencilFill, Plus, Save, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
 
@@ -928,8 +928,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                 <div className="d-flex">
                   <div className="mb-1 mx-1">
                     <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} mx-2`}>
-                      <Plus
-                        className={classNames("flex-shrink-0 me-1", "h-5 w-5")}
+                      <Save
+                        className={classNames("flex-shrink-0 me-2", "h-5 w-5")}
                         aria-hidden="true"
                       />
                       Guardar
@@ -938,7 +938,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   <div className="mb-1 mx-1">
                     <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary "}`}>
                       <Eraser
-                        className={classNames("flex-shrink-0 me-1", "h-5 w-5")}
+                        className={classNames("flex-shrink-0 me-2", "h-5 w-5")}
                         aria-hidden="true"
                       />
                       Limpiar
