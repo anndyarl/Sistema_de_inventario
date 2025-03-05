@@ -51,7 +51,7 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
       console.error("Error de conexión:", err);
       dispatch({
         type: VALIDA_PORTAL_FAIL,
-        error: "Error de conexión. Por favor, intente nuevamente.",
+        error: "Error de conexión Por favor, intente nuevamente.",
       });
       return false;
     }
