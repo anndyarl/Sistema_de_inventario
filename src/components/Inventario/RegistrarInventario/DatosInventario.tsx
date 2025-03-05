@@ -265,7 +265,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
-
     setInventario({
       fechaFactura,
       fechaRecepcion,

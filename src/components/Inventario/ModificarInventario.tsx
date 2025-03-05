@@ -442,6 +442,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         ...inventarioPrevia,
         especie: codigoEspecie.toString(), // Actualiza el campo 'especie' en el estado de 'Inventario'
       }));
+      console.log("cuenta", especie);
       // Resetea el estado de las filas seleccionadas para desmarcar el checkbox
       setFilasSeleccionadas([]);
 
@@ -949,7 +950,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   name="ctA_COD"
                   onChange={handleChange}
                   value={Inventario.ctA_COD}
-                // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                  disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
                 >
                   <option value="">Selecciona una opción</option>
                   {comboCuenta.map((traeCuentas) => (
@@ -1097,34 +1098,36 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           </table>
 
           {/* Paginador */}
-          <Pagination className="d-flex justify-content-end">
-            <Pagination.First
-              onClick={() => paginar(1)}
-              disabled={paginaActual === 1}
-            />
-            <Pagination.Prev
-              onClick={() => paginar(paginaActual - 1)}
-              disabled={paginaActual === 1}
-            />
+          <div className="paginador-container">
+            <Pagination className="paginador-scroll">
+              <Pagination.First
+                onClick={() => paginar(1)}
+                disabled={paginaActual === 1}
+              />
+              <Pagination.Prev
+                onClick={() => paginar(paginaActual - 1)}
+                disabled={paginaActual === 1}
+              />
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={i + 1 === paginaActual}
-                onClick={() => paginar(i + 1)}
-              >
-                {i + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => paginar(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas}
-            />
-            <Pagination.Last
-              onClick={() => paginar(totalPaginas)}
-              disabled={paginaActual === totalPaginas}
-            />
-          </Pagination>
+              {Array.from({ length: totalPaginas }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === paginaActual}
+                  onClick={() => paginar(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() => paginar(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+              />
+              <Pagination.Last
+                onClick={() => paginar(totalPaginas)}
+                disabled={paginaActual === totalPaginas}
+              />
+            </Pagination>
+          </div>
         </Modal.Body>
       </Modal>
 

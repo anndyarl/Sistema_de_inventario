@@ -12,7 +12,8 @@ body::-webkit-scrollbar {
 .bg-color{
     /* background:  #0d4582; */
     /* background:  #36427f; */
-    background: rgb(9 63 117);
+    /* background: rgb(9 63 117); */
+    background: rgb(0, 68, 133);    
     /* background: #0f69b4; */
 }
 /*Color Institucional principal Modo Oscuro*/
@@ -31,14 +32,26 @@ body::-webkit-scrollbar {
  /*Posicionamiento de imagenes decorativas*/
 .position-values-1{
   position:absolute;
-  top:10%;
+  top:4%;
   left:55%;
   z-index:0;
 }
 .position-values-2{
   position:absolute;
   bottom:10%;
-  right: 10%;
+  right: 3%;
+  z-index:0;
+ }
+ .position-values-3{
+  position:absolute;
+  bottom: 25%;
+  left: 55%;
+  z-index:0;
+ }
+ .position-values-4{
+  position:absolute;
+  top: 26%;
+  left: 84%;
   z-index:0;
  }
  /* .position-values-3{
@@ -53,6 +66,23 @@ body::-webkit-scrollbar {
   right: 1px;
   z-index:0;
  } */
+
+ .barra{
+  position: absolute;
+  top: 328px;
+  right: 337px;
+ }
+ .azul{
+
+  width: 31px;
+  padding: 2px;
+ }
+ .rojo{
+
+width: 36px;
+padding: 2px;
+ }
+
 /*Color principal de fondo*/
  .darkModePrincipal {
   background-color: #30353a;

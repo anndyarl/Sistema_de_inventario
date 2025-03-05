@@ -67,6 +67,7 @@ import listadoMantenedorServiciosReducers from "./Mantenedores/Servicios/listado
 import listadoMantenedorProveedoresReducers from "./Mantenedores/Proveedores/listadoMantenedorProveedoresReducers";
 import listadoMantenedorEspeciesReducers from "./Mantenedores/Especies/listadoMantenedorEspeciesReducers copy";
 import comboCuentaMantenedorReducers from "./Mantenedores/Especies/comboCuentaMantenedorReducers";
+import listadoMantenedorComponentesReducers from "./Mantenedores/Componentes/listadoMantenedorComponentesReducers";
 
 
 
@@ -139,6 +140,7 @@ const appReducer = combineReducers({
   listadoMantenedorServiciosReducers,
   listadoMantenedorProveedoresReducers,
   listadoMantenedorEspeciesReducers,
+  listadoMantenedorComponentesReducers,
   comboEstablecimientosProfileReducers,
   obtenerMaxServicioReducers,
   comboCuentaMantenedorReducers

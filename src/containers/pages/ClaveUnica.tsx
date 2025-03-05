@@ -75,28 +75,45 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
             Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
           </footer>
         </div>
-        <div className={`mt-md-0 text-center w-100 h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>
+        <div className={`mt-md-0 text-center w-100  h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>
+
+          <img
+            src={ssmso_background}
+            // width={}
+            alt="Imagen de Fondo"
+            className="img-fluid rounded position-relative z-1"
+          />
+          {/* <div className="d-flex barra">
+            <div className="text-bg-primary azul"></div>
+            <div className="text-bg-danger rojo"></div>
+          </div> */}
           <img
             src={ondas}
             alt="ondas"
             width={200}
             className="img-fluid position-values-1 d-none d-md-block"
           />
-          <img
-            src={ssmso_background}
-            width={280}
-            alt="Imagen de Fondo"
-            className="img-fluid rounded position-relative z-1"
-          />
+
           <img
             src={ondas}
             alt="ondas"
             width={200}
-            className="img-fluid position-values-2 d-none d-md-block"
-          />
+            className="img-fluid position-values-2 d-none d-md-block" />
+
         </div>
-      </div>
-    </div>
+        <img
+          src={ondas}
+          alt="ondas"
+          width={200}
+          className="img-fluid position-values-3 d-none d-md-block" />
+      </div >
+      <img
+        src={ondas}
+        alt="ondas"
+        width={200}
+        className="img-fluid position-values-4 d-none d-md-block" />
+
+    </div >
 
   );
 };

@@ -32,7 +32,6 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
     // Validar si la respuesta es exitosa
     if (res.status === 200) {
       const token = res.data.access_token;
-
       if (token) {
         // Si se obtiene el token, realizar los dispatch correspondientes
         dispatch({ type: LOGIN_SUCCESS, payload: token });

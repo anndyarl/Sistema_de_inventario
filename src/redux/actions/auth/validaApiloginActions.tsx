@@ -16,7 +16,7 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
         Accept: "application/json",
       },
     };
-
+    let m: number = 0;
     dispatch({ type: VALIDA_PORTAL_REQUEST });
 
     try {
@@ -48,10 +48,10 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
         return false;
       }
     } catch (err) {
-      console.error("Error en la solicitud:", err);
+      console.error("Error de conexión:", err);
       dispatch({
         type: VALIDA_PORTAL_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "Error de conexión. Por favor, intente nuevamente.",
       });
       return false;
     }

@@ -44,12 +44,18 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Mantenedores/Especies',
             icon: Collection
         },
-        {
-            name: 'Usuarios',
-            description: 'Listado de Usuarios',
-            href: '/Mantenedores/Usuarios',
-            icon: Collection
-        },
+        // {
+        //     name: 'Componente',
+        //     description: 'Listado de Componentes',
+        //     href: '/Mantenedores/Componentes',
+        //     icon: Collection
+        // },
+        // {
+        //     name: 'Usuarios',
+        //     description: 'Listado de Usuarios',
+        //     href: '/Mantenedores/Usuarios',
+        //     icon: Collection
+        // },
     ];
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);

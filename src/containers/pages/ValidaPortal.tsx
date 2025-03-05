@@ -47,7 +47,8 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
 
         if (esValido) {
           navigate("/Inicio");
-        } else {
+        }
+        else if (esValido) {
           await logout();//Eliminados el token
           navigate("/Denegado");
         }

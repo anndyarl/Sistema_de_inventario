@@ -418,9 +418,9 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                                     onChange={handleChange}
                                     value={Mantenedor.proV_DV}
                                 />
-                                {error.proV_DV && (
+                                {/* {error.proV_DV && (
                                     <div className="invalid-feedback fw-semibold">{error.proV_DV}</div>
-                                )}
+                                )} */}
                             </div>
                         </div>
                         <div className="mt-1">

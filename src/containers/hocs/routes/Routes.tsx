@@ -44,6 +44,7 @@ import Usuarios from '../../../components/Mantenedores/Usuarios';
 import Mantenedores from '../../pages/Mantenedores';
 import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
 import Proveedores from '../../../components/Mantenedores/Proveedores';
+import Componentes from '../../../components/Mantenedores/Componentes';
 
 
 
@@ -117,6 +118,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Mantenedores/Servicios" element={<Servicios />} />
                 <Route path="/Mantenedores/Usuarios" element={<Usuarios />} />
                 <Route path="/Mantenedores/Proveedores" element={<Proveedores />} />
+                <Route path="/Mantenedores/Componentes" element={<Componentes />} />
                 {/* Módulo Mantenedores */}
 
                 {/* Errores */}
