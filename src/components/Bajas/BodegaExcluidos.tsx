@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Form } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -43,13 +43,24 @@ interface DatosBajas {
 const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExcluidosActions, excluirBajasActions, token, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
-  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+  const [error, setError] = useState<Partial<ListaExcluidos>>({});
+  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
+  const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
+  const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 12;
 
-  // const [Bajas, setBajas] = useState({
-  //   aF_CLAVE: "",
-  // });
+  const [Excluidos, setExcluidos] = useState({
+    nresolucion: 0,
+  });
+
+  const validate = () => {
+    let tempErrors: Partial<any> & {} = {};
+    // Validación para N° de Recepción (debe ser un número)
+    if (!Excluidos.nresolucion || Excluidos.nresolucion === 0) tempErrors.nresolucion = "Campo obligatorio.";
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   //Se lista automaticamente apenas entra al componente
   const listaExcluidosAuto = async () => {
@@ -81,15 +92,24 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
     listaExcluidosAuto()
   }, [obtenerListaExcluidosActions, token, listaExcluidos.length]); // Asegúrate de incluir dependencias relevantes
 
-  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setBajas((prevState) => ({
-  //     ...prevState,
-  //     [name]: value,
-  //   }));
-  // };
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    // Convierte `value` a número
+    let newValue: string | number = ["nresolucion"].includes(name)
+      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+      : value;
+    setExcluidos((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
 
-  const setSeleccionaFilas = (index: number) => {
+    if (name === "nresolucion") {
+      newValue = parseFloat(value) || 0;
+    }
+  };
+
+  //Funcion para seleccion multiple
+  const setSeleccionaFila = (index: number) => {
     setFilasSeleccionadas((prev) =>
       prev.includes(index.toString())
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
@@ -97,6 +117,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
     );
   };
 
+  //Funcion para seleccion multiple(Todos)
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       setFilasSeleccionadas(
@@ -109,8 +130,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
     }
   };
 
-
   // const handleBuscarRemates = async () => {
+
   //   let resultado = false;
   //   setLoading(true);
   //   resultado = await obtenerListaExcluidosActions(Bajas.aF_CLAVE);
@@ -136,6 +157,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
   //   }
 
   // };
+
   const handleRematarSeleccionados = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
 
@@ -155,7 +177,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
     });
 
     if (result.isConfirmed) {
-      setLoadingRegistro(true);
+      // setLoadingRegistro(true);
       // Crear un array de objetos con aF_CLAVE y nombre
       const Formulario = selectedIndices.map((activo) => ({
         aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
@@ -171,40 +193,186 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
         fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
 
       }));
-      const resultado = await excluirBajasActions(Formulario);
-      if (resultado) {
-        Swal.fire({
-          icon: "success",
-          title: "Enviado a Bienes Rematados",
-          text: "Se ha enviado correctamente",
-          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-          customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
-          }
-        });
+      console.log(Formulario);
+      // const resultado = await excluirBajasActions(Formulario);
+      // if (resultado) {
+      //   Swal.fire({
+      //     icon: "success",
+      //     title: "Enviado a Bienes Rematados",
+      //     text: "Se ha enviado correctamente",
+      //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      //     customClass: {
+      //       popup: "custom-border", // Clase personalizada para el borde
+      //     }
+      //   });
 
-        setLoadingRegistro(false);
-        obtenerListaExcluidosActions("");
-        setFilasSeleccionadas([]);
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: ":'(",
-          text: "Hubo un problema al registrar",
-          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-          customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
-          }
-        });
-        setLoadingRegistro(false);
+      //   setLoadingRegistro(false);
+      //   obtenerListaExcluidosActions("");
+      //   setFilasSeleccionadas([]);
+      // } else {
+      //   Swal.fire({
+      //     icon: "error",
+      //     title: ":'(",
+      //     text: "Hubo un problema al registrar",
+      //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      //     customClass: {
+      //       popup: "custom-border", // Clase personalizada para el borde
+      //     }
+      //   });
+      //   setLoadingRegistro(false);
+      // }
+    }
+
+  };
+
+  const handleCerrarModal = () => {
+    setMostrarModal(null); //Cierra modal del indice seleccionado
+    setExcluidos((prevState) => ({
+      ...prevState,
+      nresolucion: 0,
+    }));
+  };
+
+  //Abre modal quitar datos seleccionado
+  const handleAbrirModal = (index: number) => {
+    setMostrarModal(index); //Abre modal del indice seleccionado
+    setFilaSeleccionada((prev) =>
+      prev.includes(index.toString())
+        ? prev.filter((rowIndex) => rowIndex !== index.toString())
+        : [...prev, index.toString()]
+    );
+  };
+
+  const handleQuitar = async () => {
+    if (validate()) {
+      const selectedIndices = filaSeleccionada.map(Number);
+      const result = await Swal.fire({
+        icon: "info",
+        title: "Quitar",
+        text: "Confirme para quitar el bien de Bodega de Excluidos",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Confirmar y Quitar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      if (result.isConfirmed) {
+
+        // setLoadingRegistro(true);
+        // Crear un array de objetos con aF_CLAVE y nombre
+        const Quitar = selectedIndices.map((activo) => ({
+          aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
+          bajaS_CORR: listaExcluidos[activo].bajaS_CORR,
+          especie: listaExcluidos[activo].especie,
+          vutiL_RESTANTE: listaExcluidos[activo].vutiL_RESTANTE,
+          vutiL_AGNOS: listaExcluidos[activo].vutiL_AGNOS,
+          ...Excluidos,
+          observaciones: listaExcluidos[activo].observaciones,
+          deP_ACUMULADA: listaExcluidos[activo].deP_ACUMULADA,
+          ncuenta: listaExcluidos[activo].ncuenta,
+          estado: listaExcluidos[activo].estado,
+          fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
+        }));
+        console.log(Quitar);
+        // const resultado = await excluirBajasActions(Formulario);
+
+        // if (resultado) {
+        //   Swal.fire({
+        //     icon: "success",
+        //     title: "Bien quitado",  
+        //     text: "Se han quitado correctamente de Bodega de excluidos",
+        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //     customClass: {
+        //       popup: "custom-border", // Clase personalizada para el borde
+        //     }
+        //   });
+
+        //   setLoadingRegistro(false);
+        //   obtenerListaExcluidosActions("");
+        //   setFilasSeleccionadas([]);
+        //   setExcluidos((prevState) => ({
+        //     ...prevState,
+        //     nresolucion: 0,
+        //   }));
+        //   setMostrarModal(null);
+        // } else {
+        //   Swal.fire({
+        //     icon: "error",
+        //     title: ":'(",
+        //     text: "Hubo un problema al registrar",
+        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //     customClass: {
+        //       popup: "custom-border", // Clase personalizada para el borde
+        //     }
+        //   });
+        //   setLoadingRegistro(false);
+        // }
       }
     }
 
   };
+
+  // const handleAnular = async (index: number, aF_CLAVE: string) => {
+  //   setFilasSeleccionadas((prev) => prev.filter((_, i) => i !== index));
+
+  //   const result = await Swal.fire({
+  //     icon: "info",
+  //     title: "Anular Registro",
+  //     text: `Confirma anular el registro Nº ${aF_CLAVE}`,
+  //     showDenyButton: false,
+  //     showCancelButton: true,
+  //     confirmButtonText: "Confirmar y Anular",
+  //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //     customClass: {
+  //       popup: "custom-border", // Clase personalizada para el borde
+  //     }
+  //   });
+
+  //   if (result.isConfirmed) {
+  //     const resultado = await excluirBajasActions(Formulario);
+  //     if (resultado) {
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Registro anulado",
+  //         text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
+  //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //         customClass: {
+  //           popup: "custom-border", // Clase personalizada para el borde
+  //         }
+  //       });
+  //       obtenerListaExcluidosActions(aF_CLAVE);
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: ":'(",
+  //         text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
+  //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //         customClass: {
+  //           popup: "custom-border", // Clase personalizada para el borde
+  //         }
+  //       });
+  //     }
+  //   }
+  // };
+
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -301,70 +469,15 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                   )}
                 </Button>
 
-                {/* Botón Eliminar */}
-                <Button
-                  variant="danger"
-                  // onClick={handleEliminarSeleccionados}
-                  className="m-1 p-2 d-flex align-items-center"
-                  disabled={loadingRegistro}
-                >
-                  {loadingRegistro ? (
-                    <>
-                      {" Eliminando... "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="me-2"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      Eliminar
-                      <span className="badge bg-light text-dark mx-2">
-                        {/* {filasSeleccionadas.length} */}
-                      </span>
-                    </>
-                  )}
-                </Button>
-
-                {/* Botón Trasladar */}
-                <Button
-                  variant="primary"
-                  // onClick={handleTrasladarSeleccionados}
-                  className="m-1 p-2 d-flex align-items-center"
-                  disabled={loadingRegistro}
-                >
-                  {loadingRegistro ? (
-                    <>
-                      {" Trasladando... "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="me-2"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      Trasladar
-                      <span className="badge bg-light text-dark mx-2">
-                        {/* {filasSeleccionadas.length} */}
-                      </span>
-                    </>
-                  )}
-                </Button>
               </>
             ) : (
               <strong className="alert alert-dark border m-1 p-2 mx-2">
                 No hay filas seleccionadas
               </strong>
             )}
+
           </div>
+
           {/* </div> */}
 
           {/* Tabla*/}
@@ -396,6 +509,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                     <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
                     <th scope="col" className="text-nowrap text-center">Estado</th>
                     <th scope="col" className="text-nowrap text-center">Fecha de Remate</th>
+                    <th scope="col" className="text-nowrap text-center">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -406,7 +520,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                         <td>
                           <Form.Check
                             type="checkbox"
-                            onChange={() => setSeleccionaFilas(indexReal)}
+                            onChange={() => setSeleccionaFila(indexReal)}
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
@@ -421,6 +535,9 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                         <td className="text-nowrap text-center">{Lista.ncuenta}</td>
                         <td className="text-nowrap text-center">{Lista.estado}</td>
                         <td className="text-nowrap text-center">{Lista.fechA_REMATES}</td>
+                        <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAbrirModal(index)}>
+                          Quitar
+                        </Button>
                       </tr>
                     );
                   })}
@@ -428,7 +545,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
               </table>
             </div>
           )}
-
 
           {/* Paginador */}
           <div className="paginador-container">
@@ -463,6 +579,77 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
           </div>
         </div>
       </form>
+      {/* Modal formulario*/}
+      {elementosActuales.map((lista, index) => (
+        <div key={index}>
+          <Modal
+            show={mostrarModal === index}
+            onHide={() => handleCerrarModal()}
+            dialogClassName="modal-right" // Clase personalizada
+          // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+          // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+          >
+            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+              <Modal.Title className="fw-semibold">Quitar registro: {lista.aF_CLAVE}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+              <form>
+                {/* <div className="d-flex justify-content-end">
+                  <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                    Enviar a Bodega
+                  </Button>
+                </div> */}
+                {/* Boton anular filas seleccionadas */}
+                <div className="d-flex justify-content-end">
+                  <Button
+                    variant="danger"
+                    onClick={handleQuitar}
+                    className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                    disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                  >
+                    {loadingRegistro ? (
+                      <>
+                        {" Quitando... "}
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"  // Espaciado entre el spinner y el texto
+                        />
+
+                      </>
+                    ) : (
+                      <>
+                        Quitar
+                      </>
+                    )}
+                  </Button>
+
+                </div>
+                <div className="mb-1">
+                  <label htmlFor="nresolucion" className="fw-semibold">
+                    Ingrese número de resolución
+                  </label>
+                  <input
+                    aria-label="nresolucion"
+                    type="text"
+                    className={`form-control ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nresolucion"
+                    maxLength={100}
+                    onChange={handleChange}
+                    value={Excluidos.nresolucion}
+                  />
+                  {error.nresolucion && (
+                    <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
+                  )}
+                </div>
+              </form>
+            </Modal.Body>
+          </Modal >
+        </div>
+      ))}
     </Layout >
   );
 };

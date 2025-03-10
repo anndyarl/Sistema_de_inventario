@@ -44,6 +44,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
+import { obtenerMaxInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerMaxInventarioActions";
 
 // Props del formulario
 export interface ActivoFijo {
@@ -71,6 +72,7 @@ interface DatosActivoFijoProps {
   generalTabla?: string;
   formInventario: FormInventario;
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
+  obtenerMaxInventarioActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   vidaUtil: string;
   fechaIngreso: string;
@@ -79,6 +81,7 @@ interface DatosActivoFijoProps {
   modelo: string;
   observaciones: string;
   precio: string;
+  AF_CODIGO_GENERICO: number;//trae ultimo correlativo ingresado
 }
 
 //Paso 3 del Formulario
@@ -97,7 +100,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   modelo,
   observaciones,
   precio,
+  AF_CODIGO_GENERICO,
   registrarFormInventarioActions,
+  obtenerMaxInventarioActions
 }) => {
 
   //Estado que guarda en un array los objetos que irán en la tabla
@@ -273,12 +278,19 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     });
   };
 
+  const funcionObtieneMaxRegistro = () => {
+    if (AF_CODIGO_GENERICO === 0) {
+      obtenerMaxInventarioActions();
+    }
+  };
+
   //Sincroniza los numero de serie de la tabla datosTablaActivoFijo con el estado global de redux
   useEffect(() => {
     if (datosTablaActivoFijo.length > 0) {
       setActivosFijos(datosTablaActivoFijo);
     }
-  }, [datosTablaActivoFijo, paginaActual]);
+    funcionObtieneMaxRegistro();
+  }, [datosTablaActivoFijo, funcionObtieneMaxRegistro, paginaActual]);
 
   //Renderiza los datos almacenados en el estado global de redux
   useEffect(() => {
@@ -295,7 +307,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       especie: ""
     });
   }, [
-
     vidaUtil,
     fechaIngreso,
     marca,
@@ -563,13 +574,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     return true;
   };
 
-
   const handleFinalSubmit = async () => {
     const FormulariosCombinados = {
       ...formInventario.datosInventario,
       ...formInventario.datosCuenta,
       activosFijos: datosTablaActivoFijo,
     };
+
     console.log(FormulariosCombinados);
 
     if (handleValidar()) {
@@ -583,26 +594,16 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
+        customClass: { popup: "custom-border" }
       });
 
-      // Si el usuario confirma
       if (confirmResult.isConfirmed) {
-        const FormulariosCombinados = {
-          ...formInventario.datosInventario,
-          ...formInventario.datosCuenta,
-          activosFijos: datosTablaActivoFijo,
-        };
-
         try {
-          // Intenta registrar el formulario
           const resultado = await registrarFormInventarioActions(FormulariosCombinados);
 
           if (resultado) {
-            // console.log("tabla activo fijo", datosTablaActivoFijo);
-            // Resetea todo el formulario al estado inicial
+            // Espera a obtener el nuevo código antes de continuar
+            funcionObtieneMaxRegistro();
             dispatch(setNRecepcionActions(0));
             dispatch(setFechaRecepcionActions(""));
             dispatch(setNOrdenCompraActions(0));
@@ -625,50 +626,44 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             dispatch(setOtraModalidadActions(""));
             onReset(); // Vuelve al estado inicial
 
-            // Muestra el mensaje de éxito
-            await Swal.fire({
+            // 🔹 Muestra el código obtenido después de esperarlo
+            Swal.fire({
               icon: "success",
               title: "Registro exitoso",
-              text: "El formulario se ha enviado y registrado con éxito!",
+              text: `Se ha registrado con éxito su formulario`,
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
               confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-              customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-              }
+              customClass: { popup: "custom-border" }
             });
           } else {
-            // Si ocurre un error en el registro
-            await Swal.fire({
+            Swal.fire({
               icon: "error",
               title: "Error",
               text: "Hubo un problema al enviar el formulario.",
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
               confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-              customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-              }
+              customClass: { popup: "custom-border" }
             });
           }
         } catch (error) {
-          // Captura errores imprevistos
           console.error("Error al registrar el formulario:", error);
-          await Swal.fire({
+          Swal.fire({
             icon: "error",
             title: "Error inesperado",
             text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
+            customClass: { popup: "custom-border" }
           });
         }
       }
+
     }
   };
+
 
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -1096,7 +1091,9 @@ const mapStateToProps = (state: RootState) => ({
   modelo: state.datosActivoFijoReducers.modelo,
   observaciones: state.datosActivoFijoReducers.observaciones,
   precio: state.datosActivoFijoReducers.precio,
+  AF_CODIGO_GENERICO: state.obtenerMaxInventarioReducers.AF_CODIGO_GENERICO
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,
+  obtenerMaxInventarioActions
 })(DatosActivoFijo);

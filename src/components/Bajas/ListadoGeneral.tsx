@@ -87,9 +87,9 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Bajas.nresolucion) tempErrors.nresolucion = "Número de resolución es obligatorio.";
-    if (!Bajas.fechA_BAJA) tempErrors.fechA_BAJA = "Fecha de Baja es obligatorio.";
-    if (!Bajas.observaciones) tempErrors.observaciones = "Obervacion es obligatoria.";
+    if (!Bajas.nresolucion) tempErrors.nresolucion = "Campo obligatorio.";
+    if (!Bajas.fechA_BAJA) tempErrors.fechA_BAJA = "Campo obligatorio.";
+    if (!Bajas.observaciones) tempErrors.observaciones = "Campo obligatorio.";
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -437,7 +437,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGene
           </Pagination>
         </div>
       </div>
-      {/* Modal formulario Registro Bajas*/}
+      {/* Modal formulario*/}
       {elementosActuales.map((_, index) => (
         <div key={index}>
           <Modal

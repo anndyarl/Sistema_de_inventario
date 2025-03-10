@@ -7,7 +7,7 @@ import Altas from '../../pages/Altas';
 import Inventario from '../../pages/Inventario';
 import Bajas from '../../pages/Bajas';
 import Donaciones from '../../pages/Donaciones';
-import Informes from '../../pages/Informes';
+import Informes from '../../pages/Informes/Informes';
 import ClaveUnica from '../../pages/ClaveUnica';
 import SesionExpirada from '../../errors/SesionExpirada';
 // import { useDispatch } from 'react-redux';
@@ -45,6 +45,14 @@ import Mantenedores from '../../pages/Mantenedores';
 import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
 import Proveedores from '../../../components/Mantenedores/Proveedores';
 import Componentes from '../../../components/Mantenedores/Componentes';
+import BajasMensuales from '../../pages/Informes/BajasMensuales';
+import DetallesPorCuenta from '../../pages/Informes/DetallesPorCuenta';
+import Listados from '../../pages/Informes/Listados';
+import AltasMensuales from '../../../components/Informes/AltasMensuales';
+import TrasladosMensuales from '../../../components/Informes/BajasMensuales/TrasladosMensuales';
+import FoliosXServicioDependencia from '../../../components/Informes/BajasMensuales/FoliosXServicioDependencia';
+import ExFolioXServicios from '../../../components/Informes/BajasMensuales/ExFolioXServicios';
+import ConsultaInventarioEspecies from '../../../components/Informes/ConsultaInventarioEspecies';
 
 
 
@@ -103,9 +111,32 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Bajas/BienesRematados" element={<BienesRematados />} />
                 {/* Fin Módulo Bajas */}
 
-                {/* Informes */}
-                <Route path="/Informes" element={<Informes />} />{/*Mo disponible aún*/}
-                {/* Fin Informes*/}
+                {/* Informes Menu Principal */}
+                <Route path="/Informes" element={<Informes />} />
+                <Route path="/Informes/BajasMensuales" element={<BajasMensuales />} />
+                <Route path="/Informes/Listados" element={<Listados />} />
+                <Route path="/Informes/DetallesPorCuenta" element={<DetallesPorCuenta />} />
+                {/* Fin Informes Menu Principal*/}
+
+                <Route path="/Informes/AltasMensuales" element={<AltasMensuales />} />
+                <Route path="/Informes/ConsultaInventarioEspecies" element={<ConsultaInventarioEspecies />} />
+
+                {/* Sub menu BajasMensuales */}
+                <Route path="/Informes/BajasMensuales/TrasladosMensuales" element={<TrasladosMensuales />} />
+                <Route path="/Informes/BajasMensuales/FoliosXServicioDependencia" element={<FoliosXServicioDependencia />} />
+                <Route path="/Informes/BajasMensuales/ExFolioXServicios" element={<ExFolioXServicios />} />
+                {/*Fin sub menu BajasMensuales */}
+
+                {/* Sub menu Listados */}
+                <Route path="/Informes/Listados/General" element={<General />} />
+                <Route path="/Informes/Listados/CuentaFechas" element={<CuentaFechas />} />
+                <Route path="/Informes/Listados/CuentaServicioFecha" element={<CuentaServicioFecha />} />
+                <Route path="/Informes/Listados/EspecieFecha" element={<EspecieFecha />} />
+                <Route path="/Informes/Listados/EspecieServicioFechas" element={<EspecieServicioFechas />} />
+                {/* Fin Sub menu Listados */}
+
+                {/* Sub menu DetallesPorCuenta */}
+                {/* Fin Sub menu DetallesPorCuenta */}
 
                 {/* Donaciones */}
                 <Route path="/Donaciones" element={<Donaciones />} />{/*No disponible aún*/}

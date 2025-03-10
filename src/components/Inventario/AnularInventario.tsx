@@ -244,19 +244,19 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                     </tr>
                   </thead>
                   <tbody>
-                    {elementosActuales.map((datosListaInventario, index) => (
+                    {elementosActuales.map((Lista, index) => (
                       <tr key={index}>
-                        <td>{datosListaInventario.aF_CLAVE}</td>
-                        <td>{datosListaInventario.aF_FECHAFAC}</td>
-                        <td>{datosListaInventario.aF_FINGRESO}</td>
-                        <td>{datosListaInventario.idmodalidadcompra}</td>
-                        <td>{datosListaInventario.aF_MONTOFACTURA}</td>
-                        <td>{datosListaInventario.aF_NUM_FAC}</td>
-                        <td>{datosListaInventario.aF_ORIGEN}</td>
-                        <td>{datosListaInventario.proV_RUN}</td>
-                        <td>{datosListaInventario.deP_CORR}</td>
+                        <td>{Lista.aF_CLAVE}</td>
+                        <td>{Lista.aF_FECHAFAC}</td>
+                        <td>{Lista.aF_FINGRESO}</td>
+                        <td>{Lista.idmodalidadcompra}</td>
+                        <td>{Lista.aF_MONTOFACTURA}</td>
+                        <td>{Lista.aF_NUM_FAC}</td>
+                        <td>{Lista.aF_ORIGEN}</td>
+                        <td>{Lista.proV_RUN}</td>
+                        <td>{Lista.deP_CORR}</td>
                         <td>
-                          <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}>
+                          <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAnular(index, Lista.aF_CLAVE)}>
                             Anular
                           </Button>
                         </td>

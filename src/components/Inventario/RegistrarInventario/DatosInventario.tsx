@@ -382,6 +382,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       });
     }
   }
+
+  //En el componente DatosActivoFijo se encuentra el post del fomrulario completo
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {

@@ -950,7 +950,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   name="ctA_COD"
                   onChange={handleChange}
                   value={Inventario.ctA_COD}
-                  disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
                 >
                   <option value="">Selecciona una opción</option>
                   {comboCuenta.map((traeCuentas) => (

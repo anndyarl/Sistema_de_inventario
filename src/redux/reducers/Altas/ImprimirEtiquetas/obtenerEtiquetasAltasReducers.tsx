@@ -10,7 +10,9 @@ interface DatosState {
     datosEtiqueta: Array<{
         aF_CODIGO_LARGO: string,
         aF_DESCRIPCION: string,
-        aF_UBICACION: string
+        aF_UBICACION: string,
+        aF_FECHA_ALTA: string,
+        aF_NCUENTA: string;
     }>;
 }
 

@@ -64,13 +64,13 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
   return (
     <>
       <Helmet>
-        <title>Validando Acceso...</title>
+        <title>Redirigiendo...</title>
       </Helmet>
       <div className="d-flex justify-content-center align-items-center vh-100">
         <div className="col-12 col-md-8 text-center">
           <div className="d-flex justify-content-center align-items-center">
             <div className="spinner-border text-primary me-2" role="status" />
-            <p className="fw-normal">Un momento...</p>
+            <p className="fw-normal">Redirigiendo...</p>
           </div>
           {showButton && ( // Muestra el botón después de 5 segundos
             <div className="m-4 rounded d-inline-block">

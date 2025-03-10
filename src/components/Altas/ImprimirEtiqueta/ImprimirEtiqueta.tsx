@@ -19,6 +19,8 @@ interface DatosEtiquetaProps {
     aF_CODIGO_LARGO: string,
     aF_DESCRIPCION: string,
     aF_UBICACION: string,
+    aF_FECHA_ALTA: string,
+    aF_NCUENTA: string;
     qrImage: string;
 }
 interface DatosProps {
@@ -37,6 +39,8 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
         aF_CODIGO_LARGO: "",
         aF_DESCRIPCION: "",
         aF_UBICACION: "",
+        aF_FECHA_ALTA: "",
+        aF_NCUENTA: "",
         qrImage: ""
     });
     const validate = () => {
@@ -176,15 +180,15 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                         {/* Contenedor del QR y sus datos */}
                         {datosEtiqueta.map((traeEtiqueta) => (
                             <div key={traeEtiqueta.aF_CODIGO_LARGO} className="d-flex justify-content-center align-items-center mt-5">
-                                <div className="d-flex border w-75 p-4 justify-content-center">
+                                <div className="d-flex border w-50 p-4 justify-content-center">
                                     {/* QR con mayor resolución y corrección */}
-                                    <QRCodeSVG value={traeEtiqueta.aF_CODIGO_LARGO} size={150} level="H" className="mx-4 mt-3" />
+                                    <QRCodeSVG value={`Cod. Bien: ${traeEtiqueta.aF_CODIGO_LARGO}` + ` ` + `Nom. Bien: ${traeEtiqueta.aF_DESCRIPCION}` + ` ` + `F. Alta: ${traeEtiqueta.aF_FECHA_ALTA}` + ` ` + `Cta. Contable: ${traeEtiqueta.aF_NCUENTA}`} size={150} level="H" className="mx-4 mt-3" />
 
                                     {/* Datos del activo */}
                                     <div className="text-start mt-3 rounded">
-                                        <h4 className="fw-semibold">{traeEtiqueta.aF_DESCRIPCION}</h4>
-                                        <p className="fs-6">{traeEtiqueta.aF_CODIGO_LARGO}</p>
-                                        <p className="fs-0.09em">{traeEtiqueta.aF_UBICACION}</p>
+                                        <p className="fs-0.09em mb-1">{traeEtiqueta.aF_UBICACION}</p>
+                                        <p className="fw-semibold mb-1">{traeEtiqueta.aF_CODIGO_LARGO}</p>
+                                        <p className="fs-0.09em">{traeEtiqueta.aF_DESCRIPCION}</p>
                                     </div>
                                 </div>
                             </div>
@@ -197,14 +201,14 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                                     const primerElemento = datosEtiqueta[0];
                                     if (primerElemento) {
                                         try {
-                                            const qrBase64 = await generateQRCodeBase64(primerElemento.aF_CODIGO_LARGO);
+                                            const qrBase64 = await generateQRCodeBase64("Cod. Bien: " + " " + primerElemento.aF_CODIGO_LARGO + " " + "Nom. Bien: " + primerElemento.aF_DESCRIPCION + " " + "F. Alta: " + primerElemento.aF_FECHA_ALTA + " " + "Cta. Contable: " + primerElemento.aF_NCUENTA);
                                             setEtiqueta({
                                                 ...primerElemento,
                                                 qrImage: qrBase64,
                                             });
                                             setMostrarModal(true);
                                         } catch (error) {
-                                            console.error("Error al generar el QR:", error);
+                                            // console.error("Error al generar el QR:", error);
                                         }
                                     }
                                 }}
@@ -230,7 +234,7 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                     />}>
                         {({ url, loading }) =>
                             loading ? (
-                                <p>Generando vista previa...</p>
+                                <p>Generando QR...</p>
                             ) : (
 
                                 <iframe
@@ -248,7 +252,7 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                     </BlobProvider>
                 </Modal.Body>
             </Modal>
-        </Layout>
+        </Layout >
     );
 };
 

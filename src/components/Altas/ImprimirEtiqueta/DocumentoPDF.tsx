@@ -46,18 +46,19 @@ const styles = StyleSheet.create({
         // borderBottomColor: '#000',
         // padding: 10
     },
-    title: {
-        fontSize: 10,
-        fontWeight: 'bold',
-        marginBottom: 5,
-    },
-    code: {
-        fontSize: 8,
-        marginBottom: 3,
-    },
     ubicacion: {
         fontSize: 8,
+        marginBottom: 5
     },
+    code: {
+        fontSize: 10,
+        marginBottom: 5,
+    },
+    title: {
+        fontSize: 8,
+        fontWeight: 'bold'
+    },
+
 
 });
 
@@ -78,9 +79,9 @@ const DocumentoPDF = ({ Etiqueta }: { Etiqueta: any }) => (
 
                 {/* Contenedor de los datos */}
                 <View style={styles.textContainer}>
-                    <Text style={styles.title}>{Etiqueta.aF_DESCRIPCION}</Text>
-                    <Text style={styles.code}>{Etiqueta.aF_CODIGO_LARGO}</Text>
                     <Text style={styles.ubicacion}>{Etiqueta.aF_UBICACION}</Text>
+                    <Text style={styles.code}>{Etiqueta.aF_CODIGO_LARGO}</Text>
+                    <Text style={styles.title}>{Etiqueta.aF_DESCRIPCION}</Text>
                 </View>
             </View>
 

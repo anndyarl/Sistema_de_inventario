@@ -1,25 +1,28 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { Navigate } from "react-router-dom";
-import { login } from "../../redux/actions/auth/auth";
+import { Navigate, useNavigate } from "react-router-dom";
+import { login, logout } from "../../redux/actions/auth/auth";
 import { RootState } from "../../redux/reducers";
 import "../../styles/Login.css";
 import { Spinner } from "react-bootstrap";
 import clave_unica_svg from "../../assets/img/clave_unica_color.png"
+import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
 interface Props {
   login: (usuario: string, password: string) => void;
+  validaApiloginActions: (rut: string) => Promise<boolean>;
+  logout: () => Promise<boolean>;
   isAuthenticated: boolean | null;
   error: string | null;
 }
 
-const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
+const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated, error }) => {
   const [formData, setFormData] = useState({
     usuario: process.env.VITE_USUARIO_API_LOGIN || "",
     password: process.env.VITE_PASSWORD_API_LOGIN || "",
   });
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-
   const { usuario, password } = formData;
+  const navigate = useNavigate(); // Hook para redirigir
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +31,15 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
     await login(usuario, password);
+    const esValido = await validaApiloginActions("18250588");// Valida usuario en Api login
 
+    if (esValido) {
+      navigate("/Inicio");
+    }
+    else if (esValido) {
+      await logout();//Eliminados el token
+      navigate("/Denegado");
+    }
     setLoading(false); // Finaliza el estado de carga después de la solicitud
   };
 
@@ -141,9 +152,7 @@ const Login: React.FC<Props> = ({ login, isAuthenticated, error }) => {
           <u> Ayuda al 600 360 33 03</u>
         </p>
       </div>
-
-    </div >
-
+    </div>
   );
 };
 
@@ -154,4 +163,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   login,
+  validaApiloginActions,
+  logout
 })(Login);

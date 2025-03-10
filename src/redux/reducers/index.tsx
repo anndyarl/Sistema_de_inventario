@@ -68,6 +68,7 @@ import listadoMantenedorProveedoresReducers from "./Mantenedores/Proveedores/lis
 import listadoMantenedorEspeciesReducers from "./Mantenedores/Especies/listadoMantenedorEspeciesReducers copy";
 import comboCuentaMantenedorReducers from "./Mantenedores/Especies/comboCuentaMantenedorReducers";
 import listadoMantenedorComponentesReducers from "./Mantenedores/Componentes/listadoMantenedorComponentesReducers";
+import obtenerMaxInventarioReducers from "./Inventario/RegistrarInventario/obtenerMaxInventarioReducers";
 
 
 
@@ -95,6 +96,7 @@ const appReducer = combineReducers({
 
   // Formulario 3
   datosActivoFijoReducers,
+  obtenerMaxInventarioReducers,
   //-------------- Fin Registro de Inventario----------------//
 
   // Modificar Inventario
