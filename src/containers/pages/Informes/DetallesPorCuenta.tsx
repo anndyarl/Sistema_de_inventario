@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { FileEarmarkArrowUp, FileRuled } from "react-bootstrap-icons";
+import { FileRuled } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
 

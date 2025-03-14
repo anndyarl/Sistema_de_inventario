@@ -59,10 +59,8 @@ import Mensual from '../../../components/Informes/DetallesPorCuenta/Mensual';
 import Anual from '../../../components/Informes/DetallesPorCuenta/Anual';
 import BajasMensuales from '../../../components/Informes/BajasMensuales';
 import TrasladosMensuales from '../../../components/Informes/TrasladosMensuales';
-import FolioPorServicioDependencia from '../../../components/Informes/FolioPorServicioDependencia';
+import FolioPorServicioDependencia from '../../../components/Informes/FolioPorServicioDependencia/FolioPorServicioDependencia';
 import ExcelFolioPorServicios from '../../../components/Informes/ExcelFolioPorServicios';
-
-
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -94,7 +92,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Inventario/ModificarInventario" element={<ModificarInventario />} />
                 <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
                 <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
-                {/* <Route path="/CargaMasiva" element={<CargaMasiva />} /> */}
+                {/* <Route path="/Inventario/CargaMasiva" element={<CargaMasiva />} /> */}
                 {/* Fin Menu Inventario */}
 
                 {/* Módulo Traslados */}

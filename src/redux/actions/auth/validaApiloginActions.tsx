@@ -16,9 +16,7 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
         Accept: "application/json",
       },
     };
-    let m: number = 0;
     dispatch({ type: VALIDA_PORTAL_REQUEST });
-
     try {
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/ValidaApilogin?rut=${rut}`, config);
 

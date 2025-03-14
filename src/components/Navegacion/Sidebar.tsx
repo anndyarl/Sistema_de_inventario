@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import {
   Box, ArrowsMove, PlusCircle, DashCircle, FileText, Database,
   FileEarmarkSpreadsheet, ChevronDown,
-  FileEarmarkBarGraph
 } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css";
 

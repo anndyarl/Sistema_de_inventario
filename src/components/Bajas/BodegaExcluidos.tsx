@@ -40,9 +40,9 @@ interface DatosBajas {
   isDarkMode: boolean;
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExcluidosActions, excluirBajasActions, token, isDarkMode }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExcluidosActions, token, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRegistro, setLoadingRegistro] = useState(false);
+  const [loadingRegistro, __] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]); //Estado para seleccion unica(Quitar)

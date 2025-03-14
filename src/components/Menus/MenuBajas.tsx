@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { List, Exclude, BoxSeamFill, Boxes, DashCircle } from "react-bootstrap-icons";
+import { List, Exclude, BoxSeamFill, Boxes } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {

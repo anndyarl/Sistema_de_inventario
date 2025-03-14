@@ -49,8 +49,8 @@ interface DatosAltas {
     comboCuentasInforme: ComboCuentas[];
 }
 
-const CuentaFechas: React.FC<DatosAltas> = ({ listaAltas, comboCuentasInforme, listaAltasActions, obtenerListaAltasActions, comboCuentasInformeActions, token, isDarkMode }) => {
-    const [error, setError] = useState<Partial<FechasProps> & {}>({});
+const CuentaFechas: React.FC<DatosAltas> = ({ listaAltas, comboCuentasInforme, listaAltasActions, comboCuentasInformeActions, token, isDarkMode }) => {
+    const [error, __] = useState<Partial<FechasProps> & {}>({});
     const [loading, setLoading] = useState(false); // Estado para controlar la carga 
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -96,18 +96,18 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaAltas, comboCuentasInforme, l
         if (comboCuentasInforme.length === 0) { comboCuentasInformeActions() }
     }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
 
-    const validate = () => {
-        let tempErrors: Partial<any> & {} = {};
-        // Validación para N° de Recepción (debe ser un número)
-        if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-        if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-        if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
-        // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
+    // const validate = () => {
+    //     let tempErrors: Partial<any> & {} = {};
+    //     // Validación para N° de Recepción (debe ser un número)
+    //     if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
+    //     if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
+    //     if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
+    //     // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
 
 
-        setError(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
+    //     setError(tempErrors);
+    //     return Object.keys(tempErrors).length === 0;
+    // };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -290,9 +290,9 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaAltas, comboCuentasInforme, l
                             <SkeletonLoader rowCount={10} columnCount={10} />
                         </>
                     ) : (
-                        <div className='table-responsive z-0'>
+                        <div className='table-responsive'>
                             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                     <tr>
                                         <th >
                                             <Form.Check

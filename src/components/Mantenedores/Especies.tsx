@@ -44,9 +44,9 @@ interface GeneralProps {
     objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCuentas, objeto, obtenerMaxServicioActions, listadoMantenedorEspeciesActions, registrarMantenedorEspeciesActions, comboCuentaMantenedorActions, token, isDarkMode }) => {
+const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCuentas, objeto, obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, token, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
-    const [loadingRegistro, setLoadingRegistro] = useState(false);
+    const [loadingRegistro, __] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
     const [_, setFilaSeleccionada] = useState<any[]>([]);
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
@@ -151,23 +151,23 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCu
         }
     };
 
-    const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
-        index: number
-    ) => {
-        const { name, value } = e.target;
+    // const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
+    //     index: number
+    // ) => {
+    //     const { name, value } = e.target;
 
-        // Actualiza el elemento correspondiente en el array
-        setFilaSeleccionada((prevElementos) =>
-            prevElementos.map((elemento, i) =>
-                i === index
-                    ? {
-                        ...elemento,
-                        [name]: value, // Actualiza solo la propiedad correspondiente
-                    }
-                    : elemento
-            )
-        );
-    };
+    //     // Actualiza el elemento correspondiente en el array
+    //     setFilaSeleccionada((prevElementos) =>
+    //         prevElementos.map((elemento, i) =>
+    //             i === index
+    //                 ? {
+    //                     ...elemento,
+    //                     [name]: value, // Actualiza solo la propiedad correspondiente
+    //                 }
+    //                 : elemento
+    //         )
+    //     );
+    // };
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado

@@ -43,10 +43,10 @@ interface GeneralProps {
     objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCuentas, objeto, obtenerMaxServicioActions, listadoMantenedorComponentesActions, registrarMantenedorEspeciesActions, comboCuentaMantenedorActions, token, isDarkMode }) => {
+const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCuentas, objeto, obtenerMaxServicioActions, listadoMantenedorComponentesActions, comboCuentaMantenedorActions, token, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
-    const [loadingRegistro, setLoadingRegistro] = useState(false);
-    const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
+    const [loadingRegistro, ___] = useState(false);
+    const [error, __] = useState<Partial<ListadoMantenedor> & {}>({});
     const [_, setFilaSeleccionada] = useState<any[]>([]);
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
@@ -112,14 +112,14 @@ const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comb
 
     }, [listadoMantenedorComponentesActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
 
-    const validate = () => {
-        let tempErrors: Partial<any> & {} = {};
-        // Validación  
-        if (!Mantenedor.esP_NOMBRE) tempErrors.esP_NOMBRE = "Campo obligatorio";
-        if (!Mantenedor.ctA_NOMBRE) tempErrors.ctA_NOMBRE = "Campo obligatorio";
-        setError(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
+    // const validate = () => {
+    //     let tempErrors: Partial<any> & {} = {};
+    //     // Validación  
+    //     if (!Mantenedor.esP_NOMBRE) tempErrors.esP_NOMBRE = "Campo obligatorio";
+    //     if (!Mantenedor.ctA_NOMBRE) tempErrors.ctA_NOMBRE = "Campo obligatorio";
+    //     setError(tempErrors);
+    //     return Object.keys(tempErrors).length === 0;
+    // };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -136,23 +136,23 @@ const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comb
 
     };
 
-    const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
-        index: number
-    ) => {
-        const { name, value } = e.target;
+    // const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
+    //     index: number
+    // ) => {
+    //     const { name, value } = e.target;
 
-        // Actualiza el elemento correspondiente en el array
-        setFilaSeleccionada((prevElementos) =>
-            prevElementos.map((elemento, i) =>
-                i === index
-                    ? {
-                        ...elemento,
-                        [name]: value, // Actualiza solo la propiedad correspondiente
-                    }
-                    : elemento
-            )
-        );
-    };
+    //     // Actualiza el elemento correspondiente en el array
+    //     setFilaSeleccionada((prevElementos) =>
+    //         prevElementos.map((elemento, i) =>
+    //             i === index
+    //                 ? {
+    //                     ...elemento,
+    //                     [name]: value, // Actualiza solo la propiedad correspondiente
+    //                 }
+    //                 : elemento
+    //         )
+    //     );
+    // };
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado

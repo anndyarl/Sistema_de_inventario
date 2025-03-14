@@ -10,8 +10,6 @@ import MenuBajas from "../Menus/MenuBajas.tsx";
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
 import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
 import { Helmet } from "react-helmet-async";
-import { replace } from "react-router-dom";
-
 export interface ListaRemates {
   aF_CLAVE: string;
   bajaS_CORR: string;

@@ -227,10 +227,6 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                                 </div>
                             </div>
                         ))}
-
-
-
-
                     </div>
                 </div>
             </form>

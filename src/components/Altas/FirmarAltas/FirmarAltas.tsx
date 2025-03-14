@@ -142,11 +142,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
             let firmanteInventario = prev.firmanteInventario || "";
             let firmanteFinanzas = prev.firmanteFinanzas || "";
 
-            // 🔍 Buscar firmantes en la lista de datosFirmas
+            // Buscar firmantes en la lista de datosFirmas
             for (const firma of datosFirmas) {
                 const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
 
-                // 🎯 Firmante de Inventario
+                // Firmante de Inventario
                 if (firma.iD_UNIDAD === 1) {
                     if (name === "titularInventario" && checked && firma.rol === "TITULAR") {
                         firmanteInventario = nombreCompleto;
@@ -157,7 +157,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                     }
                 }
 
-                // 🎯 Firmante de Finanzas
+                // Firmante de Finanzas
                 if (firma.iD_UNIDAD === 2) {
                     if (name === "titularFinanzas" && checked && firma.rol === "TITULAR") {
                         firmanteFinanzas = nombreCompleto;
@@ -168,7 +168,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                     }
                 }
 
-                // 🚀 Si ya encontramos ambos firmantes, salimos del loop
+                // Si ya encontramos ambos firmantes, salimos del loop
                 if (firmanteInventario && firmanteFinanzas) break;
             }
 
@@ -237,9 +237,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
         setFilaSeleccionada((prevSeleccionadas) =>
             prevSeleccionadas.filter((fila) => fila !== index.toString())
         );
-        setMostrarModal(null); //Cierra modal del indice seleccionado
-        // setFilaActiva(null); // Limpia la fila activa
-        setSignatureImage("");
+        setMostrarModal(null); //Cierra modal del indice seleccionado   
+        setSignatureImage("");// Limpia la firma
     };
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -287,6 +286,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                                     <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
                                     <th scope="col" className="text-nowrap text-center">Especie</th>
                                     <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -477,6 +477,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                                         </Col>
                                     </Row>
                                 </Collapse>
+                                {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                                 <BlobProvider document={
                                     <DocumentoPDF
                                         row={fila}
