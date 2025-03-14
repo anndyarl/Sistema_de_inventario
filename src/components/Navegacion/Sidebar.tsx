@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   Box, ArrowsMove, PlusCircle, DashCircle, FileText, Database,
-  FileEarmarkArrowDown, FileEarmarkRichtext, FileEarmarkSpreadsheet, ChevronDown
+  FileEarmarkSpreadsheet, ChevronDown,
+  FileEarmarkBarGraph
 } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css";
 
@@ -31,8 +32,7 @@ const Sidebar: React.FC = () => {
 
   const subMenus: { [key: string]: NavItem[] } = {
     'Informes': [
-      { name: 'Bajas Mensuales', href: '/Informes/BajasMensuales', icon: FileEarmarkArrowDown },
-      { name: 'Listados', href: '/Informes/Listados', icon: FileEarmarkRichtext },
+      { name: 'Listados', href: '/Informes/Listados', icon: FileEarmarkSpreadsheet },
       { name: 'Detalles por Cuenta', href: '/Informes/DetallesPorCuenta', icon: FileEarmarkSpreadsheet },
     ],
   };

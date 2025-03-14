@@ -1,19 +1,18 @@
 import React from "react"
-
 import { Helmet } from "react-helmet-async";
-import Layout from "../../containers/hocs/layout/Layout";
 import MenuInformes from "../Menus/MenuInformes";
+import Layout from "../../containers/hocs/layout/Layout";
 
-const AltasMensuales: React.FC = () => {
+const ExcelFolioPorServicios: React.FC = () => {
     return (
         <Layout>
             <Helmet>
-                <title>Altas Mensuales</title>
+                <title>Excel Folio por Servicios</title>
             </Helmet>
             <MenuInformes />
-            <p>Altas Mensuales</p>
+            <p>Excel-Folios por Servicios</p>
         </Layout>
     );
 };
 
-export default AltasMensuales;
+export default ExcelFolioPorServicios;

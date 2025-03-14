@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { FileEarmarkArrowUp } from "react-bootstrap-icons";
+import { FileEarmarkArrowUp, FileRuled } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect } from "react-redux";
 
@@ -34,8 +34,10 @@ const DetallesPorCuenta: React.FC<GeneralProps> = ({ isDarkMode }) => {
     };
 
     const navigation: NavItem[] = [
-
-        { descripcion: '', name: 'AltasMensuales', title: 'Altas Mensuales', href: '/Informes/AltasMensuales', icon: FileEarmarkArrowUp },
+        { descripcion: '', name: 'ResumenCuentas', title: 'Resumen Cuentas', href: '/Informes/DetallesPorCuenta/ResumenCuentas', icon: FileRuled },
+        { descripcion: '', name: 'DetalleDeBienes', title: 'Detalle De Bienes', href: '/Informes/DetallesPorCuenta/DetalleDeBienes', icon: FileRuled },
+        { descripcion: '', name: 'Mensual', title: 'Mensual', href: '/Informes/DetallesPorCuenta/Mensual', icon: FileRuled },
+        { descripcion: '', name: 'Anual', title: 'Anual', href: '/Informes/DetallesPorCuenta/Anual', icon: FileRuled },
     ];
 
     return (

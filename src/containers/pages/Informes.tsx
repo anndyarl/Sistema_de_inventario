@@ -1,11 +1,11 @@
 import React from "react"
-import Layout from "../../hocs/layout/Layout";
+import Layout from "../hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { FileEarmarkArrowUp } from "react-bootstrap-icons";
-import { RootState } from "../../../store";
+import { FileText } from "react-bootstrap-icons";
+import { RootState } from "../../store";
 import { connect } from "react-redux";
 
 interface NavItem {
@@ -34,9 +34,12 @@ const Informes: React.FC<GeneralProps> = ({ isDarkMode }) => {
   };
 
   const navigation: NavItem[] = [
-
-    { descripcion: '', name: 'AltasMensuales', title: 'Altas Mensuales', href: '/Informes/AltasMensuales', icon: FileEarmarkArrowUp },
-    { descripcion: '', name: 'ConsultaInventarioEspecies', title: 'Consulta Inventario - Especies', href: '/Informes/ConsultaInventarioEspecies', icon: FileEarmarkArrowUp },
+    { descripcion: '', name: 'AltasMensuales', title: 'Altas Mensuales', href: '/Informes/AltasMensuales', icon: FileText },
+    { descripcion: '', name: 'BajasMensuales', title: 'Bajas Mensuales', href: '/Informes/BajasMensuales', icon: FileText },
+    { descripcion: '', name: 'TrasladosMensuales', title: 'Traslados Mensuales', href: '/Informes/TrasladosMensuales', icon: FileText },
+    { descripcion: '', name: 'FolioPorServicioDependencia', title: 'Folios por Servicio-Dependencia *', href: '/Informes/FolioPorServicioDependencia', icon: FileText },
+    { descripcion: '', name: 'ExcelFolioPorServicios', title: 'Excel-Folios por Servicios', href: '/Informes/ExcelFolioPorServicios', icon: FileText },
+    { descripcion: '', name: 'ConsultaInventarioEspecies', title: 'Consulta Inventario - Especies', href: '/Informes/ConsultaInventarioEspecies', icon: FileText },
   ];
 
   return (

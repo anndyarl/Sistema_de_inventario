@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from 'react-dom';
-import { Button, Modal, Spinner } from "react-bootstrap";
+import { Modal, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { QRCodeSVG } from 'qrcode.react';
 import Layout from "../../../containers/hocs/layout/Layout";
@@ -10,9 +10,9 @@ import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/Impri
 import { InventarioCompleto } from "../../Inventario/ModificarInventario";
 import { Helmet } from "react-helmet-async";
 import { BlobProvider } from "@react-pdf/renderer";
-import { Printer } from "react-bootstrap-icons";
 import DocumentoPDF from "./DocumentoPDF";
 import { connect } from "react-redux";
+import '../../../styles/ImprimirEtiqueta.css'
 
 
 interface DatosEtiquetaProps {
@@ -34,7 +34,6 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
     const [Inventario, setInventario] = useState({ aF_CLAVE: "" });
     const [loading, setLoading] = useState(false); // Estado para controlar la carga
     const [mostrarModal, setMostrarModal] = useState(false);
-
     const [Etiqueta, setEtiqueta] = useState({
         aF_CODIGO_LARGO: "",
         aF_DESCRIPCION: "",
@@ -177,12 +176,22 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                             </button>
                         </div>
 
-                        {/* Contenedor del QR y sus datos */}
                         {datosEtiqueta.map((traeEtiqueta) => (
-                            <div key={traeEtiqueta.aF_CODIGO_LARGO} className="d-flex justify-content-center align-items-center mt-5">
-                                <div className="d-flex border w-50 p-4 justify-content-center">
+                            <div
+                                key={traeEtiqueta.aF_CODIGO_LARGO}
+                                className="position-relative d-flex justify-content-center align-items-center mt-5"
+                            >
+                                <div className="d-flex border w-50 p-4 justify-content-center position-relative tarjeta-hover rounded-3">
                                     {/* QR con mayor resolución y corrección */}
-                                    <QRCodeSVG value={`Cod. Bien: ${traeEtiqueta.aF_CODIGO_LARGO}` + ` ` + `Nom. Bien: ${traeEtiqueta.aF_DESCRIPCION}` + ` ` + `F. Alta: ${traeEtiqueta.aF_FECHA_ALTA}` + ` ` + `Cta. Contable: ${traeEtiqueta.aF_NCUENTA}`} size={150} level="H" className="mx-4 mt-3" />
+                                    <QRCodeSVG
+                                        value={`Cod. Bien: ${traeEtiqueta.aF_CODIGO_LARGO} ` +
+                                            `Nom. Bien: ${traeEtiqueta.aF_DESCRIPCION} ` +
+                                            `F. Alta: ${traeEtiqueta.aF_FECHA_ALTA} ` +
+                                            `Cta. Contable: ${traeEtiqueta.aF_NCUENTA}`}
+                                        size={150}
+                                        level="H"
+                                        className="mx-4 mt-3"
+                                    />
 
                                     {/* Datos del activo */}
                                     <div className="text-start mt-3 rounded">
@@ -190,33 +199,37 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                                         <p className="fw-semibold mb-1">{traeEtiqueta.aF_CODIGO_LARGO}</p>
                                         <p className="fs-0.09em">{traeEtiqueta.aF_DESCRIPCION}</p>
                                     </div>
+
+                                    {/* Capa de oscurecimiento con texto */}
+                                    <div className="overlay"
+                                        onClick={async () => {
+                                            const primerElemento = datosEtiqueta[0];
+                                            if (primerElemento) {
+                                                try {
+                                                    const qrBase64 = await generateQRCodeBase64(
+                                                        `Cod. Bien: ${primerElemento.aF_CODIGO_LARGO} ` +
+                                                        `Nom. Bien: ${primerElemento.aF_DESCRIPCION} ` +
+                                                        `F. Alta: ${primerElemento.aF_FECHA_ALTA} ` +
+                                                        `Cta. Contable: ${primerElemento.aF_NCUENTA}`
+                                                    );
+                                                    setEtiqueta({
+                                                        ...primerElemento,
+                                                        qrImage: qrBase64,
+                                                    });
+                                                    setMostrarModal(true);
+                                                } catch (error) {
+                                                    // console.error("Error al generar el QR:", error);
+                                                }
+                                            }
+                                        }}>
+                                        <span className="overlay-text">Haga clic para imprimir</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}
 
-                        {/* Botón de impresión centrado */}
-                        <div className="d-flex justify-content-center mt-4">
-                            <Button
-                                onClick={async () => {
-                                    const primerElemento = datosEtiqueta[0];
-                                    if (primerElemento) {
-                                        try {
-                                            const qrBase64 = await generateQRCodeBase64("Cod. Bien: " + " " + primerElemento.aF_CODIGO_LARGO + " " + "Nom. Bien: " + primerElemento.aF_DESCRIPCION + " " + "F. Alta: " + primerElemento.aF_FECHA_ALTA + " " + "Cta. Contable: " + primerElemento.aF_NCUENTA);
-                                            setEtiqueta({
-                                                ...primerElemento,
-                                                qrImage: qrBase64,
-                                            });
-                                            setMostrarModal(true);
-                                        } catch (error) {
-                                            // console.error("Error al generar el QR:", error);
-                                        }
-                                    }
-                                }}
-                                className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} ms-1`}
-                            >
-                                <Printer className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-                            </Button>
-                        </div>
+
+
 
                     </div>
                 </div>

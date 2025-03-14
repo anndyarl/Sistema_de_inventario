@@ -1,13 +1,12 @@
 import { BrowserRouter as _, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-
 import Login from '../../pages/Login';
 import Traslados from '../../pages/Traslados';
 import Altas from '../../pages/Altas';
 import Inventario from '../../pages/Inventario';
 import Bajas from '../../pages/Bajas';
 import Donaciones from '../../pages/Donaciones';
-import Informes from '../../pages/Informes/Informes';
+import Informes from '../../pages/Informes';
 import ClaveUnica from '../../pages/ClaveUnica';
 import SesionExpirada from '../../errors/SesionExpirada';
 // import { useDispatch } from 'react-redux';
@@ -45,14 +44,23 @@ import Mantenedores from '../../pages/Mantenedores';
 import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
 import Proveedores from '../../../components/Mantenedores/Proveedores';
 import Componentes from '../../../components/Mantenedores/Componentes';
-import BajasMensuales from '../../pages/Informes/BajasMensuales';
 import DetallesPorCuenta from '../../pages/Informes/DetallesPorCuenta';
 import Listados from '../../pages/Informes/Listados';
 import AltasMensuales from '../../../components/Informes/AltasMensuales';
-import TrasladosMensuales from '../../../components/Informes/BajasMensuales/TrasladosMensuales';
-import FoliosXServicioDependencia from '../../../components/Informes/BajasMensuales/FoliosXServicioDependencia';
-import ExFolioXServicios from '../../../components/Informes/BajasMensuales/ExFolioXServicios';
 import ConsultaInventarioEspecies from '../../../components/Informes/ConsultaInventarioEspecies';
+import CuentaFechas from '../../../components/Informes/Listados/CuentaFechas';
+import CuentaServicioFecha from '../../../components/Informes/Listados/CuentaServicioFecha';
+import EspecieFecha from '../../../components/Informes/Listados/EspecieFecha';
+import EspecieServicioFechas from '../../../components/Informes/Listados/EspecieServicioFechas';
+import ListadoInformeGeneral from '../../../components/Informes/Listados/ListadoInformeGeneral';
+import ResumenCuentas from '../../../components/Informes/DetallesPorCuenta/ResumenCuentas';
+import DetalleDeBienes from '../../../components/Informes/DetallesPorCuenta/DetalleDeBienes';
+import Mensual from '../../../components/Informes/DetallesPorCuenta/Mensual';
+import Anual from '../../../components/Informes/DetallesPorCuenta/Anual';
+import BajasMensuales from '../../../components/Informes/BajasMensuales';
+import TrasladosMensuales from '../../../components/Informes/TrasladosMensuales';
+import FolioPorServicioDependencia from '../../../components/Informes/FolioPorServicioDependencia';
+import ExcelFolioPorServicios from '../../../components/Informes/ExcelFolioPorServicios';
 
 
 
@@ -113,29 +121,32 @@ const AnimatedRoutes: React.FC = () => {
 
                 {/* Informes Menu Principal */}
                 <Route path="/Informes" element={<Informes />} />
-                <Route path="/Informes/BajasMensuales" element={<BajasMensuales />} />
                 <Route path="/Informes/Listados" element={<Listados />} />
                 <Route path="/Informes/DetallesPorCuenta" element={<DetallesPorCuenta />} />
                 {/* Fin Informes Menu Principal*/}
 
+                {/*Fin Menu Informes */}
                 <Route path="/Informes/AltasMensuales" element={<AltasMensuales />} />
+                <Route path="/Informes/BajasMensuales" element={<BajasMensuales />} />
                 <Route path="/Informes/ConsultaInventarioEspecies" element={<ConsultaInventarioEspecies />} />
-
-                {/* Sub menu BajasMensuales */}
-                <Route path="/Informes/BajasMensuales/TrasladosMensuales" element={<TrasladosMensuales />} />
-                <Route path="/Informes/BajasMensuales/FoliosXServicioDependencia" element={<FoliosXServicioDependencia />} />
-                <Route path="/Informes/BajasMensuales/ExFolioXServicios" element={<ExFolioXServicios />} />
-                {/*Fin sub menu BajasMensuales */}
+                <Route path="/Informes/TrasladosMensuales" element={<TrasladosMensuales />} />
+                <Route path="/Informes/FolioPorServicioDependencia" element={<FolioPorServicioDependencia />} />{/* Prioridad */}
+                <Route path="/Informes/ExcelFolioPorServicios" element={<ExcelFolioPorServicios />} />
+                {/*Fin Menu Informes */}
 
                 {/* Sub menu Listados */}
-                <Route path="/Informes/Listados/General" element={<General />} />
-                <Route path="/Informes/Listados/CuentaFechas" element={<CuentaFechas />} />
+                <Route path="/Informes/Listados/ListadoInformeGeneral" element={<ListadoInformeGeneral />} />
+                <Route path="/Informes/Listados/CuentaFechas" element={<CuentaFechas />} /> {/* Prioridad */}
                 <Route path="/Informes/Listados/CuentaServicioFecha" element={<CuentaServicioFecha />} />
                 <Route path="/Informes/Listados/EspecieFecha" element={<EspecieFecha />} />
                 <Route path="/Informes/Listados/EspecieServicioFechas" element={<EspecieServicioFechas />} />
                 {/* Fin Sub menu Listados */}
 
                 {/* Sub menu DetallesPorCuenta */}
+                <Route path="/Informes/DetallesPorCuenta/ResumenCuentas" element={<ResumenCuentas />} /> {/* Prioridad */}
+                <Route path="/Informes/DetallesPorCuenta/DetalleDeBienes" element={<DetalleDeBienes />} />
+                <Route path="/Informes/DetallesPorCuenta/Mensual" element={<Mensual />} />
+                <Route path="/Informes/DetallesPorCuenta/Anual" element={<Anual />} />
                 {/* Fin Sub menu DetallesPorCuenta */}
 
                 {/* Donaciones */}

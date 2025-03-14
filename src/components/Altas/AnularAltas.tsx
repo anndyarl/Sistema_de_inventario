@@ -7,7 +7,6 @@ import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { Search } from "react-bootstrap-icons";
 import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions";
-
 import { obtenerListaAltasActions } from "../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
 import { anularAltasActions } from "../../redux/actions/Altas/AnularAltas/anularAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
@@ -117,10 +116,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
       [name]: newValue,
     }));
 
-    setInventario((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
   };
 
   const handleBuscarAltas = async () => {

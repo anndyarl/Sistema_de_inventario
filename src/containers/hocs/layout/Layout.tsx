@@ -81,7 +81,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }
         </div>
 
         {/* Contenido de la página */}
-        <Container fluid className="mb-1 mt-5">
+        <Container fluid className="mb-1 ">
           {children}
         </Container>
       </div>

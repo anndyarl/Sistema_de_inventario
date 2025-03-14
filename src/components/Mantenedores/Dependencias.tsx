@@ -436,7 +436,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
                       onChange={handleChange}
                       value={Mantenedor.seR_COD}
                     >
-                      <option value="">Seleccione un origen</option>
+                      <option value="">Seleccionar</option>
                       {comboServicio.map((traeServicio) => (
                         <option key={traeServicio.codigo} value={traeServicio.codigo}>
                           {traeServicio.nombrE_ORD}
