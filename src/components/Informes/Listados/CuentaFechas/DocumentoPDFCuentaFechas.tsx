@@ -1,8 +1,8 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 
-import ssmso_logo from "../../../assets/img/SSMSO-LOGO.png"
+import ssmso_logo from "../../../../assets/img/SSMSO-LOGO.png"
 import { Container } from 'react-bootstrap';
-import { ListaFolioServicioDependencia } from './FolioPorServicioDependencia';
+import { listaCuentaFechas } from './CuentaFechas';
 
 const styles = StyleSheet.create({
     page: {
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start'
     }
 });
-const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
+const DocumentoPDF = ({ row }: { row: listaCuentaFechas[]; }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -121,30 +121,44 @@ const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}
                 <View style={styles.tableRow}>
-                    <Text style={styles.tableCellHeader}>N° Inventario</Text>
-                    {/* <Text style={styles.tableCellHeader}>Especie</Text> */}
-                    <Text style={styles.tableCellHeader}>Marca</Text>
-                    <Text style={styles.tableCellHeader}>Modelo</Text>
-                    <Text style={styles.tableCellHeader}>Serie</Text>
-                    {/* <Text style={styles.tableCellHeader}>Observación</Text> */}
+                    <Text style={styles.tableCellHeader}>Código Cuenta</Text>
+                    <Text style={styles.tableCellHeader}>Cuenta</Text>
+                    <Text style={styles.tableCellHeader}>Especie</Text>
+                    <Text style={styles.tableCellHeader}>Código Inventario</Text>
                     <Text style={styles.tableCellHeader}>Fecha Ingreso</Text>
-                    <Text style={styles.tableCellHeader}>Nº Alta</Text>
-                    <Text style={styles.tableCellHeader}>Estado</Text>
-                    <Text style={styles.tableCellHeader}>Nº Traslado</Text>
+                    <Text style={styles.tableCellHeader}>Marca</Text>
+                    <Text style={styles.tableCellHeader}>Serie</Text>
+                    <Text style={styles.tableCellHeader}>N° Alta</Text>
+                    <Text style={styles.tableCellHeader}>N° OCO</Text>
+                    <Text style={styles.tableCellHeader}>N° Factura</Text>
+                    <Text style={styles.tableCellHeader}>Proveedor</Text>
+                    <Text style={styles.tableCellHeader}>Establecimiento</Text>
+                    <Text style={styles.tableCellHeader}>Destino</Text>
+                    <Text style={styles.tableCellHeader}>Valor Inicial</Text>
+                    <Text style={styles.tableCellHeader}>Depreciación</Text>
+                    <Text style={styles.tableCellHeader}>Depreciación Acumulada</Text>
+                    <Text style={styles.tableCellHeader}>Valor Libro</Text>
                 </View>
                 {/* Fila de datos */}
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
-                        <Text style={styles.tableCell}>{lista.aF_CLAVE}</Text>
-                        {/* <Text style={styles.tableCell}>{lista.especie}</Text> */}
-                        <Text style={styles.tableCell}>{lista.aF_MARCA}</Text>
-                        <Text style={styles.tableCell}>{lista.aF_MODELO}</Text>
-                        <Text style={styles.tableCell}>{lista.aF_SERIE}</Text>
-                        {/* <Text style={styles.tableCell}>{lista.aF_OBS}</Text> */}
-                        <Text style={styles.tableCell}>{lista.aF_FINGRESO}</Text>
-                        <Text style={styles.tableCell}>{lista.altaS_CORR}</Text>
-                        <Text style={styles.tableCell}>{lista.traS_ESTADO_AF}</Text>
-                        <Text style={styles.tableCell}>{lista.ntraslado}</Text>
+                        <Text style={styles.tableCell}>{lista.codcuenta}</Text>
+                        <Text style={styles.tableCell}>{lista.cuenta}</Text>
+                        <Text style={styles.tableCell}>{lista.especie}</Text>
+                        <Text style={styles.tableCell}>{lista.codinventario}</Text>
+                        <Text style={styles.tableCell}>{lista.fechaingreso}</Text>
+                        <Text style={styles.tableCell}>{lista.marca}</Text>
+                        <Text style={styles.tableCell}>{lista.serie}</Text>
+                        <Text style={styles.tableCell}>{lista.nuM_ALTA?.toString() ?? ""}</Text>
+                        <Text style={styles.tableCell}>{lista.nuM_OCO}</Text>
+                        <Text style={styles.tableCell}>{lista.nuM_FAC}</Text>
+                        <Text style={styles.tableCell}>{lista.proveedor}</Text>
+                        <Text style={styles.tableCell}>{lista.establecimiento}</Text>
+                        <Text style={styles.tableCell}>{lista.destino}</Text>
+                        <Text style={styles.tableCell}>{lista.valorinicial?.toString() ?? ""}</Text>
+                        <Text style={styles.tableCell}>{lista.depreciacion?.toString() ?? ""}</Text>
+                        <Text style={styles.tableCell}>{lista.depreciacionacumulada?.toString() ?? ""}</Text>
+                        <Text style={styles.tableCell}>{lista.valorlibro?.toString() ?? ""}</Text>
                     </View>
                 ))}
             </View>

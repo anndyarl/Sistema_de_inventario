@@ -3,7 +3,7 @@ import {
   COMBO_CUENTA_INFORME_REQUEST,
   COMBO_CUENTA_INFORME_SUCCESS,
   COMBO_CUENTA_INFORME_FAIL,
-} from '../types';
+} from '../../types';
 import { Dispatch } from 'redux';
 
 

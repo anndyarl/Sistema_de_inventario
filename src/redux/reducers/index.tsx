@@ -69,8 +69,10 @@ import listadoMantenedorEspeciesReducers from "./Mantenedores/Especies/listadoMa
 import comboCuentaMantenedorReducers from "./Mantenedores/Especies/comboCuentaMantenedorReducers";
 import listadoMantenedorComponentesReducers from "./Mantenedores/Componentes/listadoMantenedorComponentesReducers";
 import obtenerMaxInventarioReducers from "./Inventario/RegistrarInventario/obtenerMaxInventarioReducers";
-import comboServicioInformeReducers from "./Informes/FolioPorServicioDependencia/comboServicioInformeReducers";
+import comboServicioInformeReducers from "./Informes/Principal/FolioPorServicioDependencia/comboServicioInformeReducers";
 import comboCuentasInformeReducers from "./Informes/Listados/comboCuentasInformeReducers";
+import listaFolioServicioDependenciaReducers from "./Informes/Principal/FolioPorServicioDependencia/listaFolioServicioDependenciaReducers";
+import listaCuentaFechasReducers from "./Informes/Principal/FechaCuentas/listaCuentaFechasReducers";
 
 
 
@@ -141,7 +143,9 @@ const appReducer = combineReducers({
 
   //Informes
   comboServicioInformeReducers,
+  listaFolioServicioDependenciaReducers,
   comboCuentasInformeReducers,
+  listaCuentaFechasReducers,
 
   //Mantenedores
   listadoMantenedorDependenciasReducers,

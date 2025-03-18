@@ -5,49 +5,63 @@ import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { BoxArrowDown, FileEarmarkExcel, Search } from "react-bootstrap-icons";
-import { listaAltasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasActions";
-import { obtenerListaAltasActions } from "../../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
-import { obtenerAltasPorCorrActions } from "../../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
+import { BoxArrowDown, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import MenuInformes from "../../Menus/MenuInformes";
-import { comboServicioInformeActions } from "../../../redux/actions/Informes/comboServicioInformeActions";
+import { comboServicioInformeActions } from "../../../redux/actions/Informes/Principal/comboServicioInformeActions";
 import { Objeto } from "../../Navegacion/Profile";
 import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoPDF from "./DocumentoPDFServicioDependencia";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
+import { listaFolioServicioDependenciaActions } from "../../../redux/actions/Informes/Principal/listaFolioServicioDependenciaActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
 
-export interface ListaAltas {
-    aF_CLAVE: number,
-    ninv: string,
-    serv: string,
-    dep: string,
-    esp: string,
-    ncuenta: string,
-    marca: string,
-    modelo: string,
-    serie: string,
-    precio: string,
-    mrecepcion: string
+export interface ListaFolioServicioDependencia {
+    servicio: string;
+    dependencia: string;
+    cuenta: string;
+    especie: string;
+    tipo: string;
+    traS_ESTADO_AF: string;
+    deP_CORR: number;
+    deP_COD: string;
+    seR_CORR: number;
+    seR_COD: string;
+    ctA_COD: string;
+    altaS_CORR: number;
+    aF_CANTIDAD: string;
+    aF_RESOLUCION: string;
+    aF_CODIGO_GENERICO: string;
+    aF_FINGRESO: string;
+    traS_CORR: number;
+    aF_ESPECIE: string;
+    aF_MARCA: string;
+    aF_MODELO: string;
+    aF_SERIE: string;
+    aF_OBS: string;
+    aF_FOLIO: string;
+    ntraslado: number;
+    deP_CORR_DESTINO: number;
+    aF_CLAVE: number;
+    valoR_LIBRO: number;
+    vidA_UTIL: string;
+    vutiL_RESTANTE: string;
+    estabL_CORR: number;
 }
 
 interface SERVICIO {
-    codigo: number;
-    nombrE_ORD: string;
+    deP_CORR: number;
     descripcion: string;
 }
 
 interface DatosAltas {
-    listaAltas: ListaAltas[];
-    listaAltasActions: () => Promise<boolean>;
-    obtenerListaAltasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
-    obtenerAltasPorCorrActions: (altasCorr: number) => Promise<boolean>;
+    listaFolioServicioDependencia: ListaFolioServicioDependencia[];
+    listaFolioServicioDependenciaActions: () => Promise<boolean>;
     comboServicioInforme: SERVICIO[];
     comboServicioInformeActions: (establ_corr: number) => void;
     token: string | null;
@@ -55,7 +69,7 @@ interface DatosAltas {
     objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboServicioInforme, objeto, listaAltasActions, comboServicioInformeActions, token, isDarkMode }) => {
+const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioDependencia, comboServicioInforme, objeto, listaFolioServicioDependenciaActions, comboServicioInformeActions, token, isDarkMode }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [loading, setLoading] = useState(false); // Estado para controlar la carga
     const [paginaActual, setPaginaActual] = useState(1);
@@ -67,11 +81,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
         jefeInventario: "",
         servicio: 0
     });
-    const listaAltasAuto = async () => {
+    const listaAuto = async () => {
         if (token) {
-            if (listaAltas.length === 0) {
+            if (listaFolioServicioDependencia.length === 0) {
                 setLoading(true);
-                const resultado = await listaAltasActions();
+                const resultado = await listaFolioServicioDependenciaActions();
                 if (resultado) {
                     setLoading(false);
                 }
@@ -93,9 +107,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
     };
 
     useEffect(() => {
-        listaAltasAuto();
+        listaAuto();
         if (comboServicioInforme.length === 0) { comboServicioInformeActions(objeto.Establecimiento); };
-    }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
+    }, [listaFolioServicioDependencia, comboServicioInforme, token]); // Asegúrate de incluir dependencias relevantes
 
     // const validate = () => {
     //     let tempErrors: Partial<any> & {} = {};
@@ -160,12 +174,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
         () =>
-            listaAltas.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listaAltas, indicePrimerElemento, indiceUltimoElemento]
+            listaFolioServicioDependencia.slice(indicePrimerElemento, indiceUltimoElemento),
+        [listaFolioServicioDependencia, indicePrimerElemento, indiceUltimoElemento]
     );
     // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-    const totalPaginas = Array.isArray(listaAltas)
-        ? Math.ceil(listaAltas.length / elementosPorPagina)
+    const totalPaginas = Array.isArray(listaFolioServicioDependencia)
+        ? Math.ceil(listaFolioServicioDependencia.length / elementosPorPagina)
         : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -183,20 +197,25 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
     //     saveAs(dataBlob, fileName);
     // };
 
-    const exportarExcel = (listaAltas: any[], fileName: string = "reporte.xlsx") => {
+    // 📂 Función para exportar a Excel
+    const exportarExcel = (listaFolioServicioDependencia: any[], fileName: string = "Reporte.xlsx") => {
         // Definir los encabezados
         const encabezados = [
-            ["N° Inventario", "Especie", "Marca", "Modelo", "Serie", "Precio"]
+            ["N° Inventario", "Especie", "Marca", "Modelo", "Serie", "Observación", "Fecha Ingreso", "Nº Alta", "Estado", "Nº Traslado"]
         ];
 
         // Convertir datos a array de arrays
-        const datos = listaAltas.map((item) => [
-            item.ninv ?? "",
-            item.esp ?? "",
-            item.marca ?? "",
-            item.modelo ?? "",
-            item.serie ?? "",
-            item.precio ?? ""
+        const datos = listaFolioServicioDependencia.map((item) => [
+            item.aF_CLAVE ?? "",
+            item.especie ?? "",
+            item.aF_MARCA ?? "",
+            item.aF_MODELO ?? "",
+            item.aF_SERIE ?? "",
+            item.aF_OBS ?? "",
+            item.aF_FINGRESO ?? "",
+            item.altaS_CORR ?? "",
+            item.traS_ESTADO_AF ?? "",
+            item.ntraslado ?? ""
         ]);
 
         // Crear hoja de cálculo
@@ -204,12 +223,16 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
 
         // Aplicar anchos de columna
         worksheet["!cols"] = [
-            { wch: 15 }, // N° Inventario
-            { wch: 20 }, // Especie
-            { wch: 15 }, // Marca
-            { wch: 15 }, // Modelo
-            { wch: 20 }, // Serie
-            { wch: 12 }  // Precio
+            { wch: 12 }, // N° Inventario
+            { wch: 150 }, // Especie
+            { wch: 12 }, // Marca
+            { wch: 12 }, // Modelo
+            { wch: 12 }, // Serie
+            { wch: 150 },  // Observacion
+            { wch: 12 },  // Fecha Ingreso
+            { wch: 12 }, // Nº Alta 
+            { wch: 12 }, // Estado
+            { wch: 12 },  // Nº Traslado
         ];
 
         // Aplicar color de fondo a los encabezados
@@ -270,21 +293,41 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
                                             shading: { fill: "CCCCCC" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Precio")],
+                                            children: [new Paragraph("Observación")],
+                                            shading: { fill: "CCCCCC" },
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph("Fecha Ingreso")],
+                                            shading: { fill: "CCCCCC" },
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph("Nº Alta")],
+                                            shading: { fill: "CCCCCC" },
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph("Estado")],
+                                            shading: { fill: "CCCCCC" },
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph("Nº Traslado")],
                                             shading: { fill: "CCCCCC" },
                                         }),
                                     ],
                                 }),
                                 // Filas dinámicas con datos
-                                ...listaAltas.map((item) =>
+                                ...listaFolioServicioDependencia.map((item) =>
                                     new TableRow({
                                         children: [
-                                            new TableCell({ children: [new Paragraph(item.ninv)] }),
-                                            new TableCell({ children: [new Paragraph(item.esp)] }),
-                                            new TableCell({ children: [new Paragraph(item.marca)] }),
-                                            new TableCell({ children: [new Paragraph(item.modelo)] }),
-                                            new TableCell({ children: [new Paragraph(item.serie)] }),
-                                            new TableCell({ children: [new Paragraph(item.precio)] }),
+                                            new TableCell({ children: [new Paragraph(item.aF_CLAVE.toString())] }),
+                                            new TableCell({ children: [new Paragraph(item.especie)] }),
+                                            new TableCell({ children: [new Paragraph(item.aF_MARCA)] }),
+                                            new TableCell({ children: [new Paragraph(item.aF_MODELO)] }),
+                                            new TableCell({ children: [new Paragraph(item.aF_SERIE)] }),
+                                            new TableCell({ children: [new Paragraph(item.aF_OBS)] }),
+                                            new TableCell({ children: [new Paragraph(item.aF_FINGRESO)] }),
+                                            new TableCell({ children: [new Paragraph(item.altaS_CORR.toString())] }),
+                                            new TableCell({ children: [new Paragraph(item.traS_ESTADO_AF)] }),
+                                            new TableCell({ children: [new Paragraph(item.ntraslado.toString())] }),
                                         ],
                                     })
                                 ),
@@ -299,6 +342,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
             saveAs(blob, "Inventario.docx");
         });
     };
+
     return (
         <Layout>
             <Helmet>
@@ -320,8 +364,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
                                 >
                                     <option value="">Seleccionar</option>
                                     {comboServicioInforme.map((traeServicio) => (
-                                        <option key={traeServicio.codigo} value={traeServicio.codigo}>
-                                            {traeServicio.nombrE_ORD}
+                                        <option key={traeServicio.deP_CORR} value={traeServicio.deP_CORR}>
+                                            {traeServicio.descripcion}
                                         </option>
                                     ))}
                                 </select>
@@ -412,7 +456,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
                                         <th scope="col" className="text-nowrap text-center">Modelo</th>
                                         <th scope="col" className="text-nowrap text-center">Serie</th>
                                         <th scope="col" className="text-nowrap text-center">Observación</th>
-                                        <th scope="col" className="text-nowrap text-center">Fecha Inngreso</th>
+                                        <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
                                         <th scope="col" className="text-nowrap text-center">Nº Alta</th>
                                         <th scope="col" className="text-nowrap text-center">Estado</th>
                                         <th scope="col" className="text-nowrap text-center">Nº Traslado</th>
@@ -423,16 +467,15 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
                                         return (
                                             <tr key={index}>
                                                 <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
-                                                <td className="text-nowrap text-center">{Lista.ninv}</td>
-                                                <td className="text-nowrap text-center">{Lista.serv}</td>
-                                                <td className="text-nowrap text-center">{Lista.dep}</td>
-                                                <td className="text-nowrap text-center">{Lista.esp}</td>
-                                                <td className="text-nowrap text-center">{Lista.ncuenta}</td>
-                                                <td className="text-nowrap text-center">{Lista.marca}</td>
-                                                <td className="text-nowrap text-center">{Lista.modelo}</td>
-                                                <td className="text-nowrap text-center">{Lista.serie}</td>
-                                                <td className="text-nowrap text-center">{Lista.serie}</td>
-
+                                                <td className="text-nowrap text-start">{Lista.especie}</td>
+                                                <td className="text-nowrap text-center">{Lista.aF_MARCA}</td>
+                                                <td className="text-nowrap text-center">{Lista.aF_MODELO}</td>
+                                                <td className="text-nowrap text-center">{Lista.aF_SERIE}</td>
+                                                <td className="text-nowrap text-start">{Lista.aF_OBS}</td>
+                                                <td className="text-nowrap text-center">{Lista.aF_FINGRESO}</td>
+                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
+                                                <td className="text-nowrap text-center">{Lista.traS_ESTADO_AF}</td>
+                                                <td className="text-nowrap text-center">{Lista.ntraslado}</td>
                                             </tr>
                                         );
                                     })}
@@ -482,7 +525,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
                     {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                     <BlobProvider document={
                         <DocumentoPDF
-                            row={listaAltas}
+                            row={listaFolioServicioDependencia}
                         />
                     }>
                         {({ url, loading }) =>
@@ -494,7 +537,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
                                     {/* Botones para exportar a Excel y Word */}
                                     <div className="mt-3 d-flex justify-content-center gap-2 mb-1">
                                         <Button
-                                            onClick={() => exportarExcel(listaAltas)}
+                                            onClick={() => exportarExcel(listaFolioServicioDependencia)}
                                             variant="success">
                                             Descargar Excel
                                             <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
@@ -503,7 +546,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
                                             onClick={() => exportarWord()}
                                             variant="primary">
                                             Descargar Word
-                                            <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                            <FileEarmarkWord className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                         </Button>
                                     </div>
                                     {/* Frame para vista previa del PDF */}
@@ -528,7 +571,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaAltas, comboSe
 };
 
 const mapStateToProps = (state: RootState) => ({
-    listaAltas: state.datosListaAltasReducers.listaAltas,
+    listaFolioServicioDependencia: state.listaFolioServicioDependenciaReducers.listaFolioServicioDependencia,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
@@ -536,8 +579,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-    listaAltasActions,
-    obtenerListaAltasActions,
-    obtenerAltasPorCorrActions,
+    listaFolioServicioDependenciaActions,
     comboServicioInformeActions
 })(FolioPorServicioDependencia);

@@ -24,3 +24,4 @@ rut.js
 @react-pdf/renderer
 --save-dev @types/file-saver --legacy-peer-deps // instalar esta version forzada para usar las exportaciones
 xlsx --legacy-peer-deps // instalar esta version forzada para usar las exportaciones excel
+docx --force

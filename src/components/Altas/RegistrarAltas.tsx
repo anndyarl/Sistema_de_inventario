@@ -10,6 +10,7 @@ import { registrarAltasActions } from "../../redux/actions/Altas/RegistrarAltas/
 import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
+import { Objeto } from "../Navegacion/Profile.tsx";
 
 export interface ListaAltas {
   aF_CLAVE: number,
@@ -26,13 +27,14 @@ export interface ListaAltas {
 }
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: () => Promise<boolean>;
+  listaAltasActions: (establ_corr: number) => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
+  objeto: Objeto;
 }
 
-const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, registrarAltasActions, token, isDarkMode }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, objeto, listaAltasActions, registrarAltasActions, token, isDarkMode }) => {
   // const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -47,7 +49,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
       if (token) {
         if (listaAltas.length === 0) {
           setLoading(true);
-          const resultado = await listaAltasActions();
+          const resultado = await listaAltasActions(objeto.Establecimiento);
           if (resultado) {
             setLoading(false);
           }
@@ -250,7 +252,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
           }
         });
         setLoadingRegistro(false);
-        listaAltasActions();
+        listaAltasActions(objeto.Establecimiento);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -433,7 +435,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, r
 const mapStateToProps = (state: RootState) => ({
   listaAltas: state.datosListaAltasReducers.listaAltas,
   token: state.loginReducer.token,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

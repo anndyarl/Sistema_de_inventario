@@ -4,11 +4,11 @@ import {
   COMBO_SERVICIO_INFORME_SUCCESS,
   COMBO_SERVICIO_INFORME_FAIL,
 
-} from '../../../actions/Informes/types';
+} from '../../../../actions/Informes/types';
 
 interface PropsState {
   loading: boolean;
-  comboServicioInforme: Array<{ codigo: number; nombrE_ORD: string; descripcion: string }>;
+  comboServicioInforme: Array<{ deP_CORR: number; descripcion: string }>;
   error: string | null;
 }
 

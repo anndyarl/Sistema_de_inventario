@@ -48,7 +48,7 @@ import DetallesPorCuenta from '../../pages/Informes/DetallesPorCuenta';
 import Listados from '../../pages/Informes/Listados';
 import AltasMensuales from '../../../components/Informes/AltasMensuales';
 import ConsultaInventarioEspecies from '../../../components/Informes/ConsultaInventarioEspecies';
-import CuentaFechas from '../../../components/Informes/Listados/CuentaFechas';
+import CuentaFechas from '../../../components/Informes/Listados/CuentaFechas/CuentaFechas';
 import CuentaServicioFecha from '../../../components/Informes/Listados/CuentaServicioFecha';
 import EspecieFecha from '../../../components/Informes/Listados/EspecieFecha';
 import EspecieServicioFechas from '../../../components/Informes/Listados/EspecieServicioFechas';

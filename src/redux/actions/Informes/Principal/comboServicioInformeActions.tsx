@@ -3,7 +3,7 @@ import {
   COMBO_SERVICIO_INFORME_REQUEST,
   COMBO_SERVICIO_INFORME_SUCCESS,
   COMBO_SERVICIO_INFORME_FAIL,
-} from './types';
+} from '../types';
 import { Dispatch } from 'redux';
 
 
@@ -21,7 +21,7 @@ export const comboServicioInformeActions = (establ_corr: number) => async (dispa
     dispatch({ type: COMBO_SERVICIO_INFORME_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeServicio?establ_corr=${establ_corr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeServicioDependencia?establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
         dispatch({
