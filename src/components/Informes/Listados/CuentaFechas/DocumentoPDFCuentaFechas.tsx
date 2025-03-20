@@ -4,6 +4,14 @@ import ssmso_logo from "../../../../assets/img/SSMSO-LOGO.png"
 import { Container } from 'react-bootstrap';
 import { listaCuentaFechas } from './CuentaFechas';
 
+
+// Formatear la fecha actual en español (Chile)
+const fechaHoy = new Date().toLocaleDateString('es-CL', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+});
+
 const styles = StyleSheet.create({
     page: {
         padding: 20,
@@ -35,13 +43,14 @@ const styles = StyleSheet.create({
     },
 
     header: {
-        fontSize: 16,
+        flex: 1,
+        fontSize: 6,
         marginBottom: 10,
         fontWeight: 'bold',
-        textAlign: 'center',
+        textAlign: 'right',
     },
     p: {
-        fontSize: 10,
+        fontSize: 8,
         marginBottom: 2,
         fontWeight: 'semibold',
         textAlign: 'center',
@@ -55,17 +64,21 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     tableCellHeader: {
+        fontSize: 5,
         fontWeight: 'bold',
-        padding: 5,
-        border: '1px solid #000',
+        padding: "0.5px",
+        border: '1px solid #b3b3b3',
+        backgroundColor: "rgb(0 68 133 / 80%)",
+        color: "#fff",
         flex: 1,
-        textAlign: 'center',
+        // textAlign: 'center',
     },
     tableCell: {
-        padding: 5,
-        border: '1px solid #000',
+        fontSize: 5,
+        border: '1px solid #b3b3b3',
+        padding: "0.5px",
         flex: 1,
-        textAlign: 'center',
+        // textAlign: 'center',
     },
     firmaContainer: {
         flexDirection: 'row',
@@ -80,7 +93,7 @@ const styles = StyleSheet.create({
     },
     firmaLabel: {
         marginTop: 5,
-        fontSize: 10,
+        fontSize: 6,
         textAlign: 'center',
     },
 
@@ -114,15 +127,15 @@ const DocumentoPDF = ({ row }: { row: listaCuentaFechas[]; }) => (
                 </View>
             </Container>
             {/* Encabezado */}
-            {/* <View style={styles.headerContent}>
-                <Text style={styles.header}>Fecha: {fechaHoy.toLocaleDateString('es-CL')}</Text>
-            </View> */}
+            <View style={styles.headerContent}>
+                <Text style={styles.header}>Fecha: {fechaHoy}</Text>
+            </View>
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellHeader}>Código Cuenta</Text>
-                    <Text style={styles.tableCellHeader}>Cuenta</Text>
+                    {/* <Text style={styles.tableCellHeader}>Cuenta</Text> */}
                     <Text style={styles.tableCellHeader}>Especie</Text>
                     <Text style={styles.tableCellHeader}>Código Inventario</Text>
                     <Text style={styles.tableCellHeader}>Fecha Ingreso</Text>
@@ -143,7 +156,7 @@ const DocumentoPDF = ({ row }: { row: listaCuentaFechas[]; }) => (
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
                         <Text style={styles.tableCell}>{lista.codcuenta}</Text>
-                        <Text style={styles.tableCell}>{lista.cuenta}</Text>
+                        {/* <Text style={styles.tableCell}>{lista.cuenta}</Text> */}
                         <Text style={styles.tableCell}>{lista.especie}</Text>
                         <Text style={styles.tableCell}>{lista.codinventario}</Text>
                         <Text style={styles.tableCell}>{lista.fechaingreso}</Text>

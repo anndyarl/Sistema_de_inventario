@@ -4,6 +4,13 @@ import ssmso_logo from "../../../assets/img/SSMSO-LOGO.png"
 import { Container } from 'react-bootstrap';
 import { ListaFolioServicioDependencia } from './FolioPorServicioDependencia';
 
+// Formatear la fecha actual en español (Chile)
+const fechaHoy = new Date().toLocaleDateString('es-CL', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+});
+
 const styles = StyleSheet.create({
     page: {
         padding: 20,
@@ -35,10 +42,11 @@ const styles = StyleSheet.create({
     },
 
     header: {
-        fontSize: 16,
+        flex: 1,
+        fontSize: 6,
         marginBottom: 10,
         fontWeight: 'bold',
-        textAlign: 'center',
+        textAlign: 'right',
     },
     p: {
         fontSize: 10,
@@ -55,17 +63,21 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     tableCellHeader: {
+        fontSize: 8,
         fontWeight: 'bold',
-        padding: 5,
-        border: '1px solid #000',
+        padding: "0.5px",
+        border: '1px solid #b3b3b3',
+        backgroundColor: "rgb(0 68 133 / 80%)",
+        color: "#fff",
         flex: 1,
-        textAlign: 'center',
+        // textAlign: 'center',
     },
     tableCell: {
-        padding: 5,
-        border: '1px solid #000',
+        fontSize: 8,
+        border: '1px solid #b3b3b3',
+        padding: "0.5px",
         flex: 1,
-        textAlign: 'center',
+        // textAlign: 'center',
     },
     firmaContainer: {
         flexDirection: 'row',
@@ -114,9 +126,9 @@ const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
                 </View>
             </Container>
             {/* Encabezado */}
-            {/* <View style={styles.headerContent}>
-                <Text style={styles.header}>Fecha: {fechaHoy.toLocaleDateString('es-CL')}</Text>
-            </View> */}
+            <View style={styles.headerContent}>
+                <Text style={styles.header}>Fecha: {fechaHoy}</Text>
+            </View>
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}

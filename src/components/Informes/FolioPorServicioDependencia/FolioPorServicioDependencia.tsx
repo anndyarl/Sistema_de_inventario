@@ -5,7 +5,7 @@ import { RootState } from "../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { BoxArrowDown, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
+import { BoxArrowDown, Eraser, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import MenuInformes from "../../Menus/MenuInformes";
@@ -61,7 +61,7 @@ interface SERVICIO {
 
 interface DatosAltas {
     listaFolioServicioDependencia: ListaFolioServicioDependencia[];
-    listaFolioServicioDependenciaActions: () => Promise<boolean>;
+    listaFolioServicioDependenciaActions: (dep_corr: number, establ_corr: number) => Promise<boolean>;
     comboServicioInforme: SERVICIO[];
     comboServicioInformeActions: (establ_corr: number) => void;
     token: string | null;
@@ -71,45 +71,46 @@ interface DatosAltas {
 
 const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioDependencia, comboServicioInforme, objeto, listaFolioServicioDependenciaActions, comboServicioInformeActions, token, isDarkMode }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [loading, setLoading] = useState(false); // Estado para controlar la carga
+    const [error, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
+    const [loading, setLoading] = useState(false); // Estado para controlar la carga busqueda 
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 12;
 
     const [Inventario, setInventario] = useState({
+        servicio: 0,
         encargadoInventario: "",
         jefeDependencia: "",
-        jefeInventario: "",
-        servicio: 0
+        jefeInventario: ""
     });
     const listaAuto = async () => {
-        if (token) {
-            if (listaFolioServicioDependencia.length === 0) {
-                setLoading(true);
-                const resultado = await listaFolioServicioDependenciaActions();
-                if (resultado) {
-                    setLoading(false);
-                }
-                else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                }
+        if (listaFolioServicioDependencia.length === 0) {
+            setLoading(true);
+            const resultado = await listaFolioServicioDependenciaActions(0, objeto.Establecimiento);
+            if (resultado) {
+                setLoading(false);
+            }
+            else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
             }
         }
     };
 
     useEffect(() => {
-        listaAuto();
-        if (comboServicioInforme.length === 0) { comboServicioInformeActions(objeto.Establecimiento); };
-    }, [listaFolioServicioDependencia, comboServicioInforme, token]); // Asegúrate de incluir dependencias relevantes
+        if (token) {
+            listaAuto();
+            comboServicioInformeActions(objeto.Establecimiento);
+        }
+    }, [listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia.length, comboServicioInforme.length, token]); // Asegúrate de incluir dependencias relevantes
 
     // const validate = () => {
     //     let tempErrors: Partial<any> & {} = {};
@@ -124,7 +125,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
     // };
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        let newValue: string | number = [""].includes(name)
+        let newValue: string | number = ["servicio"].includes(name)
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
@@ -134,40 +135,50 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         }));
     };
 
-    // const handleBuscarAltas = async () => {
-    //     let resultado = false;
-    //     setLoading(true);
-    //     resultado = await obtenerListaBienesActions(Inventario.encargadoInventario);
+    const handleBuscar = async () => {
+        let resultado = false;
+        setLoading(true);
+        resultado = await listaFolioServicioDependenciaActions(Inventario.servicio, objeto.Establecimiento);
 
-    //     //resetea campos una vez hecha la busqueda
-    //     setInventario((prevState) => ({
-    //         ...prevState,
-    //         encargadoInventario: "",
-    //         jefeDependencia: "",
-    //         jefeInventario: "",
-    //         servicio: 0,
-    //     }));
-    //     setError({});
-    //     if (!resultado) {
-    //         Swal.fire({
-    //             icon: "error",
-    //             title: ":'(",
-    //             text: "No se encontraron resultados, inténte otro registro.",
-    //             confirmButtonText: "Ok",
-    //             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-    //             customClass: {
-    //                 popup: "custom-border", // Clase personalizada para el borde
-    //             }
-    //         });
-    //         setLoading(false); //Finaliza estado de carga
-    //         return;
-    //     } else {
-    //         setLoading(false); //Finaliza estado de carga
-    //     }
+        //resetea campos una vez hecha la busqueda
+        setInventario((prevState) => ({
+            ...prevState,
+            encargadoInventario: "",
+            jefeDependencia: "",
+            jefeInventario: "",
+            servicio: 0,
+        }));
+        setError({});
+        if (!resultado) {
+            Swal.fire({
+                icon: "error",
+                title: ":'(",
+                text: "No se encontraron resultados, inténte otro registro.",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            setLoading(false); //Finaliza estado de carga
+            return;
+        } else {
+            setLoading(false); //Finaliza estado de carga
+        }
 
-    // };
+    };
+
+    const handleLimpiar = () => {
+        setInventario((prevInventario) => ({
+            ...prevInventario,
+            servicio: 0,
+            encargadoInventario: "",
+            jefeDependencia: "",
+            jefeInventario: ""
+        }));
+    };
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -199,19 +210,29 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
 
     // 📂 Función para exportar a Excel
     const exportarExcel = (listaFolioServicioDependencia: any[], fileName: string = "Reporte.xlsx") => {
+        setLoading(true);
         // Definir los encabezados
         const encabezados = [
-            ["N° Inventario", "Especie", "Marca", "Modelo", "Serie", "Observación", "Fecha Ingreso", "Nº Alta", "Estado", "Nº Traslado"]
+            ["N° Inventario",
+                // "Especie",
+                "Marca",
+                "Modelo",
+                "Serie",
+                // "Observación",
+                "Fecha Ingreso",
+                "Nº Alta",
+                "Estado",
+                "Nº Traslado"]
         ];
 
         // Convertir datos a array de arrays
         const datos = listaFolioServicioDependencia.map((item) => [
             item.aF_CLAVE ?? "",
-            item.especie ?? "",
+            // item.especie ?? "",
             item.aF_MARCA ?? "",
             item.aF_MODELO ?? "",
             item.aF_SERIE ?? "",
-            item.aF_OBS ?? "",
+            // item.aF_OBS ?? "",
             item.aF_FINGRESO ?? "",
             item.altaS_CORR ?? "",
             item.traS_ESTADO_AF ?? "",
@@ -224,11 +245,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         // Aplicar anchos de columna
         worksheet["!cols"] = [
             { wch: 12 }, // N° Inventario
-            { wch: 150 }, // Especie
+            // { wch: 150 }, // Especie
             { wch: 12 }, // Marca
             { wch: 12 }, // Modelo
             { wch: 12 }, // Serie
-            { wch: 150 },  // Observacion
+            // { wch: 150 },  // Observacion
             { wch: 12 },  // Fecha Ingreso
             { wch: 12 }, // Nº Alta 
             { wch: 12 }, // Estado
@@ -254,16 +275,41 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         // Descargar el archivo
         const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
         saveAs(new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), fileName);
+        setLoading(false);
     };
 
     // 📂 Función para exportar a Word
     const exportarWord = () => {
+        setLoading(true);
         const doc = new Document({
+            styles: {
+                paragraphStyles: [
+                    {
+                        id: "tableCellHeader",
+                        name: "tableCellHeader",
+                        basedOn: "Normal",
+                        run: {
+                            size: 10,
+                            color: "FFFFFF",
+                            bold: true,
+                        },
+                    },
+                    {
+                        id: "tableCell",
+                        name: "tableCell",
+                        basedOn: "Normal",
+                        run: {
+                            size: 10,
+                            bold: true,
+                        },
+                    },
+                ],
+            },
             sections: [
                 {
                     children: [
                         new Paragraph({
-                            text: "Folio por Servicio Dependencia",
+                            text: "Detalles de Bienes por Dependencia",
                             heading: "Heading1",
                         }),
                         new Table({
@@ -273,44 +319,44 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                 new TableRow({
                                     children: [
                                         new TableCell({
-                                            children: [new Paragraph("N° Inventario")],
-                                            shading: { fill: "CCCCCC" }, // Fondo gris
+                                            children: [new Paragraph({ text: "Nº Inventario", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" }, // Fondo gris
+                                        }),
+                                        // new TableCell({
+                                        //      children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
+                                        //     shading: { fill: "004485" },
+                                        // }),
+                                        new TableCell({
+                                            children: [new Paragraph({ text: "Marca", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Especie")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Modelo", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Marca")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Serie", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
+                                        }),
+                                        // new TableCell({
+                                        //     children: [new Paragraph({ text: "Observación", style: "tableCellHeader" })],
+                                        //     shading: { fill: "004485" },
+                                        // }),
+                                        new TableCell({
+                                            children: [new Paragraph({ text: "Fecha Ingreso", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Modelo")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Nº Alta", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Serie")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Estado", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Observación")],
-                                            shading: { fill: "CCCCCC" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph("Fecha Ingreso")],
-                                            shading: { fill: "CCCCCC" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph("Nº Alta")],
-                                            shading: { fill: "CCCCCC" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph("Estado")],
-                                            shading: { fill: "CCCCCC" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph("Nº Traslado")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Nº Traslado", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                     ],
                                 }),
@@ -318,16 +364,15 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                 ...listaFolioServicioDependencia.map((item) =>
                                     new TableRow({
                                         children: [
-                                            new TableCell({ children: [new Paragraph(item.aF_CLAVE.toString())] }),
-                                            new TableCell({ children: [new Paragraph(item.especie)] }),
-                                            new TableCell({ children: [new Paragraph(item.aF_MARCA)] }),
-                                            new TableCell({ children: [new Paragraph(item.aF_MODELO)] }),
-                                            new TableCell({ children: [new Paragraph(item.aF_SERIE)] }),
-                                            new TableCell({ children: [new Paragraph(item.aF_OBS)] }),
-                                            new TableCell({ children: [new Paragraph(item.aF_FINGRESO)] }),
-                                            new TableCell({ children: [new Paragraph(item.altaS_CORR.toString())] }),
-                                            new TableCell({ children: [new Paragraph(item.traS_ESTADO_AF)] }),
-                                            new TableCell({ children: [new Paragraph(item.ntraslado.toString())] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.aF_CLAVE.toString(), style: "tableCell" })] }),
+                                            // new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.aF_MARCA, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.aF_SERIE, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.aF_OBS, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.aF_FINGRESO, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.altaS_CORR.toString(), style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.traS_ESTADO_AF, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.ntraslado.toString(), style: "tableCell" })] }),
                                         ],
                                     })
                                 ),
@@ -339,19 +384,24 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         });
 
         Packer.toBlob(doc).then((blob) => {
-            saveAs(blob, "Inventario.docx");
+            saveAs(blob, `Reporte_FolioPorServicioDependencia.docx`);
+            setLoading(false); //evita que quede cargando
+        }).catch((error) => {
+            // console.error("Error al generar el documento:", error);
+            setLoading(false);
         });
+
     };
 
     return (
         <Layout>
             <Helmet>
-                <title>Folio por Servicio Dependencia</title>
+                <title>Detalles de Bienes por Dependencia</title>
             </Helmet>
             <MenuInformes />
             <form>
                 <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                    <h3 className="form-title fw-semibold border-bottom p-1">Folio por Servicio Dependencia</h3>
+                    <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
                     <Row>
                         <Col md={3}>
                             <div className="mt-1">
@@ -361,6 +411,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                     className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="servicio"
                                     onChange={handleChange}
+                                    value={Inventario.servicio}
                                 >
                                     <option value="">Seleccionar</option>
                                     {comboServicioInforme.map((traeServicio) => (
@@ -413,27 +464,38 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                         </Col>
                         <Col md={3}>
                             <div className="mb-1 mt-4">
-                                <Button /*onClick={handleBuscarAltas}*/ variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
+                                <Button onClick={handleBuscar} disabled={loading == true}
+                                    className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >
                                     {loading ? (
                                         <>
-                                            <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                role="status"
-                                                aria-hidden="true"
-                                            />
+                                            {" Buscar"}
+                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                         </>
                                     ) : (
-                                        <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                                        <>
+                                            {"Buscar"}
+                                            <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </>
                                     )}
                                 </Button>
+                                <Button onClick={handleLimpiar} className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`}>
+                                    Limpiar
+                                    <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                </Button>
                                 <Button
-                                    variant="primary"
-                                    onClick={() => setMostrarModal(true)}
-                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
-                                    Exportar
-                                    <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                    onClick={() => setMostrarModal(true)} disabled={listaFolioServicioDependencia.length === 0}
+                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                                    {mostrarModal ? (
+                                        <>
+                                            {" Exportar"}
+                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            {"Exportar"}
+                                            <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </Col>

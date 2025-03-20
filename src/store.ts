@@ -34,7 +34,11 @@ const persistConfig = {
     'comboTrasladoServicioReducer',
     'comboTrasladoEspecieReducer',
     'comboDepartamentoReducer',
-    'listadoTrasladosReducers'
+    'listadoTrasladosReducers',
+    'listaFolioServicioDependenciaReducers',
+    'listaCuentaFechasReducers',
+    'comboCuentasInformeReducers',
+    'comboServicioInformeReducers'
   ]
 };
 

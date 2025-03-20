@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import { BoxArrowDown, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
+import { BoxArrowDown, Eraser, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import MenuListados from "../../../Menus/MenuListados";
 import Layout from "../../../../containers/hocs/layout/Layout";
@@ -21,8 +21,8 @@ const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
 interface FechasProps {
-    fechaInicio: string;
-    fechaTermino: string;
+    fDesde: string;
+    fHasta: string;
 }
 export interface listaCuentaFechas {
     codinventario: string;
@@ -56,8 +56,8 @@ interface ComboCuentas {
 
 interface DatosAltas {
     listaCuentaFechas: listaCuentaFechas[];
-    listaCuentaFechasActions: () => Promise<boolean>;
-    obtenerlistaCuentaFechasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
+    listaCuentaFechasActions: (fDesde: string, fHasta: string, codCuenta: string) => Promise<boolean>;
+    // obtenerlistaCuentaFechasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
     comboCuentasInformeActions: () => void;
     token: string | null;
     isDarkMode: boolean;
@@ -65,7 +65,7 @@ interface DatosAltas {
 }
 
 const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInforme, listaCuentaFechasActions, comboCuentasInformeActions, token, isDarkMode }) => {
-    const [error, __] = useState<Partial<FechasProps> & {}>({});
+    const [error, setError] = useState<Partial<listaCuentaFechas> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [loading, setLoading] = useState(false); // Estado para controlar la carga 
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -78,52 +78,52 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
     }));
 
     const [Inventario, setInventario] = useState({
-        fechaInicio: "",
-        fechaTermino: "",
-        ctA_NOMBRE: '',
+        fDesde: "",
+        fHasta: "",
+        cta_cod: '',
     });
     const listaCuentaFechasAuto = async () => {
-        if (token) {
-            if (listaCuentaFechas.length === 0) {
-                setLoading(true);
-                const resultado = await listaCuentaFechasActions();
-                if (resultado) {
-                    setLoading(false);
-                }
-                else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                }
+        if (listaCuentaFechas.length === 0) {
+            setLoading(true);
+            const resultado = await listaCuentaFechasActions("", "", "");
+            if (resultado) {
+                setLoading(false);
+            }
+            else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
             }
         }
     };
 
     useEffect(() => {
-        listaCuentaFechasAuto();
-        if (comboCuentasInforme.length === 0) { comboCuentasInformeActions() }
-    }, [listaCuentaFechasActions, token, listaCuentaFechas.length]); // Asegúrate de incluir dependencias relevantes
+        if (token) {
+            listaCuentaFechasAuto();
+            if (comboCuentasInforme.length === 0) { comboCuentasInformeActions() }
+        }
+    }, [listaCuentaFechasActions, comboCuentasInformeActions, token, listaCuentaFechas.length, comboCuentasInforme.length]); // Asegúrate de incluir dependencias relevantes
 
-    // const validate = () => {
-    //     let tempErrors: Partial<any> & {} = {};
-    //     // Validación para N° de Recepción (debe ser un número)
-    //     if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-    //     if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-    //     if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
-    //     // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
+    const validate = () => {
+        let tempErrors: Partial<any> & {} = {};
+        // Validación para N° de Recepción (debe ser un número)
+        if (!Inventario.fDesde) tempErrors.fDesde = "La Fecha de Inicio es obligatoria.";
+        if (!Inventario.fHasta) tempErrors.fHasta = "La Fecha de Término es obligatoria.";
+        if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha no cumple con el rango de busqueda";
+        // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
 
 
-    //     setError(tempErrors);
-    //     return Object.keys(tempErrors).length === 0;
-    // };
+        setError(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -143,45 +143,55 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
 
     const handleCuentasChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : "";
-        setInventario((prevMantenedor) => ({ ...prevMantenedor, ctA_NOMBRE: value }));
+        setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
+        console.log(value);
     }
 
-    // const handleBuscarAltas = async () => {
-    //     let resultado = false;
-    //     setLoading(true);
-    //     resultado = await obtenerAltasPorCorrActions(Inventario);
-    //     if (Inventario.fechaInicio != "" && Inventario.fechaTermino != "") {
-    //         if (validate()) {
-    //             resultado = await obtenerlistaCuentaFechasActions(Inventario.fechaInicio, Inventario.fechaTermino);
-    //         }
-    //     }
-    //     setInventario((prevState) => ({
-    //         ...prevState,
-    //         aF_CLAVE: 0,
-    //         fechaInicio: "",
-    //         fechaTermino: ""
-    //     }));
-    //     setError({});
-    //     if (!resultado) {
-    //         Swal.fire({
-    //             icon: "error",
-    //             title: ":'(",
-    //             text: "No se encontraron resultados, inténte otro registro.",
-    //             confirmButtonText: "Ok",
-    //             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-    //             customClass: {
-    //                 popup: "custom-border", // Clase personalizada para el borde
-    //             }
-    //         });
-    //         setLoading(false); //Finaliza estado de carga
-    //         return;
-    //     } else {
-    //         setLoading(false); //Finaliza estado de carga
-    //     }
 
-    // };
+    const handleBuscar = async () => {
+        let resultado = false;
+
+        setLoading(true);
+        //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
+        if (Inventario.fDesde != "" && Inventario.fHasta != "") {
+            if (validate()) {
+                resultado = await listaCuentaFechasActions(Inventario.fDesde, Inventario.fHasta, Inventario.cta_cod);
+            }
+        }
+        else {
+            resultado = await listaCuentaFechasActions("", "", Inventario.cta_cod);
+        }
+
+        setError({});
+        if (!resultado) {
+            Swal.fire({
+                icon: "error",
+                title: ":'(",
+                text: "No se encontraron resultados, inténte otro registro.",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            setLoading(false); //Finaliza estado de carga
+            return;
+        } else {
+            setLoading(false); //Finaliza estado de carga
+        }
+
+    };
+
+    const handleLimpiar = () => {
+        setInventario((prevInventario) => ({
+            ...prevInventario,
+            fDesde: "",
+            fHasta: "",
+            cta_cod: ""
+        }));
+    };
 
     const setSeleccionaFilas = (index: number) => {
         setFilasSeleccionadas((prev) =>
@@ -222,11 +232,12 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
 
     // 📂 Función para exportar a Excel
     const exportarExcel = (listaFolioServicioDependencia: any[], fileName: string = "Reporte.xlsx") => {
+        setLoading(true);
         // Definir los encabezados
         const encabezados = [
             [
                 "Código Cuenta",
-                "Cuenta",
+                // "Cuenta",
                 "Especie",
                 "Código Inventario",
                 "Fecha Ingreso",
@@ -248,7 +259,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
         // Convertir datos a array de arrays
         const datos = listaFolioServicioDependencia.map((item) => [
             item.codcuenta ?? "",
-            item.cuenta ?? "",
+            // item.cuenta ?? "",
             item.especie ?? "",
             item.codinventario ?? "",
             item.fechaingreso ?? "",
@@ -271,7 +282,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
 
         worksheet["!cols"] = [
             { wch: 12 }, // Código Cuenta
-            { wch: 70 }, // Cuenta
+            // { wch: 70 }, // Cuenta
             { wch: 50 }, // Especie
             { wch: 12 }, // Código Inventario
             { wch: 15 }, // Fecha Ingreso
@@ -289,19 +300,19 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
             { wch: 12 }  // Valor Libro
         ];
 
-        // Aplicar color de fondo a los encabezados
+        // Aplicar color de fondo y color de texto a los encabezados
         const range = XLSX.utils.decode_range(worksheet["!ref"]!);
         for (let C = range.s.c; C <= range.e.c; C++) {
-            const cellRef = XLSX.utils.encode_cell({ r: 0, c: C }); // Celda del encabezado
+            const cellRef = XLSX.utils.encode_cell({ r: 0, c: C }); // Primera fila (encabezado)
+
             if (worksheet[cellRef]) {
                 worksheet[cellRef].s = {
-                    fill: { fgColor: { rgb: "FFFF00" } }, // Fondo amarillo
-                    font: { bold: true, color: { rgb: "000000" } }, // Texto negro en negrita
-                    alignment: { horizontal: "center", vertical: "center" } // Centrado
+                    fill: { fgColor: { rgb: "004485" } }, // Fondo azul oscuro
+                    font: { bold: true, color: { rgb: "FFFFFF" } }, // Texto blanco en negrita
+                    alignment: { horizontal: "center", vertical: "center" }, // Centrado
                 };
             }
         }
-
         // Crear libro de Excel
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario");
@@ -313,111 +324,136 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
 
     // 📂 Función para exportar a Word
     const exportarWord = () => {
+        setLoading(true);
         const doc = new Document({
+            styles: {
+                paragraphStyles: [
+                    {
+                        id: "tableCellHeader",
+                        name: "tableCellHeader",
+                        basedOn: "Normal",
+                        run: {
+                            size: 10,
+                            color: "FFFFFF",
+                            bold: true,
+                        },
+                    },
+                    {
+                        id: "tableCell",
+                        name: "tableCell",
+                        basedOn: "Normal",
+                        run: {
+                            size: 10,
+                            bold: true,
+                        },
+                    },
+                ],
+            },
             sections: [
                 {
                     children: [
                         new Paragraph({
-                            text: "Folio por Servicio Dependencia",
+                            text: "Reporte articulos por cuentas",
                             heading: "Heading1",
                         }),
                         new Table({
-                            width: { size: 100, type: WidthType.PERCENTAGE }, // Ajustar la tabla al 100% del ancho
+                            width: { size: 100, type: WidthType.PERCENTAGE },
                             rows: [
                                 // Encabezado de la tabla
                                 new TableRow({
                                     children: [
                                         new TableCell({
-                                            children: [new Paragraph("Código Cuenta")],
-                                            shading: { fill: "CCCCCC" }, // Fondo gris
+                                            children: [new Paragraph({ text: "Código Cuenta", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
+                                        }),
+                                        // new TableCell({
+                                        //     children: [new Paragraph({ text: "Cuenta", style: "tableCellHeader" })],
+                                        //     shading: { fill: "004485" },
+                                        // }),
+                                        new TableCell({
+                                            children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Cuenta")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Código Inventario", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Especie")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Fecha Ingreso", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Código Inventario")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Marca", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Fecha Ingreso")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Serie", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Marca")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "N° Alta", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Serie")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "N° OCO", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("N° Alta")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "N° Factura", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("N° OCO")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Proveedor", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("N° Factura")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Establecimiento", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Proveedor")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Destino", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Establecimiento")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Valor Inicial", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Destino")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Depreciación", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Valor Inicial")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Depreciación Acumulada", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
                                         new TableCell({
-                                            children: [new Paragraph("Depreciación")],
-                                            shading: { fill: "CCCCCC" },
+                                            children: [new Paragraph({ text: "Valor Libro", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
                                         }),
-                                        new TableCell({
-                                            children: [new Paragraph("Depreciación Acumulada")],
-                                            shading: { fill: "CCCCCC" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph("Valor Libro")],
-                                            shading: { fill: "CCCCCC" },
-                                        }),
+
                                     ],
                                 }),
                                 // Filas dinámicas con datos
                                 ...listaCuentaFechas.map((item) =>
                                     new TableRow({
                                         children: [
-                                            new TableCell({ children: [new Paragraph(item.codcuenta)] }),
-                                            new TableCell({ children: [new Paragraph(item.cuenta)] }),
-                                            new TableCell({ children: [new Paragraph(item.especie)] }),
-                                            new TableCell({ children: [new Paragraph(item.codinventario)] }),
-                                            new TableCell({ children: [new Paragraph(item.fechaingreso)] }),
-                                            new TableCell({ children: [new Paragraph(item.marca)] }),
-                                            new TableCell({ children: [new Paragraph(item.serie)] }),
-                                            new TableCell({ children: [new Paragraph(item.nuM_ALTA.toString())] }),
-                                            new TableCell({ children: [new Paragraph(item.nuM_OCO)] }),
-                                            new TableCell({ children: [new Paragraph(item.nuM_FAC)] }),
-                                            new TableCell({ children: [new Paragraph(item.proveedor)] }),
-                                            new TableCell({ children: [new Paragraph(item.establecimiento)] }),
-                                            new TableCell({ children: [new Paragraph(item.destino)] }),
-                                            new TableCell({ children: [new Paragraph(item.valorinicial.toString())] }),
-                                            new TableCell({ children: [new Paragraph(item.depreciacion.toString())] }),
-                                            new TableCell({ children: [new Paragraph(item.depreciacionacumulada.toString())] }),
-                                            new TableCell({ children: [new Paragraph(item.valorlibro.toString())] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.codcuenta, style: "tableCell" })] }),
+                                            // new TableCell({ children: [new Paragraph({ text: item.cuenta, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.codinventario, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.fechaingreso, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.marca, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.serie, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.nuM_ALTA.toString(), style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.nuM_OCO, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.nuM_FAC, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.proveedor, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.establecimiento, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.destino, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.valorinicial.toString(), style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.depreciacion.toString(), style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.depreciacionacumulada.toString(), style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.valorlibro.toString(), style: "tableCell" })] }),
 
                                         ],
                                     })
@@ -430,13 +466,17 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
         });
 
         Packer.toBlob(doc).then((blob) => {
-            saveAs(blob, "Reporte.docx");
+            saveAs(blob, `Reporte_ArticulosPorCuentas.docx`);
+            setLoading(false); //evita que quede cargando
+        }).catch((error) => {
+            // console.error("Error al generar el documento:", error);
+            setLoading(false);
         });
     };
     return (
         <Layout>
             <Helmet>
-                <title>Reporte articulos por cuentas</title>
+                <title>Cuentas Fechas</title>
             </Helmet>
             <MenuListados />
             <form>
@@ -445,31 +485,31 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                     <Row>
                         <Col md={3}>
                             <div className="mb-1">
-                                <label htmlFor="fechaInicio" className="fw-semibold">Desde</label>
+                                <label htmlFor="fDesde" className="fw-semibold">Desde</label>
                                 <input
-                                    aria-label="fechaInicio"
+                                    aria-label="fDesde"
                                     type="date"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
-                                    name="fechaInicio"
+                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                                    name="fDesde"
                                     onChange={handleChange}
-                                    value={Inventario.fechaInicio}
+                                    value={Inventario.fDesde}
                                 />
-                                {error.fechaInicio && (
-                                    <div className="invalid-feedback d-block">{error.fechaInicio}</div>
+                                {error.fDesde && (
+                                    <div className="invalid-feedback d-block">{error.fDesde}</div>
                                 )}
                             </div>
                             <div className="mb-1">
-                                <label htmlFor="fechaTermino" className="fw-semibold">Hasta</label>
+                                <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
                                 <input
-                                    aria-label="fechaTermino"
+                                    aria-label="fHasta"
                                     type="date"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
-                                    name="fechaTermino"
+                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                    name="fHasta"
                                     onChange={handleChange}
-                                    value={Inventario.fechaTermino}
+                                    value={Inventario.fHasta}
                                 />
-                                {error.fechaTermino && (
-                                    <div className="invalid-feedback">{error.fechaTermino}</div>
+                                {error.fHasta && (
+                                    <div className="invalid-feedback">{error.fHasta}</div>
                                 )}
                             </div>
 
@@ -482,8 +522,8 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                                 <Select
                                     options={cuentasOptions}
                                     onChange={handleCuentasChange}
-                                    name="ctA_NOMBRE"
-                                    value={cuentasOptions.find((option) => option.value === Inventario.ctA_NOMBRE) || null}
+                                    name="cta_cod"
+                                    value={cuentasOptions.find((option) => option.value === Inventario.cta_cod) || null}
                                     placeholder="Buscar"
                                     className={`form-select-container`}
                                     classNamePrefix="react-select"
@@ -494,27 +534,38 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                         </Col>
                         <Col md={5}>
                             <div className="mb-1 mt-4">
-                                <Button /*onClick={handleBuscarAltas}*/ variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
+                                <Button onClick={handleBuscar} disabled={loading == true}
+                                    className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >
                                     {loading ? (
                                         <>
-                                            <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                role="status"
-                                                aria-hidden="true"
-                                            />
+                                            {" Buscar"}
+                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                         </>
                                     ) : (
-                                        <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                                        <>
+                                            {"Buscar"}
+                                            <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </>
                                     )}
                                 </Button>
+                                <Button onClick={handleLimpiar} className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`}>
+                                    Limpiar
+                                    <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                </Button>
                                 <Button
-                                    variant="primary"
-                                    onClick={() => setMostrarModal(true)}
-                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
-                                    Exportar
-                                    <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                    onClick={() => setMostrarModal(true)} disabled={listaCuentaFechas.length === 0}
+                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                                    {mostrarModal ? (
+                                        <>
+                                            {" Exportar"}
+                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            {"Exportar"}
+                                            <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </Col>
@@ -540,7 +591,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                                             />
                                         </th>
                                         <th scope="col" className="text-nowrap text-center">Codigo Cuenta</th>
-                                        <th scope="col" className="text-nowrap text-center">Cuenta</th>
+                                        {/* <th scope="col" className="text-nowrap text-center">Cuenta</th> */}
                                         <th scope="col" className="text-nowrap text-center">Especies</th>
                                         <th scope="col" className="text-nowrap text-center">Codigo Inventario</th>
                                         <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
@@ -571,7 +622,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                                                     />
                                                 </td>
                                                 <td className="text-nowrap text-center">{Lista.codcuenta}</td>
-                                                <td className="text-nowrap text-center">{Lista.cuenta}</td>
+                                                {/* <td className="text-nowrap text-center">{Lista.cuenta}</td> */}
                                                 <td className="text-nowrap text-center">{Lista.especie}</td>
                                                 <td className="text-nowrap text-center">{Lista.codinventario}</td>
                                                 <td className="text-nowrap text-center">{Lista.fechaingreso}</td>
@@ -630,7 +681,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
             </form>
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
+                    <Modal.Title className="fw-semibold">Reporte articulos por cuentas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {/*Aqui se renderiza las propiedades de la tabla en el pdf */}

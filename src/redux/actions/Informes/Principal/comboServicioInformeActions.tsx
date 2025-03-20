@@ -8,7 +8,7 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener COMBO_SERVICIO_INFORME
-export const comboServicioInformeActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any) => {
+export const comboServicioInformeActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -28,14 +28,18 @@ export const comboServicioInformeActions = (establ_corr: number) => async (dispa
           type: COMBO_SERVICIO_INFORME_SUCCESS,
           payload: res.data
         });
+        return true;
       } else {
         dispatch({ type: COMBO_SERVICIO_INFORME_FAIL });
+        return false;
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
       dispatch({ type: COMBO_SERVICIO_INFORME_FAIL });
+      return false;
     }
   } else {
     dispatch({ type: COMBO_SERVICIO_INFORME_FAIL });
+    return false;
   }
 };

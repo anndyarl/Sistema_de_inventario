@@ -52,18 +52,15 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
           <p className="fs-09em mb-3">
             Servicio de Salud Metropolitano Sur Oriente
           </p>
-          <Button onClick={handleEnviar} disabled={loading == true} className={`btn btn-primary text-center mb-2 border-0 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >Clave Única
-            {loading && (
+          <Button onClick={handleEnviar} disabled={loading == true}
+            className={`btn btn-primary text-center mb-2 border-0 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >
+            {loading ? (
               <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                  className="ms-1"
-                />
+                {" Un momento... "}
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
               </>
+            ) : (
+              "Clave Única"
             )}
           </Button>
 

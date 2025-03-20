@@ -13,6 +13,7 @@ import MenuAltas from "../Menus/MenuAltas";
 import { obtenerAltasPorCorrActions } from "../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
+import { Objeto } from "../Navegacion/Profile";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -36,16 +37,16 @@ export interface ListaAltas {
 
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: () => Promise<boolean>;
+  listaAltasActions: (establ_corr: number) => Promise<boolean>;
   obtenerListaAltasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
   obtenerAltasPorCorrActions: (altasCorr: number) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
-
+  objeto: Objeto;
 }
 
-const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, obtenerAltasPorCorrActions, anularAltasActions, token, isDarkMode }) => {
+const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, obtenerAltasPorCorrActions, anularAltasActions, token, objeto, isDarkMode }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -65,7 +66,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
     if (token) {
       if (listaAltas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasActions();
+        const resultado = await listaAltasActions(objeto.Establecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -232,7 +233,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
         });
 
         setLoadingAnular(false);
-        listaAltasActions();
+        listaAltasActions(objeto.Establecimiento);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -531,6 +532,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 const mapStateToProps = (state: RootState) => ({
   listaAltas: state.datosListaAltasReducers.listaAltas,
   token: state.loginReducer.token,
+  objeto: state.validaApiLoginReducers,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 
