@@ -46,8 +46,7 @@ import Proveedores from '../../../components/Mantenedores/Proveedores';
 import Componentes from '../../../components/Mantenedores/Componentes';
 import DetallesPorCuenta from '../../pages/Informes/DetallesPorCuenta';
 import Listados from '../../pages/Informes/Listados';
-import AltasMensuales from '../../../components/Informes/AltasMensuales';
-import ConsultaInventarioEspecies from '../../../components/Informes/ConsultaInventarioEspecies';
+
 import CuentaFechas from '../../../components/Informes/Listados/CuentaFechas/CuentaFechas';
 import CuentaServicioFecha from '../../../components/Informes/Listados/CuentaServicioFecha';
 import EspecieFecha from '../../../components/Informes/Listados/EspecieFecha';
@@ -57,10 +56,15 @@ import ResumenCuentas from '../../../components/Informes/DetallesPorCuenta/Resum
 import DetalleDeBienes from '../../../components/Informes/DetallesPorCuenta/DetalleDeBienes';
 import Mensual from '../../../components/Informes/DetallesPorCuenta/Mensual';
 import Anual from '../../../components/Informes/DetallesPorCuenta/Anual';
-import BajasMensuales from '../../../components/Informes/BajasMensuales';
-import TrasladosMensuales from '../../../components/Informes/TrasladosMensuales';
-import FolioPorServicioDependencia from '../../../components/Informes/FolioPorServicioDependencia/FolioPorServicioDependencia';
-import ExcelFolioPorServicios from '../../../components/Informes/ExcelFolioPorServicios';
+
+import TrasladosMensuales from '../../../components/Informes/Principal/TrasladosMensuales';
+import FolioPorServicioDependencia from '../../../components/Informes/Principal/FolioPorServicioDependencia/FolioPorServicioDependencia';
+
+import CalcularDepreciacion from '../../../components/Informes/Principal/CalcularDepreciacion/CalcularDepreciacion';
+import AltasMensuales from '../../../components/Informes/Principal/AltasMensuales';
+import BajasMensuales from '../../../components/Informes/Principal/BajasMensuales';
+import ConsultaInventarioEspecies from '../../../components/Informes/Principal/ConsultaInventarioEspecies';
+import ExcelFolioPorServicios from '../../../components/Informes/Principal/ExcelFolioPorServicios';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -130,6 +134,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Informes/TrasladosMensuales" element={<TrasladosMensuales />} />
                 <Route path="/Informes/FolioPorServicioDependencia" element={<FolioPorServicioDependencia />} />{/* Prioridad */}
                 <Route path="/Informes/ExcelFolioPorServicios" element={<ExcelFolioPorServicios />} />
+                <Route path="/Informes/CalcularDepreciacion" element={<CalcularDepreciacion />} />
                 {/*Fin Menu Informes */}
 
                 {/* Sub menu Listados */}

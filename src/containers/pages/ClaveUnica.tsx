@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de tener este tipo definido correctamente
 import { Navigate } from "react-router-dom";
 // import { useAppDispatch } from "../../hooks/hook";
-import ssmso_background from "../../assets/img/ssmso_imagen.png";
+import ssmso_background from "../../assets/img/LOGO-PNG.png";
 import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
 import ondas from "../../assets/img/ondas.png"
 import { Button, Spinner } from "react-bootstrap";
@@ -32,84 +32,75 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
     <div className="vh-100 d-flex flex-column">
       <div className="body d-md-flex align-items-center justify-content-between flex-grow-1">
 
-        <div className={`box-2 d-flex flex-column w-100 h-100 justify-content-center align-items-center text-center ${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <div className="mt-5">
+        {/* Sección Izquierda */}
+        <div className={`d-flex flex-column w-100 h-100 justify-content-between align-items-center text-center ${isDarkMode ? "darkModePrincipal" : ""}`}>
+
+
+          <div className="mt-2">
             <img
               src={ssmso_logo}
               alt="SSMSO-LOGO"
-              width={150}
-              className="img-fluid mb-5"
+              width={200}
+              className="img-fluid mx-2"
             />
-
+            {/* <img
+              src={ssmso_logo}
+              alt="SSMSO-LOGO"
+              width={200}
+              className="img-fluid"
+            /> */}
           </div>
-          <h4 className="border-bottom mb-3 w-100">
-            Sistema de Inventario
-          </h4>
+          <div className="border-bottom border-top  p-5 row justify-content-center">
+            <h5 className="fw-semibold  fs-09em">
+              Acceso con Clave Única
+            </h5>
 
-          <p className="fs-09em mb-1">
-            Subdirección Administrativa | Departamento de Finanzas | Unidad de Inventarios
-          </p>
-          <p className="fs-09em mb-3">
-            Servicio de Salud Metropolitano Sur Oriente
-          </p>
-          <Button onClick={handleEnviar} disabled={loading == true}
-            className={`btn btn-primary text-center mb-2 border-0 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >
-            {loading ? (
-              <>
-                {" Un momento... "}
-                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-              </>
-            ) : (
-              "Clave Única"
-            )}
-          </Button>
+            <Button
+              onClick={handleEnviar}
+              disabled={loading}
+              variant="primary"
+              className={`btn  ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+              type="submit"
+            >
+              {loading ? (
+                <>
+                  <Spinner as="span" animation="border" size="sm" className="mx-1 p-1" role="status" aria-hidden="true" />
+                  Un momento...
+                </>
+              ) : (
+                <>
+                  <svg data-v-746c1553="" width="24" height="24" className="mx-1 mb-1" viewBox="0 0 25 25" fill="none"><path data-v-746c1553="" d="M12.4998 13.8956C12.9835 13.8956 13.3756 14.2878 13.3756 14.7715C13.3756 15.2552 12.9835 15.6473 12.4998 15.6473C12.0161 15.6473 11.6239 15.2552 11.6239 14.7715C11.6239 14.2878 12.0161 13.8956 12.4998 13.8956Z" fill="white"></path><path data-v-746c1553="" fill-rule="evenodd" clip-rule="evenodd" d="M11.631 1.70078C11.631 1.21768 12.0227 0.82605 12.5058 0.82605H15.9585C16.4416 0.82605 16.8333 1.21768 16.8333 1.70078C16.8333 2.18387 16.4416 2.5755 15.9585 2.5755H13.3805V9.35701C15.9909 9.77835 17.9845 12.0421 17.9845 14.7714C17.9845 17.8006 15.5289 20.2562 12.4998 20.2562C9.47065 20.2562 7.01505 17.8006 7.01505 14.7714C7.01505 12.0379 9.01473 9.77145 11.631 9.35509V1.70078ZM8.7645 14.7714C8.7645 12.7085 10.4368 11.0361 12.4998 11.0361C14.5627 11.0361 16.2351 12.7085 16.2351 14.7714C16.2351 16.8344 14.5627 18.5067 12.4998 18.5067C10.4368 18.5067 8.7645 16.8344 8.7645 14.7714Z" fill="white"></path><path data-v-746c1553="" d="M16.7507 5.65748C16.313 5.45302 15.7924 5.64209 15.5879 6.07979C15.3835 6.51748 15.5725 7.03806 16.0102 7.24252C18.8442 8.56635 20.8048 11.4409 20.8048 14.7716C20.8048 19.3583 17.0865 23.0766 12.4998 23.0766C7.91305 23.0766 4.19477 19.3583 4.19477 14.7716C4.19477 11.4517 6.14272 8.58499 8.96185 7.25542C9.39879 7.04935 9.58595 6.52809 9.37988 6.09115C9.17381 5.6542 8.65254 5.46705 8.2156 5.67312C4.80707 7.28066 2.44531 10.7494 2.44531 14.7716C2.44531 20.3245 6.94686 24.826 12.4998 24.826C18.0527 24.826 22.5543 20.3245 22.5543 14.7716C22.5543 10.7363 20.1771 7.25811 16.7507 5.65748Z" fill="white"></path>                </svg>
+                  Iniciar sesión
+                </>
+              )}
+            </Button>
+          </div>
 
-          {/* <a href="/Login" className={`btn  ${isDarkMode ? "btn-secondary" : "btn-primary"} mb-4`}>
-            Clave Única demo
-          </a> */}
-
-          <footer className="mt-auto fs-05em m-1">
+          <footer className="fs-05em mb-2">
             Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
           </footer>
         </div>
-        <div className={`mt-md-0 text-center w-100  h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>
 
-          <img
-            src={ssmso_background}
-            // width={}
-            alt="Imagen de Fondo"
-            className="img-fluid rounded position-relative z-1"
-          />
-          {/* <div className="d-flex barra">
-            <div className="text-bg-primary azul"></div>
-            <div className="text-bg-danger rojo"></div>
-          </div> */}
-          <img
-            src={ondas}
-            alt="ondas"
-            width={200}
-            className="img-fluid position-values-1 d-none d-md-block"
-          />
+        {/* Sección Derecha */}
+        <div className={`mt-md-0 text-center w-100 h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>
 
-          <img
-            src={ondas}
-            alt="ondas"
-            width={200}
-            className="img-fluid position-values-2 d-none d-md-block" />
+          <h4 className="fw-bold text-uppercase text-white border-bottom border-6 pb-2 mb-3 w-50 mx-auto">
+            Sistema de Inventario
+          </h4>
+          <p className="fs-05em mb-1 text-white">
+            Subdirección Administrativa | Departamento de Finanzas | Unidad de Inventarios
+          </p>
+          <p className="fs-05em mb-3 text-white">
+            Servicio de Salud Metropolitano Sur Oriente
+          </p>
 
+          {/* Elementos gráficos decorativos */}
+          {[...Array(9)].map((_, i) => (
+            <img key={i} src={ondas} alt="ondas" width={150} className={`img-fluid position-values-${i + 1} d-none d-md-block`} />
+          ))}
         </div>
-        <img
-          src={ondas}
-          alt="ondas"
-          width={200}
-          className="img-fluid position-values-3 d-none d-md-block" />
-      </div >
-      <img
-        src={ondas}
-        alt="ondas"
-        width={200}
-        className="img-fluid position-values-4 d-none d-md-block" />
 
+      </div>
     </div >
 
   );

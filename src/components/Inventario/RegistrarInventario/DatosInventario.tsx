@@ -608,8 +608,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   name="rutProveedor"
                   value={proveedorOptions.find((option) => option.value === Inventario.rutProveedor) || null}
                   placeholder="Buscar"
-                  className={`form-select-container ${error.rutProveedor ? "is-invalid" : ""}`}
-                  classNamePrefix="react-select"
+                  className={`form-select-container ${error.rutProveedor ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-white border-secondary" : ""}`}
+                  classNamePrefix={`react-select ${isDarkMode ? "bg-dark text-white border-secondary" : ""}`}
                   isClearable
                   isSearchable
                 />

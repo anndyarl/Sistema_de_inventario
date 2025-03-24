@@ -5,17 +5,11 @@ import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
-// import { Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
-
 import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions.tsx";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
 import { Helmet } from "react-helmet-async";
-
-// const classNames = (...classes: (string | boolean | undefined)[]): string => {
-//   return classes.filter(Boolean).join(" ");
-// };
 
 export interface ListaExcluidos {
   aF_CLAVE: string;
@@ -40,9 +34,9 @@ interface DatosBajas {
   isDarkMode: boolean;
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExcluidosActions, token, isDarkMode }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExcluidosActions, excluirBajasActions, token, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRegistro, __] = useState(false);
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
@@ -265,8 +259,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
         }
       });
       if (result.isConfirmed) {
-
-        // setLoadingRegistro(true);
+        setLoadingRegistro(true); //Inicia spin de carga
         // Crear un array de objetos con aF_CLAVE y nombre
         const Quitar = selectedIndices.map((activo) => ({
           aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
@@ -281,13 +274,13 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
           estado: listaExcluidos[activo].estado,
           fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
         }));
-        console.log(Quitar);
-        // const resultado = await excluirBajasActions(Formulario);
+        console.log("Se debe crear metodo para quitar estos", Quitar);
+        // const resultado = await excluirBajasActions(Quitar);
 
         // if (resultado) {
         //   Swal.fire({
         //     icon: "success",
-        //     title: "Bien quitado",  
+        //     title: "Bien quitado",
         //     text: "Se han quitado correctamente de Bodega de excluidos",
         //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -297,9 +290,9 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
         //     }
         //   });
 
-        //   setLoadingRegistro(false);
-        //   obtenerListaExcluidosActions("");
-        //   setFilasSeleccionadas([]);
+        //   setLoadingRegistro(false);//termina de cargar
+        //   obtenerListaExcluidosActions(""); //Obtiene nuevamente la tabla con sus datos actualizados
+        //   setFilasSeleccionadas([]); //deselecciona las filas     
         //   setExcluidos((prevState) => ({
         //     ...prevState,
         //     nresolucion: 0,
@@ -317,7 +310,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
         //       popup: "custom-border", // Clase personalizada para el borde
         //     }
         //   });
-        //   setLoadingRegistro(false);
+        //   setLoadingRegistro(false);//termina de cargar
         // }
       }
     }
@@ -535,9 +528,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                         <td className="text-nowrap text-center">{Lista.ncuenta}</td>
                         <td className="text-nowrap text-center">{Lista.estado}</td>
                         <td className="text-nowrap text-center">{Lista.fechA_REMATES}</td>
-                        <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAbrirModal(index)}>
-                          Quitar
-                        </Button>
+                        <td>
+                          <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAbrirModal(index)}>
+                            Quitar
+                          </Button>
+                        </td>
                       </tr>
                     );
                   })}

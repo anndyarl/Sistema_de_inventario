@@ -3,7 +3,7 @@ import {
   LISTA_SERVICIO_DEPENDENCIA_REQUEST,
   LISTA_SERVICIO_DEPENDENCIA_SUCCESS,
   LISTA_SERVICIO_DEPENDENCIA_FAIL,
-} from '../types';
+} from '../../types';
 import { Dispatch } from 'redux';
 
 

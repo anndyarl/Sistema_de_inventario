@@ -32,28 +32,65 @@ body::-webkit-scrollbar {
  /*Posicionamiento de imagenes decorativas*/
 .position-values-1{
   position:absolute;
-  top:4%;
-  left:55%;
+  top:10%;
+  left:53%;
   z-index:0;
 }
 .position-values-2{
   position:absolute;
-  bottom:10%;
-  right: 3%;
+  top:40%;
+  left: 53%;
   z-index:0;
  }
  .position-values-3{
   position:absolute;
-  bottom: 25%;
-  left: 55%;
+  bottom: 10%;
+  left: 53%;
   z-index:0;
  }
  .position-values-4{
   position:absolute;
-  top: 26%;
-  left: 84%;
+  top: 10%;
+  right: 4%;
   z-index:0;
  }
+ .position-values-5{
+  position:absolute;
+  top: 40%;
+  right: 4%;
+  z-index:0;
+ }
+ .position-values-6{
+  position:absolute;
+  bottom: 10%;
+  right: 4%;
+  z-index:0;
+ }
+ .position-values-7{
+  position:absolute;
+  top: 30%;
+  right: 22%;
+  z-index:1;
+ }
+ .position-values-8{
+  position:absolute;
+  top: 4%;
+  right: 22%;
+  z-index:1;
+ }
+
+ .position-values-9{
+  position:absolute;
+  bottom: 18%;
+  right: 22%;
+  z-index:1;
+ }
+
+ .double-border {
+  border-bottom: 1px solid;
+  border-image: linear-gradient(to right, blue 50%,  red 50%);
+  border-image-slice: 1;
+}
  /* .position-values-3{
   position:absolute;
   bottom: 5%;
@@ -186,4 +223,9 @@ padding: 2px;
   color: white;
   border: 1px #6c757dc2 solid;
   border-radius: 4px;
+}
+
+.custom-modal {
+  width: 100vh; /* Ancho personalizado */
+  margin: 0 auto; /* Centrado horizontal */
 }

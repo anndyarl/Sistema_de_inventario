@@ -431,7 +431,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
               </Col>
             </Row>
           </form>
-
           {/* Tabla*/}
           <div className='table-responsive'>
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >

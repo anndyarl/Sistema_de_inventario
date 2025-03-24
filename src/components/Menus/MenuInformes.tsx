@@ -49,6 +49,11 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Informes/ExcelFolioPorServicios',
             icon: FileText
         },
+        {
+            name: 'Calcular Depreciación',
+            href: '/Informes/CalcularDepreciacion',
+            icon: FileText
+        },
     ];
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);

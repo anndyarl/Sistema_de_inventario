@@ -1,6 +1,5 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-
-import ssmso_logo from "../../../assets/img/SSMSO-LOGO.png"
+import ssmso_logo from "../../../../assets/img/SSMSO-LOGO.png"
 import { Container } from 'react-bootstrap';
 import { ListaFolioServicioDependencia } from './FolioPorServicioDependencia';
 
