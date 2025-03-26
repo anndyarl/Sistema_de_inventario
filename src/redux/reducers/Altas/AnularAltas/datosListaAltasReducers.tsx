@@ -10,6 +10,7 @@ interface DatosInventarioState {
   listaAltas: Array<{
     aF_CLAVE: number,
     ninv: string,
+    altaS_CORR: string,
     serv: string,
     dep: string,
     esp: string,
@@ -17,8 +18,10 @@ interface DatosInventarioState {
     marca: string,
     modelo: string,
     serie: string,
+    estado: string,
     precio: string,
-    mrecepcion: string
+    fechA_ALTA: string,
+    nrecep: string
   }>;
 }
 // Estado inicial tipado

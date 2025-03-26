@@ -2,6 +2,7 @@ import axios from 'axios';
 import {
   LISTA_ACTIVOS_CALCULADOS_REQUEST,
   LISTA_ACTIVOS_CALCULADOS_SUCCESS,
+  LISTA_ACTIVOS_CALCULADOS_SIN_VIDA_UTIL_SUCCESS,
   LISTA_ACTIVOS_CALCULADOS_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
@@ -28,14 +29,17 @@ export const listaActivosCalculadosActions = (activosSeleccionados: Record<strin
       const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CalculoDeInventario`, body, config);
 
       if (res.status === 200) {
-        if (res.data?.length) {
+        if (res.data?.depreciaciones?.length > 0 || res.data?.vidaUtilCero?.length > 0) {
+          dispatch({
+            type: LISTA_ACTIVOS_CALCULADOS_SIN_VIDA_UTIL_SUCCESS,
+            payload: res.data.vidaUtilCero
+          });
           dispatch({
             type: LISTA_ACTIVOS_CALCULADOS_SUCCESS,
-            payload: res.data
+            payload: res.data.depreciaciones
           });
           return true;
-        }
-        else {
+        } else {
           dispatch({ type: LISTA_ACTIVOS_CALCULADOS_FAIL });
           return false;
         }

@@ -426,8 +426,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                 <input
                                     aria-label="encargadoInventario"
                                     type="text"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="encargadoInventario"
+                                    size={10}
                                     placeholder="Ingrege un nombre"
                                     onChange={handleChange}
                                     value={Inventario.encargadoInventario}
@@ -441,8 +442,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                 <input
                                     aria-label="jefeDependencia"
                                     type="text"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="jefeDependencia"
+                                    size={10}
                                     placeholder="Ingrege un nombre"
                                     onChange={handleChange}
                                     value={Inventario.jefeDependencia}
@@ -454,8 +456,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                 <input
                                     aria-label="jefeInventario"
                                     type="text"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="jefeInventario"
+                                    size={10}
                                     placeholder="Ingrege un nombre"
                                     onChange={handleChange}
                                     value={Inventario.jefeInventario}
@@ -465,7 +468,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                         <Col md={3}>
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar} disabled={loading == true}
-                                    className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     {loading ? (
                                         <>
                                             {" Buscar"}
@@ -478,13 +482,16 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                         </>
                                     )}
                                 </Button>
-                                <Button onClick={handleLimpiar} className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`}>
+                                <Button onClick={handleLimpiar}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     Limpiar
                                     <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                 </Button>
                                 <Button
                                     onClick={() => setMostrarModal(true)} disabled={listaFolioServicioDependencia.length === 0}
-                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     {mostrarModal ? (
                                         <>
                                             {" Exportar"}

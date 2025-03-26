@@ -371,7 +371,7 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCu
                         {/* Boton actualizar filas seleccionadas */}
                         <div className="d-flex justify-content-end">
                             <Button
-                                variant="primary"
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 type="submit"
                                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                                 disabled={loadingRegistro}  // Desactiva el botón mientras carga
@@ -400,8 +400,9 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCu
                             <input
                                 aria-label="esP_NOMBRE"
                                 type="text"
-                                className={`form-control ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                className={`form-select ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="esP_NOMBRE"
+                                size={10}
                                 placeholder="Ingrese nueva especie"
                                 maxLength={100}
                                 onChange={handleChange}
@@ -425,6 +426,28 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCu
                                 classNamePrefix="react-select"
                                 isClearable
                                 isSearchable
+                                styles={{
+                                    control: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                        color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                    }),
+                                    singleValue: (base) => ({
+                                        ...base,
+                                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                    }),
+                                    menu: (base) => ({
+                                        ...base,
+                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                        color: isDarkMode ? "white" : "#212529",
+                                    }),
+                                    option: (base, { isFocused, isSelected }) => ({
+                                        ...base,
+                                        backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                        color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                    }),
+                                }}
                             />
                             {error.ctA_NOMBRE && (
                                 <div className="invalid-feedback fw-semibold">
@@ -488,7 +511,7 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCu
                                         <input
                                             aria-label="esP_NOMBRE"
                                             type="text"
-                                            className={`form-control ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            className={`form-constrol ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                             name="esP_NOMBRE"
                                             placeholder="Ingrese nueva especie"
                                             maxLength={100}
@@ -533,6 +556,28 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCu
                                             classNamePrefix="react-select"
                                             isClearable
                                             isSearchable
+                                            styles={{
+                                                control: (baseStyles) => ({
+                                                    ...baseStyles,
+                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                                    color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                                    borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                                }),
+                                                singleValue: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                                    color: isDarkMode ? "white" : "#212529",
+                                                }),
+                                                option: (base, { isFocused, isSelected }) => ({
+                                                    ...base,
+                                                    backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                                    color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                                }),
+                                            }}
                                         />
                                         {error.ctA_NOMBRE && (
                                             <div className="invalid-feedback fw-semibold">

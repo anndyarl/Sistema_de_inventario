@@ -82,9 +82,9 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
         </div>
 
         {/* Sección Derecha */}
-        <div className={`mt-md-0 text-center w-100 h-100 align-content-center d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>
+        <div className={`mt-md-0 text-center w-100 h-100 align-content-center d-none d-md-block  ${isDarkMode ? "bg-color-dark" : "bg-color"}`}>
 
-          <h4 className="fw-bold text-uppercase text-white border-bottom border-6 pb-2 mb-3 w-50 mx-auto">
+          <h4 className="fw-bold text-uppercase text-white border-bottom border-6 pb-2 mb-3 w-50 mx-auto z-1 position-relative">
             Sistema de Inventario
           </h4>
           <p className="fs-05em mb-1 text-white">

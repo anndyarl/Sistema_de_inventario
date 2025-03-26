@@ -32,7 +32,6 @@ const Sidebar: React.FC = () => {
   const subMenus: { [key: string]: NavItem[] } = {
     'Informes': [
       { name: 'Listados', href: '/Informes/Listados', icon: FileEarmarkSpreadsheet },
-      { name: 'Detalles por Cuenta', href: '/Informes/DetallesPorCuenta', icon: FileEarmarkSpreadsheet },
     ],
   };
 

@@ -44,22 +44,14 @@ import Mantenedores from '../../pages/Mantenedores';
 import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
 import Proveedores from '../../../components/Mantenedores/Proveedores';
 import Componentes from '../../../components/Mantenedores/Componentes';
-import DetallesPorCuenta from '../../pages/Informes/DetallesPorCuenta';
 import Listados from '../../pages/Informes/Listados';
-
 import CuentaFechas from '../../../components/Informes/Listados/CuentaFechas/CuentaFechas';
 import CuentaServicioFecha from '../../../components/Informes/Listados/CuentaServicioFecha';
 import EspecieFecha from '../../../components/Informes/Listados/EspecieFecha';
 import EspecieServicioFechas from '../../../components/Informes/Listados/EspecieServicioFechas';
 import ListadoInformeGeneral from '../../../components/Informes/Listados/ListadoInformeGeneral';
-import ResumenCuentas from '../../../components/Informes/DetallesPorCuenta/ResumenCuentas';
-import DetalleDeBienes from '../../../components/Informes/DetallesPorCuenta/DetalleDeBienes';
-import Mensual from '../../../components/Informes/DetallesPorCuenta/Mensual';
-import Anual from '../../../components/Informes/DetallesPorCuenta/Anual';
-
 import TrasladosMensuales from '../../../components/Informes/Principal/TrasladosMensuales';
 import FolioPorServicioDependencia from '../../../components/Informes/Principal/FolioPorServicioDependencia/FolioPorServicioDependencia';
-
 import CalcularDepreciacion from '../../../components/Informes/Principal/CalcularDepreciacion/CalcularDepreciacion';
 import AltasMensuales from '../../../components/Informes/Principal/AltasMensuales';
 import BajasMensuales from '../../../components/Informes/Principal/BajasMensuales';
@@ -124,7 +116,6 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Informes Menu Principal */}
                 <Route path="/Informes" element={<Informes />} />
                 <Route path="/Informes/Listados" element={<Listados />} />
-                <Route path="/Informes/DetallesPorCuenta" element={<DetallesPorCuenta />} />
                 {/* Fin Informes Menu Principal*/}
 
                 {/*Fin Menu Informes */}
@@ -144,13 +135,6 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Informes/Listados/EspecieFecha" element={<EspecieFecha />} />
                 <Route path="/Informes/Listados/EspecieServicioFechas" element={<EspecieServicioFechas />} />
                 {/* Fin Sub menu Listados */}
-
-                {/* Sub menu DetallesPorCuenta */}
-                <Route path="/Informes/DetallesPorCuenta/ResumenCuentas" element={<ResumenCuentas />} /> {/* Prioridad */}
-                <Route path="/Informes/DetallesPorCuenta/DetalleDeBienes" element={<DetalleDeBienes />} />
-                <Route path="/Informes/DetallesPorCuenta/Mensual" element={<Mensual />} />
-                <Route path="/Informes/DetallesPorCuenta/Anual" element={<Anual />} />
-                {/* Fin Sub menu DetallesPorCuenta */}
 
                 {/* Donaciones */}
                 <Route path="/Donaciones" element={<Donaciones />} />{/*No disponible aún*/}

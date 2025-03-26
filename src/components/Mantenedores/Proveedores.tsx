@@ -345,6 +345,7 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                 show={mostrarModalRegistrar}
                 onHide={() => setMostrarModalRegistrar(false)}
                 dialogClassName="modal-right" // Clase personalizada
+
             // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
             // keyboard={false}     // Evita el cierre al presionar la tecla Esc
             >
@@ -356,7 +357,7 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                         {/* Boton actualizar filas seleccionadas */}
                         <div className="d-flex justify-content-end">
                             <Button
-                                variant="primary"
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 type="submit"
                                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                                 disabled={loadingRegistro}  // Desactiva el botón mientras carga
@@ -387,10 +388,11 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                                 <input
                                     aria-label="proV_RUN"
                                     type="text"
-                                    className={`form-control ${error.proV_RUN ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    className={`form-select ${error.proV_RUN ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="proV_RUN"
                                     placeholder="Ingrese nuevo rut"
                                     maxLength={8}
+                                    size={10}
                                     onChange={handleChange}
                                     value={Mantenedor.proV_RUN}
                                 />
@@ -428,10 +430,11 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                             <input
                                 aria-label="proV_NOMBRE"
                                 type="text"
-                                className={`form-control ${error.proV_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                className={`form-select ${error.proV_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="proV_NOMBRE"
                                 placeholder="Ingrese nuevo nombre"
                                 maxLength={100}
+                                size={10}
                                 onChange={handleChange}
                                 value={Mantenedor.proV_NOMBRE}
                             />
@@ -444,10 +447,11 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                             <input
                                 aria-label="proV_FONO"
                                 type="text"
-                                className={`form-control ${error.proV_FONO ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                className={`form-select ${error.proV_FONO ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="proV_FONO"
                                 placeholder="Ingrese nuevo fono"
                                 maxLength={9}
+                                size={10}
                                 onChange={handleChange}
                                 value={Mantenedor.proV_FONO}
                             />
@@ -460,10 +464,11 @@ const Proveedores: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, obte
                             <input
                                 aria-label="proV_DIR"
                                 type="text"
-                                className={`form-control ${error.proV_DIR ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                className={`form-select ${error.proV_DIR ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="proV_DIR"
                                 placeholder="Ingrese nueva dirección"
                                 maxLength={100}
+                                size={10}
                                 onChange={handleChange}
                                 value={Mantenedor.proV_DIR}
                             />

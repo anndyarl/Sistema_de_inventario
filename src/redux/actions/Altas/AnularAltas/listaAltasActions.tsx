@@ -6,7 +6,7 @@ import {
   LISTA_ALTAS_FAIL,
 } from "../types";
 
-export const listaAltasActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaAltasActions = (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,9 +20,7 @@ export const listaAltasActions = (establ_corr: number) => async (dispatch: Dispa
     dispatch({ type: LISTA_ALTAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAFAltas?establ_corr=${establ_corr}`, config);
-      // console.log("Respuesta del servidor obtener lista altas:", res);
-
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAltas?fDesde?=${fDesde}&fHasta=${fHasta}&estado=${estado}&establ_corr=${establ_corr}&altasCorr=${altasCorr}`, config);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({

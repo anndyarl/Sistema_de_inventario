@@ -27,7 +27,7 @@ export interface ListaAltas {
 }
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: (establ_corr: number) => Promise<boolean>;
+  listaAltasActions: (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -49,7 +49,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, objeto, listaAltasAc
       if (token) {
         if (listaAltas.length === 0) {
           setLoading(true);
-          const resultado = await listaAltasActions(objeto.Establecimiento);
+          const resultado = await listaAltasActions("", "", "N", objeto.Establecimiento, 0);
           if (resultado) {
             setLoading(false);
           }
@@ -252,7 +252,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, objeto, listaAltasAc
           }
         });
         setLoadingRegistro(false);
-        listaAltasActions(objeto.Establecimiento);
+        listaAltasActions("", "", "N", objeto.Establecimiento, 0);
+
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({

@@ -608,11 +608,34 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   name="rutProveedor"
                   value={proveedorOptions.find((option) => option.value === Inventario.rutProveedor) || null}
                   placeholder="Buscar"
-                  className={`form-select-container ${error.rutProveedor ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-white border-secondary" : ""}`}
-                  classNamePrefix={`react-select ${isDarkMode ? "bg-dark text-white border-secondary" : ""}`}
+                  className={`form-select-container ${error.rutProveedor ? "is-invalid" : ""}`}
+                  classNamePrefix="react-select"
                   isClearable
                   isSearchable
+                  styles={{
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                      color: isDarkMode ? "white" : "#212529", // Texto blanco
+                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                      color: isDarkMode ? "white" : "#212529",
+                    }),
+                    option: (base, { isFocused, isSelected }) => ({
+                      ...base,
+                      backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                      color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                    }),
+                  }}
                 />
+
                 {error.rutProveedor && (
                   <div className="invalid-feedback fw-semibold">
                     {error.rutProveedor}

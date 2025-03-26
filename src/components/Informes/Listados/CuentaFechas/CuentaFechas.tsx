@@ -147,7 +147,6 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
         console.log(value);
     }
 
-
     const handleBuscar = async () => {
         let resultado = false;
 
@@ -525,17 +524,39 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                                     name="cta_cod"
                                     value={cuentasOptions.find((option) => option.value === Inventario.cta_cod) || null}
                                     placeholder="Buscar"
-                                    className={`form-select-container`}
                                     classNamePrefix="react-select"
                                     isClearable
                                     isSearchable
+                                    styles={{
+                                        control: (baseStyles) => ({
+                                            ...baseStyles,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                            color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                            borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                        }),
+                                        singleValue: (base) => ({
+                                            ...base,
+                                            color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                            color: isDarkMode ? "white" : "#212529",
+                                        }),
+                                        option: (base, { isFocused, isSelected }) => ({
+                                            ...base,
+                                            backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                            color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                        }),
+                                    }}
                                 />
                             </div>
                         </Col>
                         <Col md={5}>
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar} disabled={loading == true}
-                                    className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     {loading ? (
                                         <>
                                             {" Buscar"}
@@ -548,13 +569,16 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                                         </>
                                     )}
                                 </Button>
-                                <Button onClick={handleLimpiar} className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`}>
+                                <Button onClick={handleLimpiar}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     Limpiar
                                     <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                 </Button>
                                 <Button
                                     onClick={() => setMostrarModal(true)} disabled={listaCuentaFechas.length === 0}
-                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     {mostrarModal ? (
                                         <>
                                             {" Exportar"}

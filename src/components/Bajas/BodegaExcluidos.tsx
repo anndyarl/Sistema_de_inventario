@@ -187,38 +187,39 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
         fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
 
       }));
-      console.log(Formulario);
-      // const resultado = await excluirBajasActions(Formulario);
-      // if (resultado) {
-      //   Swal.fire({
-      //     icon: "success",
-      //     title: "Enviado a Bienes Rematados",
-      //     text: "Se ha enviado correctamente",
-      //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-      //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-      //     customClass: {
-      //       popup: "custom-border", // Clase personalizada para el borde
-      //     }
-      //   });
+      // console.log(Formulario);
+      const resultado = await excluirBajasActions(Formulario);
+      if (resultado) {
+        Swal.fire({
+          icon: "success",
+          title: "Enviado a Bienes Rematados",
+          text: "Se ha enviado correctamente",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
 
-      //   setLoadingRegistro(false);
-      //   obtenerListaExcluidosActions("");
-      //   setFilasSeleccionadas([]);
-      // } else {
-      //   Swal.fire({
-      //     icon: "error",
-      //     title: ":'(",
-      //     text: "Hubo un problema al registrar",
-      //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-      //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-      //     customClass: {
-      //       popup: "custom-border", // Clase personalizada para el borde
-      //     }
-      //   });
-      //   setLoadingRegistro(false);
-      // }
+        setLoadingRegistro(false);
+        obtenerListaExcluidosActions("");
+        setFilasSeleccionadas([]);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: ":'(",
+          text: "Hubo un problema al registrar",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+        setLoadingRegistro(false);
+      }
+
     }
 
   };
@@ -491,7 +492,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Nª Inventario</th>
+                    <th scope="col" className="text-nowrap text-center">Nª Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Codigo</th>
                     <th scope="col" className="text-nowrap text-center">Especie</th>
                     <th scope="col" className="text-nowrap text-center">Vida UtiL Restante</th>

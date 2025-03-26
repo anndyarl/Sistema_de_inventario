@@ -1,15 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import Swal from "sweetalert2";
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Form, Row, Col, Modal, Pagination, Spinner, } from "react-bootstrap";
 import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
-import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
 import { BIEN, CUENTA, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/DatosCuenta";
-
-import Swal from "sweetalert2";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
+import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
 import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
@@ -214,24 +213,24 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     return new Date(año, mes - 1, dia); // Meses en JS van de 0 a 11
   };
 
-  const fechaRecepcion = aF_FECHA_SOLICITUD && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHA_SOLICITUD)
-    ? parseFecha(`${aF_FECHA_SOLICITUD}T00:00:00`).toISOString().split("T")[0]
-    : "";
-  const fechaFactura = aF_FECHAFAC && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHAFAC)
-    ? parseFecha(`${aF_FECHAFAC}T00:00:00`).toISOString().split("T")[0]
-    : "";
-  const fechaIngreso = aF_FINGRESO && /^\d{4}-\d{2}-\d{2}$/.test(aF_FINGRESO)
-    ? parseFecha(`${aF_FINGRESO}T00:00:00`).toISOString().split("T")[0]
-    : "";
+  // const fechaRecepcion = aF_FECHA_SOLICITUD && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHA_SOLICITUD)
+  //   ? parseFecha(`${aF_FECHA_SOLICITUD}T00:00:00`).toISOString().split("T")[0]
+  //   : "";
+  // const fechaFactura = aF_FECHAFAC && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHAFAC)
+  //   ? parseFecha(`${aF_FECHAFAC}T00:00:00`).toISOString().split("T")[0]
+  //   : "";
+  // const fechaIngreso = aF_FINGRESO && /^\d{4}-\d{2}-\d{2}$/.test(aF_FINGRESO)
+  //   ? parseFecha(`${aF_FINGRESO}T00:00:00`).toISOString().split("T")[0]
+  //   : "";
 
   const [Inventario, setInventario] = useState({
     aF_CLAVE: "", // nRecepcion
-    fechaRecepcion, // fechaRecepcion 
+    aF_FECHA_SOLICITUD: "", // fechaRecepcion
     aF_OCO_NUMERO_REF: 0, // nOrdenCompra
     aF_NUM_FAC: "",// nFactura
     aF_ORIGEN: 0,  //origenPresupuesto
     aF_MONTOFACTURA: 0, //montoRecepcion
-    fechaFactura: "", //fechaFactura
+    aF_FECHAFAC: "", //fechaFactura
     proV_RUN: 0, // rutProveedor
     idprograma: 0, //servicio
     deP_CORR: 0, //dependencia
@@ -240,7 +239,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     ctA_COD: "",
     //-------Tabla---------//
     aF_VIDAUTIL: 0,
-    fechaIngreso: "",
+    aF_FINGRESO: "",
     deT_MARCA: "",
     deT_MODELO: "",
     deT_SERIE: "",
@@ -258,7 +257,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     // Validación para N° de Recepción (debe ser un número)
     if (!Inventario.aF_CLAVE)
       tempErrors.aF_CLAVE = "El N° de Recepción es obligatorio.";
-    if (!Inventario.fechaRecepcion)
+    if (!Inventario.aF_FECHA_SOLICITUD)
       tempErrors.aF_FECHA_SOLICITUD = "La Fecha de Recepción es obligatoria.";
     if (!Inventario.aF_OCO_NUMERO_REF || Inventario.aF_OCO_NUMERO_REF == 0)
       tempErrors.aF_OCO_NUMERO_REF = "El N° de Orden de Compra es obligatorio.";
@@ -273,7 +272,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.aF_MONTOFACTURA)))
       tempErrors.aF_MONTOFACTURA =
         "El Monto debe ser un número válido con hasta dos decimales.";
-    if (!Inventario.fechaFactura)
+    if (!Inventario.aF_FECHAFAC)
       tempErrors.aF_FECHAFAC = "La Fecha de Factura es obligatoria.";
     if (!Inventario.proV_RUN || Inventario.proV_RUN === 0)
       tempErrors.proV_RUN = "El Proveedor es obligatorio.";
@@ -293,12 +292,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   useEffect(() => {
     setInventario({
       aF_CLAVE, // nRecepcion
-      fechaRecepcion,// fechaRecepcion 
+      aF_FECHA_SOLICITUD,// fechaRecepcion 
       aF_OCO_NUMERO_REF, // nOrdenCompra
       aF_NUM_FAC,// nFactura
       aF_ORIGEN, //origenPresupuesto
       aF_MONTOFACTURA, //montoRecepcion
-      fechaFactura, //fechaFactura
+      aF_FECHAFAC, //fechaFactura
       proV_RUN, // rutProveedor
       idprograma, //servicio
       deP_CORR, //dependencia
@@ -307,7 +306,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       ctA_COD,
       //-------Tabla---------//
       aF_VIDAUTIL,
-      fechaIngreso,
+      aF_FINGRESO,
       deT_MARCA,
       deT_MODELO,
       deT_SERIE,
@@ -322,12 +321,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   }, [
     aF_CLAVE, // nRecepcion
-    fechaRecepcion,//fechaRecepcion 
+    aF_FECHA_SOLICITUD,//fechaRecepcion 
     aF_OCO_NUMERO_REF, //nOrdenCompra
     aF_NUM_FAC, //nFactura
     aF_ORIGEN, //origenPresupuesto
     aF_MONTOFACTURA, //montoRecepcion
-    fechaFactura, //fechaFactura
+    aF_FECHAFAC, //fechaFactura
     proV_RUN, // rutProveedor
     idprograma, //servicio
     deP_CORR, //dependencia
@@ -336,7 +335,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     ctA_COD, //cuenta
     //-------Tabla---------//
     aF_VIDAUTIL,
-    fechaIngreso,
+    aF_FINGRESO,
     deT_MARCA,
     deT_MODELO,
     deT_SERIE,
@@ -399,12 +398,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     setInventario((prevInventario) => ({
       ...prevInventario,
       aF_CLAVE: "", // nRecepcion
-      fechaRecepcion, // fechaRecepcion 
+      aF_FECHA_SOLICITUD: "", // fechaRecepcion 
       aF_OCO_NUMERO_REF: 0, // nOrdenCompra
       aF_NUM_FAC: "",// nFactura
       aF_ORIGEN: 0,  //origenPresupuesto
       aF_MONTOFACTURA: 0, //montoRecepcion
-      fechaFactura: "", //fechaFactura
+      aF_FECHAFAC: "", //fechaFactura
       proV_RUN: 0, // rutProveedor
       idprograma: 0, //servicio
       deP_CORR: 0, //dependencia
@@ -413,7 +412,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       ctA_COD: "",
       //-------Tabla---------//
       aF_VIDAUTIL: 0,
-      fechaIngreso: "",
+      aF_FINGRESO: "",
       deT_MARCA: "",
       deT_MODELO: "",
       deT_SERIE: "",
@@ -553,12 +552,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setInventario((inventarioPrevia) => ({
         ...inventarioPrevia,
         aF_CLAVE: "", // nRecepcion
-        fechaRecepcion, // fechaRecepcion 
+        aF_FECHA_SOLICITUD, // fechaRecepcion 
         aF_OCO_NUMERO_REF: 0, // nOrdenCompra
         aF_NUM_FAC: "",// nFactura
         aF_ORIGEN: 0,  //origenPresupuesto
         aF_MONTOFACTURA: 0, //montoRecepcion
-        fechaFactura: "", //fechaFactura
+        aF_FECHAFAC: "", //fechaFactura
         proV_RUN: 0, // rutProveedor
         idprograma: 0, //servicio
         deP_CORR: 0, //dependencia
@@ -567,7 +566,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         ctA_COD: "",
         //-------Tabla---------//
         aF_VIDAUTIL: 0,
-        fechaIngreso: "",
+        aF_FINGRESO: "",
         deT_MARCA: "",
         deT_MODELO: "",
         deT_SERIE: "",
@@ -671,12 +670,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   Fecha Recepción
                 </label>
                 <input
-                  aria-label="fechaRecepcion"
+                  aria-label="aF_FECHA_SOLICITUD"
                   type="date"
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_FECHA_SOLICITUD ? "is-invalid" : ""}`}
-                  name="fechaRecepcion"
+                  name="aF_FECHA_SOLICITUD"
                   onChange={handleChange}
-                  value={Inventario.fechaRecepcion}
+                  value={Inventario.aF_FECHA_SOLICITUD}
                   disabled={isDisabled}
                 />
                 {error.aF_FECHA_SOLICITUD && (
@@ -766,12 +765,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <label className="fw-semibold">
                   Fecha Factura</label>
                 <input
-                  aria-label="fechaFactura"
+                  aria-label="aF_FECHAFAC"
                   type="date"
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_FECHAFAC ? "is-invalid" : ""}`}
-                  name="fechaFactura"
+                  name="aF_FECHAFAC"
                   onChange={handleChange}
-                  value={Inventario.fechaFactura}
+                  value={Inventario.aF_FECHAFAC}
                   disabled={isDisabled}
                 />
                 {error.aF_FECHAFAC && (
@@ -1171,7 +1170,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <tbody>
                   <tr>
                     <td>{aF_VIDAUTIL}</td>
-                    <td>{fechaIngreso}</td>
+                    <td>{aF_FINGRESO}</td>
                     <td>{deT_MARCA}</td>
                     <td>{deT_MODELO}</td>
                     <td className={`d-flex align-items-center p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>

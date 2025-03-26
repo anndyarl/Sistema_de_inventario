@@ -244,8 +244,8 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                 <div className="d-flex">
                     <div className="mb-1 mx-1">
                         <Button
-                            className="align-content-center"
                             variant={`${isDarkMode ? "secondary" : "primary"}`}
+                            className="align-content-center"
                             onClick={() => setMostrarModalRegistrar(true)}
                         >
                             <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
@@ -351,7 +351,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                         {/* Boton actualizar filas seleccionadas */}
                         <div className="d-flex justify-content-end">
                             <Button
-                                variant="primary"
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 type="submit"
                                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                                 disabled={loadingRegistro}  // Desactiva el botón mientras carga
@@ -400,10 +400,11 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                             <input
                                 aria-label="descripcion"
                                 type="text"
-                                className={`form-control ${error.descripcion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                className={`form-select ${error.descripcion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="descripcion"
                                 placeholder="Ingrese un nuevo servicio"
                                 maxLength={100}
+                                size={10}
                                 onChange={handleChange}
                                 value={Mantenedor.descripcion}
                             />
@@ -435,7 +436,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
                                     {/* Boton actualizar filas seleccionadas */}
                                     <div className="d-flex justify-content-end">
                                         <Button
-                                            variant="primary"
+                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
                                             type="submit"
                                             className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                                             disabled={loadingRegistro}  // Desactiva el botón mientras carga

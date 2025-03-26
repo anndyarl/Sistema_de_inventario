@@ -69,21 +69,21 @@ body::-webkit-scrollbar {
  .position-values-7{
   position:absolute;
   top: 30%;
-  right: 22%;
-  z-index:1;
+  right: 21%;
+  z-index:0;
  }
  .position-values-8{
   position:absolute;
   top: 4%;
-  right: 22%;
-  z-index:1;
+  right: 21%;
+  z-index:0;
  }
 
  .position-values-9{
   position:absolute;
   bottom: 18%;
-  right: 22%;
-  z-index:1;
+  right: 21%;
+  z-index:0;
  }
 
  .double-border {

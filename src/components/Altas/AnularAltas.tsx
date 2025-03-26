@@ -5,12 +5,10 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions";
-import { obtenerListaAltasActions } from "../../redux/actions/Altas/AnularAltas/obtenerListaAltasActions";
 import { anularAltasActions } from "../../redux/actions/Altas/AnularAltas/anularAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
-import { obtenerAltasPorCorrActions } from "../../redux/actions/Altas/AnularAltas/obtenerAltasPorCorrActions";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile";
@@ -18,35 +16,36 @@ const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
 interface FechasProps {
-  fechaInicio: string;
-  fechaTermino: string;
+  fDesde: string;
+  fHasta: string;
 }
 export interface ListaAltas {
   aF_CLAVE: number,
   ninv: string,
-  serv: string,
-  dep: string,
+  altaS_CORR: number,
+  servicio: string,
+  departamento: string,
   esp: string,
   ncuenta: string,
   marca: string,
   modelo: string,
   serie: string,
+  estado: string,
   precio: string,
-  mrecepcion: string
+  fechA_ALTA: string,
+  nrecep: string
 }
 
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: (establ_corr: number) => Promise<boolean>;
-  obtenerListaAltasActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
-  obtenerAltasPorCorrActions: (altasCorr: number) => Promise<boolean>;
+  listaAltasActions: (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
 }
 
-const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obtenerListaAltasActions, obtenerAltasPorCorrActions, anularAltasActions, token, objeto, isDarkMode }) => {
+const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anularAltasActions, token, objeto, isDarkMode }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -58,15 +57,15 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
   const elementosPorPagina = 12;
 
   const [Inventario, setInventario] = useState({
-    aF_CLAVE: 0,
-    fechaInicio: "",
-    fechaTermino: "",
+    altaS_CORR: 0,
+    fDesde: "",
+    fHasta: "",
   });
   const listaAltasAuto = async () => {
     if (token) {
       if (listaAltas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasActions(objeto.Establecimiento);
+        const resultado = await listaAltasActions("", "", "N", objeto.Establecimiento, 0);
         if (resultado) {
           setLoading(false);
         }
@@ -93,12 +92,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
-    // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-    if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-    if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
-    // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
-
+    if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -106,7 +100,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     let newValue: string | number = [
-      "aF_CLAVE"
+      "altaS_CORR"
 
     ].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
@@ -123,21 +117,18 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
     let resultado = false;
 
     setLoading(true);
-    if (Inventario.aF_CLAVE != 0) {
-      resultado = await obtenerAltasPorCorrActions(Inventario.aF_CLAVE);
+    if (Inventario.fDesde == "" && Inventario.fHasta == "" && Inventario.altaS_CORR == 0) {
+      resultado = await listaAltasActions("", "", "N", objeto.Establecimiento, Inventario.altaS_CORR);
     }
-    if (Inventario.fechaInicio != "" && Inventario.fechaTermino != "") {
+    if (Inventario.fDesde != "" && Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await obtenerListaAltasActions(Inventario.fechaInicio, Inventario.fechaTermino);
+        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, "", objeto.Establecimiento, Inventario.altaS_CORR);
       }
     }
-    setInventario((prevState) => ({
-      ...prevState,
-      aF_CLAVE: 0,
-      fechaInicio: "",
-      fechaTermino: ""
-    }));
-    setError({});
+    if (Inventario.altaS_CORR != 0) {
+      resultado = await listaAltasActions("", "", "", objeto.Establecimiento, Inventario.altaS_CORR);
+    }
+
     if (!resultado) {
       Swal.fire({
         icon: "error",
@@ -157,6 +148,16 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
       setLoading(false); //Finaliza estado de carga
     }
 
+  };
+
+  const handleLimpiar = () => {
+    setInventario((prevInventario) => ({
+      ...prevInventario,
+      altaS_CORR: 0,
+      fDesde: "",
+      fHasta: "",
+
+    }));
   };
 
   const setSeleccionaFilas = (index: number) => {
@@ -233,7 +234,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
         });
 
         setLoadingAnular(false);
-        listaAltasActions(objeto.Establecimiento);
+        listaAltasActions("", "", "N", objeto.Establecimiento, 0);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -317,64 +318,78 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
           <Row>
             <Col md={3}>
               <div className="mb-1">
-                <label htmlFor="fechaInicio" className="fw-semibold">Fecha Inicio</label>
+                <label htmlFor="fDesde" className="fw-semibold">Desde</label>
                 <input
-                  aria-label="fechaInicio"
+                  aria-label="fDesde"
                   type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
-                  name="fechaInicio"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                  name="fDesde"
                   onChange={handleChange}
-                  value={Inventario.fechaInicio}
+                  value={Inventario.fDesde}
                 />
-                {error.fechaInicio && (
-                  <div className="invalid-feedback d-block">{error.fechaInicio}</div>
+                {error.fDesde && (
+                  <div className="invalid-feedback d-block">{error.fDesde}</div>
                 )}
               </div>
               <div className="mb-1">
-                <label htmlFor="fechaTermino" className="fw-semibold">Fecha Término</label>
+                <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
                 <input
-                  aria-label="fechaTermino"
+                  aria-label="fHasta"
                   type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
-                  name="fechaTermino"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                  name="fHasta"
                   onChange={handleChange}
-                  value={Inventario.fechaTermino}
+                  value={Inventario.fHasta}
                 />
-                {error.fechaTermino && (
-                  <div className="invalid-feedback">{error.fechaTermino}</div>
+                {error.fHasta && (
+                  <div className="invalid-feedback">{error.fHasta}</div>
                 )}
               </div>
 
             </Col>
             <Col md={2}>
               <div className="mb-1">
-                <label htmlFor="nInventario" className="fw-semibold">Nº Inventario</label>
+                <label htmlFor="altaS_CORR" className="fw-semibold">Nº Alta</label>
                 <input
-                  aria-label="nInventario"
+                  aria-label="altaS_CORR"
                   type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="aF_CLAVE"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="altaS_CORR"
+                  size={10}
                   onChange={handleChange}
-                  value={Inventario.aF_CLAVE}
+                  value={Inventario.altaS_CORR}
                 />
               </div>
             </Col>
             <Col md={5}>
               <div className="mb-1 mt-4">
-                <Button onClick={handleBuscarAltas} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
+                <Button onClick={handleBuscarAltas}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
                   {loading ? (
                     <>
+                      {" Buscar"}
                       <Spinner
                         as="span"
                         animation="border"
                         size="sm"
                         role="status"
                         aria-hidden="true"
+                        className="ms-1"
                       />
                     </>
                   ) : (
-                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                    <>
+                      {" Buscar"}
+                      < Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                    </>
                   )}
+                </Button>
+                <Button onClick={handleLimpiar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  Limpiar
+                  <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                 </Button>
               </div>
             </Col>
@@ -439,6 +454,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                     </th>
                     <th scope="col" className="text-nowrap text-center">Codigo</th>
                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
+                    <th scope="col" className="text-nowrap text-center">N° Alta</th>
                     <th scope="col" className="text-nowrap text-center">Servicio</th>
                     <th scope="col" className="text-nowrap text-center">Dependencia</th>
                     <th scope="col" className="text-nowrap text-center">Especie</th>
@@ -446,7 +462,9 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                     <th scope="col" className="text-nowrap text-center">Marca</th>
                     <th scope="col" className="text-nowrap text-center">Modelo</th>
                     <th scope="col" className="text-nowrap text-center">Serie</th>
+                    <th scope="col" className="text-nowrap text-center">Estado</th>
                     <th scope="col" className="text-nowrap text-center">Precio</th>
+                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
                     <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                     {/* <th>Acción</th> */}
                   </tr>
@@ -465,15 +483,18 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, obte
                         </td>
                         <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
                         <td className="text-nowrap text-center">{Lista.ninv}</td>
-                        <td className="text-nowrap text-center">{Lista.serv}</td>
-                        <td className="text-nowrap text-center">{Lista.dep}</td>
+                        <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
+                        <td className="text-nowrap text-center">{Lista.servicio}</td>
+                        <td className="text-nowrap text-center">{Lista.departamento}</td>
                         <td className="text-nowrap text-center">{Lista.esp}</td>
                         <td className="text-nowrap text-center">{Lista.ncuenta}</td>
                         <td className="text-nowrap text-center">{Lista.marca}</td>
                         <td className="text-nowrap text-center">{Lista.modelo}</td>
                         <td className="text-nowrap text-center">{Lista.serie}</td>
+                        <td className="text-nowrap text-center">{Lista.estado}</td>
                         <td className="text-nowrap text-center">{Lista.precio}</td>
-                        <td className="text-nowrap text-center">{Lista.mrecepcion}</td>
+                        <td className="text-nowrap text-center">{Lista.fechA_ALTA}</td>
+                        <td className="text-nowrap text-center">{Lista.nrecep}</td>
                         {/* <td>
                           <Button
                             variant="outline-danger"
@@ -538,7 +559,5 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   listaAltasActions,
-  obtenerListaAltasActions,
-  obtenerAltasPorCorrActions,
   anularAltasActions
 })(AnularAltas);

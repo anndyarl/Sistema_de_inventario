@@ -203,16 +203,20 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
                 <Button onClick={handleBuscarInventario} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
                   {loading ? (
                     <>
+                      {" Buscar"}
                       <Spinner
                         as="span"
                         animation="border"
                         size="sm"
                         role="status"
                         aria-hidden="true"
+                        className="ms-1"
                       />
                     </>
                   ) : (
-                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                    <>    {" Buscar"}
+                      <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                    </>
                   )}
                 </Button>
               </div>

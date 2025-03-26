@@ -318,7 +318,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
             {/* Boton actualizar filas seleccionadas */}
             <div className="d-flex justify-content-end">
               <Button
-                variant="primary"
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
                 type="submit"
                 className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                 disabled={loadingRegistro}  // Desactiva el botón mientras carga
@@ -347,10 +347,11 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
               <input
                 aria-label="nombre"
                 type="text"
-                className={`form-control ${error.nombre ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                className={`form-select ${error.nombre ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                 name="nombre"
                 placeholder="Ingrese una nueva dependencia"
                 maxLength={100}
+                size={10}
                 onChange={handleChange}
                 value={Mantenedor.nombre}
               />

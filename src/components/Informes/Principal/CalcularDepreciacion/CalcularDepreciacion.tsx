@@ -83,13 +83,14 @@ export interface ListaActivosFijos {
 interface DatosAltas {
     listaActivosFijos: ListaActivosFijos[];
     listaActivosCalculados: ListaActivosFijos[];
-    listaActivosFijosActions: (fDesde: string, fHasta: string, codCuenta: string) => Promise<boolean>;
+    listaActivosCalculadoSinVidaUtil: ListaActivosFijos[];
+    listaActivosFijosActions: (fDesde: string, fHasta: string) => Promise<boolean>;
     listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
 }
 
-const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaActivosCalculados, listaActivosFijosActions, listaActivosCalculadosActions, token, isDarkMode }) => {
+const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaActivosCalculados, listaActivosCalculadoSinVidaUtil, listaActivosFijosActions, listaActivosCalculadosActions, token, isDarkMode }) => {
     const [error, setError] = useState<Partial<ListaActivosFijos> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalCalcular, setMostrarModalCalcular] = useState(false);
@@ -107,7 +108,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     const listaActivosFijosAuto = async () => {
         if (listaActivosFijos.length === 0) {
             setLoading(true);
-            const resultado = await listaActivosFijosActions("", "", "");
+            const resultado = await listaActivosFijosActions("", "");
             if (resultado) {
                 setLoading(false);
             }
@@ -169,11 +170,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
         //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
         if (Inventario.fDesde != "" && Inventario.fHasta != "") {
             if (validate()) {
-                resultado = await listaActivosFijosActions(Inventario.fDesde, Inventario.fHasta, Inventario.cta_cod);
+                resultado = await listaActivosFijosActions(Inventario.fDesde, Inventario.fHasta);
             }
         }
         else {
-            resultado = await listaActivosFijosActions("", "", Inventario.cta_cod);
+            resultado = await listaActivosFijosActions("", "");
         }
 
         setError({});
@@ -334,52 +335,52 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 
     // 📂 Función para exportar a Excel
     const exportarExcel = (listaActivosCalculados: any[], fileName: string = "Reporte.xlsx") => {
-        setLoading(true);
+
         // Definir los encabezados
         const encabezados = [
             [
+                "Código",
                 "Código Genérico",
-                // "Código Largo",
-                // "Departamento Corr",
-                // "Código Específico",
-                // "Secuencia",
-                // "Clave Ítem",
-                // "Descripción",
-                // "Fecha Ingreso",
-                // "Estado",
-                // "Código",
-                // "Tipo",
-                // "Alta",
-                // "Precio Referencial",
-                // "Cantidad",
-                // "Origen",
-                // "Resolución",
-                // "Fecha Solicitud",
-                // "OCO Número Ref",
-                // "Usuario Creador",
-                // "Fecha Creación",
-                // "IP Creación",
-                // "Usuario Modificador",
-                // "Fecha Modificación",
-                // // "IP Modificación",
-                // "Tipo Documento",
-                // "RUN Proveedor",
-                // "Reg EQM",
-                // "Número Factura",
-                // "Fecha Factura",
-                // "Valor 3 UTM",
-                // "ID Grupo",
-                // "Código Cuenta",
-                // "Transitoria",
-                // "Monto Factura",
-                // "Descompone",
-                // "Etiqueta",
-                // "Vida Útil",
-                // "Vigente",
-                // "ID Programa",
-                // "ID Modalidad Compra",
-                // "ID Propiedad",
-                // "Especie"
+                "Código Largo",
+                "Departamento Corr",
+                "Código Específico",
+                "Secuencia",
+                "Clave Ítem",
+                "Descripción",
+                "Fecha Ingreso",
+                "Estado",
+                "Código",
+                "Tipo",
+                "Alta",
+                "Precio Referencial",
+                "Cantidad",
+                "Origen",
+                "Resolución",
+                "Fecha Solicitud",
+                "OCO Número Ref",
+                "Usuario Creador",
+                "Fecha Creación",
+                "IP Creación",
+                "Usuario Modificador",
+                "Fecha Modificación",
+                "IP Modificación",
+                "Tipo Documento",
+                "RUN Proveedor",
+                "Reg EQM",
+                "Número Factura",
+                "Fecha Factura",
+                "Valor 3 UTM",
+                "ID Grupo",
+                "Código Cuenta",
+                "Transitoria",
+                "Monto Factura",
+                "Descompone",
+                "Etiqueta",
+                "Vigente",
+                "ID Programa",
+                "ID Modalidad Compra",
+                "ID Propiedad",
+                "Especie",
                 "Meses Transcurridos",
                 "Vida Útil",
                 "Mes Vida Útil",
@@ -394,49 +395,47 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
         // Convertir datos a array de arrays
         const datos = listaActivosCalculados.map((item) => [
             item.aF_CLAVE ?? "",
-            // item.aF_CODIGO_GENERICO ?? "",
-            // item.aF_CODIGO_LARGO ?? "",
-            // item.deP_CORR?.toString() ?? "",
-            // item.esP_CODIGO?.toString() ?? "",
-            // item.aF_SECUENCIA?.toString() ?? "",
-            // item.itE_CLAVE?.toString() ?? "",
-            // item.aF_DESCRIPCION ?? "",
-            // item.aF_FINGRESO ?? "",
-            // item.aF_ESTADO ?? "",
-            // item.aF_CODIGO ?? "",
-            // item.aF_TIPO ?? "",
-            // item.aF_ALTA ?? "",
-            // item.aF_PRECIO_REF?.toString() ?? "",
-            // item.aF_CANTIDAD?.toString() ?? "",
-            // item.aF_ORIGEN?.toString() ?? "",
-            // item.aF_RESOLUCION ?? "",
-            // item.aF_FECHA_SOLICITUD ?? "",
-            // item.aF_OCO_NUMERO_REF ?? "",
-            // item.usuariO_CREA ?? "",
-            // item.f_CREA ?? "",
-            // item.iP_CREA ?? "",
-            // item.usuariO_MOD ?? "",
-            // item.f_MOD ?? "",
-            // item.iP_MODt ?? "",
-            // item.aF_TIPO_DOC?.toString() ?? "",
-            // item.proV_RUN ?? "",
-            // item.reG_EQM ?? "",
-            // item.aF_NUM_FAC ?? "",
-            // item.aF_FECHAFAC ?? "",
-            // item.aF_3UTM ?? "",
-            // item.iD_GRUPO?.toString() ?? "",
-            // item.ctA_COD ?? "",
-            // item.transitoria ?? "",
-            // item.aF_MONTOFACTURA?.toString() ?? "",
-            // item.esP_DESCOMPONE ?? "",
-            // item.aF_ETIQUETA ?? "",
-            // item.aF_VIDAUTIL?.toString() ?? "",
-            // item.aF_VIGENTE ?? "",
-            // item.idprograma?.toString() ?? "",
-            // item.idmodalidadcompra?.toString() ?? "",
-            // item.idpropiedad?.toString() ?? "",
-            // item.especie?.toString() ?? "",
-
+            item.aF_CODIGO_GENERICO ?? "",
+            item.aF_CODIGO_LARGO ?? "",
+            item.deP_CORR?.toString() ?? "",
+            item.esP_CODIGO?.toString() ?? "",
+            item.aF_SECUENCIA?.toString() ?? "",
+            item.itE_CLAVE?.toString() ?? "",
+            item.aF_DESCRIPCION ?? "",
+            item.aF_FINGRESO ?? "",
+            item.aF_ESTADO ?? "",
+            item.aF_CODIGO ?? "",
+            item.aF_TIPO ?? "",
+            item.aF_ALTA ?? "",
+            item.aF_PRECIO_REF?.toString() ?? "",
+            item.aF_CANTIDAD?.toString() ?? "",
+            item.aF_ORIGEN?.toString() ?? "",
+            item.aF_RESOLUCION ?? "",
+            item.aF_FECHA_SOLICITUD ?? "",
+            item.aF_OCO_NUMERO_REF ?? "",
+            item.usuariO_CREA ?? "",
+            item.f_CREA ?? "",
+            item.iP_CREA ?? "",
+            item.usuariO_MOD ?? "",
+            item.f_MOD ?? "",
+            item.iP_MODt ?? "",
+            item.aF_TIPO_DOC?.toString() ?? "",
+            item.proV_RUN ?? "",
+            item.reG_EQM ?? "",
+            item.aF_NUM_FAC ?? "",
+            item.aF_FECHAFAC ?? "",
+            item.aF_3UTM ?? "",
+            item.iD_GRUPO?.toString() ?? "",
+            item.ctA_COD ?? "",
+            item.transitoria ?? "",
+            item.aF_MONTOFACTURA?.toString() ?? "",
+            item.esP_DESCOMPONE ?? "",
+            item.aF_ETIQUETA ?? "",
+            item.aF_VIGENTE ?? "",
+            item.idprograma?.toString() ?? "",
+            item.idmodalidadcompra?.toString() ?? "",
+            item.idpropiedad?.toString() ?? "",
+            item.especie?.toString() ?? "",
             item.mesesTranscurridos ?? "",
             item.vidaUtil ?? "",
             item.mesVidaUtil ?? "",
@@ -454,49 +453,47 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 
         worksheet["!cols"] = [
             { wch: 12 }, // Código
-            // { wch: 12 }, // Código Genérico
-            // { wch: 12 }, // Código Largo
-            // { wch: 15 }, // Departamento Corr
-            // { wch: 15 }, // Código Específico
-            // { wch: 15 }, // Secuencia
-            // { wch: 12 }, // Clave Ítem
-            // { wch: 70 }, // Descripción
-            // { wch: 15 }, // Fecha Ingreso
-            // { wch: 12 }, // Estado
-            // { wch: 12 }, // Código
-            // { wch: 12 }, // Tipo
-            // { wch: 15 }, // Alta
-            // { wch: 12 }, // Precio Referencial
-            // { wch: 12 }, // Cantidad
-            // { wch: 12 }, // Origen
-            // { wch: 15 }, // Resolución
-            // { wch: 15 }, // Fecha Solicitud
-            // { wch: 12 }, // OCO Número Ref
-            // { wch: 15 }, // Usuario Creador
-            // { wch: 15 }, // Fecha Creación
-            // { wch: 15 }, // IP Creación
-            // { wch: 15 }, // Usuario Modificador
-            // { wch: 15 }, // Fecha Modificación
-            // { wch: 15 }, // IP Modificación
-            // { wch: 12 }, // Tipo Documento
-            // { wch: 12 }, // RUN Proveedor
-            // { wch: 12 }, // Reg EQM
-            // { wch: 15 }, // Número Factura
-            // { wch: 15 }, // Fecha Factura
-            // { wch: 12 }, // Valor 3 UTM
-            // { wch: 12 }, // ID Grupo
-            // { wch: 12 }, // Código Cuenta
-            // { wch: 15 }, // Transitoria
-            // { wch: 15 }, // Monto Factura
-            // { wch: 12 }, // Descompone
-            // { wch: 12 }, // Etiqueta
-            // { wch: 12 }, // Vida Útil
-            // { wch: 12 }, // Vigente
-            // { wch: 12 }, // ID Programa
-            // { wch: 12 }, // ID Modalidad Compra
-            // { wch: 12 }, // ID Propiedad
-            // { wch: 50 }  // Especie
-
+            { wch: 12 }, // Código Genérico
+            { wch: 12 }, // Código Largo
+            { wch: 15 }, // Departamento Corr
+            { wch: 15 }, // Código Específico
+            { wch: 15 }, // Secuencia
+            { wch: 12 }, // Clave Ítem
+            { wch: 70 }, // Descripción
+            { wch: 15 }, // Fecha Ingreso
+            { wch: 12 }, // Estado
+            { wch: 12 }, // Código
+            { wch: 12 }, // Tipo
+            { wch: 15 }, // Alta
+            { wch: 12 }, // Precio Referencial
+            { wch: 12 }, // Cantidad
+            { wch: 12 }, // Origen
+            { wch: 15 }, // Resolución
+            { wch: 15 }, // Fecha Solicitud
+            { wch: 12 }, // OCO Número Ref
+            { wch: 15 }, // Usuario Creador
+            { wch: 15 }, // Fecha Creación
+            { wch: 15 }, // IP Creación
+            { wch: 15 }, // Usuario Modificador
+            { wch: 15 }, // Fecha Modificación
+            { wch: 15 }, // IP Modificación
+            { wch: 12 }, // Tipo Documento
+            { wch: 12 }, // RUN Proveedor
+            { wch: 12 }, // Reg EQM
+            { wch: 15 }, // Número Factura
+            { wch: 15 }, // Fecha Factura
+            { wch: 12 }, // Valor 3 UTM
+            { wch: 12 }, // ID Grupo
+            { wch: 12 }, // Código Cuenta
+            { wch: 15 }, // Transitoria
+            { wch: 15 }, // Monto Factura
+            { wch: 12 }, // Descompone
+            { wch: 12 }, // Etiqueta
+            { wch: 12 }, // Vigente
+            { wch: 12 }, // ID Programa
+            { wch: 12 }, // ID Modalidad Compra
+            { wch: 12 }, // ID Propiedad
+            { wch: 50 },  // Especie
             { wch: 20 }, // Meses Transcurridos
             { wch: 20 }, // Vida Útil
             { wch: 20 }, // Mes Vida Útil
@@ -531,7 +528,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 
     // 📂 Función para exportar a Word
     const exportarWord = () => {
-        setLoading(true);
+
         const doc = new Document({
             styles: {
                 paragraphStyles: [
@@ -712,6 +709,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                     <Row>
                         <Col md={3}>
                             <div className="mb-1">
+                                <h5 className="fw-semibold border-bottom">Busqueda por fecha de creación</h5>
                                 <label htmlFor="fDesde" className="fw-semibold">Desde</label>
                                 <input
                                     aria-label="fDesde"
@@ -744,7 +742,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                         <Col md={5}>
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar} disabled={loading == true}
-                                    className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`} type="submit" >
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     {loading ? (
                                         <>
                                             {" Buscar"}
@@ -757,7 +756,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                         </>
                                     )}
                                 </Button>
-                                <Button onClick={handleLimpiar} className={`btn mx-1 ${isDarkMode ? "bg-secondary" : "bg-primary"}`}>
+                                <Button onClick={handleLimpiar}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
                                     Limpiar
                                     <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                 </Button>
@@ -951,7 +952,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 
 
             {/* Modal Activos Calculados */}
-            <Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)} dialogClassName="custom-modal" size="xl">
+            <Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)} /* dialogClassName="modal-fullscreen" */ size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Depreciación calculada por activo</Modal.Title>
                 </Modal.Header>
@@ -1195,6 +1196,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 const mapStateToProps = (state: RootState) => ({
     listaActivosFijos: state.listaActivosFijosReducers.listaActivosFijos,
     listaActivosCalculados: state.listaActivosCalculadosReducers.listaActivosCalculados,
+    listaActivosCalculadoSinVidaUtil: state.listaActivosCalculadosReducers.listaActivosCalculadoSinVidaUtil,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode
 });

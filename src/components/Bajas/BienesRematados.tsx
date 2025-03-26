@@ -308,7 +308,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
                       checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
                     />
                   </th>
-                  <th scope="col" className="text-nowrap text-center">Nª Inventario</th>
+                  <th scope="col" className="text-nowrap text-center">Nª Certificado</th>
                   <th scope="col" className="text-nowrap text-center">Codigo</th>
                   <th scope="col" className="text-nowrap text-center">Especie</th>
                   <th scope="col" className="text-nowrap text-center">Vida UtiL Restante</th>
