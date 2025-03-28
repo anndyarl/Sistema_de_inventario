@@ -658,10 +658,18 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
                                                 <td className="text-nowrap text-center">{Lista.proveedor}</td>
                                                 <td className="text-nowrap text-center">{Lista.establecimiento}</td>
                                                 <td className="text-nowrap text-center">{Lista.destino}</td>
-                                                <td className="text-nowrap text-center">{Lista.valorinicial}</td>
-                                                <td className="text-nowrap text-center">{Lista.depreciacion}</td>
-                                                <td className="text-nowrap text-center">{Lista.depreciacionacumulada}</td>
-                                                <td className="text-nowrap text-center">{Lista.valorlibro}</td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(Lista.valorinicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(Lista.depreciacion ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(Lista.depreciacionacumulada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(Lista.valorlibro ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
                                             </tr>
                                         );
                                     })}

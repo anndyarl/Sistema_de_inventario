@@ -175,8 +175,8 @@ const DocumentoPDF = ({ row }: { row: ListaActivosFijos[]; }) => (
                     <Text style={styles.tableCellHeader}>Vigente</Text>
                     <Text style={styles.tableCellHeader}>ID Programa</Text>
                     <Text style={styles.tableCellHeader}>ID Modalidad Compra</Text>
-                    <Text style={styles.tableCellHeader}>ID Propiedad</Text>
-                    <Text style={styles.tableCellHeader}>Especie</Text> */}
+                    <Text style={styles.tableCellHeader}>ID Propiedad</Text>*/}
+                    <Text style={styles.tableCellHeader}>Especie</Text>
                     <Text style={styles.tableCellHeader}>Meses Transcurridos</Text>
                     <Text style={styles.tableCellHeader}>Vida Útil</Text>
                     <Text style={styles.tableCellHeader}>Mes Vida Útil</Text>
@@ -185,7 +185,7 @@ const DocumentoPDF = ({ row }: { row: ListaActivosFijos[]; }) => (
                     <Text style={styles.tableCellHeader}>Depreciación por Año</Text>
                     <Text style={styles.tableCellHeader}>Depreciación por Mes</Text>
                     <Text style={styles.tableCellHeader}>Depreciación Acumulada Actualizada</Text>
-
+                    <Text style={styles.tableCellHeader}>Valor Residual</Text>
                 </View>
                 {/* Fila de datos */}
                 {row.map((lista) => (
@@ -231,16 +231,17 @@ const DocumentoPDF = ({ row }: { row: ListaActivosFijos[]; }) => (
                         <Text style={styles.tableCell}>{lista.aF_VIGENTE}</Text>
                         <Text style={styles.tableCell}>{lista.idprograma}</Text>
                         <Text style={styles.tableCell}>{lista.idmodalidadcompra}</Text>
-                        <Text style={styles.tableCell}>{lista.idpropiedad}</Text>
-                        <Text style={styles.tableCell}>{lista.especie}</Text> */}
-                        <Text style={styles.tableCell}>{lista.mesesTranscurridos ?? 0}</Text>
-                        <Text style={styles.tableCell}>{lista.vidaUtil ?? 0}</Text>
-                        <Text style={styles.tableCell}>{lista.mesVidaUtil ?? 0}</Text>
-                        <Text style={styles.tableCell}>{lista.mesesRestantes ?? 0}</Text>
-                        <Text style={styles.tableCell}>{lista.montoInicial ?? 0}</Text>
-                        <Text style={styles.tableCell}>{lista.depreciacionPorAno ?? 0}</Text>
-                        <Text style={styles.tableCell}>{lista.depreciacionPorMes ?? 0}</Text>
-                        <Text style={styles.tableCell}>{lista.depreciacionAcumuladaActualizada ?? 0}</Text>
+                        <Text style={styles.tableCell}>{lista.idpropiedad}</Text>*/}
+                        <Text style={styles.tableCell}>{lista.especie}</Text>
+                        <Text style={styles.tableCell}>{lista.mesesTranscurridos}</Text>
+                        <Text style={styles.tableCell}>{lista.vidaUtil}</Text>
+                        <Text style={styles.tableCell}>{lista.mesVidaUtil}</Text>
+                        <Text style={styles.tableCell}>{lista.mesesRestantes}</Text>
+                        <Text style={styles.tableCell}>$ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={styles.tableCell}>$ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={styles.tableCell}>$ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={styles.tableCell}>$ {(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={styles.tableCell}>$ {(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                     </View>
                 ))}
             </View>

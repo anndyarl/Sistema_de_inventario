@@ -73,8 +73,9 @@ import comboServicioInformeReducers from "./Informes/Principal/FolioPorServicioD
 import comboCuentasInformeReducers from "./Informes/Listados/comboCuentasInformeReducers";
 import listaFolioServicioDependenciaReducers from "./Informes/Principal/FolioPorServicioDependencia/listaFolioServicioDependenciaReducers";
 import listaCuentaFechasReducers from "./Informes/Principal/FechaCuentas/listaCuentaFechasReducers";
-import listaActivosFijosReducers from "./Informes/Principal/CalcularDepreciacion/listaACtivosFijosReducers";
 import listaActivosCalculadosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosCalculadosReducers";
+import listaActivosFijosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosFijosReducers";
+import listaActivosNoCalculadosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosNoCalculadosReducers";
 
 
 
@@ -150,6 +151,7 @@ const appReducer = combineReducers({
   listaCuentaFechasReducers,
   listaActivosFijosReducers,
   listaActivosCalculadosReducers,
+  listaActivosNoCalculadosReducers,
 
   //Mantenedores
   listadoMantenedorDependenciasReducers,

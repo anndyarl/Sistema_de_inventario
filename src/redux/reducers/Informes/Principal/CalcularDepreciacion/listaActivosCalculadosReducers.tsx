@@ -2,7 +2,6 @@
 import {
   LISTA_ACTIVOS_CALCULADOS_REQUEST,
   LISTA_ACTIVOS_CALCULADOS_SUCCESS,
-  LISTA_ACTIVOS_CALCULADOS_SIN_VIDA_UTIL_SUCCESS,
   LISTA_ACTIVOS_CALCULADOS_FAIL,
 
 } from '../../../../actions/Informes/types';
@@ -62,10 +61,7 @@ interface PropsState {
     depreciacionPorAno: number;
     depreciacionPorMes: number;
     depreciacionAcumuladaActualizada: number;
-  }>;
-  listaActivosCalculadoSinVidaUtil: Array<{
-    aF_CLAVE: number;
-    vidaUtil: number;
+    valorResidual: number;
   }>;
   error: string | null;
 }
@@ -73,7 +69,6 @@ interface PropsState {
 const initialState: PropsState = {
   loading: false,
   listaActivosCalculados: [],
-  listaActivosCalculadoSinVidaUtil: [],
   error: null,
 };
 
@@ -90,12 +85,6 @@ const listaActivosCalculadosReducers = (state = initialState, action: any): Prop
         ...state,
         loading: false,
         listaActivosCalculados: action.payload
-      };
-    case LISTA_ACTIVOS_CALCULADOS_SIN_VIDA_UTIL_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        listaActivosCalculadoSinVidaUtil: action.payload
       };
 
     case LISTA_ACTIVOS_CALCULADOS_FAIL:

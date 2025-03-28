@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import { BoxArrowDown, Calculator, Eraser, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
+import { BoxArrowDown, Calculator, Eraser, Exclamation, ExclamationDiamond, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -15,7 +15,7 @@ import MenuInformes from "../../../Menus/MenuInformes";
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { RootState } from "../../../../store";
 import DocumentoPDF from "./DocumentoPDFCalcularDepreciacion";
-
+import Draggable from "react-draggable";
 import { listaActivosCalculadosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosActions";
 import { listaActivosFijosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -78,28 +78,33 @@ export interface ListaActivosFijos {
     depreciacionPorAno?: number;
     depreciacionPorMes?: number;
     depreciacionAcumuladaActualizada?: number;
+    valorResidual?: number;
 }
 
 interface DatosAltas {
     listaActivosFijos: ListaActivosFijos[];
     listaActivosCalculados: ListaActivosFijos[];
-    listaActivosCalculadoSinVidaUtil: ListaActivosFijos[];
+    listaActivosNoCalculados: ListaActivosFijos[];
     listaActivosFijosActions: (fDesde: string, fHasta: string) => Promise<boolean>;
     listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
 }
 
-const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaActivosCalculados, listaActivosCalculadoSinVidaUtil, listaActivosFijosActions, listaActivosCalculadosActions, token, isDarkMode }) => {
+const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, listaActivosFijosActions, listaActivosCalculadosActions, token, isDarkMode }) => {
     const [error, setError] = useState<Partial<ListaActivosFijos> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [mostrarModalNoCalculados, setMostrarModalNoCalculados] = useState(false);
     const [mostrarModalCalcular, setMostrarModalCalcular] = useState(false);
     const [loading, setLoading] = useState(false); // Estado para controlar la carga 
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const [paginaActual2, setPaginaActual2] = useState(1);
+    const [paginaActual3, setPaginaActual3] = useState(1);
     const elementosPorPagina = 12;
     const elementosPorPagina2 = 12;
+    const elementosPorPagina3 = 12;
+    const [__, setlistaActivosCalculados] = useState<ListaActivosFijos[]>(listaActivosCalculados);
     const [Inventario, setInventario] = useState({
         fDesde: "",
         fHasta: "",
@@ -131,8 +136,29 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     useEffect(() => {
         if (token) {
             listaActivosFijosAuto();
+            setlistaActivosCalculados(listaActivosCalculados);
+            if (listaActivosNoCalculados.length > 0) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Activos con cálculo pendiente",
+                    text: "Algunos activos no han sido calculados porque su vida útil es 0. Haga clic en 'Ver' para revisar los detalles.",
+                    confirmButtonText: "Ver",
+                    width: "600px", // Aumenta el tamaño del modal
+                    background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+                    customClass: {
+                        popup: "custom-border",
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        setMostrarModalNoCalculados(true); // Abre el modal después de confirmar
+                    }
+                });
+            }
         }
-    }, [listaActivosFijosActions, token, listaActivosFijos.length]); // Asegúrate de incluir dependencias relevantes
+
+    }, [listaActivosFijosActions, token, listaActivosFijos.length, listaActivosNoCalculados.length, listaActivosCalculados]); // Asegúrate de incluir dependencias relevantes
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -176,8 +202,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
         else {
             resultado = await listaActivosFijosActions("", "");
         }
-
-        setError({});
         if (!resultado) {
             Swal.fire({
                 icon: "error",
@@ -209,77 +233,78 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     };
 
     const handleCalcular = async () => {
-        const selectedIndices = filasSeleccionadas.map(Number);
-        const activosSeleccionados = selectedIndices.map((index) => {
-            return {
-                aF_CLAVE: listaActivosFijos[index].aF_CLAVE,
-                aF_CODIGO_GENERICO: listaActivosFijos[index].aF_CODIGO_GENERICO,
-                aF_CODIGO_LARGO: listaActivosFijos[index].aF_CODIGO_LARGO,
-                deP_CORR: listaActivosFijos[index].deP_CORR,
-                // Los campos esP_CODIGO y aF_SECUENCIA están omitidos según tu listado
-                itE_CLAVE: listaActivosFijos[index].itE_CLAVE,
-                aF_DESCRIPCION: listaActivosFijos[index].aF_DESCRIPCION,
-                aF_FINGRESO: listaActivosFijos[index].aF_FINGRESO,
-                // aF_ESTADO omitido
-                aF_CODIGO: listaActivosFijos[index].aF_CODIGO,
-                aF_TIPO: listaActivosFijos[index].aF_TIPO,
-                aF_ALTA: listaActivosFijos[index].aF_ALTA,
-                aF_PRECIO_REF: listaActivosFijos[index].aF_PRECIO_REF,
-                aF_CANTIDAD: listaActivosFijos[index].aF_CANTIDAD,
-                aF_ORIGEN: listaActivosFijos[index].aF_ORIGEN,
-                aF_RESOLUCION: listaActivosFijos[index].aF_RESOLUCION,
-                // aF_FECHA_SOLICITUD omitido
-                aF_OCO_NUMERO_REF: listaActivosFijos[index].aF_OCO_NUMERO_REF,
-                usuariO_CREA: listaActivosFijos[index].usuariO_CREA,
-                f_CREA: listaActivosFijos[index].f_CREA,
-                iP_CREA: listaActivosFijos[index].iP_CREA,
-                usuariO_MOD: listaActivosFijos[index].usuariO_MOD,
-                f_MOD: listaActivosFijos[index].f_MOD,
-                // iP_MODt omitido
-                aF_TIPO_DOC: listaActivosFijos[index].aF_TIPO_DOC,
-                proV_RUN: listaActivosFijos[index].proV_RUN,
-                reG_EQM: listaActivosFijos[index].reG_EQM,
-                aF_NUM_FAC: listaActivosFijos[index].aF_NUM_FAC,
-                aF_FECHAFAC: listaActivosFijos[index].aF_FECHAFAC,
-                aF_3UTM: listaActivosFijos[index].aF_3UTM,
-                iD_GRUPO: listaActivosFijos[index].iD_GRUPO,
-                ctA_COD: listaActivosFijos[index].ctA_COD,
-                transitoria: listaActivosFijos[index].transitoria,
-                aF_MONTOFACTURA: listaActivosFijos[index].aF_MONTOFACTURA,
-                esP_DESCOMPONE: listaActivosFijos[index].esP_DESCOMPONE,
-                aF_ETIQUETA: listaActivosFijos[index].aF_ETIQUETA,
-                aF_VIDAUTIL: listaActivosFijos[index].aF_VIDAUTIL,
-                aF_VIGENTE: listaActivosFijos[index].aF_VIGENTE,
-                idprograma: listaActivosFijos[index].idprograma,
-                idmodalidadcompra: listaActivosFijos[index].idmodalidadcompra,
-                idpropiedad: listaActivosFijos[index].idpropiedad,
-                especie: listaActivosFijos[index].especie
-            };
-
-        });
-        console.log(activosSeleccionados);
         setLoading(true);
+
+        // 1. Limpiar los activos seleccionados antes de enviar los nuevos datos
+        setlistaActivosCalculados([]);
+        await listaActivosCalculadosActions([]); // Envía un array vacío para eliminar datos previos
+
+        // 2. Seleccionar los nuevos activos
+        const selectedIndices = filasSeleccionadas.map(Number);
+        const activosSeleccionados = selectedIndices.map((index) => ({
+            aF_CLAVE: listaActivosFijos[index].aF_CLAVE,
+            aF_CODIGO_GENERICO: listaActivosFijos[index].aF_CODIGO_GENERICO,
+            aF_CODIGO_LARGO: listaActivosFijos[index].aF_CODIGO_LARGO,
+            deP_CORR: listaActivosFijos[index].deP_CORR,
+            itE_CLAVE: listaActivosFijos[index].itE_CLAVE,
+            aF_DESCRIPCION: listaActivosFijos[index].aF_DESCRIPCION,
+            aF_FINGRESO: listaActivosFijos[index].aF_FINGRESO,
+            aF_CODIGO: listaActivosFijos[index].aF_CODIGO,
+            aF_TIPO: listaActivosFijos[index].aF_TIPO,
+            aF_ALTA: listaActivosFijos[index].aF_ALTA,
+            aF_PRECIO_REF: listaActivosFijos[index].aF_PRECIO_REF,
+            aF_CANTIDAD: listaActivosFijos[index].aF_CANTIDAD,
+            aF_ORIGEN: listaActivosFijos[index].aF_ORIGEN,
+            aF_RESOLUCION: listaActivosFijos[index].aF_RESOLUCION,
+            aF_OCO_NUMERO_REF: listaActivosFijos[index].aF_OCO_NUMERO_REF,
+            usuariO_CREA: listaActivosFijos[index].usuariO_CREA,
+            f_CREA: listaActivosFijos[index].f_CREA,
+            iP_CREA: listaActivosFijos[index].iP_CREA,
+            usuariO_MOD: listaActivosFijos[index].usuariO_MOD,
+            f_MOD: listaActivosFijos[index].f_MOD,
+            aF_TIPO_DOC: listaActivosFijos[index].aF_TIPO_DOC,
+            proV_RUN: listaActivosFijos[index].proV_RUN,
+            reG_EQM: listaActivosFijos[index].reG_EQM,
+            aF_NUM_FAC: listaActivosFijos[index].aF_NUM_FAC,
+            aF_FECHAFAC: listaActivosFijos[index].aF_FECHAFAC,
+            aF_3UTM: listaActivosFijos[index].aF_3UTM,
+            iD_GRUPO: listaActivosFijos[index].iD_GRUPO,
+            ctA_COD: listaActivosFijos[index].ctA_COD,
+            transitoria: listaActivosFijos[index].transitoria,
+            aF_MONTOFACTURA: listaActivosFijos[index].aF_MONTOFACTURA,
+            esP_DESCOMPONE: listaActivosFijos[index].esP_DESCOMPONE,
+            aF_ETIQUETA: listaActivosFijos[index].aF_ETIQUETA,
+            aF_VIDAUTIL: listaActivosFijos[index].aF_VIDAUTIL,
+            aF_VIGENTE: listaActivosFijos[index].aF_VIGENTE,
+            idprograma: listaActivosFijos[index].idprograma,
+            idmodalidadcompra: listaActivosFijos[index].idmodalidadcompra,
+            idpropiedad: listaActivosFijos[index].idpropiedad,
+            especie: listaActivosFijos[index].especie
+        }));
+
+        // 3. Enviar los nuevos activos
         const resultado = await listaActivosCalculadosActions(activosSeleccionados);
+
+        // 4. Mostrar mensaje de error si no hay resultados
         if (!resultado) {
             Swal.fire({
                 icon: "error",
                 title: ":'(",
                 text: "No se encontraron resultados, inténte otro registro.",
                 confirmButtonText: "Ok",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                customClass: {
-                    popup: "custom-border", // Clase personalizada para el borde
-                }
+                background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+                customClass: { popup: "custom-border" }
             });
-            setLoading(false); //Finaliza estado de carga
+            setLoading(false);
             return;
-        } else {
-            setMostrarModalCalcular(true);//Muestra modal si la carga es correcta
-            setLoading(false); //Finaliza estado de carga
         }
-    }
+
+        // 5. Mostrar modal y finalizar carga
+        setMostrarModalCalcular(true);
+        setLoading(false);
+    };
 
     const setSeleccionaFilas = (index: number) => {
         setFilasSeleccionadas((prev) =>
@@ -304,7 +329,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     };
     //------------------------------Tabla Principal(Activos Fijos)--------------------------------------//
 
-    // Lógica de Paginación actualizada
+    // Lógica de Paginación actualizada 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
@@ -318,7 +343,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     //------------------------------Tabla Modal(Activos calculados)--------------------------------------//
-    // Lógica de Paginación actualizada
+    // Lógica de Paginación actualizada 
     const indiceUltimoElemento2 = paginaActual2 * elementosPorPagina2;
     const indicePrimerElemento2 = indiceUltimoElemento2 - elementosPorPagina2;
     const elementosActuales2 = useMemo(
@@ -326,11 +351,25 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
             listaActivosCalculados.slice(indicePrimerElemento2, indiceUltimoElemento2),
         [listaActivosCalculados, indicePrimerElemento2, indiceUltimoElemento2]
     );
-    // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
     const totalPaginas2 = Array.isArray(listaActivosCalculados)
         ? Math.ceil(listaActivosCalculados.length / elementosPorPagina2)
         : 0;
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
+    //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
+
+    //------------------------------Tabla Modal(Activos no calculados)--------------------------------------//
+    // Lógica de Paginación actualizada 
+    const indiceUltimoElemento3 = paginaActual3 * elementosPorPagina3;
+    const indicePrimerElemento3 = indiceUltimoElemento3 - elementosPorPagina3;
+    const elementosActuales3 = useMemo(
+        () =>
+            listaActivosNoCalculados.slice(indicePrimerElemento3, indiceUltimoElemento3),
+        [listaActivosNoCalculados, indicePrimerElemento3, indiceUltimoElemento3]
+    );
+    const totalPaginas3 = Array.isArray(listaActivosNoCalculados)
+        ? Math.ceil(listaActivosNoCalculados.length / elementosPorPagina3)
+        : 0;
+    const paginar3 = (numeroPagina3: number) => setPaginaActual3(numeroPagina3);
     //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
 
     // 📂 Función para exportar a Excel
@@ -608,7 +647,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                         // new TableCell({ children: [new Paragraph({ text: "ID Programa", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         // new TableCell({ children: [new Paragraph({ text: "ID Modalidad Compra", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         // new TableCell({ children: [new Paragraph({ text: "ID Propiedad", style: "tableCellHeader" })], shading: { fill: "004485" } }),
-                                        // new TableCell({ children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })], shading: { fill: "004485" } }),
+                                        new TableCell({ children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })], shading: { fill: "004485" } }),
 
                                         new TableCell({ children: [new Paragraph({ text: "Meses Transcurridos", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         new TableCell({ children: [new Paragraph({ text: "Vida Útil", style: "tableCellHeader" })], shading: { fill: "004485" } }),
@@ -618,7 +657,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                         new TableCell({ children: [new Paragraph({ text: "Depreciación por Año", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         new TableCell({ children: [new Paragraph({ text: "Depreciación por Mes", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         new TableCell({ children: [new Paragraph({ text: "Depreciación Acumulada Actualizada", style: "tableCellHeader" })], shading: { fill: "004485" } }),
-
+                                        new TableCell({ children: [new Paragraph({ text: "Valor Residual", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                     ],
                                 }),
                                 // Filas dinámicas con datos
@@ -668,17 +707,42 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                             // new TableCell({ children: [new Paragraph({ text: item.idprograma.toString(), style: "tableCell" })] }),
                                             // new TableCell({ children: [new Paragraph({ text: item.idmodalidadcompra.toString(), style: "tableCell" })] }),
                                             // new TableCell({ children: [new Paragraph({ text: item.idpropiedad.toString(), style: "tableCell" })] }),
-                                            // new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
 
                                             new TableCell({ children: [new Paragraph({ text: item.mesesTranscurridos?.toString(), style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.vidaUtil?.toString(), style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.mesVidaUtil?.toString(), style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.mesesRestantes?.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.montoInicial?.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.depreciacionPorAno?.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.depreciacionPorMes?.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.depreciacionAcumuladaActualizada?.toString(), style: "tableCell" })] }),
-
+                                            new TableCell({
+                                                children: [new Paragraph({
+                                                    text: `$ ${(item.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}`,
+                                                    style: "tableCell"
+                                                })]
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({
+                                                    text: `$ ${(item.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}`,
+                                                    style: "tableCell"
+                                                })]
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({
+                                                    text: `$ ${(item.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}`,
+                                                    style: "tableCell"
+                                                })]
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({
+                                                    text: `$ ${(item.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}`,
+                                                    style: "tableCell"
+                                                })]
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({
+                                                    text: `$ ${(item.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}`,
+                                                    style: "tableCell"
+                                                })]
+                                            }),
                                         ],
                                     })
                                 ),
@@ -697,6 +761,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
             setLoading(false);
         });
     };
+
+
     return (
         <Layout>
             <Helmet>
@@ -878,7 +944,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                                 <td className="text-nowrap text-center">{Lista.aF_CODIGO}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_TIPO}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_ALTA}</td>
-                                                <td className="text-nowrap text-center">{Lista.aF_PRECIO_REF}</td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
                                                 <td className="text-nowrap text-center">{Lista.aF_CANTIDAD}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_ORIGEN}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_RESOLUCION}</td>
@@ -899,7 +967,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                                 <td className="text-nowrap text-center">{Lista.iD_GRUPO}</td>
                                                 <td className="text-nowrap text-center">{Lista.ctA_COD}</td>
                                                 <td className="text-nowrap text-center">{Lista.transitoria}</td>
-                                                <td className="text-nowrap text-center">{Lista.aF_MONTOFACTURA}</td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(Lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
                                                 <td className="text-nowrap text-center">{Lista.esP_DESCOMPONE}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_ETIQUETA}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_VIDAUTIL}</td>
@@ -952,34 +1022,244 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 
 
             {/* Modal Activos Calculados */}
-            <Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)} /* dialogClassName="modal-fullscreen" */ size="xl">
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Depreciación calculada por activo</Modal.Title>
+            {listaActivosCalculados.length > 0 && (
+                <Draggable handle=".modal-header">
+                    < Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)}
+                        size="xl"
+                        dialogClassName="draggable-modal"
+                        backdrop="static" // Evita que se cierre al hacer clic afuera
+                        keyboard={false}>
+                        <Modal.Header className={` modal-header ${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                            <Modal.Title className="fw-semibold">Depreciación calculada por activo</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                            <Row>
+                                <Col md={12}>
+                                    <div className="d-flex justify-content-end p-4">
+                                        <Button
+                                            onClick={() => setMostrarModal(true)}
+                                            disabled={listaActivosCalculados.length === 0}
+                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                            className="mx-1 mb-1">
+                                            {mostrarModal ? (
+                                                <>
+                                                    {" Exportar"}
+                                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {"Exportar"}
+                                                    <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                                </>
+                                            )}
+                                        </Button>
+                                        {listaActivosNoCalculados.length > 0 && (
+                                            <Button
+                                                onClick={() => setMostrarModalNoCalculados(true)}
+                                                disabled={listaActivosCalculados.length === 0}
+                                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                className="mx-1 mb-1">
+                                                {mostrarModal ? (
+                                                    <>
+                                                        {" No Calculados"}
+                                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {"No Calculados"}
+                                                        <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                                    </>
+                                                )}
+                                            </Button>
+                                        )}
+                                    </div>
+                                </Col>
+                            </Row>
+
+                            {/* Tabla*/}
+                            {loading ? (
+                                <>
+                                    {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                                    <SkeletonLoader rowCount={10} columnCount={10} />
+                                </>
+                            ) : (
+                                <div className='table-responsive'>
+                                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                        <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                            <tr>
+                                                <th scope="col" className="text-nowrap text-center">Código</th>
+                                                <th scope="col" className="text-nowrap text-center">Código Genérico</th>
+                                                <th scope="col" className="text-nowrap text-center">Código Largo</th>
+                                                <th scope="col" className="text-nowrap text-center">Dep Corr</th>
+                                                {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
+                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
+                                                <th scope="col" className="text-nowrap text-center">ITE Clave</th>
+                                                <th scope="col" className="text-nowrap text-center">Descripción</th>
+                                                <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                                {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
+                                                <th scope="col" className="text-nowrap text-center">Código</th>
+                                                <th scope="col" className="text-nowrap text-center">Tipo</th>
+                                                <th scope="col" className="text-nowrap text-center">Alta</th>
+                                                <th scope="col" className="text-nowrap text-center">Precio Referencial</th>
+                                                <th scope="col" className="text-nowrap text-center">Cantidad</th>
+                                                <th scope="col" className="text-nowrap text-center">Origen</th>
+                                                <th scope="col" className="text-nowrap text-center">Resolución</th>
+                                                {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
+                                                <th scope="col" className="text-nowrap text-center">Número OCO Ref</th>
+                                                <th scope="col" className="text-nowrap text-center">Usuario Creador</th>
+                                                <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                                                <th scope="col" className="text-nowrap text-center">IP Creación</th>
+                                                <th scope="col" className="text-nowrap text-center">Usuario Modificador</th>
+                                                <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
+                                                {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
+                                                <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
+                                                <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
+                                                <th scope="col" className="text-nowrap text-center">Reg EQM</th>
+                                                <th scope="col" className="text-nowrap text-center">Número Factura</th>
+                                                <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
+                                                <th scope="col" className="text-nowrap text-center">3 UTM</th>
+                                                <th scope="col" className="text-nowrap text-center">ID Grupo</th>
+                                                <th scope="col" className="text-nowrap text-center">Código Cuenta</th>
+                                                <th scope="col" className="text-nowrap text-center">Transitoria</th>
+                                                <th scope="col" className="text-nowrap text-center">Monto Factura</th>
+                                                <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
+                                                <th scope="col" className="text-nowrap text-center">Etiqueta</th>
+                                                <th scope="col" className="text-nowrap text-center">Vigente</th>
+                                                <th scope="col" className="text-nowrap text-center">ID Programa</th>
+                                                <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
+                                                <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
+                                                <th scope="col" className="text-nowrap text-center">Especie</th>
+                                                <th scope="col" className="text-nowrap text-center">Meses transcurrido</th>
+                                                <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                                                <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
+                                                <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
+                                                <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
+                                                <th scope="col" className="text-nowrap text-center">Depreciación por Año</th>
+                                                <th scope="col" className="text-nowrap text-center">Depreciación por Mes</th>
+                                                <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
+                                                <th scope="col" className="text-nowrap text-center">Valor Residual</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {elementosActuales2.map((lista, index) =>
+
+                                                <tr key={index}>
+                                                    <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td>
+                                                    <td className="text-nowrap text-center">{lista.deP_CORR}</td>
+                                                    {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
+                                            <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
+                                                    <td className="text-nowrap text-center">{lista.itE_CLAVE}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_DESCRIPCION}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
+                                                    {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
+                                                    <td className="text-nowrap text-center">{lista.aF_CODIGO}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
+                                                    <td className="text-nowrap text-center">
+                                                        ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_ORIGEN}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
+                                                    {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
+                                                    <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
+                                                    <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
+                                                    <td className="text-nowrap text-center">{lista.f_CREA}</td>
+                                                    <td className="text-nowrap text-center">{lista.iP_CREA}</td>
+                                                    <td className="text-nowrap text-center">{lista.usuariO_MOD}</td>
+                                                    <td className="text-nowrap text-center">{lista.f_MOD}</td>
+                                                    {/* <td className="text-nowrap text-center">{lista.iP_MODt}</td> */}
+                                                    <td className="text-nowrap text-center">{lista.aF_TIPO_DOC}</td>
+                                                    <td className="text-nowrap text-center">{lista.proV_RUN}</td>
+                                                    <td className="text-nowrap text-center">{lista.reG_EQM}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_NUM_FAC}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_FECHAFAC}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_3UTM}</td>
+                                                    <td className="text-nowrap text-center">{lista.iD_GRUPO}</td>
+                                                    <td className="text-nowrap text-center">{lista.ctA_COD}</td>
+                                                    <td className="text-nowrap text-center">{lista.transitoria}</td>
+                                                    <td className="text-nowrap text-center">
+                                                        ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td>
+                                                    <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
+                                                    <td className="text-nowrap text-center">{lista.idprograma}</td>
+                                                    <td className="text-nowrap text-center">{lista.idmodalidadcompra}</td>
+                                                    <td className="text-nowrap text-center">{lista.idpropiedad}</td>
+                                                    <td className="text-nowrap text-center">{lista.especie}</td>
+
+                                                    {/* valores calculados */}
+                                                    <td className="text-nowrap text-center">{lista.mesesTranscurridos}</td>
+                                                    <td className="text-nowrap text-center">{lista.vidaUtil}</td>
+                                                    <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
+                                                    <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
+                                                    <td className="text-nowrap text-center">
+                                                        $ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="text-nowrap text-center">
+                                                        $ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="text-nowrap text-center">
+                                                        $ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="text-nowrap text-center">
+                                                        $ {(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="text-nowrap text-center">
+                                                        ${(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                            {/* Paginador */}
+                            <div className="paginador-container">
+                                <Pagination className="paginador-scroll">
+                                    <Pagination.First
+                                        onClick={() => paginar2(1)}
+                                        disabled={paginaActual2 === 1}
+                                    />
+                                    <Pagination.Prev
+                                        onClick={() => paginar2(paginaActual2 - 1)}
+                                        disabled={paginaActual2 === 1}
+                                    />
+
+                                    {Array.from({ length: totalPaginas2 }, (_, i) => (
+                                        <Pagination.Item
+                                            key={i + 1}
+                                            active={i + 1 === paginaActual2}
+                                            onClick={() => paginar2(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </Pagination.Item>
+                                    ))}
+                                    <Pagination.Next
+                                        onClick={() => paginar2(paginaActual2 + 1)}
+                                        disabled={paginaActual2 === totalPaginas2}
+                                    />
+                                    <Pagination.Last
+                                        onClick={() => paginar2(totalPaginas2)}
+                                        disabled={paginaActual2 === totalPaginas2}
+                                    />
+                                </Pagination>
+                            </div>
+                        </Modal.Body>
+                    </Modal>
+                </Draggable>
+            )
+            }
+
+            {/* Modal Activos NO Calculados */}
+            <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
+                <Modal.Header className={isDarkMode ? "darkModePrincipal modal-header" : "modal-header"} closeButton>
+                    <Modal.Title className="fw-semibold">Activos no calculados</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <Row>
-                        <Col md={12}>
-                            <div className="d-flex justify-content-end p-4">
-                                <Button
-                                    onClick={() => setMostrarModal(true)}
-                                    disabled={listaActivosCalculados.length === 0}
-                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                                    {mostrarModal ? (
-                                        <>
-                                            {" Exportar"}
-                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            {"Exportar"}
-                                            <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
-
                     {/* Tabla*/}
                     {loading ? (
                         <>
@@ -1028,23 +1308,16 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                         <th scope="col" className="text-nowrap text-center">Monto Factura</th>
                                         <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
                                         <th scope="col" className="text-nowrap text-center">Etiqueta</th>
+                                        <th scope="col" className="text-nowrap text-center">Vida Útil</th>
                                         <th scope="col" className="text-nowrap text-center">Vigente</th>
                                         <th scope="col" className="text-nowrap text-center">ID Programa</th>
                                         <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
                                         <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
                                         <th scope="col" className="text-nowrap text-center">Especie</th>
-                                        <th scope="col" className="text-nowrap text-center">Meses transcurrido</th>
-                                        <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                                        <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
-                                        <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
-                                        <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
-                                        <th scope="col" className="text-nowrap text-center">Depreciación por Año</th>
-                                        <th scope="col" className="text-nowrap text-center">Depreciación por Mes</th>
-                                        <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {elementosActuales2.map((lista, index) =>
+                                    {elementosActuales3.map((lista, index) =>
 
                                         <tr key={index}>
                                             <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
@@ -1060,7 +1333,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                             <td className="text-nowrap text-center">{lista.aF_CODIGO}</td>
                                             <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
                                             <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_PRECIO_REF}</td>
+                                            <td className="text-nowrap text-center">
+                                                ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                            </td>
                                             <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td>
                                             <td className="text-nowrap text-center">{lista.aF_ORIGEN}</td>
                                             <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
@@ -1081,24 +1356,17 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                             <td className="text-nowrap text-center">{lista.iD_GRUPO}</td>
                                             <td className="text-nowrap text-center">{lista.ctA_COD}</td>
                                             <td className="text-nowrap text-center">{lista.transitoria}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_MONTOFACTURA}</td>
+                                            <td className="text-nowrap text-center">
+                                                ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                            </td>
                                             <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td>
                                             <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td>
+                                            <td className="text-nowrap text-center border border-warning">{lista.vidaUtil}</td>
                                             <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
                                             <td className="text-nowrap text-center">{lista.idprograma}</td>
                                             <td className="text-nowrap text-center">{lista.idmodalidadcompra}</td>
                                             <td className="text-nowrap text-center">{lista.idpropiedad}</td>
                                             <td className="text-nowrap text-center">{lista.especie}</td>
-
-                                            {/* valores calculados */}
-                                            <td className="text-nowrap text-center">{lista.mesesTranscurridos}</td>
-                                            <td className="text-nowrap text-center">{lista.vidaUtil}</td>
-                                            <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
-                                            <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
-                                            <td className="text-nowrap text-center">{lista.montoInicial}</td>
-                                            <td className="text-nowrap text-center">{lista.depreciacionPorAno}</td>
-                                            <td className="text-nowrap text-center">{lista.depreciacionPorMes}</td>
-                                            <td className="text-nowrap text-center">{lista.depreciacionAcumuladaActualizada}</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -1109,38 +1377,38 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                     <div className="paginador-container">
                         <Pagination className="paginador-scroll">
                             <Pagination.First
-                                onClick={() => paginar2(1)}
-                                disabled={paginaActual2 === 1}
+                                onClick={() => paginar3(1)}
+                                disabled={paginaActual3 === 1}
                             />
                             <Pagination.Prev
-                                onClick={() => paginar2(paginaActual2 - 1)}
-                                disabled={paginaActual2 === 1}
+                                onClick={() => paginar3(paginaActual3 - 1)}
+                                disabled={paginaActual3 === 1}
                             />
 
-                            {Array.from({ length: totalPaginas2 }, (_, i) => (
+                            {Array.from({ length: totalPaginas3 }, (_, i) => (
                                 <Pagination.Item
                                     key={i + 1}
-                                    active={i + 1 === paginaActual2}
-                                    onClick={() => paginar2(i + 1)}
+                                    active={i + 1 === paginaActual3}
+                                    onClick={() => paginar3(i + 1)}
                                 >
                                     {i + 1}
                                 </Pagination.Item>
                             ))}
                             <Pagination.Next
-                                onClick={() => paginar2(paginaActual2 + 1)}
-                                disabled={paginaActual2 === totalPaginas2}
+                                onClick={() => paginar3(paginaActual3 + 1)}
+                                disabled={paginaActual3 === totalPaginas3}
                             />
                             <Pagination.Last
-                                onClick={() => paginar2(totalPaginas2)}
-                                disabled={paginaActual2 === totalPaginas2}
+                                onClick={() => paginar3(totalPaginas3)}
+                                disabled={paginaActual3 === totalPaginas3}
                             />
                         </Pagination>
                     </div>
                 </Modal.Body>
-            </Modal>
+            </Modal >
 
             {/* Modal PDF Excel Word */}
-            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
+            < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl" >
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Reporte articulos por cuentas</Modal.Title>
                 </Modal.Header>
@@ -1188,7 +1456,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                         }
                     </BlobProvider>
                 </Modal.Body>
-            </Modal>
+            </Modal >
         </Layout >
     );
 };
@@ -1196,7 +1464,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 const mapStateToProps = (state: RootState) => ({
     listaActivosFijos: state.listaActivosFijosReducers.listaActivosFijos,
     listaActivosCalculados: state.listaActivosCalculadosReducers.listaActivosCalculados,
-    listaActivosCalculadoSinVidaUtil: state.listaActivosCalculadosReducers.listaActivosCalculadoSinVidaUtil,
+    listaActivosNoCalculados: state.listaActivosNoCalculadosReducers.listaActivosNoCalculados,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode
 });

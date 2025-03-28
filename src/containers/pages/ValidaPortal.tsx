@@ -2,38 +2,38 @@ import React, { useEffect, useState } from "react";
 import { login, logout } from "../../redux/actions/auth/auth";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
 import { Helmet } from "react-helmet-async";
-
+import { Button } from "react-bootstrap";
 
 interface Props {
   login: (usuario: string, password: string) => Promise<boolean>;
   validaApiloginActions: (rut: string) => Promise<boolean>;
   logout: () => Promise<boolean>;
+  isDarkMode: boolean;
 }
 
-const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions }) => {
-  const navigate = useNavigate(); // Hook para redirigir
+const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, isDarkMode }) => {
+  const navigate = useNavigate();
   const [showButton, setShowButton] = useState(false);
-  // Leer las variables de entorno al cargar el componente
+  const [dots, setDots] = useState(""); // Estado para los puntos suspensivos
+
   const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
   const password = import.meta.env.VITE_PASSWORD_API_LOGIN;
 
   useEffect(() => {
-    // Espera 5 segundos y muestra el botón
+    // Temporizador para mostrar el botón después de 20 segundos
     const timer = setTimeout(() => {
       setShowButton(true);
     }, 20000);
-
-    // Limpia el temporizador si el componente se desmonta
     return () => clearTimeout(timer);
   }, []);
+
   useEffect(() => {
     capturarDatosPersona();
   }, []);
 
-  // Función para capturar los datos desde la URL y Validar Sesion
   const capturarDatosPersona = async () => {
     const params = new URLSearchParams(window.location.search);
     const datosPersona = params.get("datosPersona");
@@ -42,14 +42,13 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
         const datos = JSON.parse(decodeURIComponent(datosPersona));
         const rutUsuario = datos.sub;
 
-        await login(usuario, password); //Obtiene el token
-        const esValido = await validaApiloginActions(rutUsuario);// Valida usuario en Api login
+        await login(usuario, password);
+        const esValido = await validaApiloginActions(rutUsuario);
 
         if (esValido) {
           navigate("/Inicio");
-        }
-        else if (esValido) {
-          await logout();//Eliminados el token
+        } else {
+          await logout();
           navigate("/Denegado");
         }
       } catch (error) {
@@ -60,24 +59,28 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
     }
   };
 
-
   return (
     <>
       <Helmet>
-        <title>Redirigiendo...</title>
+        <title>Redirigiendo{dots}</title>
       </Helmet>
-      <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className={`d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? "bg-color-dark" : ""}`}>
         <div className="col-12 col-md-8 text-center">
           <div className="d-flex justify-content-center align-items-center">
             <div className="spinner-border text-primary me-2" role="status" />
-            <p className="fw-normal">Redirigiendo...</p>
+            <p className={`${isDarkMode ? "text-white" : "text-muted"}`}>
+              Redirigiendo, un momento
+              <span className="dots-animation">...</span>
+            </p>
           </div>
-          {showButton && ( // Muestra el botón después de 5 segundos
+          {showButton && (
             <div className="m-4 rounded d-inline-block">
-              <p className="fw-normal mb-2">  El proceso está tardando más de lo esperado. Si lo prefiere, puede volver a intentarlo.</p>
-              <NavLink to="/" className="btn btn-primary text-decoration-none">
+              <p className={`${isDarkMode ? "text-white" : "text-muted"} mb-2`}>
+                El proceso está tardando más de lo esperado. Si lo prefiere, puede volver a intentarlo.
+              </p>
+              <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={() => window.location.reload()}>
                 Reintentar
-              </NavLink>
+              </Button>
             </div>
           )}
         </div>
@@ -86,9 +89,8 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions })
   );
 };
 
-// Conectar el componente a Redux
-const mapStateToProps = (_: RootState) => ({
-
+const mapStateToProps = (state: RootState) => ({
+  isDarkMode: state.darkModeReducer.isDarkMode,
 });
 
 export default connect(mapStateToProps, {

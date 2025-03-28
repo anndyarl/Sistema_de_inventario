@@ -1,14 +1,13 @@
-// reducers/origenPresupuestoReducer.ts
 import {
-  LISTA_ACTIVOS_FIJOS_INFORME_REQUEST,
-  LISTA_ACTIVOS_FIJOS_INFORME_SUCCESS,
-  LISTA_ACTIVOS_FIJOS_INFORME_FAIL,
+  LISTA_ACTIVOS_NO_CALCULADOS_REQUEST,
+  LISTA_ACTIVOS_NO_CALCULADOS_SUCCESS,
+  LISTA_ACTIVOS_NO_CALCULADOS_FAIL,
 
 } from '../../../../actions/Informes/types';
 
 interface PropsState {
   loading: boolean;
-  listaActivosFijos: Array<{
+  listaActivosNoCalculados: Array<{
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
     aF_CODIGO_LARGO: string;
@@ -58,25 +57,26 @@ interface PropsState {
 
 const initialState: PropsState = {
   loading: false,
-  listaActivosFijos: [],
+  listaActivosNoCalculados: [],
   error: null,
 };
 
-const listaActivosFijosReducers = (state = initialState, action: any): PropsState => {
+const listaActivosNoCalculadosReducers = (state = initialState, action: any): PropsState => {
   switch (action.type) {
-    case LISTA_ACTIVOS_FIJOS_INFORME_REQUEST:
+    case LISTA_ACTIVOS_NO_CALCULADOS_REQUEST:
       return {
         ...state,
         loading: true,
         error: null
       };
-    case LISTA_ACTIVOS_FIJOS_INFORME_SUCCESS:
+    case LISTA_ACTIVOS_NO_CALCULADOS_SUCCESS:
       return {
         ...state,
         loading: false,
-        listaActivosFijos: action.payload
+        listaActivosNoCalculados: action.payload
       };
-    case LISTA_ACTIVOS_FIJOS_INFORME_FAIL:
+
+    case LISTA_ACTIVOS_NO_CALCULADOS_FAIL:
       return {
         ...state,
         loading: false,
@@ -87,4 +87,4 @@ const listaActivosFijosReducers = (state = initialState, action: any): PropsStat
   }
 };
 
-export default listaActivosFijosReducers;
+export default listaActivosNoCalculadosReducers;

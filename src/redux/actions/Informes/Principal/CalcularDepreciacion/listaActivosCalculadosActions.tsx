@@ -1,9 +1,11 @@
 import axios from 'axios';
 import {
   LISTA_ACTIVOS_CALCULADOS_REQUEST,
+  LISTA_ACTIVOS_NO_CALCULADOS_REQUEST,
   LISTA_ACTIVOS_CALCULADOS_SUCCESS,
-  LISTA_ACTIVOS_CALCULADOS_SIN_VIDA_UTIL_SUCCESS,
+  LISTA_ACTIVOS_NO_CALCULADOS_SUCCESS,
   LISTA_ACTIVOS_CALCULADOS_FAIL,
+  LISTA_ACTIVOS_NO_CALCULADOS_FAIL
 } from '../../types';
 import { Dispatch } from 'redux';
 
@@ -24,37 +26,39 @@ export const listaActivosCalculadosActions = (activosSeleccionados: Record<strin
     }
     const body = JSON.stringify(activosSeleccionados);
     dispatch({ type: LISTA_ACTIVOS_CALCULADOS_REQUEST });
+    dispatch({ type: LISTA_ACTIVOS_NO_CALCULADOS_REQUEST });
 
     try {
       const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CalculoDeInventario`, body, config);
 
       if (res.status === 200) {
-        if (res.data?.depreciaciones?.length > 0 || res.data?.vidaUtilCero?.length > 0) {
-          dispatch({
-            type: LISTA_ACTIVOS_CALCULADOS_SIN_VIDA_UTIL_SUCCESS,
-            payload: res.data.vidaUtilCero
-          });
+        if (res.data?.depreciaciones?.length > 0) {
           dispatch({
             type: LISTA_ACTIVOS_CALCULADOS_SUCCESS,
             payload: res.data.depreciaciones
           });
-          return true;
-        } else {
-          dispatch({ type: LISTA_ACTIVOS_CALCULADOS_FAIL });
-          return false;
         }
-
+        if (res.data?.vidaUtilCero?.length > 0) {
+          dispatch({
+            type: LISTA_ACTIVOS_NO_CALCULADOS_SUCCESS,
+            payload: res.data.vidaUtilCero
+          });
+        }
+        return true;
       } else {
         dispatch({ type: LISTA_ACTIVOS_CALCULADOS_FAIL });
+        dispatch({ type: LISTA_ACTIVOS_NO_CALCULADOS_FAIL });
+        return false;
       }
-      return false;
     } catch (err) {
-      console.error("Error en la solicitud:", err);
+      // console.error("Error en la solicitud:", err);
       dispatch({ type: LISTA_ACTIVOS_CALCULADOS_FAIL });
       return false;
     }
-  } else {
+  }
+  else {
     dispatch({ type: LISTA_ACTIVOS_CALCULADOS_FAIL });
     return false;
   }
-};
+}
+

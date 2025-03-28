@@ -229,3 +229,8 @@ padding: 2px;
   width: 100vh; /* Ancho personalizado */
   margin: 0 auto; /* Centrado horizontal */
 }
+
+.draggable-modal .modal-dialog {
+  cursor: move; /* Muestra un cursor de "mover" */
+  top: 50px; /* Posiciona el modal en un lugar visible */
+}
