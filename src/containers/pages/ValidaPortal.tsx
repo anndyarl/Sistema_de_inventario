@@ -17,8 +17,6 @@ interface Props {
 const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, isDarkMode }) => {
   const navigate = useNavigate();
   const [showButton, setShowButton] = useState(false);
-  const [dots, setDots] = useState(""); // Estado para los puntos suspensivos
-
   const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
   const password = import.meta.env.VITE_PASSWORD_API_LOGIN;
 
@@ -62,7 +60,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
   return (
     <>
       <Helmet>
-        <title>Redirigiendo{dots}</title>
+        <title>Redirigiendo...</title>
       </Helmet>
       <div className={`d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? "bg-color-dark" : ""}`}>
         <div className="col-12 col-md-8 text-center">

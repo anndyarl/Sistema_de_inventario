@@ -174,55 +174,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [showInput, setShowInput] = useState(false);
-  // Asegúrate de que el array tiene datos
-  //-------------------------Formulario---------------------------//
-  // Campos principales
-  // const fechaFactura = datosInventarioCompleto[index]?.aF_FECHAFAC
-  //   ? new Date(datosInventarioCompleto[index]?.aF_FECHAFAC)
-  //     .toISOString()
-  //     .split("T")[0]
-  //   : "";
-  // const fechaRecepcion = datosInventarioCompleto[index]?.aF_FINGRESO
-  //   ? new Date(datosInventarioCompleto[index]?.aF_FINGRESO)
-  //     .toISOString()
-  //     .split("T")[0]
-  //   : "";
-  // const modalidadDeCompra = datosInventarioCompleto[index]?.idmodalidadcompra || 0;
-  // const montoRecepcion = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0;
-  // const nFactura = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
-  // const nOrdenCompra = datosInventarioCompleto[index]?.aF_MONTOFACTURA || 0; //falta
-  // const nRecepcion = datosInventarioCompleto[index]?.aF_CLAVE || "";
-  // const nombreProveedor = datosInventarioCompleto[index]?.aF_NUM_FAC || "";
-  // const origenPresupuesto = datosInventarioCompleto[index]?.aF_ORIGEN || 0;
-  // const rutProveedor = datosInventarioCompleto[index]?.proV_RUN || 0; //falta
-  // const dependencia = datosInventarioCompleto[index]?.deP_CORR || 0;
-  // const servicio = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
-  // const cuenta = datosInventarioCompleto[index]?.aF_ORIGEN || 0; //falta
-
-  // Tabla
-  // const vidaUtil = datosInventarioCompleto[index]?.aF_VIDAUTIL || 0;
-  // const marca = datosInventarioCompleto[index]?.deT_MARCA || "";
-  // const modelo = datosInventarioCompleto[index]?.deT_MODELO || "";
-  // const serie = datosInventarioCompleto[index]?.deT_SERIE || "";
-  // const precio = datosInventarioCompleto[index]?.deT_PRECIO || 0;
-  // const especie = datosInventarioCompleto[index]?.esP_CODIGO || "";
-
-  const parseFecha = (fecha: string) => {
-    const [fechaPart,] = fecha.split(" "); // Tomamos solo la parte de la fecha
-    const [dia, mes, año] = fechaPart.split("/").map(Number);
-    return new Date(año, mes - 1, dia); // Meses en JS van de 0 a 11
-  };
-
-  // const fechaRecepcion = aF_FECHA_SOLICITUD && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHA_SOLICITUD)
-  //   ? parseFecha(`${aF_FECHA_SOLICITUD}T00:00:00`).toISOString().split("T")[0]
-  //   : "";
-  // const fechaFactura = aF_FECHAFAC && /^\d{4}-\d{2}-\d{2}$/.test(aF_FECHAFAC)
-  //   ? parseFecha(`${aF_FECHAFAC}T00:00:00`).toISOString().split("T")[0]
-  //   : "";
-  // const fechaIngreso = aF_FINGRESO && /^\d{4}-\d{2}-\d{2}$/.test(aF_FINGRESO)
-  //   ? parseFecha(`${aF_FINGRESO}T00:00:00`).toISOString().split("T")[0]
-  //   : "";
-
   const [Inventario, setInventario] = useState({
     aF_CLAVE: "", // nRecepcion
     aF_FECHA_SOLICITUD: "", // fechaRecepcion

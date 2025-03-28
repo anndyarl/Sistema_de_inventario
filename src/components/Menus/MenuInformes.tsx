@@ -30,11 +30,6 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             icon: FileText
         },
         {
-            name: 'Consulta Inventario Especies',
-            href: '/Informes/ConsultaInventarioEspecies',
-            icon: FileText
-        },
-        {
             name: 'Traslados Mensuales',
             href: '/Informes/TrasladosMensuales',
             icon: FileText
@@ -42,6 +37,11 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
         {
             name: 'Folios por Servicio-Dependencia',
             href: '/Informes/FolioPorServicioDependencia',
+            icon: FileText
+        },
+        {
+            name: 'Consulta Inventario Especies',
+            href: '/Informes/ConsultaInventarioEspecies',
             icon: FileText
         },
         {

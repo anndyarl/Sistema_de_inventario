@@ -71,7 +71,7 @@ interface DatosAltas {
 
 const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioDependencia, comboServicioInforme, objeto, listaFolioServicioDependenciaActions, comboServicioInformeActions, token, isDarkMode }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [error, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
+    const [_, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
     const [loading, setLoading] = useState(false); // Estado para controlar la carga busqueda 
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 12;
@@ -165,6 +165,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
+            paginar(1);
             setLoading(false); //Finaliza estado de carga
         }
 
@@ -386,7 +387,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         Packer.toBlob(doc).then((blob) => {
             saveAs(blob, `Reporte_FolioPorServicioDependencia.docx`);
             setLoading(false); //evita que quede cargando
-        }).catch((error) => {
+        }).catch(() => {
             // console.error("Error al generar el documento:", error);
             setLoading(false);
         });

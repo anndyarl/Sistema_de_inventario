@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de tener este tipo definido correctamente
 import { Navigate } from "react-router-dom";
 // import { useAppDispatch } from "../../hooks/hook";
-import ssmso_background from "../../assets/img/LOGO-PNG.png";
 import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
 import ondas from "../../assets/img/ondas.png"
 import { Button, Spinner } from "react-bootstrap";

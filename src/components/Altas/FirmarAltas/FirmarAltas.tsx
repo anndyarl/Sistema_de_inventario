@@ -372,8 +372,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
                                         <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
                                         Firmar
                                     </Button>
-
-
                                 </div>
 
                                 <Collapse in={isExpanded} dimension="height">

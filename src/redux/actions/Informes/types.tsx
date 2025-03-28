@@ -36,3 +36,8 @@ export const LISTA_ACTIVOS_NO_CALCULADOS_FAIL = 'LISTA_ACTIVOS_NO_CALCULADOS_FAI
 export const LISTA_ACTIVOS_NO_CALCULADOS_REQUEST = 'LISTA_ACTIVOS_NO_CALCULADOS_REQUEST';
 //------------------Fin Calcular Drepreciación---------------------------------//
 
+//------------------Consulta Inveatrio Especies---------------------------------//
+export const LISTA_CONSULTA_INVENTARIO_ESPECIES_SUCCESS = 'LISTA_CONSULTA_INVENTARIO_ESPECIES_SUCCESS';
+export const LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL = 'LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL';
+export const LISTA_CONSULTA_INVENTARIO_ESPECIES_REQUEST = 'LISTA_CONSULTA_INVENTARIO_ESPECIES_REQUEST';
+//------------------fin -Consulta Inveatrio Especies---------------------------------//

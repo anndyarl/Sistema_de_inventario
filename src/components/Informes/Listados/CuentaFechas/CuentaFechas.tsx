@@ -467,7 +467,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
         Packer.toBlob(doc).then((blob) => {
             saveAs(blob, `Reporte_ArticulosPorCuentas.docx`);
             setLoading(false); //evita que quede cargando
-        }).catch((error) => {
+        }).catch(() => {
             // console.error("Error al generar el documento:", error);
             setLoading(false);
         });

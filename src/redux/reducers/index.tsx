@@ -76,6 +76,7 @@ import listaCuentaFechasReducers from "./Informes/Principal/FechaCuentas/listaCu
 import listaActivosCalculadosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosCalculadosReducers";
 import listaActivosFijosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosFijosReducers";
 import listaActivosNoCalculadosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosNoCalculadosReducers";
+import listaConsultaInventarioEspeciesReducers from "./Informes/Principal/ConsultaInventarioEspecies/listaConsultaInventarioEspeciesReducers";
 
 
 
@@ -152,6 +153,7 @@ const appReducer = combineReducers({
   listaActivosFijosReducers,
   listaActivosCalculadosReducers,
   listaActivosNoCalculadosReducers,
+  listaConsultaInventarioEspeciesReducers,
 
   //Mantenedores
   listadoMantenedorDependenciasReducers,

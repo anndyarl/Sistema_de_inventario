@@ -44,6 +44,12 @@ export const listaActivosCalculadosActions = (activosSeleccionados: Record<strin
             payload: res.data.vidaUtilCero
           });
         }
+        else {
+          dispatch({
+            type: LISTA_ACTIVOS_NO_CALCULADOS_SUCCESS,
+            payload: []
+          });
+        }
         return true;
       } else {
         dispatch({ type: LISTA_ACTIVOS_CALCULADOS_FAIL });

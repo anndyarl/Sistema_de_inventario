@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import { BoxArrowDown, Calculator, Eraser, Exclamation, ExclamationDiamond, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
+import { BoxArrowDown, Calculator, Eraser, ExclamationDiamond, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -15,7 +15,6 @@ import MenuInformes from "../../../Menus/MenuInformes";
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { RootState } from "../../../../store";
 import DocumentoPDF from "./DocumentoPDFCalcularDepreciacion";
-import Draggable from "react-draggable";
 import { listaActivosCalculadosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosActions";
 import { listaActivosFijosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -143,10 +142,13 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                     title: "Activos con cálculo pendiente",
                     text: "Algunos activos no han sido calculados porque su vida útil es 0. Haga clic en 'Ver' para revisar los detalles.",
                     confirmButtonText: "Ver",
+                    cancelButtonText: "Cerrar",
+                    showCancelButton: true,
                     width: "600px", // Aumenta el tamaño del modal
                     background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    cancelButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
                     customClass: {
                         popup: "custom-border",
                     },
@@ -218,6 +220,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
+            paginar(1);
             setLoading(false); //Finaliza estado de carga
         }
 
@@ -355,6 +358,12 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
         ? Math.ceil(listaActivosCalculados.length / elementosPorPagina2)
         : 0;
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
+
+    // Calcula el total del precio de la tabla
+    const totalSum = useMemo(() => {
+        return listaActivosCalculados.reduce((sum, activo) => sum + (activo.valorResidual ?? 0), 0);
+    }, [listaActivosCalculados]);
+
     //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
 
     //------------------------------Tabla Modal(Activos no calculados)--------------------------------------//
@@ -756,7 +765,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
         Packer.toBlob(doc).then((blob) => {
             saveAs(blob, `Reporte_ArticulosPorCuentas.docx`);
             setLoading(false); //evita que quede cargando
-        }).catch((error) => {
+        }).catch(() => {
             // console.error("Error al generar el documento:", error);
             setLoading(false);
         });
@@ -766,7 +775,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     return (
         <Layout>
             <Helmet>
-                <title>Cuentas Fechas</title>
+                <title>Calcular depreciación</title>
             </Helmet>
             <MenuInformes />
             <form>
@@ -1023,234 +1032,256 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 
             {/* Modal Activos Calculados */}
             {listaActivosCalculados.length > 0 && (
-                <Draggable handle=".modal-header">
-                    < Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)}
-                        size="xl"
-                        dialogClassName="draggable-modal"
-                        backdrop="static" // Evita que se cierre al hacer clic afuera
-                        keyboard={false}>
-                        <Modal.Header className={` modal-header ${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                            <Modal.Title className="fw-semibold">Depreciación calculada por activo</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                            <Row>
-                                <Col md={12}>
-                                    <div className="d-flex justify-content-end p-4">
+                < Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)}
+                    size="xl"
+                    dialogClassName="draggable-modal"
+                    backdrop="static" // Evita que se cierre al hacer clic afuera
+                    keyboard={false}>
+                    <Modal.Header className={`modal-header ${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                        <Modal.Title className="fw-semibold">Depreciación calculada por activo</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                        <Row>
+                            <Col md={6}>
+                                <div className="d-flex ">
+                                    <div className="mx-1 bg-primary text-white p-2 rounded">
+                                        <p className="text-center">Total Valor Residual</p>
+                                        <p className="fw-semibold text-center">
+                                            $ {totalSum.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div className="d-flex justify-content-end p-4">
+                                    <Button
+                                        onClick={() => setMostrarModal(true)}
+                                        disabled={listaActivosCalculados.length === 0}
+                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                        className="mx-1 mb-1">
+                                        {mostrarModal ? (
+                                            <>
+                                                {" Exportar"}
+                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {"Exportar"}
+                                                <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                            </>
+                                        )}
+                                    </Button>
+                                    {listaActivosNoCalculados.length > 0 && (
                                         <Button
-                                            onClick={() => setMostrarModal(true)}
+                                            onClick={() => setMostrarModalNoCalculados(true)}
                                             disabled={listaActivosCalculados.length === 0}
                                             variant={`${isDarkMode ? "secondary" : "primary"}`}
                                             className="mx-1 mb-1">
                                             {mostrarModal ? (
                                                 <>
-                                                    {" Exportar"}
+                                                    {" No Calculados"}
                                                     <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                                 </>
                                             ) : (
                                                 <>
-                                                    {"Exportar"}
-                                                    <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                                    {"No Calculados"}
+                                                    <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                                 </>
                                             )}
                                         </Button>
-                                        {listaActivosNoCalculados.length > 0 && (
-                                            <Button
-                                                onClick={() => setMostrarModalNoCalculados(true)}
-                                                disabled={listaActivosCalculados.length === 0}
-                                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                className="mx-1 mb-1">
-                                                {mostrarModal ? (
-                                                    <>
-                                                        {" No Calculados"}
-                                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        {"No Calculados"}
-                                                        <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                                    </>
-                                                )}
-                                            </Button>
-                                        )}
-                                    </div>
-                                </Col>
-                            </Row>
+                                    )}
 
-                            {/* Tabla*/}
-                            {loading ? (
-                                <>
-                                    {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                    <SkeletonLoader rowCount={10} columnCount={10} />
-                                </>
-                            ) : (
-                                <div className='table-responsive'>
-                                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                        <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                            <tr>
-                                                <th scope="col" className="text-nowrap text-center">Código</th>
-                                                <th scope="col" className="text-nowrap text-center">Código Genérico</th>
-                                                <th scope="col" className="text-nowrap text-center">Código Largo</th>
-                                                <th scope="col" className="text-nowrap text-center">Dep Corr</th>
-                                                {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
-                                                <th scope="col" className="text-nowrap text-center">ITE Clave</th>
-                                                <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                                <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                                                {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                                                <th scope="col" className="text-nowrap text-center">Código</th>
-                                                <th scope="col" className="text-nowrap text-center">Tipo</th>
-                                                <th scope="col" className="text-nowrap text-center">Alta</th>
-                                                <th scope="col" className="text-nowrap text-center">Precio Referencial</th>
-                                                <th scope="col" className="text-nowrap text-center">Cantidad</th>
-                                                <th scope="col" className="text-nowrap text-center">Origen</th>
-                                                <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                                {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                                <th scope="col" className="text-nowrap text-center">Número OCO Ref</th>
-                                                <th scope="col" className="text-nowrap text-center">Usuario Creador</th>
-                                                <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                                                <th scope="col" className="text-nowrap text-center">IP Creación</th>
-                                                <th scope="col" className="text-nowrap text-center">Usuario Modificador</th>
-                                                <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
-                                                {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                                                <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
-                                                <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
-                                                <th scope="col" className="text-nowrap text-center">Reg EQM</th>
-                                                <th scope="col" className="text-nowrap text-center">Número Factura</th>
-                                                <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
-                                                <th scope="col" className="text-nowrap text-center">3 UTM</th>
-                                                <th scope="col" className="text-nowrap text-center">ID Grupo</th>
-                                                <th scope="col" className="text-nowrap text-center">Código Cuenta</th>
-                                                <th scope="col" className="text-nowrap text-center">Transitoria</th>
-                                                <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                                                <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
-                                                <th scope="col" className="text-nowrap text-center">Etiqueta</th>
-                                                <th scope="col" className="text-nowrap text-center">Vigente</th>
-                                                <th scope="col" className="text-nowrap text-center">ID Programa</th>
-                                                <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
-                                                <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
-                                                <th scope="col" className="text-nowrap text-center">Especie</th>
-                                                <th scope="col" className="text-nowrap text-center">Meses transcurrido</th>
-                                                <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                                                <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
-                                                <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
-                                                <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
-                                                <th scope="col" className="text-nowrap text-center">Depreciación por Año</th>
-                                                <th scope="col" className="text-nowrap text-center">Depreciación por Mes</th>
-                                                <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
-                                                <th scope="col" className="text-nowrap text-center">Valor Residual</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {elementosActuales2.map((lista, index) =>
-
-                                                <tr key={index}>
-                                                    <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td>
-                                                    <td className="text-nowrap text-center">{lista.deP_CORR}</td>
-                                                    {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
-                                                    <td className="text-nowrap text-center">{lista.itE_CLAVE}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_DESCRIPCION}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
-                                                    {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
-                                                    <td className="text-nowrap text-center">{lista.aF_CODIGO}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
-                                                    <td className="text-nowrap text-center">
-                                                        ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_ORIGEN}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
-                                                    {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
-                                                    <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
-                                                    <td className="text-nowrap text-center">{lista.f_CREA}</td>
-                                                    <td className="text-nowrap text-center">{lista.iP_CREA}</td>
-                                                    <td className="text-nowrap text-center">{lista.usuariO_MOD}</td>
-                                                    <td className="text-nowrap text-center">{lista.f_MOD}</td>
-                                                    {/* <td className="text-nowrap text-center">{lista.iP_MODt}</td> */}
-                                                    <td className="text-nowrap text-center">{lista.aF_TIPO_DOC}</td>
-                                                    <td className="text-nowrap text-center">{lista.proV_RUN}</td>
-                                                    <td className="text-nowrap text-center">{lista.reG_EQM}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_NUM_FAC}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_FECHAFAC}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_3UTM}</td>
-                                                    <td className="text-nowrap text-center">{lista.iD_GRUPO}</td>
-                                                    <td className="text-nowrap text-center">{lista.ctA_COD}</td>
-                                                    <td className="text-nowrap text-center">{lista.transitoria}</td>
-                                                    <td className="text-nowrap text-center">
-                                                        ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td>
-                                                    <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
-                                                    <td className="text-nowrap text-center">{lista.idprograma}</td>
-                                                    <td className="text-nowrap text-center">{lista.idmodalidadcompra}</td>
-                                                    <td className="text-nowrap text-center">{lista.idpropiedad}</td>
-                                                    <td className="text-nowrap text-center">{lista.especie}</td>
-
-                                                    {/* valores calculados */}
-                                                    <td className="text-nowrap text-center">{lista.mesesTranscurridos}</td>
-                                                    <td className="text-nowrap text-center">{lista.vidaUtil}</td>
-                                                    <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
-                                                    <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
-                                                    <td className="text-nowrap text-center">
-                                                        $ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap text-center">
-                                                        $ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap text-center">
-                                                        $ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap text-center">
-                                                        $ {(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap text-center">
-                                                        ${(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
                                 </div>
-                            )}
-                            {/* Paginador */}
-                            <div className="paginador-container">
-                                <Pagination className="paginador-scroll">
-                                    <Pagination.First
-                                        onClick={() => paginar2(1)}
-                                        disabled={paginaActual2 === 1}
-                                    />
-                                    <Pagination.Prev
-                                        onClick={() => paginar2(paginaActual2 - 1)}
-                                        disabled={paginaActual2 === 1}
-                                    />
+                            </Col>
+                        </Row>
 
-                                    {Array.from({ length: totalPaginas2 }, (_, i) => (
-                                        <Pagination.Item
-                                            key={i + 1}
-                                            active={i + 1 === paginaActual2}
-                                            onClick={() => paginar2(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </Pagination.Item>
-                                    ))}
-                                    <Pagination.Next
-                                        onClick={() => paginar2(paginaActual2 + 1)}
-                                        disabled={paginaActual2 === totalPaginas2}
-                                    />
-                                    <Pagination.Last
-                                        onClick={() => paginar2(totalPaginas2)}
-                                        disabled={paginaActual2 === totalPaginas2}
-                                    />
-                                </Pagination>
+                        {/* Tabla*/}
+                        {loading ? (
+                            <>
+                                {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                                <SkeletonLoader rowCount={10} columnCount={10} />
+                            </>
+                        ) : (
+                            <div className='table-responsive'>
+                                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                    <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                        <tr>
+                                            <th scope="col" className="text-nowrap text-center">Código</th>
+                                            <th scope="col" className="text-nowrap text-center">Código Genérico</th>
+                                            <th scope="col" className="text-nowrap text-center">Código Largo</th>
+                                            <th scope="col" className="text-nowrap text-center">Dep Corr</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
+                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
+                                            <th scope="col" className="text-nowrap text-center">ITE Clave</th>
+                                            <th scope="col" className="text-nowrap text-center">Descripción</th>
+                                            <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
+                                            <th scope="col" className="text-nowrap text-center">Código</th>
+                                            <th scope="col" className="text-nowrap text-center">Tipo</th>
+                                            <th scope="col" className="text-nowrap text-center">Alta</th>
+                                            <th scope="col" className="text-nowrap text-center">Precio Referencial</th>
+                                            <th scope="col" className="text-nowrap text-center">Cantidad</th>
+                                            <th scope="col" className="text-nowrap text-center">Origen</th>
+                                            <th scope="col" className="text-nowrap text-center">Resolución</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
+                                            <th scope="col" className="text-nowrap text-center">Número OCO Ref</th>
+                                            <th scope="col" className="text-nowrap text-center">Usuario Creador</th>
+                                            <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                                            <th scope="col" className="text-nowrap text-center">IP Creación</th>
+                                            <th scope="col" className="text-nowrap text-center">Usuario Modificador</th>
+                                            <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
+                                            <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
+                                            <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
+                                            <th scope="col" className="text-nowrap text-center">Reg EQM</th>
+                                            <th scope="col" className="text-nowrap text-center">Número Factura</th>
+                                            <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
+                                            <th scope="col" className="text-nowrap text-center">3 UTM</th>
+                                            <th scope="col" className="text-nowrap text-center">ID Grupo</th>
+                                            <th scope="col" className="text-nowrap text-center">Código Cuenta</th>
+                                            <th scope="col" className="text-nowrap text-center">Transitoria</th>
+                                            <th scope="col" className="text-nowrap text-center">Monto Factura</th>
+                                            <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
+                                            <th scope="col" className="text-nowrap text-center">Etiqueta</th>
+                                            <th scope="col" className="text-nowrap text-center">Vigente</th>
+                                            <th scope="col" className="text-nowrap text-center">ID Programa</th>
+                                            <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
+                                            <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
+                                            <th scope="col" className="text-nowrap text-center">Especie</th>
+                                            <th scope="col" className="text-nowrap text-center">Meses transcurrido</th>
+                                            <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                                            <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
+                                            <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
+                                            <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
+                                            <th scope="col" className="text-nowrap text-center">Depreciación por Año</th>
+                                            <th scope="col" className="text-nowrap text-center">Depreciación por Mes</th>
+                                            <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
+                                            <th scope="col" className="text-nowrap text-center">Valor Residual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {elementosActuales2.map((lista, index) =>
+
+                                            <tr key={index}>
+                                                <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td>
+                                                <td className="text-nowrap text-center">{lista.deP_CORR}</td>
+                                                {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
+                                            <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
+                                                <td className="text-nowrap text-center">{lista.itE_CLAVE}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_DESCRIPCION}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
+                                                {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
+                                                <td className="text-nowrap text-center">{lista.aF_CODIGO}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_ORIGEN}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
+                                                {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
+                                                <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
+                                                <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
+                                                <td className="text-nowrap text-center">{lista.f_CREA}</td>
+                                                <td className="text-nowrap text-center">{lista.iP_CREA}</td>
+                                                <td className="text-nowrap text-center">{lista.usuariO_MOD}</td>
+                                                <td className="text-nowrap text-center">{lista.f_MOD}</td>
+                                                {/* <td className="text-nowrap text-center">{lista.iP_MODt}</td> */}
+                                                <td className="text-nowrap text-center">{lista.aF_TIPO_DOC}</td>
+                                                <td className="text-nowrap text-center">{lista.proV_RUN}</td>
+                                                <td className="text-nowrap text-center">{lista.reG_EQM}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_NUM_FAC}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_FECHAFAC}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_3UTM}</td>
+                                                <td className="text-nowrap text-center">{lista.iD_GRUPO}</td>
+                                                <td className="text-nowrap text-center">{lista.ctA_COD}</td>
+                                                <td className="text-nowrap text-center">{lista.transitoria}</td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td>
+                                                <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
+                                                <td className="text-nowrap text-center">{lista.idprograma}</td>
+                                                <td className="text-nowrap text-center">{lista.idmodalidadcompra}</td>
+                                                <td className="text-nowrap text-center">{lista.idpropiedad}</td>
+                                                <td className="text-nowrap text-center">{lista.especie}</td>
+
+                                                {/* valores calculados */}
+                                                <td className="text-nowrap text-center">{lista.mesesTranscurridos}</td>
+                                                <td className="text-nowrap text-center">{lista.vidaUtil}</td>
+                                                <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
+                                                <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
+                                                <td className="text-nowrap text-center">
+                                                    $ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">
+                                                    $ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">
+                                                    $ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">
+                                                    $ {(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                                <td className="text-nowrap text-center">
+                                                    ${(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colSpan={6} className={`text-right ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                <strong >Total Valor Residual:</strong>
+                                            </td>
+                                            <td colSpan={3}>
+                                                <strong >
+                                                    ${totalSum.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
-                        </Modal.Body>
-                    </Modal>
-                </Draggable>
+                        )}
+                        {/* Paginador */}
+                        <div className="paginador-container">
+                            <Pagination className="paginador-scroll">
+                                <Pagination.First
+                                    onClick={() => paginar2(1)}
+                                    disabled={paginaActual2 === 1}
+                                />
+                                <Pagination.Prev
+                                    onClick={() => paginar2(paginaActual2 - 1)}
+                                    disabled={paginaActual2 === 1}
+                                />
+
+                                {Array.from({ length: totalPaginas2 }, (_, i) => (
+                                    <Pagination.Item
+                                        key={i + 1}
+                                        active={i + 1 === paginaActual2}
+                                        onClick={() => paginar2(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Next
+                                    onClick={() => paginar2(paginaActual2 + 1)}
+                                    disabled={paginaActual2 === totalPaginas2}
+                                />
+                                <Pagination.Last
+                                    onClick={() => paginar2(totalPaginas2)}
+                                    disabled={paginaActual2 === totalPaginas2}
+                                />
+                            </Pagination>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
             )
             }
 
@@ -1361,7 +1392,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                                             </td>
                                             <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td>
                                             <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td>
-                                            <td className="text-nowrap text-center border border-warning">{lista.vidaUtil}</td>
+                                            <td className={`text-nowrap text-center ${isDarkMode ? "bg-warning" : "bg-warning-subtle"}`}>{lista.vidaUtil}</td>
                                             <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
                                             <td className="text-nowrap text-center">{lista.idprograma}</td>
                                             <td className="text-nowrap text-center">{lista.idmodalidadcompra}</td>
@@ -1417,6 +1448,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                     <BlobProvider document={
                         <DocumentoPDF
                             row={listaActivosCalculados}
+                            totalSum={totalSum}
                         />
                     }>
                         {({ url, loading }) =>

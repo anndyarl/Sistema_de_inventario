@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     headerContent: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-around'
+        // justifyContent: 'space-between'
     },
 
     header: {
@@ -80,35 +80,8 @@ const styles = StyleSheet.create({
         flex: 1,
         // textAlign: 'center',
     },
-    firmaContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 300,
-        paddingHorizontal: 20,
-    },
-    firmaBox: {
-        flex: 1,
-        alignItems: 'center',
-
-    },
-    firmaLabel: {
-        marginTop: 5,
-        fontSize: 6,
-        textAlign: 'center',
-    },
-
-    line: {
-        position: 'relative',
-        border: "1px",
-        width: "100%",
-        marginTop: '200'
-    },
-    printLabel: {
-        display: 'flex',
-        justifyContent: 'flex-start'
-    }
 });
-const DocumentoPDF = ({ row }: { row: ListaActivosFijos[]; }) => (
+const DocumentoPDF = ({ row, totalSum }: { row: ListaActivosFijos[]; totalSum: number }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -116,7 +89,6 @@ const DocumentoPDF = ({ row }: { row: ListaActivosFijos[]; }) => (
                 <View style={styles.headerContainer}>
                     {/* Logo a la izquierda */}
                     <Image src={ssmso_logo} style={styles.logo} />
-
                     {/* Textos a la derecha */}
                     <View style={styles.textContainer}>
                         <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
@@ -128,7 +100,8 @@ const DocumentoPDF = ({ row }: { row: ListaActivosFijos[]; }) => (
             </Container>
             {/* Encabezado */}
             <View style={styles.headerContent}>
-                <Text style={styles.header}>Fecha: {fechaHoy}</Text>
+                <Text style={styles.header}>Total valor residual: $ {(totalSum ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                {/* <Text style={styles.header}>Fecha: {fechaHoy}</Text> */}
             </View>
             {/* Tabla */}
             <View style={styles.table}>

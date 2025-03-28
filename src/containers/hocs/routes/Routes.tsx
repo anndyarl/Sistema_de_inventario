@@ -55,7 +55,7 @@ import FolioPorServicioDependencia from '../../../components/Informes/Principal/
 import CalcularDepreciacion from '../../../components/Informes/Principal/CalcularDepreciacion/CalcularDepreciacion';
 import AltasMensuales from '../../../components/Informes/Principal/AltasMensuales';
 import BajasMensuales from '../../../components/Informes/Principal/BajasMensuales';
-import ConsultaInventarioEspecies from '../../../components/Informes/Principal/ConsultaInventarioEspecies';
+import ConsultaInventarioEspecies from '../../../components/Informes/Principal/ConsultaInventarioEspecies/ConsultaInventarioEspecies';
 import ExcelFolioPorServicios from '../../../components/Informes/Principal/ExcelFolioPorServicios';
 
 const AnimatedRoutes: React.FC = () => {
