@@ -30,7 +30,7 @@ const Versionamiento: React.FC<Props> = ({ isDarkMode }) => {
                 */}
 
             <div className="d-flex border-bottom justify-content-between align-items-center p-2">
-                <p>Última versión: v1.0.0.1</p>
+                <p>Última versión: v3.0.0.0</p>
             </div>
 
             <div className="overflow-auto">
@@ -44,7 +44,7 @@ const Versionamiento: React.FC<Props> = ({ isDarkMode }) => {
                     </thead>
                     <tbody>
                         <tr>
-                            <td>v1.0.0.1</td>
+                            <td>v4.0.0.0</td>
                             <td>01-31-2025</td>
                             <td>
                                 Primera versión del nuevo sistema de inventario desarrollado en React, diseñado y elaborado por el Departamento de Informática del Servicio de Salud Metropolitano Sur Oriente.

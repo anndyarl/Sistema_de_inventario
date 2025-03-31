@@ -67,14 +67,15 @@ interface DatosAltas {
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario
+    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioDependencia, comboServicioInforme, objeto, listaFolioServicioDependenciaActions, comboServicioInformeActions, token, isDarkMode }) => {
+const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia, comboServicioInforme, objeto, token, isDarkMode, nPaginacion }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [_, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
     const [loading, setLoading] = useState(false); // Estado para controlar la carga busqueda 
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 12;
+    const elementosPorPagina = nPaginacion;
 
     const [Inventario, setInventario] = useState({
         servicio: 0,
@@ -645,7 +646,8 @@ const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
-    objeto: state.validaApiLoginReducers
+    objeto: state.validaApiLoginReducers,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

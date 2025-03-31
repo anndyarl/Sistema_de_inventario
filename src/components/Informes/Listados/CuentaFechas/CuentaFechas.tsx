@@ -62,15 +62,16 @@ interface DatosAltas {
     token: string | null;
     isDarkMode: boolean;
     comboCuentasInforme: ComboCuentas[];
+    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInforme, listaCuentaFechasActions, comboCuentasInformeActions, token, isDarkMode }) => {
+const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCuentasInformeActions, listaCuentaFechas, comboCuentasInforme, token, isDarkMode, nPaginacion }) => {
     const [error, setError] = useState<Partial<listaCuentaFechas> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [loading, setLoading] = useState(false); // Estado para controlar la carga 
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 12;
+    const elementosPorPagina = nPaginacion;
 
     const cuentasOptions = comboCuentasInforme.map((item) => ({
         value: item.codigo.toString(),
@@ -144,7 +145,6 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
     const handleCuentasChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : "";
         setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
-        console.log(value);
     }
 
     const handleBuscar = async () => {
@@ -178,6 +178,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
+            paginar(1);
             setLoading(false); //Finaliza estado de carga
         }
 
@@ -190,6 +191,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechas, comboCuentasInf
             fHasta: "",
             cta_cod: ""
         }));
+        setFilasSeleccionadas([]);
     };
 
     const setSeleccionaFilas = (index: number) => {
@@ -768,7 +770,8 @@ const mapStateToProps = (state: RootState) => ({
     listaCuentaFechas: state.listaCuentaFechasReducers.listaCuentaFechas,
     comboCuentasInforme: state.comboCuentasInformeReducers.comboCuentasInforme,
     token: state.loginReducer.token,
-    isDarkMode: state.darkModeReducer.isDarkMode
+    isDarkMode: state.darkModeReducer.isDarkMode,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

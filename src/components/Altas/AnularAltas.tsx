@@ -6,12 +6,13 @@ import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { Eraser, Search } from "react-bootstrap-icons";
-import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions";
+
 import { anularAltasActions } from "../../redux/actions/Altas/AnularAltas/anularAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile";
+import { listaAltasRegistradasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -37,15 +38,16 @@ export interface ListaAltas {
 }
 
 interface DatosAltas {
-  listaAltas: ListaAltas[];
-  listaAltasActions: (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => Promise<boolean>;
+  listaAltasRegistradas: ListaAltas[];
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anularAltasActions, token, objeto, isDarkMode }) => {
+const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anularAltasActions, listaAltasRegistradas, token, objeto, isDarkMode, nPaginacion }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -54,7 +56,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
   const [loadingAnular, setLoadingAnular] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
 
   const [Inventario, setInventario] = useState({
     altaS_CORR: 0,
@@ -63,9 +65,9 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
   });
   const listaAltasAuto = async () => {
     if (token) {
-      if (listaAltas.length === 0) {
+      if (listaAltasRegistradas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasActions("", "", "N", objeto.Establecimiento, 0);
+        const resultado = await listaAltasRegistradasActions("", "", "N", objeto.Establecimiento, 0);
         if (resultado) {
           setLoading(false);
         }
@@ -88,7 +90,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
 
   useEffect(() => {
     listaAltasAuto();
-  }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
+  }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length]); // Asegúrate de incluir dependencias relevantes
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -118,15 +120,15 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
 
     setLoading(true);
     if (Inventario.fDesde == "" && Inventario.fHasta == "" && Inventario.altaS_CORR == 0) {
-      resultado = await listaAltasActions("", "", "N", objeto.Establecimiento, Inventario.altaS_CORR);
+      resultado = await listaAltasRegistradasActions("", "", "N", objeto.Establecimiento, Inventario.altaS_CORR);
     }
     if (Inventario.fDesde != "" && Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, "", objeto.Establecimiento, Inventario.altaS_CORR);
+        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, "", objeto.Establecimiento, Inventario.altaS_CORR);
       }
     }
     if (Inventario.altaS_CORR != 0) {
-      resultado = await listaAltasActions("", "", "", objeto.Establecimiento, Inventario.altaS_CORR);
+      resultado = await listaAltasRegistradasActions("", "", "", objeto.Establecimiento, Inventario.altaS_CORR);
     }
 
     if (!resultado) {
@@ -186,7 +188,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
-        aF_CLAVE: listaAltas[index].aF_CLAVE
+        aF_CLAVE: listaAltasRegistradas[index].aF_CLAVE
       };
 
     });
@@ -234,7 +236,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
         });
 
         setLoadingAnular(false);
-        listaAltasActions("", "", "N", objeto.Establecimiento, 0);
+        listaAltasRegistradasActions("", "", "N", objeto.Establecimiento, 0);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -297,12 +299,12 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
   const elementosActuales = useMemo(
     () =>
-      listaAltas.slice(indicePrimerElemento, indiceUltimoElemento),
-    [listaAltas, indicePrimerElemento, indiceUltimoElemento]
+      listaAltasRegistradas.slice(indicePrimerElemento, indiceUltimoElemento),
+    [listaAltasRegistradas, indicePrimerElemento, indiceUltimoElemento]
   );
   // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(listaAltas)
-    ? Math.ceil(listaAltas.length / elementosPorPagina)
+  const totalPaginas = Array.isArray(listaAltasRegistradas)
+    ? Math.ceil(listaAltasRegistradas.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -551,13 +553,14 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltas, listaAltasActions, anul
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listaAltas: state.datosListaAltasReducers.listaAltas,
+  listaAltasRegistradas: state.listaAltasRegistradasReducers.listaAltasRegistradas,
   token: state.loginReducer.token,
   objeto: state.validaApiLoginReducers,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {
-  listaAltasActions,
+  listaAltasRegistradasActions,
   anularAltasActions
 })(AnularAltas);

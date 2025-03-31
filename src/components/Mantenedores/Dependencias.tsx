@@ -38,9 +38,10 @@ interface GeneralProps {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, comboServicioActions, token, isDarkMode, comboServicio, objeto }) => {
+const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasActions, registrarMantenedorDependenciasActions, comboServicioActions, listadoMantenedor, token, isDarkMode, comboServicio, objeto, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListadoMantenedor>>({});
@@ -48,7 +49,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedor, listadoManten
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -479,7 +480,8 @@ const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   comboServicio: state.comboServicioReducer.comboServicio,
-  objeto: state.validaApiLoginReducers
+  objeto: state.validaApiLoginReducers,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 
 });
 

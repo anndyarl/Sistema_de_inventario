@@ -8,7 +8,7 @@ import { Dispatch } from 'redux';
 
 
 // Acción para obtener LISTA_ACTIVOS_FIJOS_INFORME
-export const listaActivosFijosActions = (fDesde: string, fHasta: string,) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaActivosFijosActions = (cta_cod: string, fDesde: string, fHasta: string,) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -21,7 +21,7 @@ export const listaActivosFijosActions = (fDesde: string, fHasta: string,) => asy
     dispatch({ type: LISTA_ACTIVOS_FIJOS_INFORME_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInventario?fDesde=${fDesde}&fHasta=${fHasta}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInventario?cta_cod=${cta_cod}&fDesde=${fDesde}&fHasta=${fHasta}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

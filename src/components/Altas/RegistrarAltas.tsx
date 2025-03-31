@@ -5,12 +5,13 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions";
+
 import { registrarAltasActions } from "../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
+import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions.tsx";
 
 export interface ListaAltas {
   aF_CLAVE: number,
@@ -27,14 +28,15 @@ export interface ListaAltas {
 }
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => Promise<boolean>;
+  listaAltasActions: (establ_corr: number) => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, objeto, listaAltasActions, registrarAltasActions, token, isDarkMode }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltas, objeto, token, isDarkMode, nPaginacion }) => {
   // const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -42,14 +44,14 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, objeto, listaAltasAc
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
 
   useEffect(() => {
     const listaAltasAuto = async () => {
       if (token) {
         if (listaAltas.length === 0) {
           setLoading(true);
-          const resultado = await listaAltasActions("", "", "N", objeto.Establecimiento, 0);
+          const resultado = await listaAltasActions(objeto.Establecimiento);
           if (resultado) {
             setLoading(false);
           }
@@ -252,7 +254,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, objeto, listaAltasAc
           }
         });
         setLoadingRegistro(false);
-        listaAltasActions("", "", "N", objeto.Establecimiento, 0);
+        listaAltasActions(objeto.Establecimiento);
 
         setFilasSeleccionadas([]);
       } else {
@@ -434,10 +436,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltas, objeto, listaAltasAc
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listaAltas: state.datosListaAltasReducers.listaAltas,
+  listaAltas: state.listaAltasReducers.listaAltas,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  objeto: state.validaApiLoginReducers
+  objeto: state.validaApiLoginReducers,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

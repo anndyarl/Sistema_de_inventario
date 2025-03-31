@@ -22,6 +22,7 @@ interface ListaInventarioProps {
   obtenerListaInventarioActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
   anularInventarioActions: (nInventario: string) => Promise<boolean>;
   isDarkMode: boolean;
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
 interface FechasProps {
@@ -29,12 +30,12 @@ interface FechasProps {
   fechaTermino: string;
 }
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario, obtenerListaInventarioActions, anularInventarioActions, isDarkMode }) => {
+const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventarioActions, anularInventarioActions, datosListaInventario, isDarkMode, nPaginacion }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
 
   const [Inventario, setInventario] = useState({
     fechaInicio: "",
@@ -313,7 +314,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ datosListaInventario
 
 const mapStateToProps = (state: RootState) => ({
   datosListaInventario: state.datosListaInventarioReducers.datosListaInventario,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

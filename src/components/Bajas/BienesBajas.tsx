@@ -39,9 +39,10 @@ interface DatosBajas {
   registrarBajasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, token, isDarkMode }) => {
+const BienesBaja: React.FC<DatosBajas> = ({ listaBajasActions, listaBajas, token, isDarkMode, nPaginacion }) => {
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   // const [error, setError] = useState<Partial<ListaBajas>>({});
@@ -49,7 +50,7 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, token
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
 
   // const [Bajas, setBajas] = useState({
   //   nresolucion: 0,
@@ -425,7 +426,8 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, token
 const mapStateToProps = (state: RootState) => ({
   listaBajas: state.datosListaBajasReducers.listaBajas,
   token: state.loginReducer.token,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

@@ -503,7 +503,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setInventario((inventarioPrevia) => ({
         ...inventarioPrevia,
         aF_CLAVE: "", // nRecepcion
-        aF_FECHA_SOLICITUD, // fechaRecepcion 
+        aF_FECHA_SOLICITUD: "", // fechaRecepcion 
         aF_OCO_NUMERO_REF: 0, // nOrdenCompra
         aF_NUM_FAC: "",// nFactura
         aF_ORIGEN: 0,  //origenPresupuesto

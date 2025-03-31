@@ -6,11 +6,11 @@ import { ListaActivosFijos } from './CalcularDepreciacion';
 
 
 // Formatear la fecha actual en español (Chile)
-const fechaHoy = new Date().toLocaleDateString('es-CL', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-});
+// const fechaHoy = new Date().toLocaleDateString('es-CL', {
+//     day: '2-digit',
+//     month: 'long',
+//     year: 'numeric',
+// });
 
 const styles = StyleSheet.create({
     page: {

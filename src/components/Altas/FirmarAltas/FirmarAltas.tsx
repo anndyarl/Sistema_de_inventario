@@ -63,9 +63,10 @@ interface DatosBajas {
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
+    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, token, isDarkMode, comboUnidades, datosFirmas }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, listaBajas, token, isDarkMode, comboUnidades, datosFirmas, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
     const [_, setError] = useState<Partial<ListaBajas>>({});
     const [__, setIsDisabled] = useState(true);
@@ -77,7 +78,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajas, listaBajasActions, obte
     //------------Fin Modal----------//
     const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 10;
+    const elementosPorPagina = nPaginacion;
     const sigCanvas = useRef<SignatureCanvas>(null);
     // const [isSigned, setIsSigned] = useState(false);
     const [signatureImage, setSignatureImage] = useState<string | undefined>();
@@ -567,7 +568,8 @@ const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboUnidades: state.obtenerUnidadesReducers.comboUnidades,
-    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

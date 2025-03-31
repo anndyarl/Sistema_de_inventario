@@ -31,16 +31,17 @@ interface DatosBajas {
   rematarBajasActions: (listaRemates: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRematesActions, rematarBajasActions, token, isDarkMode }) => {
+const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rematarBajasActions, listaRemates, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaRemates>>({});
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -463,7 +464,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ listaRemates, obtenerListaRemat
 const mapStateToProps = (state: RootState) => ({
   listaRemates: state.obtenerListaRematesReducers.listaRemates,
   token: state.loginReducer.token,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

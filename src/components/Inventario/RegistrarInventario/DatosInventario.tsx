@@ -30,6 +30,7 @@ import {
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, Search } from "react-bootstrap-icons";
+import { Objeto } from "../../Navegacion/Profile";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: string;
@@ -57,9 +58,11 @@ export interface InventarioProps {
   nRecepcion: number;
   origenPresupuesto: number;
   rutProveedor: string;
+  usuarioCrea?: string;
   modalidadDeCompra: number;
   otraModalidad?: string;
   showInputReducer?: boolean;
+
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -71,6 +74,7 @@ interface DatosInventarioProps extends InventarioProps {
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
   isDarkMode: boolean;
+  objeto: Objeto;
 }
 
 //Paso 1 del Formulario
@@ -85,6 +89,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   nFactura,
   nOrdenCompra,
   nRecepcion,
+  usuarioCrea,
   origenPresupuesto,
   /*-------Modalidad compra----*/
   modalidadDeCompra,
@@ -94,6 +99,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   rutProveedor,
   datosTablaActivoFijo,
   isDarkMode,
+  objeto,
   obtenerRecepcionActions,
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
@@ -211,18 +217,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     else if (name === "otraModalidad") {
       dispatch(setOtraModalidadActions(newValue as string));
     }
-    // else if (name === "rutProveedor") {
-    //   dispatch(setRutProveedorActions(newValue as string)); // Convertido a número  
-    //   //Al seleccionar "Otros" es decir el valor 7 este habilitará el input text
-    //   if (value === "0") { // 7 es igual a Otros
-    //     setShowInputProv(true); //estado de react para mostrar el input Otros
-    //     dispatch(showInputProveedorActions(true)); //Se envia al estado de Otros a redux para guardarlo
-    //   } else {
-    //     setShowInputProv(false);
-    //     dispatch(showInputProveedorActions(false));
-    //     dispatch(setOtroProveedorActions(""));
-    //   }
-    // }
     else if (name === "otroProveedor") {
       dispatch(setOtroProveedorActions(newValue as string));
     }
@@ -275,7 +269,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       nOrdenCompra,
       nRecepcion,
       origenPresupuesto,
-      rutProveedor
+      rutProveedor,
+      usuarioCrea: objeto.IdCredencial.toString()
     });
   }, [
     fechaFactura,
@@ -288,7 +283,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     origenPresupuesto,
     rutProveedor,
     otraModalidad,
-    showInputReducer
+    showInputReducer,
+    usuarioCrea
   ]);
 
   const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -359,7 +355,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             nRecepcion: 0,
             nombreProveedor: "",
             origenPresupuesto: 0,
-            rutProveedor: "",
+            rutProveedor: ""
           }));
           dispatch(setNRecepcionActions(0));
           dispatch(setFechaRecepcionActions(""));
@@ -387,7 +383,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      dispatch(setMontoRecepcionActions(Inventario.montoRecepcion)); // Convertido a número
+      dispatch(setMontoRecepcionActions(Inventario.montoRecepcion));
       onNext(Inventario);
       console.log(Inventario);
     }
@@ -574,30 +570,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 )}
               </div>
 
-              {/* Proveedor */}
-              {/* <div className="mb-1">
-                <label className="fw-semibold">
-                  Proveedor
-                </label>
-                <select
-                  aria-label="rutProveedor"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.rutProveedor ? "is-invalid" : ""}`}
-                  name="rutProveedor"
-                  onChange={handleChange}
-                  value={Inventario.rutProveedor}
-                >
-                  <option value="">Seleccionar</option>
-                  {comboProveedor.map((traeProveedor) => (
-                    <option key={traeProveedor.rut} value={traeProveedor.rut}>
-                      {traeProveedor.nomprov}
-                    </option>
-                  ))}
-                </select>
-                {error.rutProveedor && (
-                  <div className="invalid-feedback fw-semibold">{error.rutProveedor}</div>
-                )}
-              </div> */}
-
               <div className="mb-1">
                 <label className="fw-semibold">
                   Proveedor
@@ -708,7 +680,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 const mapStateToProps = (state: RootState) => ({
   fechaFactura: state.obtenerRecepcionReducers.fechaFactura,
   fechaRecepcion: state.obtenerRecepcionReducers.fechaRecepcion,
-
   montoRecepcion: state.obtenerRecepcionReducers.montoRecepcion,
   nFactura: state.obtenerRecepcionReducers.nFactura,
   nOrdenCompra: state.obtenerRecepcionReducers.nOrdenCompra,
@@ -721,7 +692,8 @@ const mapStateToProps = (state: RootState) => ({
   /*--------------Fin Modalidad Compra--------------*/
   rutProveedor: state.obtenerRecepcionReducers.rutProveedor,
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

@@ -8,7 +8,7 @@ import { Helmet } from "react-helmet-async";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
-
+import Select from "react-select";
 import { BlobProvider } from "@react-pdf/renderer";
 import Layout from "../../../../containers/hocs/layout/Layout";
 import MenuInformes from "../../../Menus/MenuInformes";
@@ -17,6 +17,7 @@ import { RootState } from "../../../../store";
 import DocumentoPDF from "./DocumentoPDFCalcularDepreciacion";
 import { listaActivosCalculadosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosActions";
 import { listaActivosFijosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosActions";
+import { comboCuentasInformeActions } from "../../../../redux/actions/Informes/Listados/CuentasFechas/comboCuentasInformeActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -79,18 +80,24 @@ export interface ListaActivosFijos {
     depreciacionAcumuladaActualizada?: number;
     valorResidual?: number;
 }
-
+interface ComboCuentas {
+    codigo: string;
+    descripcion: string;
+}
 interface DatosAltas {
     listaActivosFijos: ListaActivosFijos[];
     listaActivosCalculados: ListaActivosFijos[];
     listaActivosNoCalculados: ListaActivosFijos[];
-    listaActivosFijosActions: (fDesde: string, fHasta: string) => Promise<boolean>;
+    listaActivosFijosActions: (cta_cod: string, fDesde: string, fHasta: string) => Promise<boolean>;
     listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
+    comboCuentasInformeActions: () => void;
+    comboCuentasInforme: ComboCuentas[];
+    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, listaActivosFijosActions, listaActivosCalculadosActions, token, isDarkMode }) => {
+const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, listaActivosCalculadosActions, comboCuentasInformeActions, listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, comboCuentasInforme, token, isDarkMode, nPaginacion }) => {
     const [error, setError] = useState<Partial<ListaActivosFijos> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalNoCalculados, setMostrarModalNoCalculados] = useState(false);
@@ -100,10 +107,15 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     const [paginaActual, setPaginaActual] = useState(1);
     const [paginaActual2, setPaginaActual2] = useState(1);
     const [paginaActual3, setPaginaActual3] = useState(1);
-    const elementosPorPagina = 12;
-    const elementosPorPagina2 = 12;
-    const elementosPorPagina3 = 12;
+    const elementosPorPagina = nPaginacion;
+    const elementosPorPagina2 = nPaginacion;
+    const elementosPorPagina3 = nPaginacion;
     const [__, setlistaActivosCalculados] = useState<ListaActivosFijos[]>(listaActivosCalculados);
+
+    const cuentasOptions = comboCuentasInforme.map((item) => ({
+        value: item.codigo.toString(),
+        label: item.descripcion,
+    }));
     const [Inventario, setInventario] = useState({
         fDesde: "",
         fHasta: "",
@@ -112,7 +124,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
     const listaActivosFijosAuto = async () => {
         if (listaActivosFijos.length === 0) {
             setLoading(true);
-            const resultado = await listaActivosFijosActions("", "");
+            const resultado = await listaActivosFijosActions("", "", "");
             if (resultado) {
                 setLoading(false);
             }
@@ -136,6 +148,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
         if (token) {
             listaActivosFijosAuto();
             setlistaActivosCalculados(listaActivosCalculados);
+            if (comboCuentasInforme.length === 0) { comboCuentasInformeActions() }
             if (listaActivosNoCalculados.length > 0) {
                 Swal.fire({
                     icon: "warning",
@@ -160,7 +173,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
             }
         }
 
-    }, [listaActivosFijosActions, token, listaActivosFijos.length, listaActivosNoCalculados.length, listaActivosCalculados]); // Asegúrate de incluir dependencias relevantes
+    }, [listaActivosFijosActions, comboCuentasInformeActions, token, listaActivosFijos.length, listaActivosNoCalculados.length, listaActivosCalculados]); // Asegúrate de incluir dependencias relevantes
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -191,6 +204,12 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
 
     };
 
+    const handleCuentasChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : "";
+        setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
+        console.log(value);
+    };
+
     const handleBuscar = async () => {
         let resultado = false;
 
@@ -198,11 +217,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
         //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
         if (Inventario.fDesde != "" && Inventario.fHasta != "") {
             if (validate()) {
-                resultado = await listaActivosFijosActions(Inventario.fDesde, Inventario.fHasta);
+                resultado = await listaActivosFijosActions(Inventario.cta_cod, Inventario.fDesde, Inventario.fHasta);
             }
         }
         else {
-            resultado = await listaActivosFijosActions("", "");
+            resultado = await listaActivosFijosActions(Inventario.cta_cod, "", "");
         }
         if (!resultado) {
             Swal.fire({
@@ -233,6 +252,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
             fHasta: "",
             cta_cod: ""
         }));
+        setFilasSeleccionadas([]);
     };
 
     const handleCalcular = async () => {
@@ -814,6 +834,45 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                             </div>
 
                         </Col>
+                        <Col md={4}>
+                            <div className="mb-1 z-1000">
+                                <label className="fw-semibold">
+                                    Seleccione una cuenta
+                                </label>
+                                <Select
+                                    options={cuentasOptions}
+                                    onChange={handleCuentasChange}
+                                    name="cta_cod"
+                                    value={cuentasOptions.find((option) => option.value === Inventario.cta_cod) || null}
+                                    placeholder="Buscar"
+                                    classNamePrefix="react-select"
+                                    isClearable
+                                    isSearchable
+                                    styles={{
+                                        control: (baseStyles) => ({
+                                            ...baseStyles,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                            color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                            borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                        }),
+                                        singleValue: (base) => ({
+                                            ...base,
+                                            color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                            color: isDarkMode ? "white" : "#212529",
+                                        }),
+                                        option: (base, { isFocused, isSelected }) => ({
+                                            ...base,
+                                            backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                            color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                        }),
+                                    }}
+                                />
+                            </div>
+                        </Col>
                         <Col md={5}>
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar} disabled={loading == true}
@@ -1028,7 +1087,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijos, listaAc
                     </div>
                 </div>
             </form>
-
 
             {/* Modal Activos Calculados */}
             {listaActivosCalculados.length > 0 && (
@@ -1498,10 +1556,13 @@ const mapStateToProps = (state: RootState) => ({
     listaActivosCalculados: state.listaActivosCalculadosReducers.listaActivosCalculados,
     listaActivosNoCalculados: state.listaActivosNoCalculadosReducers.listaActivosNoCalculados,
     token: state.loginReducer.token,
-    isDarkMode: state.darkModeReducer.isDarkMode
+    isDarkMode: state.darkModeReducer.isDarkMode,
+    comboCuentasInforme: state.comboCuentasInformeReducers.comboCuentasInforme,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {
     listaActivosFijosActions,
-    listaActivosCalculadosActions
+    listaActivosCalculadosActions,
+    comboCuentasInformeActions
 })(CalcularDepreciacion);

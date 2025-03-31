@@ -42,9 +42,10 @@ interface GeneralProps {
     isDarkMode: boolean;
     seR_CORR: number;
     objeto: Objeto; //Objeto que obtiene los datos del usuario
+    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCuentas, objeto, obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, token, isDarkMode }) => {
+const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, seR_CORR, listadoMantenedor, comboCuentas, objeto, token, isDarkMode, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, __] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
@@ -52,7 +53,7 @@ const Especies: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboCu
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 12;
+    const elementosPorPagina = nPaginacion;
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -602,7 +603,8 @@ const mapStateToProps = (state: RootState) => ({
     comboCuentas: state.comboCuentaMantenedorReducers.comboCuentaMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    objeto: state.validaApiLoginReducers
+    objeto: state.validaApiLoginReducers,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

@@ -32,9 +32,10 @@ interface DatosBajas {
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExcluidosActions, excluirBajasActions, token, isDarkMode }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos>>({});
@@ -42,7 +43,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
 
   const [Excluidos, setExcluidos] = useState({
     nresolucion: 0,
@@ -653,7 +654,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ listaExcluidos, obtenerListaExc
 const mapStateToProps = (state: RootState) => ({
   listaExcluidos: state.obtenerListaExcluidosReducers.listaExcluidos,
   token: state.loginReducer.token,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

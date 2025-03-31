@@ -222,7 +222,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEsta
         )}
       </AnimatePresence >
 
-      <Modal size="lg" show={mostrarModal} onHide={() => setMostrarModal(false)} /* backdrop="static" keyboard={false} */>
+      <Modal size="xl" show={mostrarModal} onHide={() => setMostrarModal(false)} /* backdrop="static" keyboard={false} */>
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title>Preferencias</Modal.Title>
         </Modal.Header>

@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Form, Modal, Col, Row, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import SignatureCanvas from 'react-signature-canvas';
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { RootState } from "../../../../store";
 import Layout from "../../../../containers/hocs/layout/Layout";
@@ -46,19 +45,17 @@ interface DatosBajas {
     listaConsultaInventarioEspecie: ListaInvenarioEspecies[];
     token: string | null;
     isDarkMode: boolean;
+    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventarioEspecie, listaConsultaInventarioEspecieActions, token, isDarkMode }) => {
+const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventarioEspecieActions, listaConsultaInventarioEspecie, token, isDarkMode, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
-    const [_, setError] = useState<Partial<ListaInvenarioEspecies>>({});
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     //------------Fin Modal----------//
     const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 10;
-    const sigCanvas = useRef<SignatureCanvas>(null);
-
+    const elementosPorPagina = nPaginacion;
     const [Inventario, setInventario] = useState({
         aF_CLAVE: 0,
         traS_CORR: 0,
@@ -84,15 +81,6 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
             ...prevAltaInventario,
             [name]: value,
         }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-            const firma = sigCanvas.current.toDataURL('image/png'); //capta la firma dibujada en una imagen        
-        } else {
-            setError((prev) => ({ ...prev, firma: "La firma es obligatoria." }));
-        }
     };
 
     const handleBuscar = async () => {
@@ -339,13 +327,8 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                             <Modal.Title className="fw-semibold">Consulta Inventario Especies</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                            <form onSubmit={handleSubmit}>
-                                <div className="d-flex justify-content-between p-2">
-                                    <Button type="submit" variant={isDarkMode ? "secondary" : "primary"}>
-                                        <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
-                                        Exportar
-                                    </Button>
-                                </div>
+                            <form>
+
                                 {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                                 <BlobProvider document={
                                     <DocumentoPDF
@@ -359,13 +342,12 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                         ) : (
 
                                             <iframe
-                                                src={url ? `${url}${isFirefox ? "" : "#toolbar=0&navpanes=0&scrollbar=1"}` : ''}
+                                                src={url ? `${url}` : ""}
                                                 title="Vista Previa del PDF"
                                                 style={{
                                                     width: "100%",
                                                     height: "900px",
-                                                    border: "none",
-                                                    pointerEvents: isFirefox ? "none" : "auto", // Deshabilita interacciones en Firefox
+                                                    border: "none"
                                                 }}
                                             ></iframe>
 
@@ -386,7 +368,8 @@ const mapStateToProps = (state: RootState) => ({
     listaConsultaInventarioEspecie: state.listaConsultaInventarioEspeciesReducers.listaConsultaInventarioEspecie,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

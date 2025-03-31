@@ -67,16 +67,17 @@ interface DatosBajas {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajas, listadoGeneralBajasActions, registrarBienesBajasActions, token, isDarkMode, objeto }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
 
   const [Bajas, setBajas] = useState({
     nresolucion: 0,
@@ -555,7 +556,8 @@ const mapStateToProps = (state: RootState) => ({
   listadoGeneralBajas: state.datosListadoGeneralBajasReducers.listadoGeneralBajas,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  objeto: state.validaApiLoginReducers
+  objeto: state.validaApiLoginReducers,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

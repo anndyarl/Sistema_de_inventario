@@ -41,9 +41,10 @@ interface GeneralProps {
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario  
     seR_CORR: number;
+    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboServicioActions, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, token, isDarkMode, objeto }) => {
+const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, seR_CORR, listadoMantenedor, token, isDarkMode, objeto, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & Partial<ESTABLECIMIENTO> & {}>({});
@@ -51,7 +52,7 @@ const Servicios: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comboS
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = 12;
+    const elementosPorPagina = nPaginacion;
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -493,7 +494,8 @@ const mapStateToProps = (state: RootState) => ({
     listadoMantenedor: state.listadoMantenedorServiciosReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    objeto: state.validaApiLoginReducers
+    objeto: state.validaApiLoginReducers,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

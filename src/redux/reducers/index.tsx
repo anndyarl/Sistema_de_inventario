@@ -29,7 +29,7 @@ import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerI
 import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
 
 //--------------------- Registrar Altas ---------------------//
-import datosListaAltasReducers from "./Altas/AnularAltas/datosListaAltasReducers";
+import datosListaAltasReducers from "./Altas/AnularAltas/listaAltasRegistradasReducers";
 import obtenerEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerEtiquetasAltasReducers";
 import obtenerfirmasAltasReducers from "./Altas/FirmarAltas/obtenerfirmasAltasReducers";
 import obtenerUnidadesReducers from "./Altas/FirmarAltas/obtenerUnidadesReducers";
@@ -77,6 +77,9 @@ import listaActivosCalculadosReducers from "./Informes/Principal/CalcularDepreci
 import listaActivosFijosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosFijosReducers";
 import listaActivosNoCalculadosReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosNoCalculadosReducers";
 import listaConsultaInventarioEspeciesReducers from "./Informes/Principal/ConsultaInventarioEspecies/listaConsultaInventarioEspeciesReducers";
+import mostrarNPaginacionReducer from "./Otros/mostrarNPaginacionReducer";
+import listaAltasReducers from "./Altas/AltasRegistradas/listaAltasReducers";
+import listaAltasRegistradasReducers from "./Altas/AnularAltas/listaAltasRegistradasReducers";
 
 
 
@@ -114,7 +117,8 @@ const appReducer = combineReducers({
   datosListaInventarioReducers,
 
   // Altas
-  datosListaAltasReducers,
+  listaAltasReducers,
+  listaAltasRegistradasReducers,
   obtenerEtiquetasAltasReducers,
   obtenerfirmasAltasReducers,
   obtenerUnidadesReducers,
@@ -136,14 +140,16 @@ const appReducer = combineReducers({
   comboDependenciaDestinoReducer,
   listadoTrasladosReducers,
 
+
+  //-------Otros/Preferenicas---------------//
   // Indicadores
   indicadoresReducers,
-
   // Modo Oscuro
   darkModeReducer,
-
   //Pregunta/Respuesta IA
   respuestaReducer,
+  //guarda el numero de paginacion
+  mostrarNPaginacionReducer,
 
   //Informes
   comboServicioInformeReducers,
@@ -197,6 +203,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
+      mostrarNPaginacionReducer
     } = state || {};
 
     state = {
@@ -217,6 +224,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
+      mostrarNPaginacionReducer
     };
   }
   return appReducer(state, action);

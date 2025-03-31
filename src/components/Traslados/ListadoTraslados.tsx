@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination } from "react-bootstrap";
+import { Button, Col, Pagination, Row, Spinner } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -11,6 +11,7 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
+import { Eraser, Search } from "react-bootstrap-icons";
 
 export interface listadoTraslados {
   usuariO_MOD: string,
@@ -39,19 +40,20 @@ export interface listadoTraslados {
 
 interface GeneralProps {
   listadoTraslados: listadoTraslados[];
-  listadoTrasladosActions: () => Promise<boolean>;
+  listadoTrasladosActions: (tras_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
+  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTrasladosActions, token, isDarkMode }) => {
+const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   // const [error, setError] = useState<Partial<listadoTraslados>>({});
   // const [_, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 12;
+  const elementosPorPagina = nPaginacion;
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -65,28 +67,17 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTra
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
 
-  // const [Mantenedor, setMantenedor] = useState({
-  //   seR_COD: 0,
-  //   nombre: "",
-  //   usuario: objeto.IdCredencial.toString(),
-  // });
+  const [ListadoTraslado, setListadoTraslado] = useState({
+    tras_corr: 0,
+  });
 
-  // const validate = () => {
-  //   let tempErrors: Partial<any> & {} = {};
-  //   // Validación para N° de Recepción (debe ser un número)
-  //   if (!Mantenedor.seR_COD) tempErrors.seR_COD = "Campo obligatorio";
-  //   if (!Mantenedor.nombre) tempErrors.nombre = "Campo obligatorio";
-
-  //   setError(tempErrors);
-  //   return Object.keys(tempErrors).length === 0;
-  // };
 
   //Se lista automaticamente apenas entra al componente
   const listadoTrasladosAuto = async () => {
     if (token) {
       if (listadoTraslados.length === 0) {
         setLoading(true);
-        const resultado = await listadoTrasladosActions();
+        const resultado = await listadoTrasladosActions(0);
         if (resultado) {
           setLoading(false);
         }
@@ -111,20 +102,52 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTra
     listadoTrasladosAuto()
   }, [listadoTrasladosActions, token, listadoTraslados.length]); // Asegúrate de incluir dependencias relevantes
 
-  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-  //   const { name, value } = e.target;
+  const handleLimpiar = () => {
+    setListadoTraslado((prevListadoTraslado) => ({
+      ...prevListadoTraslado,
+      tras_corr: 0
+    }));
+  };
 
-  //   // Convierte `value` a número
-  //   let newValue: string | number = ["seR_COD"].includes(name)
-  //     ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-  //     : value;
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
 
-  //   setMantenedor((preBajas) => ({
-  //     ...preBajas,
-  //     [name]: newValue,
-  //   }));
-  // };
+    // Convierte `value` a número
+    let newValue: string | number = ["tras_corr"].includes(name)
+      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+      : value;
 
+    setListadoTraslado((prevListadoTraslado) => ({
+      ...prevListadoTraslado,
+      [name]: newValue,
+    }));
+  };
+
+  const handleBuscar = async () => {
+    let resultado = false;
+    setLoading(true);
+    resultado = await listadoTrasladosActions(ListadoTraslado.tras_corr);
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      paginar(1);
+      setLoading(false); //Finaliza estado de carga
+    }
+
+  };
   // const setSeleccionaFila = (index: number) => {
   //   setMostrarModal(index); //Abre modal del indice seleccionado
   //   setFilaSeleccionada((prev) =>
@@ -202,6 +225,55 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTraslados, listadoTra
       <MenuTraslados />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traslados</h3>
+        <Row>
+          <Col md={2}>
+            <div className="mb-1">
+              <label htmlFor="tras_corr" className="fw-semibold">Nº Traslado</label>
+              <input
+                aria-label="tras_corr"
+                type="text"
+                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="tras_corr"
+                size={10}
+                placeholder="Eje: 1000000008"
+                onChange={handleChange}
+                value={ListadoTraslado.tras_corr}
+              />
+            </div>
+          </Col>
+          <Col md={5}>
+            <div className="mb-1 mt-4">
+              <Button onClick={handleBuscar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                {loading ? (
+                  <>
+                    {" Buscar"}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="ms-1"
+                    />
+                  </>
+                ) : (
+                  <>
+                    {" Buscar"}
+                    <Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  </>
+                )}
+              </Button>
+              <Button onClick={handleLimpiar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                Limpiar
+                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+              </Button>
+            </div>
+          </Col>
+        </Row>
         {loading ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
@@ -323,7 +395,8 @@ const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   comboServicio: state.comboServicioReducer.comboServicio,
-  objeto: state.validaApiLoginReducers
+  objeto: state.validaApiLoginReducers,
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 
 });
 

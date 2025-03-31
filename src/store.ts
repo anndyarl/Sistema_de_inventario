@@ -38,7 +38,8 @@ const persistConfig = {
     'listaFolioServicioDependenciaReducers',
     'listaCuentaFechasReducers',
     'comboCuentasInformeReducers',
-    'comboServicioInformeReducers'
+    'comboServicioInformeReducers',
+    'mostrarNPaginacionReducer'
   ]
 };
 
