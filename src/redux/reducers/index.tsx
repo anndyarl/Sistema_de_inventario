@@ -153,8 +153,8 @@ const appReducer = combineReducers({
 
   //Informes
   comboServicioInformeReducers,
-  listaFolioServicioDependenciaReducers,
   comboCuentasInformeReducers,
+  listaFolioServicioDependenciaReducers,
   listaCuentaFechasReducers,
   listaActivosFijosReducers,
   listaActivosCalculadosReducers,
@@ -203,7 +203,13 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
-      mostrarNPaginacionReducer
+      mostrarNPaginacionReducer,
+      listaFolioServicioDependenciaReducers,
+      listaCuentaFechasReducers,
+      listaActivosFijosReducers,
+      listaActivosCalculadosReducers,
+      listaActivosNoCalculadosReducers,
+      listaConsultaInventarioEspeciesReducers,
     } = state || {};
 
     state = {
@@ -224,7 +230,13 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
-      mostrarNPaginacionReducer
+      mostrarNPaginacionReducer,
+      listaFolioServicioDependenciaReducers,
+      listaCuentaFechasReducers,
+      listaActivosFijosReducers,
+      listaActivosCalculadosReducers,
+      listaActivosNoCalculadosReducers,
+      listaConsultaInventarioEspeciesReducers,
     };
   }
   return appReducer(state, action);

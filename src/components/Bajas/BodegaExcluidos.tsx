@@ -493,17 +493,17 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Nª Certificado</th>
+                    <th scope="col" className="text-nowrap text-center">Nª Inventario</th>
                     <th scope="col" className="text-nowrap text-center">Codigo</th>
                     <th scope="col" className="text-nowrap text-center">Especie</th>
                     <th scope="col" className="text-nowrap text-center">Vida UtiL Restante</th>
                     <th scope="col" className="text-nowrap text-center">Vida Util en Años</th>
-                    <th scope="col" className="text-nowrap text-center">Nº Resolucion</th>
+                    <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>
                     <th scope="col" className="text-nowrap text-center">Depreciacion Acumulada</th>
                     <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
                     <th scope="col" className="text-nowrap text-center">Estado</th>
-                    <th scope="col" className="text-nowrap text-center">Fecha de Remate</th>
+                    <th scope="col" className="text-nowrap text-center">Fecha de Baja</th>
                     <th scope="col" className="text-nowrap text-center">Acción</th>
                   </tr>
                 </thead>

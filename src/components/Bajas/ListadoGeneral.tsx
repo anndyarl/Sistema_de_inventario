@@ -297,7 +297,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   <th scope="col"></th>
-                  <th scope="col" className="text-nowrap text-center">Clave</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                   <th scope="col" className="text-nowrap text-center">Código Genérico</th>
                   <th scope="col" className="text-nowrap text-center">Código Largo</th>
                   <th scope="col" className="text-nowrap text-center">DEP Corr</th>

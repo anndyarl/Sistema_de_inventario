@@ -153,5 +153,7 @@ export const setObservacionesActions = (observaciones: string) => ({
   type: 'SET_OBSERVACIONES',
   payload: observaciones,
 });
-
-
+export const setInventarioRegistrado = (resultadoRegistro: number) => ({
+  type: 'SET_INVENTARIO_REGISTRADO',
+  payload: resultadoRegistro,
+});

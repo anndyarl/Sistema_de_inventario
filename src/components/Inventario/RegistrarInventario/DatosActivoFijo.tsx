@@ -4,7 +4,6 @@ import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
 import { Eraser, Floppy, PencilFill, Plus, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
-
 import {
   setServicioActions,
   setDependenciaActions,
@@ -28,6 +27,7 @@ import {
   setOtraModalidadActions,
   setNombreEspecieActions,
   setDescripcionEspecieActions,
+  setInventarioRegistrado,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/registrarFormInventarioActions";
 
@@ -45,6 +45,7 @@ import {
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
 import { obtenerMaxInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerMaxInventarioActions";
+import DatosInventario from "./DatosInventario";
 
 // Props del formulario
 export interface ActivoFijo {
@@ -61,10 +62,13 @@ export interface ActivoFijo {
   color?: string;
 }
 
+export interface Form {
+  datosInventario: Record<string, any>;
+}
 interface DatosActivoFijoProps {
   onNext: (data: ActivoFijo[]) => void;
   onBack: () => void;
-  onReset: () => void; // vuelva a al componente Datos_inventario
+  onReset: () => void; // vuelve a al componente Datos_inventario
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
   nombreEspecie: string[]; //Para obtener del estado global de redux
   datosTablaActivoFijo: ActivoFijo[];
@@ -128,7 +132,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
   //-------Modal-------//
   const [mostrarModal, setMostrarModal] = useState(false);
-  // const [mostrarModalConfirmar, setMostrarModalConfirmar] = useState(false);
   //-------Fin Modal-------//
 
   //-------Tabla-------//
@@ -136,11 +139,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const [elementosPorPagina] = useState(10);
-  // Estado para errores específicos por serie
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
-  // const [isRepeatSerie, setIsRepeatSerie] = useState(false);
-  //-------Fin Tabla-------//
-
   const vPrecio = parseFloat(activoActual.precio) || 0;
   const vCantidad = parseInt(activoActual.cantidad, 10) || 0;
 
@@ -623,7 +622,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             dispatch(showInputActions(false));
             dispatch(setOtraModalidadActions(""));
             onReset(); // Vuelve al estado inicial
-
+            dispatch(setInventarioRegistrado(1));
             // 🔹 Muestra el código obtenido después de esperarlo
             Swal.fire({
               icon: "success",
@@ -634,7 +633,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
               customClass: { popup: "custom-border" }
             });
+
           } else {
+            dispatch(setInventarioRegistrado(0));
             Swal.fire({
               icon: "error",
               title: "Error",
@@ -661,7 +662,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
     }
   };
-
 
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -883,6 +883,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         show={mostrarModal}
         onHide={() => setMostrarModal(false)}
         size="lg"
+
       >
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Agregar activos fijos</Modal.Title>
@@ -1072,6 +1073,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           </form>
         </Modal.Body >
       </Modal >
+
     </>
   );
 };

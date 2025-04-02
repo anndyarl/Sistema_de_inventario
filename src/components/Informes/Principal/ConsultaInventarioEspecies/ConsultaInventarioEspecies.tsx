@@ -115,34 +115,36 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
             aF_CODIGO_GENERICO: ""
         }));
     };
+    const fetchBajas = async () => {
+        if (token) {
+            setLoading(true);
+            try {
+                const resultado = await listaConsultaInventarioEspecieActions(Inventario.aF_CODIGO_GENERICO);
+                if (!resultado) {
+                    throw new Error("Error al cargar la lista de bajas");
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
 
     useEffect(() => {
-        const fetchBajas = async () => {
-            if (token && listaConsultaInventarioEspecie.length === 0) {
-                setLoading(true);
-                try {
-                    const resultado = await listaConsultaInventarioEspecieActions(Inventario.aF_CODIGO_GENERICO);
-                    if (!resultado) {
-                        throw new Error("Error al cargar la lista de bajas");
-                    }
-                } catch (error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                } finally {
-                    setLoading(false);
-                }
-            }
+        if (listaConsultaInventarioEspecie.length === 0) {
+            fetchBajas()
         };
-        fetchBajas();
     }, [listaConsultaInventarioEspecieActions, token, listaConsultaInventarioEspecie.length, isDarkMode]);
 
     const setSeleccionaFila = (index: number) => {
@@ -169,8 +171,6 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
     );
     const totalPaginas = Math.ceil(listaConsultaInventarioEspecie.length / elementosPorPagina);
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
-
-    const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
 
     return (
         <Layout>

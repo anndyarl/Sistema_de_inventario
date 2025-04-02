@@ -15,6 +15,7 @@ interface DatosRecepcionState {
     modelo: string;
     observaciones: string;
     precio: string;
+    resultadoRegistro: number;
 }
 
 // Estado inicial tipado
@@ -31,6 +32,7 @@ const initialState: DatosRecepcionState = {
     modelo: "",
     observaciones: "",
     precio: "",
+    resultadoRegistro: 0
 };
 
 
@@ -93,6 +95,8 @@ const datosActivoFijoReducers = (state = initialState, action: any) => {
             return { ...state, cantidad: action.payload };
         case 'SET_OBSERVACIONES':
             return { ...state, observaciones: action.payload };
+        case 'SET_INVENTARIO_REGISTRADO':
+            return { ...state, resultadoRegistro: action.payload };
     }
 };
 

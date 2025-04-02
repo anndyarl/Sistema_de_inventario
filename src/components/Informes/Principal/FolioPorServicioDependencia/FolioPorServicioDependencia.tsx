@@ -469,7 +469,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                         </Col>
                         <Col md={3}>
                             <div className="mb-1 mt-4">
-                                <Button onClick={handleBuscar} disabled={loading == true}
+                                <Button onClick={handleBuscar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
                                     className="mx-1 mb-1">
                                     {loading ? (

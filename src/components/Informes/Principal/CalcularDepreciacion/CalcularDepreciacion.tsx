@@ -258,11 +258,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const handleCalcular = async () => {
         setLoading(true);
 
-        // 1. Limpiar los activos seleccionados antes de enviar los nuevos datos
+        // Limpiar los activos seleccionados antes de enviar los nuevos datos
         setlistaActivosCalculados([]);
         await listaActivosCalculadosActions([]); // Envía un array vacío para eliminar datos previos
 
-        // 2. Seleccionar los nuevos activos
+        // Seleccionar los nuevos activos
         const selectedIndices = filasSeleccionadas.map(Number);
         const activosSeleccionados = selectedIndices.map((index) => ({
             aF_CLAVE: listaActivosFijos[index].aF_CLAVE,
@@ -305,10 +305,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             especie: listaActivosFijos[index].especie
         }));
 
-        // 3. Enviar los nuevos activos
+        // Se envian los datos al metodo
         const resultado = await listaActivosCalculadosActions(activosSeleccionados);
 
-        // 4. Mostrar mensaje de error si no hay resultados
+        // Muestra mensaje de error si no hay resultados
         if (!resultado) {
             Swal.fire({
                 icon: "error",
@@ -324,7 +324,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             return;
         }
 
-        // 5. Mostrar modal y finalizar carga
+        // Muestra modal y finaliza la carga
         setMostrarModalCalcular(true);
         setLoading(false);
     };
@@ -335,7 +335,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 ? prev.filter((rowIndex) => rowIndex !== index.toString())
                 : [...prev, index.toString()]
         );
-        // console.log("indices seleccionmados", index);
     };
 
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -875,7 +874,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         </Col>
                         <Col md={5}>
                             <div className="mb-1 mt-4">
-                                <Button onClick={handleBuscar} disabled={loading == true}
+                                <Button onClick={handleBuscar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
                                     className="mx-1 mb-1">
                                     {loading ? (

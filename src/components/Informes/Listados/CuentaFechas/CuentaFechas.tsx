@@ -83,32 +83,32 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
         fHasta: "",
         cta_cod: '',
     });
-    const listaCuentaFechasAuto = async () => {
-        if (listaCuentaFechas.length === 0) {
-            setLoading(true);
-            const resultado = await listaCuentaFechasActions("", "", "");
-            if (resultado) {
-                setLoading(false);
-            }
-            else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-            }
-        }
-    };
+    // const listaCuentaFechasAuto = async () => {
+    //     if (listaCuentaFechas.length === 0) {
+    //         setLoading(true);
+    //         const resultado = await listaCuentaFechasActions("", "", "");
+    //         if (resultado) {
+    //             setLoading(false);
+    //         }
+    //         else {
+    //             Swal.fire({
+    //                 icon: "error",
+    //                 title: "Error",
+    //                 text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
+    //         }
+    //     }
+    // };
 
     useEffect(() => {
         if (token) {
-            listaCuentaFechasAuto();
+            // listaCuentaFechasAuto();
             if (comboCuentasInforme.length === 0) { comboCuentasInformeActions() }
         }
     }, [listaCuentaFechasActions, comboCuentasInformeActions, token, listaCuentaFechas.length, comboCuentasInforme.length]); // Asegúrate de incluir dependencias relevantes
@@ -145,6 +145,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
     const handleCuentasChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : "";
         setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
+        console.log(value);
     }
 
     const handleBuscar = async () => {
@@ -556,7 +557,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                         </Col>
                         <Col md={5}>
                             <div className="mb-1 mt-4">
-                                <Button onClick={handleBuscar} disabled={loading == true}
+                                <Button onClick={handleBuscar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
                                     className="mx-1 mb-1">
                                     {loading ? (

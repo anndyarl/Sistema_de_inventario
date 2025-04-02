@@ -25,12 +25,14 @@ import {
   setEspecieActions,
   setOtraModalidadActions,
   showInputActions,
-  setOtroProveedorActions
+  setOtroProveedorActions,
+  setInventarioRegistrado
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
+import { listaInventarioRegistradoActions } from "../../../redux/actions/Inventario/RegistrarInventario/listaInventarioRegistradoActions";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: string;
@@ -73,8 +75,10 @@ interface DatosInventarioProps extends InventarioProps {
   comboProveedor: PROVEEDOR[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
+  listaInventarioRegistradoActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   objeto: Objeto;
+  resultadoRegistro?: number;
 }
 
 //Paso 1 del Formulario
@@ -100,7 +104,9 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   datosTablaActivoFijo,
   isDarkMode,
   objeto,
+  resultadoRegistro,
   obtenerRecepcionActions,
+  listaInventarioRegistradoActions
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
     fechaFactura: "",
@@ -256,9 +262,23 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       }
     }
   };
+  const resumenRegistro = async () => {
+    if (resultadoRegistro) {
+      //Si me trae la lista correctamente luego se actualiza el estado a 0 para disponerlo solo una vez
+      // setModaMostrarResumen(true); //Muestra modal con el resumen del registro reciente
+      dispatch(setInventarioRegistrado(0));
+    }
+  }
+
+  //Carga ultimo registro del inventario como resumen, si es 1 muestra(valor guardado desde DatosActivoFijo)
+  useEffect(() => {
+    resumenRegistro();
+  }), [listaInventarioRegistradoActions, resultadoRegistro];
 
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
+    //traigo el estado de registro, si es verdadero va al metodo para listar el ultimo registo    
+
     setInventario({
       fechaFactura,
       fechaRecepcion,
@@ -693,9 +713,11 @@ const mapStateToProps = (state: RootState) => ({
   rutProveedor: state.obtenerRecepcionReducers.rutProveedor,
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  objeto: state.validaApiLoginReducers
+  objeto: state.validaApiLoginReducers,
+  resultadoRegistro: state.datosActivoFijoReducers.resultadoRegistro,
 });
 
 export default connect(mapStateToProps, {
   obtenerRecepcionActions,
+  listaInventarioRegistradoActions
 })(DatosInventario);
