@@ -603,7 +603,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             funcionObtieneMaxRegistro();
             dispatch(setNRecepcionActions(0));
             dispatch(setFechaRecepcionActions(""));
-            dispatch(setNOrdenCompraActions(0));
+            dispatch(setNOrdenCompraActions(""));
             dispatch(setNFacturaActions(""));
             dispatch(setOrigenPresupuestoActions(0));
             dispatch(setMontoRecepcionActions(0));

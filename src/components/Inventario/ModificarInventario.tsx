@@ -229,8 +229,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (!Inventario.AF_FECHAFAC) tempErrors.AF_FECHAFAC = "Campo obligatorio";
     if (!Inventario.PROV_RUN || Inventario.PROV_RUN === 0) tempErrors.PROV_RUN = "Campo obligatorio";
     if (!Inventario.IDMODALIDADCOMPRA) tempErrors.IDMODALIDADCOMPRA = "Campo obligatorio.";
-    if (!Inventario.idprograma) tempErrors.idprograma = "Campo obligatorio";
-    if (!Inventario.DEP_CORR) tempErrors.DEP_CORR = "Campo obligatorio";
+    // if (!Inventario.idprograma) tempErrors.idprograma = "Campo obligatorio";
+    // if (!Inventario.DEP_CORR) tempErrors.DEP_CORR = "Campo obligatorio";
     if (!Inventario.CTA_COD || Inventario.CTA_COD === "") tempErrors.CTA_COD = "Campo obligatorio";
     if (!Inventario.ESP_CODIGO) tempErrors.ESP_CODIGO = "Campo obligatorio";
     setError(tempErrors);

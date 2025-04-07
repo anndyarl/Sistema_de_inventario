@@ -25,7 +25,7 @@ interface obtenerRecepcionState {
     }>;
     nRecepcion: number;
     fechaRecepcion: string;
-    nOrdenCompra: number;
+    nOrdenCompra: string;
     nFactura: string;
     origenPresupuesto: number;
     montoRecepcion: number;
@@ -50,7 +50,7 @@ const initialState: obtenerRecepcionState = {
     recepciones: [],
     nRecepcion: 0,
     fechaRecepcion: '',
-    nOrdenCompra: 0,
+    nOrdenCompra: '',
     nFactura: '',
     origenPresupuesto: 0,
     montoRecepcion: 0,

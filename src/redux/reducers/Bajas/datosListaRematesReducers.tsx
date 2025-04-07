@@ -8,19 +8,31 @@ import {
 // Define el tipo para el estado inicial
 interface DatosBajasState {
   listaRemates: Array<{
-    aF_CLAVE: string;
-    bajaS_CORR: string;
+    boD_CORR: number;
+    aF_CLAVE: number;
+    bajaS_CORR: number;
     especie: string;
     vutiL_RESTANTE: number;
     vutiL_AGNOS: number;
-    nresolucion: string;
+    nresolucion: number;
     observaciones: string;
     deP_ACUMULADA: number;
     ncuenta: string;
     estado: number;
-    fechA_REMATES: string;
-    reM_CORR: string;
-    boD_CORR: string;
+    fechA_INGRESO: string;
+    // aF_CLAVE: string;
+    // bajaS_CORR: string;
+    // especie: string;
+    // vutiL_RESTANTE: number;
+    // vutiL_AGNOS: number;
+    // nresolucion: string;
+    // observaciones: string;
+    // deP_ACUMULADA: number;
+    // ncuenta: string;
+    // estado: number;
+    // fechA_REMATES: string;
+    // reM_CORR: string;
+    // boD_CORR: string;
   }>;
 }
 // Estado inicial tipado

@@ -11,17 +11,29 @@ import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerLis
 import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
 import { Helmet } from "react-helmet-async";
 export interface ListaRemates {
-  aF_CLAVE: string;
-  bajaS_CORR: string;
+  boD_CORR: number;
+  aF_CLAVE: number;
+  bajaS_CORR: number;
   especie: string;
   vutiL_RESTANTE: number;
   vutiL_AGNOS: number;
-  nresolucion: string;
+  nresolucion: number;
   observaciones: string;
   deP_ACUMULADA: number;
   ncuenta: string;
   estado: number;
-  fechA_REMATES: string;
+  fechA_INGRESO: string;
+  // aF_CLAVE: string;
+  // bajaS_CORR: string;
+  // especie: string;
+  // vutiL_RESTANTE: number;
+  // vutiL_AGNOS: number;
+  // nresolucion: string;
+  // observaciones: string;
+  // deP_ACUMULADA: number;
+  // ncuenta: string;
+  // estado: number;
+  // fechA_REMATES: string;
 }
 
 
@@ -202,7 +214,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
           deP_ACUMULADA: listaRemates[activo].deP_ACUMULADA,
           ncuenta: listaRemates[activo].ncuenta,
           estado: listaRemates[activo].estado,
-          fechA_REMATES: listaRemates[activo].fechA_REMATES,
+          // fechA_REMATES: listaRemates[activo].fechA_REMATES,
 
         }));
         console.log(Formulario);
@@ -301,25 +313,25 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
-                  <th >
+                  {/* <th >
                     <Form.Check
                       className="check-danger"
                       type="checkbox"
                       onChange={handleSeleccionaTodos}
                       checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
                     />
-                  </th>
-                  <th scope="col" className="text-nowrap text-center">Nª Certificado</th>
-                  <th scope="col" className="text-nowrap text-center">Codigo</th>
+                  </th> */}
+                  <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                  <th scope="col" className="text-nowrap text-center">Código Baja</th>
                   <th scope="col" className="text-nowrap text-center">Especie</th>
-                  <th scope="col" className="text-nowrap text-center">Vida UtiL Restante</th>
-                  <th scope="col" className="text-nowrap text-center">Vida Util en Años</th>
-                  <th scope="col" className="text-nowrap text-center">Nº Resolucion</th>
+                  <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
+                  <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                  <th scope="col" className="text-nowrap text-center">Depreciacion Acumulada</th>
+                  <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
                   <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha de Remate</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
                 </tr>
               </thead>
               <tbody>
@@ -327,13 +339,14 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                   const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                   return (
                     <tr key={indexReal}>
-                      <td>
+                      {/* <td>
                         <Form.Check
                           type="checkbox"
                           onChange={() => setSeleccionaFila(index)}
                           checked={filaSeleccionada.includes(indexReal.toString())}
                         />
-                      </td>
+                      </td> */}
+                      {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
                       <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
                       <td className="text-nowrap text-center">{Lista.bajaS_CORR}</td>
                       <td className="text-nowrap text-center">{Lista.especie}</td>
@@ -344,7 +357,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                       <td className="text-nowrap text-center">{Lista.deP_ACUMULADA}</td>
                       <td className="text-nowrap text-center">{Lista.ncuenta}</td>
                       <td className="text-nowrap text-center">{Lista.estado}</td>
-                      <td className="text-nowrap text-center">{Lista.fechA_REMATES}</td>
+                      <td className="text-nowrap text-center">{Lista.fechA_INGRESO}</td>
+
                     </tr>
                   );
                 })}

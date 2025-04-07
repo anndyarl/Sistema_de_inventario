@@ -8,7 +8,7 @@ export const setFechaRecepcionActions = (fechaRecepcion: string) => ({
   type: 'SET_FECHA_RECEPCION',
   payload: fechaRecepcion,
 });
-export const setNOrdenCompraActions = (nOrdenCompra: number) => ({
+export const setNOrdenCompraActions = (nOrdenCompra: string) => ({
   type: 'SET_N_ORDEN_COMPRA',
   payload: nOrdenCompra,
 });

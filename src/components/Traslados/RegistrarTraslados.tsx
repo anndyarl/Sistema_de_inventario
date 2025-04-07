@@ -1,11 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
 import { Row, Col, Collapse } from "react-bootstrap";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
 import { CaretDown, CaretUpFill } from "react-bootstrap-icons";
-
 import "../../styles/Traslados.css"
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
@@ -45,7 +44,7 @@ interface BusquedaProps {
 }
 
 interface UbicacionDestino {
-  servicioDestino: number;
+  traS_DET_CORR: number;
   dependenciaDestino: number; //deP_CORR
   enComododato: string;
   traS_CO_REAL: number; //traspasoReal
@@ -106,7 +105,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
     modelo: "",
     serie: "",
     servicioOrigen: 0,
-    servicioDestino: 0,
+    traS_DET_CORR: 0,
     traS_NOM_ENTREGA: "",
     traS_NOM_RECIBE: "",
     traS_NOM_AUTORIZA: "",
@@ -118,7 +117,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
     let tempErrors: Partial<any> & {} = {};
     if (!Traslados.servicioOrigen) tempErrors.servicioOrigen = "Campo obligatorio.";
     if (!Traslados.deP_CORR_ORIGEN) tempErrors.deP_CORR_ORIGEN = "Campo obligatorio.";
-    if (!Traslados.servicioDestino) tempErrors.servicioDestino = "Campo obligatorio.";
+    if (!Traslados.traS_DET_CORR) tempErrors.traS_DET_CORR = "Campo obligatorio.";
     if (!Traslados.deP_CORR) tempErrors.deP_CORR = "Campo obligatorio.";
     if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
     if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
@@ -155,7 +154,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
     if (name === "servicioOrigen") {
       comboDependenciaOrigenActions(value);
     }
-    if (name === "servicioDestino") {
+    if (name === "traS_DET_CORR") {
       comboDependenciaDestinoActions(value);
     }
 
@@ -204,6 +203,26 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
               customClass: { popup: "custom-border" }
             });
 
+            setTraslados((prevTraslados) => ({
+              ...prevTraslados,
+              aF_CLAVE: 0, //nInventario
+              deP_CORR_ORIGEN: 0,//deP_CORR_ORIGEN
+              deP_CORR: 0, //deP_CORR
+              traS_MEMO_REF: "",
+              traS_FECHA_MEMO: "",
+              traS_OBS: "",
+              marca: "",
+              modelo: "",
+              serie: "",
+              servicioOrigen: 0,
+              traS_DET_CORR: 0,
+              traS_NOM_ENTREGA: "",
+              traS_NOM_RECIBE: "",
+              traS_NOM_AUTORIZA: "",
+              n_TRASLADO: 0,
+              especie: 0,
+            }));
+
           } else {
             Swal.fire({
               icon: "error",
@@ -245,7 +264,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
           <div className="mb-3 border p-1 rounded-4">
             <div
               className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
-              <h5 className="fw-semibold">Parámetros de Búsqueda</h5>
+              <h5 className="fw-semibold">PARÁMETROS DE BÙSQUEDA</h5>
               {isExpanded.fila1 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -424,7 +443,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
           {/* Fila 2 */}
           <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
             <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
-              <h5 className="fw-semibold">Seleccione ubicación de destino</h5>
+              <h5 className="fw-semibold">SELECCIONE UBICACIÓN DE DESTINO</h5>
               {isExpanded.fila2 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -437,13 +456,13 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                   <Col>
                     {/* Servicio */}
                     <div className="mb-1">
-                      <label htmlFor="servicioDestino" className="fw-semibold fw-semibold">Servicio Destino</label>
+                      <label htmlFor="traS_DET_CORR" className="fw-semibold fw-semibold">Servicio Destino</label>
                       <select
-                        aria-label="servicioDestino"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicioDestino ? "is-invalid" : ""}`}
-                        name="servicioDestino"
+                        aria-label="traS_DET_CORR"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_DET_CORR ? "is-invalid" : ""}`}
+                        name="traS_DET_CORR"
                         onChange={handleChange}
-                        value={Traslados.servicioDestino || 0}
+                        value={Traslados.traS_DET_CORR || 0}
                       >
                         <option value="">Seleccionar</option>
                         {comboTrasladoServicio.map((traeServicio) => (
@@ -455,9 +474,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                           </option>
                         ))}
                       </select>
-                      {error.servicioDestino && (
+                      {error.traS_DET_CORR && (
                         <div className="invalid-feedback fw-semibold d-block">
-                          {error.servicioDestino}
+                          {error.traS_DET_CORR}
                         </div>
                       )}
                     </div>
@@ -468,7 +487,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                         aria-label="deP_CORR"
                         className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependenciaDestino ? "is-invalid" : ""}`}
                         name="deP_CORR"
-                        disabled={!Traslados.servicioDestino}
+                        disabled={!Traslados.traS_DET_CORR}
                         onChange={handleChange}
                         value={Traslados.deP_CORR || 0}
                       >
@@ -587,7 +606,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
           {/* Fila 3 */}
           <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
             <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila3")}>
-              <h5 className="fw-semibold">Datos de recepción</h5>
+              <h5 className="fw-semibold">DATOS DE RECEPCIÓN</h5>
               {isExpanded.fila3 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -597,7 +616,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
             <Collapse in={isExpanded.fila3}>
               <div className="border-top">
                 <Row className="p-1">
-                  <Col>
+                  <Col md={4}>
                     {/* Entregado Por */}
                     <div className="mb-1">
                       <label className="fw-semibold">
@@ -657,17 +676,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                       )}
                     </div>
                   </Col>
-                  <Col>
-                    {/* N° de Traslado */}
-                    <div className="mb-1">
+                  {/* <Col> */}
+                  {/* N° de Traslado */}
+                  {/* <div className="mb-1">
                       <label className="fw-semibold">
                         N° de Traslado
                       </label>
                       <p className={`${isDarkMode ? "text-light" : "text-dark"}`}>
                         {Traslados.n_TRASLADO}
                       </p>
-                    </div>
-                  </Col>
+                    </div> */}
+                  {/* </Col> */}
                 </Row>
               </div>
             </Collapse>

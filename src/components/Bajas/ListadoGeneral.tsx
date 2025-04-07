@@ -12,6 +12,7 @@ import { registrarBienesBajasActions } from "../../redux/actions/Bajas/registrar
 import { ListaBajas } from "./BienesBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
+import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
 
 export interface ListadoGeneralBajas {
   aF_CLAVE: number;
@@ -63,6 +64,7 @@ export interface ListadoGeneralBajas {
 interface DatosBajas {
   listadoGeneralBajas: ListadoGeneralBajas[];
   listadoGeneralBajasActions: () => Promise<boolean>;
+  obtenerListaExcluidosActions: (aF_CLAVE: string) => Promise<boolean>;
   registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -70,7 +72,7 @@ interface DatosBajas {
   nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto, nPaginacion }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obtenerListaExcluidosActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
@@ -128,7 +130,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     // Convierte `value` a número
-    let newValue: string | number = ["nresolucion"].includes(name)
+    let newValue: string | number = ["nresolucion", "aF_CLAVE"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -203,6 +205,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
 
           setLoadingRegistro(false);
           listadoGeneralBajasActions();
+          obtenerListaExcluidosActions("");
           setFilaSeleccionada([]);
           elementosActuales.map((_, index) => (
             handleCerrarModal(index)
@@ -481,7 +484,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                         </>
                       ) : (
                         <>
-                          Enviar a Bajas
+                          Enviar a Bodega de Excluidos
                         </>
                       )}
                     </Button>
@@ -562,5 +565,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   listadoGeneralBajasActions,
+  obtenerListaExcluidosActions,
   registrarBienesBajasActions
 })(ListadoGeneral);

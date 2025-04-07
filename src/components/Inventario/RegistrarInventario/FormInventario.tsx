@@ -62,6 +62,7 @@ interface FormInventarioProps {
 
   token: string | null;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
+
 }
 
 const FormInventario: React.FC<FormInventarioProps> = ({

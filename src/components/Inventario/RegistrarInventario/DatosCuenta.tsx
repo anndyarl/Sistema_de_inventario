@@ -53,7 +53,7 @@ export interface CuentaProps {
   cuenta: number;
   dependencia: number;
   especie: string;
-  bien: number
+  // bien: number;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -94,7 +94,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   cuenta,
   dependencia,
   especie,
-  bien,
+  // bien,
   // detalles,
   descripcionEspecie,
   isDarkMode,
@@ -108,8 +108,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     servicio: 0,
     cuenta: 0,
     dependencia: 0,
-    especie: "",
-    bien: 0
+    especie: ""
   });
 
   const [Especies, setEspecies] = useState({
@@ -179,10 +178,9 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       servicio,
       cuenta,
       dependencia,
-      especie,
-      bien
+      especie
     });
-  }, [servicio, cuenta, dependencia, especie, bien]);
+  }, [servicio, cuenta, dependencia, especie]);
 
   //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
   // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
@@ -412,7 +410,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                       name="detalles"
                       className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       onChange={handleChange}
-                      disabled={!Cuenta.bien}
+                    // disabled={!Cuenta.bien}
                     >
                       <option value="">Selecciona una opción</option>
                       {comboDetalle.map((traeDetalles) => (

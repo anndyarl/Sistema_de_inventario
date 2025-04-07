@@ -23,19 +23,23 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         { name: 'Carga Masiva', path: '/Inventario/CargaMasiva' },
         { name: 'Traslados', path: '/Traslados' },
         { name: 'Registrar Traslados', path: '/Traslados/RegistrarTraslados' },
+        { name: 'Lista Traslados', path: '/Traslados/ListadoTraslados' },
         { name: 'Altas', path: '/Altas' },
-        { name: 'Firmar Altas', path: '/Altas/FirmarAltas' },
         { name: 'Registrar Altas', path: '/Altas/RegistrarAltas' },
         { name: 'Anular Altas', path: '/Altas/AnularAltas' },
         { name: 'Imprimir Etiqueta', path: '/Altas/ImprimirEtiqueta', keywords: ['qr', 'Etiquetas', 'Imprimir', 'generar'] },
+        { name: 'Firmar Altas', path: '/Altas/FirmarAltas' },
         { name: 'Bajas', path: '/Bajas' },
         { name: 'Listado General', path: '/Bajas/ListadoGeneral' },
-        { name: 'Registrar Bajas', path: '/Bajas/RegistrarBajas' },
+        // { name: 'Registrar Bajas', path: '/Bajas/RegistrarBajas' },
         { name: 'Bodega de exluidos', path: '/Bajas/BodegaExcluidos' },
         { name: 'Bienes Rematados', path: '/Bajas/BienesRematados' },
-        { name: 'Donaciones', path: '/Donaciones' },
-        { name: 'Informes', path: '/Informes' }
-
+        // { name: 'Donaciones', path: '/Donaciones' },
+        { name: 'Informes', path: '/Informes' },
+        { name: 'Cuentas Fechas', path: '/Informes/Listados/CuentaFechas' },
+        { name: 'Folio Por Servicio Dependencia', path: '/Informes/FolioPorServicioDependencia' },
+        { name: 'Consulta Inventario Especies', path: '/Informes/ConsultaInventarioEspecies' },
+        { name: 'Calcular Depreciacion', path: '/Informes/CalcularDepreciacion' }
     ];
 
     // Filtra las rutas basadas en la búsqueda

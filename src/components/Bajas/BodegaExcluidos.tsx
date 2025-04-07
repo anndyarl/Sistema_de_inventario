@@ -10,32 +10,50 @@ import MenuBajas from "../Menus/MenuBajas.tsx";
 import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions.tsx";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
 import { Helmet } from "react-helmet-async";
+import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
+import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/quitarBodegaExcluidosActions.tsx";
 
 export interface ListaExcluidos {
-  aF_CLAVE: string;
-  bajaS_CORR: string;
-  especie: string;
-  vutiL_RESTANTE: number;
-  vutiL_AGNOS: number;
   nresolucion: string;
   observaciones: string;
-  deP_ACUMULADA: number;
+  useR_MOD: number;
+  bajaS_CORR: number;
+  aF_CLAVE: string;
+  fechA_BAJA: string;
+  especie: string;
   ncuenta: string;
+  vutiL_AGNOS: number;
+  vutiL_RESTANTE: number;
+  deP_ACUMULADA: number;
+  iniciaL_VALOR: number;
+  saldO_VALOR: number;
   estado: number;
-  fechA_REMATES: string;
+  // aF_CLAVE: string;
+  // bajaS_CORR: string;
+  // especie: string;
+  // vutiL_RESTANTE: number;
+  // vutiL_AGNOS: number;
+  // nresolucion: string;
+  // observaciones: string;
+  // deP_ACUMULADA: number;
+  // ncuenta: string;
+  // estado: number;
+  // fechA_REMATES: string;
 }
 
 
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
   obtenerListaExcluidosActions: (aF_CLAVE: string) => Promise<boolean>;
+  obtenerListaRematesActions: (aF_CLAVE: string) => Promise<boolean>;
+  quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, obtenerListaRematesActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos>>({});
@@ -90,7 +108,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     // Convierte `value` a número
-    let newValue: string | number = ["nresolucion"].includes(name)
+    let newValue: string | number = [""].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
     setExcluidos((prevState) => ({
@@ -98,9 +116,9 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
       [name]: newValue,
     }));
 
-    if (name === "nresolucion") {
-      newValue = parseFloat(value) || 0;
-    }
+    // if (name === "nresolucion") {
+    //   newValue = parseFloat(value) || 0;
+    // }
   };
 
   //Funcion para seleccion multiple
@@ -185,7 +203,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
         deP_ACUMULADA: listaExcluidos[activo].deP_ACUMULADA,
         ncuenta: listaExcluidos[activo].ncuenta,
         estado: listaExcluidos[activo].estado,
-        fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
+        // fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
 
       }));
       // console.log(Formulario);
@@ -205,6 +223,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
 
         setLoadingRegistro(false);
         obtenerListaExcluidosActions("");
+        obtenerListaRematesActions("");
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -263,63 +282,54 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
       if (result.isConfirmed) {
         setLoadingRegistro(true); //Inicia spin de carga
         // Crear un array de objetos con aF_CLAVE y nombre
-        const Quitar = selectedIndices.map((activo) => ({
+        const Formulario = selectedIndices.map((activo) => ({
           aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
-          bajaS_CORR: listaExcluidos[activo].bajaS_CORR,
-          especie: listaExcluidos[activo].especie,
-          vutiL_RESTANTE: listaExcluidos[activo].vutiL_RESTANTE,
-          vutiL_AGNOS: listaExcluidos[activo].vutiL_AGNOS,
-          ...Excluidos,
-          observaciones: listaExcluidos[activo].observaciones,
-          deP_ACUMULADA: listaExcluidos[activo].deP_ACUMULADA,
-          ncuenta: listaExcluidos[activo].ncuenta,
-          estado: listaExcluidos[activo].estado,
-          fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
+          ...Excluidos
         }));
-        console.log("Se debe crear metodo para quitar estos", Quitar);
-        // const resultado = await excluirBajasActions(Quitar);
+        // console.log(Formulario);
+        const resultado = await quitarBodegaExcluidosActions(Formulario);
 
-        // if (resultado) {
-        //   Swal.fire({
-        //     icon: "success",
-        //     title: "Bien quitado",
-        //     text: "Se han quitado correctamente de Bodega de excluidos",
-        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        //     customClass: {
-        //       popup: "custom-border", // Clase personalizada para el borde
-        //     }
-        //   });
+        if (resultado) {
+          Swal.fire({
+            icon: "success",
+            title: "Quitado correctamente",
+            text: "Se han quitado correctamente de Bodega de excluidos",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
 
-        //   setLoadingRegistro(false);//termina de cargar
-        //   obtenerListaExcluidosActions(""); //Obtiene nuevamente la tabla con sus datos actualizados
-        //   setFilasSeleccionadas([]); //deselecciona las filas     
-        //   setExcluidos((prevState) => ({
-        //     ...prevState,
-        //     nresolucion: 0,
-        //   }));
-        //   setMostrarModal(null);
-        // } else {
-        //   Swal.fire({
-        //     icon: "error",
-        //     title: ":'(",
-        //     text: "Hubo un problema al registrar",
-        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        //     customClass: {
-        //       popup: "custom-border", // Clase personalizada para el borde
-        //     }
-        //   });
-        //   setLoadingRegistro(false);//termina de cargar
-        // }
+          setLoadingRegistro(false);//termina de cargar
+          obtenerListaExcluidosActions(""); //Obtiene nuevamente la tabla con sus datos actualizados
+          setFilasSeleccionadas([]); //deselecciona las filas     
+          setExcluidos((prevState) => ({
+            ...prevState,
+            nresolucion: 0,
+          }));
+          setMostrarModal(null);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: ":'(",
+            text: "Hubo un problema al registrar",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+          setLoadingRegistro(false);//termina de cargar
+        }
       }
     }
 
   };
 
-  // const handleAnular = async (index: number, aF_CLAVE: string) => {
+
   //   setFilasSeleccionadas((prev) => prev.filter((_, i) => i !== index));
 
   //   const result = await Swal.fire({
@@ -493,17 +503,20 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Nª Inventario</th>
-                    <th scope="col" className="text-nowrap text-center">Codigo</th>
-                    <th scope="col" className="text-nowrap text-center">Especie</th>
-                    <th scope="col" className="text-nowrap text-center">Vida UtiL Restante</th>
-                    <th scope="col" className="text-nowrap text-center">Vida Util en Años</th>
+                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                     <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                    <th scope="col" className="text-nowrap text-center">Depreciacion Acumulada</th>
-                    <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
-                    <th scope="col" className="text-nowrap text-center">Estado</th>
+                    <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
+                    <th scope="col" className="text-nowrap text-center">Código Baja</th>
                     <th scope="col" className="text-nowrap text-center">Fecha de Baja</th>
+                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                    <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
+                    <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
+                    <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
+                    <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
+                    <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
+                    <th scope="col" className="text-nowrap text-center">Saldo Valor</th>
+                    <th scope="col" className="text-nowrap text-center">Estado</th>
                     <th scope="col" className="text-nowrap text-center">Acción</th>
                   </tr>
                 </thead>
@@ -520,16 +533,19 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, e
                           />
                         </td>
                         <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
-                        <td className="text-nowrap text-center">{Lista.bajaS_CORR}</td>
-                        <td className="text-nowrap text-center">{Lista.especie}</td>
-                        <td className="text-nowrap text-center">{Lista.vutiL_RESTANTE}</td>
-                        <td className="text-nowrap text-center">{Lista.vutiL_AGNOS}</td>
                         <td className="text-nowrap text-center">{Lista.nresolucion}</td>
                         <td className="text-nowrap text-center">{Lista.observaciones}</td>
-                        <td className="text-nowrap text-center">{Lista.deP_ACUMULADA}</td>
+                        <td className="text-nowrap text-center">{Lista.useR_MOD}</td>
+                        <td className="text-nowrap text-center">{Lista.bajaS_CORR}</td>
+                        <td className="text-nowrap text-center">{Lista.fechA_BAJA}</td>
+                        <td className="text-nowrap text-center">{Lista.especie}</td>
                         <td className="text-nowrap text-center">{Lista.ncuenta}</td>
+                        <td className="text-nowrap text-center">{Lista.vutiL_AGNOS}</td>
+                        <td className="text-nowrap text-center">{Lista.vutiL_RESTANTE}</td>
+                        <td className="text-nowrap text-center">{Lista.deP_ACUMULADA}</td>
+                        <td className="text-nowrap text-center">{Lista.iniciaL_VALOR}</td>
+                        <td className="text-nowrap text-center">{Lista.saldO_VALOR}</td>
                         <td className="text-nowrap text-center">{Lista.estado}</td>
-                        <td className="text-nowrap text-center">{Lista.fechA_REMATES}</td>
                         <td>
                           <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAbrirModal(index)}>
                             Quitar
@@ -661,4 +677,6 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   excluirBajasActions,
   obtenerListaExcluidosActions,
+  obtenerListaRematesActions,
+  quitarBodegaExcluidosActions
 })(BienesExcluidos);

@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Col, Modal, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Modal, Row } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
@@ -32,7 +32,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Eraser } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
 import { DEPENDENCIA, SERVICIO } from "./DatosCuenta";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
@@ -58,7 +58,7 @@ export interface InventarioProps {
   fechaRecepcion: string;
   montoRecepcion: number;
   nFactura: string;
-  nOrdenCompra: number;
+  nOrdenCompra: string;
   nRecepcion: number;
   origenPresupuesto: number;
   rutProveedor: string;
@@ -76,7 +76,7 @@ interface FormulariosCombinados {
   otraModalidadR: number | null;
   montoRecepcionR: number;
   nFacturaR: string;
-  nOrdenCompraR: number;
+  nOrdenCompraR: string;
   nRecepcionR: number;
   origenPresupuestoR: number;
   rutProveedorR: number;
@@ -158,7 +158,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     modalidadDeCompra: 0,
     montoRecepcion: 0,
     nFactura: "",
-    nOrdenCompra: 0,
+    nOrdenCompra: "",
     nRecepcion: 0,
     origenPresupuesto: 0,
     rutProveedor: "",
@@ -210,7 +210,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     const { name, value } = e.target;
 
     // Convierte `value` a número
-    let newValue: string | number = ["montoRecepcion", "nOrdenCompra", "nRecepcion"].includes(name)
+    let newValue: string | number = ["montoRecepcion", "nRecepcion"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -227,8 +227,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     } else if (name === "nFactura") {
       dispatch(setNFacturaActions(newValue as string));
     } else if (name === "nOrdenCompra") {
-      newValue = parseFloat(value) || 0;
-      dispatch(setNOrdenCompraActions(newValue as number)); // Convertido a número
+      dispatch(setNOrdenCompraActions(newValue as string));
     } else if (name === "nRecepcion") {
       dispatch(setNRecepcionActions(newValue as number)); // Convertido a número
     } else if (name === "origenPresupuesto") {
@@ -428,7 +427,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             modalidadDeCompra: 0,
             montoRecepcion: 0,
             nFactura: "",
-            nOrdenCompra: 0,
+            nOrdenCompra: "",
             nRecepcion: 0,
             nombreProveedor: "",
             origenPresupuesto: 0,
@@ -436,7 +435,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           }));
           dispatch(setNRecepcionActions(0));
           dispatch(setFechaRecepcionActions(""));
-          dispatch(setNOrdenCompraActions(0));
+          dispatch(setNOrdenCompraActions(""));
           dispatch(setNFacturaActions(""));
           dispatch(setOrigenPresupuestoActions(0));
           dispatch(setMontoRecepcionActions(0));
@@ -502,7 +501,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                     onChange={handleChange}
                     value={Inventario.nRecepcion}
                   />
-                  <Button
+                  {/* <Button
                     onClick={handleRecepcionSubmit}
                     variant="primary"
                     className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}
@@ -521,7 +520,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                         aria-hidden="true"
                       />
                     )}
-                  </Button>
+                  </Button> */}
                   <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
                     <Eraser
                       className={classNames("flex-shrink-0", "h-5 w-5")}
@@ -910,7 +909,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
         <Modal.Footer></Modal.Footer>
       </Modal>
-
     </>
   );
 };

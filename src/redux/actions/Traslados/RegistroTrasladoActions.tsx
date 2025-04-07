@@ -30,12 +30,19 @@ export const registroTrasladoActions = (FormularioTraslado: Record<string, any>)
 
             // Si el POST es exitoso
             if (response.status === 200) {
-                if (response.data.lenght > 0) {
+                if (response.data === 1) {
                     dispatch({
                         type: POST_FORMULARIO_TRASLADO_SUCCESS,
                         payload: response.data
                     });
                     return true;
+                }
+                else {
+                    dispatch({
+                        type: POST_FORMULARIO_TRASLADO_FAIL,
+                        payload: response.data
+                    });
+                    return false;
                 }
             }
         } catch (error: any) {

@@ -15,7 +15,7 @@ interface DatosBajasState {
   otraModalidadR: number | null;
   montoRecepcionR: number;
   nFacturaR: string;
-  nOrdenCompraR: number;
+  nOrdenCompraR: string;
   nRecepcionR: number;
   origenPresupuestoR: number;
   rutProveedorR: number;
@@ -51,7 +51,7 @@ const initialState: DatosBajasState = {
   otraModalidadR: 0,
   montoRecepcionR: 0,
   nFacturaR: '',
-  nOrdenCompraR: 0,
+  nOrdenCompraR: '',
   nRecepcionR: 0,
   origenPresupuestoR: 0,
   rutProveedorR: 0,
