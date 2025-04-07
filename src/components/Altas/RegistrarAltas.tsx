@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Form } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form, Row, Col } from "react-bootstrap";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -11,7 +11,8 @@ import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { listaAltasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasActions.tsx";
+import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
+import { Eraser, Search } from "react-bootstrap-icons";
 
 export interface ListaAltas {
   aF_CLAVE: number,
@@ -23,20 +24,22 @@ export interface ListaAltas {
   marca: string,
   modelo: string,
   serie: string,
+  estado: string,
   precio: string,
   mrecepcion: string
 }
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: (establ_corr: number) => Promise<boolean>;
+  listaAltasActions: (af_clave: number, establ_corr: number) => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
   nPaginacion: number; //número de paginas establecido desde preferencias
+  altaS_CORR: number;
 }
 
-const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltas, objeto, token, isDarkMode, nPaginacion }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltas, objeto, token, isDarkMode, nPaginacion, altaS_CORR, }) => {
   // const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
 
@@ -46,12 +49,16 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = nPaginacion;
 
+  const [Inventario, setInventario] = useState({
+    aF_CLAVE: 0,
+  });
   useEffect(() => {
+    altaS_CORR
     const listaAltasAuto = async () => {
       if (token) {
         if (listaAltas.length === 0) {
           setLoading(true);
-          const resultado = await listaAltasActions(objeto.Establecimiento);
+          const resultado = await listaAltasActions(0, objeto.Establecimiento);
           if (resultado) {
             setLoading(false);
           }
@@ -72,72 +79,40 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       }
     };
     listaAltasAuto();
-  }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
+  }, [listaAltasActions, token, listaAltas.length, altaS_CORR]); // Asegúrate de incluir dependencias relevantes
 
-  // const validate = () => {
-  //   let tempErrors: Partial<any> & {} = {};
-  //   // Validación para N° de Recepción (debe ser un número)
-  //   if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-  //   if (!Inventario.fechaTermino) tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-  //   if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha de inicio es mayor a la fecha de término";
-  //   // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    let newValue: string | number = [
+      "aF_CLAVE"
 
+    ].includes(name)
+      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+      : value;
 
-  //   setError(tempErrors);
-  //   return Object.keys(tempErrors).length === 0;
-  // };
-  // const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   let newValue: string | number = [
-  //     "aF_CLAVE"
+    setInventario((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
 
-  //   ].includes(name)
-  //     ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-  //     : value;
+  };
 
-  //   setInventario((prevState) => ({
-  //     ...prevState,
-  //     [name]: newValue,
-  //   }));
+  const handleBuscar = async () => {
+    setLoading(true);
+    const resultado = await listaAltasActions(Inventario.aF_CLAVE, objeto.Establecimiento);
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: "No se encontraron resultados para la busqueda",
+        confirmButtonText: "Ok",
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      setLoading(false); //Finaliza estado de carga
+    }
 
-  //   setInventario((prevState) => ({
-  //     ...prevState,
-  //     [name]: value,
-  //   }));
-  // };
-
-  // const handleBuscarAltas = async () => {
-  //   let resultado = false;
-
-  //   setLoading(true);
-  //   if (Inventario.aF_CLAVE != 0) {
-  //     resultado = await obtenerAltasPorCorrActions(Inventario.aF_CLAVE);
-  //   }
-  //   if (Inventario.fechaInicio != "" && Inventario.fechaTermino != "") {
-  //     if (validate()) {
-  //       resultado = await obtenerListaAltasActions(Inventario.fechaInicio, Inventario.fechaTermino);
-  //     }
-  //   }
-  //   setInventario((prevState) => ({
-  //     ...prevState,
-  //     aF_CLAVE: 0,
-  //     fechaInicio: "",
-  //     fechaTermino: ""
-  //   }));
-  //   setError({});
-  //   if (!resultado) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "No se encontraron resultados para la busqueda",
-  //       confirmButtonText: "Ok",
-  //     });
-  //     setLoading(false); //Finaliza estado de carga
-  //     return;
-  //   } else {
-  //     setLoading(false); //Finaliza estado de carga
-  //   }
-
-  // };
+  };
 
   // const handleRegistrar = async (index: number, aF_CLAVE: number) => {
   //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
@@ -170,14 +145,12 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   //   }
   // };
 
-  // const handleLimpiar = () => {
-  //   setInventario((prevInventario) => ({
-  //     ...prevInventario,
-  //     fechaInicio: "",
-  //     fechaTermino: "",
-  //   }));
-  // };
-
+  const handleLimpiar = () => {
+    setInventario((prevInventario) => ({
+      ...prevInventario,
+      aF_CLAVE: 0
+    }));
+  };
 
   const setSeleccionaFilas = (index: number) => {
     const indexReal = indicePrimerElemento + index;
@@ -207,7 +180,9 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
-        aF_CLAVE: listaAltas[index].aF_CLAVE
+        aF_CLAVE: listaAltas[index].aF_CLAVE,
+        USUARIO_MOD: objeto.IdCredencial,
+        ESTABL_CORR: objeto.Establecimiento,
       };
 
     });
@@ -232,20 +207,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       setLoadingRegistro(true);
       // const elemento = listaAltas[index].aF_CLAVE;
       // console.log("despues del confirm elemento", elemento);
-
       // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);      
       // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
       // Crear un array de objetos con aF_CLAVE y nombre
-
-
       // console.log("Activos seleccionados para registrar:", activosSeleccionados);
-
+      console.log("altaS_CORR", altaS_CORR);
       const resultado = await registrarAltasActions(activosSeleccionados);
       if (resultado) {
         Swal.fire({
           icon: "success",
           title: "Altas Registradas",
-          text: `Se han registrado correctamente las Altas seleccionadas`,
+          text: `Se han registrado correctamente las Altas seleccionadas, Nº de Alta ${altaS_CORR}`,
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -254,7 +226,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           }
         });
         setLoadingRegistro(false);
-        listaAltasActions(objeto.Establecimiento);
+        listaAltasActions(0, objeto.Establecimiento);
 
         setFilasSeleccionadas([]);
       } else {
@@ -271,7 +243,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         });
         setLoadingRegistro(false);
       }
-
     }
     // })
   };
@@ -299,6 +270,54 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       <form>
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
+          <Row>
+            <Col md={2}>
+              <div className="mb-1">
+                <label htmlFor="aF_CLAVE" className="fw-semibold">Nº Inventario</label>
+                <input
+                  aria-label="aF_CLAVE"
+                  type="text"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="aF_CLAVE"
+                  size={10}
+                  onChange={handleChange}
+                  value={Inventario.aF_CLAVE}
+                />
+              </div>
+            </Col>
+            <Col md={5}>
+              <div className="mb-1 mt-4">
+                <Button onClick={handleBuscar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  {loading ? (
+                    <>
+                      {" Buscar"}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="ms-1"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {" Buscar"}
+                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    </>
+                  )}
+                </Button>
+                <Button onClick={handleLimpiar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  Limpiar
+                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                </Button>
+              </div>
+            </Col>
+          </Row>
           {/* Boton registrar filas seleccionadas */}
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
@@ -354,7 +373,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Codigo</th>
+                    <th scope="col" className="text-nowrap text-center">Código</th>
                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                     <th scope="col" className="text-nowrap text-center">Servicio</th>
                     <th scope="col" className="text-nowrap text-center">Dependencia</th>
@@ -363,6 +382,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                     <th scope="col" className="text-nowrap text-center">Marca</th>
                     <th scope="col" className="text-nowrap text-center">Modelo</th>
                     <th scope="col" className="text-nowrap text-center">Serie</th>
+                    <th scope="col" className="text-nowrap text-center">Estado</th>
                     <th scope="col" className="text-nowrap text-center">Precio</th>
                     <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                     {/* <th scope="col">Acción</th> */}
@@ -389,6 +409,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                         <td className="text-nowrap text-center">{Lista.marca}</td>
                         <td className="text-nowrap text-center">{Lista.modelo}</td>
                         <td className="text-nowrap text-center">{Lista.serie}</td>
+                        <td className="text-nowrap text-center">{Lista.estado}</td>
                         <td className="text-nowrap text-center">{Lista.precio}</td>
                         <td className="text-nowrap text-center">{Lista.mrecepcion}</td>
                       </tr>
@@ -440,7 +461,8 @@ const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+  altaS_CORR: state.datosAltaRegistradaReducers.altaS_CORR
 });
 
 export default connect(mapStateToProps, {

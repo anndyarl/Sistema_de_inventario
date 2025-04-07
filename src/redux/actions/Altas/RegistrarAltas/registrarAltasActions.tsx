@@ -26,7 +26,8 @@ export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async 
       // console.log("Se ha registrado", res);
       if (res.status === 200) {
         dispatch({
-          type: REGISTRAR_ALTAS_SUCCESS
+          type: REGISTRAR_ALTAS_SUCCESS,
+          payload: res.data
         });
         return true;
       } else {

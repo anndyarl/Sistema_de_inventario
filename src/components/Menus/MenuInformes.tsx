@@ -19,21 +19,21 @@ interface Props {
 const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
-        {
-            name: 'Altas Mensuales',
-            href: '/Informes/AltasMensuales',
-            icon: FileText
-        },
-        {
-            name: 'Bajas Mensuales',
-            href: '/Informes/BajasMensuales',
-            icon: FileText
-        },
-        {
-            name: 'Traslados Mensuales',
-            href: '/Informes/TrasladosMensuales',
-            icon: FileText
-        },
+        // {
+        //     name: 'Altas Mensuales',
+        //     href: '/Informes/AltasMensuales',
+        //     icon: FileText
+        // },
+        // {
+        //     name: 'Bajas Mensuales',
+        //     href: '/Informes/BajasMensuales',
+        //     icon: FileText
+        // },
+        // {
+        //     name: 'Traslados Mensuales',
+        //     href: '/Informes/TrasladosMensuales',
+        //     icon: FileText
+        // },
         {
             name: 'Folios por Servicio-Dependencia',
             href: '/Informes/FolioPorServicioDependencia',
@@ -44,11 +44,11 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Informes/ConsultaInventarioEspecies',
             icon: FileText
         },
-        {
-            name: 'Excel-Folios por Servicios',
-            href: '/Informes/ExcelFolioPorServicios',
-            icon: FileText
-        },
+        // {
+        //     name: 'Excel-Folios por Servicios',
+        //     href: '/Informes/ExcelFolioPorServicios',
+        //     icon: FileText
+        // },
         {
             name: 'Calcular Depreciación',
             href: '/Informes/CalcularDepreciacion',

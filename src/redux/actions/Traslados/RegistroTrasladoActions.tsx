@@ -1,13 +1,13 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-    POST_FORMULARIO_REQUEST,
-    POST_FORMULARIO_SUCCESS,
-    POST_FORMULARIO_FAIL,
-} from "../types";
+    POST_FORMULARIO_TRASLADO_REQUEST,
+    POST_FORMULARIO_TRASLADO_SUCCESS,
+    POST_FORMULARIO_TRASLADO_FAIL,
+} from "./types";
 
 // Acción para enviar el formulario
-export const registrarFormInventarioActions = (FormulariosCombinados: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registroTrasladoActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; // Token está en el estado de autenticación
     if (token) {
         const config = {
@@ -17,23 +17,23 @@ export const registrarFormInventarioActions = (FormulariosCombinados: Record<str
             },
         };
         // Verifica si `datosInventario` tiene datos antes de enviar
-        if (!FormulariosCombinados || Object.keys(FormulariosCombinados).length === 0) {
+        if (!FormularioTraslado || Object.keys(FormularioTraslado).length === 0) {
             // console.error("El objeto datosInventario está vacío.");
             return false;
         }
-        const body = JSON.stringify({ FormulariosCombinados });
+        const body = JSON.stringify(FormularioTraslado);
 
-        dispatch({ type: POST_FORMULARIO_REQUEST });
+        dispatch({ type: POST_FORMULARIO_TRASLADO_REQUEST });
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/crearActivoFijo`, body, config);
+            const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearTraslados`, body, config);
 
             // Si el POST es exitoso
             if (response.status === 200) {
-                if (response.data?.formulariosCombinados != null) {
+                if (response.data.lenght > 0) {
                     dispatch({
-                        type: POST_FORMULARIO_SUCCESS,
-                        payload: response.data.formulariosCombinados
+                        type: POST_FORMULARIO_TRASLADO_SUCCESS,
+                        payload: response.data
                     });
                     return true;
                 }
@@ -45,7 +45,7 @@ export const registrarFormInventarioActions = (FormulariosCombinados: Record<str
                 error.message ||
                 "Error al enviar el formulario";
             dispatch({
-                type: POST_FORMULARIO_FAIL,
+                type: POST_FORMULARIO_TRASLADO_FAIL,
                 payload: errorMessage,
             });
 

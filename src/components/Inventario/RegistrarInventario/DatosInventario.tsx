@@ -1,10 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Col, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Modal, Row, Spinner } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import Swal from "sweetalert2";
 import Select from "react-select";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 //importacion de objetos desde actions de redux
 import {
   setNRecepcionActions,
@@ -32,7 +34,7 @@ import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/Regis
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
-import { listaInventarioRegistradoActions } from "../../../redux/actions/Inventario/RegistrarInventario/listaInventarioRegistradoActions";
+import { DEPENDENCIA, SERVICIO } from "./DatosCuenta";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: string;
@@ -64,7 +66,39 @@ export interface InventarioProps {
   modalidadDeCompra: number;
   otraModalidad?: string;
   showInputReducer?: boolean;
+}
 
+/*-----Se definen nuevas props para no tener conflictos------*/
+interface FormulariosCombinados {
+  fechaFacturaR: string;
+  fechaRecepcionR: string;
+  modalidadDeCompraR: number;
+  otraModalidadR: number | null;
+  montoRecepcionR: number;
+  nFacturaR: string;
+  nOrdenCompraR: number;
+  nRecepcionR: number;
+  origenPresupuestoR: number;
+  rutProveedorR: number;
+  servicioR: number;
+  cantidadR: number;
+  cuentaR: number;
+  dependenciaR: number;
+  especieR: string;
+}
+
+interface ActijosFijos {
+  id: string;
+  vidaUtil: string;
+  fechaIngreso: string;
+  marca: string;
+  cantidad: string;
+  modelo: string;
+  observaciones: string;
+  serie: string;
+  precio: string;
+  especie: string;
+  color: string;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -73,20 +107,29 @@ interface DatosInventarioProps extends InventarioProps {
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
   comboProveedor: PROVEEDOR[];
+  comboServicio: SERVICIO[];
+  comboDependencia: DEPENDENCIA[];
+  // comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
-  listaInventarioRegistradoActions: () => Promise<Boolean>;
+  // listaInventarioRegistradoActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   objeto: Objeto;
   resultadoRegistro?: number;
+  formulariosCombinados: FormulariosCombinados;
+  activosFijos: ActijosFijos[];
 }
 
 //Paso 1 del Formulario
 const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
+  obtenerRecepcionActions,
   comboOrigen,
   comboModalidad,
   comboProveedor,
+  comboServicio,
+  comboDependencia,
+  // comboCuenta,
   fechaFactura,
   fechaRecepcion,
   montoRecepcion,
@@ -105,8 +148,9 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   isDarkMode,
   objeto,
   resultadoRegistro,
-  obtenerRecepcionActions,
-  listaInventarioRegistradoActions
+  /*----resumen inventario registrado*/
+  formulariosCombinados,
+  activosFijos
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
     fechaFactura: "",
@@ -126,8 +170,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   const classNames = (...classes: (string | boolean | undefined)[]): string => { return classes.filter(Boolean).join(" "); };
-
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
   const proveedorOptions = comboProveedor.map((item) => ({
     value: item.proV_RUN.toString(),
     label: item.proV_NOMBRE,
@@ -143,32 +187,19 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.nRecepcion)
-      tempErrors.nRecepcion = "Campo obligatorio";
-    if (!Inventario.fechaRecepcion)
-      tempErrors.fechaRecepcion = "Campo obligatorio";
-    if (!Inventario.nOrdenCompra)
-      tempErrors.nOrdenCompra = "Campo obligatorio";
-    else if (isNaN(Inventario.nOrdenCompra))
-      tempErrors.nOrdenCompra = "El N° de Orden de Compra debe ser numérico.";
-    if (!Inventario.nFactura)
-      tempErrors.nFactura = "Campo obligatorio";
-    if (!Inventario.origenPresupuesto)
-      tempErrors.origenPresupuesto = "Campo obligatorio";
-    if (!Inventario.montoRecepcion)
-      tempErrors.montoRecepcion = "Campo obligatorio";
-    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion)))
-      tempErrors.montoRecepcion = "El Monto debe ser un número válido con hasta dos decimales.";
+    if (!Inventario.nRecepcion) tempErrors.nRecepcion = "Campo obligatorio";
+    if (!Inventario.fechaRecepcion) tempErrors.fechaRecepcion = "Campo obligatorio";
+    if (!Inventario.nOrdenCompra) tempErrors.nOrdenCompra = "Campo obligatorio";
+    if (!Inventario.nFactura) tempErrors.nFactura = "Campo obligatorio";
+    if (!Inventario.origenPresupuesto) tempErrors.origenPresupuesto = "Campo obligatorio";
+    if (!Inventario.montoRecepcion) tempErrors.montoRecepcion = "Campo obligatorio";
+    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion))) tempErrors.montoRecepcion = "El Monto debe ser un número válido con hasta dos decimales.";
     if (!Inventario.fechaFactura) tempErrors.fechaFactura = "Campo obligatorio";
-    if (!Inventario.rutProveedor)
-      tempErrors.rutProveedor = "Campo obligatorio";
+    if (!Inventario.rutProveedor) tempErrors.rutProveedor = "Campo obligatorio";
     /*---------Modalidad Compra----------*/
-    if (!Inventario.modalidadDeCompra)
-      tempErrors.modalidadDeCompra = "Campo obligatorio";
-
+    if (!Inventario.modalidadDeCompra) tempErrors.modalidadDeCompra = "Campo obligatorio";
     if (showInputReducer) {
-      if (!Inventario.otraModalidad)
-        tempErrors.otraModalidad = "Campo obligatorio";
+      if (!Inventario.otraModalidad) tempErrors.otraModalidad = "Campo obligatorio";
     }
     /*---------Fin Modalidad Compra----------*/
     setError(tempErrors);
@@ -262,23 +293,49 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       }
     }
   };
-  const resumenRegistro = async () => {
-    if (resultadoRegistro) {
-      //Si me trae la lista correctamente luego se actualiza el estado a 0 para disponerlo solo una vez
-      // setModaMostrarResumen(true); //Muestra modal con el resumen del registro reciente
-      dispatch(setInventarioRegistrado(0));
+  const mostrarAlerta = () => {
+    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    Swal.fire({
+      icon: "success",
+      title: "Registro Exitoso",
+      text: `Su formulario ha sido registrado exitosamente. Presione "OK" para visualizar un resumen de los datos ingresados.`,
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      customClass: { popup: "custom-border" },
+      allowOutsideClick: false,
+      showCancelButton: false, // Agrega un segundo botón
+      cancelButtonText: "Cerrar", // Texto del botón
+      willClose: () => {
+        document.body.style.overflow = "auto"; // Restaura el scroll
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setModalMostrarResumen(true);
+        dispatch(setInventarioRegistrado(0));
+      }
+      // else if (result.dismiss === Swal.DismissReason.cancel) {
+      //   dispatch(setInventarioRegistrado(0));
+      // }
+    });
+
+
+    // Reinicia el estado de resultadoRegistro para no volver a mostrar alerta y modal
+    // dispatch(setInventarioRegistrado(0));
+
+  };
+
+  // Muestra la alerta solo si resultadoRegistro es 1
+  useEffect(() => {
+    // dispatch(setInventarioRegistrado(1));
+    // setModalMostrarResumen(true);
+    if (resultadoRegistro === 1) {
+      mostrarAlerta();
     }
-  }
+  }, [resultadoRegistro]); // Dependencia correcta, sin ejecutar directamente mostrarAlerta()
 
-  //Carga ultimo registro del inventario como resumen, si es 1 muestra(valor guardado desde DatosActivoFijo)
+  //Se usa este useEffect para trae desde el boton de busqueda
   useEffect(() => {
-    resumenRegistro();
-  }), [listaInventarioRegistradoActions, resultadoRegistro];
-
-  //Hook que muestra los valores al input, Sincroniza el estado local con Redux
-  useEffect(() => {
-    //traigo el estado de registro, si es verdadero va al metodo para listar el ultimo registo    
-
     setInventario({
       fechaFactura,
       fechaRecepcion,
@@ -409,6 +466,18 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     }
   };
 
+  const handleExportPDF = () => {
+    const input: any = document.getElementById("pdf-content");
+    html2canvas(input, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      pdf.save("Resumen_Inventario.pdf");
+    });
+  };
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -691,6 +760,156 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           </div>
         </div>
       </form>
+      <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="xl">
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+          <Modal.Title className="fw-semibold">Resumen de Ingreso de Inventario</Modal.Title>
+        </Modal.Header>
+
+        <div className="d-flex justify-content-end p-4 border-bottom">
+          <Button variant="primary" onClick={handleExportPDF}>
+            Exportar a PDF
+          </Button>
+        </div>
+
+        <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <Row className="mb-4">
+            <Col md={4}>
+              <p><strong>Nº Recepción:</strong></p>
+              <p>{formulariosCombinados.nRecepcionR || 'N/A'}</p>
+              <p><strong>Fecha Recepción:</strong></p>
+              <p>{formulariosCombinados.fechaRecepcionR || 'N/A'}</p>
+              <p><strong>N° Orden de Compra:</strong></p>
+              <p>{formulariosCombinados.nOrdenCompraR || 'N/A'}</p>
+            </Col>
+            <Col md={4}>
+              <p><strong>Nº Factura:</strong></p>
+              <p>{formulariosCombinados.nFacturaR || 'N/A'}</p>
+              <p><strong>Origen Presupuesto:</strong></p>
+              {(() => {
+                let nombreOrigen = "N/A"; // Valor por defecto
+                for (let i = 0; i < comboOrigen.length; i++) {
+                  if (String(comboOrigen[i].codigo) === String(formulariosCombinados.origenPresupuestoR)) {
+                    nombreOrigen = comboOrigen[i].descripcion;
+                    break; // Salir del bucle una vez encontrado
+                  }
+                }
+                return <p>{nombreOrigen}</p>;
+              })()}
+              <p><strong>Monto Recepción:</strong></p>
+              <p>${formulariosCombinados.montoRecepcionR || 'N/A'}</p>
+            </Col>
+            <Col md={4}>
+              <p><strong>Fecha Factura:</strong></p>
+              <p>{formulariosCombinados.fechaFacturaR || 'N/A'}</p>
+
+              <p><strong>Proveedor:</strong></p>
+              <p>{formulariosCombinados.rutProveedorR || 'N/A'}</p>
+              <p><strong>Modalidad de Compra:</strong></p>
+              {(() => {
+                let nombreModalidad = "N/A"; // Valor por defecto
+                for (let i = 0; i < comboModalidad.length; i++) {
+                  if (String(comboModalidad[i].codigo) === String(formulariosCombinados.modalidadDeCompraR)) {
+                    nombreModalidad = comboModalidad[i].descripcion;
+                    break; // Salir del bucle una vez encontrado
+                  }
+                }
+                return <p>{nombreModalidad}</p>;
+              })()}
+            </Col>
+
+          </Row>
+          <Row>
+            <Col md={4}>
+              <p><strong>Servicio:</strong></p>
+              {(() => {
+                let nombreServicio = "N/A"; // Valor por defecto
+                for (let i = 0; i < comboServicio.length; i++) {
+                  if (String(comboServicio[i].codigo) === String(formulariosCombinados.servicioR)) {
+                    nombreServicio = comboServicio[i].descripcion;
+                    break; // Salir del bucle una vez encontrado
+                  }
+                }
+                return <p>{nombreServicio}</p>;
+              })()}
+            </Col>
+            <Col>
+              <p><strong>Dependencia:</strong></p>
+              {(() => {
+                let nombreDependencia = "N/A"; // Valor por defecto
+                for (let i = 0; i < comboDependencia.length; i++) {
+                  if (String(comboDependencia[i].codigo) === String(formulariosCombinados.dependenciaR)) {
+                    nombreDependencia = comboDependencia[i].descripcion;
+                    break; // Salir del bucle una vez encontrado
+                  }
+                }
+                return <p>{nombreDependencia}</p>;
+              })()}
+
+            </Col>
+
+            {/* Se debe colocar cuentas en cada activo en la tabla */}
+            {/* <Col md={4}>
+              <p><strong>Cuenta:</strong></p>
+              {(() => {
+                let nombreCuenta = "N/A"; // Valor por defecto
+                for (let i = 0; i < comboCuenta.length; i++) {
+                  if (String(comboCuenta[i].codigo) === String(formulariosCombinados.cuentaR)) {
+                    nombreCuenta = comboCuenta[i].descripcion;
+                    break; // Salir del bucle una vez encontrado
+                  }
+                }
+                return <p>{nombreCuenta}</p>;
+              })()}
+            </Col> */}
+          </Row>
+
+          <div className="table-responsive">
+            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+              <thead>
+                <tr>
+                  <th>Nº Inventario</th>
+                  <th>Vida Útil</th>
+                  <th>Fecha Ingreso</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Precio</th>
+                  <th>Serie</th>
+                  <th>Especie</th>
+                  <th>Observaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activosFijos?.length > 0 ? (
+                  activosFijos.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.id || 'N/A'}</td>
+                      <td>{item.vidaUtil || 'N/A'}</td>
+                      <td>{item.fechaIngreso || 'N/A'}</td>
+                      <td>{item.marca || 'N/A'}</td>
+                      <td>{item.modelo || 'N/A'}</td>
+                      <td >
+                        $
+                        {parseFloat(item.precio).toLocaleString("es-ES", {
+                          minimumFractionDigits: 0,
+                        })}
+                      </td>
+                      <td>{item.serie || 'N/A'}</td>
+                      <td>{item.especie || 'N/A'}</td>
+                      <td>{item.observaciones || 'N/A'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan='8' className="text-center">No hay registros</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer></Modal.Footer>
+      </Modal>
 
     </>
   );
@@ -714,10 +933,19 @@ const mapStateToProps = (state: RootState) => ({
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
+
+  /*-------------------- Resumen de registro para mostrar en modal------------------------*/
   resultadoRegistro: state.datosActivoFijoReducers.resultadoRegistro,
+  activosFijos: state.resumenInventarioRegistroReducers.activosFijos,
+  formulariosCombinados: state.resumenInventarioRegistroReducers,
+  /*----------------Se agregan estos combos para mostrar las descripciones en resumen------------------*/
+  comboServicio: state.comboServicioReducer.comboServicio,
+  comboDependencia: state.comboDependenciaReducer.comboDependencia,
+  comboCuenta: state.comboCuentaReducer.comboCuenta,
+  listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
+
 });
 
 export default connect(mapStateToProps, {
-  obtenerRecepcionActions,
-  listaInventarioRegistradoActions
+  obtenerRecepcionActions
 })(DatosInventario);

@@ -35,11 +35,11 @@ const Listados: React.FC<GeneralProps> = ({ isDarkMode }) => {
 
     const navigation: NavItem[] = [
 
-        { descripcion: '', name: 'ListadoInformeGeneral', title: 'General', href: '/Informes/Listados/ListadoInformeGeneral', icon: FileEarmarkSpreadsheet },
+        // { descripcion: '', name: 'ListadoInformeGeneral', title: 'General', href: '/Informes/Listados/ListadoInformeGeneral', icon: FileEarmarkSpreadsheet },
         { descripcion: '', name: 'CuentaFechas', title: 'Cuenta - Fechas', href: '/Informes/Listados/CuentaFechas', icon: FileEarmarkSpreadsheet },
-        { descripcion: '', name: 'CuentaServicioFecha', title: 'Cuenta - Servicio - Fecha *', href: '/Informes/Listados/CuentaServicioFecha', icon: FileEarmarkSpreadsheet },
-        { descripcion: '', name: 'EspecieFecha', title: 'Especie - Fecha *', href: '/Informes/Listados/EspecieFecha', icon: FileEarmarkSpreadsheet },
-        { descripcion: '', name: 'EspecieServicioFechas', title: 'Especie - Servicio - Fechas *', href: '/Informes/Listados/EspecieServicioFechas', icon: FileEarmarkSpreadsheet },
+        // { descripcion: '', name: 'CuentaServicioFecha', title: 'Cuenta - Servicio - Fecha *', href: '/Informes/Listados/CuentaServicioFecha', icon: FileEarmarkSpreadsheet },
+        // { descripcion: '', name: 'EspecieFecha', title: 'Especie - Fecha *', href: '/Informes/Listados/EspecieFecha', icon: FileEarmarkSpreadsheet },
+        // { descripcion: '', name: 'EspecieServicioFechas', title: 'Especie - Servicio - Fechas *', href: '/Informes/Listados/EspecieServicioFechas', icon: FileEarmarkSpreadsheet },
     ];
 
     return (

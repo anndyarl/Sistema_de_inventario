@@ -10,7 +10,7 @@ import {
 interface obtenerInventarioState {
     loading: boolean;
     error: string | null;
-    aF_CLAVE: string; // nRecepcion
+    aF_CLAVE: number; // nRecepcion
     aF_FECHA_SOLICITUD: string; // fechaRecepcion 
     aF_OCO_NUMERO_REF: number; // nOrdenCompra
     aF_NUM_FAC: string// nFactura
@@ -30,6 +30,7 @@ interface obtenerInventarioState {
     deT_MODELO: string;
     deT_SERIE: string;
     deT_PRECIO: number;
+    deT_OBS: string;
 }
 
 // Estado inicial tipado
@@ -37,7 +38,7 @@ const initialState: obtenerInventarioState = {
     loading: false,
     error: null,
 
-    aF_CLAVE: "", // nRecepcion
+    aF_CLAVE: 0, // nRecepcion
     aF_FECHA_SOLICITUD: "", // fechaRecepcion 
     aF_OCO_NUMERO_REF: 0, // nOrdenCompra
     aF_NUM_FAC: "",// nFactura
@@ -57,6 +58,7 @@ const initialState: obtenerInventarioState = {
     deT_MODELO: "",
     deT_SERIE: "",
     deT_PRECIO: 0,
+    deT_OBS: ""
 };
 
 
@@ -94,7 +96,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
             return { ...state, aF_VIDAUTIL: action.payload };
         case 'SET_FINGRESO_MOD':
             return { ...state, aF_FINGRESO: action.payload };
-        case 'dSET_MARCA_MOD':
+        case 'SET_MARCA_MOD':
             return { ...state, deT_MARCA: action.payload };
         case 'SET__MODELO_MOD':
             return { ...state, deT_MODELO: action.payload };
@@ -102,6 +104,8 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
             return { ...state, deT_SERIE: action.payload };
         case 'SET_PRECIO_MOD':
             return { ...state, deT_PRECIO: action.payload };
+        case 'SET_OBS_MOD':
+            return { ...state, deT_OBS: action.payload };
 
         case OBTENER_INVENTARIO_REQUEST:
             return {
@@ -132,6 +136,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
                 deT_MODELO: action.payload.deT_MODELO,
                 deT_SERIE: action.payload.deT_SERIE,
                 deT_PRECIO: action.payload.deT_PRECIO,
+                deT_OBS: action.payload.deT_OBS
             };
         case OBTENER_INVENTARIO_FAIL:
             return {

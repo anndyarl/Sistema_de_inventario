@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 // Acción para obtener la recepción por af_clave
-export const obtenerInventarioActions = (nInventario: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerInventarioActions = (nInventario: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token;
   if (token) {
     const config = {

@@ -6,16 +6,13 @@ import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { Eraser, Search } from "react-bootstrap-icons";
-
 import { anularAltasActions } from "../../redux/actions/Altas/AnularAltas/anularAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile";
 import { listaAltasRegistradasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-  return classes.filter(Boolean).join(" ");
-};
+
 interface FechasProps {
   fDesde: string;
   fHasta: string;
@@ -24,8 +21,8 @@ export interface ListaAltas {
   aF_CLAVE: number,
   ninv: string,
   altaS_CORR: number,
-  servicio: string,
-  departamento: string,
+  serv: string,
+  dep: string,
   esp: string,
   ncuenta: string,
   marca: string,
@@ -67,7 +64,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     if (token) {
       if (listaAltasRegistradas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasRegistradasActions("", "", "N", objeto.Establecimiento, 0);
+        const resultado = await listaAltasRegistradasActions("", "", "S", objeto.Establecimiento, 0);
         if (resultado) {
           setLoading(false);
         }
@@ -120,7 +117,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
 
     setLoading(true);
     if (Inventario.fDesde == "" && Inventario.fHasta == "" && Inventario.altaS_CORR == 0) {
-      resultado = await listaAltasRegistradasActions("", "", "N", objeto.Establecimiento, Inventario.altaS_CORR);
+      resultado = await listaAltasRegistradasActions("", "", "S", objeto.Establecimiento, Inventario.altaS_CORR);
     }
     if (Inventario.fDesde != "" && Inventario.fHasta != "") {
       if (validate()) {
@@ -147,6 +144,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
+      paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
 
@@ -188,7 +186,9 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
-        aF_CLAVE: listaAltasRegistradas[index].aF_CLAVE
+        aF_CLAVE: listaAltasRegistradas[index].aF_CLAVE,
+        USUARIO_MOD: objeto.IdCredencial,
+        ESTABL_CORR: objeto.Establecimiento,
       };
 
     });
@@ -223,6 +223,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
 
       const resultado = await anularAltasActions(activosSeleccionados);
       if (resultado) {
+        document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
         Swal.fire({
           icon: "success",
           title: "Altas anuladas",
@@ -383,7 +384,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   ) : (
                     <>
                       {" Buscar"}
-                      < Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                     </>
                   )}
                 </Button>
@@ -391,7 +392,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   className="mx-1 mb-1">
                   Limpiar
-                  <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                 </Button>
               </div>
             </Col>
@@ -454,7 +455,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Codigo</th>
+                    <th scope="col" className="text-nowrap text-center">Código</th>
                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                     <th scope="col" className="text-nowrap text-center">N° Alta</th>
                     <th scope="col" className="text-nowrap text-center">Servicio</th>
@@ -486,8 +487,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                         <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
                         <td className="text-nowrap text-center">{Lista.ninv}</td>
                         <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                        <td className="text-nowrap text-center">{Lista.servicio}</td>
-                        <td className="text-nowrap text-center">{Lista.departamento}</td>
+                        <td className="text-nowrap text-center">{Lista.serv}</td>
+                        <td className="text-nowrap text-center">{Lista.dep}</td>
                         <td className="text-nowrap text-center">{Lista.esp}</td>
                         <td className="text-nowrap text-center">{Lista.ncuenta}</td>
                         <td className="text-nowrap text-center">{Lista.marca}</td>

@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
 import { Row, Col, Collapse } from "react-bootstrap";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
 import { CaretDown, CaretUpFill } from "react-bootstrap-icons";
@@ -15,7 +15,9 @@ import { DEPENDENCIA } from "../Inventario/RegistrarInventario/DatosCuenta";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
 import MenuTraslados from "../Menus/MenuTraslados";
-
+import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
+import Swal from "sweetalert2";
+import { Objeto } from "../Navegacion/Profile";
 
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
@@ -46,14 +48,14 @@ interface UbicacionDestino {
   servicioDestino: number;
   dependenciaDestino: number; //deP_CORR
   enComododato: string;
-  traS_CO_REAL: string; //traspasoReal
+  traS_CO_REAL: number; //traspasoReal
   traS_MEMO_REF: string; //nMemoRef
   traS_FECHA_MEMO: string; //fechaMemo
-  traS_OB: string; //observaciones
+  traS_OBS: string; //observaciones
 }
 
 interface DatosRecepcion {
-  traS_NOM_ENTREG: string; //entrgadoPor
+  traS_NOM_ENTREGA: string; //entrgadoPor
   traS_NOM_RECIBE: string; //recibidoPor
   traS_NOM_AUTORIZA: string; //jefeAutoriza
   n_TRASLADO: number; //nTraslado
@@ -82,41 +84,46 @@ interface TrasladosProps {
   comboDependenciaDestino: DEPENDENCIA[];
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
   comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
+  registroTrasladoActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
   token: string | null;
   isDarkMode: boolean;
+  objeto: Objeto;
 }
 
 
-const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, comboEstablecimiento, comboTrasladoEspecie, comboDependenciaOrigen, comboDependenciaDestino, comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, comboDependenciaOrigenActions, comboDependenciaDestinoActions, token, isDarkMode }) => {
+const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions, comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, comboDependenciaOrigenActions, comboDependenciaDestinoActions, comboTrasladoServicio, comboEstablecimiento, comboTrasladoEspecie, comboDependenciaOrigen, comboDependenciaDestino, objeto, token, isDarkMode }) => {
 
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [error, setError] = useState<Partial<BusquedaProps> & Partial<UbicacionDestino> & Partial<DatosRecepcion> & {}>({});
   const [Traslados, setTraslados] = useState({
     aF_CLAVE: 0, //nInventario
-    dependenciaOrigen: 0,//deP_CORR_ORIGEN
-    dependenciaDestino: 0, //deP_CORR
+    deP_CORR_ORIGEN: 0,//deP_CORR_ORIGEN
+    deP_CORR: 0, //deP_CORR
     traS_MEMO_REF: "",
-    traS_OB: "",
+    traS_FECHA_MEMO: "",
+    traS_OBS: "",
     marca: "",
     modelo: "",
     serie: "",
     servicioOrigen: 0,
     servicioDestino: 0,
-    traS_NOM_ENTREG: "",
+    traS_NOM_ENTREGA: "",
     traS_NOM_RECIBE: "",
     traS_NOM_AUTORIZA: "",
     n_TRASLADO: 0,
-    especie: 0
+    especie: 0,
+    usuario_crea: objeto.IdCredencial.toString()
   });
   const validateForm = () => {
     let tempErrors: Partial<any> & {} = {};
     if (!Traslados.servicioOrigen) tempErrors.servicioOrigen = "Campo obligatorio.";
-    if (!Traslados.dependenciaOrigen) tempErrors.dependenciaOrigen = "Campo obligatorio.";
+    if (!Traslados.deP_CORR_ORIGEN) tempErrors.deP_CORR_ORIGEN = "Campo obligatorio.";
     if (!Traslados.servicioDestino) tempErrors.servicioDestino = "Campo obligatorio.";
-    if (!Traslados.dependenciaDestino) tempErrors.dependenciaDestino = "Campo obligatorio.";
-    if (!Traslados.traS_NOM_ENTREG) tempErrors.traS_NOM_ENTREG = "Campo obligatorio.";
-    if (!Traslados.traS_OB) tempErrors.traS_OB = "Campo obligatorio.";
+    if (!Traslados.deP_CORR) tempErrors.deP_CORR = "Campo obligatorio.";
+    if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
+    if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
     if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
+    if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
     if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
     if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
     // if (!Traslados.n_TRASLADO) tempErrors.n_TRASLADO = "Campo obligatorio.";
@@ -135,9 +142,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setTraslados((prevTraslado) => ({
-      ...prevTraslado,
-      [name]: value,
+    // Convierte `value` a número
+    let newValue: string | number = ["aF_CLAVE", "deP_CORR_ORIGEN", "deP_CORR", "n_TRASLADO"].includes(name)
+      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+      : value;
+
+    setTraslados((prevTraslados) => ({
+      ...prevTraslados,
+      [name]: newValue,
     }));
 
     if (name === "servicioOrigen") {
@@ -165,7 +177,58 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("formulario Traslado", Traslados)
+      const confirmResult = await Swal.fire({
+        icon: "info",
+        title: "Confirmar registro",
+        text: "¿Desea registrar el inventario de activos con la información proporcionada?",
+        showCancelButton: true,
+        confirmButtonText: "Confirmar y registrar",
+        cancelButtonText: "Cancelar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: { popup: "custom-border" }
+      });
+
+      if (confirmResult.isConfirmed) {
+        try {
+          const resultado = await registroTrasladoActions(Traslados);
+          if (resultado) {
+            Swal.fire({
+              icon: "success",
+              title: "Registro Exitoso",
+              text: `Su formulario ha sido registrado exitosamente`,
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: { popup: "custom-border" }
+            });
+
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Hubo un problema al enviar el formulario.",
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: { popup: "custom-border" }
+            });
+          }
+        } catch (error) {
+          console.error("Error al registrar el formulario:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error inesperado",
+            text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: { popup: "custom-border" }
+          });
+        }
+      }
+
     }
   }
 
@@ -221,14 +284,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                     </div>
                     {/* Dependencia/ Departamento */}
                     <div className="mb-1">
-                      <label htmlFor="dependenciaOrigen" className="fw-semibold">Dependencia Origen</label>
+                      <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia Origen</label>
                       <select
-                        aria-label="dependenciaOrigen"
+                        aria-label="deP_CORR_ORIGEN"
                         className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependenciaOrigen ? "is-invalid" : ""}`}
-                        name="dependenciaOrigen"
+                        name="deP_CORR_ORIGEN"
                         disabled={!Traslados.servicioOrigen}
                         onChange={handleChange}
-                        value={Traslados.dependenciaOrigen || 0}
+                        value={Traslados.deP_CORR_ORIGEN || 0}
                       >
                         <option value="">Seleccionar</option>
                         {comboDependenciaOrigen.map((traeDependencia) => (
@@ -400,14 +463,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                     </div>
                     {/* Dependencia/ Departamento */}
                     <div className="mb-1">
-                      <label htmlFor="dependenciaDestino" className="fw-semibold">Dependencia Destino</label>
+                      <label htmlFor="deP_CORR" className="fw-semibold">Dependencia Destino</label>
                       <select
-                        aria-label="dependenciaDestino"
+                        aria-label="deP_CORR"
                         className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependenciaDestino ? "is-invalid" : ""}`}
-                        name="dependenciaDestino"
+                        name="deP_CORR"
                         disabled={!Traslados.servicioDestino}
                         onChange={handleChange}
-                        value={Traslados.dependenciaDestino || 0}
+                        value={Traslados.deP_CORR || 0}
                       >
                         <option value="">Seleccionar</option>
                         {comboDependenciaDestino.map((traeDependencia) => (
@@ -429,11 +492,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                     <div className="mb-1 p-2 d-flex justify-content-center">
                       <div className="form-check">
                         <input
-                          aria-label="comoDato"
+                          aria-label="traS_CO_REAL"
                           className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""
                             } m-1`}
                           type="radio"
-                          name="flexRadioDefault"
+                          name="traS_CO_REAL"
+                          value={1}
                         />
                         <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
                           En Comodato
@@ -441,11 +505,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                       </div>
                       <div className="form-check">
                         <input
-                          aria-label="traspasoReal"
+                          aria-label="traS_CO_REAL"
                           className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""
                             } m-1`}
                           type="radio"
-                          name="flexRadioDefault"
+                          name="traS_CO_REAL"
+                          value={0}
                           defaultChecked
                         />
                         <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
@@ -481,13 +546,16 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                         Fecha Memo
                       </label>
                       <input
-                        aria-label="fechaFactura"
+                        aria-label="traS_FECHA_MEMO"
                         type="date"
                         className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          }`}
-                        name="fechaFactura"
+                          } ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
+                        name="traS_FECHA_MEMO"
                         onChange={handleChange}
                       />
+                      {error.traS_FECHA_MEMO && (
+                        <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
+                      )}
                     </div>
 
                     {/* Observaciones */}
@@ -497,17 +565,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                       </label>
                       <textarea
                         className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_OB ? "is-invalid" : ""}`}
-                        aria-label="traS_OB"
-                        name="traS_OB"
+                          } ${error.traS_OBS ? "is-invalid" : ""}`}
+                        aria-label="traS_OBS"
+                        name="traS_OBS"
                         rows={4}
                         maxLength={500}
                         style={{ minHeight: "8px", resize: "none" }}
                         onChange={handleChange}
-                        value={Traslados.traS_OB}
+                        value={Traslados.traS_OBS}
                       />
-                      {error.traS_OB && (
-                        <div className="invalid-feedback">{error.traS_OB}</div>
+                      {error.traS_OBS && (
+                        <div className="invalid-feedback">{error.traS_OBS}</div>
                       )}
                     </div>
                   </Col>
@@ -536,17 +604,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ comboTrasladoServicio, c
                         Entregado Por
                       </label>
                       <input
-                        aria-label="traS_NOM_ENTREG"
+                        aria-label="traS_NOM_ENTREGA"
                         type="text"
                         className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_NOM_ENTREG ? "is-invalid" : ""}`}
+                          } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
                         maxLength={50}
-                        name="traS_NOM_ENTREG"
+                        name="traS_NOM_ENTREGA"
                         onChange={handleChange}
-                        value={Traslados.traS_NOM_ENTREG}
+                        value={Traslados.traS_NOM_ENTREGA}
                       />
-                      {error.traS_NOM_ENTREG && (
-                        <div className="invalid-feedback">{error.traS_NOM_ENTREG}</div>
+                      {error.traS_NOM_ENTREGA && (
+                        <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
                       )}
                     </div>
 
@@ -624,6 +692,7 @@ const mapStateToProps = (state: RootState) => ({
   comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie,
   comboDependenciaOrigen: state.comboDependenciaOrigenReducer.comboDependenciaOrigen,
   comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
+  objeto: state.validaApiLoginReducers,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 
@@ -632,5 +701,6 @@ export default connect(mapStateToProps, {
   comboEstablecimientoActions,
   comboTrasladoEspecieActions,
   comboDependenciaOrigenActions,
-  comboDependenciaDestinoActions
+  comboDependenciaDestinoActions,
+  registroTrasladoActions
 })(RegistrarTraslados);

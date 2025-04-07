@@ -34,11 +34,11 @@ const Informes: React.FC<GeneralProps> = ({ isDarkMode }) => {
   };
 
   const navigation: NavItem[] = [
-    { descripcion: '', name: 'AltasMensuales', title: 'Altas Mensuales', href: '/Informes/AltasMensuales', icon: FileText },
-    { descripcion: '', name: 'BajasMensuales', title: 'Bajas Mensuales', href: '/Informes/BajasMensuales', icon: FileText },
-    { descripcion: '', name: 'TrasladosMensuales', title: 'Traslados Mensuales', href: '/Informes/TrasladosMensuales', icon: FileText },
+    // { descripcion: '', name: 'AltasMensuales', title: 'Altas Mensuales', href: '/Informes/AltasMensuales', icon: FileText },
+    // { descripcion: '', name: 'BajasMensuales', title: 'Bajas Mensuales', href: '/Informes/BajasMensuales', icon: FileText },
+    // { descripcion: '', name: 'TrasladosMensuales', title: 'Traslados Mensuales', href: '/Informes/TrasladosMensuales', icon: FileText },
     { descripcion: '', name: 'FolioPorServicioDependencia', title: 'Folios por Servicio-Dependencia', href: '/Informes/FolioPorServicioDependencia', icon: FileText },
-    { descripcion: '', name: 'ExcelFolioPorServicios', title: 'Excel-Folios por Servicios *', href: '/Informes/ExcelFolioPorServicios', icon: FileText },
+    // { descripcion: '', name: 'ExcelFolioPorServicios', title: 'Excel-Folios por Servicios *', href: '/Informes/ExcelFolioPorServicios', icon: FileText },
     { descripcion: '', name: 'ConsultaInventarioEspecies', title: 'Consulta Inventario - Especies', href: '/Informes/ConsultaInventarioEspecies', icon: FileText },
     { descripcion: '', name: 'CalcularDepreciacion', title: 'Calcular Depreciación', href: '/Informes/CalcularDepreciacion', icon: FileText },
   ];

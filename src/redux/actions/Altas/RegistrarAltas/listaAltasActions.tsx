@@ -6,7 +6,7 @@ import {
   OBTENER_ALTAS_FAIL,
 } from "../types";
 
-export const listaAltasActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaAltasActions = (af_clave: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,10 +20,10 @@ export const listaAltasActions = (establ_corr: number) => async (dispatch: Dispa
     dispatch({ type: OBTENER_ALTAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAFAltas?establ_corr=${establ_corr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAFAltas?af_clave=${af_clave}&establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
-        if (res.data?.length) {
+        if (res.data.length > 0) {
           dispatch({
             type: OBTENER_ALTAS_SUCCESS,
             payload: res.data,

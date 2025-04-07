@@ -29,7 +29,6 @@ import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerI
 import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
 
 //--------------------- Registrar Altas ---------------------//
-import datosListaAltasReducers from "./Altas/AnularAltas/listaAltasRegistradasReducers";
 import obtenerEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerEtiquetasAltasReducers";
 import obtenerfirmasAltasReducers from "./Altas/FirmarAltas/obtenerfirmasAltasReducers";
 import obtenerUnidadesReducers from "./Altas/FirmarAltas/obtenerUnidadesReducers";
@@ -80,6 +79,8 @@ import listaConsultaInventarioEspeciesReducers from "./Informes/Principal/Consul
 import mostrarNPaginacionReducer from "./Otros/mostrarNPaginacionReducer";
 import listaAltasReducers from "./Altas/AltasRegistradas/listaAltasReducers";
 import listaAltasRegistradasReducers from "./Altas/AnularAltas/listaAltasRegistradasReducers";
+import resumenInventarioRegistroReducers from "./Inventario/RegistrarInventario/resumenInventarioRegistroReducers";
+import datosAltaRegistradaReducers from "./Altas/AltasRegistradas/datosAltaRegistradaReducers";
 
 
 
@@ -96,6 +97,7 @@ const appReducer = combineReducers({
   comboOrigenPresupuestoReducer,
   comboModalidadCompraReducer,
   comboProveedorReducers,
+  resumenInventarioRegistroReducers,
 
   // Formulario 2
   datosCuentaReducers,
@@ -122,6 +124,7 @@ const appReducer = combineReducers({
   obtenerEtiquetasAltasReducers,
   obtenerfirmasAltasReducers,
   obtenerUnidadesReducers,
+  datosAltaRegistradaReducers,
 
   // Bajas
   datosListadoGeneralBajasReducers,

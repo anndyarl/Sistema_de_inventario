@@ -239,8 +239,8 @@ const ModalContent: React.FC = () => {
   const navigation: NavItem[] = [
     { name: 'General', icon: Gear },
     { name: 'Datos', icon: Database },
-    { name: 'Firma', icon: Signature },
-    { name: 'Indicadores', icon: BarChart },
+    // { name: 'Firma', icon: Signature },
+    // { name: 'Indicadores', icon: BarChart },
     { name: 'Versionamiento', icon: Git },
   ];
 

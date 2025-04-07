@@ -10,14 +10,12 @@ interface PropsState {
   loading: boolean;
   comboEstablecimiento: Array<{ codigo: number; descripcion: string; }>;
   error: string | null;
-
-
 }
 // Estado inicial tipado
 const initialState: PropsState = {
   loading: false,
   comboEstablecimiento: [],
-  error: null,
+  error: null
 };
 
 // Reducer con tipos definidos

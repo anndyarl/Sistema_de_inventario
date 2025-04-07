@@ -39,7 +39,8 @@ const persistConfig = {
     'listaCuentaFechasReducers',
     'comboCuentasInformeReducers',
     'comboServicioInformeReducers',
-    'mostrarNPaginacionReducer'
+    'mostrarNPaginacionReducer',
+    'resumenInventarioRegistroReducers'//Quitar
   ]
 };
 

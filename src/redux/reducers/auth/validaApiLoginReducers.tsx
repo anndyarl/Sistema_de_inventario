@@ -2,6 +2,7 @@ import {
   VALIDA_PORTAL_REQUEST,
   VALIDA_PORTAL_SUCCESS,
   VALIDA_PORTAL_FAIL,
+  COMBO_PROFILE_ESTABLECIMIENTO_FAIL
 } from "../../actions/auth/types";
 
 interface Roles {
@@ -62,10 +63,10 @@ function validaApiLoginReducers(state = initialState, action: any): AuthState {
         Establecimiento: action.payload.establecimiento,
         Usr_run: action.payload.usr_run
       };
-
     case VALIDA_PORTAL_FAIL:
       return { ...state, isAuthenticated: false, error: action.payload };
-
+    case COMBO_PROFILE_ESTABLECIMIENTO_FAIL:
+      return { ...state, isAuthenticated: false, error: action.payload };
     default:
       return state;
   }

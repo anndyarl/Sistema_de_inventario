@@ -45,7 +45,6 @@ import {
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
 import { obtenerMaxInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerMaxInventarioActions";
-import DatosInventario from "./DatosInventario";
 
 // Props del formulario
 export interface ActivoFijo {
@@ -421,7 +420,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         delete newErrores[index];
         return newErrores;
       });
-
+      paginar(1);
       return actualizados;
     });
 
@@ -454,6 +453,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
     // Limpiar las filas seleccionadas
     setFilasSeleccionadas([]);
+    paginar(1);
   };
 
   //-------------Fin Funciones de la tabla --------------------//
@@ -621,25 +621,25 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             dispatch(vaciarDatosTabla());
             dispatch(showInputActions(false));
             dispatch(setOtraModalidadActions(""));
-            onReset(); // Vuelve al estado inicial
-            dispatch(setInventarioRegistrado(1));
-            // 🔹 Muestra el código obtenido después de esperarlo
-            Swal.fire({
-              icon: "success",
-              title: "Registro exitoso",
-              text: `Se ha registrado con éxito su formulario`,
-              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-              color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-              customClass: { popup: "custom-border" }
-            });
+            dispatch(setInventarioRegistrado(1));//Estado mostrar resumen en paso 1
+            onReset(); // Vuelve al paso 1
+            //  Muestra el código obtenido después de esperarlo
+            // Swal.fire({
+            //   icon: "success",
+            //   title: "Registro exitoso",
+            //   text: `Se ha registrado con éxito su formulario`,
+            //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            //   customClass: { popup: "custom-border" }
+            // });
 
           } else {
             dispatch(setInventarioRegistrado(0));
             Swal.fire({
               icon: "error",
               title: "Error",
-              text: "Hubo un problema al enviar el formulario.",
+              text: "Ocurrió un error al registrar el formulario. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
               confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -703,7 +703,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                   Agregar
                 </Button>
-
               )}
             </div>
           </div>
@@ -738,9 +737,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             Haz clic en (+ Agregar) para listar aquí los detalles de cada activo.
           </p>
         ) : (
-          <div className="overflow-auto">
-            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover "}`} >
-              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+          <div className='table-responsive'>
+            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                 <tr >
                   <th >
                     <Form.Check
@@ -877,203 +876,201 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             </Button>
           )}
         </div>
-      </div >
-      {/* Modal formulario Activos Fijo*/}
-      < Modal
-        show={mostrarModal}
-        onHide={() => setMostrarModal(false)}
-        size="lg"
+        {/* Modal formulario Activos Fijo*/}
+        < Modal
+          show={mostrarModal}
+          onHide={() => setMostrarModal(false)}
+          size="lg"
+        >
+          <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+            <Modal.Title className="fw-semibold">Agregar activos fijos</Modal.Title>
+          </Modal.Header>
 
-      >
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Agregar activos fijos</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          {/* Mostrar errores generales en el modal */}
-          {error.general && (
-            <div className="alert alert-danger" role="alert">
-              {error.general}
-            </div>
-          )}
-
-          <form onSubmit={handleAgregar}>
-            <Row>
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                {/* Contenedor para Monto Recepción y Monto Pendiente */}
-                <div className="d-flex">
-                  <div className="mx-1 bg-primary text-white p-1 rounded">
-                    <p className="text-center">Monto Recepción</p>
-                    <p className="fw-semibold text-center">
-                      $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                    </p>
-                  </div>
-                  <div className=" mx-1 bg-secondary text-white p-1 rounded">
-                    <p className="text-center">Monto Pendiente</p>
-                    <p className="fw-semibold text-center">
-                      $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
-                        minimumFractionDigits: 0,
-                      })}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Contenedor para los Botones */}
-                <div className="d-flex">
-                  <div className="mb-1 mx-1">
-                    <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} mx-2`}>
-                      <Floppy
-                        className="flex-shrink-0 me-2 h-5 w-5"
-                        aria-hidden="true"
-                      />
-                      Guardar
-                    </Button>
-                  </div>
-                  <div className="mb-1 mx-1">
-                    <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary "}`}>
-                      <Eraser
-                        className="flex-shrink-0 me-2 h-5 w-5"
-                        aria-hidden="true"
-                      />
-                      Limpiar
-                    </Button>
-                  </div>
-                </div>
+          <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+            {/* Mostrar errores generales en el modal */}
+            {error.general && (
+              <div className="alert alert-danger" role="alert">
+                {error.general}
               </div>
-              <Col md={6}>
-                <div className="mb-1">
-                  <label htmlFor="vidaUtil" className="fw-semibold">
-                    Vida Útil
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${error.vidaUtil ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    id="vidaUtil"
-                    name="vidaUtil"
-                    maxLength={10}
-                    onChange={handleChange}
-                    value={activoActual.vidaUtil}
-                  />
-                  {error.vidaUtil && (
-                    <div className="invalid-feedback fw-semibold">{error.vidaUtil}</div>
-                  )}
-                </div>
+            )}
 
-                <div className="mb-1">
-                  <label htmlFor="fechaIngreso" className="fw-semibold">
-                    Fecha Ingreso
-                  </label>
-                  <input
-                    type="date"
-                    className={`form-control ${error.fechaIngreso ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    id="fechaIngreso"
-                    name="fechaIngreso"
-                    onChange={handleChange}
-                    value={activoActual.fechaIngreso}
-                  />
-                  {error.fechaIngreso && (
-                    <div className="invalid-feedback fw-semibold">{error.fechaIngreso}</div>
-                  )}
-                </div>
-
-                <div className="mb-1">
-                  <label htmlFor="marca" className="fw-semibold">
-                    Marca
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${error.marca ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    id="marca"
-                    name="marca"
-                    maxLength={20}
-                    onChange={handleChange}
-                    value={activoActual.marca}
-                  />
-                  {error.marca && (
-                    <div className="invalid-feedback fw-semibold">{error.marca}</div>
-                  )}
-                </div>
-
-                <div className="mb-1">
-                  <label htmlFor="modelo" className="fw-semibold">
-                    Modelo
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${error.modelo ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    id="modelo"
-                    name="modelo"
-                    maxLength={20}
-                    onChange={handleChange}
-                    value={activoActual.modelo}
-                  />
-                  {error.modelo && (
-                    <div className="invalid-feedback fw-semibold">{error.modelo}</div>
-                  )}
-                </div>
-              </Col>
-              <Col md={6}>
-                <div className="mb-1">
-                  <label htmlFor="precio" className="fw-semibold">
-                    Precio
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${error.precio ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    id="precio"
-                    name="precio"
-                    maxLength={12}
-                    onChange={handleChange}
-                    value={activoActual.precio}
-                  />
-                  {error.precio && (
-                    <div className="invalid-feedback fw-semibold">{error.precio}</div>
-                  )}
-                </div>
-
-                <div className="mb-1">
-                  <label htmlFor="cantidad" className="fw-semibold">
-                    Cantidad
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${error.cantidad ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    id="cantidad"
-                    name="cantidad"
-                    maxLength={6}
-                    onChange={handleChange}
-                    value={activoActual.cantidad}
-                  />
-                  {error.cantidad && (
-                    <div className="invalid-feedback fw-semibold">{error.cantidad}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="observaciones" className="fw-semibold">
-                    Observaciones
-                  </label>
-                  <textarea
-                    className={`form-control ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    aria-label="observaciones"
-                    name="observaciones"
-                    rows={4}
-                    // maxLength={500}
-                    style={{ minHeight: "8px", resize: "none" }}
-                    onChange={handleChange}
-                    value={activoActual.observaciones}
-                  />
-                  {error.observaciones && (
-                    <div className="invalid-feedback fw-semibold">
-                      {error.observaciones}
+            <form onSubmit={handleAgregar}>
+              <Row>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  {/* Contenedor para Monto Recepción y Monto Pendiente */}
+                  <div className="d-flex">
+                    <div className="mx-1 bg-primary text-white p-1 rounded">
+                      <p className="text-center">Monto Recepción</p>
+                      <p className="fw-semibold text-center">
+                        $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                      </p>
                     </div>
-                  )}
-                </div>
-              </Col>
-            </Row>
-          </form>
-        </Modal.Body >
-      </Modal >
+                    <div className=" mx-1 bg-secondary text-white p-1 rounded">
+                      <p className="text-center">Monto Pendiente</p>
+                      <p className="fw-semibold text-center">
+                        $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                          minimumFractionDigits: 0,
+                        })}
+                      </p>
+                    </div>
+                  </div>
 
+                  {/* Contenedor para los Botones */}
+                  <div className="d-flex">
+                    <div className="mb-1 mx-1">
+                      <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} mx-2`}>
+                        <Floppy
+                          className="flex-shrink-0 me-2 h-5 w-5"
+                          aria-hidden="true"
+                        />
+                        Guardar
+                      </Button>
+                    </div>
+                    <div className="mb-1 mx-1">
+                      <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary "}`}>
+                        <Eraser
+                          className="flex-shrink-0 me-2 h-5 w-5"
+                          aria-hidden="true"
+                        />
+                        Limpiar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <Col md={6}>
+                  <div className="mb-1">
+                    <label htmlFor="vidaUtil" className="fw-semibold">
+                      Vida Útil
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${error.vidaUtil ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      id="vidaUtil"
+                      name="vidaUtil"
+                      maxLength={10}
+                      onChange={handleChange}
+                      value={activoActual.vidaUtil}
+                    />
+                    {error.vidaUtil && (
+                      <div className="invalid-feedback fw-semibold">{error.vidaUtil}</div>
+                    )}
+                  </div>
+
+                  <div className="mb-1">
+                    <label htmlFor="fechaIngreso" className="fw-semibold">
+                      Fecha Ingreso
+                    </label>
+                    <input
+                      type="date"
+                      className={`form-control ${error.fechaIngreso ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      id="fechaIngreso"
+                      name="fechaIngreso"
+                      onChange={handleChange}
+                      value={activoActual.fechaIngreso}
+                    />
+                    {error.fechaIngreso && (
+                      <div className="invalid-feedback fw-semibold">{error.fechaIngreso}</div>
+                    )}
+                  </div>
+
+                  <div className="mb-1">
+                    <label htmlFor="marca" className="fw-semibold">
+                      Marca
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${error.marca ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      id="marca"
+                      name="marca"
+                      maxLength={20}
+                      onChange={handleChange}
+                      value={activoActual.marca}
+                    />
+                    {error.marca && (
+                      <div className="invalid-feedback fw-semibold">{error.marca}</div>
+                    )}
+                  </div>
+
+                  <div className="mb-1">
+                    <label htmlFor="modelo" className="fw-semibold">
+                      Modelo
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${error.modelo ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      id="modelo"
+                      name="modelo"
+                      maxLength={20}
+                      onChange={handleChange}
+                      value={activoActual.modelo}
+                    />
+                    {error.modelo && (
+                      <div className="invalid-feedback fw-semibold">{error.modelo}</div>
+                    )}
+                  </div>
+                </Col>
+                <Col md={6}>
+                  <div className="mb-1">
+                    <label htmlFor="precio" className="fw-semibold">
+                      Precio
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${error.precio ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      id="precio"
+                      name="precio"
+                      maxLength={12}
+                      onChange={handleChange}
+                      value={activoActual.precio}
+                    />
+                    {error.precio && (
+                      <div className="invalid-feedback fw-semibold">{error.precio}</div>
+                    )}
+                  </div>
+
+                  <div className="mb-1">
+                    <label htmlFor="cantidad" className="fw-semibold">
+                      Cantidad
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${error.cantidad ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      id="cantidad"
+                      name="cantidad"
+                      maxLength={6}
+                      onChange={handleChange}
+                      value={activoActual.cantidad}
+                    />
+                    {error.cantidad && (
+                      <div className="invalid-feedback fw-semibold">{error.cantidad}</div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label htmlFor="observaciones" className="fw-semibold">
+                      Observaciones
+                    </label>
+                    <textarea
+                      className={`form-control ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      aria-label="observaciones"
+                      name="observaciones"
+                      rows={4}
+                      // maxLength={500}
+                      style={{ minHeight: "8px", resize: "none" }}
+                      onChange={handleChange}
+                      value={activoActual.observaciones}
+                    />
+                    {error.observaciones && (
+                      <div className="invalid-feedback fw-semibold">
+                        {error.observaciones}
+                      </div>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+            </form>
+          </Modal.Body >
+        </Modal >
+      </div >
     </>
   );
 };

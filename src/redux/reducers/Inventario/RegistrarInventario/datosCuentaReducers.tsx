@@ -6,7 +6,6 @@ interface datosCuentaState {
     especie: string;
     descripcionEspecie: string;
     nombreEspecie: string[];
-
 }
 
 // Estado inicial tipado
@@ -18,8 +17,6 @@ const initialState: datosCuentaState = {
     descripcionEspecie: '',
     nombreEspecie: [],
 };
-
-
 
 // Reducer con tipos definidos
 const datosCuentaReducers = (state = initialState, action: any) => {

@@ -13,22 +13,37 @@ import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css";
 import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js";
 import { Container } from "react-bootstrap";
 import { AnimatePresence, motion } from "framer-motion";
+import Swal from "sweetalert2";
+
 
 interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
+  token: string | null;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  useAutoLogout(600000, 1200000);
+  useAutoLogout(3.3e+6, 3.6e+6);
 
-  if (!isAuthenticated) {
+  if (isAuthenticated == false) {
+    // Swal.fire({
+    //   icon: "info",
+    //   title: "Su sesión ha finalizado",
+    //   text: `Por favor, vuelva a ingresar`,
+    //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //   customClass: {
+    //     popup: "custom-border", // Clase personalizada para el borde
+    //   }
+    // });
     return <Navigate to="/" />;
   }
+
 
   // Efectos de transición para la apertura del sidebar en móviles
   const sidebarVariants = {
@@ -91,6 +106,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAuthenticated, isDarkMode }
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
+  token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
 });
 

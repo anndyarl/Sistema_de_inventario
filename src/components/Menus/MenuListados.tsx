@@ -19,31 +19,31 @@ interface Props {
 const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
-        {
-            name: 'General',
-            href: '/Informes/Listados/ListadoInformeGeneral',
-            icon: FileEarmarkSpreadsheet
-        },
+        // {
+        //     name: 'General',
+        //     href: '/Informes/Listados/ListadoInformeGeneral',
+        //     icon: FileEarmarkSpreadsheet
+        // },
         {
             name: 'Cuenta - Fechas',
             href: '/Informes/Listados/CuentaFechas',
             icon: FileEarmarkSpreadsheet
         },
-        {
-            name: 'Cuenta Servicio Fecha',
-            href: '/Informes/Listados/CuentaServicioFecha',
-            icon: FileEarmarkSpreadsheet
-        },
-        {
-            name: 'Especie Fecha',
-            href: '/Informes/Listados/EspecieFecha',
-            icon: FileEarmarkSpreadsheet
-        },
-        {
-            name: 'Especie Servicio Fechas',
-            href: '/Informes/Listados/EspecieServicioFechas',
-            icon: FileEarmarkSpreadsheet
-        },
+        // {
+        //     name: 'Cuenta Servicio Fecha',
+        //     href: '/Informes/Listados/CuentaServicioFecha',
+        //     icon: FileEarmarkSpreadsheet
+        // },
+        // {
+        //     name: 'Especie Fecha',
+        //     href: '/Informes/Listados/EspecieFecha',
+        //     icon: FileEarmarkSpreadsheet
+        // },
+        // {
+        //     name: 'Especie Servicio Fechas',
+        //     href: '/Informes/Listados/EspecieServicioFechas',
+        //     icon: FileEarmarkSpreadsheet
+        // },
 
     ];
 
