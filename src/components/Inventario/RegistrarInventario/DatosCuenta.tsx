@@ -5,7 +5,8 @@ import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store.ts";
 import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
 import { Check2Circle, Plus } from "react-bootstrap-icons";
-
+import Select from "react-select";
+import { listaPorCodigoEspecieActions } from "../../../redux/actions/Inventario/RegistrarInventario/listaPorCodigoEspecieActions.tsx";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -76,12 +77,18 @@ interface DatosCuentaProps extends CuentaProps {
   onEspecieSeleccionado: (nombreEspecie: string) => void; // Nueva prop para pasar el detalle seleccionado
   especieSeleccionado: string | null | undefined;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
+  listaPorCodigoEspecieActions: (esp_codigo: string) => void;
   isDarkMode: boolean;
 }
 //Paso 2 del Formulario
 const DatosCuenta: React.FC<DatosCuentaProps> = ({
   onNext,
   onBack,
+  onServicioSeleccionado,
+  onBienSeleccionado,
+  onDetalleSeleccionado,
+  onEspecieSeleccionado,
+  listaPorCodigoEspecieActions,
   //Combos
   comboServicio,
   comboCuenta,
@@ -97,11 +104,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   // bien,
   // detalles,
   descripcionEspecie,
-  isDarkMode,
-  onServicioSeleccionado,
-  onBienSeleccionado,
-  onDetalleSeleccionado,
-  onEspecieSeleccionado,
+  isDarkMode
 }) => {
 
   const [Cuenta, setCuenta] = useState({
@@ -125,18 +128,14 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const elementosPorPagina = 20;
   const [error, setError] = useState<Partial<CuentaProps>>({});
 
-  //Validaciones del formulario
-  const validate = () => {
-    let tempErrors: Partial<any> & {} = {};
-    // Validación para N° de Recepción (debe ser un número)
-    if (!Cuenta.servicio) tempErrors.servicio = "El Servicio es obligatorio.";
-    if (!Cuenta.dependencia)
-      tempErrors.dependencia = "La Dependencia es obligatoria.";
-    if (!Cuenta.especie) tempErrors.especie = "La Especie es obligatorio.";
-    if (!Cuenta.cuenta) tempErrors.cuenta = "La Cuenta es obligatorio.";
+  const especieOptions = listaEspecie.map((item) => ({
+    value: item.esP_CODIGO.toString(),
+    label: item.nombrE_ESP,
+  }));
 
-    setError(tempErrors);
-    return Object.keys(tempErrors).length === 0;
+  const handleEspecieChange = (selectedOption: any) => {
+    const value = selectedOption ? selectedOption.value : "";
+    listaPorCodigoEspecieActions(value);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -173,6 +172,19 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     }
 
   };
+  //Validaciones del formulario
+  const validate = () => {
+    let tempErrors: Partial<any> & {} = {};
+    // Validación para N° de Recepción (debe ser un número)
+    if (!Cuenta.servicio) tempErrors.servicio = "El Servicio es obligatorio.";
+    if (!Cuenta.dependencia)
+      tempErrors.dependencia = "La Dependencia es obligatoria.";
+    if (!Cuenta.especie) tempErrors.especie = "La Especie es obligatorio.";
+    if (!Cuenta.cuenta) tempErrors.cuenta = "La Cuenta es obligatorio.";
+
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
   useEffect(() => {
     setCuenta({
       servicio,
@@ -207,6 +219,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       // console.log("Formulario Datos cuenta:", Cuenta);
     }
   };
+
   const handleVolver = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onBack();
@@ -266,10 +279,11 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
           <h3 className="form-title fw-semibold border-bottom p-1">
             Detalles de Inventario
           </h3>
+          <p className="p-1  fw-semibold">* Campos obligatorios</p>
           <Row>
             <Col md={6}>
-              <div className="mt-1">
-                <label className="fw-semibold">Servicio</label>
+              <div className="mt-2">
+                <label className="fw-semibold">Servicio *</label>
                 <select
                   aria-label="servicio"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
@@ -289,7 +303,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                 )}
               </div>
               <div className="mt-1">
-                <label className="fw-semibold">Dependencia</label>
+                <label className="fw-semibold">Dependencia *</label>
                 <select
                   aria-label="dependencia"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependencia ? "is-invalid" : ""}`}
@@ -298,7 +312,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                   value={Cuenta.dependencia}
                   disabled={!Cuenta.servicio}
                 >
-                  <option value="">Selecciona una opción</option>
+                  <option value="">Selecciona una opción *</option>
                   {comboDependencia.map((traeDependencia) => (
                     <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
                       {traeDependencia.nombrE_ORD}
@@ -312,7 +326,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
             </Col>
             <Col md={6}>
               <div className="mb-1">
-                <label className="fw-semibold">Especie</label>
+                <label className="fw-semibold">Especie *</label>
                 <dd className="d-flex align-items-center">
                   <input
                     aria-label="especie"
@@ -337,7 +351,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                 )}
               </div>
               <div className="mb-1">
-                <label className="fw-semibold">Cuenta</label>
+                <label className="fw-semibold">Cuenta *</label>
                 <select
                   aria-label="cuenta"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.cuenta ? "is-invalid" : ""}`}
@@ -423,6 +437,50 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                       ))}
                     </select>
                   </dd>
+                </div>
+                <div className="mb-1 w-50">
+                  <label className="fw-semibold">
+                    Buscar Especie
+                  </label>
+                  <Select
+                    options={especieOptions}
+                    onChange={(selectedOption) => {
+                      if (selectedOption === null) {
+                        console.log('Se limpió el campo');
+                        // Aquí va tu acción al limpiar
+                      } else {
+                        handleEspecieChange(selectedOption);
+                      }
+                    }}
+                    name="buscarEspcie"
+                    placeholder="Buscar"
+                    className={`form-select-container`}
+                    classNamePrefix="react-select"
+                    isClearable
+                    isSearchable
+                    styles={{
+                      control: (baseStyles) => ({
+                        ...baseStyles,
+                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                        color: isDarkMode ? "white" : "#212529", // Texto blanco
+                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                      }),
+                      singleValue: (base) => ({
+                        ...base,
+                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                        color: isDarkMode ? "white" : "#212529",
+                      }),
+                      option: (base, { isFocused, isSelected }) => ({
+                        ...base,
+                        backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                        color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                      }),
+                    }}
+                  />
                 </div>
                 {/* <div className="mb-1">
                                     <dd className="d-flex align-items-center">
@@ -510,4 +568,6 @@ const mapStateToProps = (state: RootState) => ({
   isDarkMode: state.darkModeReducer.isDarkMode
 });
 
-export default connect(mapStateToProps, {})(DatosCuenta);
+export default connect(mapStateToProps, {
+  listaPorCodigoEspecieActions
+})(DatosCuenta);

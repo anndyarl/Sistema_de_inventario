@@ -264,7 +264,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
           <div className="mb-3 border p-1 rounded-4">
             <div
               className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
-              <h5 className="fw-semibold">PARÁMETROS DE BÙSQUEDA</h5>
+              <h5 className="fw-semibold">PARÁMETROS DE BÚSQUEDA</h5>
               {isExpanded.fila1 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (

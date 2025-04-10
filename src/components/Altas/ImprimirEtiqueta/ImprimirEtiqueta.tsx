@@ -149,7 +149,7 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                             <input
                                 aria-label="aF_CLAVE"
                                 type="text"
-                                className={`form-select text-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CLAVE ? "is-invalid" : ""}`}
+                                className={`form-select text-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_CLAVE ? "is-invalid" : ""}`}
                                 maxLength={12}
                                 size={50}
                                 name="aF_CLAVE"
@@ -157,8 +157,8 @@ const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, 
                                 onChange={handleChange}
                                 value={Inventario.aF_CLAVE}
                             />
-                            {error.aF_CLAVE && (
-                                <div className="invalid-feedback fw-semibold">{error.aF_CLAVE}</div>
+                            {error.AF_CLAVE && (
+                                <div className="invalid-feedback fw-semibold">{error.AF_CLAVE}</div>
                             )}
                         </div>
 

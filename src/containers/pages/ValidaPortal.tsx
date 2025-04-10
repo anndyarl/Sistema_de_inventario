@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { login, logout } from "../../redux/actions/auth/auth";
-import { connect } from "react-redux";
-import { RootState } from "../../store";
+import { connect, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
 import { useNavigate } from "react-router-dom";
 import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
 import { Helmet } from "react-helmet-async";
 import { Button } from "react-bootstrap";
+import Swal from "sweetalert2";
 
 interface Props {
   login: (usuario: string, password: string) => Promise<boolean>;
-  validaApiloginActions: (rut: string) => Promise<boolean>;
-  logout: () => Promise<boolean>;
+  validaApiloginActions: (rut: string) => Promise<number>;
+  logout: () => void;
   isDarkMode: boolean;
 }
 
@@ -19,7 +20,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
   const [showButton, setShowButton] = useState(false);
   const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
   const password = import.meta.env.VITE_PASSWORD_API_LOGIN;
-
+  const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     // Temporizador para mostrar el botón después de 20 segundos
     const timer = setTimeout(() => {
@@ -40,20 +41,37 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
         const datos = JSON.parse(decodeURIComponent(datosPersona));
         const rutUsuario = datos.sub;
 
-        await login(usuario, password);
-        const esValido = await validaApiloginActions(rutUsuario);
-
-        if (esValido) {
-          navigate("/Inicio");
-        } else {
-          await logout();
-          navigate("/Denegado");
+        const obtieneToken = await login(usuario, password);
+        if (obtieneToken) {
+          const esValido = await validaApiloginActions(rutUsuario);
+          if (esValido == 1) {
+            navigate("/Inicio");
+          }
+          else if (esValido == 0) {
+            dispatch(logout());
+            navigate("/Denegado");
+          }
+          else {
+            dispatch(logout());
+            navigate("/");
+            Swal.fire({
+              icon: "warning",
+              title: "Error de Conexión",
+              text: "Se ha perdido la comunicación con el servidor. Le recomendamos intentar más tarde. Si el problema continúa, por favor, comuníquese con el equipo de Mesa de Ayuda o Desarrollo.",
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+              }
+            });
+          }
         }
       } catch (error) {
-        console.error("Error al procesar datosPersona:", error);
+        // console.error("Error al procesar datosPersona:", error);
       }
     } else {
-      console.error("No se encontraron datosPersona en la URL.");
+      // console.error("No se encontraron datosPersona en la URL.");
     }
   };
 
@@ -89,6 +107,8 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
 
 const mapStateToProps = (state: RootState) => ({
   isDarkMode: state.darkModeReducer.isDarkMode,
+
+
 });
 
 export default connect(mapStateToProps, {

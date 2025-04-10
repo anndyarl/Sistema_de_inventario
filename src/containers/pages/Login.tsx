@@ -9,8 +9,8 @@ import clave_unica_svg from "../../assets/img/clave_unica_color.png"
 import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
 interface Props {
   login: (usuario: string, password: string) => void;
-  validaApiloginActions: (rut: string) => Promise<boolean>;
-  logout: () => Promise<boolean>;
+  validaApiloginActions: (rut: string) => Promise<number>;
+  logout: () => void;
   isAuthenticated: boolean | null;
   error: string | null;
 }

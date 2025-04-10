@@ -2,17 +2,19 @@ import React from "react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Ban } from "react-bootstrap-icons";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   isDarkMode: boolean;
   isAuthenticated: boolean | null;
 }
 const Denegado: React.FC<Props> = ({ isDarkMode, isAuthenticated }) => {
-
+  const navigate = useNavigate();
   if (isAuthenticated) {
-    return <Navigate to="/" />;
+    navigate("/");
+    // return <Navigate to="/" />;
   }
+
   return (
     <div className={`d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? "bg-color-dark" : ""}`}>
       <div className="col-12 col-md-8 text-center">
@@ -22,7 +24,7 @@ const Denegado: React.FC<Props> = ({ isDarkMode, isAuthenticated }) => {
           Su usuario no cuenta con los permisos necesarios para acceder a esta funcionalidad.
         </p>
         <p className={`fs-6 mb-5 ${isDarkMode ? "text-white" : "text-muted"}`}>
-          Si considera que este es un error, por favor, comuníquese con el Departamento de Informática para gestionar los permisos correspondientes.
+          Si considera que este es un error, por favor, comuníquese con la Unidad de Desarrollo para gestionar los permisos correspondientes.
         </p>
         <div className="p-4 rounded d-inline-block">
           <a href="/" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} px-4 py-2`}>

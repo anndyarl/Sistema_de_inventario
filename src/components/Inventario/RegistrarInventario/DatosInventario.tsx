@@ -34,7 +34,7 @@ import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/Regis
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
-import { DEPENDENCIA, SERVICIO } from "./DatosCuenta";
+import { DEPENDENCIA, ListaEspecie, SERVICIO } from "./DatosCuenta";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: string;
@@ -109,6 +109,7 @@ interface DatosInventarioProps extends InventarioProps {
   comboProveedor: PROVEEDOR[];
   comboServicio: SERVICIO[];
   comboDependencia: DEPENDENCIA[];
+  listaEspecie: ListaEspecie[];
   // comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
@@ -123,7 +124,6 @@ interface DatosInventarioProps extends InventarioProps {
 //Paso 1 del Formulario
 const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
-  obtenerRecepcionActions,
   comboOrigen,
   comboModalidad,
   comboProveedor,
@@ -150,7 +150,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   resultadoRegistro,
   /*----resumen inventario registrado*/
   formulariosCombinados,
-  activosFijos
+  activosFijos,
+  listaEspecie
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
     fechaFactura: "",
@@ -170,8 +171,9 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   const classNames = (...classes: (string | boolean | undefined)[]): string => { return classes.filter(Boolean).join(" "); };
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  // const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
+
   const proveedorOptions = comboProveedor.map((item) => ({
     value: item.proV_RUN.toString(),
     label: item.proV_NOMBRE,
@@ -317,11 +319,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       //   dispatch(setInventarioRegistrado(0));
       // }
     });
-
-
-    // Reinicia el estado de resultadoRegistro para no volver a mostrar alerta y modal
-    // dispatch(setInventarioRegistrado(0));
-
   };
 
   // Muestra la alerta solo si resultadoRegistro es 1
@@ -363,45 +360,45 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     usuarioCrea
   ]);
 
-  const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setLoading(true); // Inicia el estado de carga
-    if (!Inventario.nRecepcion) {
-      Swal.fire({
-        icon: "warning",
-        title: "Por favor, ingrese un número de recepción.",
-        confirmButtonText: "Ok",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-      setLoading(false);
-      return;
-    }
-    // Despacha la acción para obtener la recepción en el formulario de activos fijos
-    const resultado = await obtenerRecepcionActions(Inventario.nRecepcion);
-    if (!resultado) {
-      Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
-        confirmButtonText: "Ok",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-      setLoading(false); //Finaliza estado de carga
-      return;
-    } else {
-      setLoading(false); //Finaliza estado de carga
-    }
-  };
+  // const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   e.preventDefault();
+  //   setLoading(true); // Inicia el estado de carga
+  //   if (!Inventario.nRecepcion) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Por favor, ingrese un número de recepción.",
+  //       confirmButtonText: "Ok",
+  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //       customClass: {
+  //         popup: "custom-border", // Clase personalizada para el borde
+  //       }
+  //     });
+  //     setLoading(false);
+  //     return;
+  //   }
+  //   // Despacha la acción para obtener la recepción en el formulario de activos fijos
+  //   const resultado = await obtenerRecepcionActions(Inventario.nRecepcion);
+  //   if (!resultado) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: ":'(",
+  //       text: "No se encontraron resultados, inténte otro registro.",
+  //       confirmButtonText: "Ok",
+  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+  //       customClass: {
+  //         popup: "custom-border", // Clase personalizada para el borde
+  //       }
+  //     });
+  //     setLoading(false); //Finaliza estado de carga
+  //     return;
+  //   } else {
+  //     setLoading(false); //Finaliza estado de carga
+  //   }
+  // };
   const handleLimpiar = () => {
     const tieneDatos = Object.values(Inventario).some((valor) => valor !== "" && valor !== 0);
     if (tieneDatos) {
@@ -484,12 +481,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           <h3 className="form-title fw-semibold border-bottom p-1">
             Registrar Inventario
           </h3>
+          <p className="p-1  fw-semibold">* Campos obligatorios</p>
           <Row>
             <Col md={4}>
               {/* Nº Recepción */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Nº Recepción
+                  Nº Recepción *
                 </label>
                 <div className="d-flex align-items-center">
                   <input
@@ -521,7 +519,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                       />
                     )}
                   </Button> */}
-                  <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
+                  <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  mx-1`}>
                     <Eraser
                       className={classNames("flex-shrink-0", "h-5 w-5")}
                       aria-hidden="true"
@@ -534,11 +532,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   </div>
                 )}
               </div>
-
               {/* Fecha Recepción */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Fecha Recepción
+                  Fecha Recepción *
                 </label>
                 <input
                   aria-label="fechaRecepcion"
@@ -552,11 +549,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   <div className="invalid-feedback fw-semibold">{error.fechaRecepcion}</div>
                 )}
               </div>
-
               {/* N° Orden de Compra */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  N° Orden de Compra
+                  N° Orden de Compra *
                 </label>
                 <input
                   aria-label="nOrdenCompra"
@@ -573,11 +569,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 )}
               </div>
             </Col>
+
             <Col md={4}>
               {/* Nº Factura */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Nº Factura
+                  Nº Factura *
                 </label>
                 <input
                   aria-label="nFactura"
@@ -593,11 +590,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   <div className="invalid-feedback fw-semibold">{error.nFactura}</div>
                 )}
               </div>
-
               {/* Origen Presupuesto */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Origen Presupuesto
+                  Origen Presupuesto *
                 </label>
                 <select
                   aria-label="origenPresupuesto"
@@ -618,11 +614,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   <div className="invalid-feedback fw-semibold">{error.origenPresupuesto}</div>
                 )}
               </div>
-
               {/* Monto Recepción */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Monto Recepción
+                  Monto Recepción *
                 </label>
                 <input
                   aria-label="montoRecepcion"
@@ -638,11 +633,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 )}
               </div>
             </Col>
+
             <Col md={4}>
               {/* Fecha Factura */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Fecha Factura
+                  Fecha Factura *
                 </label>
                 <input
                   aria-label="fechaFactura"
@@ -657,10 +653,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   <div className="invalid-feedback fw-semibold">{error.fechaFactura}</div>
                 )}
               </div>
-
+              {/* Proveedor */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Proveedor
+                  Proveedor *
                 </label>
                 <Select
                   options={proveedorOptions}
@@ -703,11 +699,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 )}
 
               </div>
-
               {/* Modalidad de Compra */}
               <div className="mb-1">
                 <label className="fw-semibold">
-                  Modalidad de Compra
+                  Modalidad de Compra *
                 </label>
                 <select
                   aria-label="modalidadDeCompra"
@@ -776,7 +771,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               <p><strong>Nº Recepción:</strong></p>
               <p>{formulariosCombinados.nRecepcionR || 'N/A'}</p>
               <p><strong>Fecha Recepción:</strong></p>
-              <p>{formulariosCombinados.fechaRecepcionR || 'N/A'}</p>
+              <p>{new Date(formulariosCombinados.fechaRecepcionR).toLocaleDateString('es-CL') || 'N/A'}</p>
               <p><strong>N° Orden de Compra:</strong></p>
               <p>{formulariosCombinados.nOrdenCompraR || 'N/A'}</p>
             </Col>
@@ -799,7 +794,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </Col>
             <Col md={4}>
               <p><strong>Fecha Factura:</strong></p>
-              <p>{formulariosCombinados.fechaFacturaR || 'N/A'}</p>
+              <p>{new Date(formulariosCombinados.fechaFacturaR).toLocaleDateString('es-CL') || 'N/A'}</p>
 
               <p><strong>Proveedor:</strong></p>
               <p>{formulariosCombinados.rutProveedorR || 'N/A'}</p>
@@ -883,7 +878,11 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                     <tr key={index}>
                       <td>{item.id || 'N/A'}</td>
                       <td>{item.vidaUtil || 'N/A'}</td>
-                      <td>{item.fechaIngreso || 'N/A'}</td>
+                      <td>
+                        {item.fechaIngreso
+                          ? new Date(item.fechaIngreso).toLocaleDateString('es-CL') // Formato chileno: dd/mm/yyyy
+                          : 'N/A'}
+                      </td>
                       <td>{item.marca || 'N/A'}</td>
                       <td>{item.modelo || 'N/A'}</td>
                       <td >
@@ -893,7 +892,20 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                         })}
                       </td>
                       <td>{item.serie || 'N/A'}</td>
-                      <td>{item.especie || 'N/A'}</td>
+
+                      {(() => {
+                        let nombreEspecie = "N/A"; // Valor por defecto
+                        for (let i = 0; i < listaEspecie.length; i++) {
+                          if (String(listaEspecie[i].esP_CODIGO) === String(item.especie)) {
+                            nombreEspecie = listaEspecie[i].nombrE_ESP;
+                            break; // Salir del bucle una vez encontrado
+                          }
+                        }
+                        return <td>{nombreEspecie}</td>;
+                      })()}
+
+
+
                       <td>{item.observaciones || 'N/A'}</td>
                     </tr>
                   ))

@@ -88,7 +88,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: `Error en la solicitud. Por favor, intentne nuevamente.`,
+            text: `Error en la solicitud. Por favor, intente nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,

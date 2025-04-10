@@ -68,19 +68,19 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         if (resultado) {
           setLoading(false);
         }
-        else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
-          });
-        }
+        // else {
+        //   Swal.fire({
+        //     icon: "error",
+        //     title: "Error",
+        //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
+        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //     customClass: {
+        //       popup: "custom-border", // Clase personalizada para el borde
+        //     }
+        //   });
+        // }
       }
     }
   };
@@ -243,7 +243,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         Swal.fire({
           icon: "error",
           title: ":'(",
-          text: `Hubo un problema al anular las Altas`,
+          text: `Hubo un problema al anular las Altas.`,
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -455,7 +455,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Código</th>
+                    {/* <th scope="col" className="text-nowrap text-center">Código generico</th> */}
                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                     <th scope="col" className="text-nowrap text-center">N° Alta</th>
                     <th scope="col" className="text-nowrap text-center">Servicio</th>
@@ -484,8 +484,8 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
+                        {/* <td className="text-nowrap text-center">{Lista.ninv}</td> */}
                         <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
-                        <td className="text-nowrap text-center">{Lista.ninv}</td>
                         <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
                         <td className="text-nowrap text-center">{Lista.serv ? "" : "S/N"}</td>
                         <td className="text-nowrap text-center">{Lista.dep ? "" : "S/N"}</td>

@@ -83,7 +83,6 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
 
         logoutTimeout.current = window.setTimeout(() => {
             dispatch(logout());
-
             Swal.fire({
                 icon: "info",
                 title: "Su sesión expiró",

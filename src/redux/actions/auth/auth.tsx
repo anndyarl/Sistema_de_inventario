@@ -3,7 +3,6 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
-  SET_TOKEN,
   LOGOUT,
 
 } from './types';
@@ -35,7 +34,6 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
       if (token) {
         // Si se obtiene el token, realizar los dispatch correspondientes
         dispatch({ type: LOGIN_SUCCESS, payload: token });
-        dispatch({ type: SET_TOKEN, payload: token });
         return true;
       } else {
         // Si no se encuentra el token, manejar el error
@@ -63,20 +61,6 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
   }
 };
 
-export const logout = () => async (dispatch: Dispatch): Promise<boolean> => {
-  dispatch({ type: LOGOUT });
-  return true;
-};
-
-//   const token = localStorage.getItem('token');
-
-//   if (token) {
-//     dispatch({ type: SET_TOKEN, payload: token });
-//     dispatch({ type: LOGIN_SUCCESS, payload: token }); // Asume que el token es válido
-//   } else {
-//     dispatch({ type: LOGIN_FAIL });
-//   }
-// };
-
-//endpoint que se consulta con parametro token recibido
-// https://sidra.ssmso.cl/api_erp_inv_qa/api/claveunica/validarportal/
+export const logout = () => ({
+  type: LOGOUT
+});

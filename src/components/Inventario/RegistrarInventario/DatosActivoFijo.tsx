@@ -44,7 +44,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
-import { obtenerMaxInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerMaxInventarioActions";
+// import { obtenerMaxInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerMaxInventarioActions";
 
 // Props del formulario
 export interface ActivoFijo {
@@ -75,7 +75,7 @@ interface DatosActivoFijoProps {
   generalTabla?: string;
   formInventario: FormInventario;
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
-  obtenerMaxInventarioActions: () => Promise<Boolean>;
+  // obtenerMaxInventarioActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   vidaUtil: string;
   fechaIngreso: string;
@@ -84,7 +84,7 @@ interface DatosActivoFijoProps {
   modelo: string;
   observaciones: string;
   precio: string;
-  AF_CODIGO_GENERICO: number;//trae ultimo correlativo ingresado
+  // AF_CODIGO_GENERICO: number;//trae ultimo correlativo ingresado
 }
 
 //Paso 3 del Formulario
@@ -103,9 +103,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   modelo,
   observaciones,
   precio,
-  AF_CODIGO_GENERICO,
+  // AF_CODIGO_GENERICO,
   registrarFormInventarioActions,
-  obtenerMaxInventarioActions
+  // obtenerMaxInventarioActions
 }) => {
 
   //Estado que guarda en un array los objetos que irán en la tabla
@@ -274,19 +274,19 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     });
   };
 
-  const funcionObtieneMaxRegistro = () => {
-    if (AF_CODIGO_GENERICO === 0) {
-      obtenerMaxInventarioActions();
-    }
-  };
+  // const funcionObtieneMaxRegistro = () => {
+  //   if (AF_CODIGO_GENERICO === 0) {
+  //     obtenerMaxInventarioActions();
+  //   }
+  // };
 
   //Sincroniza los numero de serie de la tabla datosTablaActivoFijo con el estado global de redux
   useEffect(() => {
     if (datosTablaActivoFijo.length > 0) {
       setActivosFijos(datosTablaActivoFijo);
     }
-    funcionObtieneMaxRegistro();
-  }, [datosTablaActivoFijo, funcionObtieneMaxRegistro, paginaActual]);
+    // funcionObtieneMaxRegistro();
+  }, [datosTablaActivoFijo, /*funcionObtieneMaxRegistro*/, paginaActual]);
 
   //Renderiza los datos almacenados en el estado global de redux
   useEffect(() => {
@@ -600,7 +600,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
           if (resultado) {
             // Espera a obtener el nuevo código antes de continuar
-            funcionObtieneMaxRegistro();
+            // funcionObtieneMaxRegistro();
             dispatch(setNRecepcionActions(0));
             dispatch(setFechaRecepcionActions(""));
             dispatch(setNOrdenCompraActions(""));
@@ -1088,9 +1088,9 @@ const mapStateToProps = (state: RootState) => ({
   modelo: state.datosActivoFijoReducers.modelo,
   observaciones: state.datosActivoFijoReducers.observaciones,
   precio: state.datosActivoFijoReducers.precio,
-  AF_CODIGO_GENERICO: state.obtenerMaxInventarioReducers.AF_CODIGO_GENERICO
+  // AF_CODIGO_GENERICO: state.obtenerMaxInventarioReducers.AF_CODIGO_GENERICO
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,
-  obtenerMaxInventarioActions
+  // obtenerMaxInventarioActions
 })(DatosActivoFijo);

@@ -94,7 +94,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
     //             Swal.fire({
     //                 icon: "error",
     //                 title: "Error",
-    //                 text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+    //                 text: `Error en la solicitud. Por favor, intente nuevamente.`,
     //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
     //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
     //                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,

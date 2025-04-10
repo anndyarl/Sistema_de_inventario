@@ -6,7 +6,7 @@ import {
 } from './types';
 import { Dispatch } from 'redux';
 
-export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch, getState: any): Promise<number> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -32,10 +32,14 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
             type: VALIDA_PORTAL_SUCCESS,
             payload: { ...objeto, establecimiento, usr_run }
           });
-
-          return true;
+          return 1;
         } else {
-          return false;
+          dispatch({
+            type: VALIDA_PORTAL_FAIL,
+            error:
+              "Usuario sin permisos.",
+          });
+          return 0;
         }
       } else {
         dispatch({
@@ -43,7 +47,7 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
           error:
             "No se pudo obtener los datos del usuario. Por favor, intente nuevamente.",
         });
-        return false;
+        return -1;
       }
     } catch (err) {
       console.error("Error de conexión:", err);
@@ -51,13 +55,13 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
         type: VALIDA_PORTAL_FAIL,
         error: "Error de conexión Por favor, intente nuevamente.",
       });
-      return false;
+      return -1;
     }
   } else {
     dispatch({
       type: VALIDA_PORTAL_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    return false;
+    return -1;
   }
 };

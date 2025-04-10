@@ -110,7 +110,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: `Error en la solicitud. Por favor, intentne nuevamente.`,
+            text: `Error en la solicitud. Por favor, intente nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -194,7 +194,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
           Swal.fire({
             icon: "success",
             title: "Enviado a Bodega de Excluidos",
-            text: "Se ha enviado correctamente",
+            text: "Se ha enviado correctamente.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,

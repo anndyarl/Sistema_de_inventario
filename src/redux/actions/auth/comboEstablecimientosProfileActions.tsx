@@ -24,17 +24,22 @@ export const comboEstablecimientosProfileActions = () => async (dispatch: Dispat
             const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraEstablecimientos`, config);
 
             if (res.status === 200) {
-                dispatch({
-                    type: COMBO_PROFILE_ESTABLECIMIENTO_SUCCESS,
-                    payload: res.data
-                });
-                return true;
+                if (res.data.length > 0) {
+                    dispatch({
+                        type: COMBO_PROFILE_ESTABLECIMIENTO_SUCCESS,
+                        payload: res.data
+                    });
+                    return true;
+                } else {
+                    dispatch({ type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL });
+                    return false;
+                }
             } else {
                 dispatch({ type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL });
                 return false;
             }
         } catch (err) {
-            console.error("Error en la solicitud:", err);
+            // console.error("Error en la solicitud:", err);
             dispatch({ type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL });
             return false;
         }

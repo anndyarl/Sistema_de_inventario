@@ -64,19 +64,19 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                 if (resultado) {
                     setLoading(false);
                 }
-                else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: `Error en la solicitud. Por favor, intentne nuevamente.`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                }
+                // else {
+                //     Swal.fire({
+                //         icon: "error",
+                //         title: "Error",
+                //         text: `Error en la solicitud. Por favor, intente nuevamente.`,
+                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                //         customClass: {
+                //             popup: "custom-border", // Clase personalizada para el borde
+                //         }
+                //     });
+                // }
             }
         }
     };

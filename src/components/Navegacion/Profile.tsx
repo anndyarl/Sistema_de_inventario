@@ -1,12 +1,10 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
-import { LogOut, Signature, UserCircle } from 'lucide-react';
+import { LogOut, UserCircle } from 'lucide-react';
 import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
 import { RootState } from "../../redux/reducers";
 import { Navigate } from 'react-router-dom';
-import { BarChart, Building, Database, Gear, Geo, Git } from "react-bootstrap-icons";
+import { Building, Database, Gear, Geo, Git } from "react-bootstrap-icons";
 import { Col, Modal, Row, Spinner } from "react-bootstrap";
 import General from "../Configuracion/General";
 import Datos from "../Configuracion/Datos";
@@ -15,9 +13,10 @@ import Versionamiento from "../Configuracion/Versionamiento";
 import Indicadores from "../Configuracion/Indicadores";
 import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
 import { logout } from "../../redux/actions/auth/auth";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { ESTABLECIMIENTO } from "../Traslados/RegistrarTraslados";
 import { comboEstablecimientosProfileActions } from "../../redux/actions/auth/comboEstablecimientosProfileActions";
+import { AppDispatch } from "../../store";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
@@ -52,10 +51,10 @@ export interface Objeto {
 }
 
 interface ProfileProps {
-  logout: () => Promise<boolean>;
+  logout: () => void;
   indicadoresActions: () => Promise<boolean>;
   comboEstablecimiento: ESTABLECIMIENTO[];
-  comboEstablecimientosProfileActions: () => void;
+
   objeto: Objeto;
   utm: IndicadoresProps;
   uf: IndicadoresProps;
@@ -63,15 +62,16 @@ interface ProfileProps {
   bitcoin: IndicadoresProps;
   ipc: IndicadoresProps;
   isDarkMode: boolean;
+  token: string | null;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEstablecimientosProfileActions, comboEstablecimiento, objeto, utm, uf, dolar, ipc, isDarkMode }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEstablecimiento, objeto, utm, uf, dolar, ipc, isDarkMode, token }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
   const [mostrarModal, setMostrarModal] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch<AppDispatch>();
   const cargaIndicadores = async () => {
 
     if (uf.valor === 0 && utm.valor === 0 && dolar.valor === 0 && ipc.valor === 0) {
@@ -83,15 +83,14 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEsta
     }
   }
   useEffect(() => {
-    if (comboEstablecimiento.length === 0) comboEstablecimientosProfileActions();
-    cargaIndicadores();
-  }, [indicadoresActions, comboEstablecimientosProfileActions, comboEstablecimiento]);
-
-  const handleLogout = async () => {
-    let resultado = await logout();
-    if (resultado) {
-      return <Navigate to="/" />;
+    if (token) {
+      cargaIndicadores();
     }
+  }, [indicadoresActions, comboEstablecimientosProfileActions]);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    return <Navigate to="/" />;
   };
 
   //Efectos de transicion apertura profile
@@ -165,7 +164,8 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEsta
                   <strong> <Building
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
-                  />Dependencia: </strong> {objeto.Roles[0].NombreRol}
+                  />
+                    Dependencia: </strong> {objeto.Roles[0].NombreRol}
                 </p>
                 <p className="mb-2 fw-fw-normal  fs-6 fs-md-5 fs-lg-4 ">
                   <strong> <Geo
@@ -283,12 +283,12 @@ const mapStateToProps = (state: RootState) => ({
   dolar: state.indicadoresReducers.dolar,
   bitcoin: state.indicadoresReducers.bitcoin,
   ipc: state.indicadoresReducers.ipc,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  token: state.loginReducer.token,
 });
 
 export default connect(mapStateToProps, {
   logout,
-  indicadoresActions,
-  comboEstablecimientosProfileActions
+  indicadoresActions
 })(Profile);
 

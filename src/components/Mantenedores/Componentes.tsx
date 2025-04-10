@@ -4,7 +4,7 @@ import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
 import { Plus } from "react-bootstrap-icons";
@@ -74,19 +74,19 @@ const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comb
                 if (resultado) {
                     setLoading(false);
                 }
-                else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: `Error en la solicitud. Por favor, intentne nuevamente.`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                }
+                // else {
+                //     Swal.fire({
+                //         icon: "error",
+                //         title: "Error",
+                //         text: `Error en la solicitud. Por favor, intente nuevamente.`,
+                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                //         customClass: {
+                //             popup: "custom-border", // Clase personalizada para el borde
+                //         }
+                //     });
+                // }
             }
         }
     };

@@ -12,7 +12,6 @@ import { obtenerInventarioActions } from "../../redux/actions/Inventario/Modific
 import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
-
 import { comboCuentaActions } from "../../redux/actions/Inventario/Combos/comboCuentaActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import MenuInventario from "../Menus/MenuInventario";

@@ -7,7 +7,7 @@ import { RootState } from "../../../../store";
 import Layout from "../../../../containers/hocs/layout/Layout";
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
-import { Eraser, Pencil, Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import DocumentoPDF from "./DocumentoPDFConsultaInventarioEspecie";
 import MenuInformes from "../../../Menus/MenuInformes";
 import { listaConsultaInventarioEspecieActions } from "../../../../redux/actions/Informes/Principal/ConsultaInventarioEspecies/listaConsultaInventarioEspecieActions";
@@ -127,7 +127,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
                     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "000000"}`,
                     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,

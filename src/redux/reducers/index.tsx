@@ -81,6 +81,7 @@ import listaAltasReducers from "./Altas/AltasRegistradas/listaAltasReducers";
 import listaAltasRegistradasReducers from "./Altas/AnularAltas/listaAltasRegistradasReducers";
 import resumenInventarioRegistroReducers from "./Inventario/RegistrarInventario/resumenInventarioRegistroReducers";
 import datosAltaRegistradaReducers from "./Altas/AltasRegistradas/datosAltaRegistradaReducers";
+import listaVersionamientoReducers from "./Configuracion/listaVersionamientoReducers";
 
 
 
@@ -153,6 +154,9 @@ const appReducer = combineReducers({
   respuestaReducer,
   //guarda el numero de paginacion
   mostrarNPaginacionReducer,
+
+  //Versionamiento
+  listaVersionamientoReducers,
 
   //Informes
   comboServicioInformeReducers,

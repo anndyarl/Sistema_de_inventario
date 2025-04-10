@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
+import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -91,7 +91,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: `Error en la solicitud. Por favor, intentne nuevamente.`,
+            text: `Error en la solicitud. Por favor, intente nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -124,26 +124,26 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
     }
   };
 
-  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setFilaSeleccionada(
-        elementosActuales.map((_, index) =>
-          (indicePrimerElemento + index).toString()
-        )
-      );
-    } else {
-      setFilaSeleccionada([]);
-    }
-  };
+  // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.checked) {
+  //     setFilaSeleccionada(
+  //       elementosActuales.map((_, index) =>
+  //         (indicePrimerElemento + index).toString()
+  //       )
+  //     );
+  //   } else {
+  //     setFilaSeleccionada([]);
+  //   }
+  // };
 
-  const setSeleccionaFila = (index: number) => {
-    setMostrarModal(index); //Abre modal del indice seleccionado
-    setFilaSeleccionada((prev) =>
-      prev.includes(index.toString())
-        ? prev.filter((rowIndex) => rowIndex !== index.toString())
-        : [...prev, index.toString()]
-    );
-  };
+  // const setSeleccionaFila = (index: number) => {
+  //   setMostrarModal(index); //Abre modal del indice seleccionado
+  //   setFilaSeleccionada((prev) =>
+  //     prev.includes(index.toString())
+  //       ? prev.filter((rowIndex) => rowIndex !== index.toString())
+  //       : [...prev, index.toString()]
+  //   );
+  // };
 
   const handleCerrarModal = (index: number) => {
     setFilaSeleccionada((prevSeleccionadas) =>
@@ -217,7 +217,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
           // fechA_REMATES: listaRemates[activo].fechA_REMATES,
 
         }));
-        console.log(Formulario);
+        // console.log(Formulario);
         const resultado = await rematarBajasActions(Formulario);
 
         if (resultado) {

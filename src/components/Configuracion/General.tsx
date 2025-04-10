@@ -4,13 +4,12 @@ import { darkModeActions } from "../../redux/actions/Otros/darkModeActions";
 import { motion } from "framer-motion";
 import { Moon, Sun } from "react-bootstrap-icons";
 import { RootState } from "../../store";
-import { Navigate } from "react-router-dom";
 import { logout } from "../../redux/actions/auth/auth";
 import { setMostrarNPaginacionActions } from "../../redux/actions/Otros/mostrarNPaginacionActions";
 
 interface Props {
     isDarkMode: boolean;
-    logout: () => Promise<boolean>;
+    logout: () => void;
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
@@ -21,10 +20,7 @@ const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
         dispatch(darkModeActions());
     };
     const handleLogout = async () => {
-        let resultado = await logout();
-        if (resultado) {
-            return <Navigate to="/" />;
-        }
+        logout();
     };
 
     const [_, setPaginacion] = useState({
@@ -81,39 +77,30 @@ const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
                     </div>
                 </div>
             </div>
+            <div className="d-flex justify-content-between align-items-center border-bottom p-3">
+                <h6 className="fw-normal m-0">Tamaño máximo de la página</h6>
+                <div className="d-flex align-items-center">
+                    <p className="fw-semibold mb-0 me-2">Mostrar</p>
+                    <select
+                        aria-label="Paginación"
+                        className={`form-select w-auto mx-2 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        name="paginacion"
+                        onChange={handleChange}
+                        value={nPaginacion || 10}
+                    >
+                        {[10, 15, 20, 25, 50, 100, 150, 200].map((val) => (
+                            <option key={val} value={val}>{val}</option>
+                        ))}
+                    </select>
+                    <p className="fw-semibold mb-0">conversaciones por página</p>
+                </div>
+            </div>
             <div className="d-flex border-bottom justify-content-between align-items-center p-2">
                 <p className="fw-normal">Cerrar sesión</p>
                 <button onClick={handleLogout} type="button" className={`btn ${isDarkMode ? "btn-outline-light" : "btn-outline-secondary"} `}>
                     Cerrar Sesión
                 </button>
             </div>
-            <div className="d-flex border-bottom justify-content-between align-items-center p-2">
-                <h6 className="fw-normal">Tamaño máximo de la página</h6>
-                <div className="d-flex align-items-center justify-content-end">
-                    <div className="mt-1">
-                        <div className="d-flex">
-                            <p className="fw-semibold">Motrar</p>
-                            <select
-                                aria-label="paginacion"
-                                className={`form-select w-25 mx-2 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                name="paginacion"
-                                onChange={handleChange}
-                                value={nPaginacion || 10} // Si nPaginacion tiene un valor, úsalo; si no, usa 10
-                            >
-                                <option value="10">10</option>
-                                <option value="15">15</option>
-                                <option value="20">20</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                                <option value="150">150</option>
-                                <option value="200">200</option>
-                            </select>
-                            <p className="fw-semibold">conversaciones por página</p>
-                        </div>
-                    </div>
-                </div>
-            </div >
         </>
     );
 };

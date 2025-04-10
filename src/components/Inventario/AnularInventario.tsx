@@ -5,18 +5,72 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-
 import { Search } from "react-bootstrap-icons";
 import { obtenerListaInventarioActions } from "../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import MenuInventario from "../Menus/MenuInventario";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { InventarioCompleto } from "./ModificarInventario";
 import { Helmet } from "react-helmet-async";
-
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
+
+interface InventarioCompleto {
+  aF_CLAVE: string;
+  aF_CODIGO_GENERICO: string;
+  aF_CODIGO_LARGO: string;
+  deP_CORR: number;
+  esP_CODIGO: string;
+  aF_SECUENCIA: number;
+  itE_CLAVE: number;
+  aF_DESCRIPCION: string;
+  aF_FINGRESO: string;
+  aF_ESTADO: string;
+  aF_CODIGO: string;
+  aF_TIPO: string;
+  aF_ALTA: string;
+  aF_PRECIO_REF: number;
+  aF_CANTIDAD: number;
+  aF_ORIGEN: number;
+  aF_RESOLUCION: string;
+  aF_FECHA_SOLICITUD: string;
+  aF_OCO_NUMERO_REF: number;
+  usuariO_CREA: string;
+  f_CREA: string;
+  iP_CREA: string;
+  usuariO_MOD: string;
+  f_MOD: string;
+  iP_MOlabel: string;
+  aF_TIPO_DOC: number;
+  proV_RUN: number;
+  reG_EQM: string;
+  aF_NUM_FAC: string;
+  aF_FECHAFAC: string;
+  aF_3UTM: string;
+  iD_GRUPO: number;
+  ctA_COD: string;
+  transitoria: string;
+  aF_MONTOFACTURA: number;
+  esP_DESCOMPONE: string;
+  aF_ETIQUETA: string;
+  aF_VIDAUTIL: number;
+  aF_VIGENTE: string;
+  idprograma: number;
+  idmodalidadcompra: number;
+  idpropiedad: number;
+  especie: string;
+  deT_MARCA: string;
+  deT_MODELO: string;
+  deT_SERIE: string;
+  deT_LOTE: string;
+  deT_OBS: string;
+  iP_MOD: string;
+  deT_PRECIO: number;
+  deT_RECEPCION: number;
+  propietario: number;
+  tipopropietario: number;
+}
+
 interface ListaInventarioProps {
   datosListaInventario: InventarioCompleto[];
   obtenerListaInventarioActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
@@ -249,19 +303,19 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                     </tr>
                   </thead>
                   <tbody>
-                    {elementosActuales.map((Lista, index) => (
+                    {elementosActuales.map((datosListaInventario, index) => (
                       <tr key={index}>
-                        <td>{Lista.aF_CLAVE}</td>
-                        <td>{Lista.aF_FECHAFAC}</td>
-                        <td>{Lista.aF_FINGRESO}</td>
-                        <td>{Lista.idmodalidadcompra}</td>
-                        <td>{Lista.aF_MONTOFACTURA}</td>
-                        <td>{Lista.aF_NUM_FAC}</td>
-                        <td>{Lista.aF_ORIGEN}</td>
-                        <td>{Lista.proV_RUN}</td>
-                        <td>{Lista.deP_CORR}</td>
+                        <td>{datosListaInventario.aF_CLAVE}</td>
+                        <td>{datosListaInventario.aF_FECHAFAC}</td>
+                        <td>{datosListaInventario.aF_FINGRESO}</td>
+                        <td>{datosListaInventario.idmodalidadcompra}</td>
+                        <td>{datosListaInventario.aF_MONTOFACTURA}</td>
+                        <td>{datosListaInventario.aF_NUM_FAC}</td>
+                        <td>{datosListaInventario.aF_ORIGEN}</td>
+                        <td>{datosListaInventario.proV_RUN}</td>
+                        <td>{datosListaInventario.deP_CORR}</td>
                         <td>
-                          <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAnular(index, Lista.aF_CLAVE)}>
+                          <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}>
                             Anular
                           </Button>
                         </td>

@@ -2,12 +2,22 @@ import React from "react";
 import Layout from "../hocs/layout/Layout";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../redux/actions/auth/auth";
 
 interface Props {
-  isDarkMode: boolean;
+  logout: () => void;
+  isDarkMode: boolean
 }
+
 const Error404: React.FC<Props> = ({ isDarkMode }) => {
+
+  const navigate = useNavigate();
+
+  const HandleVolver = () => {
+    navigate("/");
+  }
   return (
     <Layout>
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -20,9 +30,9 @@ const Error404: React.FC<Props> = ({ isDarkMode }) => {
             Por favor, revisa la URL e intenta de nuevo o regresa a la página principal.
           </p>
           <div className="p-4 rounded d-inline-block ">
-            <NavLink to="/" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
+            <Button onClick={HandleVolver} className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
               Volver
-            </NavLink>
+            </Button>
           </div>
         </div>
       </div>
@@ -36,5 +46,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
+  logout
 })(Error404);
 

@@ -30,11 +30,13 @@ export const registroTrasladoActions = (FormularioTraslado: Record<string, any>)
 
             // Si el POST es exitoso
             if (response.status === 200) {
+                console.log("response.status", response.status);
                 if (response.data === 1) {
                     dispatch({
                         type: POST_FORMULARIO_TRASLADO_SUCCESS,
                         payload: response.data
                     });
+                    console.log("response.data", response.data);
                     return true;
                 }
                 else {
@@ -42,15 +44,14 @@ export const registroTrasladoActions = (FormularioTraslado: Record<string, any>)
                         type: POST_FORMULARIO_TRASLADO_FAIL,
                         payload: response.data
                     });
+                    console.log("response.data fail", response.data);
                     return false;
                 }
             }
         } catch (error: any) {
             // Manejo detallado del error
-            const errorMessage =
-                error.response?.data?.message ||
-                error.message ||
-                "Error al enviar el formulario";
+            const errorMessage = error.response?.data?.message || error.message || "Error al enviar el formulario";
+            console.log("errorMessage", errorMessage);
             dispatch({
                 type: POST_FORMULARIO_TRASLADO_FAIL,
                 payload: errorMessage,
@@ -59,10 +60,10 @@ export const registroTrasladoActions = (FormularioTraslado: Record<string, any>)
             return false; // Retorna false en caso de error
         }
     } else {
-        // console.error("No token available"); // Mensaje en caso de que no haya token
+        console.error("No token available"); // Mensaje en caso de que no haya token
         return false; // Retorna false si no hay token
     }
-
+    console.error("Retorno por defecto ");
     // Añadir un return al final de la función para cumplir con el tipo de retorno
     return false; // Retorno por defecto (esto nunca debería ser alcanzado)
 };

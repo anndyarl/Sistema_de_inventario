@@ -1,19 +1,51 @@
-import React from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { connect } from "react-redux";
 import { RootState } from "../../store";
+import { listaVersionamientoActions } from "../../redux/actions/Configuracion/listaVersionamientoActions";
+import { Pagination } from "react-bootstrap";
 
+interface ListaVersionamiento {
+    numerO_VERSION: number;
+    cambios: string;
+    fecha: number;
+    descripcion: string;
+}
 interface Props {
     isDarkMode: boolean;
+    listaVersionamiento: ListaVersionamiento[];
+    nPaginacion: number; //número de paginas establecido desde preferencias
+    listaVersionamientoActions: () => void;
 }
-const Versionamiento: React.FC<Props> = ({ isDarkMode }) => {
+const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMode, listaVersionamiento, nPaginacion }) => {
+    const [paginaActual, setPaginaActual] = useState(1);
+    const elementosPorPagina = nPaginacion;
+
+
+    useEffect(() => {
+        if (listaVersionamiento.length === 0) { listaVersionamientoActions() }
+    }, [listaVersionamiento, listaVersionamientoActions])
+
+    // Lógica de Paginación actualizada
+    const indiceUltimoElemento = paginaActual * elementosPorPagina;
+    const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
+    const elementosActuales = useMemo(
+        () =>
+            listaVersionamiento.slice(indicePrimerElemento, indiceUltimoElemento),
+        [listaVersionamiento, indicePrimerElemento, indiceUltimoElemento]
+    );
+    // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
+    const totalPaginas = Array.isArray(listaVersionamiento)
+        ? Math.ceil(listaVersionamiento.length / elementosPorPagina)
+        : 0;
+    const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
     return (
         <>
-            {/* 
+            {/* Solo es un ejemplo pero no significa que se tomara este tipo de versionamiento
                 Esquema de versionamiento: MAJOR.MINOR.PATCH.BUILD
-                Ejemplo: v1.0.0.1
+                Ejemplo: v0.0.0.1
 
                 MAJOR: Versión principal (1) 
-                        - Indica lanzamientos importantes o incompatibles hacia atrás. 
+                        - Indica l anzamientos importantes o incompatibles hacia atrás. 
                         - Cambia solo en actualizaciones significativas.
 
                 MINOR: Funcionalidades menores (0) 
@@ -29,37 +61,78 @@ const Versionamiento: React.FC<Props> = ({ isDarkMode }) => {
                         - Útil para rastrear versiones internas o iteraciones.
                 */}
 
-            <div className="d-flex border-bottom justify-content-between align-items-center p-2">
-                <p>Última versión: v3.0.0.0</p>
+            <div className="border-bottom p-2">
+                <p className="mb-2 fw-semibold">Versión Actual: 0.0.0.1</p>
+                <p>Nuevo sistema de inventario desarrollado, diseñado y elaborado por el Departamento de Informática del Servicio de Salud Metropolitano Sur Oriente.
+                    Esta versión inicial sienta las bases para una gestión eficiente de los recursos institucionales, proporcionando una plataforma moderna, eficiente y escalable que permitirá implementar futuras mejoras y funcionalidades adicionales.
+                </p>
             </div>
-
-            <div className="overflow-auto">
-                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover "}`} >
+            {/* Tabla*/}
+            <div className='table-responsive'>
+                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                     <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                         <tr>
-                            <th>Versión</th>
-                            <th>Fecha</th>
-                            <th>Descripción</th>
+                            <th scope="col" className="text-nowrap text-center">Versión</th>
+                            <th scope="col" className="text-nowrap text-center">Cambios</th>
+                            <th scope="col" className="text-nowrap text-center">Fecha</th>
+                            <th scope="col" className="text-nowrap text-center">Descripción</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>v4.0.0.0</td>
-                            <td>01-31-2025</td>
-                            <td>
-                                Primera versión del nuevo sistema de inventario desarrollado en React, diseñado y elaborado por el Departamento de Informática del Servicio de Salud Metropolitano Sur Oriente.
-                                Esta versión inicial sienta las bases para una gestión eficiente de los recursos institucionales, proporcionando una plataforma moderna y escalable que permitirá implementar futuras mejoras y funcionalidades adicionales.
-                            </td>
-                        </tr>
+                        {elementosActuales.map((Lista, index) => {
+                            let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                            return (
+                                <tr key={indexReal}>
+                                    <td className="text-nowrap">{Lista.numerO_VERSION}</td>
+                                    <td className="text-nowrap">{Lista.cambios}</td>
+                                    <td className="text-nowrap">{Lista.fecha}</td>
+                                    <td>{Lista.descripcion}</td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
+            </div >
+            {/* Paginador */}
+            <div className="paginador-container">
+                <Pagination className="paginador-scroll">
+                    <Pagination.First
+                        onClick={() => paginar(1)}
+                        disabled={paginaActual === 1}
+                    />
+                    <Pagination.Prev
+                        onClick={() => paginar(paginaActual - 1)}
+                        disabled={paginaActual === 1}
+                    />
+
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <Pagination.Item
+                            key={i + 1}
+                            active={i + 1 === paginaActual}
+                            onClick={() => paginar(i + 1)}
+                        >
+                            {i + 1}
+                        </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                        onClick={() => paginar(paginaActual + 1)}
+                        disabled={paginaActual === totalPaginas}
+                    />
+                    <Pagination.Last
+                        onClick={() => paginar(totalPaginas)}
+                        disabled={paginaActual === totalPaginas}
+                    />
+                </Pagination>
             </div>
         </>
     );
 };
 
 const mapStateToProps = (state: RootState) => ({
-    isDarkMode: state.darkModeReducer.isDarkMode
+    isDarkMode: state.darkModeReducer.isDarkMode,
+    listaVersionamiento: state.listaVersionamientoReducers.listaVersionamiento,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 export default connect(mapStateToProps, {
+    listaVersionamientoActions
 })(Versionamiento);

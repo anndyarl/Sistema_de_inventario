@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { Pagination, Form, Modal, Col, Row, Collapse, Button } from "react-bootstrap";
 import { connect } from "react-redux";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 import SignatureCanvas from 'react-signature-canvas';
-
 // import { pdf } from "@react-pdf/renderer";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
@@ -194,33 +193,32 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
         }
     };
 
-    useEffect(() => {
-        const fetchBajas = async () => {
-            if (token && listaBajas.length === 0) {
+    const listaAltasAuto = async () => {
+        if (token) {
+            if (listaBajas.length === 0) {
                 setLoading(true);
-                try {
-                    const resultado = await listaBajasActions();
-                    if (!resultado) {
-                        throw new Error("Error al cargar la lista de bajas");
-                    }
-                } catch (error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                } finally {
+                const resultado = await listaBajasActions();
+                if (resultado) {
                     setLoading(false);
                 }
+                // else {
+                //   Swal.fire({
+                //     icon: "error",
+                //     title: "Error",
+                //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
+                //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                //     customClass: {
+                //       popup: "custom-border", // Clase personalizada para el borde
+                //     }
+                //   });
+                // }
             }
-        };
-        fetchBajas();
+        }
+    };
+    useEffect(() => {
+        listaAltasAuto();
     }, [listaBajasActions, token, listaBajas.length, isDarkMode]);
 
     const setSeleccionaFila = (index: number) => {

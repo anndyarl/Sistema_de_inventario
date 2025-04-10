@@ -85,7 +85,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: `Error en la solicitud. Por favor, intentne nuevamente.`,
+            text: `Error en la solicitud. Por favor, intente nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -286,7 +286,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   {/* <th scope="col"></th> */}
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Clave Activo Fijo</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                   <th scope="col" className="text-nowrap text-center">Dependencia</th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>

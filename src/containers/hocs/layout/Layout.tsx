@@ -13,37 +13,31 @@ import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css";
 import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js";
 import { Container } from "react-bootstrap";
 import { AnimatePresence, motion } from "framer-motion";
-import Swal from "sweetalert2";
-
+import { comboEstablecimientosProfileActions } from "../../../redux/actions/auth/comboEstablecimientosProfileActions.js";
+import Footer from "../../../components/Navegacion/Footer.js";
 
 interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
-  token: string | null;
+
+  comboEstablecimientosProfileActions: () => Promise<boolean>;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }) => {
+const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, children, isDarkMode, isAuthenticated }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   useAutoLogout(3.3e+6, 3.6e+6);
 
+  // console.log("token", token);
+  // console.log("isAuthenticated", isAuthenticated);
+
   if (isAuthenticated == false) {
-    // Swal.fire({
-    //   icon: "info",
-    //   title: "Su sesión ha finalizado",
-    //   text: `Por favor, vuelva a ingresar`,
-    //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-    //   customClass: {
-    //     popup: "custom-border", // Clase personalizada para el borde
-    //   }
-    // });
     return <Navigate to="/" />;
   }
 
+  comboEstablecimientosProfileActions();
 
   // Efectos de transición para la apertura del sidebar en móviles
   const sidebarVariants = {
@@ -60,7 +54,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
 
   return (
     <div className={`d-flex min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
-      {/* Sidebar SIEMPRE visible en pantallas grandes */}
+
+      {/* Sidebar siempre visible en pantallas grandes */}
       <div className={`d-none d-md-block min-vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left`}>
         <Sidebar />
       </div>
@@ -81,8 +76,10 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
         )}
       </AnimatePresence>
 
-      <div id="page-content-wrapper" className="w-100">
-        {/* Navbar para móviles */}
+      {/* Contenedor principal */}
+      <div id="page-content-wrapper" className="d-flex flex-column justify-content-between w-100">
+
+        {/* Navbar (móvil) */}
         <div className={`d-flex justify-content-between shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
           <button className="navbar-toggler m-4" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={30} />
@@ -90,24 +87,31 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
           <Navbar />
         </div>
 
-        {/* Navbar para escritorio */}
+        {/* Navbar (escritorio) */}
         <div className="d-none d-md-block mx-1 rounded-3">
           <Navbar />
         </div>
 
-        {/* Contenido de la página */}
-        <Container fluid className="mb-1 ">
-          {children}
-        </Container>
+        {/* Contenido (ocupa el espacio entre Navbar y Footer) */}
+        <div className="flex-grow-1">
+          <Container fluid className="my-3">
+            {children}
+          </Container>
+        </div>
+
+        {/* Footer siempre al final */}
+        <Footer />
       </div>
     </div>
   );
+
 };
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
-  token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
 });
 
-export default connect(mapStateToProps, {})(Layout);
+export default connect(mapStateToProps, {
+  comboEstablecimientosProfileActions
+})(Layout);

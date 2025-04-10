@@ -11,7 +11,7 @@ const BajasMensuales: React.FC = () => {
                 <title>Bajas Mensuales</title>
             </Helmet>
             <MenuInformes />
-            <p>Bajas Mensuales</p>
+            <p>Bajas Mensuales </p>
         </Layout>
     );
 };

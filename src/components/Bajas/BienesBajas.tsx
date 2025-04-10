@@ -45,13 +45,12 @@ interface DatosBajas {
 const BienesBaja: React.FC<DatosBajas> = ({ listaBajasActions, listaBajas, token, isDarkMode, nPaginacion }) => {
 
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  // const [error, setError] = useState<Partial<ListaBajas>>({});
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = nPaginacion;
-
+  // const [error, setError] = useState<Partial<ListaBajas>>({});
   // const [Bajas, setBajas] = useState({
   //   nresolucion: 0,
   //   observaciones: "",
@@ -143,7 +142,7 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajasActions, listaBajas, token
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: `Error en la solicitud. Por favor, recargue nuevamente la página.`,
+            text: `Error en la solicitud. Por favor, intente nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -181,8 +180,6 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajasActions, listaBajas, token
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
-    // console.log("indice", index);
-
   };
 
   // const handleCerrarModal = (index: number) => {
@@ -294,7 +291,6 @@ const BienesBaja: React.FC<DatosBajas> = ({ listaBajasActions, listaBajas, token
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
   <p>Mostrar modal: {mostrarModal}</p>
-
   return (
     <Layout>
       <Helmet>
