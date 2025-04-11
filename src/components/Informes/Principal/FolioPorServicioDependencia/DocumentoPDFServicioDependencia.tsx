@@ -71,12 +71,39 @@ const styles = StyleSheet.create({
         flex: 1,
         // textAlign: 'center',
     },
+    tableCellHeaderLong: {
+        fontSize: 8,
+        fontWeight: 'bold',
+        padding: 2,
+        border: '1px solid #b3b3b3',
+        backgroundColor: "rgb(0 68 133 / 80%)",
+        color: "#fff",
+        flex: 2,
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        whiteSpace: 'wrap',
+        maxWidth: 120,
+    },
     tableCell: {
         fontSize: 8,
         border: '1px solid #b3b3b3',
-        padding: "0.5px",
+        padding: 2,
         flex: 1,
-        // textAlign: 'center',
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'wrap', // react-pdf no reconoce "normal", usa "wrap"
+        maxWidth: 80, // puedes ajustar esto según el diseño
+    },
+    tableCellLong: {
+        fontSize: 8,
+        border: '1px solid #b3b3b3',
+        padding: 2,
+        flex: 2, // más espacio horizontal
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        whiteSpace: 'wrap',
+        maxWidth: 120,
     },
     firmaContainer: {
         flexDirection: 'row',
@@ -133,7 +160,7 @@ const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
                 {/* Cabecera de la tabla */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellHeader}>N° Inventario</Text>
-                    {/* <Text style={styles.tableCellHeader}>Especie</Text> */}
+                    <Text style={styles.tableCellHeaderLong}>Especie</Text>
                     <Text style={styles.tableCellHeader}>Marca</Text>
                     <Text style={styles.tableCellHeader}>Modelo</Text>
                     <Text style={styles.tableCellHeader}>Serie</Text>
@@ -146,12 +173,12 @@ const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
                 {/* Fila de datos */}
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
-                        <Text style={styles.tableCell}>{lista.aF_CLAVE}</Text>
-                        {/* <Text style={styles.tableCell}>{lista.especie}</Text> */}
+                        <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
+                        <Text style={styles.tableCellLong}>{lista.especie}</Text>
                         <Text style={styles.tableCell}>{lista.aF_MARCA}</Text>
                         <Text style={styles.tableCell}>{lista.aF_MODELO}</Text>
                         <Text style={styles.tableCell}>{lista.aF_SERIE}</Text>
-                        {/* <Text style={styles.tableCell}>{lista.aF_OBS}</Text> */}
+                        {/* <Text style={styles.tableCellLong}>{lista.aF_OBS}</Text> */}
                         <Text style={styles.tableCell}>{lista.aF_FINGRESO}</Text>
                         <Text style={styles.tableCell}>{lista.altaS_CORR}</Text>
                         <Text style={styles.tableCell}>{lista.traS_ESTADO_AF}</Text>

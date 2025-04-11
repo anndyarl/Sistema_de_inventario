@@ -15,6 +15,7 @@ import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoPDF from "./DocumentoPDFServicioDependencia";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import Select from "react-select";
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
 import { listaFolioServicioDependenciaActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/listaFolioServicioDependenciaActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -83,6 +84,19 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         jefeDependencia: "",
         jefeInventario: ""
     });
+
+    const servicioOptions = comboServicioInforme.map((item) => ({
+        value: item.deP_CORR,
+        label: item.descripcion,
+    }));
+
+    const handleServicioChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : 0;
+        setInventario((prevInventario) => ({ ...prevInventario, servicio: value }));
+
+        console.log("servicio", value);
+
+    };
     const listaAuto = async () => {
         if (listaFolioServicioDependencia.length === 0) {
             setLoading(true);
@@ -134,6 +148,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
             ...prevState,
             [name]: newValue,
         }));
+
     };
 
     const handleBuscar = async () => {
@@ -216,7 +231,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         // Definir los encabezados
         const encabezados = [
             ["N° Inventario",
-                // "Especie",
+                "Especie",
                 "Marca",
                 "Modelo",
                 "Serie",
@@ -247,7 +262,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         // Aplicar anchos de columna
         worksheet["!cols"] = [
             { wch: 12 }, // N° Inventario
-            // { wch: 150 }, // Especie
+            { wch: 150 }, // Especie
             { wch: 12 }, // Marca
             { wch: 12 }, // Modelo
             { wch: 12 }, // Serie
@@ -366,7 +381,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                 ...listaFolioServicioDependencia.map((item) =>
                                     new TableRow({
                                         children: [
-                                            new TableCell({ children: [new Paragraph({ text: item.aF_CLAVE.toString(), style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_GENERICO.toString(), style: "tableCell" })] }),
                                             // new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.aF_MARCA, style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.aF_SERIE, style: "tableCell" })] }),
@@ -406,22 +421,44 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                     <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
                     <Row>
                         <Col md={3}>
-                            <div className="mt-1">
-                                <label className="fw-semibold">Servicio</label>
-                                <select
-                                    aria-label="servicio"
-                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                            {/* Servicio */}
+                            <div className="mb-1">
+                                <label className="fw-semibold">
+                                    Servicio
+                                </label>
+                                <Select
+                                    options={servicioOptions}
+                                    onChange={handleServicioChange}
                                     name="servicio"
-                                    onChange={handleChange}
-                                    value={Inventario.servicio}
-                                >
-                                    <option value="">Seleccionar</option>
-                                    {comboServicioInforme.map((traeServicio) => (
-                                        <option key={traeServicio.deP_CORR} value={traeServicio.deP_CORR}>
-                                            {traeServicio.descripcion}
-                                        </option>
-                                    ))}
-                                </select>
+                                    value={servicioOptions.find((option) => option.value === Inventario.servicio) || null}
+                                    placeholder="Buscar"
+                                    className={`form-select-container `}
+                                    classNamePrefix="react-select"
+                                    isClearable
+                                    isSearchable
+                                    styles={{
+                                        control: (baseStyles) => ({
+                                            ...baseStyles,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                            color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                            borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                        }),
+                                        singleValue: (base) => ({
+                                            ...base,
+                                            color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                            color: isDarkMode ? "white" : "#212529",
+                                        }),
+                                        option: (base, { isFocused, isSelected }) => ({
+                                            ...base,
+                                            backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                            color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                        }),
+                                    }}
+                                />
                             </div>
                             <div className="mb-1">
                                 <label htmlFor="encargadoInventario" className="fw-semibold">Encargado de Inventario de la dependencia</label>
@@ -537,7 +574,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                     {elementosActuales.map((Lista, index) => {
                                         return (
                                             <tr key={index}>
-                                                <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
+                                                <td className="text-nowrap text-center">{Lista.aF_CODIGO_GENERICO}</td>
                                                 <td className="text-nowrap text-start">{Lista.especie}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_MARCA}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_MODELO}</td>
