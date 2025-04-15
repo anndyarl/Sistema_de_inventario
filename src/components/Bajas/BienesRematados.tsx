@@ -347,17 +347,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                         />
                       </td> */}
                       {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
-                      <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
-                      <td className="text-nowrap text-center">{Lista.bajaS_CORR}</td>
-                      <td className="text-nowrap text-center">{Lista.especie}</td>
-                      <td className="text-nowrap text-center">{Lista.vutiL_RESTANTE}</td>
-                      <td className="text-nowrap text-center">{Lista.vutiL_AGNOS}</td>
-                      <td className="text-nowrap text-center">{Lista.nresolucion}</td>
-                      <td className="text-nowrap text-center">{Lista.observaciones}</td>
-                      <td className="text-nowrap text-center">{Lista.deP_ACUMULADA}</td>
-                      <td className="text-nowrap text-center">{Lista.ncuenta}</td>
-                      <td className="text-nowrap text-center">{Lista.estado}</td>
-                      <td className="text-nowrap text-center">{Lista.fechA_INGRESO}</td>
+                      <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                      <td className="text-nowrap">{Lista.bajaS_CORR}</td>
+                      <td className="text-nowrap">{Lista.especie}</td>
+                      <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
+                      <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
+                      <td className="text-nowrap">{Lista.nresolucion}</td>
+                      <td className="text-nowrap">{Lista.observaciones}</td>
+                      <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
+                      <td className="text-nowrap">{Lista.ncuenta}</td>
+                      <td className="text-nowrap">{Lista.estado}</td>
+                      <td className="text-nowrap">{Lista.fechA_INGRESO}</td>
 
                     </tr>
                   );

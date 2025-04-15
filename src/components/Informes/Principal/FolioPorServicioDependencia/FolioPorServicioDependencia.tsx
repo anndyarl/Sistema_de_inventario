@@ -235,7 +235,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                 "Marca",
                 "Modelo",
                 "Serie",
-                // "Observación",
+                "Observación",
                 "Fecha Ingreso",
                 "Nº Alta",
                 "Estado",
@@ -245,11 +245,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         // Convertir datos a array de arrays
         const datos = listaFolioServicioDependencia.map((item) => [
             item.aF_CLAVE ?? "",
-            // item.especie ?? "",
+            item.especie ?? "",
             item.aF_MARCA ?? "",
             item.aF_MODELO ?? "",
             item.aF_SERIE ?? "",
-            // item.aF_OBS ?? "",
+            item.aF_OBS ?? "",
             item.aF_FINGRESO ?? "",
             item.altaS_CORR ?? "",
             item.traS_ESTADO_AF ?? "",
@@ -339,10 +339,10 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                             children: [new Paragraph({ text: "Nº Inventario", style: "tableCellHeader" })],
                                             shading: { fill: "004485" }, // Fondo gris
                                         }),
-                                        // new TableCell({
-                                        //      children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
-                                        //     shading: { fill: "004485" },
-                                        // }),
+                                        new TableCell({
+                                            children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
+                                            shading: { fill: "004485" },
+                                        }),
                                         new TableCell({
                                             children: [new Paragraph({ text: "Marca", style: "tableCellHeader" })],
                                             shading: { fill: "004485" },
@@ -382,7 +382,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                     new TableRow({
                                         children: [
                                             new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_GENERICO.toString(), style: "tableCell" })] }),
-                                            // new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.aF_MARCA, style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.aF_SERIE, style: "tableCell" })] }),
                                             new TableCell({ children: [new Paragraph({ text: item.aF_OBS, style: "tableCell" })] }),
@@ -574,16 +574,16 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                     {elementosActuales.map((Lista, index) => {
                                         return (
                                             <tr key={index}>
-                                                <td className="text-nowrap text-center">{Lista.aF_CODIGO_GENERICO}</td>
-                                                <td className="text-nowrap text-start">{Lista.especie}</td>
-                                                <td className="text-nowrap text-center">{Lista.aF_MARCA}</td>
-                                                <td className="text-nowrap text-center">{Lista.aF_MODELO}</td>
-                                                <td className="text-nowrap text-center">{Lista.aF_SERIE}</td>
-                                                <td className="text-nowrap text-start">{Lista.aF_OBS}</td>
-                                                <td className="text-nowrap text-center">{Lista.aF_FINGRESO}</td>
-                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                                                <td className="text-nowrap text-center">{Lista.traS_ESTADO_AF}</td>
-                                                <td className="text-nowrap text-center">{Lista.ntraslado}</td>
+                                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                                <td className="text-nowrap">{Lista.especie}</td>
+                                                <td className="text-nowrap">{Lista.aF_MARCA}</td>
+                                                <td className="text-nowrap">{Lista.aF_MODELO}</td>
+                                                <td className="text-nowrap">{Lista.aF_SERIE}</td>
+                                                <td className="text-nowrap">{Lista.aF_OBS}</td>
+                                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
+                                                <td className="text-nowrap">{Lista.ntraslado}</td>
                                             </tr>
                                         );
                                     })}

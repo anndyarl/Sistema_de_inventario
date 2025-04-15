@@ -532,20 +532,20 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
-                        <td className="text-nowrap text-center">{Lista.nresolucion}</td>
-                        <td className="text-nowrap text-center">{Lista.observaciones}</td>
-                        <td className="text-nowrap text-center">{Lista.useR_MOD}</td>
-                        <td className="text-nowrap text-center">{Lista.bajaS_CORR}</td>
-                        <td className="text-nowrap text-center">{Lista.fechA_BAJA}</td>
-                        <td className="text-nowrap text-center">{Lista.especie}</td>
-                        <td className="text-nowrap text-center">{Lista.ncuenta}</td>
-                        <td className="text-nowrap text-center">{Lista.vutiL_AGNOS}</td>
-                        <td className="text-nowrap text-center">{Lista.vutiL_RESTANTE}</td>
-                        <td className="text-nowrap text-center">{Lista.deP_ACUMULADA}</td>
-                        <td className="text-nowrap text-center">{Lista.iniciaL_VALOR}</td>
-                        <td className="text-nowrap text-center">{Lista.saldO_VALOR}</td>
-                        <td className="text-nowrap text-center">{Lista.estado}</td>
+                        <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                        <td className="text-nowrap">{Lista.nresolucion}</td>
+                        <td className="text-nowrap">{Lista.observaciones}</td>
+                        <td className="text-nowrap">{Lista.useR_MOD}</td>
+                        <td className="text-nowrap">{Lista.bajaS_CORR}</td>
+                        <td className="text-nowrap">{Lista.fechA_BAJA}</td>
+                        <td className="text-nowrap">{Lista.especie}</td>
+                        <td className="text-nowrap">{Lista.ncuenta}</td>
+                        <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
+                        <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
+                        <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
+                        <td className="text-nowrap">{Lista.iniciaL_VALOR}</td>
+                        <td className="text-nowrap">{Lista.saldO_VALOR}</td>
+                        <td className="text-nowrap">{Lista.estado}</td>
                         <td>
                           <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAbrirModal(index)}>
                             Quitar

@@ -6,7 +6,7 @@ import {
   OBTENER_ALTAS_REGISTRADAS_FAIL,
 } from "../types";
 
-export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_clave: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,7 +20,7 @@ export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, est
     dispatch({ type: OBTENER_ALTAS_REGISTRADAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAltas?fDesde?=${fDesde}&fHasta=${fHasta}&estado=${estado}&establ_corr=${establ_corr}&altasCorr=${altasCorr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAltas?fDesde?=${fDesde}&fHasta=${fHasta}&establ_corr=${establ_corr}&altasCorr=${altasCorr}&af_clave=${af_clave}`, config);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({

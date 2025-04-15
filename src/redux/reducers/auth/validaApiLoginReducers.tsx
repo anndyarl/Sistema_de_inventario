@@ -24,6 +24,7 @@ interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
   token: string | null;
+  loading: boolean;
 
 }
 
@@ -38,7 +39,8 @@ const initialState: AuthState = {
   Roles: [],
   error: null,
   isAuthenticated: false,
-  token: null
+  token: null,
+  loading: false,
 };
 
 function validaApiLoginReducers(state = initialState, action: any): AuthState {
@@ -67,7 +69,7 @@ function validaApiLoginReducers(state = initialState, action: any): AuthState {
         Usr_run: action.payload.usr_run
       };
     case VALIDA_PORTAL_FAIL:
-      return { ...state, isAuthenticated: false, error: action.payload };
+      return { ...state, isAuthenticated: false, error: action.payload, token: null, loading: false };
     case COMBO_PROFILE_ESTABLECIMIENTO_FAIL:
       return { ...initialState, isAuthenticated: false, token: null };
     default:

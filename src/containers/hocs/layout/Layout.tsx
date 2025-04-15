@@ -16,15 +16,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import { comboEstablecimientosProfileActions } from "../../../redux/actions/auth/comboEstablecimientosProfileActions.js";
 import Footer from "../../../components/Navegacion/Footer.js";
 
+interface ESTABLECIMIENTO {
+  codigo: number;
+  descripcion: string;
+}
 interface LayoutProps {
   children: ReactNode;
+  comboEstablecimiento: ESTABLECIMIENTO[];
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
 
   comboEstablecimientosProfileActions: () => Promise<boolean>;
 }
 
-const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, children, isDarkMode, isAuthenticated }) => {
+const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, comboEstablecimiento, children, isDarkMode, isAuthenticated }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -37,7 +42,11 @@ const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, ch
     return <Navigate to="/" />;
   }
 
-  comboEstablecimientosProfileActions();
+  if (comboEstablecimiento.length === 0) {
+    comboEstablecimientosProfileActions();
+  }
+
+
 
   // Efectos de transición para la apertura del sidebar en móviles
   const sidebarVariants = {
@@ -110,6 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, ch
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   isDarkMode: state.darkModeReducer.isDarkMode,
+  comboEstablecimiento: state.comboEstablecimientosProfileReducers.comboEstablecimiento
 });
 
 export default connect(mapStateToProps, {

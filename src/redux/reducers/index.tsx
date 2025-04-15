@@ -82,6 +82,7 @@ import listaAltasRegistradasReducers from "./Altas/AnularAltas/listaAltasRegistr
 import resumenInventarioRegistroReducers from "./Inventario/RegistrarInventario/resumenInventarioRegistroReducers";
 import datosAltaRegistradaReducers from "./Altas/AltasRegistradas/datosAltaRegistradaReducers";
 import listaVersionamientoReducers from "./Configuracion/listaVersionamientoReducers";
+import obtenerServicioNombreReducers from "./Inventario/RegistrarInventario/obtenerServicioNombreReducers";
 
 
 
@@ -99,6 +100,7 @@ const appReducer = combineReducers({
   comboModalidadCompraReducer,
   comboProveedorReducers,
   resumenInventarioRegistroReducers,
+  obtenerServicioNombreReducers,
 
   // Formulario 2
   datosCuentaReducers,

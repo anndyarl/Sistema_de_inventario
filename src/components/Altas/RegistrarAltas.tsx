@@ -25,7 +25,7 @@ export interface ListaAltas {
   modelo: string,
   serie: string,
   estado: string,
-  precio: string,
+  precio: number,
   mrecepcion: string
 }
 
@@ -84,6 +84,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   };
 
   useEffect(() => {
+    // dispatch(setAltasRegistradas(1));
     if (listaSalidaAltas.length > 0) {
       mostrarAlerta();
     }
@@ -394,16 +395,18 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                         </td>
                         <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
                         {/* <td className="text-nowrap text-center">{Lista.ninv}</td> */}
-                        <td className="text-nowrap text-center">{Lista.serv ? "" : "S/N"}</td>
-                        <td className="text-nowrap text-center">{Lista.dep ? "" : "S/N"}</td>
-                        <td className="text-nowrap text-center">{Lista.esp}</td>
-                        <td className="text-nowrap text-center">{Lista.ncuenta}</td>
-                        <td className="text-nowrap text-center">{Lista.marca}</td>
-                        <td className="text-nowrap text-center">{Lista.modelo}</td>
-                        <td className="text-nowrap text-center">{Lista.serie}</td>
-                        <td className="text-nowrap text-center">{Lista.estado}</td>
-                        <td className="text-nowrap text-center">{Lista.precio}</td>
-                        <td className="text-nowrap text-center">{Lista.mrecepcion}</td>
+                        <td className="text-nowrap">{Lista.serv}</td>
+                        <td className="text-nowrap">{Lista.dep}</td>
+                        <td className="text-nowrap">{Lista.esp}</td>
+                        <td className="text-nowrap">{Lista.ncuenta}</td>
+                        <td className="text-nowrap">{Lista.marca}</td>
+                        <td className="text-nowrap">{Lista.modelo}</td>
+                        <td className="text-nowrap">{Lista.serie}</td>
+                        <td className="text-nowrap">{Lista.estado}</td>
+                        <td className="text-nowrap">
+                          ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </td>
+                        <td className="text-nowrap">{Lista.mrecepcion ? "" : "S/N"}</td>
                       </tr>
                     );
                   })}

@@ -287,25 +287,25 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                  <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Dependencia</th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Entrega</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
-                  <th scope="col" className="text-nowrap text-center">Estado Activo Fijo</th>
-                  <th scope="col" className="text-nowrap text-center">Dependencia Origen</th>
+                  <th scope="col" className="text-nowrap text-center">Estado</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Dependencia Origen</th>
                   <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                  <th scope="col" className="text-nowrap text-center">IP Creación</th>
+                  {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
                   <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
-                  <th scope="col" className="text-nowrap text-center">IP Modificación</th>
+                  {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
                   <th scope="col" className="text-nowrap text-center">Número de Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Código Real Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
-                  <th scope="col" className="text-nowrap text-center">Establecimiento</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -320,28 +320,28 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
-                      <td>{Lista.traS_CORR}</td>
-                      <td>{Lista.traS_FECHA}</td>
-                      <td>{Lista.aF_CLAVE}</td>
-                      <td>{Lista.deP_CORR}</td>
-                      <td>{Lista.traS_MEMO_REF}</td>
-                      <td>{Lista.traS_FECHA_MEMO}</td>
-                      <td>{Lista.traS_OBS}</td>
-                      <td>{Lista.traS_NOM_ENTREGA}</td>
-                      <td>{Lista.traS_NOM_RECIBE}</td>
-                      <td>{Lista.traS_ESTADO_AF}</td>
-                      <td>{Lista.deP_CORR_ORIGEN}</td>
-                      <td>{Lista.traS_DET_CORR}</td>
-                      <td>{Lista.usuariO_CREA}</td>
-                      <td>{Lista.f_CREA}</td>
-                      <td>{Lista.iP_CREA}</td>
-                      <td>{Lista.usuariO_MOD}</td>
-                      <td>{Lista.f_MOD}</td>
-                      <td>{Lista.iP_MOD}</td>
-                      <td>{Lista.n_TRASLADO}</td>
-                      <td>{Lista.traS_CO_REAL}</td>
-                      <td>{Lista.traS_NOM_AUTORIZA}</td>
-                      <td>{Lista.estaD_D}</td>
+                      <td className="text-nowrap">{Lista.traS_CORR}</td>
+                      <td className="text-nowrap">{Lista.traS_FECHA}</td>
+                      <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                      <td className="text-nowrap">{Lista.deP_CORR}</td>
+                      <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
+                      <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
+                      <td className="text-nowrap">{Lista.traS_OBS}</td>
+                      <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
+                      <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
+                      <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
+                      <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td>
+                      <td className="text-nowrap">{Lista.traS_DET_CORR}</td>
+                      <td className="text-nowrap">{Lista.usuariO_CREA}</td>
+                      <td className="text-nowrap">{Lista.f_CREA}</td>
+                      {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
+                      <td className="text-nowrap">{Lista.usuariO_MOD}</td>
+                      <td className="text-nowrap">{Lista.f_MOD}</td>
+                      {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
+                      <td className="text-nowrap">{Lista.n_TRASLADO}</td>
+                      <td className="text-nowrap">{Lista.traS_CO_REAL}</td>
+                      <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
+                      {/* <td className="text-nowrap">{Lista.estaD_D}</td> */}
 
                     </tr>
                   );

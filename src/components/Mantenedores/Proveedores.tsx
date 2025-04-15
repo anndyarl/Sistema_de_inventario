@@ -7,13 +7,13 @@ import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { Plus } from "react-bootstrap-icons";
+import { Eraser, Plus } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
 import { listadoMantenedorProveedoresActions } from "../../redux/actions/Mantenedores/Proveedores/listadoMantenedorProveedoresActions.tsx";
 import { registrarMantenedorProveedoresActions } from "../../redux/actions/Mantenedores/Proveedores/registrarMantenedorProveedoresActions.tsx";
-
+import { validate } from 'rut.js';
 export interface ListadoMantenedor {
     proV_CORR: number,
     proV_RUN: number,
@@ -29,11 +29,10 @@ interface GeneralProps {
     registrarMantenedorProveedoresActions: (formModal: Record<string, any>) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
-    seR_CORR: number;
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorProveedoresActions, registrarMantenedorProveedoresActions, seR_CORR, listadoMantenedor, token, isDarkMode, nPaginacion }) => {
+const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorProveedoresActions, registrarMantenedorProveedoresActions, listadoMantenedor, token, isDarkMode, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
@@ -82,7 +81,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
     };
 
     const [Mantenedor, setMantenedor] = useState({
-        proV_RUN: "",
+        proV_RUN: 0,
         proV_DV: "",
         proV_NOMBRE: "",
         proV_FONO: "",
@@ -90,23 +89,23 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
     });
 
     useEffect(() => {
-
-        // if (seR_CORR === 0) {
-        //     obtenerMaxServicioActions(); // Solo se ejecuta si seR_CORR cambió                     
-        // }
-        // setMantenedor((prev) => ({
-        //     ...prev,
-        //     seR_CORR: seR_CORR + 1,
-        // }));
-
         listadoMantenedorAuto();
+    }, [listadoMantenedorProveedoresActions, obtenerMaxServicioActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
 
-    }, [listadoMantenedorProveedoresActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
-
-    const validate = () => {
+    const validateForm = () => {
         let tempErrors: Partial<any> & {} = {};
         // Validación  
         if (!Mantenedor.proV_RUN) tempErrors.proV_RUN = "Campo obligatorio";
+        const rutCompleto = `${Mantenedor.proV_RUN}-${Mantenedor.proV_DV}`.trim();
+        if (!validate(rutCompleto)) {
+            tempErrors.proV_RUN = "El RUT es incorrecto";
+        }
+        for (let i = 0; i < listadoMantenedor.length; i++) {
+            if (String(Mantenedor.proV_RUN) === String(listadoMantenedor[i].proV_RUN)) {
+                tempErrors.proV_RUN = "Rut ya existe";
+                break; // Salir del bucle una vez encontrado
+            }
+        }
         if (!Mantenedor.proV_DV) tempErrors.proV_DV = "Campo obligatorio";
         if (!Mantenedor.proV_NOMBRE) tempErrors.proV_NOMBRE = "Campo obligatorio";
         if (!Mantenedor.proV_FONO) tempErrors.proV_FONO = "Campo obligatorio";
@@ -119,7 +118,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
         const { name, value } = e.target;
 
         // Convierte `value` a número
-        let newValue: string | number = ["seR_COD"].includes(name)
+        let newValue: string | number = ["seR_COD", "proV_RUN"].includes(name)
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
@@ -129,6 +128,10 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
         }));
 
         if (name === "proV_RUN") {
+            // setMantenedor((prevState) => ({
+            //     ...prevState,
+            //     proV_RUN: format(String(newValue)),
+            // }));
             newValue = parseFloat(value) || 0;
         }
 
@@ -140,9 +143,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                 return; // Si es un carácter inválido, no actualiza el estado
             }
         }
-        if (name === "proV_FONO") {
-            newValue = parseFloat(value) || 0;
-        }
+
     }
 
     const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
@@ -181,7 +182,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (validate()) {
+        if (validateForm()) {
             // const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
@@ -199,12 +200,9 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
             });
             if (result.isConfirmed) {
                 setLoadingRegistro(true);
-                // const formMantenedor = selectedIndices.map((activo) => ({
-                //     seR_COD: listadoMantenedor[activo].seR_COD,
-                //     ...Mantenedor,
-                // }));
+
                 const resultado = await registrarMantenedorProveedoresActions(Mantenedor);
-                console.log(Mantenedor);
+                // console.log(Mantenedor);
                 if (resultado) {
                     Swal.fire({
                         icon: "success",
@@ -240,6 +238,17 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
             }
         }
     };
+
+    const handleLimpiar = () => {
+        setMantenedor((prevInventario) => ({
+            ...prevInventario,
+            proV_RUN: 0,
+            proV_DV: "",
+            proV_NOMBRE: "",
+            proV_FONO: "",
+            proV_DIR: ""
+        }));
+    }
 
     return (
         <Layout>
@@ -359,8 +368,8 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                         <div className="d-flex justify-content-end">
                             <Button
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1"
                                 type="submit"
-                                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                                 disabled={loadingRegistro}  // Desactiva el botón mientras carga
                             >
                                 {loadingRegistro ? (
@@ -378,8 +387,15 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                 ) : (
                                     <>
                                         Agregar
+                                        <Plus className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" />
                                     </>
                                 )}
+                            </Button>
+                            <Button onClick={handleLimpiar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                Limpiar
+                                <Eraser className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" />
                             </Button>
                         </div>
 
@@ -525,6 +541,12 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                                 </>
                                             )}
                                         </Button>
+                                        <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  mx-1`}>
+                                            <Eraser
+                                                className={`flex-shrink-0 h-5 w-5`}
+                                                aria-hidden="true"
+                                            />
+                                        </Button>
                                     </div>
 
                                     <div className="mt-1">
@@ -554,7 +576,6 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
 };
 
 const mapStateToProps = (state: RootState) => ({
-    seR_CORR: state.obtenerMaxServicioReducers.seR_CORR,//Obtiene el max correletivo para insertarlo en el formualario
     listadoMantenedor: state.listadoMantenedorProveedoresReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,

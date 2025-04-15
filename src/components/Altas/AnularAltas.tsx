@@ -29,14 +29,14 @@ export interface ListaAltas {
   modelo: string,
   serie: string,
   estado: string,
-  precio: string,
+  precio: number,
   fechA_ALTA: string,
   nrecep: string
 }
 
 interface DatosAltas {
   listaAltasRegistradas: ListaAltas[];
-  listaAltasRegistradasActions: (fDesde: string, fHasta: string, estado: string, establ_corr: number, altasCorr: number) => Promise<boolean>;
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_clave: number) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -56,15 +56,16 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
   const elementosPorPagina = nPaginacion;
 
   const [Inventario, setInventario] = useState({
-    altaS_CORR: 0,
     fDesde: "",
     fHasta: "",
+    altaS_CORR: 0,
+    af_clave: 0
   });
   const listaAltasAuto = async () => {
     if (token) {
       if (listaAltasRegistradas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasRegistradasActions("", "", "S", objeto.Establecimiento, 0);
+        const resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, 0);
         if (resultado) {
           setLoading(false);
         }
@@ -117,15 +118,16 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
 
     setLoading(true);
     if (Inventario.fDesde == "" && Inventario.fHasta == "" && Inventario.altaS_CORR == 0) {
-      resultado = await listaAltasRegistradasActions("", "", "S", objeto.Establecimiento, Inventario.altaS_CORR);
+      resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_clave);
+
     }
-    if (Inventario.fDesde != "" && Inventario.fHasta != "") {
+    else if (Inventario.fDesde != "" || Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, "", objeto.Establecimiento, Inventario.altaS_CORR);
+        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_clave);
       }
     }
-    if (Inventario.altaS_CORR != 0) {
-      resultado = await listaAltasRegistradasActions("", "", "", objeto.Establecimiento, Inventario.altaS_CORR);
+    else if (Inventario.altaS_CORR != 0) {
+      resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_clave);
     }
 
     if (!resultado) {
@@ -153,9 +155,10 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
   const handleLimpiar = () => {
     setInventario((prevInventario) => ({
       ...prevInventario,
-      altaS_CORR: 0,
       fDesde: "",
       fHasta: "",
+      altaS_CORR: 0,
+      af_clave: 0
 
     }));
   };
@@ -237,7 +240,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         });
 
         setLoadingAnular(false);
-        listaAltasRegistradasActions("", "", "N", objeto.Establecimiento, 0);
+        listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, 0);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -352,6 +355,18 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
             </Col>
             <Col md={2}>
               <div className="mb-1">
+                <label htmlFor="af_clave" className="fw-semibold">Nº Inventario</label>
+                <input
+                  aria-label="af_clave"
+                  type="text"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="af_clave"
+                  size={10}
+                  onChange={handleChange}
+                  value={Inventario.af_clave}
+                />
+              </div>
+              <div className="mb-1">
                 <label htmlFor="altaS_CORR" className="fw-semibold">Nº Alta</label>
                 <input
                   aria-label="altaS_CORR"
@@ -458,6 +473,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     {/* <th scope="col" className="text-nowrap text-center">Código generico</th> */}
                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                     <th scope="col" className="text-nowrap text-center">N° Alta</th>
+                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
                     <th scope="col" className="text-nowrap text-center">Servicio</th>
                     <th scope="col" className="text-nowrap text-center">Dependencia</th>
                     <th scope="col" className="text-nowrap text-center">Especie</th>
@@ -467,7 +483,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     <th scope="col" className="text-nowrap text-center">Serie</th>
                     <th scope="col" className="text-nowrap text-center">Estado</th>
                     <th scope="col" className="text-nowrap text-center">Precio</th>
-                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
+
                     <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                     {/* <th>Acción</th> */}
                   </tr>
@@ -485,19 +501,21 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                           />
                         </td>
                         {/* <td className="text-nowrap text-center">{Lista.ninv}</td> */}
-                        <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
-                        <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                        <td className="text-nowrap text-center">{Lista.serv ? "" : "S/N"}</td>
-                        <td className="text-nowrap text-center">{Lista.dep ? "" : "S/N"}</td>
-                        <td className="text-nowrap text-center">{Lista.esp}</td>
-                        <td className="text-nowrap text-center">{Lista.ncuenta}</td>
-                        <td className="text-nowrap text-center">{Lista.marca}</td>
-                        <td className="text-nowrap text-center">{Lista.modelo}</td>
-                        <td className="text-nowrap text-center">{Lista.serie}</td>
-                        <td className="text-nowrap text-center">{Lista.estado}</td>
-                        <td className="text-nowrap text-center">{Lista.precio}</td>
-                        <td className="text-nowrap text-center">{Lista.fechA_ALTA}</td>
-                        <td className="text-nowrap text-center">{Lista.nrecep}</td>
+                        <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                        <td className="text-nowrap">{Lista.fechA_ALTA}</td>
+                        <td className="text-nowrap">{Lista.serv}</td>
+                        <td className="text-nowrap">{Lista.dep}</td>
+                        <td className="text-nowrap">{Lista.esp}</td>
+                        <td className="text-nowrap">{Lista.ncuenta}</td>
+                        <td className="text-nowrap">{Lista.marca}</td>
+                        <td className="text-nowrap">{Lista.modelo}</td>
+                        <td className="text-nowrap">{Lista.serie}</td>
+                        <td className="text-nowrap">{Lista.estado}</td>
+                        <td className="text-nowrap">
+                          ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </td>
+                        <td className="text-nowrap">{Lista.nrecep}</td>
                         {/* <td>
                           <Button
                             variant="outline-danger"

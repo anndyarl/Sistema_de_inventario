@@ -33,6 +33,15 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
     capturarDatosPersona();
   }, []);
 
+  useEffect(() => {
+    // Limpieza "forzada" por si queda algo colgando en el almacenamiento
+    localStorage.removeItem("token");
+    sessionStorage.clear();
+    // dispatch(logout()); // Esto depende de lo que haga internamente tu logout
+
+    // continuar flujo normal...
+  }, [])
+
   const capturarDatosPersona = async () => {
     const params = new URLSearchParams(window.location.search);
     const datosPersona = params.get("datosPersona");
@@ -52,7 +61,9 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
             navigate("/Denegado");
           }
           else {
-            dispatch(logout());
+            localStorage.removeItem("token"),
+              sessionStorage.clear(), // o removeItem específico
+              dispatch(logout());
             navigate("/");
             Swal.fire({
               icon: "warning",

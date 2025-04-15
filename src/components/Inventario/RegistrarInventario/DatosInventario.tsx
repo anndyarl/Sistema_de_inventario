@@ -34,7 +34,8 @@ import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/Regis
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
-import { DEPENDENCIA, ListaEspecie, SERVICIO } from "./DatosCuenta";
+import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
+import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: string;
@@ -101,33 +102,39 @@ interface ActijosFijos {
   color: string;
 }
 
+interface ServicioNomnbre {
+  seR_COD: string;
+  nombre: string;
+}
+
 // Define el tipo de props para el componente, extendiendo InventarioProps
 interface DatosInventarioProps extends InventarioProps {
   onNext: (Inventario: InventarioProps) => void; //Se pasan los datos a medida que se da siguiente al siguiente componente
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
   comboProveedor: PROVEEDOR[];
-  comboServicio: SERVICIO[];
   comboDependencia: DEPENDENCIA[];
   listaEspecie: ListaEspecie[];
   // comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
+  obtenerServicioNombreActions: (dep_corr: number) => Promise<Boolean>;
   // listaInventarioRegistradoActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   objeto: Objeto;
   resultadoRegistro?: number;
   formulariosCombinados: FormulariosCombinados;
   activosFijos: ActijosFijos[];
+  listaServicioNombre: ServicioNomnbre[];
 }
 
 //Paso 1 del Formulario
 const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
+  obtenerServicioNombreActions,
   comboOrigen,
   comboModalidad,
   comboProveedor,
-  comboServicio,
   comboDependencia,
   // comboCuenta,
   fechaFactura,
@@ -151,7 +158,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   /*----resumen inventario registrado*/
   formulariosCombinados,
   activosFijos,
-  listaEspecie
+  listaEspecie,
+  listaServicioNombre
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
     fechaFactura: "",
@@ -178,10 +186,11 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     value: item.proV_RUN.toString(),
     label: item.proV_NOMBRE,
   }));
-
+  console.log("listaServicioNombre", listaServicioNombre);
   const handleProveedorChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
+    console.log("rutProveedor", value);
     dispatch(setRutProveedorActions(value));
   };
 
@@ -326,6 +335,14 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     // dispatch(setInventarioRegistrado(1));
     // setModalMostrarResumen(true);
     if (resultadoRegistro === 1) {
+      for (let i = 0; i < comboDependencia.length; i++) {
+        const dep_corr_n = comboDependencia[i].codigo;
+        if (listaServicioNombre.length === 0) {
+          obtenerServicioNombreActions(dep_corr_n); //consulta nombre servicio por dep_corr
+          console.log(dep_corr_n);
+        }
+        break;
+      }
       mostrarAlerta();
     }
   }, [resultadoRegistro]); // Dependencia correcta, sin ejecutar directamente mostrarAlerta()
@@ -664,8 +681,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   name="rutProveedor"
                   value={proveedorOptions.find((option) => option.value === Inventario.rutProveedor) || null}
                   placeholder="Buscar"
-                  className={`form-select-container ${error.rutProveedor ? "is-invalid" : ""}`}
-                  classNamePrefix="react-select"
+                  className={`form-select-container ${error.rutProveedor ? "is-invalid border border-danger rounded" : ""}`}
+                  classNamePrefix={`react-select`}
                   isClearable
                   isSearchable
                   styles={{
@@ -693,9 +710,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 />
 
                 {error.rutProveedor && (
-                  <div className="invalid-feedback fw-semibold">
-                    {error.rutProveedor}
-                  </div>
+                  <div className="invalid-feedback fw-semibold">{error.rutProveedor}</div>
                 )}
 
               </div>
@@ -797,7 +812,16 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               <p>{new Date(formulariosCombinados.fechaFacturaR).toLocaleDateString('es-CL') || 'N/A'}</p>
 
               <p><strong>Proveedor:</strong></p>
-              <p>{formulariosCombinados.rutProveedorR || 'N/A'}</p>
+              {(() => {
+                let nombreProveedor = "N/A"; // Valor por defecto
+                for (let i = 0; i < comboProveedor.length; i++) {
+                  if (String(comboProveedor[i].proV_RUN) === String(formulariosCombinados.rutProveedorR)) {
+                    nombreProveedor = comboProveedor[i].proV_NOMBRE;
+                    break; // Salir del bucle una vez encontrado
+                  }
+                }
+                return <p>{nombreProveedor || 'N/A'}</p>;
+              })()}
               <p><strong>Modalidad de Compra:</strong></p>
               {(() => {
                 let nombreModalidad = "N/A"; // Valor por defecto
@@ -816,13 +840,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             <Col md={4}>
               <p><strong>Servicio:</strong></p>
               {(() => {
-                let nombreServicio = "N/A"; // Valor por defecto
-                for (let i = 0; i < comboServicio.length; i++) {
-                  if (String(comboServicio[i].codigo) === String(formulariosCombinados.servicioR)) {
-                    nombreServicio = comboServicio[i].descripcion;
-                    break; // Salir del bucle una vez encontrado
-                  }
+                let nombreServicio = ""; // Valor por defecto
+                for (let i = 0; i < listaServicioNombre.length; i++) {
+                  nombreServicio = listaServicioNombre[i].nombre;
+
+                  break;
                 }
+                console.log("nombreServicio", nombreServicio);
                 return <p>{nombreServicio}</p>;
               })()}
             </Col>
@@ -901,11 +925,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                             break; // Salir del bucle una vez encontrado
                           }
                         }
-                        return <td>{nombreEspecie}</td>;
+                        return <td>{formulariosCombinados.especieR + ' ' + nombreEspecie}</td>;
                       })()}
-
-
-
                       <td>{item.observaciones || 'N/A'}</td>
                     </tr>
                   ))
@@ -949,13 +970,13 @@ const mapStateToProps = (state: RootState) => ({
   activosFijos: state.resumenInventarioRegistroReducers.activosFijos,
   formulariosCombinados: state.resumenInventarioRegistroReducers,
   /*----------------Se agregan estos combos para mostrar las descripciones en resumen------------------*/
-  comboServicio: state.comboServicioReducer.comboServicio,
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboCuenta: state.comboCuentaReducer.comboCuenta,
   listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
-
+  listaServicioNombre: state.obtenerServicioNombreReducers.listaServicioNombre
 });
 
 export default connect(mapStateToProps, {
-  obtenerRecepcionActions
+  obtenerRecepcionActions,
+  obtenerServicioNombreActions
 })(DatosInventario);

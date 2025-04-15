@@ -153,6 +153,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     // Otras condiciones para diferentes campos del formulario
     // Condiciones para los campos específicos
     if (name === "servicio") {
+      // console.log(value);
       onServicioSeleccionado(value);
       dispatch(setServicioActions(newValue as number));
       // Restablece dependencia al seleccionar un nuevo servicio

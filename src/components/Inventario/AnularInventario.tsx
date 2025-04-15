@@ -18,57 +18,31 @@ const classNames = (...classes: (string | boolean | undefined)[]): string => {
 interface InventarioCompleto {
   aF_CLAVE: string;
   aF_CODIGO_GENERICO: string;
-  aF_CODIGO_LARGO: string;
-  deP_CORR: number;
-  esP_CODIGO: string;
-  aF_SECUENCIA: number;
-  itE_CLAVE: number;
-  aF_DESCRIPCION: string;
-  aF_FINGRESO: string;
-  aF_ESTADO: string;
-  aF_CODIGO: string;
-  aF_TIPO: string;
+  deP_NOMBRE: string;
   aF_ALTA: string;
-  aF_PRECIO_REF: number;
   aF_CANTIDAD: number;
-  aF_ORIGEN: number;
-  aF_RESOLUCION: string;
-  aF_FECHA_SOLICITUD: string;
-  aF_OCO_NUMERO_REF: number;
-  usuariO_CREA: string;
-  f_CREA: string;
-  iP_CREA: string;
-  usuariO_MOD: string;
-  f_MOD: string;
-  iP_MOlabel: string;
-  aF_TIPO_DOC: number;
-  proV_RUN: number;
-  reG_EQM: string;
-  aF_NUM_FAC: string;
-  aF_FECHAFAC: string;
-  aF_3UTM: string;
-  iD_GRUPO: number;
-  ctA_COD: string;
-  transitoria: string;
-  aF_MONTOFACTURA: number;
-  esP_DESCOMPONE: string;
+  aF_DESCRIPCION: string;
+  aF_ESTADO: string;
   aF_ETIQUETA: string;
+  aF_FECHA_SOLICITUD: string; // formato ISO string (puedes cambiar a Date si es necesario)
+  aF_FECHAFAC: string;
+  aF_MONTOFACTURA: number;
+  aF_NUM_FAC: string;
+  aF_ORIGEN: number;
+  origen: string;
+  aF_TIPO: string;
   aF_VIDAUTIL: number;
-  aF_VIGENTE: string;
-  idprograma: number;
-  idmodalidadcompra: number;
-  idpropiedad: number;
-  especie: string;
+  ctA_NOMBRE: string;
+  esP_NOMBRE: string;
+  esP_CODIGO: number;
+  usuariO_CREA: string;
+  deT_LOTE: string;
   deT_MARCA: string;
   deT_MODELO: string;
-  deT_SERIE: string;
-  deT_LOTE: string;
   deT_OBS: string;
-  iP_MOD: string;
   deT_PRECIO: number;
-  deT_RECEPCION: number;
-  propietario: number;
-  tipopropietario: number;
+  deT_SERIE: string;
+  proV_NOMBRE: string;
 }
 
 interface ListaInventarioProps {
@@ -290,32 +264,75 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                   <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
-                      <th scope="col" className="text-nowrap text-center">Nª de Recepcion</th>
-                      <th scope="col" className="text-nowrap text-center">Fecha de Factura</th>
-                      <th scope="col" className="text-nowrap text-center">Fecha de Recepcion</th>
-                      <th scope="col" className="text-nowrap text-center">Monto de Recepcion</th>
-                      <th scope="col" className="text-nowrap text-center">Modalidad de Compra</th>
-                      <th scope="col" className="text-nowrap text-center">Nª de Factura</th>
-                      <th scope="col" className="text-nowrap text-center">Origen Presupuesto</th>
-                      <th scope="col" className="text-nowrap text-center">Rut Proveedor</th>
+                      <th scope="col" className="text-nowrap text-center">Nº de Inventario</th>
+                      <th scope="col" className="text-nowrap text-center">Código Genérico</th>
                       <th scope="col" className="text-nowrap text-center">Dependencia</th>
-                      <th></th>
+                      {/* <th scope="col" className="text-nowrap text-center">Estado Alta</th> */}
+                      <th scope="col" className="text-nowrap text-center">Cantidad</th>
+                      <th scope="col" className="text-nowrap text-center">Descripción</th>
+                      {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
+                      <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th>
+                      <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
+                      <th scope="col" className="text-nowrap text-center">Monto Factura</th>
+                      <th scope="col" className="text-nowrap text-center">Nº de Factura</th>
+                      {/* <th scope="col" className="text-nowrap text-center">ID Origen</th> */}
+                      <th scope="col" className="text-nowrap text-center">Origen</th>
+                      {/* <th scope="col" className="text-nowrap text-center">Tipo</th> */}
+                      <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                      <th scope="col" className="text-nowrap text-center">Cuenta</th>
+                      <th scope="col" className="text-nowrap text-center">Nombre Especie</th>
+                      <th scope="col" className="text-nowrap text-center">Código Especie</th>
+                      <th scope="col" className="text-nowrap text-center">Usuario Creador</th>
+                      {/* <th scope="col" className="text-nowrap text-center">Lote</th> */}
+                      <th scope="col" className="text-nowrap text-center">Marca</th>
+                      <th scope="col" className="text-nowrap text-center">Modelo</th>
+                      <th scope="col" className="text-nowrap text-center">Observaciones</th>
+                      <th scope="col" className="text-nowrap text-center">Precio</th>
+                      <th scope="col" className="text-nowrap text-center">Serie</th>
+                      <th scope="col" className="text-nowrap text-center">Proveedor</th>
+                      <th scope="col" className="text-nowrap text-center">Acción</th>
                     </tr>
                   </thead>
                   <tbody>
                     {elementosActuales.map((datosListaInventario, index) => (
                       <tr key={index}>
-                        <td>{datosListaInventario.aF_CLAVE}</td>
-                        <td>{datosListaInventario.aF_FECHAFAC}</td>
-                        <td>{datosListaInventario.aF_FINGRESO}</td>
-                        <td>{datosListaInventario.idmodalidadcompra}</td>
-                        <td>{datosListaInventario.aF_MONTOFACTURA}</td>
-                        <td>{datosListaInventario.aF_NUM_FAC}</td>
-                        <td>{datosListaInventario.aF_ORIGEN}</td>
-                        <td>{datosListaInventario.proV_RUN}</td>
-                        <td>{datosListaInventario.deP_CORR}</td>
+                        <td className="text-nowrap">{datosListaInventario.aF_CLAVE}</td>
+                        <td className="text-nowrap">{datosListaInventario.aF_CODIGO_GENERICO}</td>
+                        <td className="text-nowrap">{datosListaInventario.deP_NOMBRE}</td>
+                        {/* <td>{datosListaInventario.aF_ALTA}</td> */}
+                        <td className="text-nowrap">{datosListaInventario.aF_CANTIDAD}</td>
+                        <td className="text-nowrap">{datosListaInventario.aF_DESCRIPCION}</td>
+                        {/* <td>{datosListaInventario.aF_ESTADO}</td> */}
+                        <td className="text-nowrap">{datosListaInventario.aF_FECHA_SOLICITUD}</td>
+                        <td className="text-nowrap">{datosListaInventario.aF_FECHAFAC}</td>
+                        <td className="text-nowrap">
+                          ${datosListaInventario.aF_MONTOFACTURA?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </td>
+                        <td className="text-nowrap">{datosListaInventario.aF_NUM_FAC}</td>
+                        {/* <td>{datosListaInventario.aF_ORIGEN}</td> */}
+                        <td className="text-nowrap">{datosListaInventario.origen}</td>
+                        {/* <td>{datosListaInventario.aF_TIPO}</td> */}
+                        <td className="text-nowrap">{datosListaInventario.aF_VIDAUTIL}</td>
+                        <td className="text-nowrap">{datosListaInventario.ctA_NOMBRE}</td>
+                        <td className="text-nowrap">{datosListaInventario.esP_NOMBRE}</td>
+                        <td className="text-nowrap">{datosListaInventario.esP_CODIGO}</td>
+                        <td className="text-nowrap">{datosListaInventario.usuariO_CREA}</td>
+                        {/* <td>{datosListaInventario.deT_LOTE}</td> */}
+                        <td className="text-nowrap">{datosListaInventario.deT_MARCA}</td>
+                        <td className="text-nowrap">{datosListaInventario.deT_MODELO}</td>
+                        <td className="text-nowrap">{datosListaInventario.deT_OBS}</td>
+                        <td className="text-nowrap">
+                          ${datosListaInventario.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </td>
+                        <td className="text-nowrap">{datosListaInventario.deT_SERIE}</td>
+                        <td className="text-nowrap">{datosListaInventario.proV_NOMBRE}</td>
                         <td>
-                          <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}>
+                          <Button
+                            variant="outline-danger"
+                            className="fw-semibold"
+                            size="sm"
+                            onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}
+                          >
                             Anular
                           </Button>
                         </td>
