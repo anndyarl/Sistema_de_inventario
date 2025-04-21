@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form, Modal, Row, Col } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -12,7 +12,12 @@ import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerL
 import { Helmet } from "react-helmet-async";
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
 import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/quitarBodegaExcluidosActions.tsx";
+import { Eraser, Search } from "react-bootstrap-icons";
 
+interface FechasProps {
+  fDesde: string;
+  fHasta: string;
+}
 export interface ListaExcluidos {
   nresolucion: string;
   observaciones: string;
@@ -44,8 +49,8 @@ export interface ListaExcluidos {
 
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
-  obtenerListaExcluidosActions: (aF_CLAVE: string) => Promise<boolean>;
-  obtenerListaRematesActions: (aF_CLAVE: string) => Promise<boolean>;
+  obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string) => Promise<boolean>;
+  obtenerListaRematesActions: (fDesde: string, fHasta: string, aF_CLAVE: string) => Promise<boolean>;
   quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
@@ -56,7 +61,7 @@ interface DatosBajas {
 const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, obtenerListaRematesActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
-  const [error, setError] = useState<Partial<ListaExcluidos>>({});
+  const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
@@ -64,13 +69,22 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
   const elementosPorPagina = nPaginacion;
 
   const [Excluidos, setExcluidos] = useState({
-    nresolucion: 0,
+    fDesde: "",
+    fHasta: "",
+    nresolucion: "",
   });
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Excluidos.nresolucion || Excluidos.nresolucion === 0) tempErrors.nresolucion = "Campo obligatorio.";
+    if (!Excluidos.nresolucion || Excluidos.nresolucion === "") tempErrors.nresolucion = "Campo obligatorio.";
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const validateFechas = () => {
+    let tempErrors: Partial<any> & {} = {};
+    if (Excluidos.fDesde > Excluidos.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -80,7 +94,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
     if (token) {
       if (listaExcluidos.length === 0) {
         setLoading(true);
-        const resultado = await obtenerListaExcluidosActions("");
+        const resultado = await obtenerListaExcluidosActions("", "", "");
         if (resultado) {
           setLoading(false);
         }
@@ -105,21 +119,27 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
     listaExcluidosAuto()
   }, [obtenerListaExcluidosActions, token, listaExcluidos.length]); // Asegúrate de incluir dependencias relevantes
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    // Convierte `value` a número
-    let newValue: string | number = [""].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-      : value;
-    setExcluidos((prevState) => ({
-      ...prevState,
-      [name]: newValue,
-    }));
 
-    // if (name === "nresolucion") {
-    //   newValue = parseFloat(value) || 0;
-    // }
+    // Si el campo es "nresolucion", validamos que solo tenga números
+    if (name === "nresolucion") {
+      // Solo números usando una expresión regular
+      const soloNumeros = /^[0-9]*$/;
+
+      if (!soloNumeros.test(value)) {
+        return; // No actualiza el estado si hay caracteres inválidos
+      }
+
+      setExcluidos((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+      return;
+    }
+
   };
+
 
   //Funcion para seleccion multiple
   const setSeleccionaFila = (index: number) => {
@@ -222,8 +242,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
         });
 
         setLoadingRegistro(false);
-        obtenerListaExcluidosActions("");
-        obtenerListaRematesActions("");
+        obtenerListaExcluidosActions("", "", "");
+        obtenerListaRematesActions("", "", "");
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -248,13 +268,14 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
     setMostrarModal(null); //Cierra modal del indice seleccionado
     setExcluidos((prevState) => ({
       ...prevState,
-      nresolucion: 0,
+      nresolucion: "",
     }));
   };
 
   //Abre modal quitar datos seleccionado
   const handleAbrirModal = (index: number) => {
     setMostrarModal(index); //Abre modal del indice seleccionado
+    setFilasSeleccionadas([]);
     setFilaSeleccionada((prev) =>
       prev.includes(index.toString())
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
@@ -303,11 +324,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
           });
 
           setLoadingRegistro(false);//termina de cargar
-          obtenerListaExcluidosActions(""); //Obtiene nuevamente la tabla con sus datos actualizados
+          obtenerListaExcluidosActions("", "", ""); //Obtiene nuevamente la tabla con sus datos actualizados
           setFilasSeleccionadas([]); //deselecciona las filas     
           setExcluidos((prevState) => ({
             ...prevState,
-            nresolucion: 0,
+            nresolucion: "",
           }));
           setMostrarModal(null);
         } else {
@@ -330,53 +351,41 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
   };
 
 
-  //   setFilasSeleccionadas((prev) => prev.filter((_, i) => i !== index));
+  const handleBuscar = async () => {
+    let resultado = false;
+    setLoading(true);
+    if (Excluidos.fDesde != "" || Excluidos.fHasta != "") {
+      if (validateFechas()) {
+        resultado = await obtenerListaExcluidosActions(Excluidos.fDesde, Excluidos.fHasta, Excluidos.nresolucion);
+      }
+    }
+    else {
+      resultado = await obtenerListaExcluidosActions("", "", Excluidos.nresolucion);
+    }
 
-  //   const result = await Swal.fire({
-  //     icon: "info",
-  //     title: "Anular Registro",
-  //     text: `Confirma anular el registro Nº ${aF_CLAVE}`,
-  //     showDenyButton: false,
-  //     showCancelButton: true,
-  //     confirmButtonText: "Confirmar y Anular",
-  //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //     customClass: {
-  //       popup: "custom-border", // Clase personalizada para el borde
-  //     }
-  //   });
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
+        confirmButtonText: "Ok",
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      setLoading(false); //Finaliza estado de carga
+    }
 
-  //   if (result.isConfirmed) {
-  //     const resultado = await excluirBajasActions(Formulario);
-  //     if (resultado) {
-  //       Swal.fire({
-  //         icon: "success",
-  //         title: "Registro anulado",
-  //         text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
-  //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //         customClass: {
-  //           popup: "custom-border", // Clase personalizada para el borde
-  //         }
-  //       });
-  //       obtenerListaExcluidosActions(aF_CLAVE);
-  //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: ":'(",
-  //         text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
-  //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //         customClass: {
-  //           popup: "custom-border", // Clase personalizada para el borde
-  //         }
-  //       });
-  //     }
-  //   }
-  // };
+  };
+
+  const handleLimpiar = () => {
+    setExcluidos((prevInventario) => ({
+      ...prevInventario,
+      fDesde: "",
+      fHasta: "",
+      nresolucion: ""
+    }));
+  };
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -401,47 +410,86 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
-          {/* <Row>
-            <Col md={3}>
+          <Row>
+            <Col md={2}>
               <div className="mb-1">
-                <label htmlFor="aF_CLAVE" className="fw-semibold">Nº Inventario</label>
+                <label htmlFor="fDesde" className="fw-semibold">Desde</label>
                 <input
-                  aria-label="aF_CLAVE"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="aF_CLAVE"
+                  aria-label="fDesde"
+                  type="date"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                  name="fDesde"
                   onChange={handleChange}
-                  value={Bajas.aF_CLAVE}
+                  value={Excluidos.fDesde}
+                />
+                {error.fDesde && (
+                  <div className="invalid-feedback d-block">{error.fDesde}</div>
+                )}
+              </div>
+              <div className="mb-1">
+                <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
+                <input
+                  aria-label="fHasta"
+                  type="date"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                  name="fHasta"
+                  onChange={handleChange}
+                  value={Excluidos.fHasta}
+                />
+                {error.fHasta && (
+                  <div className="invalid-feedback">{error.fHasta}</div>
+                )}
+              </div>
+
+            </Col>
+            <Col md={2}>
+              <div className="mb-1">
+                <label htmlFor="nresolucion" className="fw-semibold">Nº Certificado</label>
+                <input
+                  aria-label="nresolucion"
+                  type="text"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="nresolucion"
+                  size={10}
+                  placeholder="0"
+                  onChange={handleChange}
+                  value={Excluidos.nresolucion}
                 />
               </div>
             </Col>
             <Col md={5}>
               <div className="mb-1 mt-4">
-                <Button onClick={handleBuscarRemates} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
+                <Button onClick={handleBuscar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
                   {loading ? (
                     <>
+                      {" Buscar"}
                       <Spinner
                         as="span"
                         animation="border"
                         size="sm"
                         role="status"
                         aria-hidden="true"
+                        className="ms-1"
                       />
                     </>
                   ) : (
-                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+                    <>
+                      {" Buscar"}
+                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    </>
                   )}
+                </Button>
+                <Button onClick={handleLimpiar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  Limpiar
+                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                 </Button>
               </div>
             </Col>
-          </Row> */}
-          {/* Boton filas seleccionadas */}
-          {/* <div className="d-flex justify-content-between"> */}
-          {/* <div className="d-flex justify-content-start">
-              <strong className="alert alert-light border m-1 p-2 mx-2">
-                <p> Filas seleccionadas: {filasSeleccionadas.length}</p>
-              </strong>
-            </div> */}
+          </Row>
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
               <>
@@ -495,7 +543,12 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
               <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
-                    <th >
+                    <th style={{
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 2,
+
+                    }}>
                       <Form.Check
                         className="check-danger"
                         type="checkbox"
@@ -503,7 +556,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                    {/* <th scope="col" className="text-nowrap text-center">Nº Inventario</th> */}
                     <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>
                     <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
@@ -517,7 +570,16 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
                     <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
                     <th scope="col" className="text-nowrap text-center">Saldo Valor</th>
                     <th scope="col" className="text-nowrap text-center">Estado</th>
-                    <th scope="col" className="text-nowrap text-center">Acción</th>
+                    <th
+                      className="text-nowrap text-center"
+                      style={{
+                        position: 'sticky',
+                        right: 0,
+                        zIndex: 2,
+                      }}
+                    >
+                      Acción
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -525,14 +587,19 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={indexReal}>
-                        <td>
+                        <td style={{
+                          position: 'sticky',
+                          left: 0,
+                          zIndex: 2,
+
+                        }}>
                           <Form.Check
                             type="checkbox"
                             onChange={() => setSeleccionaFila(indexReal)}
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                        {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
                         <td className="text-nowrap">{Lista.nresolucion}</td>
                         <td className="text-nowrap">{Lista.observaciones}</td>
                         <td className="text-nowrap">{Lista.useR_MOD}</td>
@@ -546,8 +613,15 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
                         <td className="text-nowrap">{Lista.iniciaL_VALOR}</td>
                         <td className="text-nowrap">{Lista.saldO_VALOR}</td>
                         <td className="text-nowrap">{Lista.estado}</td>
-                        <td>
-                          <Button variant="outline-danger" className="fw-semibold" size="sm" onClick={() => handleAbrirModal(index)}>
+                        <td style={{
+                          position: 'sticky',
+                          right: 0,
+                          zIndex: 2,
+
+                        }}>
+                          <Button variant="outline-danger" className="fw-semibold" size="sm"
+                            // className="text-nowrap text-center"
+                            onClick={() => handleAbrirModal(index)}>
                             Quitar
                           </Button>
                         </td>
@@ -603,7 +677,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
           // keyboard={false}     // Evita el cierre al presionar la tecla Esc
           >
             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-              <Modal.Title className="fw-semibold">Quitar registro: {lista.aF_CLAVE}</Modal.Title>
+              <Modal.Title className="fw-semibold">Quitar registro: {lista.nresolucion}</Modal.Title>
             </Modal.Header>
             <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
               <form>

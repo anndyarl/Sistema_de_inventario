@@ -181,9 +181,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         if (!Inventario.fDesde) tempErrors.fDesde = "La Fecha de Inicio es obligatoria.";
         if (!Inventario.fHasta) tempErrors.fHasta = "La Fecha de Término es obligatoria.";
         if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha no cumple con el rango de busqueda";
-        // if (!Inventario.nInventario) tempErrors.nInventario = "La Fecha de Inicio es obligatoria.";
-
-
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -406,9 +403,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         // Definir los encabezados
         const encabezados = [
             [
-                "Código",
-                "Código Genérico",
-                "Código Largo",
+                // "Código",
+                "Nº Inventario",
+                // "Código Largo",
                 "Departamento Corr",
                 "Código Específico",
                 "Secuencia",
@@ -461,9 +458,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
         // Convertir datos a array de arrays
         const datos = listaActivosCalculados.map((item) => [
-            item.aF_CLAVE ?? "",
+            // item.aF_CLAVE ?? "",
             item.aF_CODIGO_GENERICO ?? "",
-            item.aF_CODIGO_LARGO ?? "",
+            // item.aF_CODIGO_LARGO ?? "",
             item.deP_CORR?.toString() ?? "",
             item.esP_CODIGO?.toString() ?? "",
             item.aF_SECUENCIA?.toString() ?? "",
@@ -519,9 +516,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         const worksheet = XLSX.utils.aoa_to_sheet([...encabezados, ...datos]);
 
         worksheet["!cols"] = [
-            { wch: 12 }, // Código
+            // { wch: 12 }, // Código
             { wch: 12 }, // Código Genérico
-            { wch: 12 }, // Código Largo
+            // { wch: 12 }, // Código Largo
             { wch: 15 }, // Departamento Corr
             { wch: 15 }, // Código Específico
             { wch: 15 }, // Secuencia
@@ -633,8 +630,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 // Encabezado de la tabla
                                 new TableRow({
                                     children: [
-                                        new TableCell({ children: [new Paragraph({ text: "Código", style: "tableCellHeader" })], shading: { fill: "004485" } }),
-                                        // new TableCell({ children: [new Paragraph({ text: "Código Genérico", style: "tableCellHeader" })], shading: { fill: "004485" } }),
+                                        // new TableCell({ children: [new Paragraph({ text: "Código", style: "tableCellHeader" })], shading: { fill: "004485" } }),
+                                        new TableCell({ children: [new Paragraph({ text: "Nº Inventario", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         // new TableCell({ children: [new Paragraph({ text: "Código Largo", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         // new TableCell({ children: [new Paragraph({ text: "Departamento Corr", style: "tableCellHeader" })], shading: { fill: "004485" } }),
                                         // new TableCell({ children: [new Paragraph({ text: "Código Específico", style: "tableCellHeader" })], shading: { fill: "004485" } }),
@@ -692,8 +689,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 ...listaActivosCalculados.map((item) =>
                                     new TableRow({
                                         children: [
-                                            new TableCell({ children: [new Paragraph({ text: item.aF_CLAVE.toString(), style: "tableCell" })] }),
-                                            // new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_GENERICO, style: "tableCell" })] }),
+                                            // new TableCell({ children: [new Paragraph({ text: item.aF_CLAVE.toString(), style: "tableCell" })] }),
+                                            new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_GENERICO, style: "tableCell" })] }),
                                             // new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_GENERICO, style: "tableCell" })] }),
                                             // new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_LARGO, style: "tableCell" })] }),
                                             // new TableCell({ children: [new Paragraph({ text: item.deP_CORR.toString(), style: "tableCell" })] }),
@@ -801,9 +798,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Calcular depreciación</h3>
                     <Row>
-                        <Col md={3}>
+                        <Col md={2}>
                             <div className="mb-1">
-                                <h5 className="fw-semibold border-bottom">Busqueda por fecha de creación</h5>
+                                <h5 className="fw-semibold border-bottom">Fecha creación</h5>
                                 <label htmlFor="fDesde" className="fw-semibold">Desde</label>
                                 <input
                                     aria-label="fDesde"
@@ -833,7 +830,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </div>
 
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                             <div className="mb-1 z-1000">
                                 <label className="fw-semibold">
                                     Seleccione una cuenta
@@ -933,7 +930,12 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                 <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                     <tr>
-                                        <th >
+                                        <th style={{
+                                            position: 'sticky',
+                                            left: 0,
+                                            zIndex: 2,
+
+                                        }}>
                                             <Form.Check
                                                 className="check-danger"
                                                 type="checkbox"
@@ -941,9 +943,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                 checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                             />
                                         </th>
-                                        <th scope="col" className="text-nowrap text-center">Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Código Genérico</th>
-                                        <th scope="col" className="text-nowrap text-center">Código Largo</th>
+                                        {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                        <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                                        {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
                                         <th scope="col" className="text-nowrap text-center">Dep Corr</th>
                                         {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
                                         <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
@@ -991,16 +993,20 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                         return (
                                             <tr key={index}>
-                                                <td>
+                                                <td style={{
+                                                    position: 'sticky',
+                                                    left: 0,
+                                                    zIndex: 2,
+                                                }}>
                                                     <Form.Check
                                                         type="checkbox"
                                                         onChange={() => setSeleccionaFilas(indexReal)}
                                                         checked={filasSeleccionadas.includes(indexReal.toString())}
                                                     />
                                                 </td>
-                                                <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                                                {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
                                                 <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td>
+                                                {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
                                                 <td className="text-nowrap">{Lista.deP_CORR}</td>
                                                 {/* <td className="text-nowrap text-center">{Lista.esP_CODIGO}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_SECUENCIA}</td> */}
@@ -1163,9 +1169,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                     <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                         <tr>
-                                            <th scope="col" className="text-nowrap text-center">Código</th>
-                                            <th scope="col" className="text-nowrap text-center">Código Genérico</th>
-                                            <th scope="col" className="text-nowrap text-center">Código Largo</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                            <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
                                             <th scope="col" className="text-nowrap text-center">Dep Corr</th>
                                             {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
                                         <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
@@ -1220,9 +1226,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         {elementosActuales2.map((lista, index) =>
 
                                             <tr key={index}>
-                                                <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
+                                                {/* <td className="text-nowrap text-center">{lista.aF_CLAVE}</td> */}
                                                 <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
-                                                <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td>
+                                                {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
                                                 <td className="text-nowrap text-center">{lista.deP_CORR}</td>
                                                 {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
                                             <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
@@ -1359,9 +1365,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                     <tr>
-                                        <th scope="col" className="text-nowrap text-center">Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Código Genérico</th>
-                                        <th scope="col" className="text-nowrap text-center">Código Largo</th>
+                                        {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                        <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                                        {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
                                         <th scope="col" className="text-nowrap text-center">Dep Corr</th>
                                         {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
                                         <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
@@ -1408,9 +1414,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     {elementosActuales3.map((lista, index) =>
 
                                         <tr key={index}>
-                                            <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
+                                            {/* <td className="text-nowrap text-center">{lista.aF_CLAVE}</td> */}
                                             <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td>
+                                            {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
                                             <td className="text-nowrap text-center">{lista.deP_CORR}</td>
                                             {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
                                             <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
@@ -1515,19 +1521,19 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
                                 <>
                                     {/* Botones para exportar a Excel y Word */}
-                                    <div className="mt-3 d-flex justify-content-center gap-2 mb-1">
+                                    <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
                                             onClick={() => exportarExcel(listaActivosCalculados)}
                                             variant="success">
                                             Descargar Excel
                                             <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                         </Button>
-                                        <Button
+                                        {/* <Button
                                             onClick={() => exportarWord()}
                                             variant="primary">
                                             Descargar Word
                                             <FileEarmarkWord className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </Button>
+                                        </Button> */}
                                     </div>
                                     {/* Frame para vista previa del PDF */}
                                     <iframe

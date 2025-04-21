@@ -8,6 +8,7 @@ import {
 // Define el tipo para el estado inicial
 interface PropsState {
     listadoTraslados: Array<{
+        aF_CODIGO_GENERICO: string,
         usuariO_MOD: string,
         usuariO_CREA: string,
         traS_OBS: string,

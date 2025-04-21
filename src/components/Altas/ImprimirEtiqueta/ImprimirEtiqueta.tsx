@@ -1,275 +1,424 @@
-import React, { useState } from "react";
-import ReactDOM from 'react-dom';
-import { Modal, Spinner } from "react-bootstrap";
+import React, { useEffect, useMemo, useState } from "react";
+import { Pagination, Form, Modal, Col, Row, Button, Spinner } from "react-bootstrap";
+import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import { QRCodeSVG } from 'qrcode.react';
+import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
+import { Helmet } from "react-helmet-async";
+import { Eraser, Search } from "react-bootstrap-icons";
+import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
+import { RootState } from "../../../store";
 import Layout from "../../../containers/hocs/layout/Layout";
 import MenuAltas from "../../Menus/MenuAltas";
-import { RootState } from "../../../store";
-import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
-import { InventarioCompleto } from "../../Inventario/ModificarInventario";
-import { Helmet } from "react-helmet-async";
-import { BlobProvider } from "@react-pdf/renderer";
-import DocumentoPDF from "./DocumentoPDF";
-import { connect } from "react-redux";
-import '../../../styles/ImprimirEtiqueta.css'
+import SkeletonLoader from "../../Utils/SkeletonLoader";
+import DocumentoEtiquetasPDF from "./DocumentoEtiquetasPDF";
+import ReactDOM from 'react-dom';
+import { QRCodeSVG } from 'qrcode.react';
+const classNames = (...classes: (string | boolean | undefined)[]): string => {
+    return classes.filter(Boolean).join(" ");
+};
 
-
-interface DatosEtiquetaProps {
+export interface ListaEtiquetas {
     aF_CODIGO_LARGO: string,
     aF_DESCRIPCION: string,
     aF_UBICACION: string,
     aF_FECHA_ALTA: string,
-    aF_NCUENTA: string;
-    qrImage: string;
+    aF_NCUENTA: string
+    qrImage?: string
 }
-interface DatosProps {
-    obtenerEtiquetasAltasActions: (aF_CLAVE: string) => Promise<boolean>;
-    datosEtiqueta: DatosEtiquetaProps[];
-    isDarkMode: boolean;
-}
-const ImprimirEtiqueta: React.FC<DatosProps> = ({ obtenerEtiquetasAltasActions, datosEtiqueta, isDarkMode }) => {
 
-    const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
-    const [Inventario, setInventario] = useState({ aF_CLAVE: "" });
-    const [loading, setLoading] = useState(false); // Estado para controlar la carga
-    const [mostrarModal, setMostrarModal] = useState(false);
-    const [Etiqueta, setEtiqueta] = useState({
-        aF_CODIGO_LARGO: "",
-        aF_DESCRIPCION: "",
-        aF_UBICACION: "",
-        aF_FECHA_ALTA: "",
-        aF_NCUENTA: "",
-        qrImage: ""
+export interface DatosBajas {
+    obtenerEtiquetasAltasActions: (af_codigo_generico: string) => Promise<boolean>;
+    listaEtiquetas: ListaEtiquetas[];
+    token: string | null;
+    isDarkMode: boolean;
+    nPaginacion: number; //número de paginas establecido desde preferencias
+}
+
+const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, listaEtiquetas, token, isDarkMode, nPaginacion }) => {
+    const [loading, setLoading] = useState(false);
+    //-------------Modal-------------//
+    const [mostrarModal, setMostrarModal] = useState<number | null>(null);
+    //------------Fin Modal----------//
+    const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
+    const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [paginaActual, setPaginaActual] = useState(1);
+    const elementosPorPagina = nPaginacion;
+    const [Inventario, setInventario] = useState({
+        af_codigo_generico: ""
     });
-    const validate = () => {
-        let tempErrors: Partial<any> & {} = {};
-        // Validación para N° de Recepción (debe ser un número)
-        if (!Inventario.aF_CLAVE) {
-            setLoading(false);
-            tempErrors.aF_CLAVE = "Debe ingresar un número.";
+    const [listaConQR, setListaConQR] = useState<ListaEtiquetas[]>([]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+        const { name, value } = e.target;
+        // Si el campo es "af_codigo_generico", validamos que solo tenga números
+        if (name === "af_codigo_generico") {
+            // Solo números usando una expresión regular
+            const soloNumeros = /^[0-9]*$/;
+
+            if (!soloNumeros.test(value)) {
+                return; // No actualiza el estado si hay caracteres inválidos
+            }
+
+            setInventario((prevState) => ({
+                ...prevState,
+                [name]: value,
+            }));
+            return;
+        }
+    };
+
+    const handleBuscar = async () => {
+        let resultado = false;
+        setLoading(true);
+        resultado = await obtenerEtiquetasAltasActions(Inventario.af_codigo_generico);
+        if (!resultado) {
+            Swal.fire({
+                icon: "error",
+                title: ":'(",
+                text: "No se encontraron resultados, inténte otro registro.",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            setLoading(false); //Finaliza estado de carga
+            return;
+        } else {
+            paginar(1);
+            setLoading(false); //Finaliza estado de carga
         }
 
-
-        setError(tempErrors);
-        return Object.keys(tempErrors).length === 0;
     };
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setInventario((prevState) => ({
-            ...prevState,
-            [name]: value,
+
+    const handleLimpiar = () => {
+        setInventario((prevInventario) => ({
+            ...prevInventario,
+            af_codigo_generico: ""
         }));
     };
+    const fetchBajas = async () => {
+        if (token) {
+            setLoading(true);
+            try {
+                const resultado = await obtenerEtiquetasAltasActions(Inventario.af_codigo_generico);
+                if (!resultado) {
+                    throw new Error("Error al cargar la lista de bajas");
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
 
+    useEffect(() => {
+        if (listaEtiquetas.length > 0) {
+            generarQRs();
+        }
+    }, [listaEtiquetas]);
+
+
+    const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setFilasSeleccionadas(
+                elementosActuales.map((_, index) =>
+                    (indicePrimerElemento + index).toString()
+                )
+            );
+        } else {
+            setFilasSeleccionadas([]);
+        }
+    };
+    const setSeleccionaFilas = (index: number) => {
+        setMostrarModal(index)
+        setFilasSeleccionadas((prev) =>
+            prev.includes(index.toString())
+                ? prev.filter((rowIndex) => rowIndex !== index.toString())
+                : [...prev, index.toString()]
+        );
+    };
+
+    const handleCerrarModal = (index: number) => {
+        setFilaSeleccionada((prevSeleccionadas) =>
+            prevSeleccionadas.filter((fila) => fila !== index.toString())
+        );
+        setMostrarModal(null); //Cierra modal del indice seleccionado       
+    };
     const generateQRCodeBase64 = (value: string): Promise<string> => {
         return new Promise((resolve, reject) => {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
+            const container = document.createElement("div");
+            container.style.position = "fixed";
+            container.style.top = "-10000px"; // fuera de la pantalla
 
-            if (context) {
-                const qrSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                document.body.appendChild(qrSvg);
+            document.body.appendChild(container);
 
-                ReactDOM.render(<QRCodeSVG value={value} level="H" />, qrSvg);
+            // Renderizamos el componente QR temporalmente
+            ReactDOM.render(<QRCodeSVG value={value} size={100} />, container);
 
-                const svgData = new XMLSerializer().serializeToString(qrSvg);
-                const img = new Image();
+            setTimeout(() => {
+                try {
+                    const svgElement = container.querySelector("svg");
 
-                img.onload = () => {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    context.drawImage(img, 0, 0);
+                    if (!svgElement) {
+                        throw new Error("No se encontró el SVG del QR.");
+                    }
 
-                    const qrBase64 = canvas.toDataURL('image/png');
-                    document.body.removeChild(qrSvg);
-                    resolve(qrBase64); // Resuelve la promesa con la imagen QR en base64
-                };
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const img = new Image();
 
-                img.onerror = () => reject(new Error("Error al cargar la imagen QR."));
-                img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-            } else {
-                reject(new Error("El contexto del canvas no está disponible."));
-            }
+                    img.onload = () => {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext("2d");
+                        if (ctx) {
+                            ctx.drawImage(img, 0, 0);
+                            const pngData = canvas.toDataURL("image/png");
+                            document.body.removeChild(container);
+                            resolve(pngData);
+                        } else {
+                            document.body.removeChild(container);
+                            reject("Error al obtener el contexto del canvas.");
+                        }
+                    };
+
+                    img.onerror = () => {
+                        document.body.removeChild(container);
+                        reject("Error al cargar la imagen del QR.");
+                    };
+
+                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+                } catch (err) {
+                    document.body.removeChild(container);
+                    reject(err);
+                }
+            }, 100); // delay leve para asegurarse de que renderice
         });
     };
 
-    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (validate()) {
-            setLoading(true);
-            let resultado = await obtenerEtiquetasAltasActions(Inventario.aF_CLAVE);
-            if (resultado) {
-                setLoading(false);
-                Swal.fire({
-                    icon: "success",
-                    title: "QR disponible",
-                    text: "Código QR generado correctamente.",
-                    showCancelButton: true,
-                    showConfirmButton: false,
-                    cancelButtonText: "Cerrar",
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                    customClass: {
-                        popup: "custom-border",
-                    }
-                });
 
-            } else {
-                setLoading(false);
-                Swal.fire({
-                    icon: "error",
-                    title: ":'(",
-                    text: "No se encontraron resultados, inténte otro registro.",
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                    customClass: {
-                        popup: "custom-border",
-                    }
-                });
-            }
-        }
+    const generarQRs = async () => {
+        const etiquetasConQR = await Promise.all(
+            listaEtiquetas.map(async (item) => {
+                const valueQR = `Cod. Bien: ${item.aF_CODIGO_LARGO} Nom. Bien: ${item.aF_DESCRIPCION} F. Alta: ${item.aF_FECHA_ALTA} Cta. Contable: ${item.aF_NCUENTA}`;
+                const qrImage = await generateQRCodeBase64(valueQR);
+                console.log("QR generado:", qrImage);
+                return { ...item, qrImage };
+            })
+        );
+
+        setListaConQR(etiquetasConQR);
     };
+
+
+    const indiceUltimoElemento = paginaActual * elementosPorPagina;
+    const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
+    const elementosActuales = useMemo(
+        () => listaEtiquetas.slice(indicePrimerElemento, indiceUltimoElemento),
+        [listaEtiquetas, indicePrimerElemento, indiceUltimoElemento]
+    );
+    const totalPaginas = Math.ceil(listaEtiquetas.length / elementosPorPagina);
+    const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     return (
         <Layout>
             <Helmet>
-                <title>Imprimir Etiquetas</title>
+                <title>Imprimir etiquetas</title>
             </Helmet>
             <MenuAltas />
-            <form onSubmit={handleFormSubmit}>
-                <div className={`border border-botom p-4 rounded v-100 ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                    <h3 className="form-title fw-semibold border-bottom p-1">Imprimir Etiquetas</h3>
-                    <div className="row justify-content-center">
-                        {/* Contenedor de Input */}
-                        <div className="col-12 col-md-6 text-center" style={{ maxWidth: "300px" }}>
-                            <label>Ingrese número de Inventario</label>
+            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                <h3 className="form-title fw-semibold border-bottom p-1">Imprimir etiquetas</h3>
+                <Row>
+                    <Col md={2}>
+                        <div className="mb-1">
+                            <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
                             <input
-                                aria-label="aF_CLAVE"
+                                aria-label="af_codigo_generico"
                                 type="text"
-                                className={`form-select text-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_CLAVE ? "is-invalid" : ""}`}
-                                maxLength={12}
-                                size={50}
-                                name="aF_CLAVE"
-                                placeholder="12345..."
+                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="af_codigo_generico"
+                                size={10}
+                                placeholder="Eje: 1000000008"
                                 onChange={handleChange}
-                                value={Inventario.aF_CLAVE}
+                                value={Inventario.af_codigo_generico}
                             />
-                            {error.AF_CLAVE && (
-                                <div className="invalid-feedback fw-semibold">{error.AF_CLAVE}</div>
-                            )}
                         </div>
-
-                        {/* Contenedor del Botón */}
-                        <div className="col-12 text-center">
-                            <button type="submit" disabled={loading} className={`btn mt-3 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                    </Col>
+                    <Col md={5}>
+                        <div className="mb-1 mt-4">
+                            <Button onClick={handleBuscar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
                                 {loading ? (
                                     <>
-                                        {" Generando... "}
-                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                        {" Buscar"}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-1"
+                                        />
                                     </>
                                 ) : (
-                                    "Generar QR"
+                                    <>
+                                        {" Buscar"}
+                                        < Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                    </>
                                 )}
-                            </button>
+                            </Button>
+                            <Button onClick={handleLimpiar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                Limpiar
+                                <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                            </Button>
                         </div>
-
-                        {datosEtiqueta.map((traeEtiqueta) => (
-                            <div
-                                key={traeEtiqueta.aF_CODIGO_LARGO}
-                                className="position-relative d-flex justify-content-center align-items-center mt-5"
-                            >
-                                <div className="d-flex border w-50 p-4 justify-content-center position-relative tarjeta-hover rounded-3">
-                                    {/* QR con mayor resolución y corrección */}
-                                    <QRCodeSVG
-                                        value={`Cod. Bien: ${traeEtiqueta.aF_CODIGO_LARGO} ` +
-                                            `Nom. Bien: ${traeEtiqueta.aF_DESCRIPCION} ` +
-                                            `F. Alta: ${traeEtiqueta.aF_FECHA_ALTA} ` +
-                                            `Cta. Contable: ${traeEtiqueta.aF_NCUENTA}`}
-                                        size={150}
-                                        level="H"
-                                        className="mx-4 mt-3"
+                    </Col>
+                </Row>
+                {loading ? (
+                    <SkeletonLoader rowCount={elementosPorPagina} />
+                ) : (
+                    <div className='table-responsive'>
+                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                <tr>
+                                    <Form.Check
+                                        className="check-danger"
+                                        type="checkbox"
+                                        onChange={handleSeleccionaTodos}
+                                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                     />
+                                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                                    <th scope="col" className="text-nowrap text-center">Descripción</th>
+                                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
+                                    <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
+                                    <th scope="col" className="text-nowrap text-center">Ubicación</th>
+                                    <th scope="col" className="text-nowrap text-center">QR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {elementosActuales.map((fila, index) => {
+                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                    return (
+                                        <tr key={index}>
+                                            <td style={{
+                                                position: 'sticky',
+                                                left: 0,
+                                                zIndex: 2,
 
-                                    {/* Datos del activo */}
-                                    <div className="text-start mt-3 rounded">
-                                        <p className="fs-0.09em mb-1">{traeEtiqueta.aF_UBICACION}</p>
-                                        <p className="fw-semibold mb-1">{traeEtiqueta.aF_CODIGO_LARGO}</p>
-                                        <p className="fs-0.09em">{traeEtiqueta.aF_DESCRIPCION}</p>
-                                    </div>
-
-                                    {/* Capa de oscurecimiento con texto */}
-                                    <div className="overlay"
-                                        onClick={async () => {
-                                            const primerElemento = datosEtiqueta[0];
-                                            if (primerElemento) {
-                                                try {
-                                                    const qrBase64 = await generateQRCodeBase64(
-                                                        `Cod. Bien: ${primerElemento.aF_CODIGO_LARGO} ` +
-                                                        `Nom. Bien: ${primerElemento.aF_DESCRIPCION} ` +
-                                                        `F. Alta: ${primerElemento.aF_FECHA_ALTA} ` +
-                                                        `Cta. Contable: ${primerElemento.aF_NCUENTA}`
-                                                    );
-                                                    setEtiqueta({
-                                                        ...primerElemento,
-                                                        qrImage: qrBase64,
-                                                    });
-                                                    setMostrarModal(true);
-                                                } catch (error) {
-                                                    // console.error("Error al generar el QR:", error);
-                                                }
-                                            }
-                                        }}>
-                                        <span className="overlay-text">Haga clic para imprimir</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                                            }}>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    onChange={() => setSeleccionaFilas(indexReal)}
+                                                    checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                />
+                                            </td>
+                                            <td className="text-nowrap">{fila.aF_CODIGO_LARGO}</td>
+                                            <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
+                                            <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
+                                            <td className="text-nowrap">{fila.aF_NCUENTA}</td>
+                                            <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                            <td className="text-nowrap text-center">
+                                                <QRCodeSVG
+                                                    value={`Cod. Bien: ${fila.aF_CODIGO_LARGO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA}`}
+                                                    size={50}
+                                                    level="H"
+                                                />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
+                )}
+                <div className="paginador-container">
+                    <Pagination className="paginador-scroll">
+                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                        {Array.from({ length: totalPaginas }, (_, i) => (
+                            <Pagination.Item
+                                key={i + 1}
+                                active={i + 1 === paginaActual}
+                                onClick={() => paginar(i + 1)}
+                            >
+                                {i + 1}
+                            </Pagination.Item>
+                        ))}
+                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                    </Pagination>
                 </div>
-            </form>
-            <Modal
-                show={mostrarModal}
-                onHide={() => setMostrarModal(false)}
-                dialogClassName="modal-right" size="lg">
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Imprimir QR</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <BlobProvider document={<DocumentoPDF Etiqueta={Etiqueta}
+            </div>
+            {
+                elementosActuales.map((fila, index) => (
+                    <div key={index}>
+                        <Modal
+                            show={mostrarModal === index}
+                            onHide={() => handleCerrarModal(index)}
+                            dialogClassName="modal-right" size="lg">
+                            <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                                <Modal.Title className="fw-semibold">Consulta Inventario Especies</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                                <form>
 
-                    />}>
-                        {({ url, loading }) =>
-                            loading ? (
-                                <p>Generando QR...</p>
-                            ) : (
+                                    {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+                                    <BlobProvider document={<DocumentoEtiquetasPDF row={listaConQR} />
+                                    }>
+                                        {({ url, loading }) =>
+                                            loading ? (
+                                                <p>Generando vista previa...</p>
+                                            ) : (
 
-                                <iframe
-                                    src={url ? `${url}` : ''}
-                                    title="Vista Previa del PDF"
-                                    style={{
-                                        width: "100%",
-                                        height: "500px",
-                                        border: "none",
-                                    }}
-                                ></iframe>
+                                                <iframe
+                                                    src={url ? `${url}` : ""}
+                                                    title="Vista Previa del PDF"
+                                                    style={{
+                                                        width: "100%",
+                                                        height: "900px",
+                                                        border: "none"
+                                                    }}
+                                                ></iframe>
 
-                            )
-                        }
-                    </BlobProvider>
-                </Modal.Body>
-            </Modal>
+                                            )
+                                        }
+                                    </BlobProvider>
+                                </form>
+                            </Modal.Body>
+                        </Modal>
+                    </div>
+                ))
+            }
         </Layout >
     );
 };
 
 const mapStateToProps = (state: RootState) => ({
-    datosEtiqueta: state.obtenerEtiquetasAltasReducers.datosEtiqueta,
+    listaEtiquetas: state.obtenerEtiquetasAltasReducers.listaEtiquetas,
+    token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {
-    obtenerEtiquetasAltasActions
+    obtenerEtiquetasAltasActions,
 })(ImprimirEtiqueta);
+

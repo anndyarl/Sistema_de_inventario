@@ -7,7 +7,7 @@ import {
 } from "./types";
 
 // Acción para obtener la recepción por número
-export const listadoTrasladosActions = (tras_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoTrasladosActions = (af_codigo_generico: string, tras_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -21,7 +21,7 @@ export const listadoTrasladosActions = (tras_corr: number) => async (dispatch: D
     dispatch({ type: LISTA_TRASLADOS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListaDeTraslados?tras_corr=${tras_corr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListaDeTraslados?af_codigo_generico=${af_codigo_generico}&tras_corr=${tras_corr}`, config);
 
       if (res.status === 200) {
         dispatch({

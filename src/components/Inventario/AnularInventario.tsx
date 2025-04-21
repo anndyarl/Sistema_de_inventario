@@ -1,11 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Pagination, Button, Spinner } from "react-bootstrap";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaInventarioActions } from "../../redux/actions/Inventario/AnularInventario/obtenerListaInventarioActions";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import MenuInventario from "../Menus/MenuInventario";
@@ -47,7 +47,7 @@ interface InventarioCompleto {
 
 interface ListaInventarioProps {
   datosListaInventario: InventarioCompleto[];
-  obtenerListaInventarioActions: (FechaInicio: string, FechaTermino: string) => Promise<boolean>;
+  obtenerListaInventarioActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string) => Promise<boolean>;
   anularInventarioActions: (nInventario: string) => Promise<boolean>;
   isDarkMode: boolean;
   nPaginacion: number; //número de paginas establecido desde preferencias
@@ -66,6 +66,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
   const elementosPorPagina = nPaginacion;
 
   const [Inventario, setInventario] = useState({
+    af_codigo_generico: "",
     fechaInicio: "",
     fechaTermino: "",
   });
@@ -73,21 +74,46 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.fechaInicio)
-      tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-    if (!Inventario.fechaTermino)
-      tempErrors.fechaTermino = "La Fecha de Término es obligatoria.";
-    if (Inventario.fechaInicio > Inventario.fechaTermino)
-      tempErrors.fechaInicio =
-        "La fecha de inicio es mayor a la fecha de término";
-
+    if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
+    if (!Inventario.fechaTermino) tempErrors.fHasta = "La Fecha de Término es obligatoria.";
+    if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha no cumple con el rango de busqueda";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
-  ) => {
+
+  const listaAltasAuto = async () => {
+    if (datosListaInventario.length === 0) {
+      setLoading(true);
+      const resultado = await obtenerListaInventarioActions("", "", "");
+      if (resultado) {
+        setLoading(false);
+      }
+      // else {
+      //   Swal.fire({
+      //     icon: "error",
+      //     title: "Error",
+      //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
+      //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      //     customClass: {
+      //       popup: "custom-border", // Clase personalizada para el borde
+      //     }
+      //   });
+      // }
+    }
+  };
+  useEffect(() => {
+    listaAltasAuto();
+  }, [obtenerListaInventarioActions, datosListaInventario.length]); // Asegúrate de incluir dependencias relevantes
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
+    // Validación específica para af_codigo_generico: solo permitir números
+    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
+    }
     setInventario((prevState) => ({
       ...prevState,
       [name]: value,
@@ -96,29 +122,45 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
 
   const handleBuscarInventario = async () => {
     let resultado = false;
-    if (validate()) {
-      setLoading(true);
-      resultado = await obtenerListaInventarioActions(Inventario.fechaInicio, Inventario.fechaTermino);
-
-      if (!resultado) {
-        Swal.fire({
-          icon: "error",
-          title: ":'(",
-          text: "No se encontraron resultados, inténte otro registro.",
-          confirmButtonText: "Ok",
-          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-          customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
-          }
-        });
-        setLoading(false); //Finaliza estado de carga
-        return;
-      } else {
-        setLoading(false); //Finaliza estado de carga
+    setLoading(true);
+    //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
+    if (Inventario.fechaTermino != "" && Inventario.fechaInicio != "") {
+      if (validate()) {
+        resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino);
       }
     }
+    else {
+      resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, "", "");
+    }
+
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      paginar(1);
+      setLoading(false); //Finaliza estado de carga
+    }
+  };
+
+  const handleLimpiar = () => {
+    setInventario((prevInventario) => ({
+      ...prevInventario,
+      fechaInicio: "",
+      fechaTermino: "",
+      af_codigo_generico: ""
+    }));
   };
 
   const handleAnular = async (index: number, aF_CLAVE: string) => {
@@ -196,7 +238,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
             Anular Inventario
           </h3>
           <Row>
-            <Col md={3}>
+            <Col md={2}>
               <div className="mb-1">
                 <label htmlFor="fechaInicio" className="fw-semibold">Fecha Inicio</label>
                 <input
@@ -225,11 +267,28 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                   <div className="invalid-feedback fw-semibold">{error.fechaTermino}</div>
                 )}
               </div>
-
             </Col>
-            <Col md={5}>
+            <Col md={2}>
+              <div className="mb-1">
+                <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
+                <input
+                  aria-label="af_codigo_generico"
+                  type="text"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="af_codigo_generico"
+                  size={10}
+                  placeholder="Eje: 1000000008"
+                  onChange={handleChange}
+                  value={Inventario.af_codigo_generico}
+                />
+              </div>
+            </Col>
+            <Col md={3}>
               <div className="mb-1 mt-4">
-                <Button onClick={handleBuscarInventario} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
+                <Button
+                  onClick={handleBuscarInventario}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
                   {loading ? (
                     <>
                       {" Buscar"}
@@ -248,6 +307,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                     </>
                   )}
                 </Button>
+                <Button onClick={handleLimpiar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  Limpiar
+                  <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                </Button>
               </div>
             </Col>
           </Row>
@@ -265,7 +330,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                   <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
                       <th scope="col" className="text-nowrap text-center">Nº de Inventario</th>
-                      <th scope="col" className="text-nowrap text-center">Código Genérico</th>
                       <th scope="col" className="text-nowrap text-center">Dependencia</th>
                       {/* <th scope="col" className="text-nowrap text-center">Estado Alta</th> */}
                       <th scope="col" className="text-nowrap text-center">Cantidad</th>
@@ -290,13 +354,16 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       <th scope="col" className="text-nowrap text-center">Precio</th>
                       <th scope="col" className="text-nowrap text-center">Serie</th>
                       <th scope="col" className="text-nowrap text-center">Proveedor</th>
-                      <th scope="col" className="text-nowrap text-center">Acción</th>
+                      <th scope="col" className="text-nowrap text-center" style={{
+                        position: 'sticky',
+                        right: 0,
+                        zIndex: 2,
+                      }}>Acción</th>
                     </tr>
                   </thead>
                   <tbody>
                     {elementosActuales.map((datosListaInventario, index) => (
                       <tr key={index}>
-                        <td className="text-nowrap">{datosListaInventario.aF_CLAVE}</td>
                         <td className="text-nowrap">{datosListaInventario.aF_CODIGO_GENERICO}</td>
                         <td className="text-nowrap">{datosListaInventario.deP_NOMBRE}</td>
                         {/* <td>{datosListaInventario.aF_ALTA}</td> */}
@@ -326,7 +393,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                         </td>
                         <td className="text-nowrap">{datosListaInventario.deT_SERIE}</td>
                         <td className="text-nowrap">{datosListaInventario.proV_NOMBRE}</td>
-                        <td>
+                        <td style={{
+                          position: 'sticky',
+                          right: 0,
+                          zIndex: 2,
+                        }}>
                           <Button
                             variant="outline-danger"
                             className="fw-semibold"

@@ -643,19 +643,19 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
 
                                 <>
                                     {/* Botones para exportar a Excel y Word */}
-                                    <div className="mt-3 d-flex justify-content-center gap-2 mb-1">
+                                    <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
                                             onClick={() => exportarExcel(listaFolioServicioDependencia)}
                                             variant="success">
                                             Descargar Excel
                                             <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                         </Button>
-                                        <Button
+                                        {/* <Button
                                             onClick={() => exportarWord()}
                                             variant="primary">
                                             Descargar Word
                                             <FileEarmarkWord className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </Button>
+                                        </Button> */}
                                     </div>
                                     {/* Frame para vista previa del PDF */}
                                     <iframe

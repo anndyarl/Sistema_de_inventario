@@ -248,8 +248,8 @@ const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comb
                             variant={`${isDarkMode ? "secondary" : "primary"}`}
                             onClick={() => setMostrarModalRegistrar(true)}
                         >
-                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                             Nuevo
+                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                         </Button>
                     </div>
                 </div>
@@ -373,6 +373,7 @@ const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comb
                                 ) : (
                                     <>
                                         Agregar
+                                        <Plus className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" />
                                     </>
                                 )}
                             </Button>

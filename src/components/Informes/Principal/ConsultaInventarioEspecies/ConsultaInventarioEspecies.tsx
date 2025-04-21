@@ -60,7 +60,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
         aF_CLAVE: 0,
         traS_CORR: 0,
         id: 0,
-        aF_CODIGO_GENERICO: "",
+        af_codigo_generico: "",
         fecha: "",
         aF_TIPO: "",
         dependencia: "",
@@ -77,16 +77,27 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        setInventario((prevAltaInventario) => ({
-            ...prevAltaInventario,
-            [name]: value,
-        }));
+        // Si el campo es "af_codigo_generico", validamos que solo tenga números
+        if (name === "af_codigo_generico") {
+            // Solo números usando una expresión regular
+            const soloNumeros = /^[0-9]*$/;
+
+            if (!soloNumeros.test(value)) {
+                return; // No actualiza el estado si hay caracteres inválidos
+            }
+
+            setInventario((prevState) => ({
+                ...prevState,
+                [name]: value,
+            }));
+            return;
+        }
     };
 
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
-        resultado = await listaConsultaInventarioEspecieActions(Inventario.aF_CODIGO_GENERICO);
+        resultado = await listaConsultaInventarioEspecieActions(Inventario.af_codigo_generico);
         if (!resultado) {
             Swal.fire({
                 icon: "error",
@@ -112,14 +123,14 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
     const handleLimpiar = () => {
         setInventario((prevInventario) => ({
             ...prevInventario,
-            aF_CODIGO_GENERICO: ""
+            af_codigo_generico: ""
         }));
     };
     const fetchBajas = async () => {
         if (token) {
             setLoading(true);
             try {
-                const resultado = await listaConsultaInventarioEspecieActions(Inventario.aF_CODIGO_GENERICO);
+                const resultado = await listaConsultaInventarioEspecieActions(Inventario.af_codigo_generico);
                 if (!resultado) {
                     throw new Error("Error al cargar la lista de bajas");
                 }
@@ -183,16 +194,16 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                 <Row>
                     <Col md={2}>
                         <div className="mb-1">
-                            <label htmlFor="aF_CODIGO_GENERICO" className="fw-semibold">Nº Inventario</label>
+                            <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
                             <input
-                                aria-label="aF_CODIGO_GENERICO"
+                                aria-label="af_codigo_generico"
                                 type="text"
                                 className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                name="aF_CODIGO_GENERICO"
+                                name="af_codigo_generico"
                                 size={10}
                                 placeholder="Eje: 1000000008"
                                 onChange={handleChange}
-                                value={Inventario.aF_CODIGO_GENERICO}
+                                value={Inventario.af_codigo_generico}
                             />
                         </div>
                     </Col>
@@ -262,7 +273,12 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                             <tbody>
                                 {elementosActuales.map((fila, index) => (
                                     <tr key={indicePrimerElemento + index}>
-                                        <td>
+                                        <td style={{
+                                            position: 'sticky',
+                                            left: 0,
+                                            zIndex: 2,
+
+                                        }}>
                                             <Form.Check
                                                 type="checkbox"
                                                 onChange={() => setSeleccionaFila(index)}

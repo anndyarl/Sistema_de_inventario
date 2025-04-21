@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
+import { Pagination, Button, Spinner, Modal, Row, Col } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -10,6 +10,12 @@ import MenuBajas from "../Menus/MenuBajas.tsx";
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
 import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
 import { Helmet } from "react-helmet-async";
+import { Eraser, Search } from "react-bootstrap-icons";
+
+interface FechasProps {
+  fDesde: string;
+  fHasta: string;
+}
 export interface ListaRemates {
   boD_CORR: number;
   aF_CLAVE: number;
@@ -35,11 +41,9 @@ export interface ListaRemates {
   // estado: number;
   // fechA_REMATES: string;
 }
-
-
 interface DatosBajas {
   listaRemates: ListaRemates[];
-  obtenerListaRematesActions: (aF_CLAVE: string) => Promise<boolean>;
+  obtenerListaRematesActions: (fDesde: string, fHasta: string, nresolucion: string) => Promise<boolean>;
   rematarBajasActions: (listaRemates: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -49,7 +53,7 @@ interface DatosBajas {
 const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rematarBajasActions, listaRemates, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
-  const [error, setError] = useState<Partial<ListaRemates>>({});
+  const [error, setError] = useState<Partial<ListaRemates> & Partial<FechasProps>>({});
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -67,14 +71,23 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
   const [Rematados, setRematados] = useState({
-    nresolucion: 0,
+    fDesde: "",
+    fHasta: "",
+    nresolucion: ""
   });
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Rematados.nresolucion || Rematados.nresolucion === 0) tempErrors.nresolucion = "Campo obligatorio.";
+    if (!Rematados.nresolucion || Rematados.nresolucion === "") tempErrors.nresolucion = "Campo obligatorio.";
+    if (Rematados.fDesde > Rematados.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
+  const validateFechas = () => {
+    let tempErrors: Partial<any> & {} = {};
+    if (Rematados.fDesde > Rematados.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -83,23 +96,23 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
     if (token) {
       if (listaRemates.length === 0) {
         setLoading(true);
-        const resultado = await obtenerListaRematesActions("");
+        const resultado = await obtenerListaRematesActions("", "", "");
         if (resultado) {
           setLoading(false);
         }
-        else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `Error en la solicitud. Por favor, intente nuevamente.`,
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
-          });
-        }
+        // else {
+        //   Swal.fire({
+        //     icon: "error",
+        //     title: "Error",
+        //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
+        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //     customClass: {
+        //       popup: "custom-border", // Clase personalizada para el borde
+        //     }
+        //   });
+        // }
       }
     }
   };
@@ -152,36 +165,53 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
     setMostrarModal(null); //Cierra modal del indice seleccionado
     setRematados((prevState) => ({
       ...prevState,
-      nresolucion: 0,
+      nresolucion: "",
     }));
   };
 
-  // const handleBuscarRemates = async () => {
-  //   let resultado = false;
-  //   setLoading(true);
-  //   resultado = await obtenerListaRematesActions(Inventario.aF_CLAVE);
+  const handleBuscar = async () => {
+    let resultado = false;
+    setLoading(true);
+    if (Rematados.fDesde != "" || Rematados.fHasta != "") {
+      if (validateFechas()) {
+        resultado = await obtenerListaRematesActions(Rematados.fDesde, Rematados.fHasta, Rematados.nresolucion);
+      }
+    }
+    else {
+      resultado = await obtenerListaRematesActions("", "", Rematados.nresolucion);
+    }
 
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, inténte otro registro.",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      paginar(1);
+      setLoading(false); //Finaliza estado de carga
+    }
 
-  //   if (!resultado) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: ":'(",
-  //       text: "No se encontraron resultados, inténte otro registro.",
-  //       confirmButtonText: "Ok",
-  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //       customClass: {
-  //         popup: "custom-border", // Clase personalizada para el borde
-  //       }
-  //     });
-  //     setLoading(false); //Finaliza estado de carga
-  //     return;
-  //   } else {
-  //     setLoading(false); //Finaliza estado de carga
-  //   }
+  };
 
-  // };
+  const handleLimpiar = () => {
+    setRematados((prevInventario) => ({
+      ...prevInventario,
+      fDesde: "",
+      fHasta: "",
+      nresolucion: ""
+    }));
+  };
+
   const handleQuitar = async () => {
     if (validate()) {
       const selectedIndices = filaSeleccionada.map(Number);
@@ -234,11 +264,11 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
           });
 
           setLoadingRegistro(false);
-          obtenerListaRematesActions("");
+          obtenerListaRematesActions("", "", "");
           setFilaSeleccionada([]);
           setRematados((prevState) => ({
             ...prevState,
-            nresolucion: 0,
+            nresolucion: "",
           }));
           setMostrarModal(null);
         } else {
@@ -268,41 +298,86 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
 
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
-        {/* <Row>
-            <Col md={3}>
-              <div className="mb-1">
-                <label htmlFor="aF_CLAVE" className="fw-semibold">Nº Inventario</label>
-                <input
-                  aria-label="aF_CLAVE"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="aF_CLAVE"
-                  onChange={handleChange}
-                  value={Inventario.aF_CLAVE}
-                />
-              </div>
-            </Col>
-            <Col md={5}>
-              <div className="mb-1 mt-4">
-                <Button onClick={handleBuscarRemates} variant={`${isDarkMode ? "secondary" : "primary"}`} className="ms-1">
-                  {loading ? (
-                    <>
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                    </>
-                  ) : (
-                    <Search className={classNames("flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
-                  )}
-                </Button>
-              </div>
-            </Col>
-          </Row> */}
+        <Row>
+          <Col md={2}>
+            <div className="mb-1">
+              <label htmlFor="fDesde" className="fw-semibold">Desde</label>
+              <input
+                aria-label="fDesde"
+                type="date"
+                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                name="fDesde"
+                onChange={handleChange}
+                value={Rematados.fDesde}
+              />
+              {error.fDesde && (
+                <div className="invalid-feedback d-block">{error.fDesde}</div>
+              )}
+            </div>
+            <div className="mb-1">
+              <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
+              <input
+                aria-label="fHasta"
+                type="date"
+                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                name="fHasta"
+                onChange={handleChange}
+                value={Rematados.fHasta}
+              />
+              {error.fHasta && (
+                <div className="invalid-feedback">{error.fHasta}</div>
+              )}
+            </div>
 
+          </Col>
+          <Col md={2}>
+            <div className="mb-1">
+              <label htmlFor="nresolucion" className="fw-semibold">Nº Resolución</label>
+              <input
+                aria-label="nresolucion"
+                type="text"
+                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="nresolucion"
+                size={10}
+                placeholder="0"
+                onChange={handleChange}
+                value={Rematados.nresolucion}
+              />
+            </div>
+          </Col>
+          <Col md={5}>
+            <div className="mb-1 mt-4">
+              <Button onClick={handleBuscar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                {loading ? (
+                  <>
+                    {" Buscar"}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="ms-1"
+                    />
+                  </>
+                ) : (
+                  <>
+                    {" Buscar"}
+                    < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  </>
+                )}
+              </Button>
+              <Button onClick={handleLimpiar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                Limpiar
+                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+              </Button>
+            </div>
+          </Col>
+        </Row>
         {/* Tabla*/}
         {loading ? (
           <>
@@ -321,17 +396,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                       checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
                     />
                   </th> */}
-                  <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
                   <th scope="col" className="text-nowrap text-center">Código Baja</th>
                   <th scope="col" className="text-nowrap text-center">Especie</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
                   <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
                   <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
-                  <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
                   <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
                   <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -347,18 +422,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                         />
                       </td> */}
                       {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
-                      <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                      {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
+                      <td className="text-nowrap">{Lista.nresolucion}</td>
                       <td className="text-nowrap">{Lista.bajaS_CORR}</td>
                       <td className="text-nowrap">{Lista.especie}</td>
+                      <td className="text-nowrap">{Lista.fechA_INGRESO}</td>
                       <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
                       <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
-                      <td className="text-nowrap">{Lista.nresolucion}</td>
                       <td className="text-nowrap">{Lista.observaciones}</td>
                       <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
                       <td className="text-nowrap">{Lista.ncuenta}</td>
                       <td className="text-nowrap">{Lista.estado}</td>
-                      <td className="text-nowrap">{Lista.fechA_INGRESO}</td>
-
                     </tr>
                   );
                 })}

@@ -35,7 +35,7 @@ interface ListaSalidaAltas {
 }
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: (af_clave: number, establ_corr: number) => Promise<boolean>;
+  listaAltasActions: (af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -54,7 +54,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   const dispatch = useDispatch<AppDispatch>();
 
   const [Inventario, setInventario] = useState({
-    aF_CLAVE: 0,
+    af_codigo_generico: "",
   });
 
   const mostrarAlerta = () => {
@@ -83,57 +83,62 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
   };
 
+  const listaAltasAuto = async () => {
+    if (token) {
+      if (listaAltas.length === 0) {
+        setLoading(true);
+        const resultado = await listaAltasActions("", objeto.Establecimiento);
+        if (resultado) {
+          setLoading(false);
+        }
+        // else {
+        //   Swal.fire({
+        //     icon: "error",
+        //     title: "Error",
+        //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
+        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        //     customClass: {
+        //       popup: "custom-border", // Clase personalizada para el borde
+        //     }
+        //   });
+        // }
+      }
+    }
+  };
+
   useEffect(() => {
     // dispatch(setAltasRegistradas(1));
     if (listaSalidaAltas.length > 0) {
       mostrarAlerta();
     }
-    const listaAltasAuto = async () => {
-      if (token) {
-        if (listaAltas.length === 0) {
-          setLoading(true);
-          const resultado = await listaAltasActions(0, objeto.Establecimiento);
-          if (resultado) {
-            setLoading(false);
-          }
-          // else {
-          //   Swal.fire({
-          //     icon: "error",
-          //     title: "Error",
-          //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
-          //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-          //     customClass: {
-          //       popup: "custom-border", // Clase personalizada para el borde
-          //     }
-          //   });
-          // }
-        }
-      }
-    };
     listaAltasAuto();
   }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    let newValue: string | number = [
-      "aF_CLAVE"
+    // Si el campo es "af_codigo_generico", validamos que solo tenga números
+    if (name === "af_codigo_generico") {
+      // Solo números usando una expresión regular
+      const soloNumeros = /^[0-9]*$/;
 
-    ].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-      : value;
+      if (!soloNumeros.test(value)) {
+        return; // No actualiza el estado si hay caracteres inválidos
+      }
 
-    setInventario((prevState) => ({
-      ...prevState,
-      [name]: newValue,
-    }));
+      setInventario((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+      return;
+    }
 
   };
 
   const handleBuscar = async () => {
     setLoading(true);
-    const resultado = await listaAltasActions(Inventario.aF_CLAVE, objeto.Establecimiento);
+    const resultado = await listaAltasActions(Inventario.af_codigo_generico, objeto.Establecimiento);
     if (!resultado) {
       Swal.fire({
         icon: "error",
@@ -151,7 +156,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   const handleLimpiar = () => {
     setInventario((prevInventario) => ({
       ...prevInventario,
-      aF_CLAVE: 0
+      af_codigo_generico: ""
     }));
   };
 
@@ -164,7 +169,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     );
     // console.log("indices seleccionmados", indexReal);
   };
-
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -219,7 +223,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       if (resultado) {
         dispatch(setAltasRegistradas(1));
         setLoadingRegistro(false);
-        listaAltasActions(0, objeto.Establecimiento);
+        listaAltasActions("", objeto.Establecimiento);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -266,15 +270,16 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           <Row>
             <Col md={2}>
               <div className="mb-1">
-                <label htmlFor="aF_CLAVE" className="fw-semibold">Nº Inventario</label>
+                <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
                 <input
-                  aria-label="aF_CLAVE"
+                  aria-label="af_codigo_generico"
                   type="text"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="aF_CLAVE"
+                  name="af_codigo_generico"
                   size={10}
+                  placeholder="Eje: 1000000008"
                   onChange={handleChange}
-                  value={Inventario.aF_CLAVE}
+                  value={Inventario.af_codigo_generico}
                 />
               </div>
             </Col>
@@ -359,7 +364,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
               <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                 <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
-                    <th >
+                    <th style={{
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 2,
+                    }}>
                       <Form.Check
                         type="checkbox"
                         onChange={handleSeleccionaTodos}
@@ -367,7 +376,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                       />
                     </th>
                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                    {/* <th scope="col" className="text-nowrap text-center">Codigo generico</th> */}
                     <th scope="col" className="text-nowrap text-center">Servicio</th>
                     <th scope="col" className="text-nowrap text-center">Dependencia</th>
                     <th scope="col" className="text-nowrap text-center">Especie</th>
@@ -386,15 +394,19 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={indexReal}>
-                        <td>
+                        <td style={{
+                          position: 'sticky',
+                          left: 0,
+                          zIndex: 2,
+                        }}>
                           <Form.Check
                             type="checkbox"
                             onChange={() => setSeleccionaFilas(index)}
                             checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
                           />
                         </td>
-                        <td className="text-nowrap text-center">{Lista.aF_CLAVE}</td>
-                        {/* <td className="text-nowrap text-center">{Lista.ninv}</td> */}
+
+                        <td className="text-nowrap">{Lista.ninv}</td>
                         <td className="text-nowrap">{Lista.serv}</td>
                         <td className="text-nowrap">{Lista.dep}</td>
                         <td className="text-nowrap">{Lista.esp}</td>

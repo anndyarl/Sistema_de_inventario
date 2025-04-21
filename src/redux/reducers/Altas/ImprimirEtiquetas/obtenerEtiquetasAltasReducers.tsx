@@ -6,34 +6,47 @@ import {
 } from '../../../actions/Altas/types';
 
 // Define el tipo para el estado inicial
-interface DatosState {
-    datosEtiqueta: Array<{
+interface PropsState {
+    loading: boolean;
+    listaEtiquetas: Array<{
         aF_CODIGO_LARGO: string,
         aF_DESCRIPCION: string,
         aF_UBICACION: string,
         aF_FECHA_ALTA: string,
         aF_NCUENTA: string;
     }>;
+    error: string | null;
 }
 
 // Estado inicial tipado
-const initialState: DatosState = {
-    datosEtiqueta: []
+const initialState: PropsState = {
+    loading: false,
+    listaEtiquetas: [],
+    error: null,
+
 };
 
 // Reducer con tipos definidos
-const obtenerEtiquetasAltasReducers = (state = initialState, action: any) => {
+const obtenerEtiquetasAltasReducers = (state = initialState, action: any): PropsState => {
     switch (action.type) {
         case ETIQUETAS_ALTAS_REQUEST:
-            return { ...state, loading: true };
+            return {
+                ...state,
+                loading: true,
+                error: null
+            };
         case ETIQUETAS_ALTAS_SUCCESS:
             return {
                 ...state,
                 loading: false,
-                datosEtiqueta: action.payload,
+                listaEtiquetas: action.payload
             };
         case ETIQUETAS_ALTAS_FAIL:
-            return { ...state, loading: false, error: action.error };
+            return {
+                ...state,
+                loading: false,
+                error: action.error
+            };
         default:
             return state;
     }

@@ -36,7 +36,7 @@ export interface ListaAltas {
 
 interface DatosAltas {
   listaAltasRegistradas: ListaAltas[];
-  listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_clave: number) => Promise<boolean>;
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -46,8 +46,6 @@ interface DatosAltas {
 
 const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anularAltasActions, listaAltasRegistradas, token, objeto, isDarkMode, nPaginacion }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
-
-
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   // const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
   const [loadingAnular, setLoadingAnular] = useState(false);
@@ -59,13 +57,13 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     fDesde: "",
     fHasta: "",
     altaS_CORR: 0,
-    af_clave: 0
+    af_codigo_generico: ""
   });
   const listaAltasAuto = async () => {
     if (token) {
       if (listaAltasRegistradas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, 0);
+        const resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, "");
         if (resultado) {
           setLoading(false);
         }
@@ -97,37 +95,40 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    let newValue: string | number = [
-      "altaS_CORR"
+    // Validación específica para af_codigo_generico: solo permitir números
+    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
+    }
 
-    ].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+    // Convertir a número solo si el campo está en la lista
+    const camposNumericos = ["altaS_CORR"];
+    const newValue: string | number = camposNumericos.includes(name)
+      ? parseFloat(value) || 0
       : value;
 
+    // Actualizar estado
     setInventario((prevState) => ({
       ...prevState,
       [name]: newValue,
     }));
-
   };
+
 
   const handleBuscarAltas = async () => {
     let resultado = false;
 
     setLoading(true);
-    if (Inventario.fDesde == "" && Inventario.fHasta == "" && Inventario.altaS_CORR == 0) {
-      resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_clave);
 
-    }
-    else if (Inventario.fDesde != "" || Inventario.fHasta != "") {
+    if (Inventario.fDesde != "" || Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_clave);
+        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
       }
     }
-    else if (Inventario.altaS_CORR != 0) {
-      resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_clave);
+    else {
+      resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
     }
 
     if (!resultado) {
@@ -158,7 +159,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
       fDesde: "",
       fHasta: "",
       altaS_CORR: 0,
-      af_clave: 0
+      af_codigo_generico: ""
 
     }));
   };
@@ -240,7 +241,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         });
 
         setLoadingAnular(false);
-        listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, 0);
+        listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, "");
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -260,44 +261,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     }
     // })
   };
-  // const handleAnular = async (index: number, aF_CLAVE: number) => {
-  //   setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
-
-  //   const result = await Swal.fire({
-  //     icon: "warning",
-  //     title: "Anular Registro",
-  //     text: `Confirma anular el registro Nº ${aF_CLAVE}`,
-  //     showDenyButton: false,
-  //     showCancelButton: true,
-  //     confirmButtonText: "Confirmar y Anular",
-  //   });
-
-  //   if (result.isConfirmed) {
-  //     const resultado = await anularAltasActions(aF_CLAVE);
-  //     if (resultado) {
-  //       Swal.fire({
-  //         icon: "success",
-  //         title: "Registro anulado",
-  //         text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
-  //       });
-  //       listaAltasAuto();
-  //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: ":'(",
-  //         text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
-  //       });
-  //     }
-  //   }
-  // };
-
-  // const handleLimpiar = () => {
-  //   setInventario((prevInventario) => ({
-  //     ...prevInventario,
-  //     fechaInicio: "",
-  //     fechaTermino: "",
-  //   }));
-  // };
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -322,7 +285,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Anular Altas</h3>
           <Row>
-            <Col md={3}>
+            <Col md={2}>
               <div className="mb-1">
                 <label htmlFor="fDesde" className="fw-semibold">Desde</label>
                 <input
@@ -355,15 +318,16 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
             </Col>
             <Col md={2}>
               <div className="mb-1">
-                <label htmlFor="af_clave" className="fw-semibold">Nº Inventario</label>
+                <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
                 <input
-                  aria-label="af_clave"
+                  aria-label="af_codigo_generico"
                   type="text"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="af_clave"
+                  name="af_codigo_generico"
                   size={10}
+                  placeholder="Eje: 1000000008"
                   onChange={handleChange}
-                  value={Inventario.af_clave}
+                  value={Inventario.af_codigo_generico}
                 />
               </div>
               <div className="mb-1">
@@ -374,6 +338,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                   name="altaS_CORR"
                   size={10}
+                  placeholder="0"
                   onChange={handleChange}
                   value={Inventario.altaS_CORR}
                 />
@@ -462,7 +427,12 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                 <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                   <tr>
-                    <th >
+                    <th style={{
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 2,
+
+                    }}>
                       <Form.Check
                         className="check-danger"
                         type="checkbox"
@@ -470,7 +440,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    {/* <th scope="col" className="text-nowrap text-center">Código generico</th> */}
                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                     <th scope="col" className="text-nowrap text-center">N° Alta</th>
                     <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
@@ -483,7 +452,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     <th scope="col" className="text-nowrap text-center">Serie</th>
                     <th scope="col" className="text-nowrap text-center">Estado</th>
                     <th scope="col" className="text-nowrap text-center">Precio</th>
-
                     <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                     {/* <th>Acción</th> */}
                   </tr>
@@ -493,15 +461,19 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={index}>
-                        <td>
+                        <td style={{
+                          position: 'sticky',
+                          left: 0,
+                          zIndex: 2,
+
+                        }}>
                           <Form.Check
                             type="checkbox"
                             onChange={() => setSeleccionaFilas(indexReal)}
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        {/* <td className="text-nowrap text-center">{Lista.ninv}</td> */}
-                        <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                        <td className="text-nowrap">{Lista.ninv}</td>
                         <td className="text-nowrap">{Lista.altaS_CORR}</td>
                         <td className="text-nowrap">{Lista.fechA_ALTA}</td>
                         <td className="text-nowrap">{Lista.serv}</td>

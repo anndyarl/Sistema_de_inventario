@@ -265,8 +265,8 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                             variant={`${isDarkMode ? "secondary" : "primary"}`}
                             onClick={() => setMostrarModalRegistrar(true)}
                         >
-                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                             Nuevo
+                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                         </Button>
                     </div>
                 </div>

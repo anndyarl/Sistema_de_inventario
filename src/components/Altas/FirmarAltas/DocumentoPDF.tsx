@@ -1,5 +1,5 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import { ListaBajas } from './FirmarAltas';
+import { ListaAltas } from './FirmarAltas';
 import ssmso_logo from "../../../assets/img/SSMSO-LOGO.png"
 import { Container } from 'react-bootstrap';
 const styles = StyleSheet.create({
@@ -53,17 +53,47 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     tableCellHeader: {
+        fontSize: 8,
         fontWeight: 'bold',
-        padding: 5,
-        border: '1px solid #000',
+        padding: "0.5px",
+        border: '1px solid #b3b3b3',
+        backgroundColor: "rgb(0 68 133 / 80%)",
+        color: "#fff",
         flex: 1,
-        textAlign: 'center',
+    },
+    tableCellHeaderLong: {
+        fontSize: 8,
+        fontWeight: 'bold',
+        padding: 2,
+        border: '1px solid #b3b3b3',
+        backgroundColor: "rgb(0 68 133 / 80%)",
+        color: "#fff",
+        flex: 2,
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        whiteSpace: 'wrap',
+        maxWidth: 120,
     },
     tableCell: {
-        padding: 5,
-        border: '1px solid #000',
+        fontSize: 8,
+        border: '1px solid #b3b3b3',
+        padding: 2,
         flex: 1,
-        textAlign: 'center',
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'wrap', // react-pdf no reconoce "normal", usa "wrap"
+        maxWidth: 80, // puedes ajustar esto según el diseño
+    },
+    tableCellLong: {
+        fontSize: 8,
+        border: '1px solid #b3b3b3',
+        padding: 2,
+        flex: 2, // más espacio horizontal
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        whiteSpace: 'wrap',
+        maxWidth: 120,
     },
     firmaContainer: {
         flexDirection: 'row',
@@ -95,7 +125,7 @@ const styles = StyleSheet.create({
 });
 const fecha = Date.now();
 const fechaHoy = new Date(fecha);
-const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: ListaBajas; firma?: string,/* fechaDescarga: string | undefined */ AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string }) => (
+const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: ListaAltas; firma?: string,/* fechaDescarga: string | undefined */ AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -115,30 +145,42 @@ const DocumentoPDF = ({ row, firma, /*fechaDescarga*/ AltaInventario }: { row: L
             </Container>
             {/* Encabezado */}
             <View style={styles.headerContent}>
-                <Text style={styles.header}>Alta Nº: {row.aF_CLAVE}</Text>
-                <Text style={styles.header}>Fecha de Alta: {fechaHoy.toLocaleDateString('es-CL')}</Text>
+                <Text style={styles.header}>Alta Nº: {row.altaS_CORR}</Text>
+                <Text style={styles.header}>Fecha de Alta: {row.fechA_ALTA}</Text>
             </View>
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}
                 <View style={styles.tableRow}>
-                    <Text style={styles.tableCellHeader}>Código</Text>
-                    <Text style={styles.tableCellHeader}>N° Inventario</Text>
-                    <Text style={styles.tableCellHeader}>Vida Útil Restante</Text>
-                    <Text style={styles.tableCellHeader}>En Años</Text>
+                    <Text style={styles.tableCellHeaderLong}>N° Inventario</Text>
+                    <Text style={styles.tableCellHeaderLong}>N° Alta</Text>
+                    <Text style={styles.tableCellHeaderLong}>Fecha Alta</Text>
+                    <Text style={styles.tableCellHeader}>Servicio</Text>
+                    <Text style={styles.tableCellHeader}>Dependencia</Text>
+                    <Text style={styles.tableCellHeaderLong}>Especie</Text>
                     <Text style={styles.tableCellHeader}>N° Cuenta</Text>
-                    <Text style={styles.tableCellHeader}>Especie</Text>
-                    <Text style={styles.tableCellHeader}>Depreciación Acumulada</Text>
+                    <Text style={styles.tableCellHeader}>Marca</Text>
+                    <Text style={styles.tableCellHeader}>Modelo</Text>
+                    <Text style={styles.tableCellHeader}>Serie</Text>
+                    <Text style={styles.tableCellHeader}>Estado</Text>
+                    <Text style={styles.tableCellHeader}>Precio</Text>
+                    <Text style={styles.tableCellHeader}>Nº REcepción</Text>
                 </View>
                 {/* Fila de datos */}
                 <View style={styles.tableRow}>
-                    <Text style={styles.tableCell}>{row.bajaS_CORR}</Text>
-                    <Text style={styles.tableCell}>{row.aF_CLAVE}</Text>
-                    <Text style={styles.tableCell}>{row.vutiL_RESTANTE}</Text>
-                    <Text style={styles.tableCell}>{row.vutiL_AGNOS}</Text>
+                    <Text style={styles.tableCellLong}>{row.ninv}</Text>
+                    <Text style={styles.tableCellLong}>{row.altaS_CORR}</Text>
+                    <Text style={styles.tableCellLong}>{row.fechA_ALTA}</Text>
+                    <Text style={styles.tableCell}>{row.serv}</Text>
+                    <Text style={styles.tableCell}>{row.dep}</Text>
+                    <Text style={styles.tableCellLong}>{row.esp}</Text>
                     <Text style={styles.tableCell}>{row.ncuenta}</Text>
-                    <Text style={styles.tableCell}>{row.especie}</Text>
-                    <Text style={styles.tableCell}>{row.deP_ACUMULADA}</Text>
+                    <Text style={styles.tableCell}>{row.marca}</Text>
+                    <Text style={styles.tableCell}>{row.modelo}</Text>
+                    <Text style={styles.tableCell}>{row.serie}</Text>
+                    <Text style={styles.tableCell}>{row.estado}</Text>
+                    <Text style={styles.tableCell}>{row.precio}</Text>
+                    <Text style={styles.tableCell}>{row.nrecep}</Text>
                 </View>
             </View>
             {/* Área de firmas */}

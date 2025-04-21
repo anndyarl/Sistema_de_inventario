@@ -14,6 +14,7 @@ import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTr
 import { Eraser, Search } from "react-bootstrap-icons";
 
 export interface listadoTraslados {
+  aF_CODIGO_GENERICO: string,
   usuariO_MOD: string,
   usuariO_CREA: string,
   traS_OBS: string,
@@ -40,7 +41,7 @@ export interface listadoTraslados {
 
 interface GeneralProps {
   listadoTraslados: listadoTraslados[];
-  listadoTrasladosActions: (tras_corr: number) => Promise<boolean>;
+  listadoTrasladosActions: (af_codigo_generico: string, tras_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -69,6 +70,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
 
   const [ListadoTraslado, setListadoTraslado] = useState({
     tras_corr: 0,
+    af_codigo_generico: ""
   });
 
 
@@ -77,7 +79,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     if (token) {
       if (listadoTraslados.length === 0) {
         setLoading(true);
-        const resultado = await listadoTrasladosActions(0);
+        const resultado = await listadoTrasladosActions("", 0);
         if (resultado) {
           setLoading(false);
         }
@@ -105,28 +107,35 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   const handleLimpiar = () => {
     setListadoTraslado((prevListadoTraslado) => ({
       ...prevListadoTraslado,
-      tras_corr: 0
+      tras_corr: 0,
+      af_codigo_generico: ""
     }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-
-    // Convierte `value` a número
-    let newValue: string | number = ["tras_corr"].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+    // Validación específica para af_codigo_generico: solo permitir números
+    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
+    }
+    // Convertir a número solo si el campo está en la lista
+    const camposNumericos = ["tras_corr"];
+    const newValue: string | number = camposNumericos.includes(name)
+      ? parseFloat(value) || 0
       : value;
 
-    setListadoTraslado((prevListadoTraslado) => ({
-      ...prevListadoTraslado,
+    // Actualizar estado
+    setListadoTraslado((prevState) => ({
+      ...prevState,
       [name]: newValue,
     }));
+
   };
 
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
-    resultado = await listadoTrasladosActions(ListadoTraslado.tras_corr);
+    resultado = await listadoTrasladosActions(ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
     if (!resultado) {
       Swal.fire({
         icon: "error",
@@ -228,6 +237,19 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
         <Row>
           <Col md={2}>
             <div className="mb-1">
+              <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
+              <input
+                aria-label="af_codigo_generico"
+                type="text"
+                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="af_codigo_generico"
+                size={10}
+                placeholder="Eje: 1000000008"
+                onChange={handleChange}
+                value={ListadoTraslado.af_codigo_generico}
+              />
+            </div>
+            <div className="mb-1">
               <label htmlFor="tras_corr" className="fw-semibold">Nº Traslado</label>
               <input
                 aria-label="tras_corr"
@@ -284,9 +306,9 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   {/* <th scope="col"></th> */}
+                  <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                   <th scope="col" className="text-nowrap text-center">Nº Dependencia</th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
@@ -320,9 +342,9 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
+                      <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                       <td className="text-nowrap">{Lista.traS_CORR}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA}</td>
-                      <td className="text-nowrap">{Lista.aF_CLAVE}</td>
                       <td className="text-nowrap">{Lista.deP_CORR}</td>
                       <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>

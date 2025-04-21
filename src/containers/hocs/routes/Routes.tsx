@@ -26,7 +26,7 @@ import AnularAltas from '../../../components/Altas/AnularAltas';
 import RegistrarAltas from '../../../components/Altas/RegistrarAltas';
 
 import Error404 from '../../errors/Error404';
-import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/ImprimirEtiqueta';
+
 import RegistrarBajas from '../../../components/Bajas/BienesBajas';
 import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
@@ -57,6 +57,7 @@ import AltasMensuales from '../../../components/Informes/Principal/AltasMensuale
 import BajasMensuales from '../../../components/Informes/Principal/BajasMensuales';
 import ConsultaInventarioEspecies from '../../../components/Informes/Principal/ConsultaInventarioEspecies/ConsultaInventarioEspecies';
 import ExcelFolioPorServicios from '../../../components/Informes/Principal/ExcelFolioPorServicios';
+import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/ImprimirEtiqueta';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();

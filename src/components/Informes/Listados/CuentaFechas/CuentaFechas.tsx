@@ -609,7 +609,11 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                 <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                     <tr>
-                                        <th >
+                                        <th style={{
+                                            position: 'sticky',
+                                            left: 0,
+                                            zIndex: 2
+                                        }}>
                                             <Form.Check
                                                 className="check-danger"
                                                 type="checkbox"
@@ -641,7 +645,12 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                                         const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                         return (
                                             <tr key={index}>
-                                                <td>
+                                                <td style={{
+                                                    position: 'sticky',
+                                                    left: 0,
+                                                    zIndex: 2,
+
+                                                }}>
                                                     <Form.Check
                                                         type="checkbox"
                                                         onChange={() => setSeleccionaFilas(indexReal)}
@@ -732,19 +741,19 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
 
                                 <>
                                     {/* Botones para exportar a Excel y Word */}
-                                    <div className="mt-3 d-flex justify-content-center gap-2 mb-1">
+                                    <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
                                             onClick={() => exportarExcel(listaCuentaFechas)}
                                             variant="success">
                                             Descargar Excel
                                             <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                         </Button>
-                                        <Button
+                                        {/* <Button
                                             onClick={() => exportarWord()}
                                             variant="primary">
                                             Descargar Word
                                             <FileEarmarkWord className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </Button>
+                                        </Button> */}
                                     </div>
                                     {/* Frame para vista previa del PDF */}
                                     <iframe

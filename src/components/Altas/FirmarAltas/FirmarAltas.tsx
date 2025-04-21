@@ -7,7 +7,6 @@ import SignatureCanvas from 'react-signature-canvas';
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
 import { registrarBajasActions } from "../../../redux/actions/Bajas/registrarBajasActions";
-import { listaBajasActions } from "../../../redux/actions/Bajas/listaBajasActions";
 import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import DocumentoPDF from './DocumentoPDF';
@@ -16,23 +15,25 @@ import { Helmet } from "react-helmet-async";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
 import { Pencil } from "react-bootstrap-icons";
+import { Objeto } from "../../Navegacion/Profile";
+import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
 
 
-export interface ListaBajas {
-    bajaS_CORR: string;
-    aF_CLAVE: number;
-    id: number;
-    vutiL_RESTANTE: number;
-    vutiL_AGNOS: number;
-    useR_MOD: number;
-    saldO_VALOR: number;
-    observaciones: string;
-    nresolucion: number;
-    ncuenta: string;
-    iniciaL_VALOR: number;
-    fechA_BAJA: string;
-    especie: string;
-    deP_ACUMULADA: number;
+export interface ListaAltas {
+    aF_CLAVE: number,
+    ninv: string,
+    altaS_CORR: number,
+    serv: string,
+    dep: string,
+    esp: string,
+    ncuenta: string,
+    marca: string,
+    modelo: string,
+    serie: string,
+    estado: string,
+    precio: number,
+    fechA_ALTA: string,
+    nrecep: string
 }
 interface DatosFirmas {
     nombre: string,
@@ -53,27 +54,28 @@ interface Unidades {
     nombre: string
 }
 interface DatosBajas {
-    listaBajas: ListaBajas[];
+    listaAltasRegistradas: ListaAltas[];
     comboUnidades: Unidades[];
     obtenerUnidadesActions: () => Promise<boolean>;
-    listaBajasActions: () => Promise<boolean>;
+    listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
     registrarBajasActions: (activos: { aF_CLAVE: number; bajaS_CORR: string; nresolucion: number; observaciones: string; fechA_BAJA: string }[]) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
+    objeto: Objeto;
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, listaBajas, token, isDarkMode, comboUnidades, datosFirmas, nPaginacion }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, listaAltasRegistradas, token, isDarkMode, comboUnidades, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
-    const [_, setError] = useState<Partial<ListaBajas>>({});
+    const [_, setError] = useState<Partial<ListaAltas>>({});
     const [__, setIsDisabled] = useState(true);
 
     const [isExpanded, setIsExpanded] = useState(false);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
-    // const [filaActiva, setFilaActiva] = useState<ListaBajas | null>(null);
+    // const [filaActiva, setFilaActiva] = useState<listaAltasRegistradas | null>(null);
     //------------Fin Modal----------//
     const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -195,9 +197,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
 
     const listaAltasAuto = async () => {
         if (token) {
-            if (listaBajas.length === 0) {
+            if (listaAltasRegistradas.length === 0) {
                 setLoading(true);
-                const resultado = await listaBajasActions();
+                const resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, "");
                 if (resultado) {
                     setLoading(false);
                 }
@@ -219,7 +221,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
     };
     useEffect(() => {
         listaAltasAuto();
-    }, [listaBajasActions, token, listaBajas.length, isDarkMode]);
+    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode]);
 
     const setSeleccionaFila = (index: number) => {
         setMostrarModal(index); //Abre modal del indice seleccionado
@@ -243,10 +245,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
-        () => listaBajas.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listaBajas, indicePrimerElemento, indiceUltimoElemento]
+        () => listaAltasRegistradas.slice(indicePrimerElemento, indiceUltimoElemento),
+        [listaAltasRegistradas, indicePrimerElemento, indiceUltimoElemento]
     );
-    const totalPaginas = Math.ceil(listaBajas.length / elementosPorPagina);
+    const totalPaginas = Math.ceil(listaAltasRegistradas.length / elementosPorPagina);
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     // const handleDescargarPDF = async (fila: any) => {
@@ -261,7 +263,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
     //     link.click();
     // };
     const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
-
+    console.log(elementosActuales);
     return (
         <Layout>
             <Helmet>
@@ -277,21 +279,36 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                 <tr>
-                                    <th scope="col" className="text-nowrap text-center"></th>
-                                    <th scope="col" className="text-nowrap text-center">Codigo</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                                    <th scope="col" className="text-nowrap text-center">Vida útil</th>
-                                    <th scope="col" className="text-nowrap text-center">En años</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
-                                    <th scope="col" className="text-nowrap text-center">Especie</th>
-                                    <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
+                                    <th style={{
+                                        position: 'sticky',
+                                        left: 0,
+                                        zIndex: 2,
 
+                                    }}></th>
+                                    <th scope="col" className="text-nowrap text-center">N° Inventario</th>
+                                    <th scope="col" className="text-nowrap text-center">N° Alta</th>
+                                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
+                                    <th scope="col" className="text-nowrap text-center">Servicio</th>
+                                    <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                                    <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
+                                    <th scope="col" className="text-nowrap text-center">Marca</th>
+                                    <th scope="col" className="text-nowrap text-center">Modelo</th>
+                                    <th scope="col" className="text-nowrap text-center">Serie</th>
+                                    <th scope="col" className="text-nowrap text-center">Estado</th>
+                                    <th scope="col" className="text-nowrap text-center">Precio</th>
+                                    <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {elementosActuales.map((fila, index) => (
+                                {elementosActuales.map((Lista, index) => (
                                     <tr key={indicePrimerElemento + index}>
-                                        <td>
+                                        <td style={{
+                                            position: 'sticky',
+                                            left: 0,
+                                            zIndex: 2,
+
+                                        }}>
                                             <Form.Check
                                                 type="checkbox"
                                                 onChange={() => setSeleccionaFila(index)}
@@ -300,13 +317,21 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
                                                 )}
                                             />
                                         </td>
-                                        <td className="text-nowrap text-center">{fila.bajaS_CORR}</td>
-                                        <td className="text-nowrap text-center">{fila.aF_CLAVE}</td>
-                                        <td className="text-nowrap text-center">{fila.vutiL_RESTANTE}</td>
-                                        <td className="text-nowrap text-center">{fila.vutiL_AGNOS}</td>
-                                        <td className="text-nowrap text-center">{fila.ncuenta}</td>
-                                        <td className="text-nowrap text-center">{fila.especie}</td>
-                                        <td className="text-nowrap text-center">{fila.deP_ACUMULADA}</td>
+                                        <td className="text-nowrap">{Lista.ninv}</td>
+                                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                        <td className="text-nowrap">{Lista.fechA_ALTA}</td>
+                                        <td className="text-nowrap">{Lista.serv}</td>
+                                        <td className="text-nowrap">{Lista.dep}</td>
+                                        <td className="text-nowrap">{Lista.esp}</td>
+                                        <td className="text-nowrap">{Lista.ncuenta}</td>
+                                        <td className="text-nowrap">{Lista.marca}</td>
+                                        <td className="text-nowrap">{Lista.modelo}</td>
+                                        <td className="text-nowrap">{Lista.serie}</td>
+                                        <td className="text-nowrap">{Lista.estado}</td>
+                                        <td className="text-nowrap">
+                                            ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </td>
+                                        <td className="text-nowrap">{Lista.nrecep}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -562,7 +587,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaBajasActions, obtenerfirmasAlt
 };
 
 const mapStateToProps = (state: RootState) => ({
-    listaBajas: state.datosListaBajasReducers.listaBajas,
+    listaAltasRegistradas: state.listaAltasRegistradasReducers.listaAltasRegistradas,
+    objeto: state.validaApiLoginReducers,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboUnidades: state.obtenerUnidadesReducers.comboUnidades,
@@ -571,7 +597,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-    listaBajasActions,
+    listaAltasRegistradasActions,
     registrarBajasActions,
     obtenerfirmasAltasActions,
     obtenerUnidadesActions

@@ -249,8 +249,8 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                             className="align-content-center"
                             onClick={() => setMostrarModalRegistrar(true)}
                         >
-                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                             Nuevo
+                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                         </Button>
                     </div>
                 </div>
@@ -372,6 +372,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                                 ) : (
                                     <>
                                         Agregar
+                                        <Plus className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" />
                                     </>
                                 )}
                             </Button>

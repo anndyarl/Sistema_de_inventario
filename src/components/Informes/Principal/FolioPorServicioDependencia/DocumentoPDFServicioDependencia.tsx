@@ -1,14 +1,17 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import ssmso_logo from "../../../../assets/img/SSMSO-LOGO.png"
+import ago from "../../../../assets/img/ago.jpg"
 import { Container } from 'react-bootstrap';
 import { ListaFolioServicioDependencia } from './FolioPorServicioDependencia';
 
 // Formatear la fecha actual en español (Chile)
-const fechaHoy = new Date().toLocaleDateString('es-CL', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-});
+const fechaHoy = new Date()
+    .toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    })
+    .replace(/-/g, '/');
 
 const styles = StyleSheet.create({
     page: {
@@ -37,9 +40,8 @@ const styles = StyleSheet.create({
     headerContent: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-around'
+        justifyContent: 'space-between'
     },
-
     header: {
         flex: 1,
         fontSize: 6,
@@ -47,11 +49,25 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'right',
     },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    centerText: {
+        flex: 1,
+        textAlign: 'center',
+    },
+    title: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
     p: {
         fontSize: 10,
         marginBottom: 2,
         fontWeight: 'semibold',
-        textAlign: 'center',
+        textAlign: 'left',
     },
     table: {
         display: 'flex',
@@ -138,23 +154,39 @@ const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
         <Page style={styles.page}>
             {/* Logo */}
             <Container style={styles.containerHeader}>
-                <View style={styles.headerContainer}>
-                    {/* Logo a la izquierda */}
+                <View style={styles.headerRow}>
+                    {/* Logo izquierda */}
                     <Image src={ssmso_logo} style={styles.logo} />
 
-                    {/* Textos a la derecha */}
-                    <View style={styles.textContainer}>
-                        <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
-                        <Text style={styles.p}>Subdirección Administrativa</Text>
-                        <Text style={styles.p}>Departamento de Finanzas</Text>
-                        <Text style={styles.p}>Unidad de Inventarios</Text>
+                    {/* Texto centrado */}
+                    <View style={styles.centerText}>
+                        <Text style={styles.title}>SISTEMA DE ACTIVO FIJO</Text>
+                        <Text style={styles.title}>UNIDAD DE INVENTARIO</Text>
                     </View>
+
+                    {/* Logo derecha */}
+                    <Image src={ago} style={styles.logo} />
                 </View>
             </Container>
+
             {/* Encabezado */}
-            <View style={styles.headerContent}>
-                <Text style={styles.header}>Fecha: {fechaHoy}</Text>
-            </View>
+            <Container style={styles.containerHeader}>
+                <View style={styles.headerContent}>
+                    {row.length > 0 && (
+                        <Text style={styles.p}>Servicio: {row[0].servicio}</Text>
+                    )}
+                    {row.length > 0 && (
+                        <Text style={styles.p}>Folio: {row[0].aF_FOLIO}</Text>
+                    )}
+                </View>
+                <View style={styles.headerContent}>
+                    {row.length > 0 && (
+                        <Text style={styles.p}>Dependencia: {row[0].dependencia}</Text>
+                    )}
+                    <Text style={styles.p}>Fecha: {fechaHoy}</Text>
+                </View>
+            </Container>
+
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}

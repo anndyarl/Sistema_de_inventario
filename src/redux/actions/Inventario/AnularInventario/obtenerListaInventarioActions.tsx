@@ -6,7 +6,7 @@ import {
   LISTA_INVENTARIO_FAIL,
 } from "../types";
 
-export const obtenerListaInventarioActions = (FechaInicio: string, FechaTermino: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,7 +20,7 @@ export const obtenerListaInventarioActions = (FechaInicio: string, FechaTermino:
     dispatch({ type: LISTA_INVENTARIO_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventario?FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventario?af_codigo_generico=${af_codigo_generico}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

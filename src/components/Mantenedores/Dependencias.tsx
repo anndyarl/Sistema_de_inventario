@@ -215,8 +215,8 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
               variant={`${isDarkMode ? "secondary" : "primary"}`}
               onClick={() => setMostrarModalRegistrar(true)}
             >
-              <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
               Nuevo
+              <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -339,6 +339,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
                 ) : (
                   <>
                     Agregar
+                    <Plus className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" />
                   </>
                 )}
               </Button>

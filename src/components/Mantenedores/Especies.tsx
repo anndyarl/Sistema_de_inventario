@@ -267,8 +267,8 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                             variant={`${isDarkMode ? "secondary" : "primary"}`}
                             onClick={() => setMostrarModalRegistrar(true)}
                         >
-                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                             Nuevo
+                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                         </Button>
                     </div>
                 </div>
@@ -392,6 +392,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                 ) : (
                                     <>
                                         Agregar
+                                        <Plus className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" />
                                     </>
                                 )}
                             </Button>

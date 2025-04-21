@@ -6,7 +6,7 @@ import {
   LISTADO_GENERAL_BAJAS_FAIL,
 } from "./types";
 
-export const listadoGeneralBajasActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoGeneralBajasActions = (af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,7 +20,7 @@ export const listadoGeneralBajasActions = () => async (dispatch: Dispatch, getSt
     dispatch({ type: LISTADO_GENERAL_BAJAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListadoGeneralBajas`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListadoGeneralBajas?af_codigo_generico=${af_codigo_generico}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

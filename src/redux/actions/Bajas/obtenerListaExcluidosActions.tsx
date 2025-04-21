@@ -6,7 +6,7 @@ import {
   OBTENER_EXCLUIDOS_FAIL,
 } from "./types"
 
-export const obtenerListaExcluidosActions = (af_clave: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerListaExcluidosActions = (fDesde: string, fHasta: string, nresolucion: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,7 +20,7 @@ export const obtenerListaExcluidosActions = (af_clave: string) => async (dispatc
     dispatch({ type: OBTENER_EXCLUIDOS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBodegaExcluido?af_clave=${af_clave}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBodegaExcluido?fDesde=${fDesde}&fHasta=${fHasta}&nresolucion=${nresolucion}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

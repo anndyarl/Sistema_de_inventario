@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 // Acción para obtener la recepción por número
-export const obtenerEtiquetasAltasActions = (af_clave: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerEtiquetasAltasActions = (af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -21,12 +21,12 @@ export const obtenerEtiquetasAltasActions = (af_clave: string) => async (dispatc
     dispatch({ type: ETIQUETAS_ALTAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/DatosEtiquetas?af_clave=${af_clave}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/DatosEtiquetas?af_codigo_generico=${af_codigo_generico}`, config);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({
             type: ETIQUETAS_ALTAS_SUCCESS,
-            payload: res.data,
+            payload: res.data
           });
           return true;
         } else {

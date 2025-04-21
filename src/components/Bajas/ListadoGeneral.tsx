@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form, Modal, Row, Col } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -13,6 +13,7 @@ import { ListaBajas } from "./BienesBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
+import { Eraser, Search } from "react-bootstrap-icons";
 
 export interface ListadoGeneralBajas {
   aF_CLAVE: number;
@@ -63,8 +64,8 @@ export interface ListadoGeneralBajas {
 
 interface DatosBajas {
   listadoGeneralBajas: ListadoGeneralBajas[];
-  listadoGeneralBajasActions: () => Promise<boolean>;
-  obtenerListaExcluidosActions: (aF_CLAVE: string) => Promise<boolean>;
+  listadoGeneralBajasActions: (af_codigo_generico: string) => Promise<boolean>;
+  obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string) => Promise<boolean>;
   registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -87,6 +88,11 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
     fechA_BAJA: ""
   });
 
+  const [Buscar, setBuscar] = useState({
+    af_codigo_generico: "",
+  });
+
+
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -102,7 +108,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
     if (token) {
       if (listadoGeneralBajas.length === 0) {
         setLoading(true);
-        const resultado = await listadoGeneralBajasActions();
+        const resultado = await listadoGeneralBajasActions("");
         if (resultado) {
           setLoading(false);
         }
@@ -129,13 +135,25 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    // Convierte `value` a número
-    let newValue: string | number = ["nresolucion", "aF_CLAVE"].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+    // Validación específica para af_codigo_generico: solo permitir números
+    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
+    }
+
+    // Convertir a número solo si el campo está en la lista
+    const camposNumericos = ["nresolucion"];
+    const newValue: string | number = camposNumericos.includes(name)
+      ? parseFloat(value) || 0
       : value;
 
-    setBajas((preBajas) => ({
-      ...preBajas,
+    // Actualizar estado
+    setBajas((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
+
+    setBuscar((prevBuscar) => ({
+      ...prevBuscar,
       [name]: newValue,
     }));
 
@@ -204,8 +222,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
           });
 
           setLoadingRegistro(false);
-          listadoGeneralBajasActions();
-          obtenerListaExcluidosActions("");
+          listadoGeneralBajasActions("");
+          obtenerListaExcluidosActions("", "", "");
           setFilaSeleccionada([]);
           elementosActuales.map((_, index) => (
             handleCerrarModal(index)
@@ -229,6 +247,32 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
     }
   };
 
+  const handleBuscar = async () => {
+    setLoading(true);
+    const resultado = await listadoGeneralBajasActions(Buscar.af_codigo_generico);
+    if (!resultado) {
+      Swal.fire({
+        icon: "error",
+        title: ":'(",
+        text: "No se encontraron resultados, intente otro registro.",
+        confirmButtonText: "Ok",
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      setLoading(false); //Finaliza estado de carga
+    }
+
+  };
+
+  const handleLimpiar = () => {
+    setBuscar((prevInventario) => ({
+      ...prevInventario,
+      af_codigo_generico: ""
+    }));
+  };
+
+
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -251,61 +295,73 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
       <MenuBajas />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
-        {/* Boton registrar filas seleccionadas */}
-        {/* <div className="d-flex justify-content-end">
-          {filasSeleccionada.length > 0 ? (
-            <Button
-              variant="primary"
-              onClick={handleAgrearSeleccionados}
-              className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-              disabled={loadingRegistro}  // Desactiva el botón mientras carga
-            >
-              {loadingRegistro ? (
-                <>
-                  {" Registrando... "}
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                    className="me-2"
-                  />
-
-                </>
-              ) : (
-                <>
-                  Registrar{" "}
-                  <span className="badge bg-light text-dark mx-2">
-                    {filasSeleccionada.length}
-                  </span>{" "}
-                  {filasSeleccionada.length === 1 ? "Baja seleccionada" : "Bajas seleccionadas"}
-                </>
-              )}
-            </Button>
-          ) : (
-            <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-              No hay bajas seleccionadas para registrar
-            </strong>
-          )}
-        </div> */}
+        <Row>
+          <Col md={2}>
+            <div className="mb-1">
+              <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
+              <input
+                aria-label="af_codigo_generico"
+                type="text"
+                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="af_codigo_generico"
+                size={10}
+                placeholder="Eje: 1000000008"
+                onChange={handleChange}
+                value={Buscar.af_codigo_generico}
+              />
+            </div>
+          </Col>
+          <Col md={5}>
+            <div className="mb-1 mt-4">
+              <Button onClick={handleBuscar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                {loading ? (
+                  <>
+                    {" Buscar"}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="ms-1"
+                    />
+                  </>
+                ) : (
+                  <>
+                    {" Buscar"}
+                    < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  </>
+                )}
+              </Button>
+              <Button onClick={handleLimpiar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                Limpiar
+                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+              </Button>
+            </div>
+          </Col>
+        </Row>
         {/* Tabla*/}
         {loading ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>
         ) : (
+
           <div className='table-responsive'>
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   <th scope="col"></th>
                   <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                  <th scope="col" className="text-nowrap text-center">Código Genérico</th>
-                  <th scope="col" className="text-nowrap text-center">Código Largo</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Código Genérico</th> */}
+                  {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
                   <th scope="col" className="text-nowrap text-center">DEP Corr</th>
                   <th scope="col" className="text-nowrap text-center">ESP Código</th>
-                  <th scope="col" className="text-nowrap text-center">Secuencia</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
                   <th scope="col" className="text-nowrap text-center">ITE Clave</th>
                   <th scope="col" className="text-nowrap text-center">Descripción</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
@@ -321,10 +377,10 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
                   <th scope="col" className="text-nowrap text-center">Número Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Usuario Creación</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                  <th scope="col" className="text-nowrap text-center">IP Creación</th>
+                  {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
                   <th scope="col" className="text-nowrap text-center">Usuario Modificación</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
-                  <th scope="col" className="text-nowrap text-center">IP Modificación</th>
+                  {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
                   <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
                   <th scope="col" className="text-nowrap text-center">Proveedor RUN</th>
                   <th scope="col" className="text-nowrap text-center">Reg EQM</th>
@@ -351,19 +407,24 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
                   let indexReal = indicePrimerElemento + index; // Índice real basado en la página
                   return (
                     <tr key={indexReal}>
-                      <td>
+                      <td style={{
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 2,
+
+                      }}>
                         <Form.Check
                           type="checkbox"
                           onChange={() => setSeleccionaFila(index)}
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                       </td>
-                      <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                      {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                      <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td>
+                      {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
                       <td className="text-nowrap">{Lista.deP_CORR}</td>
                       <td className="text-nowrap">{Lista.esP_CODIGO}</td>
-                      <td className="text-nowrap">{Lista.aF_SECUENCIA}</td>
+                      {/* <td className="text-nowrap">{Lista.aF_SECUENCIA}</td> */}
                       <td className="text-nowrap">{Lista.itE_CLAVE}</td>
                       <td className="text-nowrap">{Lista.aF_DESCRIPCION}</td>
                       <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
@@ -379,10 +440,10 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
                       <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
                       <td className="text-nowrap">{Lista.usuariO_CREA}</td>
                       <td className="text-nowrap">{Lista.f_CREA}</td>
-                      <td className="text-nowrap">{Lista.iP_CREA}</td>
+                      {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
                       <td className="text-nowrap">{Lista.usuariO_MOD}</td>
                       <td className="text-nowrap">{Lista.f_MOD}</td>
-                      <td className="text-nowrap">{Lista.iP_MOD}</td>
+                      {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
                       <td className="text-nowrap">{Lista.aF_TIPO_DOC}</td>
                       <td className="text-nowrap">{Lista.prov_RUN}</td>
                       <td className="text-nowrap">{Lista.reG_EQM}</td>
@@ -408,7 +469,9 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
               </tbody>
             </table>
           </div>
-        )}
+
+        )
+        }
         {/* Paginador */}
         <div className="paginador-container">
           <Pagination className="paginador-scroll">
@@ -440,117 +503,123 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
             />
           </Pagination>
         </div>
-      </div>
+      </div >
       {/* Modal formulario*/}
-      {elementosActuales.map((_, index) => (
-        <div key={index}>
-          <Modal
-            show={mostrarModal === index}
-            onHide={() => handleCerrarModal(index)}
-            dialogClassName="modal-right" // Clase personalizada
-          // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-          // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-          >
-            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-              <Modal.Title className="fw-semibold">Complete los detalles de registro</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-              <form onSubmit={handleSubmit}>
-                {/* <div className="d-flex justify-content-end">
+      {
+        elementosActuales.map((lista, index) => (
+          <div key={index}>
+            <Modal
+              show={mostrarModal === index}
+              onHide={() => handleCerrarModal(index)}
+              dialogClassName="modal-right" // Clase personalizada
+              backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+            //  keyboard={false}     // Evita el cierre al presionar la tecla Esc
+            >
+              <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                <Modal.Title className="fw-semibold">Enviar a Bodega de Exluidos</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <form onSubmit={handleSubmit}>
+                  {/* <div className="d-flex justify-content-end">
                   <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Enviar a Bodega
                   </Button>
                 </div> */}
-                <div className="d-flex justify-content-end">
-                  {filasSeleccionada.length > 0 ? (
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                      disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                    >
-                      {loadingRegistro ? (
-                        <>
-                          {" Enviando... "}
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="me-2"
-                          />
+                  <div className="row">
+                    <p className="fw-semibold"> Nº Inventario: {lista.aF_CODIGO_GENERICO}</p>
+                    <p className="fw-semibold"> Especie: {lista.especie}</p>
+                  </div>
+                  <div className="d-flex justify-content-end">
+                    {filasSeleccionada.length > 0 ? (
+                      <Button
+                        variant="primary"
+                        type="submit"
+                        className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                        disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                      >
+                        {loadingRegistro ? (
+                          <>
+                            {" Enviando... "}
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="me-2"
+                            />
 
-                        </>
-                      ) : (
-                        <>
-                          Enviar a Bodega de Excluidos
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                      No hay bajas seleccionadas para registrar
-                    </strong>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="nresolucion" className="fw-semibold">
-                    Nº Certificado
-                  </label>
-                  <input
-                    aria-label="nresolucion"
-                    type="text"
-                    className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nresolucion"
-                    maxLength={100}
-                    onChange={handleChange}
-                    value={Bajas.nresolucion}
-                  />
-                  {error.nresolucion && (
-                    <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="fechA_BAJA" className="fw-semibold">
-                    Fecha Baja
-                  </label>
-                  <input
-                    aria-label="fechA_BAJA"
-                    type="date"
-                    className={`form-select ${error.fechA_BAJA ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="fechA_BAJA"
-                    onChange={handleChange}
-                    value={Bajas.fechA_BAJA}
-                  />
-                  {error.fechA_BAJA && (
-                    <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="observaciones" className="fw-semibold">
-                    Observaciones
-                  </label>
-                  <textarea
-                    className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    aria-label="observaciones"
-                    name="observaciones"
-                    rows={4}
-                    onChange={handleChange}
-                    value={Bajas.observaciones}
-                  />
-                  {error.observaciones && (
-                    <div className="invalid-feedback fw-semibold">
-                      {error.observaciones}
-                    </div>
-                  )}
-                </div>
+                          </>
+                        ) : (
+                          <>
+                            Enviar
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
+                        No hay bajas seleccionadas para registrar
+                      </strong>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label htmlFor="nresolucion" className="fw-semibold">
+                      Nº Certificado
+                    </label>
+                    <input
+                      aria-label="nresolucion"
+                      type="text"
+                      className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="nresolucion"
+                      maxLength={100}
+                      onChange={handleChange}
+                      value={Bajas.nresolucion}
+                    />
+                    {error.nresolucion && (
+                      <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label htmlFor="fechA_BAJA" className="fw-semibold">
+                      Fecha Baja
+                    </label>
+                    <input
+                      aria-label="fechA_BAJA"
+                      type="date"
+                      className={`form-select ${error.fechA_BAJA ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="fechA_BAJA"
+                      onChange={handleChange}
+                      value={Bajas.fechA_BAJA}
+                    />
+                    {error.fechA_BAJA && (
+                      <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label htmlFor="observaciones" className="fw-semibold">
+                      Observaciones
+                    </label>
+                    <textarea
+                      className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      aria-label="observaciones"
+                      name="observaciones"
+                      rows={4}
+                      onChange={handleChange}
+                      value={Bajas.observaciones}
+                    />
+                    {error.observaciones && (
+                      <div className="invalid-feedback fw-semibold">
+                        {error.observaciones}
+                      </div>
+                    )}
+                  </div>
 
-              </form>
-            </Modal.Body>
-          </Modal >
-        </div>
-      ))}
+                </form>
+              </Modal.Body>
+            </Modal >
+          </div>
+        ))
+      }
     </Layout >
   );
 };

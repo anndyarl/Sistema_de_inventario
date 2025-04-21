@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import AnimatedRoutes from './containers/hocs/routes/Routes';
 import { PersistGate } from 'redux-persist/integration/react';
 const App: React.FC = () => {
+
   return (
     <HelmetProvider>
       <Helmet>
@@ -17,7 +18,6 @@ const App: React.FC = () => {
         <link rel="canonical" href="https://www.ssmso.cl" />
         <meta name="author" content="SSMSO" />
         <meta name="publisher" content="SSMSO" />
-
         {/* Social Media Tags */}
         <meta property="og:title" content="Sistema de Inventario" />
         <meta property="og:description" content="Sistema de Inventario" />

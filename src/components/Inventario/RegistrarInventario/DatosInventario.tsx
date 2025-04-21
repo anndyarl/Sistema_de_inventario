@@ -186,7 +186,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     value: item.proV_RUN.toString(),
     label: item.proV_NOMBRE,
   }));
-  console.log("listaServicioNombre", listaServicioNombre);
+  // console.log("listaServicioNombre", listaServicioNombre);
   const handleProveedorChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
@@ -273,7 +273,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         Swal.fire({
           icon: "warning",
           title: "¿Está seguro que desea modificar monto recepción?",
-          text: "Si modifica el monto recepción se perderán los datos en la tabla activos fijos.",
+          text: "Al modificar el monto de recepción, se eliminarán los datos registrados en la tabla de activos fijos(Paso 3).",
           showCancelButton: true,
           confirmButtonText: "Si, Modificar",
           cancelButtonText: "Cancelar",
@@ -322,7 +322,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     }).then((result) => {
       if (result.isConfirmed) {
         setModalMostrarResumen(true);
-        dispatch(setInventarioRegistrado(0));
+        // dispatch(setInventarioRegistrado(0));
       }
       // else if (result.dismiss === Swal.DismissReason.cancel) {
       //   dispatch(setInventarioRegistrado(0));
@@ -332,7 +332,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
   // Muestra la alerta solo si resultadoRegistro es 1
   useEffect(() => {
-    // dispatch(setInventarioRegistrado(1));
+    dispatch(setInventarioRegistrado(1));
     // setModalMostrarResumen(true);
     if (resultadoRegistro === 1) {
       for (let i = 0; i < comboDependencia.length; i++) {

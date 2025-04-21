@@ -6,7 +6,7 @@ import {
   OBTENER_REMATES_FAIL,
 } from "./types"
 
-export const obtenerListaRematesActions = (af_clave: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerListaRematesActions = (fDesde: string, fHasta: string, nresolucion: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -20,7 +20,7 @@ export const obtenerListaRematesActions = (af_clave: string) => async (dispatch:
     dispatch({ type: OBTENER_REMATES_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeRemates?af_clave=${af_clave}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeRemates?fDesde=${fDesde}&fHasta=${fHasta}&nresolucion=${nresolucion}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

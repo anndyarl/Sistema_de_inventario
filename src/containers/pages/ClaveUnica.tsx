@@ -26,6 +26,10 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => 
     // window.open(redirectUrl, "_blank")
   };
 
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(() => console.log('Service Worker registrado'));
+  }
   console.log("token", token);
   console.log("isAuthenticated", isAuthenticated);
   if (isAuthenticated) {

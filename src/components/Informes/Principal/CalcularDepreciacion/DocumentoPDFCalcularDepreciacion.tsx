@@ -107,8 +107,8 @@ const DocumentoPDF = ({ row, totalSum }: { row: ListaActivosFijos[]; totalSum: n
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}
                 <View style={styles.tableRow}>
-                    <Text style={styles.tableCellHeader}>Código</Text>
-                    {/* <Text style={styles.tableCellHeader}>Código Genérico</Text> */}
+                    {/* <Text style={styles.tableCellHeader}>Código</Text> */}
+                    <Text style={styles.tableCellHeader}>Nº Inventario</Text>
                     {/* <Text style={styles.tableCellHeader}>Código Largo</Text>
                     <Text style={styles.tableCellHeader}>Departamento Corr</Text>
                     <Text style={styles.tableCellHeader}>Código Específico</Text>
@@ -163,8 +163,8 @@ const DocumentoPDF = ({ row, totalSum }: { row: ListaActivosFijos[]; totalSum: n
                 {/* Fila de datos */}
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
-                        <Text style={styles.tableCell}>{lista.aF_CLAVE}</Text>
-                        {/* <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text> */}
+                        {/* <Text style={styles.tableCell}>{lista.aF_CLAVE}</Text> */}
+                        <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
                         {/* <Text style={styles.tableCell}>{lista.aF_CODIGO_LARGO}</Text>
                         <Text style={styles.tableCell}>{lista.deP_CORR}</Text>
                         <Text style={styles.tableCell}>{lista.esP_CODIGO}</Text>
