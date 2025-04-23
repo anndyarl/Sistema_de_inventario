@@ -418,7 +418,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -435,7 +435,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -462,7 +462,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         confirmButtonText: "Confirmar y modificar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -483,7 +483,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         text: "Se ha actualizado el registro con éxito!",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -496,7 +496,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }

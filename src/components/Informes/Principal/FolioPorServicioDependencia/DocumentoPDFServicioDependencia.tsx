@@ -137,19 +137,14 @@ const styles = StyleSheet.create({
         fontSize: 10,
         textAlign: 'center',
     },
-
-    line: {
-        position: 'relative',
-        border: "1px",
-        width: "100%",
-        marginTop: '200'
+    firmaImagen: {
+        bottom: 40,
+        width: "30%",
+        position: 'absolute'
     },
-    printLabel: {
-        display: 'flex',
-        justifyContent: 'flex-start'
-    }
+
 });
-const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
+const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependencia[]; AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string, visadoInventario: string, visadoFinanzas: string }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -218,7 +213,49 @@ const DocumentoPDF = ({ row }: { row: ListaFolioServicioDependencia[]; }) => (
                     </View>
                 ))}
             </View>
-            {/* <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text> */}
+            {/* Área de firmas */}
+            <View style={styles.firmaContainer}>
+                {/* Firma Unidad Inventario */}
+                {AltaInventario.ajustarFirma && (
+                    <View style={styles.firmaBox}>
+                        {AltaInventario.visadoInventario ? (
+                            <Image src={AltaInventario.visadoInventario} style={{ ...styles.firmaImagen }} />
+                            // <Text style={styles.firmaLabel}>{AltaInventario.visadoInventario}</Text>
+                        ) : (
+                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
+                        )}
+                        {/* <Image src={AltaInventario.visado} style={{ width: 200, height: 'auto' }} /> */}
+
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteInventario}</Text>
+                        <Text style={styles.firmaLabel}>Unidad Inventario</Text>
+                    </View>
+                )}
+
+                {/* Firma Unidad Finanzas */}
+                {AltaInventario.finanzas && (
+                    <View style={styles.firmaBox}>
+                        {AltaInventario.visadoFinanzas ? (
+                            <Image src={AltaInventario.visadoFinanzas} style={{ ...styles.firmaImagen }} />
+                            // <Text style={styles.firmaLabel}>{AltaInventario.visadoFinanzas}</Text>
+                        ) : (
+                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
+                        )}
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteFinanzas}</Text>
+                        <Text style={styles.firmaLabel}>Departamento de Finanzas</Text>
+                    </View>
+                )}
+
+                {/* Firma Unidad Demandante */}
+                {AltaInventario.administrativa && (
+                    <View style={styles.firmaBox}>
+                        <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.unidadAdministrativa}</Text>
+                    </View>
+                )}
+            </View>
         </Page >
     </Document >
 

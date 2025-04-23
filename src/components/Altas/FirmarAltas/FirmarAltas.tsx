@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { Pagination, Form, Modal, Col, Row, Collapse, Button } from "react-bootstrap";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { Pagination, Form, Modal, Col, Row, Collapse } from "react-bootstrap";
 import { connect } from "react-redux";
 // import Swal from "sweetalert2";
-import SignatureCanvas from 'react-signature-canvas';
+// import SignatureCanvas from 'react-signature-canvas';
 // import { pdf } from "@react-pdf/renderer";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
@@ -14,7 +14,6 @@ import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
-import { Pencil } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
 import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
 
@@ -35,12 +34,12 @@ export interface ListaAltas {
     fechA_ALTA: string,
     nrecep: string
 }
-interface DatosFirmas {
+export interface DatosFirmas {
     nombre: string,
     rut: string,
     estabL_CORR: string,
     estado: string,
-    firma: boolean,
+    firma: string,
     rol: string,
     apellidO_MATERNO: string,
     apellidO_PATERNO: string,
@@ -69,9 +68,7 @@ interface DatosBajas {
 
 const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, listaAltasRegistradas, token, isDarkMode, comboUnidades, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
-    const [_, setError] = useState<Partial<ListaAltas>>({});
     const [__, setIsDisabled] = useState(true);
-
     const [isExpanded, setIsExpanded] = useState(false);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
@@ -80,9 +77,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
-    const sigCanvas = useRef<SignatureCanvas>(null);
+    // const sigCanvas = useRef<SignatureCanvas>(null);
     // const [isSigned, setIsSigned] = useState(false);
-    const [signatureImage, setSignatureImage] = useState<string | undefined>();
+    // const [signatureImage, setSignatureImage] = useState<string | undefined>();
     // const [fechaDescarga, setfechaDescarga] = useState<string | undefined>();
 
     // const clearSignature = () => {
@@ -108,92 +105,104 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         titularDemandante: false,
         subroganteDemandante: false,
         firmanteInventario: "",
-        firmanteFinanzas: ""
+        firmanteFinanzas: "",
+        visadoInventario: "",
+        visadoFinanzas: ""
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setAltaInventario((prevAltaInventario) => ({
-            ...prevAltaInventario,
-            [name]: value,
-        }));
+    function detectarTipo(base64: string): string {
+        if (base64.startsWith("/9j/")) return "jpeg";
+        if (base64.startsWith("iVBOR")) return "png";
+        if (base64.startsWith("R0lGOD")) return "gif";
+        return "png"; // fallback
     }
-
-    const handleCheck = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
 
-        setAltaInventario((prev) => {
-            const updatedState = { ...prev, [name]: checked };
+        // Copia del estado actual
+        const prev = structuredClone(AltaInventario);
+        const updatedState = { ...prev, [name]: checked };
 
-            if (name === "ajustarFirma" && !checked) {
-                return {
-                    ...updatedState,
-                    finanzas: false,
-                    administrativa: false,
-                    titularInventario: false,
-                    subroganteInventario: false,
-                    titularFinanzas: false,
-                    subroganteFinanzas: false,
-                    titularDemandante: false,
-                    subroganteDemandante: false,
-                    firmanteInventario: "",
-                    firmanteFinanzas: "",
-                };
-            }
-
-            let firmanteInventario = prev.firmanteInventario || "";
-            let firmanteFinanzas = prev.firmanteFinanzas || "";
-
-            // Buscar firmantes en la lista de datosFirmas
-            for (const firma of datosFirmas) {
-                const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
-
-                // Firmante de Inventario
-                if (firma.iD_UNIDAD === 1) {
-                    if (name === "titularInventario" && checked && firma.rol === "TITULAR") {
-                        firmanteInventario = nombreCompleto;
-                        updatedState.subroganteInventario = false;
-                    } else if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE") {
-                        firmanteInventario = nombreCompleto;
-                        updatedState.titularInventario = false;
-                    }
-                }
-
-                // Firmante de Finanzas
-                if (firma.iD_UNIDAD === 2) {
-                    if (name === "titularFinanzas" && checked && firma.rol === "TITULAR") {
-                        firmanteFinanzas = nombreCompleto;
-                        updatedState.subroganteFinanzas = false;
-                    } else if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE") {
-                        firmanteFinanzas = nombreCompleto;
-                        updatedState.titularFinanzas = false;
-                    }
-                }
-
-                // Si ya encontramos ambos firmantes, salimos del loop
-                if (firmanteInventario && firmanteFinanzas) break;
-            }
-
-            updatedState.firmanteInventario = firmanteInventario;
-            updatedState.firmanteFinanzas = firmanteFinanzas;
-
+        if (name === "ajustarFirma" && !checked) {
+            const cleanedState = {
+                ...updatedState,
+                finanzas: false,
+                administrativa: false,
+                titularInventario: false,
+                subroganteInventario: false,
+                titularFinanzas: false,
+                subroganteFinanzas: false,
+                titularDemandante: false,
+                subroganteDemandante: false,
+                firmanteInventario: "",
+                firmanteFinanzas: "",
+                visadoInventario: "",
+                visadoFinanzas: "",
+            };
             setIsDisabled(false);
             setIsExpanded(true);
-
-            return updatedState;
-        });
-    }, [setAltaInventario, datosFirmas]);
-
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-            const firma = sigCanvas.current.toDataURL('image/png'); //capta la firma dibujada en una imagen
-            setSignatureImage(firma);// Asigna la imagen al estado para poder renderizarlo
-        } else {
-            setError((prev) => ({ ...prev, firma: "La firma es obligatoria." }));
+            setAltaInventario(cleanedState);
+            return;
         }
-    };
+
+
+        let firmanteInventario = prev.firmanteInventario || "";
+        let firmanteFinanzas = prev.firmanteFinanzas || "";
+        let visadoInventario = prev.visadoInventario || "";
+        let visadoFinanzas = prev.visadoFinanzas || "";
+
+        for (const firma of datosFirmas) {
+
+            const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
+
+            const FIRMA = `data:image/${detectarTipo};base64,${firma.firma}`;
+            console.log("FIRMA", FIRMA)
+            // const FIRMA = `${firma.firma}`;
+            if (firma.iD_UNIDAD === 1) {
+                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteInventario = nombreCompleto;
+                    visadoInventario = FIRMA;
+                    updatedState.subroganteInventario = false;
+                }
+                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteInventario = nombreCompleto;
+                    visadoInventario = FIRMA;
+                    updatedState.titularInventario = false;
+                }
+            }
+
+            if (firma.iD_UNIDAD === 2) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteFinanzas = nombreCompleto;
+                    visadoFinanzas = FIRMA;
+                    updatedState.subroganteFinanzas = false;
+                }
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteFinanzas = nombreCompleto;
+                    visadoFinanzas = FIRMA;
+                    updatedState.titularFinanzas = false;
+                }
+            }
+        }
+
+        updatedState.firmanteInventario = firmanteInventario;
+        updatedState.firmanteFinanzas = firmanteFinanzas;
+        updatedState.visadoInventario = visadoInventario;
+        updatedState.visadoFinanzas = visadoFinanzas;
+        setIsDisabled(false);
+        setIsExpanded(true);
+        setAltaInventario(updatedState);
+    }, [AltaInventario, datosFirmas, objeto]);
+
+    // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+    //     if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
+    //         const firma = sigCanvas.current.toDataURL('image/png'); //capta la firma dibujada en una imagen
+    //         setSignatureImage(firma);// Asigna la imagen al estado para poder renderizarlo
+    //     } else {
+    //         setError((prev) => ({ ...prev, firma: "La firma es obligatoria." }));
+    //     }
+    // };
 
     const listaAltasAuto = async () => {
         if (token) {
@@ -239,7 +248,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             prevSeleccionadas.filter((fila) => fila !== index.toString())
         );
         setMostrarModal(null); //Cierra modal del indice seleccionado   
-        setSignatureImage("");// Limpia la firma
+        // setSignatureImage("");// Limpia la firma
     };
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -262,8 +271,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
     //     link.click();
     // };
-    const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.includes("Firefox");
-    console.log(elementosActuales);
+
+
     return (
         <Layout>
             <Helmet>
@@ -366,7 +375,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                             <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                            <form onSubmit={handleSubmit}>
+                            <form >
                                 <div className="d-flex justify-content-between p-2">
                                     <div className="d-flex align-items-center  rounded p-2 mb-3 shadow-sm">
                                         <p className="fw-semibold mb-0 me-3">
@@ -381,28 +390,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                             label=""
                                         />
                                     </div>
-
-                                    <Button
-                                        type="submit"
-                                        variant={isDarkMode ? "secondary" : "primary"}
-                                        disabled={
-                                            !(
-                                                (AltaInventario.titularInventario || AltaInventario.subroganteInventario) ||
-                                                (AltaInventario.firmanteFinanzas || AltaInventario.unidadAdministrativa)
-                                            )
-                                        }
-
-                                    >
-                                        <Pencil className="flex-shrink-0 h-5 w-5 mx-1 ms-0" aria-hidden="true" />
-                                        Firmar
-                                    </Button>
                                 </div>
 
                                 <Collapse in={isExpanded} dimension="height">
                                     <Row className="m-1 p-3 rounded rounded-4 border">
                                         <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
                                         {/* Ajustar Firma | Unidad Inventario */}
-                                        <Col md={4} >
+                                        <Col md={6} >
                                             <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
                                             <div className="d-flex">
                                                 <Form.Check
@@ -427,8 +421,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                         </Col>
 
                                         {/* Opcional1 | Unidad Finanzas*/}
-                                        <Col md={4}>
-                                            <p className="border-bottom fw-semibold text-center">Unidad Finanzas</p>
+                                        <Col md={6}>
+                                            <p className="border-bottom fw-semibold text-center">Departamento de Finanzas</p>
                                             <div className="d-flex">
                                                 <label htmlFor="finanzas" className="me-2">Opcional</label>
                                                 <Form.Check
@@ -463,7 +457,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                         </Col>
 
                                         {/* Opcional2 | Unidad Administrativa */}
-                                        <Col md={4}>
+                                        {/* <Col md={4}>
                                             <p className="border-bottom fw-semibold text-center">Unidad Administrativa</p>
                                             <div className="d-flex">
                                                 <label htmlFor="administrativa" className="me-2">Opcional</label>
@@ -496,34 +490,44 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                                     ))}
                                                 </select>
                                             </div>
-                                        </Col>
+                                        </Col> */}
                                     </Row>
                                 </Collapse>
                                 {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                                 <BlobProvider document={
                                     <DocumentoPDF
                                         row={fila}
-                                        firma={signatureImage}
                                         AltaInventario={AltaInventario}
                                         firmanteInventario={AltaInventario.firmanteInventario}
                                         firmanteFinanzas={AltaInventario.firmanteFinanzas}
+                                        visadoInventario={AltaInventario.visadoInventario}
+                                        visadoFinanzas={AltaInventario.visadoFinanzas}
+
                                     />
                                 }>
                                     {({ url, loading }) =>
                                         loading ? (
                                             <p>Generando vista previa...</p>
                                         ) : (
-
                                             <iframe
-                                                src={url ? `${url}${isFirefox ? "" : "#toolbar=0&navpanes=0&scrollbar=1"}` : ''}
+                                                src={url ? `${url}` : ""}
                                                 title="Vista Previa del PDF"
                                                 style={{
                                                     width: "100%",
                                                     height: "900px",
-                                                    border: "none",
-                                                    pointerEvents: isFirefox ? "none" : "auto", // Deshabilita interacciones en Firefox
+                                                    border: "none"
                                                 }}
                                             ></iframe>
+                                            // <iframe
+                                            //     src={url ? `${url}${isFirefox ? "" : "#toolbar=0&navpanes=0&scrollbar=1"}` : ''}
+                                            //     title="Vista Previa del PDF"
+                                            //     style={{
+                                            //         width: "100%",
+                                            //         height: "900px",
+                                            //         border: "none",
+                                            //         pointerEvents: isFirefox ? "none" : "auto", // Deshabilita interacciones en Firefox
+                                            //     }}
+                                            // ></iframe>
 
                                         )
                                     }
@@ -580,8 +584,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                         </Modal.Body>
                     </Modal>
                 </div>
-            ))
-            }
+            ))}
         </Layout >
     );
 };
@@ -602,4 +605,3 @@ export default connect(mapStateToProps, {
     obtenerfirmasAltasActions,
     obtenerUnidadesActions
 })(FirmarAltas);
-

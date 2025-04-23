@@ -119,7 +119,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
             text: `Error en la solicitud. Por favor, intente nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -188,7 +188,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
         confirmButtonText: "Confirmar y Enviar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -215,7 +215,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
             text: "Se ha enviado correctamente.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -236,7 +236,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
             text: "Hubo un problema al registrar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }

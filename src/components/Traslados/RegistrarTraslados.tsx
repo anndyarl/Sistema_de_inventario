@@ -185,7 +185,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
         cancelButtonText: "Cancelar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: { popup: "custom-border" }
       });
 
@@ -199,7 +199,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
               text: `Su formulario ha sido registrado exitosamente`,
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
               customClass: { popup: "custom-border" }
             });
 
@@ -230,7 +230,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
               text: "Hubo un problema al enviar el formulario.",
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
               customClass: { popup: "custom-border" }
             });
           }
@@ -242,7 +242,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
             text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: { popup: "custom-border" }
           });
         }

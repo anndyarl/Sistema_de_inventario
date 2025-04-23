@@ -71,7 +71,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
               text: "Se ha perdido la comunicación con el servidor. Le recomendamos intentar más tarde. Si el problema continúa, por favor, comuníquese con el equipo de Mesa de Ayuda o Desarrollo.",
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
               customClass: {
                 popup: "custom-border", // Clase personalizada para el borde
               }

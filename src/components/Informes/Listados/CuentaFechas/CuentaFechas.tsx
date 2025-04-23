@@ -171,7 +171,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }

@@ -105,7 +105,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
             text: `Error en la solicitud. Por favor, intente nuevamente.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -203,7 +203,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
       confirmButtonText: "Confirmar y Enviar",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
       customClass: {
         popup: "custom-border", // Clase personalizada para el borde
       }
@@ -235,7 +235,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
           text: "Se ha enviado correctamente",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
           customClass: {
             popup: "custom-border", // Clase personalizada para el borde
           }
@@ -252,7 +252,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
           text: "Hubo un problema al registrar",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
           customClass: {
             popup: "custom-border", // Clase personalizada para el borde
           }
@@ -295,7 +295,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
         confirmButtonText: "Confirmar y Quitar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -317,7 +317,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
             text: "Se han quitado correctamente de Bodega de excluidos",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -338,7 +338,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
             text: "Hubo un problema al registrar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }

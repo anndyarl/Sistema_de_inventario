@@ -5,6 +5,8 @@ import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { registrarAltasActions } from "../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
@@ -30,7 +32,7 @@ export interface ListaAltas {
 }
 
 interface ListaSalidaAltas {
-  aF_CLAVE: number;
+  aF_CLAVE: number; //se devuelve el aF_CODIGO_GENERICO
   altaS_CORR: number;
 }
 interface DatosAltas {
@@ -65,7 +67,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       text: `Se han registrado correctamente las Altas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
       customClass: { popup: "custom-border" },
       allowOutsideClick: false,
       showCancelButton: false, // Agrega un segundo botón
@@ -110,6 +112,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
   useEffect(() => {
     // dispatch(setAltasRegistradas(1));
+    // setModalMostrarResumen(true);
     if (listaSalidaAltas.length > 0) {
       mostrarAlerta();
     }
@@ -188,6 +191,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
         aF_CLAVE: listaAltas[index].aF_CLAVE,
+        aF_CODIGO_GENERICO: listaAltas[index].ninv,
         USUARIO_MOD: objeto.IdCredencial,
         ESTABL_CORR: objeto.Establecimiento,
       };
@@ -218,7 +222,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
       // Crear un array de objetos con aF_CLAVE y nombre
       // console.log("Activos seleccionados para registrar:", activosSeleccionados);
-      console.log("listaSalidaAltas", listaSalidaAltas);
+      // console.log("listaSalidaAltas", listaSalidaAltas);
       const resultado = await registrarAltasActions(activosSeleccionados);
       if (resultado) {
         dispatch(setAltasRegistradas(1));
@@ -257,6 +261,19 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     ? Math.ceil(listaAltas.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+
+  const handleExportPDF = () => {
+    const input: any = document.getElementById("pdf-content");
+    html2canvas(input, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      pdf.save("Resumen_Inventario.pdf");
+    });
+  };
 
   return (
     <Layout>
@@ -464,6 +481,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Resumen Registro Altas</Modal.Title>
         </Modal.Header>
+        <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
+            Exportar a PDF
+          </Button>
+        </div>
         <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <Row className="mb-4">
 
@@ -493,8 +515,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
             </table>
           </div>
         </Modal.Body>
-
-        <Modal.Footer></Modal.Footer>
       </Modal>
     </Layout >
 

@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, Printer, Search } from "react-bootstrap-icons";
 import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
 import { RootState } from "../../../store";
 import Layout from "../../../containers/hocs/layout/Layout";
@@ -37,9 +37,8 @@ export interface DatosBajas {
 const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, listaEtiquetas, token, isDarkMode, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
     //-------------Modal-------------//
-    const [mostrarModal, setMostrarModal] = useState<number | null>(null);
+    const [mostrarModal, setMostrarModal] = useState(false);
     //------------Fin Modal----------//
-    const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
@@ -47,6 +46,38 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         af_codigo_generico: ""
     });
     const [listaConQR, setListaConQR] = useState<ListaEtiquetas[]>([]);
+
+    const listaAuto = async () => {
+        if (token) {
+            setLoading(true);
+            try {
+                const resultado = await obtenerEtiquetasAltasActions(Inventario.af_codigo_generico);
+                if (!resultado) {
+                    throw new Error("Error al cargar la lista de bajas");
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (listaEtiquetas.length === 0) {
+            listaAuto();
+        }
+    }, [listaEtiquetas]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -79,7 +110,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -99,38 +130,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             af_codigo_generico: ""
         }));
     };
-    const fetchBajas = async () => {
-        if (token) {
-            setLoading(true);
-            try {
-                const resultado = await obtenerEtiquetasAltasActions(Inventario.af_codigo_generico);
-                if (!resultado) {
-                    throw new Error("Error al cargar la lista de bajas");
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
-
-    useEffect(() => {
-        if (listaEtiquetas.length > 0) {
-            generarQRs();
-        }
-    }, [listaEtiquetas]);
-
 
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
@@ -143,8 +142,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             setFilasSeleccionadas([]);
         }
     };
+
     const setSeleccionaFilas = (index: number) => {
-        setMostrarModal(index)
         setFilasSeleccionadas((prev) =>
             prev.includes(index.toString())
                 ? prev.filter((rowIndex) => rowIndex !== index.toString())
@@ -152,12 +151,35 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         );
     };
 
-    const handleCerrarModal = (index: number) => {
-        setFilaSeleccionada((prevSeleccionadas) =>
-            prevSeleccionadas.filter((fila) => fila !== index.toString())
+    const handleGenerar = async () => {
+        setLoading(true);
+
+        // Seleccionar los nuevos activos
+        const selectedIndices = filasSeleccionadas.map(Number);
+        const activosSeleccionados = selectedIndices.map((index) => ({
+            aF_CODIGO_LARGO: listaEtiquetas[index].aF_CODIGO_LARGO,
+            aF_DESCRIPCION: listaEtiquetas[index].aF_DESCRIPCION,
+            aF_FECHA_ALTA: listaEtiquetas[index].aF_FECHA_ALTA,
+            aF_NCUENTA: listaEtiquetas[index].aF_NCUENTA,
+            aF_UBICACION: listaEtiquetas[index].aF_UBICACION
+        }));
+
+        const etiquetasConQR = await Promise.all(
+            activosSeleccionados.map(async (item) => {
+                const valueQR = `Cod. Bien: ${item.aF_CODIGO_LARGO} Nom. Bien: ${item.aF_DESCRIPCION} F. Alta: ${item.aF_FECHA_ALTA} Cta. Contable: ${item.aF_NCUENTA}`;
+                const qrImage = await generateQRCodeBase64(valueQR);
+                // console.log("QR generado:", qrImage);
+                return { ...item, qrImage };
+            })
         );
-        setMostrarModal(null); //Cierra modal del indice seleccionado       
+
+        setListaConQR(etiquetasConQR);
+
+        // Muestra modal y finaliza la carga
+        setMostrarModal(true);
+        setLoading(false);
     };
+
     const generateQRCodeBase64 = (value: string): Promise<string> => {
         return new Promise((resolve, reject) => {
             const container = document.createElement("div");
@@ -209,21 +231,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             }, 100); // delay leve para asegurarse de que renderice
         });
     };
-
-
-    const generarQRs = async () => {
-        const etiquetasConQR = await Promise.all(
-            listaEtiquetas.map(async (item) => {
-                const valueQR = `Cod. Bien: ${item.aF_CODIGO_LARGO} Nom. Bien: ${item.aF_DESCRIPCION} F. Alta: ${item.aF_FECHA_ALTA} Cta. Contable: ${item.aF_NCUENTA}`;
-                const qrImage = await generateQRCodeBase64(valueQR);
-                console.log("QR generado:", qrImage);
-                return { ...item, qrImage };
-            })
-        );
-
-        setListaConQR(etiquetasConQR);
-    };
-
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -291,25 +298,56 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </div>
                     </Col>
                 </Row>
+                <div className="d-flex justify-content-end">
+                    {filasSeleccionadas.length > 0 ? (
+                        <Button
+                            onClick={handleGenerar} disabled={listaEtiquetas.length === 0}
+                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                            {loading ? (
+                                <>
+                                    {" Generar"}
+                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                </>
+                            ) : (
+                                <>
+                                    {"Generar"}
+                                    <Printer className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                </>
+                            )}
+                        </Button>
+                    ) : (
+                        <strong className="alert alert-dark border m-1 p-2">
+                            No hay filas seleccionadas
+                        </strong>
+                    )}
+                </div>
                 {loading ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className='table-responsive'>
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                <tr>
-                                    <Form.Check
-                                        className="check-danger"
-                                        type="checkbox"
-                                        onChange={handleSeleccionaTodos}
-                                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                    />
-                                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                                    <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
-                                    <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
-                                    <th scope="col" className="text-nowrap text-center">Ubicación</th>
-                                    <th scope="col" className="text-nowrap text-center">QR</th>
+                                <tr >
+                                    <th style={{
+                                        position: 'sticky',
+                                        left: 0,
+                                        zIndex: 2,
+
+                                    }}>
+                                        <Form.Check
+                                            className="check-danger"
+                                            type="checkbox"
+                                            onChange={handleSeleccionaTodos}
+                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                                        />
+                                    </th>
+
+                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                    <th scope="col" className="text-nowrap">Descripción</th>
+                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                    <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                                    <th scope="col" className="text-nowrap">Ubicación</th>
+                                    <th scope="col" className="text-nowrap">QR</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -366,46 +404,42 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     </Pagination>
                 </div>
             </div>
-            {
-                elementosActuales.map((fila, index) => (
-                    <div key={index}>
-                        <Modal
-                            show={mostrarModal === index}
-                            onHide={() => handleCerrarModal(index)}
-                            dialogClassName="modal-right" size="lg">
-                            <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                                <Modal.Title className="fw-semibold">Consulta Inventario Especies</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                                <form>
 
-                                    {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-                                    <BlobProvider document={<DocumentoEtiquetasPDF row={listaConQR} />
-                                    }>
-                                        {({ url, loading }) =>
-                                            loading ? (
-                                                <p>Generando vista previa...</p>
-                                            ) : (
+            <Modal
+                show={mostrarModal}
+                onHide={() => setMostrarModal(false)}
+                dialogClassName="modal-right" size="lg">
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                    <Modal.Title className="fw-semibold">Consulta Inventario Especies</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <form>
 
-                                                <iframe
-                                                    src={url ? `${url}` : ""}
-                                                    title="Vista Previa del PDF"
-                                                    style={{
-                                                        width: "100%",
-                                                        height: "900px",
-                                                        border: "none"
-                                                    }}
-                                                ></iframe>
+                        {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+                        <BlobProvider document={<DocumentoEtiquetasPDF row={listaConQR} />
+                        }>
+                            {({ url, loading }) =>
+                                loading ? (
+                                    <p>Generando vista previa...</p>
+                                ) : (
 
-                                            )
-                                        }
-                                    </BlobProvider>
-                                </form>
-                            </Modal.Body>
-                        </Modal>
-                    </div>
-                ))
-            }
+                                    <iframe
+                                        src={url ? `${url}` : ""}
+                                        title="Vista Previa del PDF"
+                                        style={{
+                                            width: "100%",
+                                            height: "900px",
+                                            border: "none"
+                                        }}
+                                    ></iframe>
+
+                                )
+                            }
+                        </BlobProvider>
+                    </form>
+                </Modal.Body>
+            </Modal>
+
         </Layout >
     );
 };

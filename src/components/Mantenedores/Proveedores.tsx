@@ -193,7 +193,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                 confirmButtonText: "Confirmar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -210,7 +210,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                         text: "Se ha agregado un nuevo proveedor",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
                         customClass: {
                             popup: "custom-border", // Clase personalizada para el borde
                         }
@@ -228,7 +228,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                         text: "Hubo un problema al registrar",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
                         customClass: {
                             popup: "custom-border", // Clase personalizada para el borde
                         }

@@ -141,7 +141,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -175,7 +175,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
       confirmButtonText: "Confirmar y Anular",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
       customClass: {
         popup: "custom-border", // Clase personalizada para el borde
       }
@@ -190,7 +190,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
           text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
           customClass: {
             popup: "custom-border", // Clase personalizada para el borde
           }
@@ -203,7 +203,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
           text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
           customClass: {
             popup: "custom-border", // Clase personalizada para el borde
           }

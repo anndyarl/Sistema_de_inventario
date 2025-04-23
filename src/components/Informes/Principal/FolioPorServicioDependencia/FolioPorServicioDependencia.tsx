@@ -1,11 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Pagination, Button, Spinner, Modal } from "react-bootstrap";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { Row, Col, Form, Pagination, Button, Spinner, Modal, Collapse } from "react-bootstrap";
 import { RootState } from "../../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { BoxArrowDown, Eraser, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
+import { BoxArrowDown, Eraser, FileEarmarkExcel, Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import MenuInformes from "../../../Menus/MenuInformes";
@@ -16,8 +16,9 @@ import DocumentoPDF from "./DocumentoPDFServicioDependencia";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import Select from "react-select";
-import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
 import { listaFolioServicioDependenciaActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/listaFolioServicioDependenciaActions";
+import { DatosFirmas } from "../../../Altas/FirmarAltas/FirmarAltas";
+import { obtenerfirmasAltasActions } from "../../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -65,24 +66,45 @@ interface DatosAltas {
     listaFolioServicioDependenciaActions: (dep_corr: number, establ_corr: number) => Promise<boolean>;
     comboServicioInforme: SERVICIO[];
     comboServicioInformeActions: (establ_corr: number) => void;
+    obtenerfirmasAltasActions: () => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario
     nPaginacion: number; //número de paginas establecido desde preferencias
+    datosFirmas: DatosFirmas[];
 }
 
-const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia, comboServicioInforme, objeto, token, isDarkMode, nPaginacion }) => {
+const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia, comboServicioInforme, objeto, token, isDarkMode, nPaginacion, datosFirmas }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [_, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
     const [loading, setLoading] = useState(false); // Estado para controlar la carga busqueda 
     const [paginaActual, setPaginaActual] = useState(1);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [__, setIsDisabled] = useState(true);
     const elementosPorPagina = nPaginacion;
+    const filasSeleccionadasPDF = listaFolioServicioDependencia.filter((_, index) =>
+        filasSeleccionadas.includes(index.toString())
+    );
 
-    const [Inventario, setInventario] = useState({
+    const [Buscar, setBuscar] = useState({
         servicio: 0,
-        encargadoInventario: "",
-        jefeDependencia: "",
-        jefeInventario: ""
+    });
+    const [Inventario, setInventario] = useState({
+        unidadAdministrativa: null,
+        ajustarFirma: false,
+        titularInventario: false,
+        subroganteInventario: false,
+        finanzas: false,
+        titularFinanzas: false,
+        subroganteFinanzas: false,
+        administrativa: false,
+        titularDemandante: false,
+        subroganteDemandante: false,
+        firmanteInventario: "",
+        firmanteFinanzas: "",
+        visadoInventario: "",
+        visadoFinanzas: ""
     });
 
     const servicioOptions = comboServicioInforme.map((item) => ({
@@ -92,9 +114,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
 
     const handleServicioChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : 0;
-        setInventario((prevInventario) => ({ ...prevInventario, servicio: value }));
-
-        console.log("servicio", value);
+        setBuscar((prevInventario) => ({ ...prevInventario, servicio: value }));
 
     };
     const listaAuto = async () => {
@@ -127,41 +147,14 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
         }
     }, [listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia.length, comboServicioInforme.length, token]); // Asegúrate de incluir dependencias relevantes
 
-    // const validate = () => {
-    //     let tempErrors: Partial<any> & {} = {};
-    //     // Validación para N° de Recepción (debe ser un número)
-    //     if (!Inventario.encargadoInventario) tempErrors.encargadoInventario = "Campo obligatorio.";
-    //     if (!Inventario.jefeDependencia) tempErrors.jefeDependencia = "Campo obligatorio.";
-    //     if (!Inventario.jefeInventario) tempErrors.jefeInventario = "Campo obligatorio.";
-
-
-    //     setError(tempErrors);
-    //     return Object.keys(tempErrors).length === 0;
-    // };
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-        const { name, value } = e.target;
-        let newValue: string | number = ["servicio"].includes(name)
-            ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-            : value;
-
-        setInventario((prevState) => ({
-            ...prevState,
-            [name]: newValue,
-        }));
-
-    };
-
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
-        resultado = await listaFolioServicioDependenciaActions(Inventario.servicio, objeto.Establecimiento);
+        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Establecimiento);
 
         //resetea campos una vez hecha la busqueda
         setInventario((prevState) => ({
             ...prevState,
-            encargadoInventario: "",
-            jefeDependencia: "",
-            jefeInventario: "",
             servicio: 0,
         }));
         setError({});
@@ -173,7 +166,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -188,14 +181,117 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
     };
 
     const handleLimpiar = () => {
-        setInventario((prevInventario) => ({
+        setBuscar((prevInventario) => ({
             ...prevInventario,
-            servicio: 0,
-            encargadoInventario: "",
-            jefeDependencia: "",
-            jefeInventario: ""
+            servicio: 0
         }));
     };
+
+    const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
+            setFilasSeleccionadas(
+                elementosActuales.map((_, index) =>
+                    (indicePrimerElemento + index).toString()
+                )
+            );
+        } else {
+            setFilasSeleccionadas([]);
+        }
+    };
+
+    const setSeleccionaFilas = (index: number) => {
+        if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
+        setFilasSeleccionadas((prev) =>
+            prev.includes(index.toString())
+                ? prev.filter((rowIndex) => rowIndex !== index.toString())
+                : [...prev, index.toString()]
+        );
+    };
+    function detectarTipo(base64: string): string {
+        if (base64.startsWith("/9j/")) return "jpeg";
+        if (base64.startsWith("iVBOR")) return "png";
+        if (base64.startsWith("R0lGOD")) return "gif";
+        return "png"; // fallback
+    }
+    const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+
+        // Copia del estado actual
+        const prev = structuredClone(Inventario);
+        const updatedState = { ...prev, [name]: checked };
+
+        if (name === "ajustarFirma" && !checked) {
+            const cleanedState = {
+                ...updatedState,
+                finanzas: false,
+                administrativa: false,
+                titularInventario: false,
+                subroganteInventario: false,
+                titularFinanzas: false,
+                subroganteFinanzas: false,
+                titularDemandante: false,
+                subroganteDemandante: false,
+                firmanteInventario: "",
+                firmanteFinanzas: "",
+                visadoInventario: "",
+                visadoFinanzas: "",
+            };
+            setIsDisabled(false);
+            setIsExpanded(true);
+            setInventario(cleanedState);
+            return;
+        }
+
+
+        let firmanteInventario = prev.firmanteInventario || "";
+        let firmanteFinanzas = prev.firmanteFinanzas || "";
+        let visadoInventario = prev.visadoInventario || "";
+        let visadoFinanzas = prev.visadoFinanzas || "";
+
+        for (const firma of datosFirmas) {
+
+            const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
+
+            const FIRMA = `data:image/${detectarTipo};base64,${firma.firma}`;
+            console.log("FIRMA", FIRMA)
+            // const FIRMA = `${firma.firma}`;
+            if (firma.iD_UNIDAD === 1) {
+                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteInventario = nombreCompleto;
+                    visadoInventario = FIRMA;
+                    updatedState.subroganteInventario = false;
+                }
+                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteInventario = nombreCompleto;
+                    visadoInventario = FIRMA;
+                    updatedState.titularInventario = false;
+                }
+            }
+
+            if (firma.iD_UNIDAD === 2) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteFinanzas = nombreCompleto;
+                    visadoFinanzas = FIRMA;
+                    updatedState.subroganteFinanzas = false;
+                }
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                    firmanteFinanzas = nombreCompleto;
+                    visadoFinanzas = FIRMA;
+                    updatedState.titularFinanzas = false;
+                }
+            }
+        }
+
+        updatedState.firmanteInventario = firmanteInventario;
+        updatedState.firmanteFinanzas = firmanteFinanzas;
+        updatedState.visadoInventario = visadoInventario;
+        updatedState.visadoFinanzas = visadoFinanzas;
+        setIsDisabled(false);
+        setIsExpanded(true);
+        setInventario(updatedState);
+    }, [Inventario, datosFirmas, objeto]);
+
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -296,119 +392,119 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
     };
 
     // 📂 Función para exportar a Word
-    const exportarWord = () => {
-        setLoading(true);
-        const doc = new Document({
-            styles: {
-                paragraphStyles: [
-                    {
-                        id: "tableCellHeader",
-                        name: "tableCellHeader",
-                        basedOn: "Normal",
-                        run: {
-                            size: 10,
-                            color: "FFFFFF",
-                            bold: true,
-                        },
-                    },
-                    {
-                        id: "tableCell",
-                        name: "tableCell",
-                        basedOn: "Normal",
-                        run: {
-                            size: 10,
-                            bold: true,
-                        },
-                    },
-                ],
-            },
-            sections: [
-                {
-                    children: [
-                        new Paragraph({
-                            text: "Detalles de Bienes por Dependencia",
-                            heading: "Heading1",
-                        }),
-                        new Table({
-                            width: { size: 100, type: WidthType.PERCENTAGE }, // Ajustar la tabla al 100% del ancho
-                            rows: [
-                                // Encabezado de la tabla
-                                new TableRow({
-                                    children: [
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Nº Inventario", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" }, // Fondo gris
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Marca", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Modelo", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Serie", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        // new TableCell({
-                                        //     children: [new Paragraph({ text: "Observación", style: "tableCellHeader" })],
-                                        //     shading: { fill: "004485" },
-                                        // }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Fecha Ingreso", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Nº Alta", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Estado", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Nº Traslado", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                    ],
-                                }),
-                                // Filas dinámicas con datos
-                                ...listaFolioServicioDependencia.map((item) =>
-                                    new TableRow({
-                                        children: [
-                                            new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_GENERICO.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.aF_MARCA, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.aF_SERIE, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.aF_OBS, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.aF_FINGRESO, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.altaS_CORR.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.traS_ESTADO_AF, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.ntraslado.toString(), style: "tableCell" })] }),
-                                        ],
-                                    })
-                                ),
-                            ],
-                        }),
-                    ],
-                },
-            ],
-        });
+    // const exportarWord = () => {
+    //     setLoading(true);
+    //     const doc = new Document({
+    //         styles: {
+    //             paragraphStyles: [
+    //                 {
+    //                     id: "tableCellHeader",
+    //                     name: "tableCellHeader",
+    //                     basedOn: "Normal",
+    //                     run: {
+    //                         size: 10,
+    //                         color: "FFFFFF",
+    //                         bold: true,
+    //                     },
+    //                 },
+    //                 {
+    //                     id: "tableCell",
+    //                     name: "tableCell",
+    //                     basedOn: "Normal",
+    //                     run: {
+    //                         size: 10,
+    //                         bold: true,
+    //                     },
+    //                 },
+    //             ],
+    //         },
+    //         sections: [
+    //             {
+    //                 children: [
+    //                     new Paragraph({
+    //                         text: "Detalles de Bienes por Dependencia",
+    //                         heading: "Heading1",
+    //                     }),
+    //                     new Table({
+    //                         width: { size: 100, type: WidthType.PERCENTAGE }, // Ajustar la tabla al 100% del ancho
+    //                         rows: [
+    //                             // Encabezado de la tabla
+    //                             new TableRow({
+    //                                 children: [
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Nº Inventario", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" }, // Fondo gris
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Marca", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Modelo", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Serie", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     // new TableCell({
+    //                                     //     children: [new Paragraph({ text: "Observación", style: "tableCellHeader" })],
+    //                                     //     shading: { fill: "004485" },
+    //                                     // }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Fecha Ingreso", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Nº Alta", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Estado", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Nº Traslado", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                 ],
+    //                             }),
+    //                             // Filas dinámicas con datos
+    //                             ...listaFolioServicioDependencia.map((item) =>
+    //                                 new TableRow({
+    //                                     children: [
+    //                                         new TableCell({ children: [new Paragraph({ text: item.aF_CODIGO_GENERICO.toString(), style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.aF_MARCA, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.aF_SERIE, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.aF_OBS, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.aF_FINGRESO, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.altaS_CORR.toString(), style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.traS_ESTADO_AF, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.ntraslado.toString(), style: "tableCell" })] }),
+    //                                     ],
+    //                                 })
+    //                             ),
+    //                         ],
+    //                     }),
+    //                 ],
+    //             },
+    //         ],
+    //     });
 
-        Packer.toBlob(doc).then((blob) => {
-            saveAs(blob, `Reporte_FolioPorServicioDependencia.docx`);
-            setLoading(false); //evita que quede cargando
-        }).catch(() => {
-            // console.error("Error al generar el documento:", error);
-            setLoading(false);
-        });
+    //     Packer.toBlob(doc).then((blob) => {
+    //         saveAs(blob, `Reporte_FolioPorServicioDependencia.docx`);
+    //         setLoading(false); //evita que quede cargando
+    //     }).catch(() => {
+    //         // console.error("Error al generar el documento:", error);
+    //         setLoading(false);
+    //     });
 
-    };
+    // };
 
     return (
         <Layout>
@@ -430,7 +526,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                     options={servicioOptions}
                                     onChange={handleServicioChange}
                                     name="servicio"
-                                    value={servicioOptions.find((option) => option.value === Inventario.servicio) || null}
+                                    value={servicioOptions.find((option) => option.value === Buscar.servicio) || null}
                                     placeholder="Buscar"
                                     className={`form-select-container `}
                                     classNamePrefix="react-select"
@@ -460,50 +556,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                     }}
                                 />
                             </div>
-                            <div className="mb-1">
-                                <label htmlFor="encargadoInventario" className="fw-semibold">Encargado de Inventario de la dependencia</label>
-                                <input
-                                    aria-label="encargadoInventario"
-                                    type="text"
-                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="encargadoInventario"
-                                    size={10}
-                                    placeholder="Ingrege un nombre"
-                                    onChange={handleChange}
-                                    value={Inventario.encargadoInventario}
-                                />
-                            </div>
-
                         </Col>
-                        <Col md={3}>
-                            <div className="mb-1">
-                                <label htmlFor="jefeDependencia" className="fw-semibold">Jefe de Dependencia</label>
-                                <input
-                                    aria-label="jefeDependencia"
-                                    type="text"
-                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="jefeDependencia"
-                                    size={10}
-                                    placeholder="Ingrege un nombre"
-                                    onChange={handleChange}
-                                    value={Inventario.jefeDependencia}
-                                />
-                            </div>
 
-                            <div className="mb-1">
-                                <label htmlFor="jefeInventario" className="fw-semibold">Jefe de Inventario</label>
-                                <input
-                                    aria-label="jefeInventario"
-                                    type="text"
-                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="jefeInventario"
-                                    size={10}
-                                    placeholder="Ingrege un nombre"
-                                    onChange={handleChange}
-                                    value={Inventario.jefeInventario}
-                                />
-                            </div>
-                        </Col>
                         <Col md={3}>
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar}
@@ -527,26 +581,34 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                     Limpiar
                                     <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                 </Button>
-                                <Button
-                                    onClick={() => setMostrarModal(true)} disabled={listaFolioServicioDependencia.length === 0}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
-                                    {mostrarModal ? (
-                                        <>
-                                            {" Exportar"}
-                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            {"Exportar"}
-                                            <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </>
-                                    )}
-                                </Button>
+
                             </div>
                         </Col>
                     </Row>
-
+                    <div className="d-flex justify-content-end">
+                        {filasSeleccionadas.length > 0 ? (
+                            <Button
+                                onClick={() => setMostrarModal(true)} disabled={listaFolioServicioDependencia.length === 0}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                {mostrarModal ? (
+                                    <>
+                                        {" Exportar"}
+                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                    </>
+                                ) : (
+                                    <>
+                                        {"Exportar"}
+                                        <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                    </>
+                                )}
+                            </Button>
+                        ) : (
+                            <strong className="alert alert-dark border m-1 p-2">
+                                No hay filas seleccionadas
+                            </strong>
+                        )}
+                    </div>
                     {/* Tabla*/}
                     {loading ? (
                         <>
@@ -558,6 +620,19 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                 <thead className={`sticky-top  z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                     <tr>
+                                        <th style={{
+                                            position: 'sticky',
+                                            left: 0,
+                                            zIndex: 0,
+
+                                        }}>
+                                            <Form.Check
+                                                className="check-danger"
+                                                type="checkbox"
+                                                onChange={handleSeleccionaTodos}
+                                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                                            />
+                                        </th>
                                         <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                                         <th scope="col" className="text-nowrap text-center">Especie</th>
                                         <th scope="col" className="text-nowrap text-center">Marca</th>
@@ -572,8 +647,21 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                                 </thead>
                                 <tbody>
                                     {elementosActuales.map((Lista, index) => {
+                                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                         return (
                                             <tr key={index}>
+                                                <td style={{
+                                                    position: 'sticky',
+                                                    left: 0,
+                                                    zIndex: 0,
+
+                                                }}>
+                                                    <Form.Check
+                                                        type="checkbox"
+                                                        onChange={() => setSeleccionaFilas(indexReal)}
+                                                        checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                    />
+                                                </td>
                                                 <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                                 <td className="text-nowrap">{Lista.especie}</td>
                                                 <td className="text-nowrap">{Lista.aF_MARCA}</td>
@@ -625,53 +713,180 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ listaFolioServicioD
                     </div>
                 </div>
             </form>
+
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-                    <BlobProvider document={
-                        <DocumentoPDF
-                            row={listaFolioServicioDependencia}
-                        />
-                    }>
-                        {({ url, loading }) =>
-                            loading ? (
-                                <p>Generando vista previa...</p>
-                            ) : (
+                    <form >
+                        <div className="d-flex justify-content-between p-2">
+                            <div className="d-flex align-items-center  rounded p-2 mb-3 shadow-sm">
+                                <p className="fw-semibold mb-0 me-3">
+                                    Ajustar firma:
+                                </p>
+                                <Form.Check
+                                    onChange={handleCheck}
+                                    name="ajustarFirma"
+                                    type="checkbox"
+                                    className="form-switch"
+                                    checked={Inventario.ajustarFirma}
+                                    label=""
+                                />
+                            </div>
+                        </div>
 
-                                <>
-                                    {/* Botones para exportar a Excel y Word */}
-                                    <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
-                                        <Button
-                                            onClick={() => exportarExcel(listaFolioServicioDependencia)}
-                                            variant="success">
-                                            Descargar Excel
-                                            <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </Button>
-                                        {/* <Button
+                        <Collapse in={isExpanded} dimension="height">
+                            <Row className="m-1 p-3 rounded rounded-4 border">
+                                <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
+                                {/* Ajustar Firma | Unidad Inventario */}
+                                <Col md={6} >
+                                    <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.ajustarFirma}
+                                            name="titularInventario"
+                                            type="checkbox"
+                                            checked={Inventario.titularInventario}
+                                        />
+                                        <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                    </div>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.ajustarFirma}
+                                            name="subroganteInventario"
+                                            type="checkbox"
+                                            checked={Inventario.subroganteInventario}
+                                        />
+                                        <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                    </div>
+                                </Col>
+
+                                {/* Opcional1 | Unidad Finanzas*/}
+                                <Col md={6}>
+                                    <p className="border-bottom fw-semibold text-center">Departamento de Finanzas</p>
+                                    <div className="d-flex">
+                                        <label htmlFor="finanzas" className="me-2">Opcional</label>
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.ajustarFirma}
+                                            name="finanzas"
+                                            type="checkbox"
+                                            className="form-switch"
+                                            checked={Inventario.finanzas}
+                                        />
+                                    </div>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.finanzas}
+                                            name="titularFinanzas"
+                                            type="checkbox"
+                                            checked={Inventario.titularFinanzas}
+                                        />
+                                        <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                    </div>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.finanzas}
+                                            name="subroganteFinanzas"
+                                            type="checkbox"
+                                            checked={Inventario.subroganteFinanzas}
+                                        />
+                                        <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                    </div>
+                                </Col>
+
+                                {/* Opcional2 | Unidad Administrativa */}
+                                {/* <Col md={4}>
+                                            <p className="border-bottom fw-semibold text-center">Unidad Administrativa</p>
+                                            <div className="d-flex">
+                                                <label htmlFor="administrativa" className="me-2">Opcional</label>
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.ajustarFirma}
+                                                    name="administrativa"
+                                                    type="checkbox"
+                                                    className="form-switch"
+                                                    checked={AltaInventario.administrativa}
+                                                />
+                                            </div>
+
+                                            <div className="mb-1">
+                                                <label className="fw-semibold">
+                                                    Seleccione una Unidad
+                                                </label>
+                                                <select
+                                                    aria-label="unidadAdministrativa"
+                                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                    name="unidadAdministrativa"
+                                                    onChange={handleChange}
+                                                    disabled={!AltaInventario.administrativa}
+                                                >
+                                                    <option value="">Seleccionar</option>
+                                                    {comboUnidades.map((traeUnidades) => (
+                                                        <option key={traeUnidades.iD_UNIDAD} value={traeUnidades.nombre}>
+                                                            {traeUnidades.nombre}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </Col> */}
+                            </Row>
+                        </Collapse>
+                        {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+
+                        <BlobProvider document={
+
+                            <DocumentoPDF
+                                row={filasSeleccionadasPDF}
+                                AltaInventario={Inventario}
+                                firmanteInventario={Inventario.firmanteInventario}
+                                firmanteFinanzas={Inventario.firmanteFinanzas}
+                                visadoInventario={Inventario.visadoInventario}
+                                visadoFinanzas={Inventario.visadoFinanzas}
+                            />
+                        }>
+                            {({ url, loading }) =>
+                                loading ? (
+                                    <p>Generando vista previa...</p>
+                                ) : (
+
+                                    <>
+                                        {/* Botones para exportar a Excel y Word */}
+                                        <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
+                                            <Button
+                                                onClick={() => exportarExcel(listaFolioServicioDependencia)}
+                                                variant="success">
+                                                Descargar Excel
+                                                <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                            </Button>
+                                            {/* <Button
                                             onClick={() => exportarWord()}
                                             variant="primary">
                                             Descargar Word
                                             <FileEarmarkWord className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                         </Button> */}
-                                    </div>
-                                    {/* Frame para vista previa del PDF */}
-                                    <iframe
-                                        src={url ? `${url}` : ""}
-                                        title="Vista Previa del PDF"
-                                        style={{
-                                            width: "100%",
-                                            height: "900px",
-                                            border: "none"
-                                        }}
-                                    ></iframe>
-                                </>
+                                        </div>
+                                        {/* Frame para vista previa del PDF */}
+                                        <iframe
+                                            src={url ? `${url}` : ""}
+                                            title="Vista Previa del PDF"
+                                            style={{
+                                                width: "100%",
+                                                height: "900px",
+                                                border: "none"
+                                            }}
+                                        ></iframe>
+                                    </>
 
-                            )
-                        }
-                    </BlobProvider>
+                                )
+                            }
+                        </BlobProvider>
+                    </form>
                 </Modal.Body>
             </Modal>
         </Layout >
@@ -684,10 +899,12 @@ const mapStateToProps = (state: RootState) => ({
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
     objeto: state.validaApiLoginReducers,
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
     nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {
     listaFolioServicioDependenciaActions,
+    obtenerfirmasAltasActions,
     comboServicioInformeActions
 })(FolioPorServicioDependencia);

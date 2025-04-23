@@ -311,8 +311,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       text: `Su formulario ha sido registrado exitosamente. Presione "OK" para visualizar un resumen de los datos ingresados.`,
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-      customClass: { popup: "custom-border" },
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      customClass: {
+        popup: "custom-border", // Clase personalizada para el borde
+      },
       allowOutsideClick: false,
       showCancelButton: false, // Agrega un segundo botón
       cancelButtonText: "Cerrar", // Texto del botón
@@ -322,7 +324,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     }).then((result) => {
       if (result.isConfirmed) {
         setModalMostrarResumen(true);
-        // dispatch(setInventarioRegistrado(0));
+        dispatch(setInventarioRegistrado(0));
       }
       // else if (result.dismiss === Swal.DismissReason.cancel) {
       //   dispatch(setInventarioRegistrado(0));
@@ -332,7 +334,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
   // Muestra la alerta solo si resultadoRegistro es 1
   useEffect(() => {
-    dispatch(setInventarioRegistrado(1));
+    // dispatch(setInventarioRegistrado(1));
     // setModalMostrarResumen(true);
     if (resultadoRegistro === 1) {
       for (let i = 0; i < comboDependencia.length; i++) {
@@ -491,6 +493,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       pdf.save("Resumen_Inventario.pdf");
     });
   };
+
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -774,8 +777,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           <Modal.Title className="fw-semibold">Resumen de Ingreso de Inventario</Modal.Title>
         </Modal.Header>
 
-        <div className="d-flex justify-content-end p-4 border-bottom">
-          <Button variant="primary" onClick={handleExportPDF}>
+        <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
             Exportar a PDF
           </Button>
         </div>
@@ -939,8 +942,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </table>
           </div>
         </Modal.Body>
-
-        <Modal.Footer></Modal.Footer>
       </Modal>
     </>
   );
