@@ -303,6 +303,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       }
     }
   };
+
   const mostrarAlerta = () => {
     document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
     Swal.fire({
@@ -341,7 +342,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         const dep_corr_n = comboDependencia[i].codigo;
         if (listaServicioNombre.length === 0) {
           obtenerServicioNombreActions(dep_corr_n); //consulta nombre servicio por dep_corr
-          console.log(dep_corr_n);
+          // console.log(dep_corr_n);
         }
         break;
       }

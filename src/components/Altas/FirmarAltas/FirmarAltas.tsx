@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Pagination, Form, Modal, Col, Row, Collapse } from "react-bootstrap";
+import { Pagination, Form, Modal, Col, Row, Collapse, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 // import Swal from "sweetalert2";
 // import SignatureCanvas from 'react-signature-canvas';
@@ -16,8 +16,15 @@ import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAl
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
 import { Objeto } from "../../Navegacion/Profile";
 import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
-
-
+import { Eraser, Search } from "react-bootstrap-icons";
+import Swal from "sweetalert2";
+const classNames = (...classes: (string | boolean | undefined)[]): string => {
+    return classes.filter(Boolean).join(" ");
+};
+interface FechasProps {
+    fDesde: string;
+    fHasta: string;
+}
 export interface ListaAltas {
     aF_CLAVE: number,
     ninv: string,
@@ -75,6 +82,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     // const [filaActiva, setFilaActiva] = useState<listaAltasRegistradas | null>(null);
     //------------Fin Modal----------//
     const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
+    const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
     // const sigCanvas = useRef<SignatureCanvas>(null);
@@ -92,6 +100,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     // const handleSignatureEnd = () => {
     //     setIsSigned(sigCanvas.current ? !sigCanvas.current.isEmpty() : false);
     // };
+    const [Inventario, setInventario] = useState({
+        fDesde: "",
+        fHasta: "",
+        altaS_CORR: 0,
+        af_codigo_generico: ""
+    });
 
     const [AltaInventario, setAltaInventario] = useState({
         unidadAdministrativa: null,
@@ -109,6 +123,34 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         visadoInventario: "",
         visadoFinanzas: ""
     });
+
+    const validate = () => {
+        let tempErrors: Partial<any> & {} = {};
+        if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
+
+        setError(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+        const { name, value } = e.target;
+        // Validación específica para af_codigo_generico: solo permitir números
+        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+            return; // Salir si contiene caracteres no numéricos
+        }
+
+        // Convertir a número solo si el campo está en la lista
+        const camposNumericos = ["altaS_CORR"];
+        const newValue: string | number = camposNumericos.includes(name)
+            ? parseFloat(value) || 0
+            : value;
+
+        // Actualizar estado
+        setInventario((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
+    };
 
     function detectarTipo(base64: string): string {
         if (base64.startsWith("/9j/")) return "jpeg";
@@ -194,16 +236,47 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         setAltaInventario(updatedState);
     }, [AltaInventario, datosFirmas, objeto]);
 
-    // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    //     e.preventDefault();
-    //     if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-    //         const firma = sigCanvas.current.toDataURL('image/png'); //capta la firma dibujada en una imagen
-    //         setSignatureImage(firma);// Asigna la imagen al estado para poder renderizarlo
-    //     } else {
-    //         setError((prev) => ({ ...prev, firma: "La firma es obligatoria." }));
-    //     }
-    // };
+    const handleBuscar = async () => {
+        let resultado = false;
+        setLoading(true);
 
+        if (Inventario.fDesde != "" || Inventario.fHasta != "") {
+            if (validate()) {
+                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+            }
+        }
+        else {
+            resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, Inventario.af_codigo_generico);
+        }
+        if (!resultado) {
+            Swal.fire({
+                icon: "error",
+                title: ":'(",
+                text: "No se encontraron resultados, inténte otro registro.",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            setLoading(false); //Finaliza estado de carga
+            return;
+        } else {
+            paginar(1);
+            setLoading(false); //Finaliza estado de carga
+        }
+
+    };
+    const handleLimpiar = () => {
+        setInventario((prevInventario) => ({
+            ...prevInventario,
+            fDesde: "",
+            fHasta: "",
+            af_codigo_generico: ""
+        }));
+    };
     const listaAltasAuto = async () => {
         if (token) {
             if (listaAltasRegistradas.length === 0) {
@@ -281,6 +354,87 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             <MenuAltas />
             <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>
+                <Row>
+                    <Col md={2}>
+                        <div className="mb-1">
+                            <label htmlFor="fDesde" className="fw-semibold">Desde</label>
+                            <input
+                                aria-label="fDesde"
+                                type="date"
+                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                                name="fDesde"
+                                onChange={handleChange}
+                                value={Inventario.fDesde}
+                            />
+                            {error.fDesde && (
+                                <div className="invalid-feedback d-block">{error.fDesde}</div>
+                            )}
+                        </div>
+                        <div className="mb-1">
+                            <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
+                            <input
+                                aria-label="fHasta"
+                                type="date"
+                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                name="fHasta"
+                                onChange={handleChange}
+                                value={Inventario.fHasta}
+                            />
+                            {error.fHasta && (
+                                <div className="invalid-feedback">{error.fHasta}</div>
+                            )}
+                        </div>
+
+                    </Col>
+                    <Col md={2}>
+                        <div className="mb-1">
+                            <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
+                            <input
+                                aria-label="af_codigo_generico"
+                                type="text"
+                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="af_codigo_generico"
+                                size={10}
+                                placeholder="Eje: 1000000008"
+                                onChange={handleChange}
+                                value={Inventario.af_codigo_generico}
+                            />
+                        </div>
+                    </Col>
+                    <Col md={5}>
+                        <div className="mb-1 mt-4">
+                            <Button onClick={handleBuscar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                {loading ? (
+                                    <>
+                                        {" Buscar"}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-1"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        {" Buscar"}
+                                        < Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                    </>
+                                )}
+                            </Button>
+                            <Button onClick={handleLimpiar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                Limpiar
+                                <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+
                 {loading ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (

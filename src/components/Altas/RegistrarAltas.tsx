@@ -44,9 +44,10 @@ interface DatosAltas {
   objeto: Objeto;
   nPaginacion: number; //número de paginas establecido desde preferencias
   listaSalidaAltas: ListaSalidaAltas[];
+  altasRegistradas: number;
 }
 
-const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltas, objeto, token, isDarkMode, nPaginacion, listaSalidaAltas }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltas, objeto, token, isDarkMode, nPaginacion, listaSalidaAltas, altasRegistradas }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -81,8 +82,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         dispatch(setAltasRegistradas(0));
       }
     });
-
-
   };
 
   const listaAltasAuto = async () => {
@@ -113,10 +112,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   useEffect(() => {
     // dispatch(setAltasRegistradas(1));
     // setModalMostrarResumen(true);
-    if (listaSalidaAltas.length > 0) {
+    if (altasRegistradas === 1) {
       mostrarAlerta();
     }
     listaAltasAuto();
+
   }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -151,6 +151,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
+      paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
 
@@ -527,7 +528,8 @@ const mapStateToProps = (state: RootState) => ({
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
   nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
-  listaSalidaAltas: state.datosAltaRegistradaReducers.listaSalidaAltas
+  listaSalidaAltas: state.datosAltaRegistradaReducers.listaSalidaAltas,
+  altasRegistradas: state.datosAltaRegistradaReducers.altasRegistradas
 });
 
 export default connect(mapStateToProps, {

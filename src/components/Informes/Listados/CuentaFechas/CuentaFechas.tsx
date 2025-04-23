@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import { BoxArrowDown, Eraser, FileEarmarkExcel, FileEarmarkWord, Search } from "react-bootstrap-icons";
+import { BoxArrowDown, Eraser, FileEarmarkExcel, Search } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import MenuListados from "../../../Menus/MenuListados";
 import Layout from "../../../../containers/hocs/layout/Layout";
@@ -14,7 +14,7 @@ import { comboCuentasInformeActions } from "../../../../redux/actions/Informes/L
 import { listaCuentaFechasActions } from "../../../../redux/actions/Informes/Listados/CuentasFechas/listaCuentaFechasActions";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
+// import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
 import DocumentoPDF from "./DocumentoPDFCuentaFechas";
 import { BlobProvider } from "@react-pdf/renderer";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -325,156 +325,156 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
     };
 
     // 📂 Función para exportar a Word
-    const exportarWord = () => {
-        setLoading(true);
-        const doc = new Document({
-            styles: {
-                paragraphStyles: [
-                    {
-                        id: "tableCellHeader",
-                        name: "tableCellHeader",
-                        basedOn: "Normal",
-                        run: {
-                            size: 10,
-                            color: "FFFFFF",
-                            bold: true,
-                        },
-                    },
-                    {
-                        id: "tableCell",
-                        name: "tableCell",
-                        basedOn: "Normal",
-                        run: {
-                            size: 10,
-                            bold: true,
-                        },
-                    },
-                ],
-            },
-            sections: [
-                {
-                    children: [
-                        new Paragraph({
-                            text: "Reporte articulos por cuentas",
-                            heading: "Heading1",
-                        }),
-                        new Table({
-                            width: { size: 100, type: WidthType.PERCENTAGE },
-                            rows: [
-                                // Encabezado de la tabla
-                                new TableRow({
-                                    children: [
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Código Cuenta", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        // new TableCell({
-                                        //     children: [new Paragraph({ text: "Cuenta", style: "tableCellHeader" })],
-                                        //     shading: { fill: "004485" },
-                                        // }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Código Inventario", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Fecha Ingreso", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Marca", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Serie", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "N° Alta", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "N° OCO", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "N° Factura", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Proveedor", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Establecimiento", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Destino", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Valor Inicial", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Depreciación", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Depreciación Acumulada", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
-                                        new TableCell({
-                                            children: [new Paragraph({ text: "Valor Libro", style: "tableCellHeader" })],
-                                            shading: { fill: "004485" },
-                                        }),
+    // const exportarWord = () => {
+    //     setLoading(true);
+    //     const doc = new Document({
+    //         styles: {
+    //             paragraphStyles: [
+    //                 {
+    //                     id: "tableCellHeader",
+    //                     name: "tableCellHeader",
+    //                     basedOn: "Normal",
+    //                     run: {
+    //                         size: 10,
+    //                         color: "FFFFFF",
+    //                         bold: true,
+    //                     },
+    //                 },
+    //                 {
+    //                     id: "tableCell",
+    //                     name: "tableCell",
+    //                     basedOn: "Normal",
+    //                     run: {
+    //                         size: 10,
+    //                         bold: true,
+    //                     },
+    //                 },
+    //             ],
+    //         },
+    //         sections: [
+    //             {
+    //                 children: [
+    //                     new Paragraph({
+    //                         text: "Reporte articulos por cuentas",
+    //                         heading: "Heading1",
+    //                     }),
+    //                     new Table({
+    //                         width: { size: 100, type: WidthType.PERCENTAGE },
+    //                         rows: [
+    //                             // Encabezado de la tabla
+    //                             new TableRow({
+    //                                 children: [
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Código Cuenta", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     // new TableCell({
+    //                                     //     children: [new Paragraph({ text: "Cuenta", style: "tableCellHeader" })],
+    //                                     //     shading: { fill: "004485" },
+    //                                     // }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Especie", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Código Inventario", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Fecha Ingreso", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Marca", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Serie", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "N° Alta", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "N° OCO", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "N° Factura", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Proveedor", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Establecimiento", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Destino", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Valor Inicial", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Depreciación", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Depreciación Acumulada", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
+    //                                     new TableCell({
+    //                                         children: [new Paragraph({ text: "Valor Libro", style: "tableCellHeader" })],
+    //                                         shading: { fill: "004485" },
+    //                                     }),
 
-                                    ],
-                                }),
-                                // Filas dinámicas con datos
-                                ...listaCuentaFechas.map((item) =>
-                                    new TableRow({
-                                        children: [
-                                            new TableCell({ children: [new Paragraph({ text: item.codcuenta, style: "tableCell" })] }),
-                                            // new TableCell({ children: [new Paragraph({ text: item.cuenta, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.codinventario, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.fechaingreso, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.marca, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.serie, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.nuM_ALTA.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.nuM_OCO, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.nuM_FAC, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.proveedor, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.establecimiento, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.destino, style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.valorinicial.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.depreciacion.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.depreciacionacumulada.toString(), style: "tableCell" })] }),
-                                            new TableCell({ children: [new Paragraph({ text: item.valorlibro.toString(), style: "tableCell" })] }),
+    //                                 ],
+    //                             }),
+    //                             // Filas dinámicas con datos
+    //                             ...listaCuentaFechas.map((item) =>
+    //                                 new TableRow({
+    //                                     children: [
+    //                                         new TableCell({ children: [new Paragraph({ text: item.codcuenta, style: "tableCell" })] }),
+    //                                         // new TableCell({ children: [new Paragraph({ text: item.cuenta, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.especie, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.codinventario, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.fechaingreso, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.marca, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.serie, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.nuM_ALTA.toString(), style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.nuM_OCO, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.nuM_FAC, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.proveedor, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.establecimiento, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.destino, style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.valorinicial.toString(), style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.depreciacion.toString(), style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.depreciacionacumulada.toString(), style: "tableCell" })] }),
+    //                                         new TableCell({ children: [new Paragraph({ text: item.valorlibro.toString(), style: "tableCell" })] }),
 
-                                        ],
-                                    })
-                                ),
-                            ],
-                        }),
-                    ],
-                },
-            ],
-        });
+    //                                     ],
+    //                                 })
+    //                             ),
+    //                         ],
+    //                     }),
+    //                 ],
+    //             },
+    //         ],
+    //     });
 
-        Packer.toBlob(doc).then((blob) => {
-            saveAs(blob, `Reporte_ArticulosPorCuentas.docx`);
-            setLoading(false); //evita que quede cargando
-        }).catch(() => {
-            // console.error("Error al generar el documento:", error);
-            setLoading(false);
-        });
-    };
+    //     Packer.toBlob(doc).then((blob) => {
+    //         saveAs(blob, `Reporte_ArticulosPorCuentas.docx`);
+    //         setLoading(false); //evita que quede cargando
+    //     }).catch(() => {
+    //         // console.error("Error al generar el documento:", error);
+    //         setLoading(false);
+    //     });
+    // };
     return (
         <Layout>
             <Helmet>

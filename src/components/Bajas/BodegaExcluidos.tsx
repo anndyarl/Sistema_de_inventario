@@ -373,6 +373,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
+      paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
 

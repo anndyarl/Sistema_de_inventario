@@ -88,7 +88,7 @@ const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
                         onChange={handleChange}
                         value={nPaginacion || 10}
                     >
-                        {[10, 15, 20, 25, 50, 100, 150, 200].map((val) => (
+                        {[10, 15, 20, 25, 50, 100].map((val) => (
                             <option key={val} value={val}>{val}</option>
                         ))}
                     </select>

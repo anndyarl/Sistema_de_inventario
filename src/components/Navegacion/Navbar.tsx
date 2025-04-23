@@ -39,7 +39,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         { name: 'Cuentas Fechas', path: '/Informes/Listados/CuentaFechas' },
         { name: 'Folio Por Servicio Dependencia', path: '/Informes/FolioPorServicioDependencia' },
         { name: 'Consulta Inventario Especies', path: '/Informes/ConsultaInventarioEspecies' },
-        { name: 'Calcular Depreciacion', path: '/Informes/CalcularDepreciacion' }
+        { name: 'Calcular Depreciación', path: '/Informes/CalcularDepreciacion' }
     ];
 
     // Filtra las rutas basadas en la búsqueda
@@ -88,7 +88,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
                 <Search className={classNames("mx-2 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                 <input
                     type="text"
-                    className={`form-select rounded-4 ${isDarkMode ? "bg-dark text-light " : ""}`}
+                    className={`form-select rounded-4 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     placeholder="Buscar"
                     value={search}
                     size={40}
@@ -102,7 +102,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
                         {filteredRoutes.map((route) => (
                             <li
                                 key={route.path}
-                                className="list-group-item list-group-item-action "
+                                className={`list-group-item list-group-item-action ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 onClick={() => handleSelectRoute(route.path)}
                             >
                                 {route.name}

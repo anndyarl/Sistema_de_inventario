@@ -17,6 +17,10 @@ const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
 
+interface FechasProps {
+    fDesde: string;
+    fHasta: string;
+}
 export interface ListaEtiquetas {
     aF_CODIGO_LARGO: string,
     aF_DESCRIPCION: string,
@@ -27,7 +31,7 @@ export interface ListaEtiquetas {
 }
 
 export interface DatosBajas {
-    obtenerEtiquetasAltasActions: (af_codigo_generico: string) => Promise<boolean>;
+    obtenerEtiquetasAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string) => Promise<boolean>;
     listaEtiquetas: ListaEtiquetas[];
     token: string | null;
     isDarkMode: boolean;
@@ -41,8 +45,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     //------------Fin Modal----------//
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
+    const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const elementosPorPagina = nPaginacion;
     const [Inventario, setInventario] = useState({
+        fDesde: "",
+        fHasta: "",
         af_codigo_generico: ""
     });
     const [listaConQR, setListaConQR] = useState<ListaEtiquetas[]>([]);
@@ -51,7 +58,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         if (token) {
             setLoading(true);
             try {
-                const resultado = await obtenerEtiquetasAltasActions(Inventario.af_codigo_generico);
+                const resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico);
                 if (!resultado) {
                     throw new Error("Error al cargar la lista de bajas");
                 }
@@ -79,29 +86,47 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         }
     }, [listaEtiquetas]);
 
+    const validate = () => {
+        let tempErrors: Partial<any> & {} = {};
+        if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
+
+        setError(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        // Si el campo es "af_codigo_generico", validamos que solo tenga números
-        if (name === "af_codigo_generico") {
-            // Solo números usando una expresión regular
-            const soloNumeros = /^[0-9]*$/;
-
-            if (!soloNumeros.test(value)) {
-                return; // No actualiza el estado si hay caracteres inválidos
-            }
-
-            setInventario((prevState) => ({
-                ...prevState,
-                [name]: value,
-            }));
-            return;
+        // Validación específica para af_codigo_generico: solo permitir números
+        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+            return; // Salir si contiene caracteres no numéricos
         }
+
+        // Convertir a número solo si el campo está en la lista
+        const camposNumericos = ["af_codigo_generico"];
+        const newValue: string | number = camposNumericos.includes(name)
+            ? parseFloat(value) || 0
+            : value;
+
+        // Actualizar estado
+        setInventario((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
     };
+
 
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
-        resultado = await obtenerEtiquetasAltasActions(Inventario.af_codigo_generico);
+
+        if (Inventario.fDesde != "" || Inventario.fHasta != "") {
+            if (validate()) {
+                resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico);
+            }
+        }
+        else {
+            resultado = await obtenerEtiquetasAltasActions("", "", Inventario.af_codigo_generico);
+        }
         if (!resultado) {
             Swal.fire({
                 icon: "error",
@@ -127,7 +152,9 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const handleLimpiar = () => {
         setInventario((prevInventario) => ({
             ...prevInventario,
-            af_codigo_generico: ""
+            af_codigo_generico: "",
+            fDesde: "",
+            fHasta: ""
         }));
     };
 
@@ -244,12 +271,43 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     return (
         <Layout>
             <Helmet>
-                <title>Imprimir etiquetas</title>
+                <title>Imprimir Etiquetas</title>
             </Helmet>
             <MenuAltas />
             <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                <h3 className="form-title fw-semibold border-bottom p-1">Imprimir etiquetas</h3>
+                <h3 className="form-title fw-semibold border-bottom p-1">Imprimir Etiquetas</h3>
                 <Row>
+                    <Col md={2}>
+                        <div className="mb-1">
+                            <label htmlFor="fDesde" className="fw-semibold">Desde</label>
+                            <input
+                                aria-label="fDesde"
+                                type="date"
+                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                                name="fDesde"
+                                onChange={handleChange}
+                                value={Inventario.fDesde}
+                            />
+                            {error.fDesde && (
+                                <div className="invalid-feedback d-block">{error.fDesde}</div>
+                            )}
+                        </div>
+                        <div className="mb-1">
+                            <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
+                            <input
+                                aria-label="fHasta"
+                                type="date"
+                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                name="fHasta"
+                                onChange={handleChange}
+                                value={Inventario.fHasta}
+                            />
+                            {error.fHasta && (
+                                <div className="invalid-feedback">{error.fHasta}</div>
+                            )}
+                        </div>
+
+                    </Col>
                     <Col md={2}>
                         <div className="mb-1">
                             <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
@@ -372,7 +430,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
                                             <td className="text-nowrap">{fila.aF_NCUENTA}</td>
                                             <td className="text-nowrap">{fila.aF_UBICACION}</td>
-                                            <td className="text-nowrap text-center">
+                                            <td className="text-nowrap">
                                                 <QRCodeSVG
                                                     value={`Cod. Bien: ${fila.aF_CODIGO_LARGO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA}`}
                                                     size={50}

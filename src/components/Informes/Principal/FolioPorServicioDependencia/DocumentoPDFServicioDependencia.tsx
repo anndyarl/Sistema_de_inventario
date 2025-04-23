@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     firmaContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 300,
+        marginTop: 100,
         paddingHorizontal: 20,
     },
     firmaBox: {

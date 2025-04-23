@@ -1,18 +1,15 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import ssmso_logo from "../../../assets/img/SSMSO-LOGO.png"
-import ago from "../../../assets/img/ago.jpg"
-import { Container } from 'react-bootstrap';
 import { ListaEtiquetas } from './ImprimirEtiqueta';
 
 
 // Formatear la fecha actual en español (Chile)
-const fechaHoy = new Date()
-    .toLocaleDateString('es-CL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    })
-    .replace(/-/g, '/');
+// const fechaHoy = new Date()
+//     .toLocaleDateString('es-CL', {
+//         day: '2-digit',
+//         month: '2-digit',
+//         year: 'numeric',
+//     })
+//     .replace(/-/g, '/');
 
 const styles = StyleSheet.create({
     page: {

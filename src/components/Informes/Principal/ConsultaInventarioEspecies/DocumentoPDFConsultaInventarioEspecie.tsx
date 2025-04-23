@@ -65,7 +65,7 @@ const DocumentoPDF = ({ row }: { row: ListaInvenarioEspecies }) => (
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Cuenta</Text><Text style={styles.tableCellNoBorder}>{row.ctA_COD}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Nº Inventario</Text><Text style={styles.tableCellNoBorder}>{row.aF_CODIGO_GENERICO}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCell}>Traspaso</Text><Text style={styles.tableCell}>{row.traS_CORR}</Text></View>
-                <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Especie</Text><Text style={styles.tableCellNoBorder}>{row.especie}</Text></View>
+                <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Especie</Text><Text style={styles.tableCellNoBorder}>{row.especie.split('/')[0]}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Marca</Text><Text style={styles.tableCellNoBorder}>{row.deT_MARCA}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Modelo</Text><Text style={styles.tableCellNoBorder}>{row.deT_MODELO}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Serie</Text><Text style={styles.tableCellNoBorder}>{row.deT_SERIE}</Text></View>

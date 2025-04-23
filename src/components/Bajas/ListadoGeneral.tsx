@@ -260,6 +260,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
+      paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
 

@@ -42,6 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, co
     return <Navigate to="/" />;
   }
 
+  //Buscar mejor solución para quitar token y autentificación si no encuentra
   if (comboEstablecimiento.length === 0) {
     comboEstablecimientosProfileActions();
   }

@@ -163,13 +163,13 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
     }));
   };
 
-  const handleAnular = async (index: number, aF_CLAVE: string) => {
+  const handleAnular = async (index: number, aF_CLAVE: string, aF_CODIGO_GENERICO: string) => {
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
 
     const result = await Swal.fire({
       icon: "info",
       title: "Anular Registro",
-      text: `Confirma anular el registro Nº ${aF_CLAVE}`,
+      text: `Confirma anular el registro Nº ${aF_CODIGO_GENERICO}`,
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Anular",
@@ -187,7 +187,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
         Swal.fire({
           icon: "success",
           title: "Registro anulado",
-          text: `Se ha anulado el registro Nº ${aF_CLAVE}.`,
+          text: `Se ha anulado el registro Nº ${aF_CODIGO_GENERICO}.`,
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
@@ -402,7 +402,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                             variant="outline-danger"
                             className="fw-semibold"
                             size="sm"
-                            onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE)}
+                            onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE, datosListaInventario.aF_CODIGO_GENERICO)}
                           >
                             Anular
                           </Button>
