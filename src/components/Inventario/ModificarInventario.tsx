@@ -78,7 +78,7 @@ import { Objeto } from "../Navegacion/Profile";
 // }
 
 export interface InventarioCompleto {
-  AF_CLAVE: number; // nRecepcion
+  aF_CODIGO_GENERICO: string;
   AF_FECHA_SOLICITUD: string; // fechaRecepcion 
   AF_OCO_NUMERO_REF: number // nOrdenCompra
   AF_NUM_FAC: string; // nFactura
@@ -112,7 +112,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboProveedor: PROVEEDOR[];
 
   comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
-  obtenerInventarioActions: (AF_CLAVE: number) => Promise<boolean>;
+  obtenerInventarioActions: (af_codigo_generico: string) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
   comboCuentaActions: (nombreEspecie: string) => void;
@@ -133,7 +133,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboDetalle,
   comboProveedor,
   listaEspecie,
-  AF_CLAVE, // nRecepcion
+  aF_CODIGO_GENERICO, // nRecepcion
   AF_FECHA_SOLICITUD,// fechaRecepcion 
   AF_OCO_NUMERO_REF, // nOrdenCompra
   AF_NUM_FAC,// nFactura
@@ -187,7 +187,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     descripcionEspecie: "",
   });
   const [Inventario, setInventario] = useState({
-    AF_CLAVE: 0, // nRecepcion
+    aF_CODIGO_GENERICO: "",
     AF_FECHA_SOLICITUD: "", // fechaRecepcion
     AF_OCO_NUMERO_REF: 0, // nOrdenCompra
     USUARIO_MOD: objeto.IdCredencial,
@@ -214,7 +214,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.AF_CLAVE) tempErrors.AF_CLAVE = "Campo obligatorio";
+    if (!Inventario.aF_CODIGO_GENERICO) tempErrors.aF_CODIGO_GENERICO = "Campo obligatorio";
     if (!Inventario.AF_FECHA_SOLICITUD) tempErrors.AF_FECHA_SOLICITUD = "Campo obligatorio";
     if (!Inventario.AF_OCO_NUMERO_REF || Inventario.AF_OCO_NUMERO_REF == 0)
       tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
@@ -238,7 +238,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
     setInventario({
-      AF_CLAVE, // nRecepcion
+      aF_CODIGO_GENERICO, // nRecepcion
       AF_FECHA_SOLICITUD,// fechaRecepcion 
       AF_OCO_NUMERO_REF, // nOrdenCompra
       USUARIO_MOD: objeto.IdCredencial,
@@ -268,7 +268,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       // console.log("Código de especie seleccionado:", ESP_CODIGOs.codigoESP_CODIGO);
     }
   }, [
-    AF_CLAVE, // nRecepcion
+    aF_CODIGO_GENERICO, // nRecepcion
     AF_FECHA_SOLICITUD,//fechaRecepcion 
     AF_OCO_NUMERO_REF, //nOrdenCompra
     AF_NUM_FAC, //nFactura
@@ -294,8 +294,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
+    if (name === "aF_CODIGO_GENERICO" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
+    }
+
     let newValue: string | number = [
-      "AF_CLAVE",
       "IDMODALIDADCOMPRA", //modalidadDeCompra
       "AF_MONTOFACTURA",//montoRecepcion     
       "AF_ORIGEN", //origenPresupuesto
@@ -411,7 +415,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     let resultado = false;
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
-    if (!Inventario.AF_CLAVE || Inventario.AF_CLAVE === 0) {
+    if (!Inventario.aF_CODIGO_GENERICO || Inventario.aF_CODIGO_GENERICO === "") {
       Swal.fire({
         icon: "warning",
         title: "Por favor, ingrese un número de inventario",
@@ -426,7 +430,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setLoading(false); //Finaliza estado de carga
       return;
     }
-    resultado = await obtenerInventarioActions(Inventario.AF_CLAVE);
+    resultado = await obtenerInventarioActions(Inventario.aF_CODIGO_GENERICO);
     if (!resultado) {
       Swal.fire({
         icon: "error",
@@ -534,13 +538,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 </label>
                 <div className="d-flex align-items-center">
                   <input
-                    aria-label="AF_CLAVE"
+                    aria-label="aF_CODIGO_GENERICO"
                     type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_CLAVE ? "is-invalid" : ""}`}
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CODIGO_GENERICO ? "is-invalid" : ""}`}
                     maxLength={12}
-                    name="AF_CLAVE"
+                    name="aF_CODIGO_GENERICO"
                     onChange={handleChange}
-                    value={Inventario.AF_CLAVE}
+                    value={Inventario.aF_CODIGO_GENERICO}
                     disabled={isDisabledNRecepcion}
                   />
                   <Button
@@ -577,7 +581,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     />
                   </Button>
                 </div>
-                {error.AF_CLAVE && (<div className="invalid-feedback fw-semibold d-block">{error.AF_CLAVE}
+                {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
                 </div>
                 )}
               </div>
@@ -1179,7 +1183,7 @@ const mapStateToProps = (state: RootState) => ({
   descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
-  AF_CLAVE: state.obtenerInventarioReducers.aF_CLAVE,// nRecepcion
+  aF_CODIGO_GENERICO: state.obtenerInventarioReducers.aF_CODIGO_GENERICO,// nRecepcion
   AF_FECHA_SOLICITUD: state.obtenerInventarioReducers.aF_FECHA_SOLICITUD,// fechaRecepcion 
   AF_OCO_NUMERO_REF: state.obtenerInventarioReducers.aF_OCO_NUMERO_REF, // nOrdenCompra
   AF_NUM_FAC: state.obtenerInventarioReducers.aF_NUM_FAC,// nFactura

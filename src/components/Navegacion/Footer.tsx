@@ -2,7 +2,7 @@ import { Database, Gear, Git, Info } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect } from 'react-redux';
 import { Col, Modal, Row } from 'react-bootstrap';
-import Versionamiento from '../Configuracion/Versionamiento';
+import Versionamiento, { ListaVersionamiento } from '../Configuracion/Versionamiento';
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -12,10 +12,11 @@ import General from '../Configuracion/General';
 import Datos from '../Configuracion/Datos';
 // import Firma from '../Configuracion/Firma';
 // import Indicadores from '../Configuracion/Indicadores';
-interface DarkMode {
+interface Props {
     isDarkMode: boolean;
+    listaVersionamiento: ListaVersionamiento[];
 }
-const Footer: React.FC<DarkMode> = ({ isDarkMode }) => {
+const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode }) => {
     const Ambiente = import.meta.env.VITE_AMBIENTE;
 
     const [mostrarModal, setMostrarModal] = useState(false);
@@ -35,6 +36,7 @@ const Footer: React.FC<DarkMode> = ({ isDarkMode }) => {
         };
 
         return (
+
             <Row>
                 <Col md={4}>
                     {navigation.map((item) => (
@@ -59,6 +61,7 @@ const Footer: React.FC<DarkMode> = ({ isDarkMode }) => {
             </Row >
         );
     };
+    const version = listaVersionamiento[0]?.numerO_VERSION || "";
     return (
         <>
             <footer className={`p-3 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
@@ -66,7 +69,7 @@ const Footer: React.FC<DarkMode> = ({ isDarkMode }) => {
                     <Info className="mx-1 h-4 w-4" aria-hidden="true" />
                     <p className='fs-09em'>
                         Copyright © 2025 Todos los derechos reservados SSMSO. <b className='text-warning'>{Ambiente}</b>
-                        <a onClick={() => setMostrarModal(true)} className={`fw-normal mx-1 text-decoration-none`} style={{ cursor: "pointer" }}><b className={`fw-semibold ${isDarkMode ? "text-white" : "text-dark"}`}>v0.0.0.1</b></a>
+                        <a onClick={() => setMostrarModal(true)} className={`fw-normal mx-1 text-decoration-none`} style={{ cursor: "pointer" }}><b className={`fw-semibold ${isDarkMode ? "text-white" : "text-dark"}`}>{version}</b></a>
                     </p>
                 </div>
             </footer>
@@ -85,9 +88,9 @@ const Footer: React.FC<DarkMode> = ({ isDarkMode }) => {
 }
 //mapea los valores del estado global de Redux
 const mapStateToProps = (state: RootState) => ({
-    isDarkMode: state.darkModeReducer.isDarkMode
+    isDarkMode: state.darkModeReducer.isDarkMode,
+    listaVersionamiento: state.listaVersionamientoReducers.listaVersionamiento,
 });
 
 export default connect(mapStateToProps, {
-
 })(Footer);

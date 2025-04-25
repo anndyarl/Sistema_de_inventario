@@ -291,4 +291,3 @@ export default connect(mapStateToProps, {
   logout,
   indicadoresActions
 })(Profile);
-

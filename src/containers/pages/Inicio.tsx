@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Layout from "../hocs/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
@@ -8,25 +8,38 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Signature } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import { listaVersionamientoActions } from "../../redux/actions/Configuracion/listaVersionamientoActions";
+import { ListaVersionamiento } from "../../components/Configuracion/Versionamiento";
 
-interface Props {
-  isDarkMode: boolean;
-}
+
 interface NavItem {
   name: string;
   descripcion: string;
   href: string;
   title: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+
+}
+interface Props {
+  isDarkMode: boolean;
+  listaVersionamientoActions: () => void;
+  listaVersionamiento: ListaVersionamiento[];
+
 }
 
-const Inicio: React.FC<Props> = ({ isDarkMode }) => {
+const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamiento, isDarkMode }) => {
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
     // in: { opacity: 1, scale: 1 },
     initial: { opacity: 0, x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
     in: { opacity: 1, x: 0, }, // Llega a opacidad completa y posición natural
   };
+
+  useEffect(() => {
+    if (listaVersionamiento.length === 0) { listaVersionamientoActions() }
+
+
+  }, [listaVersionamiento, listaVersionamientoActions])
 
   const pageTransition = {
     type: "tween",
@@ -48,6 +61,7 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
     { descripcion: 'Registre el traslados de sus bienes.', name: 'RegistrarTraslados', title: 'Registrar Traslados', href: '/Traslados/RegistrarTraslados', icon: PlusCircle },
 
   ];
+
   return (
     <Layout>
       <Helmet>
@@ -85,9 +99,10 @@ const Inicio: React.FC<Props> = ({ isDarkMode }) => {
 
 
 const mapStateToProps = (state: RootState) => ({
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  listaVersionamiento: state.listaVersionamientoReducers.listaVersionamiento
 });
 
 export default connect(mapStateToProps, {
-
+  listaVersionamientoActions
 })(Inicio);

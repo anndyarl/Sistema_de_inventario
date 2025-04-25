@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../../redux/reducers";
 import Sidebar from "../../../components/Navegacion/Sidebar";
@@ -15,6 +15,8 @@ import { Container } from "react-bootstrap";
 import { AnimatePresence, motion } from "framer-motion";
 import { comboEstablecimientosProfileActions } from "../../../redux/actions/auth/comboEstablecimientosProfileActions.js";
 import Footer from "../../../components/Navegacion/Footer.js";
+import { listaVersionamientoActions } from "../../../redux/actions/Configuracion/listaVersionamientoActions.js";
+import { ListaVersionamiento } from "../../../components/Configuracion/Versionamiento.js";
 
 interface ESTABLECIMIENTO {
   codigo: number;
@@ -25,7 +27,6 @@ interface LayoutProps {
   comboEstablecimiento: ESTABLECIMIENTO[];
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
-
   comboEstablecimientosProfileActions: () => Promise<boolean>;
 }
 
@@ -42,12 +43,11 @@ const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, co
     return <Navigate to="/" />;
   }
 
+
   //Buscar mejor solución para quitar token y autentificación si no encuentra
   if (comboEstablecimiento.length === 0) {
     comboEstablecimientosProfileActions();
   }
-
-
 
   // Efectos de transición para la apertura del sidebar en móviles
   const sidebarVariants = {
@@ -124,5 +124,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-  comboEstablecimientosProfileActions
+  comboEstablecimientosProfileActions,
+  listaVersionamientoActions
 })(Layout);

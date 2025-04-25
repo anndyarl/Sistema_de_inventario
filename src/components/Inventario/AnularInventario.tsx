@@ -335,7 +335,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       <th scope="col" className="text-nowrap text-center">Cantidad</th>
                       <th scope="col" className="text-nowrap text-center">Descripción</th>
                       {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                      <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th>
+                      <th scope="col" className="text-nowrap text-center">Fecha Recepción</th>
                       <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
                       <th scope="col" className="text-nowrap text-center">Monto Factura</th>
                       <th scope="col" className="text-nowrap text-center">Nº de Factura</th>

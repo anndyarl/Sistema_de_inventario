@@ -4,7 +4,7 @@ import { RootState } from "../../store";
 import { listaVersionamientoActions } from "../../redux/actions/Configuracion/listaVersionamientoActions";
 import { Pagination } from "react-bootstrap";
 
-interface ListaVersionamiento {
+export interface ListaVersionamiento {
     numerO_VERSION: number;
     cambios: string;
     fecha: number;
@@ -13,12 +13,11 @@ interface ListaVersionamiento {
 interface Props {
     isDarkMode: boolean;
     listaVersionamiento: ListaVersionamiento[];
-    nPaginacion: number; //número de paginas establecido desde preferencias
     listaVersionamientoActions: () => void;
 }
-const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMode, listaVersionamiento, nPaginacion }) => {
+const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMode, listaVersionamiento }) => {
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = nPaginacion;
+    const elementosPorPagina = 5;
 
 
     useEffect(() => {
@@ -38,6 +37,8 @@ const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMod
         ? Math.ceil(listaVersionamiento.length / elementosPorPagina)
         : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+
+    const version = listaVersionamiento[0]?.numerO_VERSION || "";
     return (
         <>
             {/* Solo es un ejemplo pero no significa que se tomara este tipo de versionamiento
@@ -62,7 +63,7 @@ const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMod
                 */}
 
             <div className="border-bottom p-2">
-                <p className="mb-2 fw-semibold">Versión Actual: 0.0.0.1</p>
+                <p className="mb-2 fw-semibold">Versión Actual: {version}</p>
                 <p>Nuevo sistema de inventario desarrollado, diseñado y elaborado por el Departamento de Informática del Servicio de Salud Metropolitano Sur Oriente.
                     Esta versión inicial sienta las bases para una gestión eficiente de los recursos institucionales, proporcionando una plataforma moderna, eficiente y escalable que permitirá implementar futuras mejoras y funcionalidades adicionales.
                 </p>
@@ -86,7 +87,13 @@ const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMod
                                     <td className="text-nowrap">{Lista.numerO_VERSION}</td>
                                     <td className="text-nowrap">{Lista.cambios}</td>
                                     <td className="text-nowrap">{Lista.fecha}</td>
-                                    <td>{Lista.descripcion}</td>
+                                    <td>
+                                        {Lista.descripcion.split(/(?=(REQ_S\d+_\d+|FIX\d+|INC\d+))/).map((linea, index) => (
+                                            <div key={index}>
+                                                {linea.trim()}
+                                            </div>
+                                        ))}
+                                    </td>
                                 </tr>
                             );
                         })}
@@ -130,8 +137,7 @@ const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMod
 
 const mapStateToProps = (state: RootState) => ({
     isDarkMode: state.darkModeReducer.isDarkMode,
-    listaVersionamiento: state.listaVersionamientoReducers.listaVersionamiento,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    listaVersionamiento: state.listaVersionamientoReducers.listaVersionamiento
 });
 export default connect(mapStateToProps, {
     listaVersionamientoActions

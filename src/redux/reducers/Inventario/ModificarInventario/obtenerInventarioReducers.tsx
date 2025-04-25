@@ -10,7 +10,7 @@ import {
 interface obtenerInventarioState {
     loading: boolean;
     error: string | null;
-    aF_CLAVE: number; // nRecepcion
+    aF_CODIGO_GENERICO: string;
     aF_FECHA_SOLICITUD: string; // fechaRecepcion 
     aF_OCO_NUMERO_REF: number; // nOrdenCompra
     aF_NUM_FAC: string// nFactura
@@ -38,7 +38,7 @@ const initialState: obtenerInventarioState = {
     loading: false,
     error: null,
 
-    aF_CLAVE: 0, // nRecepcion
+    aF_CODIGO_GENERICO: "", // nRecepcion
     aF_FECHA_SOLICITUD: "", // fechaRecepcion 
     aF_OCO_NUMERO_REF: 0, // nOrdenCompra
     aF_NUM_FAC: "",// nFactura
@@ -66,7 +66,7 @@ const initialState: obtenerInventarioState = {
 const obtenerInventarioReducers = (state = initialState, action: any): obtenerInventarioState => {
     switch (action.type) {
         case 'SET_N_RECEPCION_MOD':
-            return { ...state, aF_CLAVE: action.payload };
+            return { ...state, aF_CODIGO_GENERICO: action.payload };
         case 'SET_FECHA_RECEPCION_MOD':
             return { ...state, aF_FECHA_SOLICITUD: action.payload };
         case 'SET_N_ORDEN_COMPRA_MOD':
@@ -117,7 +117,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
             return {
                 ...state,
                 loading: false,
-                aF_CLAVE: action.payload.aF_CLAVE,
+                aF_CODIGO_GENERICO: action.payload.aF_CODIGO_GENERICO,
                 aF_FECHA_SOLICITUD: action.payload.aF_FECHA_SOLICITUD,
                 aF_OCO_NUMERO_REF: action.payload.aF_OCO_NUMERO_REF,
                 aF_NUM_FAC: action.payload.aF_NUM_FAC,
