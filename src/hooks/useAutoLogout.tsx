@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store";
 import Swal from "sweetalert2";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { logout } from "../redux/actions/auth/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "../store"; // Ajusta la ruta a tu store de Redux
@@ -13,9 +13,8 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
     const dispatch = useDispatch<AppDispatch>();
     // Accede al estado global de Redux para el modo nocturno
     const isDarkMode = useSelector((state: RootState) => state.darkModeReducer.isDarkMode);
-
+    const navigate = useNavigate();
     useEffect(() => {
-
         //Inicializando auto logout
         const handleActivity = () => {
             //Si hay Actividad detectada, reinicia los temporizadores
@@ -72,6 +71,9 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 // Si se confirma, reiniciamos los temporizadores
                 if (result.isConfirmed) {
                     resetTimers(); // Reinicia los temporizadores si el usuario confirma
+                    const redirectUrl = import.meta.env.VITE_CSRF_CLAVE_UNICA;
+                    window.location.href = redirectUrl;
+                    navigate(`/ValidaPortal`);
                 }
                 // Si se presiona No, cerramos la sesión
                 else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -97,7 +99,6 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
             return <Navigate to="/" />;
         }, logoutTime);
     };
-
 
 
     return null; // No renderiza nada, es solo para la lógica

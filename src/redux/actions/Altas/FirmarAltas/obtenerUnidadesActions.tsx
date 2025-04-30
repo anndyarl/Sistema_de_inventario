@@ -5,6 +5,7 @@ import {
   OBTENER_UNIDADES_SUCCESS,
   OBTENER_UNIDADES_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const obtenerUnidadesActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -36,12 +37,12 @@ export const obtenerUnidadesActions = () => async (dispatch: Dispatch, getState:
         });
         return false;
       }
-    } catch (err) {
-
+    } catch (err: any) {
       dispatch({
         type: OBTENER_UNIDADES_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      dispatch({ type: LOGOUT });
       return false;
     }
   } else {

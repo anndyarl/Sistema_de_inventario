@@ -5,6 +5,7 @@ import {
   ANULAR_ALTAS_SUCCESS,
   ANULAR_ALTAS_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -35,12 +36,12 @@ export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (di
         });
         return false;
       }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    } catch (err: any) {
       dispatch({
         type: ANULAR_ALTAS_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      dispatch({ type: LOGOUT });
       return false;
     }
   } else {

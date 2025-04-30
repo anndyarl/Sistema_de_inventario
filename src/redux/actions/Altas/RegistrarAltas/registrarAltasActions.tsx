@@ -5,6 +5,7 @@ import {
   REGISTRAR_ALTAS_SUCCESS,
   REGISTRAR_ALTAS_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -38,12 +39,12 @@ export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async 
         });
         return false;
       }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    } catch (err: any) {
       dispatch({
         type: REGISTRAR_ALTAS_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      dispatch({ type: LOGOUT });
       return false;
     }
   } else {

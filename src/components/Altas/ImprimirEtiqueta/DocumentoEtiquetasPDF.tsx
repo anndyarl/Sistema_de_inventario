@@ -46,10 +46,14 @@ const styles = StyleSheet.create({
 const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[]; }) => (
     <Document>
         <Page style={styles.page}>
+
+            <Text >Cantidad de Etiquetas: {row.length}</Text>
+
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Fila de datos */}
                 {row.map((lista, index) => (
+
                     <View style={styles.tableRow} key={index}>
                         {lista.qrImage ? (
                             <Image src={lista.qrImage} style={{ ...styles.tableCell, flex: 1 }} />

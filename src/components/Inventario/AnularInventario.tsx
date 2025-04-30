@@ -11,9 +11,6 @@ import { anularInventarioActions } from "../../redux/actions/Inventario/AnularIn
 import MenuInventario from "../Menus/MenuInventario";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-  return classes.filter(Boolean).join(" ");
-};
 
 interface InventarioCompleto {
   aF_CLAVE: string;
@@ -120,7 +117,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
     }));
   };
 
-  const handleBuscarInventario = async () => {
+  const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
     //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
@@ -135,9 +132,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
 
     if (!resultado) {
       Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
+        icon: "warning",
+        title: "Inventario no encontrado",
+        text: "El Nº de Inventario consultado no existe o no ha sido dado de alta.",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -195,7 +192,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
             popup: "custom-border", // Clase personalizada para el borde
           }
         });
-        handleBuscarInventario();
+        handleBuscar();
       } else {
         Swal.fire({
           icon: "error",
@@ -237,56 +234,63 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
           <h3 className="form-title fw-semibold border-bottom p-1">
             Anular Inventario
           </h3>
-          <Row>
-            <Col md={2}>
-              <div className="mb-1">
-                <label htmlFor="fechaInicio" className="fw-semibold">Fecha Inicio</label>
-                <input
-                  aria-label="fechaInicio"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
-                  name="fechaInicio"
-                  onChange={handleChange}
-                  value={Inventario.fechaInicio}
-                />
-                {error.fechaInicio && (
-                  <div className="invalid-feedback fw-semibold d-block">{error.fechaInicio}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label htmlFor="fechaTermino" className="fw-semibold">Fecha Término</label>
-                <input
-                  aria-label="fechaTermino"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
-                  name="fechaTermino"
-                  onChange={handleChange}
-                  value={Inventario.fechaTermino}
-                />
-                {error.fechaTermino && (
-                  <div className="invalid-feedback fw-semibold">{error.fechaTermino}</div>
-                )}
-              </div>
-            </Col>
-            <Col md={2}>
-              <div className="mb-1">
-                <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
-                <input
-                  aria-label="af_codigo_generico"
-                  type="text"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="af_codigo_generico"
-                  size={10}
-                  placeholder="Eje: 1000000008"
-                  onChange={handleChange}
-                  value={Inventario.af_codigo_generico}
-                />
-              </div>
-            </Col>
+          <Row className="border rounded p-2 m-2">
             <Col md={3}>
+              <div className="mb-2">
+                <div className="flex-grow-1 mb-2">
+                  <label htmlFor="fechaInicio" className="form-label fw-semibold small">Desde</label>
+                  <div className="input-group">
+                    <input
+                      aria-label="Fecha Desde"
+                      type="date"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
+                      name="fechaInicio"
+                      onChange={handleChange}
+                      value={Inventario.fechaInicio}
+                    />
+                  </div>
+                  {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
+                </div>
+
+                <div className="flex-grow-1">
+                  <label htmlFor="fechaTermino" className="form-label fw-semibold small">Hasta</label>
+                  <div className="input-group">
+                    <input
+                      aria-label="Fecha Hasta"
+                      type="date"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
+                      name="fechaTermino"
+                      onChange={handleChange}
+                      value={Inventario.fechaTermino}
+                    />
+                  </div>
+                  {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
+
+                </div>
+                <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
+              </div>
+            </Col>
+
+            <Col md={3}>
+              <div className="mb-2">
+                <div className="mb-2">
+                  <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                  <input
+                    aria-label="af_codigo_generico"
+                    type="text"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="af_codigo_generico"
+                    placeholder="Ej: 1000000008"
+                    onChange={handleChange}
+                    value={Inventario.af_codigo_generico}
+                  />
+                </div>
+              </div>
+            </Col>
+
+            <Col md={5}>
               <div className="mb-1 mt-4">
-                <Button
-                  onClick={handleBuscarInventario}
+                <Button onClick={handleBuscar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   className="mx-1 mb-1">
                   {loading ? (
@@ -302,8 +306,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       />
                     </>
                   ) : (
-                    <>    {" Buscar"}
-                      <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                    <>
+                      {" Buscar"}
+                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                     </>
                   )}
                 </Button>
@@ -311,7 +316,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   className="mx-1 mb-1">
                   Limpiar
-                  <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                 </Button>
               </div>
             </Col>

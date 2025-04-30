@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Col, Modal, Row } from "react-bootstrap";
+import { Button, Col, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
@@ -32,7 +32,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
-import { Eraser } from "react-bootstrap-icons";
+import { EraserFill } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
 import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
@@ -190,7 +190,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const handleProveedorChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
-    console.log("rutProveedor", value);
+    // console.log("rutProveedor", value);
     dispatch(setRutProveedorActions(value));
   };
 
@@ -540,12 +540,17 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                       />
                     )}
                   </Button> */}
-                  <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  mx-1`}>
-                    <Eraser
-                      className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />
-                  </Button>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-limpiar">Limpiar formulario</Tooltip>}
+                  >
+                    <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} mx-1`}>
+                      <EraserFill
+                        className={classNames("flex-shrink-0", "h-5 w-5")}
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  </OverlayTrigger>
                 </div>
                 {error.nRecepcion && (
                   <div className="invalid-feedback fw-semibold d-block">
@@ -790,7 +795,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               <p><strong>Nº Recepción:</strong></p>
               <p>{formulariosCombinados.nRecepcionR || 'N/A'}</p>
               <p><strong>Fecha Recepción:</strong></p>
-              <p>{new Date(formulariosCombinados.fechaRecepcionR).toLocaleDateString('es-CL') || 'N/A'}</p>
+              <p>
+                {formulariosCombinados.fechaRecepcionR
+                  ? formulariosCombinados.fechaRecepcionR.split('-').reverse().join('/')
+                  : 'N/A'
+                }
+              </p>
               <p><strong>N° Orden de Compra:</strong></p>
               <p>{formulariosCombinados.nOrdenCompraR || 'N/A'}</p>
             </Col>
@@ -813,8 +823,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </Col>
             <Col md={4}>
               <p><strong>Fecha Factura:</strong></p>
-              <p>{new Date(formulariosCombinados.fechaFacturaR).toLocaleDateString('es-CL') || 'N/A'}</p>
-
+              <p>
+                {formulariosCombinados.fechaFacturaR
+                  ? formulariosCombinados.fechaFacturaR.split('-').reverse().join('/')
+                  : 'N/A'
+                }
+              </p>
               <p><strong>Proveedor:</strong></p>
               {(() => {
                 let nombreProveedor = "N/A"; // Valor por defecto
@@ -908,8 +922,9 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                       <td>{item.vidaUtil || 'N/A'}</td>
                       <td>
                         {item.fechaIngreso
-                          ? new Date(item.fechaIngreso).toLocaleDateString('es-CL') // Formato chileno: dd/mm/yyyy
-                          : 'N/A'}
+                          ? item.fechaIngreso.split('-').reverse().join('/')
+                          : 'N/A'
+                        }
                       </td>
                       <td>{item.marca || 'N/A'}</td>
                       <td>{item.modelo || 'N/A'}</td>
@@ -974,7 +989,7 @@ const mapStateToProps = (state: RootState) => ({
   /*----------------Se agregan estos combos para mostrar las descripciones en resumen------------------*/
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
   comboCuenta: state.comboCuentaReducer.comboCuenta,
-  listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
+  listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
   listaServicioNombre: state.obtenerServicioNombreReducers.listaServicioNombre
 });
 

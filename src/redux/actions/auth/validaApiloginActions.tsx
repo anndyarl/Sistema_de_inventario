@@ -3,11 +3,12 @@ import {
   VALIDA_PORTAL_REQUEST,
   VALIDA_PORTAL_SUCCESS,
   VALIDA_PORTAL_FAIL,
+  LOGOUT, // <-- Añadido
 } from './types';
 import { Dispatch } from 'redux';
 
 export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch, getState: any): Promise<number> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+  const token = getState().loginReducer.token;
 
   if (token) {
     const config = {
@@ -16,7 +17,9 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
         Accept: "application/json",
       },
     };
+
     dispatch({ type: VALIDA_PORTAL_REQUEST });
+
     try {
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/ValidaApilogin?rut=${rut}`, config);
 
@@ -25,8 +28,8 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
       const esValido = respuestaApiLogin.length > 0 ? respuestaApiLogin[0]?.esValido : false;
       const establecimiento = res.data?.establecimiento || "No disponible";
       const usr_run = res.data?.usr_run || "No disponible";
+
       if (res.status === 200) {
-        // Verifica si la clave 'EsValido' existe en el objeto
         if (esValido) {
           dispatch({
             type: VALIDA_PORTAL_SUCCESS,
@@ -36,24 +39,30 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
         } else {
           dispatch({
             type: VALIDA_PORTAL_FAIL,
-            error:
-              "Usuario sin permisos.",
+            error: "Usuario sin permisos.",
           });
           return 0;
         }
       } else {
         dispatch({
           type: VALIDA_PORTAL_FAIL,
-          error:
-            "No se pudo obtener los datos del usuario. Por favor, intente nuevamente.",
+          error: "No se pudo obtener los datos del usuario. Por favor, intente nuevamente.",
         });
         return -1;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error de conexión:", err);
+      if (err.response && err.response.status === 401) {
+        // Manejo de token expirado
+        localStorage.removeItem("token");
+        dispatch({ type: LOGOUT }); // Lanza logout
+        window.location.href = "/"; // Redirige al login
+        return -1;
+      }
+
       dispatch({
         type: VALIDA_PORTAL_FAIL,
-        error: "Error de conexión Por favor, intente nuevamente.",
+        error: "Error de conexión. Por favor, intente nuevamente.",
       });
       return -1;
     }

@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
-import { Row, Col, Collapse } from "react-bootstrap";
+import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CaretDown, CaretUpFill } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Search } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
@@ -17,7 +17,7 @@ import MenuTraslados from "../Menus/MenuTraslados";
 import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
-
+import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
   codigo: number;
@@ -33,46 +33,29 @@ interface TRASLADOESPECIE {
   codigo: number;
   descripcion: string;
 }
-interface BusquedaProps {
+interface PropsTraslados {
+  aF_CLAVE: number;
   servicioOrigen: number;
-  dependenciaOrigen: number; //deP_CORR_ORIGEN
-  especie: number;
-  aF_CLAVE: number; //nInventario
+  deP_CORR_ORIGEN: number; //deP_CORR_ORIGEN
+  especie: string;
+  af_codigo_generico: string; //nInventario
   marca: string;
   modelo: string;
   serie: string;
+  traS_DET_CORR?: number;
+  deP_CORR?: number; //deP_CORR
+  enComododato?: string;
+  traS_CO_REAL?: number; //traspasoReal
+  traS_MEMO_REF?: string; //nMemoRef
+  traS_FECHA_MEMO?: string; //fechaMemo
+  deT_OBS: string; //observaciones
+  traS_NOM_ENTREGA?: string; //entrgadoPor
+  traS_NOM_RECIBE?: string; //recibidoPor
+  traS_NOM_AUTORIZA?: string; //jefeAutoriza
+  n_TRASLADO?: number; //nTraslado
 }
 
-interface UbicacionDestino {
-  traS_DET_CORR: number;
-  dependenciaDestino: number; //deP_CORR
-  enComododato: string;
-  traS_CO_REAL: number; //traspasoReal
-  traS_MEMO_REF: string; //nMemoRef
-  traS_FECHA_MEMO: string; //fechaMemo
-  traS_OBS: string; //observaciones
-}
-
-interface DatosRecepcion {
-  traS_NOM_ENTREGA: string; //entrgadoPor
-  traS_NOM_RECIBE: string; //recibidoPor
-  traS_NOM_AUTORIZA: string; //jefeAutoriza
-  n_TRASLADO: number; //nTraslado
-}
-
-// "usuariO_MOD": "string",
-// "usuariO_CREA": "string",
-// "traS_FECHA": "2024-12-06T13:34:57.021Z",
-// "traS_ESTADO_AF": "string",
-// "traS_DET_CORR": 0,
-// "traS_CORR": 0,                     
-// "iP_MOD": "string",
-// "iP_CREA": "string",
-// "f_MOD": "2024-12-06T13:34:57.021Z",
-// "f_CREA": "2024-12-06T13:34:57.021Z",
-// "estaD_D": 0,
-
-interface TrasladosProps {
+interface TrasladosProps extends PropsTraslados {
   comboTrasladoServicio: TRASLADOSERVICIO[];
   comboTrasladoServicioActions: () => void;
   comboEstablecimiento: ESTABLECIMIENTO[];
@@ -84,33 +67,61 @@ interface TrasladosProps {
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
   comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
   registroTrasladoActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
+  obtenerInventarioTrasladoActions: (af_codigo_generico: string) => Promise<boolean>
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
 }
 
 
-const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions, comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions, comboDependenciaOrigenActions, comboDependenciaDestinoActions, comboTrasladoServicio, comboEstablecimiento, comboTrasladoEspecie, comboDependenciaOrigen, comboDependenciaDestino, objeto, token, isDarkMode }) => {
+const RegistrarTraslados: React.FC<TrasladosProps> = ({
+  registroTrasladoActions,
+  comboTrasladoServicioActions,
+  comboEstablecimientoActions,
+  comboTrasladoEspecieActions,
+  comboDependenciaOrigenActions,
+  comboDependenciaDestinoActions,
+  obtenerInventarioTrasladoActions,
+  comboTrasladoServicio,
+  comboEstablecimiento,
+  comboTrasladoEspecie,
+  comboDependenciaOrigen,
+  comboDependenciaDestino,
+  aF_CLAVE,
+  af_codigo_generico,
+  servicioOrigen,
+  deP_CORR_ORIGEN,
+  especie,
+  marca,
+  modelo,
+  serie,
+  deT_OBS,
+  objeto,
+  token,
+  isDarkMode }) => {
 
-  // const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [error, setError] = useState<Partial<BusquedaProps> & Partial<UbicacionDestino> & Partial<DatosRecepcion> & {}>({});
+  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [error, setError] = useState<Partial<PropsTraslados> & {}>({});
   const [Traslados, setTraslados] = useState({
-    aF_CLAVE: 0, //nInventario
-    deP_CORR_ORIGEN: 0,//deP_CORR_ORIGEN
-    deP_CORR: 0, //deP_CORR
-    traS_MEMO_REF: "",
-    traS_FECHA_MEMO: "",
-    traS_OBS: "",
+    aF_CLAVE: 0,
+    af_codigo_generico: "",
+    servicioOrigen: 0,
+    deP_CORR_ORIGEN: 0,
+    especie: "",
     marca: "",
     modelo: "",
     serie: "",
-    servicioOrigen: 0,
     traS_DET_CORR: 0,
+    deP_CORR: 0,
+    enComododato: "", // este te falta
+    traS_CO_REAL: 0,
+    traS_MEMO_REF: "",
+    traS_FECHA_MEMO: "",
+    deT_OBS: "",
     traS_NOM_ENTREGA: "",
     traS_NOM_RECIBE: "",
     traS_NOM_AUTORIZA: "",
     n_TRASLADO: 0,
-    especie: 0,
     usuario_crea: objeto.IdCredencial.toString()
   });
   const validateForm = () => {
@@ -120,7 +131,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
     if (!Traslados.traS_DET_CORR) tempErrors.traS_DET_CORR = "Campo obligatorio.";
     if (!Traslados.deP_CORR) tempErrors.deP_CORR = "Campo obligatorio.";
     if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
-    if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
+    if (!Traslados.deT_OBS) tempErrors.deT_OBS = "Campo obligatorio.";
     if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
     if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
     if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
@@ -131,18 +142,57 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
     return Object.keys(tempErrors).length === 0;
   };
   useEffect(() => {
+    // Detecta si el valor de 'especie' ha cambiado 
+    setTraslados({
+      aF_CLAVE,
+      af_codigo_generico,
+      servicioOrigen,
+      deP_CORR_ORIGEN,
+      especie,
+      marca,
+      modelo,
+      serie,
+      traS_DET_CORR: 0,
+      deP_CORR: 0,
+      enComododato: "", // este te falta
+      traS_CO_REAL: 0,
+      traS_MEMO_REF: "",
+      traS_FECHA_MEMO: "",
+      deT_OBS,
+      traS_NOM_ENTREGA: "",
+      traS_NOM_RECIBE: "",
+      traS_NOM_AUTORIZA: "",
+      n_TRASLADO: 0,
+      usuario_crea: objeto.IdCredencial.toString()
+    });
     if (token) {
       // Verifica si las acciones ya fueron disparadas
       if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions();
       if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
       if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions();
+      if (comboDependenciaOrigen.length === 0) comboDependenciaOrigenActions("");
     }
-  }, [comboTrasladoServicioActions, comboEstablecimientoActions, comboTrasladoEspecieActions]);
+  }, [comboTrasladoServicioActions,
+    comboEstablecimientoActions,
+    comboTrasladoEspecieActions,
+    af_codigo_generico,
+    servicioOrigen,
+    deP_CORR_ORIGEN,
+    especie,
+    marca,
+    modelo,
+    serie,
+    deT_OBS]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
+    // Validación específica para af_codigo_generico: solo permitir números
+    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
+    }
     // Convierte `value` a número
-    let newValue: string | number = ["aF_CLAVE", "deP_CORR_ORIGEN", "deP_CORR", "n_TRASLADO"].includes(name)
+    let newValue: string | number = ["deP_CORR_ORIGEN", "deP_CORR", "n_TRASLADO"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -192,11 +242,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
       if (confirmResult.isConfirmed) {
         try {
           const resultado = await registroTrasladoActions(Traslados);
+          console.log(Traslados);
           if (resultado) {
             Swal.fire({
               icon: "success",
               title: "Registro Exitoso",
-              text: `Su formulario ha sido registrado exitosamente`,
+              text: `Su traslado ha sido registrado exitosamente`,
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
               confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
@@ -220,7 +271,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
               traS_NOM_RECIBE: "",
               traS_NOM_AUTORIZA: "",
               n_TRASLADO: 0,
-              especie: 0,
+              especie: "",
             }));
 
           } else {
@@ -251,6 +302,67 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
     }
   }
 
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    let resultado = false;
+    e.preventDefault();
+    setLoading(true); // Inicia el estado de carga
+    if (!Traslados.af_codigo_generico || Traslados.af_codigo_generico === "") {
+      Swal.fire({
+        icon: "warning",
+        title: "Por favor, ingrese un número de inventario",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    }
+    resultado = await obtenerInventarioTrasladoActions(Traslados.af_codigo_generico);
+    if (!resultado) {
+      Swal.fire({
+        icon: "warning",
+        title: "Inventario no encontrado",
+        text: "El Nº de inventario consultado no tiene registro o no se encuentra de alta.",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      setLoading(false); //Finaliza estado de carga
+    }
+  };
+  const tieneErroresBusqueda = !!(
+    error.servicioOrigen ||
+    error.deP_CORR_ORIGEN ||
+    error.especie ||
+    error.af_codigo_generico ||
+    error.marca ||
+    error.modelo ||
+    error.serie
+  );
+  const tieneErroresDestino = !!(
+    error.traS_DET_CORR ||
+    error.deP_CORR ||
+    error.traS_MEMO_REF ||
+    error.traS_FECHA_MEMO ||
+    error.deT_OBS
+  );
+  const tieneErroresRecepcion = !!(
+    error.traS_NOM_ENTREGA ||
+    error.traS_NOM_RECIBE ||
+    error.traS_NOM_AUTORIZA
+  );
+
   return (
     <Layout>
       <Helmet>
@@ -261,9 +373,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
         <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traslados</h3>
           {/* Fila 1 */}
-          <div className="mb-3 border p-1 rounded-4">
-            <div
-              className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
+          <div className={`mb-3 border p-1 rounded-4 ${tieneErroresBusqueda ? "border-danger" : ""}`}>
+            <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
               <h5 className="fw-semibold">PARÁMETROS DE BÚSQUEDA</h5>
               {isExpanded.fila1 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
@@ -272,9 +383,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
               )}
             </div>
             <Collapse in={isExpanded.fila1} dimension="height">
-              <div className="border-top">
-                <Row className="p-1">
-                  <Col>
+              <div className="border-top ">
+                <Row className="p-1 row justify-content-center">
+                  <Col Col md={5}>
                     {/* servicio Origen */}
                     <div className="mb-1">
                       <label htmlFor="servicioOrigen" className="fw-semibold fw-semibold">Servicio Origen</label>
@@ -306,11 +417,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                       <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia Origen</label>
                       <select
                         aria-label="deP_CORR_ORIGEN"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependenciaOrigen ? "is-invalid" : ""}`}
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
                         name="deP_CORR_ORIGEN"
-                        disabled={!Traslados.servicioOrigen}
+                        // disabled={!Traslados.servicioOrigen}
                         onChange={handleChange}
-                        value={Traslados.deP_CORR_ORIGEN || 0}
+                        value={Traslados.deP_CORR_ORIGEN}
                       >
                         <option value="">Seleccionar</option>
                         {comboDependenciaOrigen.map((traeDependencia) => (
@@ -322,9 +433,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                           </option>
                         ))}
                       </select>
-                      {error.dependenciaOrigen && (
+                      {error.deP_CORR_ORIGEN && (
                         <div className="invalid-feedback fw-semibold d-block">
-                          {error.dependenciaOrigen}
+                          {error.deP_CORR_ORIGEN}
                         </div>
                       )}
                     </div>
@@ -354,27 +465,54 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                       )}
                     </div>
                   </Col>
-                  <Col>
+                  <Col md={5}>
                     {/* N° Inventario */}
                     <div className="mb-1">
                       <label className="fw-semibold">
-                        N° Inventario
+                        Nº Inventario
                       </label>
-                      <input
-                        aria-label="aF_CLAVE"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.aF_CLAVE ? "is-invalid" : ""}`}
-                        maxLength={20}
-                        name="aF_CLAVE"
-                        onChange={handleChange}
-                        value={Traslados.aF_CLAVE}
-                      />
-                      {error.aF_CLAVE && (
-                        <div className="invalid-feedback">{error.aF_CLAVE}</div>
+                      <div className="d-flex align-items-center">
+                        <input
+                          aria-label="af_codigo_generico"
+                          type="text"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.af_codigo_generico ? "is-invalid" : ""}`}
+                          maxLength={12}
+                          name="af_codigo_generico"
+                          onChange={handleChange}
+                          value={Traslados.af_codigo_generico}
+                        />
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id="tooltip-limpiar">Buscar Inventario</Tooltip>}
+                        >
+                          <Button
+                            onClick={handleBuscar}
+                            variant="primary"
+                            className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
+                          >
+                            {loading ? (
+                              <>
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  role="status"
+                                  aria-hidden="true"
+                                />
+                              </>
+                            ) : (
+                              <Search
+                                className={"flex-shrink-0 h-5 w-5"}
+                                aria-hidden="true"
+                              />
+                            )}
+                          </Button>
+                        </OverlayTrigger>
+                      </div>
+                      {error.af_codigo_generico && (<div className="invalid-feedback fw-semibold d-block">{error.af_codigo_generico}
+                      </div>
                       )}
                     </div>
-
                     {/* Marca */}
                     <div className="mb-1">
                       <label className="fw-semibold">
@@ -441,7 +579,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
           </div>
 
           {/* Fila 2 */}
-          <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
+          <div className={`mb-3 border p-1 rounded-4 ${tieneErroresDestino ? "border-danger" : ""}`}>
             <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
               <h5 className="fw-semibold">SELECCIONE UBICACIÓN DE DESTINO</h5>
               {isExpanded.fila2 ? (
@@ -452,8 +590,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
             </div>
             <Collapse in={isExpanded.fila2}>
               <div className="border-top">
-                <Row className="p-1">
-                  <Col>
+                <Row className="p-1 row justify-content-center">
+                  <Col md={5}>
                     {/* Servicio */}
                     <div className="mb-1">
                       <label htmlFor="traS_DET_CORR" className="fw-semibold fw-semibold">Servicio Destino</label>
@@ -485,7 +623,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                       <label htmlFor="deP_CORR" className="fw-semibold">Dependencia Destino</label>
                       <select
                         aria-label="deP_CORR"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.dependenciaDestino ? "is-invalid" : ""}`}
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR ? "is-invalid" : ""}`}
                         name="deP_CORR"
                         disabled={!Traslados.traS_DET_CORR}
                         onChange={handleChange}
@@ -501,9 +639,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                           </option>
                         ))}
                       </select>
-                      {error.dependenciaDestino && (
+                      {error.deP_CORR && (
                         <div className="invalid-feedback fw-semibold d-block">
-                          {error.dependenciaDestino}
+                          {error.deP_CORR}
                         </div>
                       )}
                     </div>
@@ -538,7 +676,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                       </div>
                     </div>
                   </Col>
-                  <Col>
+                  <Col md={5}>
                     {/* N° Memo Ref */}
                     <div className="mb-1">
                       <label className="fw-semibold">
@@ -584,17 +722,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                       </label>
                       <textarea
                         className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_OBS ? "is-invalid" : ""}`}
-                        aria-label="traS_OBS"
-                        name="traS_OBS"
+                          } ${error.deT_OBS ? "is-invalid" : ""}`}
+                        aria-label="deT_OBS"
+                        name="deT_OBS"
                         rows={4}
                         maxLength={500}
                         style={{ minHeight: "8px", resize: "none" }}
                         onChange={handleChange}
-                        value={Traslados.traS_OBS}
+                        value={Traslados.deT_OBS}
                       />
-                      {error.traS_OBS && (
-                        <div className="invalid-feedback">{error.traS_OBS}</div>
+                      {error.deT_OBS && (
+                        <div className="invalid-feedback">{error.deT_OBS}</div>
                       )}
                     </div>
                   </Col>
@@ -602,83 +740,83 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
               </div>
             </Collapse>
           </div>
-
           {/* Fila 3 */}
-          <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
-            <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila3")}>
-              <h5 className="fw-semibold">DATOS DE RECEPCIÓN</h5>
-              {isExpanded.fila3 ? (
-                <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-              ) : (
-                <CaretDown className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-              )}
-            </div>
-            <Collapse in={isExpanded.fila3}>
-              <div className="border-top">
-                <Row className="p-1">
-                  <Col md={4}>
-                    {/* Entregado Por */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Entregado Por
-                      </label>
-                      <input
-                        aria-label="traS_NOM_ENTREGA"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
-                        maxLength={50}
-                        name="traS_NOM_ENTREGA"
-                        onChange={handleChange}
-                        value={Traslados.traS_NOM_ENTREGA}
-                      />
-                      {error.traS_NOM_ENTREGA && (
-                        <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
-                      )}
-                    </div>
+          <div className={`mb-3 border p-1 rounded-4 ${tieneErroresRecepcion ? "border-danger" : ""}`}>
+            <div className={`mb-3 border p-1 rounded-4 ${isDarkMode ? "darkModePrincipal text-light" : ""}`}>
+              <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila3")}>
+                <h5 className="fw-semibold">DATOS DE RECEPCIÓN</h5>
+                {isExpanded.fila3 ? (
+                  <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
+                ) : (
+                  <CaretDown className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
+                )}
+              </div>
+              <Collapse in={isExpanded.fila3}>
+                <div className="border-top">
+                  <Row className="p-1 row justify-content-center">
+                    <Col md={4}>
+                      {/* Entregado Por */}
+                      <div className="mb-1">
+                        <label className="fw-semibold">
+                          Entregado Por
+                        </label>
+                        <input
+                          aria-label="traS_NOM_ENTREGA"
+                          type="text"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                            } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
+                          maxLength={50}
+                          name="traS_NOM_ENTREGA"
+                          onChange={handleChange}
+                          value={Traslados.traS_NOM_ENTREGA}
+                        />
+                        {error.traS_NOM_ENTREGA && (
+                          <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
+                        )}
+                      </div>
 
-                    {/* Recibido Por */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Recibido Por
-                      </label>
-                      <input
-                        aria-label="traS_NOM_RECIBE"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
-                        maxLength={50}
-                        name="traS_NOM_RECIBE"
-                        onChange={handleChange}
-                        value={Traslados.traS_NOM_RECIBE}
-                      />
-                      {error.traS_NOM_RECIBE && (
-                        <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
-                      )}
-                    </div>
+                      {/* Recibido Por */}
+                      <div className="mb-1">
+                        <label className="fw-semibold">
+                          Recibido Por
+                        </label>
+                        <input
+                          aria-label="traS_NOM_RECIBE"
+                          type="text"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                            } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
+                          maxLength={50}
+                          name="traS_NOM_RECIBE"
+                          onChange={handleChange}
+                          value={Traslados.traS_NOM_RECIBE}
+                        />
+                        {error.traS_NOM_RECIBE && (
+                          <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
+                        )}
+                      </div>
 
-                    {/* Jefe que Autoriza */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Jefe que Autoriza
-                      </label>
-                      <input
-                        aria-label="traS_NOM_AUTORIZA"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
-                        maxLength={50}
-                        name="traS_NOM_AUTORIZA"
-                        onChange={handleChange}
-                        value={Traslados.traS_NOM_AUTORIZA}
-                      />
-                      {error.traS_NOM_AUTORIZA && (
-                        <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
-                      )}
-                    </div>
-                  </Col>
-                  {/* <Col> */}
-                  {/* N° de Traslado */}
-                  {/* <div className="mb-1">
+                      {/* Jefe que Autoriza */}
+                      <div className="mb-1">
+                        <label className="fw-semibold">
+                          Jefe que Autoriza
+                        </label>
+                        <input
+                          aria-label="traS_NOM_AUTORIZA"
+                          type="text"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
+                          maxLength={50}
+                          name="traS_NOM_AUTORIZA"
+                          onChange={handleChange}
+                          value={Traslados.traS_NOM_AUTORIZA}
+                        />
+                        {error.traS_NOM_AUTORIZA && (
+                          <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
+                        )}
+                      </div>
+                    </Col>
+                    {/* <Col> */}
+                    {/* N° de Traslado */}
+                    {/* <div className="mb-1">
                       <label className="fw-semibold">
                         N° de Traslado
                       </label>
@@ -686,10 +824,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({ registroTrasladoActions,
                         {Traslados.n_TRASLADO}
                       </p>
                     </div> */}
-                  {/* </Col> */}
-                </Row>
-              </div>
-            </Collapse>
+                    {/* </Col> */}
+                  </Row>
+                </div>
+              </Collapse>
+            </div>
           </div>
 
           {/* Botón de Validar */}
@@ -711,6 +850,15 @@ const mapStateToProps = (state: RootState) => ({
   comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie,
   comboDependenciaOrigen: state.comboDependenciaOrigenReducer.comboDependenciaOrigen,
   comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
+  aF_CLAVE: state.obtenerInventarioTrasladoReducers.aF_CLAVE,
+  af_codigo_generico: state.obtenerInventarioTrasladoReducers.af_codigo_generico,
+  servicioOrigen: state.obtenerInventarioTrasladoReducers.servicioOrigen,
+  deP_CORR_ORIGEN: state.obtenerInventarioTrasladoReducers.deP_CORR_ORIGEN,
+  especie: state.obtenerInventarioTrasladoReducers.especie,
+  marca: state.obtenerInventarioTrasladoReducers.marca,
+  modelo: state.obtenerInventarioTrasladoReducers.modelo,
+  serie: state.obtenerInventarioTrasladoReducers.serie,
+  deT_OBS: state.obtenerInventarioTrasladoReducers.deT_OBS,
   objeto: state.validaApiLoginReducers,
   isDarkMode: state.darkModeReducer.isDarkMode
 });
@@ -721,5 +869,6 @@ export default connect(mapStateToProps, {
   comboTrasladoEspecieActions,
   comboDependenciaOrigenActions,
   comboDependenciaDestinoActions,
-  registroTrasladoActions
+  registroTrasladoActions,
+  obtenerInventarioTrasladoActions
 })(RegistrarTraslados);

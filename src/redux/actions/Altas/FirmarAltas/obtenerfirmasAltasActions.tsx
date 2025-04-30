@@ -5,6 +5,7 @@ import {
   OBTENER_FIRMAS_ALTAS_SUCCESS,
   OBTENER_FIRMAS_ALTAS_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -36,12 +37,12 @@ export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getSta
         });
         return false;
       }
-    } catch (err) {
-
+    } catch (err: any) {
       dispatch({
         type: OBTENER_FIRMAS_ALTAS_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      dispatch({ type: LOGOUT });
       return false;
     }
   } else {

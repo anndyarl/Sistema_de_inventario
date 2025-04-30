@@ -5,6 +5,7 @@ import {
   OBTENER_ALTAS_REGISTRADAS_SUCCESS,
   OBTENER_ALTAS_REGISTRADAS_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
@@ -44,12 +45,12 @@ export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, est
         });
         return false;
       }
-    } catch (err) {
-      // console.error("Error en la solicitud:", err);
+    } catch (err: any) {
       dispatch({
         type: OBTENER_ALTAS_REGISTRADAS_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      dispatch({ type: LOGOUT });
       return false;
     }
   } else {

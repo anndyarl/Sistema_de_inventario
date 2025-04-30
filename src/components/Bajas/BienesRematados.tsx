@@ -7,10 +7,10 @@ import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
-import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
-import { rematarBajasActions } from "../../redux/actions/Bajas/rematarBajasActions.tsx";
 import { Helmet } from "react-helmet-async";
 import { Eraser, Search } from "react-bootstrap-icons";
+import { rematarBajasActions } from "../../redux/actions/Bajas/BienesRematados/rematarBajasActions.tsx";
+import { obtenerListaRematesActions } from "../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
 
 interface FechasProps {
   fDesde: string;
@@ -121,21 +121,20 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
     listaRematesAuto()
   }, [obtenerListaRematesActions, token, listaRemates.length]); // Asegúrate de incluir dependencias relevantes
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    // Convierte `value` a número
-    let newValue: string | number = ["nresolucion"].includes(name)
-      ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-      : value;
+    // Validación específica para af_codigo_generico: solo permitir números
+    if (name === "nresolucion" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
+    }
+    // Actualizar estado
     setRematados((prevState) => ({
       ...prevState,
-      [name]: newValue,
+      [name]: value,
     }));
 
-    if (name === "nresolucion") {
-      newValue = parseFloat(value) || 0;
-    }
   };
+
 
   // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   if (e.target.checked) {
@@ -183,9 +182,9 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
 
     if (!resultado) {
       Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
+        icon: "warning",
+        title: "Inventario no encontrado",
+        text: "Los datos consultados no existen o no han sido ingresados",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -298,41 +297,46 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
 
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
-        <Row>
-          <Col md={2}>
-            <div className="mb-1">
-              <label htmlFor="fDesde" className="fw-semibold">Desde</label>
-              <input
-                aria-label="fDesde"
-                type="date"
-                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                name="fDesde"
-                onChange={handleChange}
-                value={Rematados.fDesde}
-              />
-              {error.fDesde && (
-                <div className="invalid-feedback d-block">{error.fDesde}</div>
-              )}
-            </div>
-            <div className="mb-1">
-              <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
-              <input
-                aria-label="fHasta"
-                type="date"
-                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                name="fHasta"
-                onChange={handleChange}
-                value={Rematados.fHasta}
-              />
-              {error.fHasta && (
-                <div className="invalid-feedback">{error.fHasta}</div>
-              )}
-            </div>
+        <Row className="border rounded p-2 m-2">
+          <Col md={3}>
+            <div className="mb-2">
+              <div className="mb-1">
+                <label htmlFor="fDesde" className="fw-semibold">Desde</label>
+                <input
+                  aria-label="fDesde"
+                  type="date"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                  name="fDesde"
+                  onChange={handleChange}
+                  value={Rematados.fDesde}
+                />
+                {error.fDesde && (
+                  <div className="invalid-feedback d-block">{error.fDesde}</div>
+                )}
+              </div>
 
+              <div className="flex-grow-1">
+                <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                <div className="input-group">
+                  <input
+                    aria-label="Fecha Hasta"
+                    type="date"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                    name="fHasta"
+                    onChange={handleChange}
+                    value={Rematados.fHasta}
+                  />
+                </div>
+                {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+              </div>
+              <small className="fw-semibold">Filtre los resultados por fecha de Ingreso.</small>
+            </div>
           </Col>
+
           <Col md={2}>
             <div className="mb-1">
-              <label htmlFor="nresolucion" className="fw-semibold">Nº Resolución</label>
+              <label htmlFor="nresolucion" className="fw-semibold">Nº Certificado</label>
               <input
                 aria-label="nresolucion"
                 type="text"
@@ -345,6 +349,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
               />
             </div>
           </Col>
+
           <Col md={5}>
             <div className="mb-1 mt-4">
               <Button onClick={handleBuscar}

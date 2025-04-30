@@ -10,6 +10,7 @@ import {
 interface obtenerInventarioState {
     loading: boolean;
     error: string | null;
+    aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
     aF_FECHA_SOLICITUD: string; // fechaRecepcion 
     aF_OCO_NUMERO_REF: number; // nOrdenCompra
@@ -18,7 +19,7 @@ interface obtenerInventarioState {
     aF_MONTOFACTURA: number; //montoRecepcion
     aF_FECHAFAC: string; //fechaFactura
     proV_RUN: number; // rutProveedor
-    idprograma: number; //servicio
+    seR_CORR: number; //servicio
     deP_CORR: number; //dependencia
     idmodalidadcompra: number; // modalidadDeCompra
     especie: string; //especie
@@ -37,7 +38,7 @@ interface obtenerInventarioState {
 const initialState: obtenerInventarioState = {
     loading: false,
     error: null,
-
+    aF_CLAVE: 0,
     aF_CODIGO_GENERICO: "", // nRecepcion
     aF_FECHA_SOLICITUD: "", // fechaRecepcion 
     aF_OCO_NUMERO_REF: 0, // nOrdenCompra
@@ -46,7 +47,7 @@ const initialState: obtenerInventarioState = {
     aF_MONTOFACTURA: 0, //montoRecepcion
     aF_FECHAFAC: "", //fechaFactura
     proV_RUN: 0, // rutProveedor
-    idprograma: 0, //servicio
+    seR_CORR: 0, //servicio
     deP_CORR: 0, //dependencia
     idmodalidadcompra: 0, // modalidadDeCompra
     especie: "", //especie
@@ -82,7 +83,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
         case 'SET_RUT_PROVEEDOR_MOD':
             return { ...state, proV_RUN: action.payload };
         case 'SET_SERVICIO_MOD':
-            return { ...state, idprograma: action.payload };
+            return { ...state, seR_CORR: action.payload };
         case 'SET_DEPENDENCIA_MOD':
             return { ...state, deP_CORR: action.payload };
         case 'SET_MODALIDAD_COMPRA_MOD':
@@ -117,6 +118,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
             return {
                 ...state,
                 loading: false,
+                aF_CLAVE: action.payload.aF_CLAVE,
                 aF_CODIGO_GENERICO: action.payload.aF_CODIGO_GENERICO,
                 aF_FECHA_SOLICITUD: action.payload.aF_FECHA_SOLICITUD,
                 aF_OCO_NUMERO_REF: action.payload.aF_OCO_NUMERO_REF,
@@ -125,7 +127,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
                 aF_MONTOFACTURA: action.payload.aF_MONTOFACTURA,
                 aF_FECHAFAC: action.payload.aF_FECHAFAC,
                 proV_RUN: action.payload.proV_RUN,
-                idprograma: action.payload.idprograma,//servicio
+                seR_CORR: action.payload.seR_CORR,//servicio
                 deP_CORR: action.payload.deP_CORR, //dependencia                     
                 idmodalidadcompra: action.payload.idmodalidadcompra,
                 especie: action.payload.especie,

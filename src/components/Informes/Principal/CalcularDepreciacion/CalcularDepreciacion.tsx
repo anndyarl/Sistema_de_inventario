@@ -222,9 +222,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         }
         if (!resultado) {
             Swal.fire({
-                icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                icon: "warning",
+                title: "Inventario no encontrado",
+                text: "Los datos consultados no existen o no han sido ingresados",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -794,13 +794,13 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 <title>Calcular Depreciación</title>
             </Helmet>
             <MenuInformes />
-            <form>
-                <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                    <h3 className="form-title fw-semibold border-bottom p-1">Calcular Depreciación</h3>
-                    <Row>
-                        <Col md={2}>
+
+            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                <h3 className="form-title fw-semibold border-bottom p-1">Calcular Depreciación</h3>
+                <Row className="border rounded p-2 m-2">
+                    <Col md={2}>
+                        <div className="mb-2">
                             <div className="mb-1">
-                                <h5 className="fw-semibold border-bottom">Fecha creación</h5>
                                 <label htmlFor="fDesde" className="fw-semibold">Desde</label>
                                 <input
                                     aria-label="fDesde"
@@ -814,284 +814,295 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     <div className="invalid-feedback d-block">{error.fDesde}</div>
                                 )}
                             </div>
-                            <div className="mb-1">
-                                <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
-                                <input
-                                    aria-label="fHasta"
-                                    type="date"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                                    name="fHasta"
-                                    onChange={handleChange}
-                                    value={Inventario.fHasta}
-                                />
-                                {error.fHasta && (
-                                    <div className="invalid-feedback">{error.fHasta}</div>
-                                )}
-                            </div>
 
-                        </Col>
-                        <Col md={3}>
-                            <div className="mb-1 z-1000">
-                                <label className="fw-semibold">
-                                    Seleccione una cuenta
-                                </label>
-                                <Select
-                                    options={cuentasOptions}
-                                    onChange={handleCuentasChange}
-                                    name="cta_cod"
-                                    value={cuentasOptions.find((option) => option.value === Inventario.cta_cod) || null}
-                                    placeholder="Buscar"
-                                    classNamePrefix="react-select"
-                                    isClearable
-                                    isSearchable
-                                    styles={{
-                                        control: (baseStyles) => ({
-                                            ...baseStyles,
-                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                                            color: isDarkMode ? "white" : "#212529", // Texto blanco
-                                            borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                                        }),
-                                        singleValue: (base) => ({
-                                            ...base,
-                                            color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                                        }),
-                                        menu: (base) => ({
-                                            ...base,
-                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                                            color: isDarkMode ? "white" : "#212529",
-                                        }),
-                                        option: (base, { isFocused, isSelected }) => ({
-                                            ...base,
-                                            backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                                            color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                                        }),
-                                    }}
-                                />
-                            </div>
-                        </Col>
-                        <Col md={5}>
-                            <div className="mb-1 mt-4">
-                                <Button onClick={handleBuscar}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
-                                    {loading ? (
-                                        <>
-                                            {" Buscar"}
-                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            {"Buscar"}
-                                            <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </>
-                                    )}
-                                </Button>
-                                <Button onClick={handleLimpiar}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
-                                    Limpiar
-                                    <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
+                            <div className="flex-grow-1">
+                                <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                                <div className="input-group">
+                                    <input
+                                        aria-label="Fecha Hasta"
+                                        type="date"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                        name="fHasta"
+                                        onChange={handleChange}
+                                        value={Inventario.fHasta}
+                                    />
+                                </div>
+                                {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
 
-                    <div className="d-flex justify-content-end">
-                        {filasSeleccionadas.length > 0 ? (
-                            <Button
-                                onClick={handleCalcular} disabled={listaActivosFijos.length === 0}
-                                className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                            </div>
+                            <small className="fw-semibold">Filtre los resultados por fecha de Ingreso.</small>
+                        </div>
+                    </Col>
+
+                    <Col md={3}>
+                        <div className="mb-1 z-1000">
+                            <label className="fw-semibold">
+                                Seleccione una cuenta
+                            </label>
+                            <Select
+                                options={cuentasOptions}
+                                onChange={handleCuentasChange}
+                                name="cta_cod"
+                                value={cuentasOptions.find((option) => option.value === Inventario.cta_cod) || null}
+                                placeholder="Buscar"
+                                classNamePrefix="react-select"
+                                isClearable
+                                isSearchable
+                                styles={{
+                                    control: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                        color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                    }),
+                                    singleValue: (base) => ({
+                                        ...base,
+                                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                    }),
+                                    menu: (base) => ({
+                                        ...base,
+                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                        color: isDarkMode ? "white" : "#212529",
+                                    }),
+                                    option: (base, { isFocused, isSelected }) => ({
+                                        ...base,
+                                        backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                        color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                    }),
+                                }}
+                            />
+                        </div>
+                    </Col>
+                    <Col md={5}>
+                        <div className="mb-1 mt-4">
+                            <Button onClick={handleBuscar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
                                 {loading ? (
                                     <>
-                                        {" Calcular"}
-                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                        {" Buscar"}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-1"
+                                        />
                                     </>
                                 ) : (
                                     <>
-                                        {"Calcular"}
-                                        <Calculator className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        {" Buscar"}
+                                        < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                     </>
                                 )}
                             </Button>
-                        ) : (
-                            <strong className="alert alert-dark border m-1 p-2">
-                                No hay filas seleccionadas
-                            </strong>
-                        )}
-                    </div>
-                    {/* Tabla principal activos fijos*/}
-                    {loading ? (
-                        <>
-                            {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                            <SkeletonLoader rowCount={10} columnCount={10} />
-                        </>
-                    ) : (
-                        <div className='table-responsive'>
-                            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                    <tr>
-                                        <th style={{
-                                            position: 'sticky',
-                                            left: 0,
-                                            zIndex: 2,
-
-                                        }}>
-                                            <Form.Check
-                                                className="check-danger"
-                                                type="checkbox"
-                                                onChange={handleSeleccionaTodos}
-                                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                            />
-                                        </th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                        <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
-                                        <th scope="col" className="text-nowrap text-center">Dep Corr</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
-                                        <th scope="col" className="text-nowrap text-center">ITE Clave</th>
-                                        <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                        <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                                        <th scope="col" className="text-nowrap text-center">Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Tipo</th>
-                                        <th scope="col" className="text-nowrap text-center">Alta</th>
-                                        <th scope="col" className="text-nowrap text-center">Precio Referencial</th>
-                                        <th scope="col" className="text-nowrap text-center">Cantidad</th>
-                                        <th scope="col" className="text-nowrap text-center">Origen</th>
-                                        <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                        <th scope="col" className="text-nowrap text-center">Número OCO Ref</th>
-                                        <th scope="col" className="text-nowrap text-center">Usuario Creador</th>
-                                        <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                                        <th scope="col" className="text-nowrap text-center">IP Creación</th>
-                                        <th scope="col" className="text-nowrap text-center">Usuario Modificador</th>
-                                        <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                                        <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
-                                        <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
-                                        <th scope="col" className="text-nowrap text-center">Reg EQM</th>
-                                        <th scope="col" className="text-nowrap text-center">Número Factura</th>
-                                        <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
-                                        <th scope="col" className="text-nowrap text-center">3 UTM</th>
-                                        <th scope="col" className="text-nowrap text-center">ID Grupo</th>
-                                        <th scope="col" className="text-nowrap text-center">Código Cuenta</th>
-                                        <th scope="col" className="text-nowrap text-center">Transitoria</th>
-                                        <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                                        <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
-                                        <th scope="col" className="text-nowrap text-center">Etiqueta</th>
-                                        <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                                        <th scope="col" className="text-nowrap text-center">Vigente</th>
-                                        <th scope="col" className="text-nowrap text-center">ID Programa</th>
-                                        <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
-                                        <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
-                                        <th scope="col" className="text-nowrap text-center">Especie</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {elementosActuales.map((Lista, index) => {
-                                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                        return (
-                                            <tr key={index}>
-                                                <td style={{
-                                                    position: 'sticky',
-                                                    left: 0,
-                                                    zIndex: 2,
-                                                }}>
-                                                    <Form.Check
-                                                        type="checkbox"
-                                                        onChange={() => setSeleccionaFilas(indexReal)}
-                                                        checked={filasSeleccionadas.includes(indexReal.toString())}
-                                                    />
-                                                </td>
-                                                {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
-                                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
-                                                <td className="text-nowrap">{Lista.deP_CORR}</td>
-                                                {/* <td className="text-nowrap text-center">{Lista.esP_CODIGO}</td>
-                                                <td className="text-nowrap text-center">{Lista.aF_SECUENCIA}</td> */}
-                                                <td className="text-nowrap">{Lista.itE_CLAVE}</td>
-                                                <td className="text-nowrap">{Lista.aF_DESCRIPCION}</td>
-                                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                                                {/* <td className="text-nowrap text-center">{Lista.aF_ESTADO}</td> */}
-                                                <td className="text-nowrap">{Lista.aF_CODIGO}</td>
-                                                <td className="text-nowrap">{Lista.aF_TIPO}</td>
-                                                <td className="text-nowrap">{Lista.aF_ALTA}</td>
-                                                <td className="text-nowrap">
-                                                    ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                <td className="text-nowrap">{Lista.aF_CANTIDAD}</td>
-                                                <td className="text-nowrap">{Lista.aF_ORIGEN}</td>
-                                                <td className="text-nowrap">{Lista.aF_RESOLUCION}</td>
-                                                {/* <td className="text-nowrap text-center">{Lista.aF_FECHA_SOLICITUD}</td> */}
-                                                <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                <td className="text-nowrap">{Lista.usuariO_CREA}</td>
-                                                <td className="text-nowrap">{Lista.f_CREA}</td>
-                                                <td className="text-nowrap">{Lista.iP_CREA}</td>
-                                                <td className="text-nowrap">{Lista.usuariO_MOD}</td>
-                                                <td className="text-nowrap">{Lista.f_MOD}</td>
-                                                {/* <td className="text-nowrap text-center">{Lista.iP_MODt}</td> */}
-                                                <td className="text-nowrap">{Lista.aF_TIPO_DOC}</td>
-                                                <td className="text-nowrap">{Lista.proV_RUN}</td>
-                                                <td className="text-nowrap">{Lista.reG_EQM}</td>
-                                                <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                                                <td className="text-nowrap">{Lista.aF_FECHAFAC}</td>
-                                                <td className="text-nowrap">{Lista.aF_3UTM}</td>
-                                                <td className="text-nowrap">{Lista.iD_GRUPO}</td>
-                                                <td className="text-nowrap">{Lista.ctA_COD}</td>
-                                                <td className="text-nowrap">{Lista.transitoria}</td>
-                                                <td className="text-nowrap">
-                                                    ${(Lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                <td className="text-nowrap">{Lista.esP_DESCOMPONE}</td>
-                                                <td className="text-nowrap">{Lista.aF_ETIQUETA}</td>
-                                                <td className="text-nowrap">{Lista.aF_VIDAUTIL}</td>
-                                                <td className="text-nowrap">{Lista.aF_VIGENTE}</td>
-                                                <td className="text-nowrap">{Lista.idprograma}</td>
-                                                <td className="text-nowrap">{Lista.idmodalidadcompra}</td>
-                                                <td className="text-nowrap">{Lista.idpropiedad}</td>
-                                                <td className="text-nowrap">{Lista.especie}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                            <Button onClick={handleLimpiar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                Limpiar
+                                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                            </Button>
                         </div>
+                    </Col>
+                </Row>
+
+                <div className="d-flex justify-content-end">
+                    {filasSeleccionadas.length > 0 ? (
+                        <Button
+                            onClick={handleCalcular} disabled={listaActivosFijos.length === 0}
+                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                            {loading ? (
+                                <>
+                                    {" Calcular"}
+                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                </>
+                            ) : (
+                                <>
+                                    {"Calcular"}
+                                    <Calculator className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                </>
+                            )}
+                        </Button>
+                    ) : (
+                        <strong className="alert alert-dark border m-1 p-2">
+                            No hay filas seleccionadas
+                        </strong>
                     )}
-
-                    {/* Paginador */}
-                    <div className="paginador-container">
-                        <Pagination className="paginador-scroll">
-                            <Pagination.First
-                                onClick={() => paginar(1)}
-                                disabled={paginaActual === 1}
-                            />
-                            <Pagination.Prev
-                                onClick={() => paginar(paginaActual - 1)}
-                                disabled={paginaActual === 1}
-                            />
-
-                            {Array.from({ length: totalPaginas }, (_, i) => (
-                                <Pagination.Item
-                                    key={i + 1}
-                                    active={i + 1 === paginaActual}
-                                    onClick={() => paginar(i + 1)}
-                                >
-                                    {i + 1}
-                                </Pagination.Item>
-                            ))}
-                            <Pagination.Next
-                                onClick={() => paginar(paginaActual + 1)}
-                                disabled={paginaActual === totalPaginas}
-                            />
-                            <Pagination.Last
-                                onClick={() => paginar(totalPaginas)}
-                                disabled={paginaActual === totalPaginas}
-                            />
-                        </Pagination>
-                    </div>
                 </div>
-            </form>
+                {/* Tabla principal activos fijos*/}
+                {loading ? (
+                    <>
+                        {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                        <SkeletonLoader rowCount={10} columnCount={10} />
+                    </>
+                ) : (
+                    <div className='table-responsive'>
+                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                <tr>
+                                    <th style={{
+                                        position: 'sticky',
+                                        left: 0,
+                                        zIndex: 2,
+
+                                    }}>
+                                        <Form.Check
+                                            className="check-danger"
+                                            type="checkbox"
+                                            onChange={handleSeleccionaTodos}
+                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                                        />
+                                    </th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
+                                    <th scope="col" className="text-nowrap text-center">Dep Corr</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
+                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
+                                    <th scope="col" className="text-nowrap text-center">ITE Clave</th>
+                                    <th scope="col" className="text-nowrap text-center">Descripción</th>
+                                    <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
+                                    <th scope="col" className="text-nowrap text-center">Código</th>
+                                    <th scope="col" className="text-nowrap text-center">Tipo</th>
+                                    <th scope="col" className="text-nowrap text-center">Alta</th>
+                                    <th scope="col" className="text-nowrap text-center">Precio Referencial</th>
+                                    <th scope="col" className="text-nowrap text-center">Cantidad</th>
+                                    <th scope="col" className="text-nowrap text-center">Origen</th>
+                                    <th scope="col" className="text-nowrap text-center">Resolución</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
+                                    <th scope="col" className="text-nowrap text-center">Número OCO Ref</th>
+                                    <th scope="col" className="text-nowrap text-center">Usuario Creador</th>
+                                    <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                                    <th scope="col" className="text-nowrap text-center">IP Creación</th>
+                                    <th scope="col" className="text-nowrap text-center">Usuario Modificador</th>
+                                    <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
+                                    <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
+                                    <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
+                                    <th scope="col" className="text-nowrap text-center">Reg EQM</th>
+                                    <th scope="col" className="text-nowrap text-center">Número Factura</th>
+                                    <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
+                                    <th scope="col" className="text-nowrap text-center">3 UTM</th>
+                                    <th scope="col" className="text-nowrap text-center">ID Grupo</th>
+                                    <th scope="col" className="text-nowrap text-center">Código Cuenta</th>
+                                    <th scope="col" className="text-nowrap text-center">Transitoria</th>
+                                    <th scope="col" className="text-nowrap text-center">Monto Factura</th>
+                                    <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
+                                    <th scope="col" className="text-nowrap text-center">Etiqueta</th>
+                                    <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                                    <th scope="col" className="text-nowrap text-center">Vigente</th>
+                                    <th scope="col" className="text-nowrap text-center">ID Programa</th>
+                                    <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
+                                    <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
+                                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {elementosActuales.map((Lista, index) => {
+                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                    return (
+                                        <tr key={index}>
+                                            <td style={{
+                                                position: 'sticky',
+                                                left: 0,
+                                                zIndex: 2,
+                                            }}>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    onChange={() => setSeleccionaFilas(indexReal)}
+                                                    checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                />
+                                            </td>
+                                            {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
+                                            <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                            {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
+                                            <td className="text-nowrap">{Lista.deP_CORR}</td>
+                                            {/* <td className="text-nowrap text-center">{Lista.esP_CODIGO}</td>
+                                                <td className="text-nowrap text-center">{Lista.aF_SECUENCIA}</td> */}
+                                            <td className="text-nowrap">{Lista.itE_CLAVE}</td>
+                                            <td className="text-nowrap">{Lista.aF_DESCRIPCION}</td>
+                                            <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                            {/* <td className="text-nowrap text-center">{Lista.aF_ESTADO}</td> */}
+                                            <td className="text-nowrap">{Lista.aF_CODIGO}</td>
+                                            <td className="text-nowrap">{Lista.aF_TIPO}</td>
+                                            <td className="text-nowrap">{Lista.aF_ALTA}</td>
+                                            <td className="text-nowrap">
+                                                ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                            </td>
+                                            <td className="text-nowrap">{Lista.aF_CANTIDAD}</td>
+                                            <td className="text-nowrap">{Lista.aF_ORIGEN}</td>
+                                            <td className="text-nowrap">{Lista.aF_RESOLUCION}</td>
+                                            {/* <td className="text-nowrap text-center">{Lista.aF_FECHA_SOLICITUD}</td> */}
+                                            <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
+                                            <td className="text-nowrap">{Lista.usuariO_CREA}</td>
+                                            <td className="text-nowrap">{Lista.f_CREA}</td>
+                                            <td className="text-nowrap">{Lista.iP_CREA}</td>
+                                            <td className="text-nowrap">{Lista.usuariO_MOD}</td>
+                                            <td className="text-nowrap">{Lista.f_MOD}</td>
+                                            {/* <td className="text-nowrap text-center">{Lista.iP_MODt}</td> */}
+                                            <td className="text-nowrap">{Lista.aF_TIPO_DOC}</td>
+                                            <td className="text-nowrap">{Lista.proV_RUN}</td>
+                                            <td className="text-nowrap">{Lista.reG_EQM}</td>
+                                            <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
+                                            <td className="text-nowrap">{Lista.aF_FECHAFAC}</td>
+                                            <td className="text-nowrap">{Lista.aF_3UTM}</td>
+                                            <td className="text-nowrap">{Lista.iD_GRUPO}</td>
+                                            <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                            <td className="text-nowrap">{Lista.transitoria}</td>
+                                            <td className="text-nowrap">
+                                                ${(Lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                            </td>
+                                            <td className="text-nowrap">{Lista.esP_DESCOMPONE}</td>
+                                            <td className="text-nowrap">{Lista.aF_ETIQUETA}</td>
+                                            <td className="text-nowrap">{Lista.aF_VIDAUTIL}</td>
+                                            <td className="text-nowrap">{Lista.aF_VIGENTE}</td>
+                                            <td className="text-nowrap">{Lista.idprograma}</td>
+                                            <td className="text-nowrap">{Lista.idmodalidadcompra}</td>
+                                            <td className="text-nowrap">{Lista.idpropiedad}</td>
+                                            <td className="text-nowrap">{Lista.especie}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {/* Paginador */}
+                <div className="paginador-container">
+                    <Pagination className="paginador-scroll">
+                        <Pagination.First
+                            onClick={() => paginar(1)}
+                            disabled={paginaActual === 1}
+                        />
+                        <Pagination.Prev
+                            onClick={() => paginar(paginaActual - 1)}
+                            disabled={paginaActual === 1}
+                        />
+
+                        {Array.from({ length: totalPaginas }, (_, i) => (
+                            <Pagination.Item
+                                key={i + 1}
+                                active={i + 1 === paginaActual}
+                                onClick={() => paginar(i + 1)}
+                            >
+                                {i + 1}
+                            </Pagination.Item>
+                        ))}
+                        <Pagination.Next
+                            onClick={() => paginar(paginaActual + 1)}
+                            disabled={paginaActual === totalPaginas}
+                        />
+                        <Pagination.Last
+                            onClick={() => paginar(totalPaginas)}
+                            disabled={paginaActual === totalPaginas}
+                        />
+                    </Pagination>
+                </div>
+            </div>
+
 
             {/* Modal Activos Calculados */}
             {listaActivosCalculados.length > 0 && (

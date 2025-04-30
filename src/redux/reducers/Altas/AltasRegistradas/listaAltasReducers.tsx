@@ -11,6 +11,7 @@ interface DatosInventarioState {
     aF_CLAVE: number,
     ninv: string,
     altaS_CORR: string,
+    aF_FINGRESO: string,
     serv: string,
     dep: string,
     esp: string,
@@ -21,6 +22,7 @@ interface DatosInventarioState {
     estado: string,
     precio: string,
     fechA_ALTA: string,
+    aF_ESTADO_INV: number;
     nrecep: string
   }>;
 }

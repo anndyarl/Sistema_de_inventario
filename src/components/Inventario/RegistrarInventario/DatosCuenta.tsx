@@ -1,12 +1,15 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
+import { Modal, Button, Form, Pagination, Row, Col, Spinner, } from "react-bootstrap";
 import React, { useState, useMemo, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store.ts";
 import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
-import { Check2Circle, Plus } from "react-bootstrap-icons";
+import { Check2Circle, Plus, Search } from "react-bootstrap-icons";
 import Select from "react-select";
-import { listaPorCodigoEspecieActions } from "../../../redux/actions/Inventario/RegistrarInventario/listaPorCodigoEspecieActions.tsx";
+import { Objeto } from "../../Navegacion/Profile.tsx";
+import Swal from "sweetalert2";
+import { comboEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboEspeciesBienActions.tsx";
+import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions.tsx";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
@@ -54,7 +57,7 @@ export interface CuentaProps {
   cuenta: number;
   dependencia: number;
   especie: string;
-  // bien: number;
+  bien?: number;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -72,13 +75,16 @@ interface DatosCuentaProps extends CuentaProps {
   servicioSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
   onBienSeleccionado: (codigoBien: string) => void; // Nueva prop para pasar el bien seleccionado
   bienSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
-  onDetalleSeleccionado: (codigoDetalle: string) => void; // Nueva prop para pasar el detalle seleccionado
-  detalleSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
+  onDetalleSeleccionado: (codigoDetalle: number) => void; // Nueva prop para pasar el detalle seleccionado
+  detalleSeleccionado: string | number | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
   onEspecieSeleccionado: (nombreEspecie: string) => void; // Nueva prop para pasar el detalle seleccionado
   especieSeleccionado: string | null | undefined;
-  descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie
-  listaPorCodigoEspecieActions: (esp_codigo: string) => void;
+  descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie  
+  comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>; //Lista Especies en tabla
+  comboEspecies: ListaEspecie[];
   isDarkMode: boolean;
+  objeto: Objeto;
 }
 //Paso 2 del Formulario
 const DatosCuenta: React.FC<DatosCuentaProps> = ({
@@ -88,7 +94,8 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   onBienSeleccionado,
   onDetalleSeleccionado,
   onEspecieSeleccionado,
-  listaPorCodigoEspecieActions,
+  comboEspeciesBienActions,
+  listadoDeEspeciesBienActions,
   //Combos
   comboServicio,
   comboCuenta,
@@ -96,22 +103,25 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   comboBien,
   comboDetalle,
   listaEspecie,
+  comboEspecies,
   //inputs
   servicio,
   cuenta,
   dependencia,
   especie,
-  // bien,
+  bien,
   // detalles,
   descripcionEspecie,
-  isDarkMode
+  isDarkMode,
+  objeto
 }) => {
 
   const [Cuenta, setCuenta] = useState({
     servicio: 0,
     cuenta: 0,
     dependencia: 0,
-    especie: ""
+    especie: "",
+    bien: 0
   });
 
   const [Especies, setEspecies] = useState({
@@ -127,15 +137,20 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 20;
   const [error, setError] = useState<Partial<CuentaProps>>({});
+  const [loading, setLoading] = useState(false);
 
-  const especieOptions = listaEspecie.map((item) => ({
-    value: item.esP_CODIGO.toString(),
+  const especieOptions = comboEspecies.map((item) => ({
+    value: item.esP_CODIGO,
     label: item.nombrE_ESP,
   }));
 
-  const handleEspecieChange = (selectedOption: any) => {
+  const [Buscar, setBuscar] = useState({
+    esP_CODIGO: ""
+  });
+
+  const handleComboEspecieChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
-    listaPorCodigoEspecieActions(value);
+    setBuscar((prev) => ({ ...prev, esP_CODIGO: value }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -145,8 +160,8 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
-    setCuenta((prevCuenta) => ({
-      ...prevCuenta,
+    setCuenta((prev) => ({
+      ...prev,
       [name]: newValue,
     }));
 
@@ -169,7 +184,8 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       onBienSeleccionado(value);
     }
     if (name === "detalles") {
-      onDetalleSeleccionado(value);
+      paginar(1);
+      onDetalleSeleccionado(newValue as number);
     }
 
   };
@@ -191,16 +207,21 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       servicio,
       cuenta,
       dependencia,
-      especie
+      especie,
+      bien: bien ?? 0
     });
-  }, [servicio, cuenta, dependencia, especie]);
+  }, [servicio, cuenta, dependencia, especie, bien]);
 
   //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
   // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
   useEffect(() => {
+    //Carga combo especies
+    if (comboEspecies.length === 0) {
+      comboEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, 0);
+    }
+
     // Detecta si el valor de 'especie' ha cambiado
     if (Especies.codigoEspecie) {
-
       onEspecieSeleccionado(Especies.codigoEspecie);
       dispatch(setEspecieActions(Cuenta.especie));
       dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
@@ -224,6 +245,25 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const handleVolver = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onBack();
+  };
+
+  const handleBuscar = async () => {
+    setLoading(true);
+    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, 0, Buscar.esP_CODIGO);
+
+    if (!resultado) {
+      Swal.fire({
+        icon: "warning",
+        title: "Especie no encontrada",
+        text: "La especie consultado no ha sido encontrada",
+        confirmButtonText: "Ok",
+      });
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      paginar(1);
+      setLoading(false); //Finaliza estado de carga
+    }
   };
 
   //Selecciona fila del listado de especies
@@ -313,7 +353,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                   value={Cuenta.dependencia}
                   disabled={!Cuenta.servicio}
                 >
-                  <option value="">Selecciona una opción *</option>
+                  <option value="">Seleccionar</option>
                   {comboDependencia.map((traeDependencia) => (
                     <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
                       {traeDependencia.nombrE_ORD}
@@ -403,6 +443,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                         className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                         onChange={handleChange}
                       >
+                        <option value="">Seleccionar</option>
                         {comboBien.map((traeBien) => (
                           <option key={traeBien.codigo} value={traeBien.codigo}>
                             {traeBien.descripcion}
@@ -425,9 +466,9 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                       name="detalles"
                       className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       onChange={handleChange}
-                    // disabled={!Cuenta.bien}
+                      disabled={!(Cuenta.bien)}
                     >
-                      <option value="">Selecciona una opción</option>
+                      <option value="">Seleccionar</option>
                       {comboDetalle.map((traeDetalles) => (
                         <option
                           key={traeDetalles.codigo}
@@ -439,66 +480,85 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                     </select>
                   </dd>
                 </div>
-                <div className="mb-1 w-50">
-                  <label className="fw-semibold">
-                    Buscar Especie
-                  </label>
-                  <Select
-                    options={especieOptions}
-                    onChange={(selectedOption) => {
-                      if (selectedOption === null) {
-                        console.log('Se limpió el campo');
-                        // Aquí va tu acción al limpiar
-                      } else {
-                        handleEspecieChange(selectedOption);
-                      }
-                    }}
-                    name="buscarEspcie"
-                    placeholder="Buscar"
-                    className={`form-select-container`}
-                    classNamePrefix="react-select"
-                    isClearable
-                    isSearchable
-                    styles={{
-                      control: (baseStyles) => ({
-                        ...baseStyles,
-                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                        color: isDarkMode ? "white" : "#212529", // Texto blanco
-                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                      }),
-                      singleValue: (base) => ({
-                        ...base,
-                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                      }),
-                      menu: (base) => ({
-                        ...base,
-                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                        color: isDarkMode ? "white" : "#212529",
-                      }),
-                      option: (base, { isFocused, isSelected }) => ({
-                        ...base,
-                        backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                        color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                      }),
-                    }}
-                  />
+                <div className="d-flex">
+                  <div className="mb-1 w-50">
+                    <label className="fw-semibold">
+                      Buscar Especie
+                    </label>
+                    <Select
+                      options={especieOptions}
+                      onChange={(selectedOption) => { handleComboEspecieChange(selectedOption) }}
+                      name="esP_CODIGO"
+                      placeholder="Buscar"
+                      className={`form-select-container `}
+                      classNamePrefix="react-select"
+                      isClearable
+                      // isSearchable
+                      styles={{
+                        control: (baseStyles) => ({
+                          ...baseStyles,
+                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                          color: isDarkMode ? "white" : "#212529", // Texto blanco
+                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                          color: isDarkMode ? "white" : "#212529",
+                        }),
+                        option: (base, { isFocused, isSelected }) => ({
+                          ...base,
+                          backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                          color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                        }),
+                      }}
+                    />
+                  </div>
+                  <div className="mb-1 mt-4">
+                    <Button onClick={handleBuscar}
+                      variant={`${isDarkMode ? "secondary" : "primary"}`}
+                      className="mx-1 mb-1">
+                      {loading ? (
+                        <>
+                          {" Buscar"}
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="ms-1"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          {" Buscar"}
+                          < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                        </>
+                      )}
+                    </Button>
+                    {/* <Button onClick={handleLimpiar}
+                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                    className="mx-1 mb-1">
+                    Limpiar
+                    <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  </Button> */}
+                  </div>
                 </div>
-                {/* <div className="mb-1">
-                                    <dd className="d-flex align-items-center">
-                                        <input type="text" name="" className="form-control" />
-                                        <Button variant="primary">Buscar</Button>
-                                    </dd>
-                                </div> */}
               </Col>
             </Row>
           </form>
           {/* Tabla*/}
-          <div className='table-responsive'>
+          <div className='table-responsive position-relative z-0'>
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+              <thead className={`sticky-top  ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   <th></th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Establecimiento</th>
+                  {/* <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Establecimiento</th> */}
                   <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Código</th>
                   <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
                 </tr>
@@ -513,7 +573,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                         checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
                       />
                     </td>
-                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.estabL_CORR}</td>
+                    {/* <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.estabL_CORR}</td> */}
                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.esP_CODIGO}</td>
                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.nombrE_ESP}</td>
                   </tr>
@@ -523,7 +583,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
 
           </div>
           {/* Paginador */}
-          <div className="paginador-container">
+          <div className="paginador-container position-relative z-0">
             <Pagination className="paginador-scroll">
               <Pagination.First
                 onClick={() => paginar(1)}
@@ -566,9 +626,12 @@ const mapStateToProps = (state: RootState) => ({
   dependencia: state.datosCuentaReducers.dependencia,
   especie: state.datosCuentaReducers.especie,
   descripcionEspecie: state.datosCuentaReducers.descripcionEspecie,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  objeto: state.validaApiLoginReducers,
+  comboEspecies: state.comboEspeciesBienReducers.comboEspecies
 });
 
 export default connect(mapStateToProps, {
-  listaPorCodigoEspecieActions
+  comboEspeciesBienActions,
+  listadoDeEspeciesBienActions
 })(DatosCuenta);

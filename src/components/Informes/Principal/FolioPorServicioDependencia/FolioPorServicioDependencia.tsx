@@ -115,12 +115,13 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleServicioChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : 0;
         setBuscar((prevInventario) => ({ ...prevInventario, servicio: value }));
+        console.log(value);
 
     };
     const listaAuto = async () => {
         if (listaFolioServicioDependencia.length === 0) {
             setLoading(true);
-            const resultado = await listaFolioServicioDependenciaActions(0, objeto.Establecimiento);
+            const resultado = await listaFolioServicioDependenciaActions(0, objeto.Roles[0].codigoEstablicimiento);
             if (resultado) {
                 setLoading(false);
             }
@@ -143,14 +144,14 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     useEffect(() => {
         if (token) {
             listaAuto();
-            comboServicioInformeActions(objeto.Establecimiento);
+            comboServicioInformeActions(objeto.Roles[0].codigoEstablicimiento);
         }
     }, [listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia.length, comboServicioInforme.length, token]); // Asegúrate de incluir dependencias relevantes
 
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
-        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Establecimiento);
+        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Roles[0].codigoEstablicimiento);
 
         //resetea campos una vez hecha la busqueda
         setInventario((prevState) => ({
@@ -257,12 +258,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             console.log("FIRMA", FIRMA)
             // const FIRMA = `${firma.firma}`;
             if (firma.iD_UNIDAD === 1) {
-                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.subroganteInventario = false;
                 }
-                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.titularInventario = false;
@@ -270,12 +271,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             }
 
             if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.subroganteFinanzas = false;
                 }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.titularFinanzas = false;
@@ -515,7 +516,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             <form>
                 <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
-                    <Row>
+                    <Row className="border rounded p-2 m-2">
                         <Col md={3}>
                             {/* Servicio */}
                             <div className="mb-1">

@@ -191,7 +191,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
             <MenuInformes />
             <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Consulta Inventario para Especie</h3>
-                <Row>
+                <Row className="border rounded p-2 m-2">
                     <Col md={2}>
                         <div className="mb-1">
                             <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>

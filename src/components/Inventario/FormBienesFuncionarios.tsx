@@ -91,7 +91,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
   useEffect(() => {
     //carga automaticamente si no se ha llamado a combo servicios
     if (token) {
-      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
+      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablicimiento);
     }
   }, [comboServicioActions]);
 

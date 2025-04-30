@@ -21,6 +21,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
   const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
   const password = import.meta.env.VITE_PASSWORD_API_LOGIN;
   const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
     // Temporizador para mostrar el botón después de 20 segundos
     const timer = setTimeout(() => {

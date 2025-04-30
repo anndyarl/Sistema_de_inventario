@@ -22,21 +22,15 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
     password,
   });
 
-  // Dispatch de inicio de solicitud
   dispatch({ type: LOGIN_REQUEST });
-
   try {
-    // Realizar la solicitud POST a la API
     const res = await axios.post(`${import.meta.env.VITE_CSRF_API_LOGIN}`, body, config);
-    // Validar si la respuesta es exitosa
     if (res.status === 200) {
       const token = res.data.access_token;
       if (token) {
-        // Si se obtiene el token, realizar los dispatch correspondientes
         dispatch({ type: LOGIN_SUCCESS, payload: token });
         return true;
       } else {
-        // Si no se encuentra el token, manejar el error
         dispatch({
           type: LOGIN_FAIL,
           payload: { error: 'Token no encontrado en la respuesta del servidor' },
@@ -44,7 +38,6 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
         return false;
       }
     } else {
-      // Si la respuesta no es 200, manejar el error
       dispatch({
         type: LOGIN_FAIL,
         payload: { error: `Error en la respuesta del servidor: ${res.status}` },

@@ -7,12 +7,11 @@ import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
-import { excluirBajasActions } from "../../redux/actions/Bajas/excluirBajasActions.tsx";
-import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
 import { Helmet } from "react-helmet-async";
-import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
-import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/quitarBodegaExcluidosActions.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
+import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/ListadoGeneral/obtenerListaExcluidosActions.tsx";
+import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaExcluidos/quitarBodegaExcluidosActions.tsx";
+import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
 
 interface FechasProps {
   fDesde: string;
@@ -33,24 +32,12 @@ export interface ListaExcluidos {
   iniciaL_VALOR: number;
   saldO_VALOR: number;
   estado: number;
-  // aF_CLAVE: string;
-  // bajaS_CORR: string;
-  // especie: string;
-  // vutiL_RESTANTE: number;
-  // vutiL_AGNOS: number;
-  // nresolucion: string;
-  // observaciones: string;
-  // deP_ACUMULADA: number;
-  // ncuenta: string;
-  // estado: number;
-  // fechA_REMATES: string;
 }
 
 
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
   obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string) => Promise<boolean>;
-  obtenerListaRematesActions: (fDesde: string, fHasta: string, aF_CLAVE: string) => Promise<boolean>;
   quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
@@ -58,7 +45,7 @@ interface DatosBajas {
   nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, obtenerListaRematesActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
@@ -121,22 +108,15 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
-    // Si el campo es "nresolucion", validamos que solo tenga números
-    if (name === "nresolucion") {
-      // Solo números usando una expresión regular
-      const soloNumeros = /^[0-9]*$/;
-
-      if (!soloNumeros.test(value)) {
-        return; // No actualiza el estado si hay caracteres inválidos
-      }
-
-      setExcluidos((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-      return;
+    // Validación específica para af_codigo_generico: solo permitir números
+    if (name === "nresolucion" && !/^[0-9]*$/.test(value)) {
+      return; // Salir si contiene caracteres no numéricos
     }
+    // Actualizar estado
+    setExcluidos((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
 
   };
 
@@ -243,7 +223,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
 
         setLoadingRegistro(false);
         obtenerListaExcluidosActions("", "", "");
-        obtenerListaRematesActions("", "", "");
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -322,9 +301,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
               popup: "custom-border", // Clase personalizada para el borde
             }
           });
-
-          setLoadingRegistro(false);//termina de cargar
-          obtenerListaExcluidosActions("", "", ""); //Obtiene nuevamente la tabla con sus datos actualizados
+          obtenerListaExcluidosActions("", "", "");
+          setLoadingRegistro(false);//termina de cargar      
           setFilasSeleccionadas([]); //deselecciona las filas     
           setExcluidos((prevState) => ({
             ...prevState,
@@ -365,11 +343,12 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
 
     if (!resultado) {
       Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
+        icon: "warning",
+        title: "Inventario no encontrado",
+        text: "Los datos consultados no existen o no han sido dados de baja.",
         confirmButtonText: "Ok",
       });
+      // obtenerListaExcluidosActions("", "", "");
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -411,38 +390,43 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
       <form>
         <div className="border-bottom shadow-sm p-4 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
-          <Row>
-            <Col md={2}>
-              <div className="mb-1">
-                <label htmlFor="fDesde" className="fw-semibold">Desde</label>
-                <input
-                  aria-label="fDesde"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                  name="fDesde"
-                  onChange={handleChange}
-                  value={Excluidos.fDesde}
-                />
-                {error.fDesde && (
-                  <div className="invalid-feedback d-block">{error.fDesde}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
-                <input
-                  aria-label="fHasta"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                  name="fHasta"
-                  onChange={handleChange}
-                  value={Excluidos.fHasta}
-                />
-                {error.fHasta && (
-                  <div className="invalid-feedback">{error.fHasta}</div>
-                )}
-              </div>
+          <Row className="border rounded p-2 m-2">
+            <Col md={3}>
+              <div className="mb-2">
+                <div className="mb-1">
+                  <label htmlFor="fDesde" className="fw-semibold">Desde</label>
+                  <input
+                    aria-label="fDesde"
+                    type="date"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                    name="fDesde"
+                    onChange={handleChange}
+                    value={Excluidos.fDesde}
+                  />
+                  {error.fDesde && (
+                    <div className="invalid-feedback d-block">{error.fDesde}</div>
+                  )}
+                </div>
 
+                <div className="flex-grow-1">
+                  <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                  <div className="input-group">
+                    <input
+                      aria-label="Fecha Hasta"
+                      type="date"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                      name="fHasta"
+                      onChange={handleChange}
+                      value={Excluidos.fHasta}
+                    />
+                  </div>
+                  {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                </div>
+                <small className="fw-semibold">Filtre los resultados por fecha de Baja.</small>
+              </div>
             </Col>
+
             <Col md={2}>
               <div className="mb-1">
                 <label htmlFor="nresolucion" className="fw-semibold">Nº Certificado</label>
@@ -458,6 +442,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
                 />
               </div>
             </Col>
+
             <Col md={5}>
               <div className="mb-1 mt-4">
                 <Button onClick={handleBuscar}
@@ -562,7 +547,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, o
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>
                     <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
                     <th scope="col" className="text-nowrap text-center">Código Baja</th>
-                    <th scope="col" className="text-nowrap text-center">Fecha de Baja</th>
+                    <th scope="col" className="text-nowrap text-center">Fecha Baja</th>
                     <th scope="col" className="text-nowrap text-center">Especie</th>
                     <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
                     <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
@@ -752,6 +737,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   excluirBajasActions,
   obtenerListaExcluidosActions,
-  obtenerListaRematesActions,
   quitarBodegaExcluidosActions
 })(BienesExcluidos);

@@ -18,16 +18,17 @@ import { RootState } from "../../../redux/reducers";
 import { connect } from "react-redux";
 import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
-import { comboListadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboListadoDeEspeciesBienActions";
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
 import MenuInventario from "../../Menus/MenuInventario";
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
+import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 
 import { Helmet } from "react-helmet-async";
 import { comboOrigenPresupuestosActions } from "../../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { Objeto } from "../../Navegacion/Profile";
+import Swal from "sweetalert2";
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -58,7 +59,7 @@ interface FormInventarioProps {
   comboDetalleActions: (bienSeleccionado: string) => void;
 
   listaEspecie: ListaEspecie[];
-  comboListadoDeEspeciesBienActions: (EST: number, IDBIEN: string) => Promise<void>;
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
 
   token: string | null;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
@@ -83,7 +84,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   comboCuentaActions,
   comboServicioActions,
   comboDependenciaActions,
-  comboListadoDeEspeciesBienActions,
+  listadoDeEspeciesBienActions,
   comboDetalleActions
 
 }) => {
@@ -91,7 +92,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   // Estado para gestionar el servicio seleccionado
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
   const [bienSeleccionado, setBienSeleccionado] = useState<string>();
-  const [detalleSeleccionado, setDetalleSeleccionado] = useState<string>();
+  const [detalleSeleccionado, setDetalleSeleccionado] = useState<number>();
   const [especieSeleccionado, setEspecieSeleccionado] = useState<string>();
   const [formularios, setFormularios] = useState<FormInventario>({
     datosInventario: {},
@@ -105,7 +106,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
       // Verifica si las acciones ya fueron disparadas
       if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
-      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
+      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablicimiento);
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
     }
@@ -134,11 +135,21 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   };
 
   // Función para manejar la selección de detalles en el componente `DatosCuenta`
-  const handleDetalleSeleccionado = (codigoDetalle: string) => {
+  const handleDetalleSeleccionado = async (codigoDetalle: number) => {
     setDetalleSeleccionado(codigoDetalle);
-    console.log("Código del detalle seleccionado:", codigoDetalle);
-    comboListadoDeEspeciesBienActions(3, codigoDetalle); // aqui le paso codigo de detalle
-  };
+    // console.log("Código del detalle seleccionado:", codigoDetalle);
+    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, codigoDetalle, ""); // aqui le paso codigo de detalle
+
+    if (!resultado) {
+      Swal.fire({
+        icon: "warning",
+        title: "Sin resultados",
+        text: "No se encontró la lista de especies consultada.",
+        confirmButtonText: "Ok",
+      });
+      return;
+    };
+  }
 
   // Función para manejar la selección de la especie en el componente `DatosCuenta`
   const handleEspecieSeleccionado = (nombreEspecie: string) => {
@@ -183,8 +194,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     });
     setStep(0);
   };
-
-
 
   return (
     <Layout>
@@ -246,14 +255,14 @@ const mapStateToProps = (state: RootState) => ({
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
-  listaEspecie: state.comboListadoDeEspeciesBien.listadoDeEspecies,
+  listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
   objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {
   comboServicioActions,
   comboDependenciaActions,
-  comboListadoDeEspeciesBienActions,
+  listadoDeEspeciesBienActions,
   comboDetalleActions,
   comboCuentaActions,
   comboOrigenPresupuestosActions,

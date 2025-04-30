@@ -109,7 +109,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
   useEffect(() => {
     listadoMantenedorAuto()
     if (token) {
-      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
+      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablicimiento);
     }
   }, [listadoMantenedorDependenciasActions, comboServicioActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
 

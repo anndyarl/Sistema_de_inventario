@@ -10,6 +10,8 @@ interface Roles {
   Descripcion: string;
   IdRol: number;
   IdAplicacion: number;
+  codigoEstablicimiento: number;
+  nombreEstablecimiento: string;
 }
 
 interface AuthState {
@@ -63,6 +65,8 @@ function validaApiLoginReducers(state = initialState, action: any): AuthState {
             Descripcion: rol.descripcion,
             IdRol: rol.idRol,
             IdAplicacion: rol.idAplicacion,
+            codigoEstablicimiento: rol.codigoEstablicimiento,
+            nombreEstablecimiento: rol.nombreEstablecimiento
           }))
           : [],
         Establecimiento: action.payload.establecimiento,

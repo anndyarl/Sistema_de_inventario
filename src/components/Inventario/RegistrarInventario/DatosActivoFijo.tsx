@@ -752,7 +752,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       }
                     />
                   </th>
-                  <th>Código</th>
+                  {/* <th>Código</th> */}
                   <th>Vida Útil</th>
                   <th>Fecha Ingreso</th>
                   <th>Marca</th>
@@ -775,9 +775,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                           checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
-                      <td>{activo.id}</td>
+                      {/* <td>{activo.id}</td> */}
                       <td>{activo.vidaUtil}</td>
-                      <td>{activo.fechaIngreso}</td>
+                      <td> {activo.fechaIngreso
+                        ? activo.fechaIngreso.split('-').reverse().join('/')
+                        : 'N/A'
+                      }</td>
                       <td>{activo.marca}</td>
                       <td>{activo.modelo}</td>
                       <td

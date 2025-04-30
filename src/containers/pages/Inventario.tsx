@@ -6,7 +6,7 @@ import { NavLink } from "react-router-dom";
 import { PencilFill, PlusCircle, BoxSeam, SlashCircle } from "react-bootstrap-icons";
 import Layout from "../hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "../../components/Inventario/RegistrarInventario/DatosInventario";
-import { BIEN, SERVICIO } from "../../components/Inventario/RegistrarInventario/DatosCuenta";
+import { BIEN, DEPENDENCIA, SERVICIO } from "../../components/Inventario/RegistrarInventario/DatosCuenta";
 import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { Objeto } from "../../components/Navegacion/Profile";
+import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions";
 
 
 interface FormInventarioProps {
@@ -29,6 +30,8 @@ interface FormInventarioProps {
   //Trae props combos de Datos_cuenta(formulario 2)
   comboServicio: SERVICIO[];
   comboServicioActions: (establ_corr: number) => void;
+  comboDependencia: DEPENDENCIA[];
+  comboDependenciaActions: (serCorr: string) => void;
   comboBien: BIEN[];
   comboDetalleActions: (bienSeleccionado: string) => void;
   token: string | null;
@@ -49,12 +52,14 @@ const Inventario: React.FC<FormInventarioProps> = ({
   comboOrigen,
   comboModalidad,
   comboServicio,
+  comboDependencia,
   comboBien,
   comboProveedor,
   isDarkMode,
   comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboServicioActions,
+  comboDependenciaActions,
   comboDetalleActions,
   comboProveedorActions
 }) => {
@@ -65,7 +70,8 @@ const Inventario: React.FC<FormInventarioProps> = ({
       // Verifica si las acciones ya fueron disparadas
       if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
-      if (comboServicio.length === 0) comboServicioActions(objeto.Establecimiento);
+      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablicimiento);
+      if (comboDependencia.length === 0) comboDependenciaActions("");
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
     }
@@ -76,6 +82,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
     comboOrigenPresupuestosActions,
     comboModalidadesActions,
     comboServicioActions,
+    comboDependenciaActions,
     comboDetalleActions,
     comboProveedorActions
   ]);
@@ -157,6 +164,7 @@ export default connect(mapStateToProps, {
   comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboServicioActions,
+  comboDependenciaActions,
   comboDetalleActions,
   comboProveedorActions
 })(Inventario);

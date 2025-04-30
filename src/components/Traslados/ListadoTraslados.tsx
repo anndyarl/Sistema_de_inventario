@@ -13,6 +13,10 @@ import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
 
+interface FechasProps {
+  fDesde: string;
+  fHasta: string;
+}
 export interface listadoTraslados {
   aF_CODIGO_GENERICO: string,
   usuariO_MOD: string,
@@ -41,7 +45,7 @@ export interface listadoTraslados {
 
 interface GeneralProps {
   listadoTraslados: listadoTraslados[];
-  listadoTrasladosActions: (af_codigo_generico: string, tras_corr: number) => Promise<boolean>;
+  listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -51,7 +55,7 @@ interface GeneralProps {
 
 const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState<Partial<listadoTraslados>>({});
+  const [error, setError] = useState<Partial<FechasProps> & {}>({});
   // const [_, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = nPaginacion;
@@ -67,8 +71,17 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
+  const validate = () => {
+    let tempErrors: Partial<any> & {} = {};
+    if (ListadoTraslado.fDesde > ListadoTraslado.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
+
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const [ListadoTraslado, setListadoTraslado] = useState({
+    fDesde: "",
+    fHasta: "",
     tras_corr: 0,
     af_codigo_generico: ""
   });
@@ -79,7 +92,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     if (token) {
       if (listadoTraslados.length === 0) {
         setLoading(true);
-        const resultado = await listadoTrasladosActions("", 0);
+        const resultado = await listadoTrasladosActions("", "", "", 0);
         if (resultado) {
           setLoading(false);
         }
@@ -107,6 +120,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   const handleLimpiar = () => {
     setListadoTraslado((prevListadoTraslado) => ({
       ...prevListadoTraslado,
+      fDesde: "",
+      fHasta: "",
       tras_corr: 0,
       af_codigo_generico: ""
     }));
@@ -135,12 +150,21 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
-    resultado = await listadoTrasladosActions(ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
+    resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
+    if (ListadoTraslado.fDesde != "" || ListadoTraslado.fHasta != "") {
+      if (validate()) {
+        resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
+      }
+    }
+    else {
+      resultado = await listadoTrasladosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
+    }
+
     if (!resultado) {
       Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
+        icon: "warning",
+        title: "Inventario no encontrado",
+        text: "El Nº de Inventario consultado no existe o no ha sido trasladado",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -149,6 +173,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
+      resultado = await listadoTrasladosActions("", "", "", 0);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -234,35 +259,73 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
       <MenuTraslados />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traslados</h3>
-        <Row>
+        <Row className="border rounded p-2 m-2">
           <Col md={2}>
-            <div className="mb-1">
-              <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
-              <input
-                aria-label="af_codigo_generico"
-                type="text"
-                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="af_codigo_generico"
-                size={10}
-                placeholder="Eje: 1000000008"
-                onChange={handleChange}
-                value={ListadoTraslado.af_codigo_generico}
-              />
-            </div>
-            <div className="mb-1">
-              <label htmlFor="tras_corr" className="fw-semibold">Nº Traslado</label>
-              <input
-                aria-label="tras_corr"
-                type="text"
-                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="tras_corr"
-                size={10}
-                placeholder="Eje: 1000000008"
-                onChange={handleChange}
-                value={ListadoTraslado.tras_corr}
-              />
+            <div className="mb-2">
+              <div className="flex-grow-1 mb-2">
+                <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
+                <div className="input-group">
+                  <input
+                    aria-label="Fecha Desde"
+                    type="date"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                    name="fDesde"
+                    onChange={handleChange}
+                    value={ListadoTraslado.fDesde}
+                  />
+                </div>
+                {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+              </div>
+
+              <div className="flex-grow-1">
+                <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                <div className="input-group">
+                  <input
+                    aria-label="Fecha Hasta"
+                    type="date"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                    name="fHasta"
+                    onChange={handleChange}
+                    value={ListadoTraslado.fHasta}
+                  />
+                </div>
+                {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+              </div>
+              <small className="fw-semibold">Filtre los resultados por fecha de Traslado.</small>
             </div>
           </Col>
+
+          <Col md={2}>
+            <div className="mb-2">
+              <div className="mb-2">
+                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                <input
+                  aria-label="af_codigo_generico"
+                  type="text"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="af_codigo_generico"
+                  placeholder="Ej: 1000000008"
+                  onChange={handleChange}
+                  value={ListadoTraslado.af_codigo_generico}
+                />
+              </div>
+              <div className="mb-1">
+                <label htmlFor="tras_corr" className="fw-semibold">Nº Traslado</label>
+                <input
+                  aria-label="tras_corr"
+                  type="text"
+                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="tras_corr"
+                  size={10}
+                  placeholder="Eje: 1000000008"
+                  onChange={handleChange}
+                  value={ListadoTraslado.tras_corr}
+                />
+              </div>
+            </div>
+          </Col>
+
           <Col md={5}>
             <div className="mb-1 mt-4">
               <Button onClick={handleBuscar}
@@ -283,7 +346,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                 ) : (
                   <>
                     {" Buscar"}
-                    <Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                   </>
                 )}
               </Button>
@@ -318,11 +381,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">Estado</th>
                   <th scope="col" className="text-nowrap text-center">Nº Dependencia Origen</th>
                   <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
                   {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
-                  <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
+                  <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
                   <th scope="col" className="text-nowrap text-center">Número de Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Código Real Traslado</th>
@@ -354,11 +417,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
                       <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td>
                       <td className="text-nowrap">{Lista.traS_DET_CORR}</td>
-                      <td className="text-nowrap">{Lista.usuariO_CREA}</td>
+                      {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
                       <td className="text-nowrap">{Lista.f_CREA}</td>
                       {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
-                      <td className="text-nowrap">{Lista.usuariO_MOD}</td>
-                      <td className="text-nowrap">{Lista.f_MOD}</td>
+                      {/* <td className="text-nowrap">{Lista.usuariO_MOD}</td>
+                      <td className="text-nowrap">{Lista.f_MOD}</td> */}
                       {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
                       <td className="text-nowrap">{Lista.n_TRASLADO}</td>
                       <td className="text-nowrap">{Lista.traS_CO_REAL}</td>

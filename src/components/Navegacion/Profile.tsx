@@ -14,8 +14,6 @@ import Indicadores from "../Configuracion/Indicadores";
 import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
 import { logout } from "../../redux/actions/auth/auth";
 import { connect, useDispatch } from "react-redux";
-import { ESTABLECIMIENTO } from "../Traslados/RegistrarTraslados";
-import { comboEstablecimientosProfileActions } from "../../redux/actions/auth/comboEstablecimientosProfileActions";
 import { AppDispatch } from "../../store";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -35,6 +33,8 @@ interface Roles {
   Descripcion: string;
   IdRol: number;
   IdAplicacion: number;
+  codigoEstablicimiento: number;
+  nombreEstablecimiento: string;
 }
 
 export interface Objeto {
@@ -53,7 +53,6 @@ export interface Objeto {
 interface ProfileProps {
   logout: () => void;
   indicadoresActions: () => Promise<boolean>;
-  comboEstablecimiento: ESTABLECIMIENTO[];
 
   objeto: Objeto;
   utm: IndicadoresProps;
@@ -65,7 +64,7 @@ interface ProfileProps {
   token: string | null;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEstablecimiento, objeto, utm, uf, dolar, ipc, isDarkMode, token }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, utm, uf, dolar, ipc, isDarkMode, token }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
@@ -86,7 +85,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEsta
     if (token) {
       cargaIndicadores();
     }
-  }, [indicadoresActions, comboEstablecimientosProfileActions]);
+  }, [indicadoresActions]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -110,15 +109,6 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEsta
   //Primera Letra en mayúscula
   const PrimeraMayuscula = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-  //Busca Establecimiento del usuario
-  let establecimientoUsuario = "Sin Información";
-  for (let i = 0; i < comboEstablecimiento.length; i++) {
-    if (String(comboEstablecimiento[i].codigo) === String(objeto.Establecimiento)) {
-      establecimientoUsuario = comboEstablecimiento[i].descripcion;
-      break;
-    }
-  }
 
   return (
     <>
@@ -171,8 +161,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, comboEsta
                   <strong> <Geo
                     className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
                     aria-hidden="true"
-                  /> Establecimiento: </strong>{establecimientoUsuario}
-
+                  /> Establecimiento: </strong>{objeto.Roles[0].nombreEstablecimiento}
                 </p>
                 <button onClick={() => setMostrarModal(true)} className={`fw-fw-normal p-1 border-bottom  ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link mb-4 mb-2 fs-6 fs-md-5 fs-lg-4 w-100 text-start p-0`}>
                   <strong> <Gear
@@ -275,7 +264,6 @@ const ModalContent: React.FC = () => {
 };
 
 const mapStateToProps = (state: RootState) => ({
-  comboEstablecimiento: state.comboEstablecimientosProfileReducers.comboEstablecimiento,
   objeto: state.validaApiLoginReducers,
   logout: state.loginReducer.logout,
   utm: state.indicadoresReducers.utm,

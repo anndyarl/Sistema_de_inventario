@@ -16,7 +16,7 @@ import datosCuentaReducers from "./Inventario/RegistrarInventario/datosCuentaRed
 import comboServicioReducer from "./Inventario/Combos/comboServicioReducers";
 import comboCuentaReducer from "./Inventario/Combos/comboCuentaReducers";
 import comboDependenciaReducer from "./Inventario/Combos/comboDependenciaReducers";
-import comboListadoDeEspeciesBien from "./Inventario/Combos/comboListadoDeEspeciesBienReducers";
+
 import detallesReducer from "./Inventario/Combos/comboDetallesReducers";
 
 // Formulario 3
@@ -83,8 +83,9 @@ import resumenInventarioRegistroReducers from "./Inventario/RegistrarInventario/
 import datosAltaRegistradaReducers from "./Altas/AltasRegistradas/datosAltaRegistradaReducers";
 import listaVersionamientoReducers from "./Configuracion/listaVersionamientoReducers";
 import obtenerServicioNombreReducers from "./Inventario/RegistrarInventario/obtenerServicioNombreReducers";
-
-
+import listadoDeEspeciesBienReducers from "./Inventario/Combos/listadoDeEspeciesBienReducers";
+import comboEspeciesBienReducers from "./Inventario/Combos/comboEspeciesBienReducers";
+import obtenerInventarioTrasladoReducers from "./Traslados/obtenerInventarioTrasladoReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -106,7 +107,8 @@ const appReducer = combineReducers({
   comboServicioReducer,
   comboCuentaReducer,
   comboDependenciaReducer,
-  comboListadoDeEspeciesBien,
+  comboEspeciesBienReducers,//carga combo de especies
+  listadoDeEspeciesBienReducers, //carga listado de especies
   detallesReducer,
 
   // Formulario 3
@@ -144,7 +146,7 @@ const appReducer = combineReducers({
   comboDependenciaOrigenReducer,
   comboDependenciaDestinoReducer,
   listadoTrasladosReducers,
-
+  obtenerInventarioTrasladoReducers,
 
   //-------Otros/Preferenicas---------------//
   // Indicadores
@@ -202,7 +204,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioReducer,
       comboCuentaReducer,
       comboDependenciaReducer,
-      comboListadoDeEspeciesBien,
+      // comboListadoDeEspeciesBien,
       detallesReducer,
       comboEstablecimientoReducer,
       comboTrasladoServicioReducer,
@@ -229,7 +231,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioReducer,
       comboCuentaReducer,
       comboDependenciaReducer,
-      comboListadoDeEspeciesBien,
+      // comboListadoDeEspeciesBien,
       detallesReducer,
       comboEstablecimientoReducer,
       comboTrasladoServicioReducer,

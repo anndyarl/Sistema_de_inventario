@@ -27,7 +27,6 @@ import RegistrarAltas from '../../../components/Altas/RegistrarAltas';
 
 import Error404 from '../../errors/Error404';
 
-import RegistrarBajas from '../../../components/Bajas/BienesBajas';
 import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
 import RegistrarTraslados from '../../../components/Traslados/RegistrarTraslados';
@@ -109,7 +108,6 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Módulo Bajas */}
                 <Route path="/Bajas" element={<Bajas />} />
                 <Route path="/Bajas/ListadoGeneral" element={<ListadoGeneral />} />
-                <Route path="/Bajas/RegistrarBajas" element={<RegistrarBajas />} />
                 <Route path="/Bajas/BodegaExcluidos" element={<BodegaExcluidos />} />
                 <Route path="/Bajas/BienesRematados" element={<BienesRematados />} />
                 {/* Fin Módulo Bajas */}

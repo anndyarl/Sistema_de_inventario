@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../../redux/reducers";
 import Sidebar from "../../../components/Navegacion/Sidebar";
@@ -13,40 +13,27 @@ import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css";
 import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js";
 import { Container } from "react-bootstrap";
 import { AnimatePresence, motion } from "framer-motion";
-import { comboEstablecimientosProfileActions } from "../../../redux/actions/auth/comboEstablecimientosProfileActions.js";
 import Footer from "../../../components/Navegacion/Footer.js";
 import { listaVersionamientoActions } from "../../../redux/actions/Configuracion/listaVersionamientoActions.js";
-import { ListaVersionamiento } from "../../../components/Configuracion/Versionamiento.js";
-
-interface ESTABLECIMIENTO {
-  codigo: number;
-  descripcion: string;
-}
 interface LayoutProps {
   children: ReactNode;
-  comboEstablecimiento: ESTABLECIMIENTO[];
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
-  comboEstablecimientosProfileActions: () => Promise<boolean>;
+  token: string | null;
 }
 
-const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, comboEstablecimiento, children, isDarkMode, isAuthenticated }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, token }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  useAutoLogout(3.3e+6, 3.6e+6);
+  // useAutoLogout(3.3e+6, 3.6e+6);
+  useAutoLogout(600000, 660000);
 
-  // console.log("token", token);
-  // console.log("isAuthenticated", isAuthenticated);
+  console.log("token", token);
+  console.log("isAuthenticated", isAuthenticated);
 
   if (isAuthenticated == false) {
     return <Navigate to="/" />;
-  }
-
-
-  //Buscar mejor solución para quitar token y autentificación si no encuentra
-  if (comboEstablecimiento.length === 0) {
-    comboEstablecimientosProfileActions();
   }
 
   // Efectos de transición para la apertura del sidebar en móviles
@@ -61,6 +48,15 @@ const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, co
     ease: "easeInOut",
     duration: 0.01,
   };
+
+  // useEffect(() => {
+  //   const [navEntry] = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+
+  //   if (navEntry?.type === "reload") {
+
+  //     console.log("La página fue refrescada");
+  //   }
+  // }, []);
 
   return (
     <div className={`d-flex min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -120,10 +116,9 @@ const Layout: React.FC<LayoutProps> = ({ comboEstablecimientosProfileActions, co
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  comboEstablecimiento: state.comboEstablecimientosProfileReducers.comboEstablecimiento
+  token: state.loginReducer.token
 });
 
 export default connect(mapStateToProps, {
-  comboEstablecimientosProfileActions,
   listaVersionamientoActions
 })(Layout);

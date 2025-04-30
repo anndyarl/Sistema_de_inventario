@@ -102,7 +102,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
     const [Mantenedor, setMantenedor] = useState({
         esP_NOMBRE: '',
         ctA_NOMBRE: '',
-        estabL_corr: objeto.Establecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
+        estabL_corr: objeto.Roles[0].codigoEstablicimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
         usuario: objeto.IdCredencial.toString(),
     });
 

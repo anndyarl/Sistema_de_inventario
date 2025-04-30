@@ -13,6 +13,7 @@ import SkeletonLoader from "../../Utils/SkeletonLoader";
 import DocumentoEtiquetasPDF from "./DocumentoEtiquetasPDF";
 import ReactDOM from 'react-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import { Objeto } from "../../Navegacion/Profile";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -23,6 +24,7 @@ interface FechasProps {
 }
 export interface ListaEtiquetas {
     aF_CODIGO_LARGO: string,
+    altaS_CORR?: number,
     aF_DESCRIPCION: string,
     aF_UBICACION: string,
     aF_FECHA_ALTA: string,
@@ -31,14 +33,15 @@ export interface ListaEtiquetas {
 }
 
 export interface DatosBajas {
-    obtenerEtiquetasAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string) => Promise<boolean>;
+    obtenerEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
     listaEtiquetas: ListaEtiquetas[];
     token: string | null;
     isDarkMode: boolean;
+    objeto: Objeto;
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, listaEtiquetas, token, isDarkMode, nPaginacion }) => {
+const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, listaEtiquetas, token, isDarkMode, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState(false);
@@ -50,6 +53,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const [Inventario, setInventario] = useState({
         fDesde: "",
         fHasta: "",
+        altaS_CORR: 0,
         af_codigo_generico: ""
     });
     const [listaConQR, setListaConQR] = useState<ListaEtiquetas[]>([]);
@@ -58,7 +62,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         if (token) {
             setLoading(true);
             try {
-                const resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico);
+                const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
                 if (!resultado) {
                     throw new Error("Error al cargar la lista de bajas");
                 }
@@ -102,7 +106,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         }
 
         // Convertir a número solo si el campo está en la lista
-        const camposNumericos = ["af_codigo_generico"];
+        const camposNumericos = ["altaS_CORR"];
         const newValue: string | number = camposNumericos.includes(name)
             ? parseFloat(value) || 0
             : value;
@@ -121,17 +125,17 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
         if (Inventario.fDesde != "" || Inventario.fHasta != "") {
             if (validate()) {
-                resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico);
+                resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
             }
         }
         else {
-            resultado = await obtenerEtiquetasAltasActions("", "", Inventario.af_codigo_generico);
+            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
         }
         if (!resultado) {
             Swal.fire({
-                icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                icon: "warning",
+                title: "Inventario no encontrado",
+                text: "El Nº de Inventario consultado no existe o no ha sido dado de alta.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -140,6 +144,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
+            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
@@ -153,6 +158,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         setInventario((prevInventario) => ({
             ...prevInventario,
             af_codigo_generico: "",
+            altaS_CORR: 0,
             fDesde: "",
             fHasta: ""
         }));
@@ -276,53 +282,72 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             <MenuAltas />
             <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Imprimir Etiquetas</h3>
-                <Row>
-                    <Col md={2}>
-                        <div className="mb-1">
-                            <label htmlFor="fDesde" className="fw-semibold">Desde</label>
-                            <input
-                                aria-label="fDesde"
-                                type="date"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                                name="fDesde"
-                                onChange={handleChange}
-                                value={Inventario.fDesde}
-                            />
-                            {error.fDesde && (
-                                <div className="invalid-feedback d-block">{error.fDesde}</div>
-                            )}
-                        </div>
-                        <div className="mb-1">
-                            <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
-                            <input
-                                aria-label="fHasta"
-                                type="date"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                                name="fHasta"
-                                onChange={handleChange}
-                                value={Inventario.fHasta}
-                            />
-                            {error.fHasta && (
-                                <div className="invalid-feedback">{error.fHasta}</div>
-                            )}
-                        </div>
+                <Row className="border rounded p-2 m-2">
+                    <Col md={3}>
+                        <div className="mb-2">
+                            <div className="flex-grow-1 mb-2">
+                                <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
+                                <div className="input-group">
+                                    <input
+                                        aria-label="Fecha Desde"
+                                        type="date"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                                        name="fDesde"
+                                        onChange={handleChange}
+                                        value={Inventario.fDesde}
+                                    />
+                                </div>
+                                {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                            </div>
 
-                    </Col>
-                    <Col md={2}>
-                        <div className="mb-1">
-                            <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
-                            <input
-                                aria-label="af_codigo_generico"
-                                type="text"
-                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                name="af_codigo_generico"
-                                size={10}
-                                placeholder="Eje: 1000000008"
-                                onChange={handleChange}
-                                value={Inventario.af_codigo_generico}
-                            />
+                            <div className="flex-grow-1">
+                                <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                                <div className="input-group">
+                                    <input
+                                        aria-label="Fecha Hasta"
+                                        type="date"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                        name="fHasta"
+                                        onChange={handleChange}
+                                        value={Inventario.fHasta}
+                                    />
+                                </div>
+                                {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                            </div>
+                            <small className="fw-semibold">Filtre los resultados por fecha de alta.</small>
                         </div>
                     </Col>
+
+                    <Col md={2}>
+                        <div className="mb-2">
+                            <div className="mb-2">
+                                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                                <input
+                                    aria-label="af_codigo_generico"
+                                    type="text"
+                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="af_codigo_generico"
+                                    placeholder="Ej: 1000000008"
+                                    onChange={handleChange}
+                                    value={Inventario.af_codigo_generico}
+                                />
+                            </div>
+                            <div className="mb-2">
+                                <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
+                                <input
+                                    aria-label="altaS_CORR"
+                                    type="text"
+                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="altaS_CORR"
+                                    placeholder="Ej: 0"
+                                    onChange={handleChange}
+                                    value={Inventario.altaS_CORR}
+                                />
+                            </div>
+                        </div>
+                    </Col>
+
                     <Col md={5}>
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
@@ -343,7 +368,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 ) : (
                                     <>
                                         {" Buscar"}
-                                        < Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                     </>
                                 )}
                             </Button>
@@ -351,11 +376,12 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1">
                                 Limpiar
-                                <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                             </Button>
                         </div>
                     </Col>
                 </Row>
+
                 <div className="d-flex justify-content-end">
                     {filasSeleccionadas.length > 0 ? (
                         <Button
@@ -401,6 +427,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                     </th>
 
                                     <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                    <th scope="col" className="text-nowrap">N° Alta</th>
                                     <th scope="col" className="text-nowrap">Descripción</th>
                                     <th scope="col" className="text-nowrap">Fecha Alta</th>
                                     <th scope="col" className="text-nowrap">Nº Cuenta</th>
@@ -426,6 +453,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                                 />
                                             </td>
                                             <td className="text-nowrap">{fila.aF_CODIGO_LARGO}</td>
+                                            <td className="text-nowrap">{fila.altaS_CORR}</td>
                                             <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
                                             <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
                                             <td className="text-nowrap">{fila.aF_NCUENTA}</td>
@@ -506,6 +534,7 @@ const mapStateToProps = (state: RootState) => ({
     listaEtiquetas: state.obtenerEtiquetasAltasReducers.listaEtiquetas,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
+    objeto: state.validaApiLoginReducers,
     datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
     nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });

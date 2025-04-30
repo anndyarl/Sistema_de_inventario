@@ -11,7 +11,7 @@ interface AuthState {
   error: string | null; // Añade error al estado
   token: string | null;
   logout: any;
-  isAuthenticated: boolean
+  isAuthenticated: boolean;
 }
 
 // Estado inicial

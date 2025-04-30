@@ -7,14 +7,28 @@ import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
-import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/listadoGeneralBajasActions.tsx";
-import { registrarBienesBajasActions } from "../../redux/actions/Bajas/registrarBienesBajasActions.tsx";
-import { ListaBajas } from "./BienesBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
+import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listadoGeneralBajasActions.tsx";
+import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
 
+export interface ListaBajas {
+  bajaS_CORR: string;
+  aF_CLAVE: number;
+  id: number;
+  vutiL_RESTANTE: number;
+  vutiL_AGNOS: number;
+  useR_MOD: number;
+  saldO_VALOR: number;
+  observaciones: string;
+  nresolucion: number;
+  ncuenta: string;
+  iniciaL_VALOR: number;
+  fechA_BAJA: string;
+  especie: string;
+  deP_ACUMULADA: number;
+}
 export interface ListadoGeneralBajas {
   aF_CLAVE: number;
   aF_CODIGO_GENERICO: string;
@@ -65,7 +79,6 @@ export interface ListadoGeneralBajas {
 interface DatosBajas {
   listadoGeneralBajas: ListadoGeneralBajas[];
   listadoGeneralBajasActions: (af_codigo_generico: string) => Promise<boolean>;
-  obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string) => Promise<boolean>;
   registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -73,7 +86,7 @@ interface DatosBajas {
   nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obtenerListaExcluidosActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto, nPaginacion }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto, nPaginacion }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
@@ -135,11 +148,11 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
     // Validación específica para af_codigo_generico: solo permitir números
     if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
       return; // Salir si contiene caracteres no numéricos
     }
-
     // Convertir a número solo si el campo está en la lista
     const camposNumericos = ["nresolucion"];
     const newValue: string | number = camposNumericos.includes(name)
@@ -221,9 +234,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
             }
           });
 
-          setLoadingRegistro(false);
           listadoGeneralBajasActions("");
-          obtenerListaExcluidosActions("", "", "");
+          setLoadingRegistro(false);
           setFilaSeleccionada([]);
           elementosActuales.map((_, index) => (
             handleCerrarModal(index)
@@ -252,11 +264,12 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
     const resultado = await listadoGeneralBajasActions(Buscar.af_codigo_generico);
     if (!resultado) {
       Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, intente otro registro.",
+        icon: "warning",
+        title: "Inventario no encontrado",
+        text: "El Nº de inventario consultado no tiene registro.",
         confirmButtonText: "Ok",
       });
+      // listadoGeneralBajasActions("");
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -296,7 +309,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, obte
       <MenuBajas />
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
-        <Row>
+        <Row className="border rounded p-2 m-2">
           <Col md={2}>
             <div className="mb-1">
               <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
@@ -635,6 +648,5 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   listadoGeneralBajasActions,
-  obtenerListaExcluidosActions,
   registrarBienesBajasActions
 })(ListadoGeneral);

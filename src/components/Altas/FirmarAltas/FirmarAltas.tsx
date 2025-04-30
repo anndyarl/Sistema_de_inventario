@@ -6,21 +6,19 @@ import { connect } from "react-redux";
 // import { pdf } from "@react-pdf/renderer";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
-import { registrarBajasActions } from "../../../redux/actions/Bajas/registrarBajasActions";
 import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
-import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
-import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
 import { Objeto } from "../../Navegacion/Profile";
-import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
 import { Eraser, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(" ");
-};
+import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
+import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
+import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
+import { registrarBienesBajasActions } from "../../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions";
+
 interface FechasProps {
     fDesde: string;
     fHasta: string;
@@ -64,7 +62,6 @@ interface DatosBajas {
     comboUnidades: Unidades[];
     obtenerUnidadesActions: () => Promise<boolean>;
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
-    registrarBajasActions: (activos: { aF_CLAVE: number; bajaS_CORR: string; nresolucion: number; observaciones: string; fechA_BAJA: string }[]) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     datosFirmas: DatosFirmas[];
     token: string | null;
@@ -201,12 +198,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             console.log("FIRMA", FIRMA)
             // const FIRMA = `${firma.firma}`;
             if (firma.iD_UNIDAD === 1) {
-                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.subroganteInventario = false;
                 }
-                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.titularInventario = false;
@@ -214,12 +211,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             }
 
             if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.subroganteFinanzas = false;
                 }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Establecimiento.toString()) {
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.titularFinanzas = false;
@@ -242,17 +239,18 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
         if (Inventario.fDesde != "" || Inventario.fHasta != "") {
             if (validate()) {
-                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Establecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
             }
         }
         else {
-            resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, Inventario.af_codigo_generico);
+            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
         }
+
         if (!resultado) {
             Swal.fire({
-                icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                icon: "warning",
+                title: "Inventario no encontrado",
+                text: "El Nº de Inventario consultado no existe o no ha sido dado de alta.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -261,6 +259,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
+            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
@@ -274,6 +273,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             ...prevInventario,
             fDesde: "",
             fHasta: "",
+            altaS_CORR: 0,
             af_codigo_generico: ""
         }));
     };
@@ -281,7 +281,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         if (token) {
             if (listaAltasRegistradas.length === 0) {
                 setLoading(true);
-                const resultado = await listaAltasRegistradasActions("", "", objeto.Establecimiento, 0, "");
+                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
                 if (resultado) {
                     setLoading(false);
                 }
@@ -354,53 +354,72 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             <MenuAltas />
             <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>
-                <Row>
-                    <Col md={2}>
-                        <div className="mb-1">
-                            <label htmlFor="fDesde" className="fw-semibold">Desde</label>
-                            <input
-                                aria-label="fDesde"
-                                type="date"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                                name="fDesde"
-                                onChange={handleChange}
-                                value={Inventario.fDesde}
-                            />
-                            {error.fDesde && (
-                                <div className="invalid-feedback d-block">{error.fDesde}</div>
-                            )}
-                        </div>
-                        <div className="mb-1">
-                            <label htmlFor="fHasta" className="fw-semibold">Hasta</label>
-                            <input
-                                aria-label="fHasta"
-                                type="date"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                                name="fHasta"
-                                onChange={handleChange}
-                                value={Inventario.fHasta}
-                            />
-                            {error.fHasta && (
-                                <div className="invalid-feedback">{error.fHasta}</div>
-                            )}
-                        </div>
+                <Row className="border rounded p-2 m-2">
+                    <Col md={3}>
+                        <div className="mb-2">
+                            <div className="flex-grow-1 mb-2">
+                                <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
+                                <div className="input-group">
+                                    <input
+                                        aria-label="Fecha Desde"
+                                        type="date"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                                        name="fDesde"
+                                        onChange={handleChange}
+                                        value={Inventario.fDesde}
+                                    />
+                                </div>
+                                {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                            </div>
 
-                    </Col>
-                    <Col md={2}>
-                        <div className="mb-1">
-                            <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
-                            <input
-                                aria-label="af_codigo_generico"
-                                type="text"
-                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                name="af_codigo_generico"
-                                size={10}
-                                placeholder="Eje: 1000000008"
-                                onChange={handleChange}
-                                value={Inventario.af_codigo_generico}
-                            />
+                            <div className="flex-grow-1">
+                                <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                                <div className="input-group">
+                                    <input
+                                        aria-label="Fecha Hasta"
+                                        type="date"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                        name="fHasta"
+                                        onChange={handleChange}
+                                        value={Inventario.fHasta}
+                                    />
+                                </div>
+                                {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                            </div>
+                            <small className="fw-semibold">Filtre los resultados por fecha de alta.</small>
                         </div>
                     </Col>
+
+                    <Col md={2}>
+                        <div className="mb-2">
+                            <div className="mb-2">
+                                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                                <input
+                                    aria-label="af_codigo_generico"
+                                    type="text"
+                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="af_codigo_generico"
+                                    placeholder="Ej: 1000000008"
+                                    onChange={handleChange}
+                                    value={Inventario.af_codigo_generico}
+                                />
+                            </div>
+                            <div className="mb-2">
+                                <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
+                                <input
+                                    aria-label="altaS_CORR"
+                                    type="text"
+                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="altaS_CORR"
+                                    placeholder="Ej: 0"
+                                    onChange={handleChange}
+                                    value={Inventario.altaS_CORR}
+                                />
+                            </div>
+                        </div>
+                    </Col>
+
                     <Col md={5}>
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
@@ -421,7 +440,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                 ) : (
                                     <>
                                         {" Buscar"}
-                                        < Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                     </>
                                 )}
                             </Button>
@@ -429,7 +448,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1">
                                 Limpiar
-                                <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                             </Button>
                         </div>
                     </Col>
@@ -755,7 +774,7 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
     listaAltasRegistradasActions,
-    registrarBajasActions,
+    registrarBienesBajasActions,
     obtenerfirmasAltasActions,
     obtenerUnidadesActions
 })(FirmarAltas);

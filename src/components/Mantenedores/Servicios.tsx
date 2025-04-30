@@ -94,7 +94,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
 
     const [Mantenedor, setMantenedor] = useState({
         seR_CORR: seR_CORR,
-        estabL_corr: objeto.Establecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
+        estabL_corr: objeto.Roles[0].codigoEstablicimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
         descripcion: "",
         usuario: objeto.IdCredencial.toString(),
     });
@@ -211,7 +211,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                     });
                     setLoadingRegistro(false);
                     obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
-                    comboServicioActions(objeto.Establecimiento);//llama al nuevo servicio
+                    comboServicioActions(objeto.Roles[0].codigoEstablicimiento);//llama al nuevo servicio
                     listadoMantenedorServiciosActions();//llama al nuevo listado de servicios
                     // setFilaSeleccionada([]);
                     setMostrarModalRegistrar(false);
