@@ -29,8 +29,8 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
   // useAutoLogout(3.3e+6, 3.6e+6);
   useAutoLogout(600000, 660000);
 
-  console.log("token", token);
-  console.log("isAuthenticated", isAuthenticated);
+  // console.log("token", token);
+  // console.log("isAuthenticated", isAuthenticated);
 
   if (isAuthenticated == false) {
     return <Navigate to="/" />;

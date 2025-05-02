@@ -11,9 +11,9 @@ interface obtenerInventarioState {
     loading: boolean;
     error: string | null;
     aF_CLAVE: number;
-    servicioOrigen: number;
+    seR_CORR: number;
     deP_CORR_ORIGEN: number; //deP_CORR_ORIGEN
-    especie: string;
+    esP_CODIGO: string;
     af_codigo_generico: string; //nInventario
     marca: string;
     modelo: string;
@@ -37,9 +37,9 @@ const initialState: obtenerInventarioState = {
     loading: false,
     error: null,
     aF_CLAVE: 0,
-    servicioOrigen: 0,
+    seR_CORR: 0,
     deP_CORR_ORIGEN: 0, //deP_CORR_ORIGEN
-    especie: "",
+    esP_CODIGO: "",
     af_codigo_generico: "", //nInventario
     marca: "",
     modelo: "",
@@ -85,9 +85,9 @@ const obtenerInventarioTrasladoReducers = (state = initialState, action: any): o
                 loading: false,
                 aF_CLAVE: action.payload.aF_CLAVE,
                 af_codigo_generico: action.payload.aF_CODIGO_GENERICO,
-                servicioOrigen: action.payload.seR_CORR,
+                seR_CORR: action.payload.seR_CORR,
                 deP_CORR_ORIGEN: action.payload.deP_CORR_ORIGEN,
-                especie: action.payload.esP_CODIGO,
+                esP_CODIGO: action.payload.esP_CODIGO,
                 marca: action.payload.deT_MARCA,
                 modelo: action.payload.deT_MODELO,
                 serie: action.payload.deT_SERIE,

@@ -50,7 +50,7 @@ export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, est
         type: OBTENER_ALTAS_REGISTRADAS_FAIL,
         error: "El token ha expirado.",
       });
-      dispatch({ type: LOGOUT });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -58,6 +58,7 @@ export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, est
       type: OBTENER_ALTAS_REGISTRADAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

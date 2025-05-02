@@ -50,20 +50,13 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
         });
         return -1;
       }
-    } catch (err: any) {
-      console.error("Error de conexión:", err);
-      if (err.response && err.response.status === 401) {
-        // Manejo de token expirado
-        localStorage.removeItem("token");
-        dispatch({ type: LOGOUT }); // Lanza logout
-        window.location.href = "/"; // Redirige al login
-        return -1;
-      }
 
+    } catch (err: any) {
       dispatch({
         type: VALIDA_PORTAL_FAIL,
-        error: "Error de conexión. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      dispatch({ type: LOGOUT });
       return -1;
     }
   } else {
@@ -71,6 +64,7 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
       type: VALIDA_PORTAL_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return -1;
   }
 };

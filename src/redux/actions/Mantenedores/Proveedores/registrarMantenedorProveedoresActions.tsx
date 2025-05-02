@@ -5,6 +5,7 @@ import {
   REGISTRAR_PROVEEDORES_SUCCESS,
   REGISTRAR_PROVEEDORES_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const registrarMantenedorProveedoresActions = (formModal: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -41,12 +42,12 @@ export const registrarMantenedorProveedoresActions = (formModal: Record<string, 
         });
         return false;
       }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    } catch (err: any) {
       dispatch({
         type: REGISTRAR_PROVEEDORES_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -54,6 +55,7 @@ export const registrarMantenedorProveedoresActions = (formModal: Record<string, 
       type: REGISTRAR_PROVEEDORES_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

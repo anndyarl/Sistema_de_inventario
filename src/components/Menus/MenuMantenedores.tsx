@@ -21,15 +21,15 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
         {
-            name: 'Dependencias',
-            description: 'Listado de Dependencias',
-            href: '/Mantenedores/Dependencias',
-            icon: Collection
-        },
-        {
             name: 'Servicios',
             description: 'Listado de Servicios',
             href: '/Mantenedores/Servicios',
+            icon: Collection
+        },
+        {
+            name: 'Dependencias',
+            description: 'Listado de Dependencias',
+            href: '/Mantenedores/Dependencias',
             icon: Collection
         },
         {

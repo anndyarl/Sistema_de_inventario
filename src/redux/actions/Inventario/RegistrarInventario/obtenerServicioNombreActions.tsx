@@ -5,6 +5,7 @@ import {
   OBTENER_SERVICIO_NOMBRE_SUCCESS,
   OBTENER_SERVICIO_NOMBRE_FAIL
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const obtenerServicioNombreActions = (dep_corr: number) => async (dispatch: Dispatch, getState: any): Promise<Boolean> => {
@@ -31,17 +32,17 @@ export const obtenerServicioNombreActions = (dep_corr: number) => async (dispatc
       } else {
         dispatch({
           type: OBTENER_SERVICIO_NOMBRE_FAIL,
-          error:
-            "No se pudo obtener la recepción. Por favor, intente nuevamente.",
+          error: "No se pudo obtener los datos. Por favor, intente nuevamente.",
         });
         return false;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error en la solicitud:", err);
       dispatch({
         type: OBTENER_SERVICIO_NOMBRE_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -49,6 +50,8 @@ export const obtenerServicioNombreActions = (dep_corr: number) => async (dispatc
       type: OBTENER_SERVICIO_NOMBRE_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };
+

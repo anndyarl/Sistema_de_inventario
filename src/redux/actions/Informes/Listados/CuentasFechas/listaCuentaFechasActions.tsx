@@ -5,6 +5,7 @@ import {
   LISTA_CUENTA_FECHAS_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
+import { LOGOUT } from '../../../auth/types';
 
 
 // Acción para obtener LISTA_CUENTA_FECHAS
@@ -40,13 +41,20 @@ export const listaCuentaFechasActions = (fDesde: string, fHasta: string, codCuen
         dispatch({ type: LISTA_CUENTA_FECHAS_FAIL });
       }
       return false;
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
-      dispatch({ type: LISTA_CUENTA_FECHAS_FAIL });
+    } catch (err: any) {
+      dispatch({
+        type: LISTA_CUENTA_FECHAS_FAIL,
+        error: "El token ha expirado.",
+      });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
-    dispatch({ type: LISTA_CUENTA_FECHAS_FAIL });
+    dispatch({
+      type: LISTA_CUENTA_FECHAS_FAIL,
+      error: "No se encontró un token de autenticación válido.",
+    });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

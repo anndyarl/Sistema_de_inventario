@@ -5,6 +5,7 @@ import {
   LISTA_INVENTARIO_SUCCESS,
   LISTA_INVENTARIO_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
@@ -30,6 +31,10 @@ export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaI
           });
           return true;
         } else {
+          dispatch({
+            type: LISTA_INVENTARIO_FAIL,
+            error: "No se pudo obtener los datos. Por favor, intente nuevamente.",
+          });
           return false;
         }
       } else {
@@ -40,12 +45,13 @@ export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaI
         });
         return false;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error en la solicitud:", err);
       dispatch({
         type: LISTA_INVENTARIO_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -53,6 +59,7 @@ export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaI
       type: LISTA_INVENTARIO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

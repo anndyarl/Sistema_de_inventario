@@ -5,6 +5,7 @@ import {
     LISTA_MANTENEDOR_ESPECIES_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
+import { LOGOUT } from '../../auth/types';
 
 
 // Acción para obtener servicio
@@ -33,13 +34,22 @@ export const listadoMantenedorEspeciesActions = () => async (dispatch: Dispatch,
                 dispatch({ type: LISTA_MANTENEDOR_ESPECIES_FAIL });
                 return false;
             }
-        } catch (err) {
-            console.error("Error en la solicitud:", err);
-            dispatch({ type: LISTA_MANTENEDOR_ESPECIES_FAIL });
+        } catch (err: any) {
+            dispatch({
+                type: LISTA_MANTENEDOR_ESPECIES_FAIL,
+                error: "El token ha expirado.",
+            });
+            // dispatch({ type: LOGOUT });
             return false;
         }
     } else {
-        dispatch({ type: LISTA_MANTENEDOR_ESPECIES_FAIL });
+        dispatch({
+            type: LISTA_MANTENEDOR_ESPECIES_FAIL,
+            error: "No se encontró un token de autenticación válido.",
+        });
+        dispatch({ type: LOGOUT });
         return false;
     }
 };
+
+

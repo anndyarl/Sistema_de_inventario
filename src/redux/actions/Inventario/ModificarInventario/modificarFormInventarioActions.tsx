@@ -5,6 +5,7 @@ import {
   POST_FORMULARIO_SUCCESS,
   POST_FORMULARIO_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; // Token está en el estado de autenticación
@@ -42,24 +43,29 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
           });
           return false;
         }
+
+      } else {
+        dispatch({
+          type: POST_FORMULARIO_FAIL,
+          error: "No se pudo obtener el inventario. Por favor, intente nuevamente.",
+        });
+        return false;
       }
-    } catch (error: any) {
-      // Manejo detallado del error
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Error al enviar el formulario";
+    } catch (err: any) {
+      console.error("Error en la solicitud:", err);
       dispatch({
         type: POST_FORMULARIO_FAIL,
-        payload: errorMessage,
+        error: "El token ha expirado.",
       });
-      // console.error("Error al enviar el formulario:", errorMessage);
-      return false; // Retorna false en caso de error
+      // dispatch({ type: LOGOUT });
+      return false;
     }
   } else {
-    console.error("Sin token"); // Mensaje en caso de que no haya token
+    dispatch({
+      type: POST_FORMULARIO_FAIL,
+      error: "No se encontró un token de autenticación válido.",
+    });
+    dispatch({ type: LOGOUT });
     return false;
   }
-
-  return false; // Retorno por defecto (esto nunca debería ser alcanzado)
 };

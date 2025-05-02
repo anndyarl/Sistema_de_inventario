@@ -5,6 +5,7 @@ import {
   LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
+import { LOGOUT } from '../../../auth/types';
 
 
 // Acción para obtener LISTA_CONSULTA_INVENTARIO_ESPECIES
@@ -40,13 +41,20 @@ export const listaConsultaInventarioEspecieActions = (nInventario: string) => as
         dispatch({ type: LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL });
       }
       return false;
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
-      dispatch({ type: LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL });
+    } catch (err: any) {
+      dispatch({
+        type: LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL,
+        error: "El token ha expirado.",
+      });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
-    dispatch({ type: LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL });
+    dispatch({
+      type: LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL,
+      error: "No se encontró un token de autenticación válido.",
+    });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

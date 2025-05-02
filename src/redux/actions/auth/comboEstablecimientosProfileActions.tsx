@@ -3,6 +3,7 @@ import {
     COMBO_PROFILE_ESTABLECIMIENTO_REQUEST,
     COMBO_PROFILE_ESTABLECIMIENTO_SUCCESS,
     COMBO_PROFILE_ESTABLECIMIENTO_FAIL,
+    LOGOUT,
 } from './types';
 import { Dispatch } from 'redux';
 
@@ -40,11 +41,20 @@ export const comboEstablecimientosProfileActions = () => async (dispatch: Dispat
             }
         } catch (err) {
             // console.error("Error en la solicitud:", err);
-            dispatch({ type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL });
+            dispatch({
+                type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL,
+                error: "El token ha expirado.",
+            });
+            dispatch({ type: LOGOUT });
             return false;
         }
     } else {
-        dispatch({ type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL });
+        dispatch({
+            type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL,
+            error: "No se encontró un token de autenticación válido.",
+        });
+        dispatch({ type: LOGOUT });
         return false;
+
     }
 };

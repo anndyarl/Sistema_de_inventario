@@ -47,7 +47,7 @@ export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => asyn
         type: REGISTRAR_EXCLUIDOS_FAIL,
         error: "El token ha expirado.",
       });
-      dispatch({ type: LOGOUT });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -55,6 +55,7 @@ export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => asyn
       type: REGISTRAR_EXCLUIDOS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

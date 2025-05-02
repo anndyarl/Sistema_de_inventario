@@ -8,77 +8,19 @@ import Layout from "../../containers/hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
 import { BIEN, CUENTA, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/DatosCuenta";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
-import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
-import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
-import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions";
-import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
-import { comboCuentaActions } from "../../redux/actions/Inventario/Combos/comboCuentaActions";
-import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
 import MenuInventario from "../Menus/MenuInventario";
-import { setModalidadCompraActions } from "../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { Helmet } from "react-helmet-async";
 import Select from "react-select";
 import { Objeto } from "../Navegacion/Profile";
+import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
+import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
+import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
+import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
+import { setModalidadCompraActions } from "../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
-
-
-// export interface InventarioCompleto {
-//   AF_CLAVE: string;
-//   aF_CODIGO_GENERICO: string;
-//   aF_CODIGO_LARGO: string;
-//   DEP_CORR: number;
-//   esP_CODIGO: string;
-//   aF_SECUENCIA: number;
-//   itE_CLAVE: number;
-//   aF_DESCRIPCION: string;
-//   AF_FINGRESO: string;
-//   aF_ESTADO: string;
-//   aF_CODIGO: string;
-//   aF_TIPO: string;
-//   aF_ALTA: string;
-//   aF_PRECIO_REF: number;
-//   aF_CANTIDAD: number;
-//   AF_ORIGEN: number;
-//   aF_RESOLUCION: string;
-//   AF_FECHA_SOLICITUD: string;
-//   AF_OCO_NUMERO_REF: number;
-//   usuariO_CREA: string;
-//   f_CREA: string;
-//   iP_CREA: string;
-//   usuariO_MOD: string;
-//   f_MOD: string;
-//   iP_MOlabel: string;
-//   aF_TIPO_DOC: number;
-//   PROV_RUN: number;
-//   reG_EQM: string;
-//   AF_NUM_FAC: string;
-//   AF_FECHAFAC: string;
-//   aF_3UTM: string;
-//   iD_GRUPO: number;
-//   CTA_COD: string;
-//   transitoria: string;
-//   AF_MONTOFACTURA: number;
-//   esP_DESCOMPONE: string;
-//   aF_ETIQUETA: string;
-//   AF_VIDAUTIL: number;
-//   aF_VIGENTE: string;
-//   idprograma: number;
-//   IDMODALIDADCOMPRA: number;
-//   idpropiedad: number;
-//   ESP_CODIGO: string;
-//   DET_MARCA: string;
-//   DET_MODELO: string;
-//   DET_SERIE: string;
-//   deT_LOTE: string;
-//   deT_OBS: string;
-//   iP_MOD: string;
-//   DET_PRECIO: number;
-//   deT_RECEPCION: number;
-//   propietario: number;
-//   tipopropietario: number;
-// }
-
+import { comboDependenciaModificarActions } from "../../redux/actions/Inventario/Combos/comboDependenciaModificarActions ";
+import { comboCuentaModificarActions } from "../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
 export interface InventarioCompleto {
   aF_CLAVE: number;
   aF_CODIGO_GENERICO: string;
@@ -115,17 +57,18 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboEspecies: ListaEspecie[];
   comboProveedor: PROVEEDOR[];
 
-  comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+  comboDependenciaModificarActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   obtenerInventarioActions: (af_codigo_generico: string) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
-  comboCuentaActions: (nombreEspecie: string) => void;
+  comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
   comboProveedorActions: (rutProveedor: string) => void;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
-  descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
+  esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
   isDarkMode: boolean;
   objeto: Objeto;
+
 
 }
 
@@ -153,6 +96,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   DEP_CORR, //dependencia
   IDMODALIDADCOMPRA, // modalidadDeCompra
   ESP_CODIGO,// descripcion ESP_CODIGO
+  esP_NOMBRE,
   CTA_COD,
   //-------Tabla---------//
   AF_VIDAUTIL,
@@ -164,12 +108,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   DET_OBS,
   isDarkMode,
   objeto,
-  comboDependenciaActions,
+  comboDependenciaModificarActions,
   obtenerInventarioActions,
   comboDetalleActions,
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,
-  comboCuentaActions,
+  comboCuentaModificarActions,
   comboProveedorActions,
   modificarFormInventarioActions,
 }) => {
@@ -226,6 +170,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     label: item.nombrE_ESP,
   }));
 
+  // const cuentaOptions = comboCuenta.map((item) => ({
+  //   value: item.codigo,
+  //   label: item.descripcion,
+  // }));
+
   const [Buscar, setBuscar] = useState({
     esP_CODIGO: ""
   });
@@ -234,6 +183,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     const value = selectedOption ? selectedOption.value : "";
     setBuscar((prev) => ({ ...prev, esP_CODIGO: value }));
   };
+
+  // const handleComboCuentaChange = (selectedOption: any) => {
+  //   const value = selectedOption ? selectedOption.value : "";
+  //   setInventario((prev) => ({ ...prev, CTA_COD: value || Inventario.CTA_COD }));
+  // };
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -265,6 +219,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (comboEspecies.length === 0) {
       comboEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, 0);
     }
+    if (comboDependencia.length === 0) { comboDependenciaModificarActions(""); }
+
+
     setInventario({
       aF_CLAVE,
       aF_CODIGO_GENERICO, // nRecepcion
@@ -279,7 +236,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       SER_CORR, //servicio
       DEP_CORR, //dependencia
       IDMODALIDADCOMPRA, // modalidadDeCompra
-      ESP_CODIGO,//ESP_CODIGO
+      ESP_CODIGO: ESP_CODIGO ? ESP_CODIGO + " | " + esP_NOMBRE : "",//ESP_CODIGO
       CTA_COD,
       //-------Tabla---------//
       AF_VIDAUTIL,
@@ -291,12 +248,18 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       DET_OBS
     });
     //Se usa useEffect en este caso de ESP_CODIGO ya que por handleChange no detecta el cambio
-    // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
+    // debido que este se pasa por una seleccion desde el modal en la seleccion que se hace desde el listado
     if (Especies.codigoEspecie) {
-      comboCuentaActions(Especies.codigoEspecie); // aqui le paso codigo de detalle
-      // console.log("Código de especie seleccionado:", ESP_CODIGOs.codigoESP_CODIGO);
+      comboCuentaModificarActions("");
+      comboCuentaModificarActions(Especies.codigoEspecie); // aqui le paso codigo de detalle
+      setInventario((prevState) => ({
+        ...prevState,
+        CTA_COD: "",
+      }));
+      // console.log("Código de especie seleccionado:", Especies.codigoEspecie);
     }
   }, [
+    comboDependencia.length,
     aF_CODIGO_GENERICO, // nRecepcion
     AF_FECHA_SOLICITUD,//fechaRecepcion 
     AF_OCO_NUMERO_REF, //nOrdenCompra
@@ -317,7 +280,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     DET_MODELO,
     DET_SERIE,
     DET_PRECIO,
-    DET_OBS
+    DET_OBS,
+    comboCuentaModificarActions
     // Especies.codigoEspecie,
   ]);
 
@@ -350,7 +314,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }));
 
     if (name === "idprograma") { //servicio
-      comboDependenciaActions(value);
+      comboDependenciaModificarActions(value);
     }
     if (comboBien.length === 0) comboDetalleActions("0");
 
@@ -374,11 +338,20 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         setShowInput(false);
       }
     }
+    if (name === "SER_CORR") {
+      comboDependenciaModificarActions(value);
+    }
+
+    if (name === "aF_CODIGO_GENERICO") {
+      comboCuentaModificarActions("");
+    }
+
   };
 
   const handleEdit = () => {
     setInventario((prevInventario) => ({
       ...prevInventario,
+      aF_CODIGO_GENERICO: "",
       AF_CLAVE: 0, // nRecepcion
       AF_FECHA_SOLICITUD: "", // fechaRecepcion 
       AF_OCO_NUMERO_REF: 0, // nOrdenCompra      
@@ -387,7 +360,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       AF_MONTOFACTURA: 0, //montoRecepcion
       AF_FECHAFAC: "", //fechaFactura
       PROV_RUN: 0, // rutProveedor
-      idprograma: 0, //servicio
+      SER_CORR: 0, //servicio
       DEP_CORR: 0, //dependencia
       IDMODALIDADCOMPRA: 0, // modalidadDeCompra
       ESP_CODIGO: "", //ESP_CODIGO
@@ -427,9 +400,14 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         nombreEspecie,
         descripcionEspecie,
       });
-      setInventario((cuentaPrevia) => ({
-        ...cuentaPrevia,
-        ESP_CODIGO: codigoEspecie.toString(), // Actualiza el campo 'especie' en el estado de 'Cuenta'
+
+      // if (Especies.codigoEspecie) {
+      //   comboCuentaModificarActions(Especies.codigoEspecie); // aqui le paso codigo de detalle
+      //   console.log("Código de especie seleccionado:", Especies.codigoEspecie);
+      // }
+      setInventario((Prev) => ({
+        ...Prev,
+        ESP_CODIGO: descripcionEspecie.toString() // Actualiza el campo 'especie' en el estado de 'Cuenta'
       }));
       // Resetea el estado de las filas seleccionadas para desmarcar el checkbox
       setFilasSeleccionadas([]);
@@ -444,6 +422,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     let resultado = false;
     e.preventDefault();
     setLoading(true); // Inicia el estado de carga
+
+
     if (!Inventario.aF_CODIGO_GENERICO || Inventario.aF_CODIGO_GENERICO === "") {
       Swal.fire({
         icon: "warning",
@@ -483,6 +463,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setIsDisabledNRecepcion(true);
       setLoading(false); //Finaliza estado de carga
     }
+
   };
 
   const handleValidar = () => {
@@ -551,12 +532,14 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         text: "La especie consultado no ha sido encontrada",
         confirmButtonText: "Ok",
       });
+
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
       paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
+
   };
 
   // Lógica de Paginación actualizada
@@ -895,7 +878,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     aria-label="codigo"
                     type="text"
                     name="codigo"
-                    value={Inventario.ESP_CODIGO}
+                    value={Inventario.ESP_CODIGO || "Haz clic en más para seleccionar una especie"}
                     onChange={handleChange}
                     disabled
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.ESP_CODIGO ? "is-invalid" : ""}`}
@@ -928,7 +911,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   name="CTA_COD"
                   onChange={handleChange}
                   value={Inventario.CTA_COD}
-                  disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
                 >
                   <option value="">Selecciona una opción</option>
                   {comboCuenta.map((traeCuentas) => (
@@ -941,6 +924,48 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   <div className="invalid-feedback fw-semibold">{error.CTA_COD}</div>
                 )}
               </div>
+              {/* <div className="mb-1">
+                <label className="fw-semibold">
+                  Cuenta
+                </label>
+                <Select
+                  options={cuentaOptions}
+                  onChange={(selectedOption) => { handleComboCuentaChange(selectedOption) }}
+                  name="CTA_COD"
+                  placeholder="Buscar"
+                  className={`form-select-container `}
+                  classNamePrefix="react-select"
+                  isClearable
+                  // isSearchable
+                  styles={{
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                      color: isDarkMode ? "white" : "#212529", // Texto blanco
+                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                      color: isDarkMode ? "white" : "#212529",
+                    }),
+                    option: (base, { isFocused, isSelected }) => ({
+                      ...base,
+                      backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                      color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                    }),
+                  }}
+                />
+                {error.CTA_COD && (
+                  <div className="invalid-feedback fw-semibold d-block">
+                    {error.CTA_COD}
+                  </div>
+                )}
+              </div> */}
               <div className="mb-1">
                 <label className="fw-semibold">
                   Activos fijos</label>
@@ -1307,8 +1332,8 @@ const mapStateToProps = (state: RootState) => ({
   comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
   comboServicio: state.comboServicioReducer.comboServicio,
   comboModalidad: state.comboModalidadCompraReducer.comboModalidad,
-  comboCuenta: state.comboCuentaReducer.comboCuenta,
-  comboDependencia: state.comboDependenciaReducer.comboDependencia,
+  comboCuenta: state.comboCuentaModificarReducers.comboCuenta,
+  comboDependencia: state.comboDependenciaModificarReducers.comboDependencia,
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
@@ -1329,7 +1354,8 @@ const mapStateToProps = (state: RootState) => ({
   SER_CORR: state.obtenerInventarioReducers.seR_CORR, //servicio
   DEP_CORR: state.obtenerInventarioReducers.deP_CORR, //dependencia
   IDMODALIDADCOMPRA: state.obtenerInventarioReducers.idmodalidadcompra, // modalidadDeCompra
-  ESP_CODIGO: state.obtenerInventarioReducers.especie,//ESP_CODIGO
+  ESP_CODIGO: state.obtenerInventarioReducers.esP_CODIGO,//ESP_CODIGO
+  esP_NOMBRE: state.obtenerInventarioReducers.esP_NOMBRE,
   CTA_COD: state.obtenerInventarioReducers.ctA_COD,
   //-------Tabla---------//
   AF_VIDAUTIL: state.obtenerInventarioReducers.aF_VIDAUTIL,
@@ -1343,11 +1369,11 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   obtenerInventarioActions,
-  comboDependenciaActions,
+  comboDependenciaModificarActions,
   comboDetalleActions,
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,
-  comboCuentaActions,
+  comboCuentaModificarActions,
   comboProveedorActions,
   modificarFormInventarioActions
 })(ModificarInventario);

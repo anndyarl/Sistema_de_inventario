@@ -118,32 +118,32 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         console.log(value);
 
     };
-    const listaAuto = async () => {
-        if (listaFolioServicioDependencia.length === 0) {
-            setLoading(true);
-            const resultado = await listaFolioServicioDependenciaActions(0, objeto.Roles[0].codigoEstablicimiento);
-            if (resultado) {
-                setLoading(false);
-            }
-            else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-            }
-        }
-    };
+    // const listaAuto = async () => {
+    //     if (listaFolioServicioDependencia.length === 0) {
+    //         setLoading(true);
+    //         const resultado = await listaFolioServicioDependenciaActions(0, objeto.Roles[0].codigoEstablicimiento);
+    //         if (resultado) {
+    //             setLoading(false);
+    //         }
+    //         else {
+    //             Swal.fire({
+    //                 icon: "error",
+    //                 title: "Error",
+    //                 text: `Error en la solicitud. Por favor, intente nuevamente.`,
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
+    //         }
+    //     }
+    // };
 
     useEffect(() => {
         if (token) {
-            listaAuto();
+            // listaAuto();
             comboServicioInformeActions(objeto.Roles[0].codigoEstablicimiento);
         }
     }, [listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia.length, comboServicioInforme.length, token]); // Asegúrate de incluir dependencias relevantes
@@ -151,6 +151,21 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
+        if (!Buscar.servicio || Buscar.servicio === 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Por favor, seleccione un servicio",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            setLoading(false); //Finaliza estado de carga
+            return;
+        }
         resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Roles[0].codigoEstablicimiento);
 
         //resetea campos una vez hecha la busqueda
@@ -161,9 +176,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         setError({});
         if (!resultado) {
             Swal.fire({
-                icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                icon: "warning",
+                title: "Sin Resultados",
+                text: "No se encontraron resultados para la busqueda, inténte con otro servicio.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -519,7 +534,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     <Row className="border rounded p-2 m-2">
                         <Col md={3}>
                             {/* Servicio */}
-                            <div className="mb-1">
+                            <div className="mb-1 position-relative z-1">
                                 <label className="fw-semibold">
                                     Servicio
                                 </label>
@@ -617,7 +632,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                             <SkeletonLoader rowCount={10} columnCount={10} />
                         </>
                     ) : (
-                        <div className='table-responsive'>
+                        <div className='table-responsive position-relative z-0'>
                             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                 <thead className={`sticky-top  z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                     <tr>
@@ -682,7 +697,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     )}
 
                     {/* Paginador */}
-                    <div className="paginador-container">
+                    <div className="paginador-container position-relative z-0">
                         <Pagination className="paginador-scroll">
                             <Pagination.First
                                 onClick={() => paginar(1)}

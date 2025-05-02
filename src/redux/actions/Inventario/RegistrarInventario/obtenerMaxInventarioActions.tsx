@@ -5,6 +5,7 @@ import {
     OBTENER_MAX_INVENTARIO_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
+import { LOGOUT } from '../../auth/types';
 
 
 // Acción para obtener INVENTARIO
@@ -32,16 +33,27 @@ export const obtenerMaxInventarioActions = () => async (dispatch: Dispatch, getS
                 });
                 return true;
             } else {
-                dispatch({ type: OBTENER_MAX_INVENTARIO_FAIL });
+                dispatch({
+                    type: OBTENER_MAX_INVENTARIO_FAIL,
+                    error: "No se pudo obtener los datos. Por favor, intente nuevamente.",
+                });
                 return false;
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error en la solicitud:", err);
-            dispatch({ type: OBTENER_MAX_INVENTARIO_FAIL });
+            dispatch({
+                type: OBTENER_MAX_INVENTARIO_FAIL,
+                error: "El token ha expirado.",
+            });
+            // dispatch({ type: LOGOUT });
             return false;
         }
     } else {
-        dispatch({ type: OBTENER_MAX_INVENTARIO_FAIL });
+        dispatch({
+            type: OBTENER_MAX_INVENTARIO_FAIL,
+            error: "No se encontró un token de autenticación válido.",
+        });
+        dispatch({ type: LOGOUT });
         return false;
     }
 };

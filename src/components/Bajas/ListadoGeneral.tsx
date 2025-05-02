@@ -12,6 +12,7 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listadoGeneralBajasActions.tsx";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
+import { useLocation } from "react-router-dom";
 
 export interface ListaBajas {
   bajaS_CORR: string;
@@ -84,6 +85,7 @@ interface DatosBajas {
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
   nPaginacion: number; //número de paginas establecido desde preferencias
+
 }
 
 const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto, nPaginacion }) => {
@@ -105,6 +107,9 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
     af_codigo_generico: "",
   });
 
+  useEffect(() => {
+    listadoGeneralBajasAuto()
+  }, [listadoGeneralBajasActions, token, listadoGeneralBajas.length]); // Asegúrate de incluir dependencias relevantes
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -141,10 +146,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
       }
     }
   };
-
-  useEffect(() => {
-    listadoGeneralBajasAuto()
-  }, [listadoGeneralBajasActions, token, listadoGeneralBajas.length]); // Asegúrate de incluir dependencias relevantes
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -287,6 +288,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   };
 
 
+
+
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -396,8 +399,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                   <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
                   {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
                   <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
-                  <th scope="col" className="text-nowrap text-center">Proveedor RUN</th>
-                  <th scope="col" className="text-nowrap text-center">Reg EQM</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Proveedor RUN</th> */}
+                  {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
                   <th scope="col" className="text-nowrap text-center">Número Factura</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
                   <th scope="col" className="text-nowrap text-center">UTM</th>
@@ -405,7 +408,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                   <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
                   <th scope="col" className="text-nowrap text-center">Transitoria</th>
                   <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                  <th scope="col" className="text-nowrap text-center">ESP Descompone</th>
+                  {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
                   <th scope="col" className="text-nowrap text-center">Etiqueta</th>
                   <th scope="col" className="text-nowrap text-center">Vida Útil</th>
                   <th scope="col" className="text-nowrap text-center">Vigente</th>
@@ -413,7 +416,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                   <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
                   <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
                   <th scope="col" className="text-nowrap text-center">Especie</th>
-                  <th scope="col" className="text-nowrap text-center">Estado Inventario</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Estado Inventario</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -459,8 +462,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                       <td className="text-nowrap">{Lista.f_MOD}</td>
                       {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
                       <td className="text-nowrap">{Lista.aF_TIPO_DOC}</td>
-                      <td className="text-nowrap">{Lista.prov_RUN}</td>
-                      <td className="text-nowrap">{Lista.reG_EQM}</td>
+                      {/* <td className="text-nowrap">{Lista.prov_RUN}</td> */}
+                      {/* <td className="text-nowrap">{Lista.reG_EQM}</td> */}
                       <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
                       <td className="text-nowrap">{Lista.aF_FECHAFAC}</td>
                       <td className="text-nowrap">{Lista.aF_3UTM}</td>
@@ -468,7 +471,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                       <td className="text-nowrap">{Lista.ctA_COD}</td>
                       <td className="text-nowrap">{Lista.transitoria}</td>
                       <td className="text-nowrap">{Lista.aF_MONTOFACTURA}</td>
-                      <td className="text-nowrap">{Lista.esP_DESCOMPONE}</td>
+                      {/* <td className="text-nowrap">{Lista.esP_DESCOMPONE}</td> */}
                       <td className="text-nowrap">{Lista.aF_ETIQUETA}</td>
                       <td className="text-nowrap">{Lista.aF_VIDAUTIL}</td>
                       <td className="text-nowrap">{Lista.aF_VIGENTE}</td>
@@ -476,7 +479,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                       <td className="text-nowrap">{Lista.idmodalidadcompra}</td>
                       <td className="text-nowrap">{Lista.idpropiedad}</td>
                       <td className="text-nowrap">{Lista.especie}</td>
-                      <td className="text-nowrap">{Lista.aF_ESTADO_INV}</td>
+                      {/* <td className="text-nowrap">{Lista.aF_ESTADO_INV}</td> */}
                     </tr>
                   );
                 })}

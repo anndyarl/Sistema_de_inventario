@@ -40,7 +40,8 @@ const persistConfig = {
     'comboCuentasInformeReducers',
     'comboServicioInformeReducers',
     'mostrarNPaginacionReducer',
-    'resumenInventarioRegistroReducers'//Quitar
+    'resumenInventarioRegistroReducers',//Quitar
+    "listaVersionamientoReducers"
   ]
 };
 

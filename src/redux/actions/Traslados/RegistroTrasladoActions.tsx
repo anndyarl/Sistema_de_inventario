@@ -5,6 +5,7 @@ import {
     POST_FORMULARIO_TRASLADO_SUCCESS,
     POST_FORMULARIO_TRASLADO_FAIL,
 } from "./types";
+import { LOGOUT } from "../auth/types";
 
 // Acción para enviar el formulario
 export const registroTrasladoActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -30,7 +31,6 @@ export const registroTrasladoActions = (FormularioTraslado: Record<string, any>)
 
             // Si el POST es exitoso
             if (response.status === 200) {
-                console.log("response.status", response.status);
                 if (response.data === 1) {
                     dispatch({
                         type: POST_FORMULARIO_TRASLADO_SUCCESS,
@@ -48,22 +48,27 @@ export const registroTrasladoActions = (FormularioTraslado: Record<string, any>)
                     return false;
                 }
             }
-        } catch (error: any) {
-            // Manejo detallado del error
-            const errorMessage = error.response?.data?.message || error.message || "Error al enviar el formulario";
-            console.log("errorMessage", errorMessage);
+            else {
+                dispatch({
+                    type: POST_FORMULARIO_TRASLADO_FAIL,
+                    error: "No se pudo obtener el listado del inventario. Por favor, intente nuevamente.",
+                });
+                return false;
+            }
+        } catch (err: any) {
             dispatch({
                 type: POST_FORMULARIO_TRASLADO_FAIL,
-                payload: errorMessage,
+                error: "El token ha expirado.",
             });
-
-            return false; // Retorna false en caso de error
+            // dispatch({ type: LOGOUT });
+            return false;
         }
     } else {
-        console.error("No token available"); // Mensaje en caso de que no haya token
-        return false; // Retorna false si no hay token
+        dispatch({
+            type: POST_FORMULARIO_TRASLADO_FAIL,
+            error: "No se encontró un token de autenticación válido.",
+        });
+        dispatch({ type: LOGOUT });
+        return false;
     }
-    console.error("Retorno por defecto ");
-    // Añadir un return al final de la función para cumplir con el tipo de retorno
-    return false; // Retorno por defecto (esto nunca debería ser alcanzado)
 };

@@ -5,6 +5,7 @@ import {
   LISTA_SERVICIO_DEPENDENCIA_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
+import { LOGOUT } from '../../../auth/types';
 
 
 // Acción para obtener LISTA_SERVICIO_DEPENDENCIA
@@ -40,13 +41,20 @@ export const listaFolioServicioDependenciaActions = (dep_corr: number, establ_co
         dispatch({ type: LISTA_SERVICIO_DEPENDENCIA_FAIL });
       }
       return false;
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
-      dispatch({ type: LISTA_SERVICIO_DEPENDENCIA_FAIL });
+    } catch (err: any) {
+      dispatch({
+        type: LISTA_SERVICIO_DEPENDENCIA_FAIL,
+        error: "El token ha expirado.",
+      });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
-    dispatch({ type: LISTA_SERVICIO_DEPENDENCIA_FAIL });
+    dispatch({
+      type: LISTA_SERVICIO_DEPENDENCIA_FAIL,
+      error: "No se encontró un token de autenticación válido.",
+    });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

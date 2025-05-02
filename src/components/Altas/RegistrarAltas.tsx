@@ -13,6 +13,7 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { setAltasRegistradas } from "../../redux/actions/Altas/RegistrarAltas/datosAltasRegistradasActions.tsx";
+import { useLocation } from "react-router-dom";
 
 interface FechasProps {
   fDesde: string;
@@ -61,11 +62,53 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   const elementosPorPagina = nPaginacion;
   const dispatch = useDispatch<AppDispatch>();
 
+  const location = useLocation();
+  const afCodigoGenerico = location.state?.prop_codigo_origen ?? "";
+
   const [Inventario, setInventario] = useState({
     fDesde: "",
     fHasta: "",
-    af_codigo_generico: ""
+    af_codigo_generico: afCodigoGenerico
   });
+
+  useEffect(() => {
+    // dispatch(setAltasRegistradas(1));
+    // setModalMostrarResumen(true);
+    if (altasRegistradas === 1) {
+      mostrarAlerta();
+    }
+    listaAltasAuto();
+
+  }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
+
+  const handleBuscar = async () => {
+    let resultado = false;
+    setLoading(true);
+
+    if (Inventario.fDesde != "" || Inventario.fHasta != "") {
+      if (validate()) {
+        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablicimiento);
+      }
+    }
+    else {
+      resultado = await listaAltasActions("", "", Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablicimiento);
+    }
+    if (!resultado) {
+      Swal.fire({
+        icon: "warning",
+        title: "Inventario no encontrado",
+        text: "El Nº de Inventario consultado no existe o ya ha sido dado de alta.",
+        confirmButtonText: "Ok",
+      });
+      listaAltasActions("", "", "", objeto.Roles[0].codigoEstablicimiento);
+      setLoading(false); //Finaliza estado de carga
+      return;
+    } else {
+      paginar(1);
+      setLoading(false); //Finaliza estado de carga
+    }
+
+  };
 
   const mostrarAlerta = () => {
     document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
@@ -116,15 +159,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     }
   };
 
-  useEffect(() => {
-    // dispatch(setAltasRegistradas(1));
-    // setModalMostrarResumen(true);
-    if (altasRegistradas === 1) {
-      mostrarAlerta();
-    }
-    listaAltasAuto();
-
-  }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -149,34 +183,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
   };
 
-  const handleBuscar = async () => {
-    let resultado = false;
-    setLoading(true);
-
-    if (Inventario.fDesde != "" || Inventario.fHasta != "") {
-      if (validate()) {
-        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablicimiento);
-      }
-    }
-    else {
-      resultado = await listaAltasActions("", "", Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablicimiento);
-    }
-    if (!resultado) {
-      Swal.fire({
-        icon: "warning",
-        title: "Inventario no encontrado",
-        text: "El Nº de Inventario consultado no existe o ya ha sido dado de alta.",
-        confirmButtonText: "Ok",
-      });
-      listaAltasActions("", "", "", objeto.Roles[0].codigoEstablicimiento);
-      setLoading(false); //Finaliza estado de carga
-      return;
-    } else {
-      paginar(1);
-      setLoading(false); //Finaliza estado de carga
-    }
-
-  };
 
   const handleLimpiar = () => {
     setInventario((prevInventario) => ({

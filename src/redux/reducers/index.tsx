@@ -86,6 +86,8 @@ import obtenerServicioNombreReducers from "./Inventario/RegistrarInventario/obte
 import listadoDeEspeciesBienReducers from "./Inventario/Combos/listadoDeEspeciesBienReducers";
 import comboEspeciesBienReducers from "./Inventario/Combos/comboEspeciesBienReducers";
 import obtenerInventarioTrasladoReducers from "./Traslados/obtenerInventarioTrasladoReducers";
+import comboDependenciaModificarReducers from "./Inventario/Combos/comboDependenciaModificarReducers";
+import comboCuentaModificarReducers from "./Inventario/Combos/comboCuentaModificarReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -118,6 +120,8 @@ const appReducer = combineReducers({
 
   // Modificar Inventario
   obtenerInventarioReducers,
+  comboDependenciaModificarReducers,
+  comboCuentaModificarReducers,
 
   // Anular Inventario
   datosListaInventarioReducers,
@@ -209,7 +213,6 @@ const rootReducer = (state: any, action: any) => {
       comboEstablecimientoReducer,
       comboTrasladoServicioReducer,
       comboTrasladoEspecieReducer,
-      comboCuentasInformeReducers,
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
@@ -220,6 +223,7 @@ const rootReducer = (state: any, action: any) => {
       listaActivosCalculadosReducers,
       listaActivosNoCalculadosReducers,
       listaConsultaInventarioEspeciesReducers,
+      listaVersionamientoReducers
     } = state || {};
 
     state = {
@@ -236,7 +240,6 @@ const rootReducer = (state: any, action: any) => {
       comboEstablecimientoReducer,
       comboTrasladoServicioReducer,
       comboTrasladoEspecieReducer,
-      comboCuentasInformeReducers,
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
@@ -247,6 +250,8 @@ const rootReducer = (state: any, action: any) => {
       listaActivosCalculadosReducers,
       listaActivosNoCalculadosReducers,
       listaConsultaInventarioEspeciesReducers,
+      listaVersionamientoReducers
+
     };
   }
   return appReducer(state, action);

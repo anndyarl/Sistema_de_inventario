@@ -42,7 +42,7 @@ export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO
         type: REGISTRAR_BIENES_BAJAS_FAIL,
         error: "El token ha expirado.",
       });
-      dispatch({ type: LOGOUT });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -50,6 +50,7 @@ export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO
       type: REGISTRAR_BIENES_BAJAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

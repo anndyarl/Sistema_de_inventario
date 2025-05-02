@@ -5,6 +5,7 @@ import {
   REGISTRAR_SERVICIO_SUCCESS,
   REGISTRAR_SERVICIO_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const registrarMantenedorServiciosActions = (formModal: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -41,12 +42,12 @@ export const registrarMantenedorServiciosActions = (formModal: Record<string, an
         });
         return false;
       }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    } catch (err: any) {
       dispatch({
         type: REGISTRAR_SERVICIO_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -54,6 +55,8 @@ export const registrarMantenedorServiciosActions = (formModal: Record<string, an
       type: REGISTRAR_SERVICIO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };
+

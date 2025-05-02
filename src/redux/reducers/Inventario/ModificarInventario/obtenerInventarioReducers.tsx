@@ -22,7 +22,8 @@ interface obtenerInventarioState {
     seR_CORR: number; //servicio
     deP_CORR: number; //dependencia
     idmodalidadcompra: number; // modalidadDeCompra
-    especie: string; //especie
+    esP_CODIGO: string; //especie
+    esP_NOMBRE: string;
     ctA_COD: string;
     //-------Tabla---------//
     aF_VIDAUTIL: number;
@@ -50,7 +51,8 @@ const initialState: obtenerInventarioState = {
     seR_CORR: 0, //servicio
     deP_CORR: 0, //dependencia
     idmodalidadcompra: 0, // modalidadDeCompra
-    especie: "", //especie
+    esP_CODIGO: "", //especie
+    esP_NOMBRE: "",
     ctA_COD: "",
     //-------Tabla---------//
     aF_VIDAUTIL: 0,
@@ -89,7 +91,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
         case 'SET_MODALIDAD_COMPRA_MOD':
             return { ...state, idmodalidadcompra: action.payload };
         case 'SET_ESPECIE_MOD':
-            return { ...state, especie: action.payload };
+            return { ...state, esP_CODIGO: action.payload };
         case 'SET_CUENTA_MOD':
             return { ...state, ctA_COD: action.payload };
         //--------------------TABLA-----------------//
@@ -130,7 +132,8 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
                 seR_CORR: action.payload.seR_CORR,//servicio
                 deP_CORR: action.payload.deP_CORR, //dependencia                     
                 idmodalidadcompra: action.payload.idmodalidadcompra,
-                especie: action.payload.especie,
+                esP_CODIGO: action.payload.esP_CODIGO,
+                esP_NOMBRE: action.payload.esP_NOMBRE,
                 ctA_COD: action.payload.ctA_COD,
                 aF_VIDAUTIL: action.payload.aF_VIDAUTIL,
                 aF_FINGRESO: action.payload.aF_FINGRESO,

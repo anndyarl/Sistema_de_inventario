@@ -5,6 +5,7 @@ import {
   COMBO_SERVICIO_INFORME_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
+import { LOGOUT } from '../../../auth/types';
 
 
 // Acción para obtener COMBO_SERVICIO_INFORME
@@ -33,13 +34,20 @@ export const comboServicioInformeActions = (establ_corr: number) => async (dispa
         dispatch({ type: COMBO_SERVICIO_INFORME_FAIL });
         return false;
       }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
-      dispatch({ type: COMBO_SERVICIO_INFORME_FAIL });
+    } catch (err: any) {
+      dispatch({
+        type: COMBO_SERVICIO_INFORME_FAIL,
+        error: "El token ha expirado.",
+      });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
-    dispatch({ type: COMBO_SERVICIO_INFORME_FAIL });
+    dispatch({
+      type: COMBO_SERVICIO_INFORME_FAIL,
+      error: "No se encontró un token de autenticación válido.",
+    });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

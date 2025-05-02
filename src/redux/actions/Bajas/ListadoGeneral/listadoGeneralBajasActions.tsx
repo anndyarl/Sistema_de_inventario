@@ -51,7 +51,7 @@ export const listadoGeneralBajasActions = (af_codigo_generico: string) => async 
         type: LISTADO_GENERAL_BAJAS_FAIL,
         error: "El token ha expirado.",
       });
-      dispatch({ type: LOGOUT });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -59,6 +59,7 @@ export const listadoGeneralBajasActions = (af_codigo_generico: string) => async 
       type: LISTADO_GENERAL_BAJAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

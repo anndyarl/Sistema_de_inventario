@@ -46,7 +46,7 @@ export const listaAltasActions = (fDesde: string, fHasta: string, af_codigo_gene
         type: OBTENER_ALTAS_FAIL,
         error: "El token ha expirado.",
       });
-      dispatch({ type: LOGOUT });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -54,6 +54,7 @@ export const listaAltasActions = (fDesde: string, fHasta: string, af_codigo_gene
       type: OBTENER_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

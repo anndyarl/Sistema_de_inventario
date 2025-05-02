@@ -5,6 +5,7 @@ import {
   ANULAR_INVENTARIO_SUCCESS,
   ANULAR_INVENTARIO_FAIL,
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const anularInventarioActions = (AF_CLAVE: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -33,16 +34,17 @@ export const anularInventarioActions = (AF_CLAVE: string) => async (dispatch: Di
         dispatch({
           type: ANULAR_INVENTARIO_FAIL,
           error:
-            "No se pudo obtener el inventario. Por favor, intente nuevamente.",
+            "No se pudo anular el inventario. Por favor, intente nuevamente.",
         });
         return false;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error en la solicitud:", err);
       dispatch({
         type: ANULAR_INVENTARIO_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -50,6 +52,7 @@ export const anularInventarioActions = (AF_CLAVE: string) => async (dispatch: Di
       type: ANULAR_INVENTARIO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

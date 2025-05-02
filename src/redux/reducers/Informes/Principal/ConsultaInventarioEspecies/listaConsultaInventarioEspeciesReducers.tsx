@@ -30,6 +30,7 @@ interface PropsState {
     establecmiento: number;
     proV_RUN: number
     proV_NOMBRE: string;
+    origen: string;
   }>;
   error: string | null;
 }

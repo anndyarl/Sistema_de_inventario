@@ -334,32 +334,32 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                   <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
-                      <th scope="col" className="text-nowrap text-center">Nº de Inventario</th>
-                      <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                      <th scope="col" className="text-nowrap">Nº de Inventario</th>
+                      <th scope="col" className="text-nowrap">Dependencia</th>
                       {/* <th scope="col" className="text-nowrap text-center">Estado Alta</th> */}
-                      <th scope="col" className="text-nowrap text-center">Cantidad</th>
-                      <th scope="col" className="text-nowrap text-center">Descripción</th>
+                      <th scope="col" className="text-nowrap">Cantidad</th>
+                      <th scope="col" className="text-nowrap">Descripción</th>
                       {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                      <th scope="col" className="text-nowrap text-center">Fecha Recepción</th>
-                      <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
-                      <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                      <th scope="col" className="text-nowrap text-center">Nº de Factura</th>
+                      <th scope="col" className="text-nowrap">Fecha Recepción</th>
+                      <th scope="col" className="text-nowrap">Fecha Factura</th>
+                      <th scope="col" className="text-nowrap">Monto Factura</th>
+                      <th scope="col" className="text-nowrap">Nº de Factura</th>
                       {/* <th scope="col" className="text-nowrap text-center">ID Origen</th> */}
-                      <th scope="col" className="text-nowrap text-center">Origen</th>
+                      <th scope="col" className="text-nowrap">Origen</th>
                       {/* <th scope="col" className="text-nowrap text-center">Tipo</th> */}
-                      <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                      <th scope="col" className="text-nowrap text-center">Cuenta</th>
-                      <th scope="col" className="text-nowrap text-center">Nombre Especie</th>
-                      <th scope="col" className="text-nowrap text-center">Código Especie</th>
-                      <th scope="col" className="text-nowrap text-center">Usuario Creador</th>
+                      <th scope="col" className="text-nowrap">Vida Útil</th>
+                      <th scope="col" className="text-nowrap">Cuenta</th>
+                      <th scope="col" className="text-nowrap">Nombre Especie</th>
+                      <th scope="col" className="text-nowrap">Código Especie</th>
+                      <th scope="col" className="text-nowrap">Usuario Creador</th>
                       {/* <th scope="col" className="text-nowrap text-center">Lote</th> */}
-                      <th scope="col" className="text-nowrap text-center">Marca</th>
-                      <th scope="col" className="text-nowrap text-center">Modelo</th>
-                      <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                      <th scope="col" className="text-nowrap text-center">Precio</th>
-                      <th scope="col" className="text-nowrap text-center">Serie</th>
-                      <th scope="col" className="text-nowrap text-center">Proveedor</th>
-                      <th scope="col" className="text-nowrap text-center" style={{
+                      <th scope="col" className="text-nowrap">Marca</th>
+                      <th scope="col" className="text-nowrap">Modelo</th>
+                      <th scope="col" className="text-nowrap">Observaciones</th>
+                      <th scope="col" className="text-nowrap">Precio</th>
+                      <th scope="col" className="text-nowrap">Serie</th>
+                      <th scope="col" className="text-nowrap">Proveedor</th>
+                      <th scope="col" className="text-nowrap" style={{
                         position: 'sticky',
                         right: 0,
                         zIndex: 2,

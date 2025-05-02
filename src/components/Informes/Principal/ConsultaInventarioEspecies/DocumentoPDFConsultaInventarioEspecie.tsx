@@ -76,8 +76,8 @@ const DocumentoPDF = ({ row }: { row: ListaInvenarioEspecies }) => (
                 <View style={styles.tableRow}><Text style={styles.tableCell}>Dependencia Actual</Text><Text style={styles.tableCell}>{row.dependencia}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Fecha Recepción</Text><Text style={styles.tableCellNoBorder}>{row.fecha}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Años Vida Útil</Text><Text style={styles.tableCellNoBorder}>{row.vida} de 15 años</Text></View>
-                <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Nº Recepción</Text><Text style={styles.tableCellNoBorder}>{row.aF_RESOLUCION}</Text></View>
-                <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Origen</Text><Text style={styles.tableCellNoBorder}>{row.aF_TIPO}</Text></View>
+                <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Nº Recepción</Text><Text style={styles.tableCellNoBorder}>{row.aF_RESOLUCION ? row.aF_RESOLUCION : "n/a"}</Text></View>
+                <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Origen</Text><Text style={styles.tableCellNoBorder}>{row.aF_TIPO ? row.aF_TIPO : "n/a"}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Nº Alta</Text><Text style={styles.tableCellNoBorder}>{row.altaS_CORR}</Text></View>
                 <View style={styles.tableRow}><Text style={styles.tableCellNoBorder}>Valor</Text><Text style={styles.tableCellNoBorder}>$ {(row.valor ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text></View>
             </View>

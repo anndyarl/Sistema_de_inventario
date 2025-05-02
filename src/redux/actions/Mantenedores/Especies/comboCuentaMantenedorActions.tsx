@@ -5,6 +5,7 @@ import {
     COMBO_CUENTAS_MANTENEDOR_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
+import { LOGOUT } from '../../auth/types';
 
 
 // Acción para obtener servicio
@@ -33,13 +34,21 @@ export const comboCuentaMantenedorActions = () => async (dispatch: Dispatch, get
                 dispatch({ type: COMBO_CUENTAS_MANTENEDOR_FAIL });
                 return false;
             }
-        } catch (err) {
-            console.error("Error en la solicitud:", err);
-            dispatch({ type: COMBO_CUENTAS_MANTENEDOR_FAIL });
+        } catch (err: any) {
+            dispatch({
+                type: COMBO_CUENTAS_MANTENEDOR_FAIL,
+                error: "El token ha expirado.",
+            });
+            // dispatch({ type: LOGOUT });
             return false;
         }
     } else {
-        dispatch({ type: COMBO_CUENTAS_MANTENEDOR_FAIL });
+        dispatch({
+            type: COMBO_CUENTAS_MANTENEDOR_FAIL,
+            error: "No se encontró un token de autenticación válido.",
+        });
+        dispatch({ type: LOGOUT });
         return false;
     }
 };
+

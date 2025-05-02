@@ -37,6 +37,7 @@ export interface ListaInvenarioEspecies {
     establecmiento: number;
     proV_RUN: number
     proV_NOMBRE: string;
+    origen: string;
 }
 
 
@@ -97,12 +98,27 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
+        if (!Inventario.af_codigo_generico || Inventario.af_codigo_generico === "") {
+            Swal.fire({
+                icon: "warning",
+                title: "Por favor, ingrese un número de inventario",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            setLoading(false); //Finaliza estado de carga
+            return;
+        }
         resultado = await listaConsultaInventarioEspecieActions(Inventario.af_codigo_generico);
         if (!resultado) {
             Swal.fire({
-                icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                icon: "warning",
+                title: "Sin Resultados",
+                text: "No se encontraron resultados para la busqueda, inténte con otro Nº de inventario.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -126,37 +142,37 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
             af_codigo_generico: ""
         }));
     };
-    const fetchBajas = async () => {
-        if (token) {
-            setLoading(true);
-            try {
-                const resultado = await listaConsultaInventarioEspecieActions(Inventario.af_codigo_generico);
-                if (!resultado) {
-                    throw new Error("Error al cargar la lista de bajas");
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
+    // const fetchBajas = async () => {
+    //     if (token) {
+    //         setLoading(true);
+    //         try {
+    //             const resultado = await listaConsultaInventarioEspecieActions(Inventario.af_codigo_generico);
+    //             if (!resultado) {
+    //                 throw new Error("Error al cargar la lista de bajas");
+    //             }
+    //         } catch (error) {
+    //             Swal.fire({
+    //                 icon: "error",
+    //                 title: "Error",
+    //                 text: `Error en la solicitud. Por favor, intente nuevamente.`,
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+    // };
 
-    useEffect(() => {
-        if (listaConsultaInventarioEspecie.length === 0) {
-            fetchBajas()
-        };
-    }, [listaConsultaInventarioEspecieActions, token, listaConsultaInventarioEspecie.length, isDarkMode]);
+    // useEffect(() => {
+    // if (listaConsultaInventarioEspecie.length === 0) {
+    //     fetchBajas()
+    // };
+    // }, [listaConsultaInventarioEspecieActions, listaConsultaInventarioEspecie.length]);
 
     const setSeleccionaFila = (index: number) => {
         setMostrarModal(index); //Abre modal del indice seleccionado    
@@ -250,8 +266,8 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                     <th scope="col" className="text-nowrap text-center"></th>
                                     <th scope="col" className="text-nowrap text-center">Cuenta</th>
                                     <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Traspaso</th>
-                                    {/* <th scope="col" className="text-nowrap text-center">ID</th> */}
+                                    <th scope="col" className="text-nowrap text-center">N° Traslado</th>
+                                    <th scope="col" className="text-nowrap text-center">N° Altas</th>
                                     <th scope="col" className="text-nowrap text-center">Especie</th>
                                     <th scope="col" className="text-nowrap text-center">Marca</th>
                                     <th scope="col" className="text-nowrap text-center">Modelo</th>
@@ -264,7 +280,6 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                     <th scope="col" className="text-nowrap text-center">Fecha Recepción</th>
                                     <th scope="col" className="text-nowrap text-center">Años Vida Útil</th>
                                     <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Altas</th>
                                     <th scope="col" className="text-nowrap text-center">Origen</th>
                                     <th scope="col" className="text-nowrap text-center">Valor</th>
 
@@ -289,8 +304,8 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                         </td>
                                         <td className="text-nowrap">{fila.ctA_COD}</td>
                                         <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                        <td className="text-nowrap">{fila.traS_CORR}</td>
-                                        {/* <td className="text-nowrap">{fila.id}</td> */} {/* Columna ID comentada en el encabezado */}
+                                        <td className="text-nowrap">{fila.id}</td>
+                                        <td className="text-nowrap">{fila.altaS_CORR}</td>
                                         <td className="text-nowrap">{fila.especie.split('/')[0]}</td>
                                         <td className="text-nowrap">{fila.deT_MARCA}</td>
                                         <td className="text-nowrap">{fila.deT_MODELO}</td>
@@ -302,13 +317,11 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                         <td className="text-nowrap">{fila.dependencia}</td>
                                         <td className="text-nowrap">{fila.fecha}</td>
                                         <td className="text-nowrap">{fila.vida} de 15 años</td>
-                                        <td className="text-nowrap">{fila.aF_RESOLUCION}</td>
-                                        <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                        <td className="text-nowrap">{fila.traS_CORR}</td> {/* Origen (mismo valor que Traspaso) */}
+                                        <td className="text-nowrap">{fila.aF_RESOLUCION ? fila.aF_RESOLUCION : "n/a"}</td>
+                                        <td className="text-nowrap">{fila.origen}</td>
                                         <td className="text-nowrap">
                                             ${(fila.valor ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                         </td>
-
                                     </tr>
                                 ))}
                             </tbody>

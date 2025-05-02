@@ -41,7 +41,7 @@ export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (di
         type: ANULAR_ALTAS_FAIL,
         error: "El token ha expirado.",
       });
-      dispatch({ type: LOGOUT });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -49,6 +49,7 @@ export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (di
       type: ANULAR_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

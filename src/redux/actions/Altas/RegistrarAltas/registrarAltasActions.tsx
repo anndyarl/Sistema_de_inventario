@@ -44,7 +44,7 @@ export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async 
         type: REGISTRAR_ALTAS_FAIL,
         error: "El token ha expirado.",
       });
-      dispatch({ type: LOGOUT });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -52,6 +52,7 @@ export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async 
       type: REGISTRAR_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

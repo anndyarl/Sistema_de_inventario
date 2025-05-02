@@ -30,7 +30,11 @@ interface PropsState {
         estaD_D: number,
         deP_CORR_ORIGEN: number,
         deP_CORR: number,
-        aF_CLAVE: number
+        aF_CLAVE: number,
+        seR_NOMBRE_ORIGEN: string,
+        deP_NOMBRE_ORIGEN: string;
+        seR_NOMBRE_DESTINO: string,
+        deP_NOMBRE_DESTINO: string;
     }>;
 }
 // Estado inicial tipado

@@ -40,7 +40,11 @@ export interface listadoTraslados {
   estaD_D: number,
   deP_CORR_ORIGEN: number,
   deP_CORR: number,
-  aF_CLAVE: number
+  aF_CLAVE: number,
+  seR_NOMBRE_ORIGEN: string,
+  deP_NOMBRE_ORIGEN: string;
+  seR_NOMBRE_DESTINO: string,
+  deP_NOMBRE_DESTINO: string;
 }
 
 interface GeneralProps {
@@ -372,14 +376,16 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Nº Dependencia</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Servicio</th> */}
+                  <th scope="col" className="text-nowrap text-center">Ubicación de Origen</th>
+                  <th scope="col" className="text-nowrap text-center">Ubicación de Destino</th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Entrega</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
-                  <th scope="col" className="text-nowrap text-center">Nº Dependencia Origen</th>
+
                   <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
                   {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
@@ -408,14 +414,16 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                       <td className="text-nowrap">{Lista.traS_CORR}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA}</td>
-                      <td className="text-nowrap">{Lista.deP_CORR}</td>
+                      {/* <td className="text-nowrap">{Lista.seR_NOMBRE}</td> */}
+                      <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
+                      <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
                       <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
                       <td className="text-nowrap">{Lista.traS_OBS}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
                       <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                      <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td>
+                      {/* <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td> */}
                       <td className="text-nowrap">{Lista.traS_DET_CORR}</td>
                       {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
                       <td className="text-nowrap">{Lista.f_CREA}</td>

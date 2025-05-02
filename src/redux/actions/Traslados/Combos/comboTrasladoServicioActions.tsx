@@ -3,7 +3,7 @@ import { TRASLADO_SERVICIO_REQUEST, TRASLADO_SERVICIO_SUCCESS, TRASLADO_SERVICIO
 import { Dispatch } from "redux";
 
 // Acción para obtener servicio
-export const comboTrasladoServicioActions = () => async (dispatch: Dispatch, getState: any) => {
+export const comboTrasladoServicioActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any) => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -16,7 +16,7 @@ export const comboTrasladoServicioActions = () => async (dispatch: Dispatch, get
     dispatch({ type: TRASLADO_SERVICIO_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeTrasladoServicio`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeServicio?establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
         dispatch({

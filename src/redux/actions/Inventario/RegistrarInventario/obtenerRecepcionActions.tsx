@@ -1,6 +1,7 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import { RECEPCION_REQUEST, RECEPCION_SUCCESS, RECEPCION_FAIL } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const obtenerRecepcionActions =
@@ -40,12 +41,13 @@ export const obtenerRecepcionActions =
             });
             return false;
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error("Error en la solicitud:", err);
           dispatch({
             type: RECEPCION_FAIL,
-            error: "Error en la solicitud. Por favor, intente nuevamente.",
+            error: "El token ha expirado.",
           });
+          // dispatch({ type: LOGOUT });
           return false;
         }
       } else {
@@ -53,6 +55,7 @@ export const obtenerRecepcionActions =
           type: RECEPCION_FAIL,
           error: "No se encontró un token de autenticación válido.",
         });
+        dispatch({ type: LOGOUT });
         return false;
       }
     };

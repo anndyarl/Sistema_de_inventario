@@ -5,6 +5,7 @@ import {
   OBTENER_INVENTARIO_SUCCESS,
   OBTENER_INVENTARIO_FAIL
 } from "../types";
+import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por af_clave
 export const obtenerInventarioActions = (af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -31,6 +32,10 @@ export const obtenerInventarioActions = (af_codigo_generico: string) => async (d
           });
           return true;
         } else {
+          dispatch({
+            type: OBTENER_INVENTARIO_FAIL,
+            error: "No se pudo obtener los datos. Por favor, intente nuevamente.",
+          });
           return false;
         }
       } else {
@@ -41,12 +46,13 @@ export const obtenerInventarioActions = (af_codigo_generico: string) => async (d
         });
         return false;
       }
-    } catch (err) {
-      // console.error("Error en la solicitud:", err);
+    } catch (err: any) {
+      console.error("Error en la solicitud:", err);
       dispatch({
         type: OBTENER_INVENTARIO_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error: "El token ha expirado.",
       });
+      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -54,6 +60,7 @@ export const obtenerInventarioActions = (af_codigo_generico: string) => async (d
       type: OBTENER_INVENTARIO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
+    dispatch({ type: LOGOUT });
     return false;
   }
 };

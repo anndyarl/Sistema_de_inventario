@@ -6,18 +6,19 @@ import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
 import { CaretDown, CaretUpFill, Search } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
+import Swal from "sweetalert2";
+import { Objeto } from "../Navegacion/Profile";
+import { Helmet } from "react-helmet-async";
+import MenuTraslados from "../Menus/MenuTraslados";
+import { DEPENDENCIA } from "../Inventario/RegistrarInventario/DatosCuenta";
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
-import { Helmet } from "react-helmet-async";
-import { DEPENDENCIA } from "../Inventario/RegistrarInventario/DatosCuenta";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
-import MenuTraslados from "../Menus/MenuTraslados";
 import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
-import Swal from "sweetalert2";
-import { Objeto } from "../Navegacion/Profile";
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
+import { useNavigate } from "react-router-dom";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
   codigo: number;
@@ -35,9 +36,9 @@ interface TRASLADOESPECIE {
 }
 interface PropsTraslados {
   aF_CLAVE: number;
-  servicioOrigen: number;
+  seR_CORR: number;
   deP_CORR_ORIGEN: number; //deP_CORR_ORIGEN
-  especie: string;
+  esP_CODIGO: string;
   af_codigo_generico: string; //nInventario
   marca: string;
   modelo: string;
@@ -57,7 +58,7 @@ interface PropsTraslados {
 
 interface TrasladosProps extends PropsTraslados {
   comboTrasladoServicio: TRASLADOSERVICIO[];
-  comboTrasladoServicioActions: () => void;
+  comboTrasladoServicioActions: (establ_corr: number) => void;
   comboEstablecimiento: ESTABLECIMIENTO[];
   comboEstablecimientoActions: () => void;
   comboTrasladoEspecie: TRASLADOESPECIE[];
@@ -89,9 +90,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   comboDependenciaDestino,
   aF_CLAVE,
   af_codigo_generico,
-  servicioOrigen,
+  seR_CORR,
   deP_CORR_ORIGEN,
-  especie,
+  esP_CODIGO,
   marca,
   modelo,
   serie,
@@ -99,15 +100,15 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   objeto,
   token,
   isDarkMode }) => {
-
+  const navigate = useNavigate(); // Hook para redirigir
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [error, setError] = useState<Partial<PropsTraslados> & {}>({});
   const [Traslados, setTraslados] = useState({
     aF_CLAVE: 0,
     af_codigo_generico: "",
-    servicioOrigen: 0,
+    seR_CORR: 0,
     deP_CORR_ORIGEN: 0,
-    especie: "",
+    esP_CODIGO: "",
     marca: "",
     modelo: "",
     serie: "",
@@ -126,7 +127,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   });
   const validateForm = () => {
     let tempErrors: Partial<any> & {} = {};
-    if (!Traslados.servicioOrigen) tempErrors.servicioOrigen = "Campo obligatorio.";
+    if (!Traslados.seR_CORR) tempErrors.seR_CORR = "Campo obligatorio.";
     if (!Traslados.deP_CORR_ORIGEN) tempErrors.deP_CORR_ORIGEN = "Campo obligatorio.";
     if (!Traslados.traS_DET_CORR) tempErrors.traS_DET_CORR = "Campo obligatorio.";
     if (!Traslados.deP_CORR) tempErrors.deP_CORR = "Campo obligatorio.";
@@ -137,7 +138,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
     if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
     // if (!Traslados.n_TRASLADO) tempErrors.n_TRASLADO = "Campo obligatorio.";
-    if (!Traslados.especie) tempErrors.especie = "Campo obligatorio.";
+    if (!Traslados.esP_CODIGO) tempErrors.esP_CODIGO = "Campo obligatorio.";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -146,9 +147,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     setTraslados({
       aF_CLAVE,
       af_codigo_generico,
-      servicioOrigen,
+      seR_CORR,
       deP_CORR_ORIGEN,
-      especie,
+      esP_CODIGO,
       marca,
       modelo,
       serie,
@@ -167,7 +168,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     });
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions();
+      if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablicimiento);
       if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
       if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions();
       if (comboDependenciaOrigen.length === 0) comboDependenciaOrigenActions("");
@@ -176,9 +177,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     comboEstablecimientoActions,
     comboTrasladoEspecieActions,
     af_codigo_generico,
-    servicioOrigen,
+    seR_CORR,
     deP_CORR_ORIGEN,
-    especie,
+    esP_CODIGO,
     marca,
     modelo,
     serie,
@@ -192,7 +193,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       return; // Salir si contiene caracteres no numéricos
     }
     // Convierte `value` a número
-    let newValue: string | number = ["deP_CORR_ORIGEN", "deP_CORR", "n_TRASLADO"].includes(name)
+    let newValue: string | number = ["deP_CORR_ORIGEN", "deP_CORR", "n_TRASLADO", "seR_CORR"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -201,7 +202,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       [name]: newValue,
     }));
 
-    if (name === "servicioOrigen") {
+    if (name === "seR_CORR") {
       comboDependenciaOrigenActions(value);
     }
     if (name === "traS_DET_CORR") {
@@ -323,28 +324,41 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
     resultado = await obtenerInventarioTrasladoActions(Traslados.af_codigo_generico);
     if (!resultado) {
+
       Swal.fire({
         icon: "warning",
-        title: "Inventario no encontrado",
-        text: "El Nº de inventario consultado no tiene registro o no se encuentra de alta.",
-        confirmButtonText: "Ok",
+        title: "Inventario sin alta",
+        text: "Primero debe dar de alta el inventario para realizar un traslado.",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
+        customClass: { popup: "custom-border" },
+        allowOutsideClick: false,
+        confirmButtonText: "Registrar Alta",
+        showCancelButton: true, // Agrega un segundo botón
+        cancelButtonText: "Cerrar", // Texto del botón
+        willClose: () => {
+          document.body.style.overflow = "auto"; // Restaura el scroll
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          //Al confirmar le paso como props el inventario que no ha sido dado de alta, con el fin que se renderize en el buscador de Reggistrar Altas
+          navigate("/Altas/RegistrarAltas", {
+            state: { prop_codigo_origen: Traslados.af_codigo_generico }
+          });
+          setLoading(false);
         }
       });
-      setLoading(false); //Finaliza estado de carga
       return;
     } else {
       setLoading(false); //Finaliza estado de carga
     }
   };
+
   const tieneErroresBusqueda = !!(
-    error.servicioOrigen ||
+    error.seR_CORR ||
     error.deP_CORR_ORIGEN ||
-    error.especie ||
+    error.esP_CODIGO ||
     error.af_codigo_generico ||
     error.marca ||
     error.modelo ||
@@ -388,13 +402,13 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   <Col Col md={5}>
                     {/* servicio Origen */}
                     <div className="mb-1">
-                      <label htmlFor="servicioOrigen" className="fw-semibold fw-semibold">Servicio Origen</label>
+                      <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio Origen</label>
                       <select
-                        aria-label="servicioOrigen"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicioOrigen ? "is-invalid" : ""}`}
-                        name="servicioOrigen"
+                        aria-label="seR_CORR"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_CORR ? "is-invalid" : ""}`}
+                        name="seR_CORR"
                         onChange={handleChange}
-                        value={Traslados.servicioOrigen || 0}
+                        value={Traslados.seR_CORR || 0}
                       >
                         <option value="">Seleccionar</option>
                         {comboTrasladoServicio.map((traeServicio) => (
@@ -406,9 +420,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           </option>
                         ))}
                       </select>
-                      {error.servicioOrigen && (
+                      {error.seR_CORR && (
                         <div className="invalid-feedback fw-semibold d-block">
-                          {error.servicioOrigen}
+                          {error.seR_CORR}
                         </div>
                       )}
                     </div>
@@ -446,12 +460,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         Especie
                       </label>
                       <select
-                        aria-label="especie"
+                        aria-label="esP_CODIGO"
                         className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.especie ? "is-invalid" : ""}`}
-                        name="especie"
+                          } ${error.esP_CODIGO ? "is-invalid" : ""}`}
+                        name="esP_CODIGO"
                         onChange={handleChange}
-                        value={Traslados.especie}
+                        value={Traslados.esP_CODIGO}
                       >
                         <option value="">Seleccione un origen</option>
                         {comboTrasladoEspecie.map((traeEspecie) => (
@@ -460,8 +474,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           </option>
                         ))}
                       </select>
-                      {error.especie && (
-                        <div className="invalid-feedback">{error.especie}</div>
+                      {error.esP_CODIGO && (
+                        <div className="invalid-feedback">{error.esP_CODIGO}</div>
                       )}
                     </div>
                   </Col>
@@ -852,9 +866,9 @@ const mapStateToProps = (state: RootState) => ({
   comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
   aF_CLAVE: state.obtenerInventarioTrasladoReducers.aF_CLAVE,
   af_codigo_generico: state.obtenerInventarioTrasladoReducers.af_codigo_generico,
-  servicioOrigen: state.obtenerInventarioTrasladoReducers.servicioOrigen,
+  seR_CORR: state.obtenerInventarioTrasladoReducers.seR_CORR,
   deP_CORR_ORIGEN: state.obtenerInventarioTrasladoReducers.deP_CORR_ORIGEN,
-  especie: state.obtenerInventarioTrasladoReducers.especie,
+  esP_CODIGO: state.obtenerInventarioTrasladoReducers.esP_CODIGO,
   marca: state.obtenerInventarioTrasladoReducers.marca,
   modelo: state.obtenerInventarioTrasladoReducers.modelo,
   serie: state.obtenerInventarioTrasladoReducers.serie,
