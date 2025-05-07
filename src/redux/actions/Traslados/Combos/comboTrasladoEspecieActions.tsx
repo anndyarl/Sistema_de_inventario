@@ -3,7 +3,7 @@ import { TRASLADO_ESPECIE_REQUEST, TRASLADO_ESPECIE_SUCCESS, TRASLADO_ESPECIE_FA
 import { Dispatch } from "redux";
 
 // Acción para obtener servicio
-export const comboTrasladoEspecieActions = () => async (dispatch: Dispatch, getState: any) => {
+export const comboTrasladoEspecieActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any) => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -16,7 +16,7 @@ export const comboTrasladoEspecieActions = () => async (dispatch: Dispatch, getS
     dispatch({ type: TRASLADO_ESPECIE_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeTrasladoEspecie`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeTrasladoEspecie?establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
         dispatch({

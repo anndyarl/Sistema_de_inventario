@@ -32,7 +32,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
-import { EraserFill } from "react-bootstrap-icons";
+import { EraserFill, FiletypePdf } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
 import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
@@ -785,7 +785,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
         <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
           <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
-            Exportar a PDF
+            Exportar
+            <FiletypePdf className={classNames("flex-shrink-0", "h-1 w-1 ms-1")} aria-hidden="true" />
           </Button>
         </div>
 

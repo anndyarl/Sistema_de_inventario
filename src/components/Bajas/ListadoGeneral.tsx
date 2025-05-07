@@ -12,8 +12,6 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listadoGeneralBajasActions.tsx";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
-import { useLocation } from "react-router-dom";
-
 export interface ListaBajas {
   bajaS_CORR: string;
   aF_CLAVE: number;
@@ -266,8 +264,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
     if (!resultado) {
       Swal.fire({
         icon: "warning",
-        title: "Inventario no encontrado",
-        text: "El Nº de inventario consultado no tiene registro.",
+        title: "Sin Resultados",
+        text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
       });
       // listadoGeneralBajasActions("");
@@ -286,9 +284,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
       af_codigo_generico: ""
     }));
   };
-
-
-
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;

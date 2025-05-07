@@ -344,8 +344,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     if (!resultado) {
       Swal.fire({
         icon: "warning",
-        title: "Inventario no encontrado",
-        text: "Los datos consultados no existen o no han sido dados de baja.",
+        title: "Sin Resultados",
+        text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
       });
       // obtenerListaExcluidosActions("", "", "");

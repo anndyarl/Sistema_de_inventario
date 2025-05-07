@@ -9,36 +9,35 @@ import {
 interface PropsState {
   loading: boolean;
   listaFolioServicioDependencia: Array<{
+    //Principales
+    aF_CLAVE: number;
+    aF_CODIGO_GENERICO: string; //Nº inventario
+    altaS_CORR: number;
+    traS_CORR: number;
+    estabL_CORR: number;
+
+    //Listado
+    deP_CORR: number; //Dependencia Origen
     servicio: string;
     dependencia: string;
-    cuenta: string;
-    especie: string;
-    tipo: string;
     traS_ESTADO_AF: string;
-    deP_CORR: number;
-    deP_COD: string;
-    seR_CORR: number;
-    seR_COD: string;
     ctA_COD: string;
-    altaS_CORR: number;
-    aF_CANTIDAD: string;
     aF_RESOLUCION: string;
-    aF_CODIGO_GENERICO: string;
     aF_FINGRESO: string;
-    traS_CORR: number;
-    aF_ESPECIE: string;
-    aF_MARCA: string;
-    aF_MODELO: string;
-    aF_SERIE: string;
+    aF_ESPECIE: string; //Nombre especie
     aF_OBS: string;
     aF_FOLIO: string;
     ntraslado: number;
-    deP_CORR_DESTINO: number;
-    aF_CLAVE: number;
     valoR_LIBRO: number;
-    vidA_UTIL: string;
-    vutiL_RESTANTE: string;
-    estabL_CORR: number;
+
+    //Props formulario;
+    traS_MEMO_REF: string;
+    seR_CORR: number;
+    deP_CORR_DESTINO: number;
+    traS_FECHA_MEMO: string;
+    traS_NOM_ENTREGA: string,
+    traS_NOM_RECIBE: string,
+    traS_NOM_AUTORIZA: string
   }>;
   error: string | null;
 }

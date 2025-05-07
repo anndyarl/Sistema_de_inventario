@@ -70,7 +70,6 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
                                     <item.icon className="me-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
                                     {item.name}
                                 </NavLink>
-
                             ))}
                         </div>
 

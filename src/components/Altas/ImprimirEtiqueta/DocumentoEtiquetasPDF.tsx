@@ -10,66 +10,56 @@ import { ListaEtiquetas } from './ImprimirEtiqueta';
 //         year: 'numeric',
 //     })
 //     .replace(/-/g, '/');
-
 const styles = StyleSheet.create({
     page: {
-        padding: 20,
-        fontSize: 12,
-    },
-
-    table: {
+        padding: 0,
+        margin: 0,
+        fontSize: 10,
         display: 'flex',
         flexDirection: 'column',
-        padding: 5
-    },
-    tableRow: {
-        flexDirection: 'row',
-        margin: 5,
         justifyContent: 'center',
-        border: '1px solid rgb(219, 219, 219)',
-        width: '40%',
-        alignSelf: 'center',
-        borderRadius: 4,
+        alignItems: 'center',
     },
-
-    tableCell: {
-        fontSize: 8,
-        padding: 6,
-        // flex: 2, // más espacio horizontal
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
-        maxWidth: 100,
+    fullPageContainer: {
+        width: '100%',
+        padding: 5,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-
+    qrImage: {
+        width: 100, // ajusta según el tamaño real de tu etiqueta       
+        marginRight: 4,
+    },
+    labelText: {
+        fontSize: 10,
+        flexShrink: 1,              // Permite que el texto reduzca su tamaño si es necesario
+        flexGrow: 1,
+        wordWrap: 'break-word',     // Fuerza el quiebre de palabra si es muy larga
+        whiteSpace: 'pre-wrap',     // Respeta los saltos de línea y permite envolver
+        maxWidth: '60%',            // Limita el ancho para que no desborde
+    },
 });
-const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[]; }) => (
+
+const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[] }) => (
     <Document>
-        <Page style={styles.page}>
-
-            <Text >Cantidad de Etiquetas: {row.length}</Text>
-
-            {/* Tabla */}
-            <View style={styles.table}>
-                {/* Fila de datos */}
-                {row.map((lista, index) => (
-
-                    <View style={styles.tableRow} key={index}>
-                        {lista.qrImage ? (
-                            <Image src={lista.qrImage} style={{ ...styles.tableCell, flex: 1 }} />
-                        ) : (
-                            <Text>Sin QR</Text>
-                        )}
-                        <Text style={{ ...styles.tableCell, flex: 3 }}>
-                            {`\n${lista.aF_UBICACION}\n\n\n\n${lista.aF_CODIGO_LARGO}\n\n${lista.aF_DESCRIPCION}`}
-                        </Text>
-                    </View>
-                ))}
-            </View>
-
-        </Page >
-    </Document >
-
+        {row.map((lista, index) => (
+            <Page key={index} size={{ width: 300 }} style={styles.page}>
+                <View style={styles.fullPageContainer}>
+                    {lista.qrImage ? (
+                        <Image src={lista.qrImage} style={styles.qrImage} />
+                    ) : (
+                        <Text>Sin QR</Text>
+                    )}
+                    <Text style={styles.labelText}>
+                        {`${lista.aF_UBICACION}\n\n\n\n${lista.aF_CODIGO_LARGO}\n\n${lista.aF_DESCRIPCION}`}
+                    </Text>
+                </View>
+            </Page>
+        ))}
+    </Document>
 );
+
 
 export default DocumentoEtiquetasPDF;

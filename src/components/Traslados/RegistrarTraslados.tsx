@@ -45,7 +45,6 @@ interface PropsTraslados {
   serie: string;
   traS_DET_CORR?: number;
   deP_CORR?: number; //deP_CORR
-  enComododato?: string;
   traS_CO_REAL?: number; //traspasoReal
   traS_MEMO_REF?: string; //nMemoRef
   traS_FECHA_MEMO?: string; //fechaMemo
@@ -62,7 +61,7 @@ interface TrasladosProps extends PropsTraslados {
   comboEstablecimiento: ESTABLECIMIENTO[];
   comboEstablecimientoActions: () => void;
   comboTrasladoEspecie: TRASLADOESPECIE[];
-  comboTrasladoEspecieActions: () => void;
+  comboTrasladoEspecieActions: (establ_corr: number) => void;
   comboDependenciaOrigen: DEPENDENCIA[];
   comboDependenciaDestino: DEPENDENCIA[];
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
@@ -114,7 +113,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     serie: "",
     traS_DET_CORR: 0,
     deP_CORR: 0,
-    enComododato: "", // este te falta
     traS_CO_REAL: 0,
     traS_MEMO_REF: "",
     traS_FECHA_MEMO: "",
@@ -125,6 +123,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     n_TRASLADO: 0,
     usuario_crea: objeto.IdCredencial.toString()
   });
+
   const validateForm = () => {
     let tempErrors: Partial<any> & {} = {};
     if (!Traslados.seR_CORR) tempErrors.seR_CORR = "Campo obligatorio.";
@@ -137,11 +136,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
     if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
     if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
-    // if (!Traslados.n_TRASLADO) tempErrors.n_TRASLADO = "Campo obligatorio.";
+    // if (!Traslados.traS_CO_REAL) tempErrors.traS_CO_REAL = "Campo obligatorio.";
     if (!Traslados.esP_CODIGO) tempErrors.esP_CODIGO = "Campo obligatorio.";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+
   useEffect(() => {
     // Detecta si el valor de 'especie' ha cambiado 
     setTraslados({
@@ -155,7 +155,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       serie,
       traS_DET_CORR: 0,
       deP_CORR: 0,
-      enComododato: "", // este te falta
       traS_CO_REAL: 0,
       traS_MEMO_REF: "",
       traS_FECHA_MEMO: "",
@@ -170,7 +169,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       // Verifica si las acciones ya fueron disparadas
       if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablicimiento);
       if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
-      if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions();
+      if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablicimiento);
       if (comboDependenciaOrigen.length === 0) comboDependenciaOrigenActions("");
     }
   }, [comboTrasladoServicioActions,
@@ -209,6 +208,10 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       comboDependenciaDestinoActions(value);
     }
 
+    if (name === "esP_CODIGO") {
+      console.log(value);
+    }
+
   };
 
   const [isExpanded, setIsExpanded] = useState({
@@ -229,14 +232,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     if (validateForm()) {
       const confirmResult = await Swal.fire({
         icon: "info",
-        title: "Confirmar registro",
-        text: "¿Desea registrar el inventario de activos con la información proporcionada?",
+        title: "Confirmar Traslado",
+        text: "¿Confirma que desea trasladar el inventario con los datos proporcionados?",
         showCancelButton: true,
-        confirmButtonText: "Confirmar y registrar",
+        confirmButtonText: "Confirmar y Trasladar",
         cancelButtonText: "Cancelar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
         customClass: { popup: "custom-border" }
       });
 
@@ -268,6 +271,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               serie: "",
               servicioOrigen: 0,
               traS_DET_CORR: 0,
+              traS_CO_REAL: 0,
               traS_NOM_ENTREGA: "",
               traS_NOM_RECIBE: "",
               traS_NOM_AUTORIZA: "",
@@ -355,6 +359,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
   };
 
+  //Se usa para resaltar cuales son los datos restante(se marca con un borde rojo)
   const tieneErroresBusqueda = !!(
     error.seR_CORR ||
     error.deP_CORR_ORIGEN ||
@@ -369,7 +374,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     error.deP_CORR ||
     error.traS_MEMO_REF ||
     error.traS_FECHA_MEMO ||
-    error.deT_OBS
+    error.deT_OBS ||
+    error.traS_CO_REAL
   );
   const tieneErroresRecepcion = !!(
     error.traS_NOM_ENTREGA ||
@@ -632,7 +638,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         </div>
                       )}
                     </div>
-                    {/* Dependencia/ Departamento */}
+                    {/* Dependencia */}
                     <div className="mb-1">
                       <label htmlFor="deP_CORR" className="fw-semibold">Dependencia Destino</label>
                       <select
@@ -660,34 +666,40 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       )}
                     </div>
                     {/* Radios */}
-                    <div className="mb-1 p-2 d-flex justify-content-center">
-                      <div className="form-check">
-                        <input
-                          aria-label="traS_CO_REAL"
-                          className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""
-                            } m-1`}
-                          type="radio"
-                          name="traS_CO_REAL"
-                          value={1}
-                        />
-                        <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
-                          En Comodato
-                        </label>
+                    <div className="mb-1">
+                      <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
+                      <div className="mb-1 p-2 d-flex justify-content-center border rounded">
+                        <div className="form-check">
+                          <input
+                            aria-label="traS_CO_REAL"
+                            className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
+                            onChange={handleChange}
+                            type="radio"
+                            name="traS_CO_REAL"
+                            value="1"
+
+                          />
+                          <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                            En Comodato
+                          </label>
+                        </div>
+                        <div className="form-check">
+                          <input
+                            aria-label="traS_CO_REAL"
+                            className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
+                            onChange={handleChange}
+                            type="radio"
+                            name="traS_CO_REAL"
+                            value="2"
+                          />
+                          <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                            Traspaso Real
+                          </label>
+                        </div>
                       </div>
-                      <div className="form-check">
-                        <input
-                          aria-label="traS_CO_REAL"
-                          className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""
-                            } m-1`}
-                          type="radio"
-                          name="traS_CO_REAL"
-                          value={0}
-                          defaultChecked
-                        />
-                        <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
-                          Traspaso Real
-                        </label>
-                      </div>
+                      {error.traS_CO_REAL && (
+                        <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
+                      )}
                     </div>
                   </Col>
                   <Col md={5}>
@@ -785,7 +797,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           value={Traslados.traS_NOM_ENTREGA}
                         />
                         {error.traS_NOM_ENTREGA && (
-                          <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
+                          <div className="invalid-feedback ">{error.traS_NOM_ENTREGA}</div>
                         )}
                       </div>
 
@@ -809,7 +821,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         )}
                       </div>
 
-                      {/* Jefe que Autoriza */}
+                      {/* Jefe que Autoriza */}setTraslados
                       <div className="mb-1">
                         <label className="fw-semibold">
                           Jefe que Autoriza
@@ -824,7 +836,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           value={Traslados.traS_NOM_AUTORIZA}
                         />
                         {error.traS_NOM_AUTORIZA && (
-                          <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
+                          <div className="invalid-feedback ">{error.traS_NOM_AUTORIZA}</div>
                         )}
                       </div>
                     </Col>

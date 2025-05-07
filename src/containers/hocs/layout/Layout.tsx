@@ -26,8 +26,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // useAutoLogout(3.3e+6, 3.6e+6);
-  useAutoLogout(600000, 660000);
+  useAutoLogout(3.3e+6, 3.6e+6);
+  // useAutoLogout(600000, 660000); //en minutos cierra la sesion si no hay interacción
+  // useAutoLogout(10000, 20000);
 
   // console.log("token", token);
   // console.log("isAuthenticated", isAuthenticated);

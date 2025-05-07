@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import { BoxArrowDown, Calculator, Eraser, ExclamationDiamond, FileEarmarkExcel, Search } from "react-bootstrap-icons";
+import { Calculator, Eraser, ExclamationDiamond, FileEarmarkExcel, FiletypePdf, Search } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -223,8 +223,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         if (!resultado) {
             Swal.fire({
                 icon: "warning",
-                title: "Inventario no encontrado",
-                text: "Los datos consultados no existen o no han sido ingresados",
+                title: "Sin Resultados",
+                text: "El Nº de Inventario consultado no se encuentra en este listado.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -375,9 +375,14 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         : 0;
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
 
-    // Calcula el total del precio de la tabla
-    const totalSum = useMemo(() => {
+    // Calcula el total del valor residual de la tabla
+    const totalRes = useMemo(() => {
         return listaActivosCalculados.reduce((sum, activo) => sum + (activo.valorResidual ?? 0), 0);
+    }, [listaActivosCalculados]);
+
+    // Calcula el total de la depreciación de la tabla
+    const totalDep = useMemo(() => {
+        return listaActivosCalculados.reduce((sum, activo) => sum + (activo.depreciacionAcumuladaActualizada ?? 0), 0);
     }, [listaActivosCalculados]);
 
     //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
@@ -1116,57 +1121,63 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                     </Modal.Header>
                     <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                         <Row>
-                            <Col md={6}>
-                                <div className="d-flex ">
-                                    <div className="mx-1 bg-primary text-white p-2 rounded">
-                                        <p className="text-center">Total Valor Residual</p>
-                                        <p className="fw-semibold text-center">
-                                            $ {totalSum.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                        </p>
-                                    </div>
+                            <Col sm={6} md={6} lg={3}>
+                                <div className=" bg-primary text-white p-2 rounded m-1">
+                                    <p className="text-center">Total Depreciación Acumulada</p>
+                                    <p className="fw-semibold text-center">
+                                        $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                    </p>
                                 </div>
                             </Col>
-                            <Col md={6}>
-                                <div className="d-flex justify-content-end p-4">
+                            <Col sm={6} md={6} lg={3}>
+                                <div className="bg-primary text-white p-2 rounded m-1">
+                                    <p className="text-center">Total Valor Residual</p>
+                                    <p className="fw-semibold text-center">
+                                        $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                    </p>
+                                </div>
+                            </Col>
+
+                            <div className="d-flex justify-content-end p-4">
+                                <Button
+                                    onClick={() => setMostrarModal(true)}
+                                    disabled={listaActivosCalculados.length === 0}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1">
+                                    {mostrarModal ? (
+                                        <>
+                                            {" Exportar"}
+                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            {"Exportar"}
+                                            <FiletypePdf className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </>
+                                    )}
+                                </Button>
+                                {listaActivosNoCalculados.length > 0 && (
                                     <Button
-                                        onClick={() => setMostrarModal(true)}
+                                        onClick={() => setMostrarModalNoCalculados(true)}
                                         disabled={listaActivosCalculados.length === 0}
                                         variant={`${isDarkMode ? "secondary" : "primary"}`}
                                         className="mx-1 mb-1">
                                         {mostrarModal ? (
                                             <>
-                                                {" Exportar"}
+                                                {" No Calculados"}
                                                 <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                             </>
                                         ) : (
                                             <>
-                                                {"Exportar"}
-                                                <BoxArrowDown className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                                {"No Calculados"}
+                                                <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                             </>
                                         )}
                                     </Button>
-                                    {listaActivosNoCalculados.length > 0 && (
-                                        <Button
-                                            onClick={() => setMostrarModalNoCalculados(true)}
-                                            disabled={listaActivosCalculados.length === 0}
-                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                            className="mx-1 mb-1">
-                                            {mostrarModal ? (
-                                                <>
-                                                    {" No Calculados"}
-                                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {"No Calculados"}
-                                                    <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                                </>
-                                            )}
-                                        </Button>
-                                    )}
+                                )}
 
-                                </div>
-                            </Col>
+                            </div>
+
                         </Row>
 
                         {/* Tabla*/}
@@ -1307,18 +1318,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             </tr>
                                         )}
                                     </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colSpan={6} className={`text-right ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                <strong >Total Valor Residual:</strong>
-                                            </td>
-                                            <td colSpan={3}>
-                                                <strong >
-                                                    ${totalSum.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
-                                                </strong>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         )}
@@ -1522,7 +1521,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                     <BlobProvider document={
                         <DocumentoPDF
                             row={listaActivosCalculados}
-                            totalSum={totalSum}
+                            totalRes={totalRes}
+                            totalDep={totalDep}
                         />
                     }>
                         {({ url, loading }) =>

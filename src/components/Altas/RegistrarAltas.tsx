@@ -96,8 +96,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     if (!resultado) {
       Swal.fire({
         icon: "warning",
-        title: "Inventario no encontrado",
-        text: "El Nº de Inventario consultado no existe o ya ha sido dado de alta.",
+        title: "Sin Resultados",
+        text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
       });
       listaAltasActions("", "", "", objeto.Roles[0].codigoEstablicimiento);

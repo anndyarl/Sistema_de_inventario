@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         // textAlign: 'center',
     },
 });
-const DocumentoPDF = ({ row, totalSum }: { row: ListaActivosFijos[]; totalSum: number }) => (
+const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -99,10 +99,14 @@ const DocumentoPDF = ({ row, totalSum }: { row: ListaActivosFijos[]; totalSum: n
                 </View>
             </Container>
             {/* Encabezado */}
-            <View style={styles.headerContent}>
-                <Text style={styles.header}>Total valor residual: $ {(totalSum ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                {/* <Text style={styles.header}>Fecha: {fechaHoy}</Text> */}
-            </View>
+            <Container style={styles.containerHeader}>
+                <View style={styles.headerContent}>
+                    <Text style={styles.p}>Total Depreciación Acumulada: $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                </View>
+                <View style={styles.headerContent}>
+                    <Text style={styles.p}>Total Valor Residual: $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                </View>
+            </Container>
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}

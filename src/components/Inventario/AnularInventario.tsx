@@ -11,10 +11,12 @@ import { anularInventarioActions } from "../../redux/actions/Inventario/AnularIn
 import MenuInventario from "../Menus/MenuInventario";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
+import { Objeto } from "../Navegacion/Profile.tsx";
 
 interface InventarioCompleto {
   aF_CLAVE: string;
   aF_CODIGO_GENERICO: string;
+  seR_NOMBRE: string;
   deP_NOMBRE: string;
   aF_ALTA: string;
   aF_CANTIDAD: number;
@@ -44,10 +46,11 @@ interface InventarioCompleto {
 
 interface ListaInventarioProps {
   datosListaInventario: InventarioCompleto[];
-  obtenerListaInventarioActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string) => Promise<boolean>;
+  obtenerListaInventarioActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
   anularInventarioActions: (nInventario: string) => Promise<boolean>;
   isDarkMode: boolean;
   nPaginacion: number; //número de paginas establecido desde preferencias
+  objeto: Objeto;
 }
 
 interface FechasProps {
@@ -55,7 +58,7 @@ interface FechasProps {
   fechaTermino: string;
 }
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventarioActions, anularInventarioActions, datosListaInventario, isDarkMode, nPaginacion }) => {
+const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventarioActions, anularInventarioActions, datosListaInventario, isDarkMode, nPaginacion, objeto }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
@@ -81,7 +84,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
   const listaAltasAuto = async () => {
     if (datosListaInventario.length === 0) {
       setLoading(true);
-      const resultado = await obtenerListaInventarioActions("", "", "");
+      const resultado = await obtenerListaInventarioActions("", "", "", objeto.Establecimiento);
       if (resultado) {
         setLoading(false);
       }
@@ -123,18 +126,18 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
     //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
     if (Inventario.fechaTermino != "" && Inventario.fechaInicio != "") {
       if (validate()) {
-        resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino);
+        resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, objeto.Roles[0].codigoEstablicimiento);
       }
     }
     else {
-      resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, "", "");
+      resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, "", "", objeto.Roles[0].codigoEstablicimiento);
     }
 
     if (!resultado) {
       Swal.fire({
         icon: "warning",
-        title: "Inventario no encontrado",
-        text: "El Nº de Inventario consultado no existe o no ha sido dado de alta.",
+        title: "Sin Resultados",
+        text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -222,6 +225,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
     ? Math.ceil(datosListaInventario.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+  //Primera Letra en mayúscula
+  const PrimeraMayuscula = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   return (
     <Layout>
@@ -335,9 +341,10 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                   <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
                       <th scope="col" className="text-nowrap">Nº de Inventario</th>
+                      <th scope="col" className="text-nowrap">Servicio</th>
                       <th scope="col" className="text-nowrap">Dependencia</th>
                       {/* <th scope="col" className="text-nowrap text-center">Estado Alta</th> */}
-                      <th scope="col" className="text-nowrap">Cantidad</th>
+                      {/* <th scope="col" className="text-nowrap">Cantidad</th> */}
                       <th scope="col" className="text-nowrap">Descripción</th>
                       {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                       <th scope="col" className="text-nowrap">Fecha Recepción</th>
@@ -355,9 +362,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       {/* <th scope="col" className="text-nowrap text-center">Lote</th> */}
                       <th scope="col" className="text-nowrap">Marca</th>
                       <th scope="col" className="text-nowrap">Modelo</th>
-                      <th scope="col" className="text-nowrap">Observaciones</th>
-                      <th scope="col" className="text-nowrap">Precio</th>
                       <th scope="col" className="text-nowrap">Serie</th>
+                      <th scope="col" className="text-nowrap">Precio</th>
+                      <th scope="col" className="text-nowrap">Observaciones</th>
                       <th scope="col" className="text-nowrap">Proveedor</th>
                       <th scope="col" className="text-nowrap" style={{
                         position: 'sticky',
@@ -370,9 +377,10 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                     {elementosActuales.map((datosListaInventario, index) => (
                       <tr key={index}>
                         <td className="text-nowrap">{datosListaInventario.aF_CODIGO_GENERICO}</td>
+                        <td className="text-nowrap">{datosListaInventario.seR_NOMBRE}</td>
                         <td className="text-nowrap">{datosListaInventario.deP_NOMBRE}</td>
                         {/* <td>{datosListaInventario.aF_ALTA}</td> */}
-                        <td className="text-nowrap">{datosListaInventario.aF_CANTIDAD}</td>
+                        {/* <td className="text-nowrap">{datosListaInventario.aF_CANTIDAD}</td> */}
                         <td className="text-nowrap">{datosListaInventario.aF_DESCRIPCION}</td>
                         {/* <td>{datosListaInventario.aF_ESTADO}</td> */}
                         <td className="text-nowrap">{datosListaInventario.aF_FECHA_SOLICITUD}</td>
@@ -392,11 +400,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                         {/* <td>{datosListaInventario.deT_LOTE}</td> */}
                         <td className="text-nowrap">{datosListaInventario.deT_MARCA}</td>
                         <td className="text-nowrap">{datosListaInventario.deT_MODELO}</td>
-                        <td className="text-nowrap">{datosListaInventario.deT_OBS}</td>
+                        <td className="text-nowrap">{datosListaInventario.deT_SERIE}</td>
                         <td className="text-nowrap">
                           ${datosListaInventario.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                         </td>
-                        <td className="text-nowrap">{datosListaInventario.deT_SERIE}</td>
+                        <td className="text-nowrap">{datosListaInventario.deT_OBS}</td>
                         <td className="text-nowrap">{datosListaInventario.proV_NOMBRE}</td>
                         <td style={{
                           position: 'sticky',
@@ -462,7 +470,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
 const mapStateToProps = (state: RootState) => ({
   datosListaInventario: state.datosListaInventarioReducers.datosListaInventario,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

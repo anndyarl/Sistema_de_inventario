@@ -9,12 +9,10 @@ import {
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-
   datosListaInventario: InventarioCompleto[];
 }
 // Estado inicial tipado
 const initialState: DatosInventarioState = {
-
   datosListaInventario: []
 };
 

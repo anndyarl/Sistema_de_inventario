@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store";
 import Swal from "sweetalert2";
-import { Navigate, useNavigate } from "react-router-dom";
-import { logout } from "../redux/actions/auth/auth";
+import { Navigate } from "react-router-dom";
+import { login, logout } from "../redux/actions/auth/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "../store"; // Ajusta la ruta a tu store de Redux
 
@@ -13,7 +13,7 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
     const dispatch = useDispatch<AppDispatch>();
     // Accede al estado global de Redux para el modo nocturno
     const isDarkMode = useSelector((state: RootState) => state.darkModeReducer.isDarkMode);
-    const navigate = useNavigate();
+
     useEffect(() => {
         //Inicializando auto logout
         const handleActivity = () => {
@@ -71,9 +71,12 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 // Si se confirma, reiniciamos los temporizadores
                 if (result.isConfirmed) {
                     resetTimers(); // Reinicia los temporizadores si el usuario confirma
-                    const redirectUrl = import.meta.env.VITE_CSRF_CLAVE_UNICA;
-                    window.location.href = redirectUrl;
-                    navigate(`/ValidaPortal`);
+                    // const redirectUrl = import.meta.env.VITE_CSRF_CLAVE_UNICA;
+                    // window.location.href = redirectUrl;
+                    // navigate(`/ValidaPortal`);
+                    const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
+                    const password = import.meta.env.VITE_PASSWORD_API_LOGIN;
+                    dispatch(login(usuario, password));
                 }
                 // Si se presiona No, cerramos la sesión
                 else if (result.dismiss === Swal.DismissReason.cancel) {

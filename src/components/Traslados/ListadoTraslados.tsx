@@ -167,8 +167,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     if (!resultado) {
       Swal.fire({
         icon: "warning",
-        title: "Inventario no encontrado",
-        text: "El Nº de Inventario consultado no existe o no ha sido trasladado",
+        title: "Sin Resultados",
+        text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -384,8 +384,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Entrega</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
+                  <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
-
                   <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
                   {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
@@ -394,8 +394,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
                   <th scope="col" className="text-nowrap text-center">Número de Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Código Real Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
+                  <th scope="col" className="text-nowrap text-center">Tipo Traslado</th>
+
                   {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                 </tr>
               </thead>
@@ -419,9 +419,10 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
                       <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
-                      <td className="text-nowrap">{Lista.traS_OBS}</td>
+                      <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "N/a" : Lista.traS_OBS}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
+                      <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
                       <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
                       {/* <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td> */}
                       <td className="text-nowrap">{Lista.traS_DET_CORR}</td>
@@ -432,8 +433,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.f_MOD}</td> */}
                       {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
                       <td className="text-nowrap">{Lista.n_TRASLADO}</td>
-                      <td className="text-nowrap">{Lista.traS_CO_REAL}</td>
-                      <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
+                      <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En comododato" : "Traspaso Real"}</td>
                       {/* <td className="text-nowrap">{Lista.estaD_D}</td> */}
 
                     </tr>

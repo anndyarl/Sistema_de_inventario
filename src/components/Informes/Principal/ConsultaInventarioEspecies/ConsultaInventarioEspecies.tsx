@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Pagination, Form, Modal, Col, Row, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
@@ -44,12 +44,12 @@ export interface ListaInvenarioEspecies {
 interface DatosBajas {
     listaConsultaInventarioEspecieActions: (nInventario: string) => Promise<boolean>;
     listaConsultaInventarioEspecie: ListaInvenarioEspecies[];
-    token: string | null;
+    // token: string | null;
     isDarkMode: boolean;
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventarioEspecieActions, listaConsultaInventarioEspecie, token, isDarkMode, nPaginacion }) => {
+const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventarioEspecieActions, listaConsultaInventarioEspecie, isDarkMode, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);

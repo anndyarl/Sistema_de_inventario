@@ -249,8 +249,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         if (!resultado) {
             Swal.fire({
                 icon: "warning",
-                title: "Inventario no encontrado",
-                text: "El Nº de Inventario consultado no existe o no ha sido dado de alta.",
+                title: "Sin Resultados",
+                text: "El Nº de Inventario consultado no se encuentra en este listado.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,

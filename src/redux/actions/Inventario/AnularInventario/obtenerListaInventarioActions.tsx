@@ -7,7 +7,7 @@ import {
 } from "../types";
 import { LOGOUT } from "../../auth/types";
 
-export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -21,7 +21,7 @@ export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaI
     dispatch({ type: LISTA_INVENTARIO_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventario?af_codigo_generico=${af_codigo_generico}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventario?af_codigo_generico=${af_codigo_generico}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}&estabL_CORR=${estabL_CORR}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {
