@@ -40,7 +40,7 @@ export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getSta
     } catch (err: any) {
       dispatch({
         type: OBTENER_FIRMAS_ALTAS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

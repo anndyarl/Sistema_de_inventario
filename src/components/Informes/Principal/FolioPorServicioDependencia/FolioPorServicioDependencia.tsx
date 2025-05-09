@@ -23,6 +23,7 @@ import { comboServicioInformeActions } from "../../../../redux/actions/Informes/
 import { obtenerfirmasAltasActions } from "../../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { comboDependenciaDestinoActions } from "../../../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
 import { comboTrasladoServicioActions } from "../../../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
+import { registroTrasladoMultipleActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -39,6 +40,7 @@ export interface ListaFolioServicioDependencia {
 
     //Buscar
     servicio: string;
+    dependencia: string;
 
     //Listado   
     deP_CORR: number; //Dependencia Origen
@@ -54,42 +56,39 @@ export interface ListaFolioServicioDependencia {
 
     //Props formulario;
     seR_CORR: number;
-    traS_MEMO_REF: string;
     deP_CORR_DESTINO: number;
+    traS_CO_REAL: string;
+    traS_MEMO_REF: string;
     traS_FECHA_MEMO: string;
-    traS_NOM_ENTREGA: string,
-    traS_NOM_RECIBE: string,
-    traS_NOM_AUTORIZA: string
+    traS_OBS: string;
+    traS_NOM_ENTREGA: string;
+    traS_NOM_RECIBE: string;
+    traS_NOM_AUTORIZA: string;
 }
 
 interface SERVICIO {
     deP_CORR: number;
     descripcion: string;
 }
-
-interface TRASLADOSERVICIO {
-    codigo: number;
-    descripcion: string;
-}
 interface DatosAltas {
+    registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
     listaFolioServicioDependencia: ListaFolioServicioDependencia[];
     listaFolioServicioDependenciaActions: (dep_corr: number, establ_corr: number) => Promise<boolean>;
-    comboServicioInforme: SERVICIO[];//En buscador
-    comboTrasladoServicio: TRASLADOSERVICIO[];//En formulario
+    comboServicioInforme: SERVICIO[];
     comboDependenciaDestino: DEPENDENCIA[];
-    comboServicioInformeActions: (establ_corr: number) => void;//En buscador
-    comboTrasladoServicioActions: (establ_corr: number) => void;//En Formulario
+    comboServicioInformeActions: (establ_corr: number) => void;//En buscador   
+    // comboServicioInformeFormActions: (establ_corr: number) => void;//En formulario  
     obtenerfirmasAltasActions: () => Promise<boolean>;
-    comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
+    // comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
     comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario
-    nPaginacion: number; //número de paginas establecido desde preferencias
     datosFirmas: DatosFirmas[];
+
 }
 
-const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboServicioInformeActions, comboDependenciaDestinoActions, listaFolioServicioDependencia, comboServicioInforme, comboTrasladoServicio, comboDependenciaDestino, objeto, token, isDarkMode, nPaginacion, datosFirmas }) => {
+const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboServicioInformeActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, listaFolioServicioDependencia, comboServicioInforme, objeto, token, isDarkMode, datosFirmas }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
     const [error, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
@@ -98,25 +97,28 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const [isExpanded, setIsExpanded] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [__, setIsDisabled] = useState(true);
-    const elementosPorPagina = nPaginacion;
+    const [Paginacion, setPaginacion] = useState({
+        nPaginacion: 10
+    });
+    const elementosPorPagina = Paginacion.nPaginacion;
     const filasSeleccionadasPDF = listaFolioServicioDependencia.filter((_, index) =>
         filasSeleccionadas.includes(index.toString())
     );
     const navigate = useNavigate();
-    const validateForm = () => {
-        let tempErrors: Partial<any> & {} = {};
-        if (!Traslados.seR_CORR) tempErrors.seR_CORR = "Campo obligatorio.";
-        if (!Traslados.deP_CORR_DESTINO) tempErrors.deP_CORR_DESTINO = "Campo obligatorio.";
-        if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
-        if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
-        if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
-        if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
-        if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
-        // if (!Traslados.n_TRASLADO) tempErrors.n_TRASLADO = "Campo obligatorio.";
-        if (!Traslados.esP_CODIGO) tempErrors.esP_CODIGO = "Campo obligatorio.";
-        setError(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
+    // const validateForm = () => {
+    //     let tempErrors: Partial<any> & {} = {};
+    //     if (!Traslados.seR_CORR) tempErrors.seR_CORR = "Campo obligatorio.";
+    //     if (!Traslados.deP_CORR_DESTINO) tempErrors.deP_CORR_DESTINO = "Campo obligatorio.";
+    //     if (!Traslados.traS_CO_REAL) tempErrors.traS_CO_REAL = "Campo obligatorio.";
+    //     if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
+    //     if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
+    //     if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
+    //     if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
+    //     if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
+    //     if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
+    //     setError(tempErrors);
+    //     return Object.keys(tempErrors).length === 0;
+    // };
     //Estado para buscar
     const [Buscar, setBuscar] = useState({
         servicio: 0,
@@ -141,23 +143,28 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     //Estado para completar fomulario traslado
     const [Traslados, setTraslados] = useState({
         aF_CLAVE: 0,
-        af_codigo_generico: "",
         usuario_crea: objeto.IdCredencial.toString(),
-        estabL_CORR: objeto.Establecimiento,
+        estabL_CORR: objeto.Roles[0].codigoEstablicimiento,
         seR_CORR: 0,
-        deP_CORR_ORIGEN: 0, //Dependencia Origen
         deP_CORR_DESTINO: 0, //Dependencia destino
         traS_DET_CORR: 0,
-        esP_CODIGO: "",
+        traS_CO_REAL: 0,
         traS_MEMO_REF: "",
         traS_FECHA_MEMO: "",
+        traS_OBS: "",
         traS_NOM_ENTREGA: "",
         traS_NOM_RECIBE: "",
-        traS_NOM_AUTORIZA: "",
-        n_TRASLADO: 0,
+        traS_NOM_AUTORIZA: ""
     });
+    //Estado de la paginacion
+
 
     const servicioOptions = comboServicioInforme.map((item) => ({
+        value: item.deP_CORR,
+        label: item.descripcion,
+    }));
+
+    const servicioFormOptions = comboServicioInforme.map((item) => ({
         value: item.deP_CORR,
         label: item.descripcion,
     }));
@@ -166,6 +173,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         const value = selectedOption ? selectedOption.value : 0;
         setBuscar((prevInventario) => ({ ...prevInventario, servicio: value }));
         console.log("combo principal", value);
+    };
+
+    const handleServicioFormChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : 0;
+        setTraslados((prevInventario) => ({ ...prevInventario, deP_CORR_DESTINO: value }));
+        console.log("combo formulario", value);
     };
     // const listaAuto = async () => {
     //     if (listaFolioServicioDependencia.length === 0) {
@@ -205,7 +218,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             return; // Salir si contiene caracteres no numéricos
         }
         // Convierte `value` a número
-        let newValue: string | number = ["seR_CORR", "deP_CORR_DESTINO", "n_TRASLADO"].includes(name)
+        let newValue: string | number = ["seR_CORR", "deP_CORR_DESTINO", "n_TRASLADO", "paginacion"].includes(name)
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
@@ -215,8 +228,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         }));
         if (name === "seR_CORR") {
             comboDependenciaDestinoActions(value);
-            console.log("ser_CORR", value);
         }
+        setPaginacion((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
     };
 
     const handleBuscar = async () => {
@@ -295,12 +311,14 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 : [...prev, index.toString()]
         );
     };
+
     function detectarTipo(base64: string): string {
         if (base64.startsWith("/9j/")) return "jpeg";
         if (base64.startsWith("iVBOR")) return "png";
         if (base64.startsWith("R0lGOD")) return "gif";
         return "png"; // fallback
-    }
+    };
+
     const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
 
@@ -395,54 +413,55 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         });
 
         if (result.isConfirmed) {
-            // setLoading(true);
+            setLoading(true);
+            const activosSeleccionados = filasSeleccionadasPDF.map((item) => ({
+                aF_CLAVE: item.aF_CLAVE,
+                aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+                deP_CORR: item.deP_CORR,//Dependencia Origen
+                usuariO_CREA: objeto.IdCredencial.toString(),
+                estabL_CORR: objeto.Roles[0].codigoEstablicimiento,
+                deP_CORR_DESTINO: Traslados.deP_CORR_DESTINO, //dependencia Destino
+                traS_CO_REAL: Traslados.traS_CO_REAL,
+                traS_MEMO_REF: Traslados.traS_MEMO_REF,
+                traS_FECHA_MEMO: Traslados.traS_FECHA_MEMO,
+                traS_OBS: Traslados.traS_OBS,
+                traS_NOM_ENTREGA: Traslados.traS_NOM_ENTREGA,
+                traS_NOM_RECIBE: Traslados.traS_NOM_RECIBE,
+                traS_NOM_AUTORIZA: Traslados.traS_NOM_AUTORIZA
+            }));
 
-            const datosTraslado = filasSeleccionadas.map((index) => {
-                const activo = filasSeleccionadasPDF[parseInt(index)];
-                return {
-                    aF_CLAVE: activo.aF_CLAVE,
-                    deP_CORR: activo.deP_CORR,//Dependencia Origen
-                    usuariO_MOD: objeto.IdCredencial.toString(),
-                    deP_CORR_DESTINO: Traslados.deP_CORR_DESTINO, //dependencia Destino
-                    traS_MEMO_REF: Traslados.traS_MEMO_REF,
-                    traS_FECHA_MEMO: Traslados.traS_FECHA_MEMO,
-                    traS_NOM_ENTREGA: Traslados.traS_NOM_ENTREGA,
-                    traS_NOM_RECIBE: Traslados.traS_NOM_RECIBE,
-                    traS_NOM_AUTORIZA: Traslados.traS_NOM_AUTORIZA
-                };
-            });
+            const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
 
-            console.log("traslado:", datosTraslado);
+            console.log("datosTraslado", activosSeleccionados);
 
-            // const resultado = await registrarTrasladoActions(datosTraslado);
+            if (resultado) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Registro Exitoso",
+                    text: `Su traslado ha sido registrado exitosamente`,
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+                    customClass: { popup: "custom-border" }
+                });
 
-            // if (resultado) {
-            //     Swal.fire({
-            //         icon: "success",
-            //         title: "Registro Exitoso",
-            //         text: `Su traslado ha sido registrado exitosamente`,
-            //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-            //         customClass: { popup: "custom-border" }
-            //     });
+                // Limpiar
+                setFilasSeleccionadas([]);
+                setMostrarModalTraslado(false);
+                // setLoading(false);
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Ocurrió un problema al intentar trasladar los activos.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+                    customClass: { popup: "custom-border" }
+                });
+            }
 
-            //     // Limpiar
-            //     setFilasSeleccionadas([]);
-            //     setMostrarModalTraslado(false);
-            // } else {
-            //     Swal.fire({
-            //         icon: "error",
-            //         title: "Error",
-            //         text: "Ocurrió un problema al intentar trasladar los activos.",
-            //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-            //         customClass: { popup: "custom-border" }
-            //     });
-            // }
-
-            // setLoading(false);
+            setLoading(false);
         }
         // }
     };
@@ -675,11 +694,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
                     <Row className="border rounded p-2 m-2">
-                        <Col sm={12} md={12} lg={3}>
+                        <Col sm={12} md={12} lg={4}>
                             {/* Servicio */}
                             <div className="mb-1 position-relative z-1">
                                 <label className="fw-semibold">
-                                    Servicio
+                                    Servicio / Dependencia
                                 </label>
                                 <Select
                                     options={servicioOptions}
@@ -753,6 +772,23 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                         </Col>
                     </Row>
                     <div className="d-flex justify-content-end">
+                        <div className="d-flex align-items-center me-2">
+                            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                Tamaño de página:
+                            </label>
+                            <select
+                                aria-label="Seleccionar tamaño de página"
+                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="nPaginacion"
+                                onChange={handleChange}
+                                value={Paginacion.nPaginacion}
+                            >
+                                {[10, 15, 20, 25, listaFolioServicioDependencia.length].map((val) => (
+                                    <option key={val} value={val}>{val}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         {filasSeleccionadas.length > 0 ? (
                             <>
                                 <Button
@@ -814,14 +850,14 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                 checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                             />
                                         </th>
-                                        <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                                        <th scope="col" className="text-nowrap text-center">Nº Alta</th>
-                                        <th scope="col" className="text-nowrap text-center">Especie</th>
-                                        <th scope="col" className="text-nowrap text-center">Observación</th>
-                                        <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                                        <th scope="col" className="text-nowrap text-center">Valor Libro</th>
-                                        <th scope="col" className="text-nowrap text-center">Estado</th>
-                                        <th scope="col" className="text-nowrap text-center">Nº Traslado</th>
+                                        <th scope="col" className="text-nowrap">N° Inventario</th>
+                                        <th scope="col" className="text-nowrap">Nº Alta</th>
+                                        <th scope="col" className="text-nowrap">Especie</th>
+                                        <th scope="col" className="text-nowrap">Observación</th>
+                                        <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                                        <th scope="col" className="text-nowrap">Valor Libro</th>
+                                        <th scope="col" className="text-nowrap">Estado</th>
+                                        <th scope="col" className="text-nowrap">Nº Traslado</th>
 
                                     </tr>
                                 </thead>
@@ -845,7 +881,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                 <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                                 <td className="text-nowrap">{Lista.altaS_CORR}</td>
                                                 <td className="text-nowrap">{Lista.aF_ESPECIE}</td>
-                                                <td className="text-nowrap">{Lista.aF_OBS}</td>
+                                                <td>{Lista.aF_OBS}</td>
                                                 <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
                                                 <td className="text-nowrap"> ${(Lista.valoR_LIBRO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
                                                 <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
@@ -1068,7 +1104,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 </Modal.Body>
             </Modal>
             {/* Modal formulario traslado*/}
-            <Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)} dialogClassName="modal-right" backdrop="static"
+            <Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)} size="lg" dialogClassName="modal-right" backdrop="static"
             //  keyboard={false}     // Evita el cierre al presionar la tecla Esc
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
@@ -1076,33 +1112,38 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form onSubmit={handleSubmitTraslado}>
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                            disabled={loading}  // Desactiva el botón mientras carga
-                        >
-                            {loading ? (
-                                <>
-                                    {" Trasladar "}
-                                    <Spinner
-                                        as="span"
-                                        animation="border"
-                                        size="sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                        className="me-2"
-                                    />
+                        <div className="d-flex justify-content-end">
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                                disabled={loading}  // Desactiva el botón mientras carga
+                            >
+                                {loading ? (
+                                    <>
+                                        {" Trasladar "}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="me-2"
+                                        />
 
-                                </>
-                            ) : (
-                                <>
-                                    Trasladar
-                                </>
-                            )}
-                        </Button>
-
-                        <div className="mb-1">
+                                    </>
+                                ) : (
+                                    <>
+                                        Trasladar
+                                        <ArrowsMove
+                                            className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
+                                            aria-hidden="true"
+                                        />
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                        {/* <div className="mb-1">
                             <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio Destino</label>
                             <select
                                 aria-label="seR_CORR"
@@ -1125,9 +1166,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     {error.seR_CORR}
                                 </div>
                             )}
-                        </div>
+                        </div> */}
                         {/* Dependencia */}
-                        <div className="mb-1">
+                        {/* <div className="mb-1">
                             <label htmlFor="deP_CORR_DESTINO" className="fw-semibold">Dependencia Destino</label>
                             <select
                                 aria-label="deP_CORR_DESTINO"
@@ -1152,101 +1193,199 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     {error.deP_CORR_DESTINO}
                                 </div>
                             )}
-                        </div>
+                        </div> */}
+                        <Row>
+                            <Col>
+                                <div className="mb-1 position-relative z-1">
+                                    <label className="fw-semibold">
+                                        Servicio / Dependencia
+                                    </label>
+                                    <Select
+                                        options={servicioFormOptions}
+                                        onChange={handleServicioFormChange}
+                                        name="servicio"
+                                        value={servicioFormOptions.find((option) => option.value === Traslados.deP_CORR_DESTINO) || null}
+                                        placeholder="Buscar"
+                                        className={`form-select-container `}
+                                        classNamePrefix="react-select"
+                                        isClearable
+                                        isSearchable
+                                        styles={{
+                                            control: (baseStyles) => ({
+                                                ...baseStyles,
+                                                backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                                color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                                borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                            }),
+                                            singleValue: (base) => ({
+                                                ...base,
+                                                color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                            }),
+                                            menu: (base) => ({
+                                                ...base,
+                                                backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                                color: isDarkMode ? "white" : "#212529",
+                                            }),
+                                            option: (base, { isFocused, isSelected }) => ({
+                                                ...base,
+                                                backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                                color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                            }),
+                                        }}
+                                    />
+                                </div>
+                                {/* Radios */}
+                                <div className="mb-1">
+                                    <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
+                                    <div className="mb-1 p-2 d-flex justify-content-center border rounded">
+                                        <div className="form-check">
+                                            <input
+                                                aria-label="traS_CO_REAL"
+                                                className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
+                                                onChange={handleChange}
+                                                type="radio"
+                                                name="traS_CO_REAL"
+                                                value="1"
 
-                        {/* N° Memo Ref */}
-                        <div className="mb-1">
-                            <label className="fw-semibold">
-                                N° Memo Ref
-                            </label>
-                            <input
-                                aria-label="traS_MEMO_REF"
-                                type="text"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_MEMO_REF ? "is-invalid" : ""}`}
-                                maxLength={50}
-                                name="traS_MEMO_REF"
-                                onChange={handleChange}
-                                value={Traslados.traS_MEMO_REF}
-                            />
-                            {error.traS_MEMO_REF && (
-                                <div className="invalid-feedback">{error.traS_MEMO_REF}</div>
-                            )}
-                        </div>
-                        {/* Fecha Memo */}
-                        <div className="mb-1">
-                            <label className="fw-semibold">
-                                Fecha Memo
-                            </label>
-                            <input
-                                aria-label="traS_FECHA_MEMO"
-                                type="date"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
-                                name="traS_FECHA_MEMO"
-                                onChange={handleChange}
-                                value={Traslados.traS_FECHA_MEMO}
-                            />
-                            {error.traS_FECHA_MEMO && (
-                                <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
-                            )}
-                        </div>
-                        {/* Entregado Por */}
-                        <div className="mb-1">
-                            <label className="fw-semibold">
-                                Entregado Por
-                            </label>
-                            <input
-                                aria-label="traS_NOM_ENTREGA"
-                                type="text"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                                    } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
-                                maxLength={50}
-                                name="traS_NOM_ENTREGA"
-                                onChange={handleChange}
-                                value={Traslados.traS_NOM_ENTREGA}
-                            />
-                            {error.traS_NOM_ENTREGA && (
-                                <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
-                            )}
-                        </div>
+                                            />
+                                            <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                                                En Comodato
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input
+                                                aria-label="traS_CO_REAL"
+                                                className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
+                                                onChange={handleChange}
+                                                type="radio"
+                                                name="traS_CO_REAL"
+                                                value="2"
+                                            />
+                                            <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                                                Traspaso Real
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {error.traS_CO_REAL && (
+                                        <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
+                                    )}
+                                </div>
+                                {/* Observaciones */}
+                                <div className="mb-1">
+                                    <label className="fw-semibold">
+                                        Observaciones
+                                    </label>
+                                    <textarea
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_OBS ? "is-invalid" : ""}`}
+                                        aria-label="traS_OBS"
+                                        name="traS_OBS"
+                                        rows={6}
+                                        maxLength={500}
+                                        style={{ minHeight: "8px", resize: "none" }}
+                                        onChange={handleChange}
+                                        value={Traslados.traS_OBS}
+                                    />
+                                    {error.traS_OBS && (
+                                        <div className="invalid-feedback">{error.traS_OBS}</div>
+                                    )}
+                                </div>
 
-                        {/* Recibido Por */}
-                        <div className="mb-1">
-                            <label className="fw-semibold">
-                                Recibido Por
-                            </label>
-                            <input
-                                aria-label="traS_NOM_RECIBE"
-                                type="text"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                                    } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
-                                maxLength={50}
-                                name="traS_NOM_RECIBE"
-                                onChange={handleChange}
-                                value={Traslados.traS_NOM_RECIBE}
-                            />
-                            {error.traS_NOM_RECIBE && (
-                                <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
-                            )}
-                        </div>
+                            </Col>
+                            <Col>
+                                {/* N° Memo Ref */}
+                                <div className="mb-1">
+                                    <label className="fw-semibold">
+                                        N° Memo Ref
+                                    </label>
+                                    <input
+                                        aria-label="traS_MEMO_REF"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_MEMO_REF ? "is-invalid" : ""}`}
+                                        maxLength={50}
+                                        name="traS_MEMO_REF"
+                                        onChange={handleChange}
+                                        value={Traslados.traS_MEMO_REF}
+                                    />
+                                    {error.traS_MEMO_REF && (
+                                        <div className="invalid-feedback">{error.traS_MEMO_REF}</div>
+                                    )}
+                                </div>
+                                {/* Fecha Memo */}
+                                <div className="mb-1">
+                                    <label className="fw-semibold">
+                                        Fecha Memo
+                                    </label>
+                                    <input
+                                        aria-label="traS_FECHA_MEMO"
+                                        type="date"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
+                                        name="traS_FECHA_MEMO"
+                                        onChange={handleChange}
+                                        value={Traslados.traS_FECHA_MEMO}
+                                    />
+                                    {error.traS_FECHA_MEMO && (
+                                        <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
+                                    )}
+                                </div>
 
-                        {/* Jefe que Autoriza */}
-                        <div className="mb-1">
-                            <label className="fw-semibold">
-                                Jefe que Autoriza
-                            </label>
-                            <input
-                                aria-label="traS_NOM_AUTORIZA"
-                                type="text"
-                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
-                                maxLength={50}
-                                name="traS_NOM_AUTORIZA"
-                                onChange={handleChange}
-                                value={Traslados.traS_NOM_AUTORIZA}
-                            />
-                            {error.traS_NOM_AUTORIZA && (
-                                <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
-                            )}
-                        </div>
+                                {/* Entregado Por */}
+                                <div className="mb-1">
+                                    <label className="fw-semibold">
+                                        Entregado Por
+                                    </label>
+                                    <input
+                                        aria-label="traS_NOM_ENTREGA"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                            } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
+                                        maxLength={50}
+                                        name="traS_NOM_ENTREGA"
+                                        onChange={handleChange}
+                                        value={Traslados.traS_NOM_ENTREGA}
+                                    />
+                                    {error.traS_NOM_ENTREGA && (
+                                        <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
+                                    )}
+                                </div>
+                                {/* Recibido Por */}
+                                <div className="mb-1">
+                                    <label className="fw-semibold">
+                                        Recibido Por
+                                    </label>
+                                    <input
+                                        aria-label="traS_NOM_RECIBE"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                            } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
+                                        maxLength={50}
+                                        name="traS_NOM_RECIBE"
+                                        onChange={handleChange}
+                                        value={Traslados.traS_NOM_RECIBE}
+                                    />
+                                    {error.traS_NOM_RECIBE && (
+                                        <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
+                                    )}
+                                </div>
+                                {/* Jefe que Autoriza */}
+                                <div className="mb-1">
+                                    <label className="fw-semibold">
+                                        Jefe que Autoriza
+                                    </label>
+                                    <input
+                                        aria-label="traS_NOM_AUTORIZA"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
+                                        maxLength={50}
+                                        name="traS_NOM_AUTORIZA"
+                                        onChange={handleChange}
+                                        value={Traslados.traS_NOM_AUTORIZA}
+                                    />
+                                    {error.traS_NOM_AUTORIZA && (
+                                        <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
 
                     </form>
                 </Modal.Body>
@@ -1261,14 +1400,13 @@ const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
-    comboTrasladoServicio: state.comboTrasladoServicioReducer.comboTrasladoServicio,
     comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
     objeto: state.validaApiLoginReducers,
-    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas
 });
 
 export default connect(mapStateToProps, {
+    registroTrasladoMultipleActions,
     listaFolioServicioDependenciaActions,
     obtenerfirmasAltasActions,
     comboServicioInformeActions,

@@ -32,7 +32,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
-import { EraserFill, FiletypePdf } from "react-bootstrap-icons";
+import { Eraser, EraserFill, FiletypePdf } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
 import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
@@ -117,7 +117,7 @@ interface DatosInventarioProps extends InventarioProps {
   listaEspecie: ListaEspecie[];
   // comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
-  obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
+  // obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
   obtenerServicioNombreActions: (dep_corr: number) => Promise<Boolean>;
   // listaInventarioRegistradoActions: () => Promise<Boolean>;
   isDarkMode: boolean;
@@ -132,6 +132,7 @@ interface DatosInventarioProps extends InventarioProps {
 const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
   obtenerServicioNombreActions,
+  // obtenerRecepcionActions,
   comboOrigen,
   comboModalidad,
   comboProveedor,
@@ -420,7 +421,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   //   }
   // };
   const handleLimpiar = () => {
-    const tieneDatos = Object.values(Inventario).some((valor) => valor !== "" && valor !== 0);
+    const { usuarioCrea, ...restoTraslados } = Inventario;
+    const tieneDatos = Object.values(restoTraslados).some(
+      (valor) => valor !== "" && valor !== 0
+    );
     if (tieneDatos) {
       Swal.fire({
         icon: "warning",
@@ -544,11 +548,30 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                     placement="top"
                     overlay={<Tooltip id="tooltip-limpiar">Limpiar formulario</Tooltip>}
                   >
-                    <Button onClick={handleLimpiar} variant="primary" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} mx-1`}>
-                      <EraserFill
-                        className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />
+                    <Button
+                      onClick={handleLimpiar}
+                      variant="primary"
+                      className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} mx-1`}
+                    >
+                      {
+                        (() => {
+                          const { usuarioCrea, ...restoTraslados } = Inventario;
+                          const tieneDatos = Object.values(restoTraslados).some(
+                            (valor) => valor !== "" && valor !== 0
+                          );
+                          return tieneDatos ? (
+                            <EraserFill
+                              className="flex-shrink-0 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Eraser
+                              className="flex-shrink-0 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          );
+                        })()
+                      }
                     </Button>
                   </OverlayTrigger>
                 </div>
@@ -865,7 +888,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
                   break;
                 }
-                console.log("nombreServicio", nombreServicio);
+                // console.log("nombreServicio", nombreServicio);
                 return <p>{nombreServicio}</p>;
               })()}
             </Col>

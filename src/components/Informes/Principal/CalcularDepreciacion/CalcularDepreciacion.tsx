@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Pagination, Button, Spinner, Form, Modal } from "react-bootstrap";
+import { Row, Col, Pagination, Button, Spinner, Modal } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import { Calculator, Eraser, ExclamationDiamond, FileEarmarkExcel, FiletypePdf, Search } from "react-bootstrap-icons";
@@ -88,7 +88,7 @@ interface DatosAltas {
     listaActivosFijos: ListaActivosFijos[];
     listaActivosCalculados: ListaActivosFijos[];
     listaActivosNoCalculados: ListaActivosFijos[];
-    listaActivosFijosActions: (cta_cod: string, fDesde: string, fHasta: string) => Promise<boolean>;
+    listaActivosFijosActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string) => Promise<boolean>;
     listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
@@ -103,7 +103,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const [mostrarModalNoCalculados, setMostrarModalNoCalculados] = useState(false);
     const [mostrarModalCalcular, setMostrarModalCalcular] = useState(false);
     const [loading, setLoading] = useState(false); // Estado para controlar la carga 
-    const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [_, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const [paginaActual2, setPaginaActual2] = useState(1);
     const [paginaActual3, setPaginaActual3] = useState(1);
@@ -120,40 +120,40 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         fDesde: "",
         fHasta: "",
         cta_cod: '',
+        af_codigo_generico: ""
     });
-    const listaActivosFijosAuto = async () => {
-        if (listaActivosFijos.length === 0) {
-            setLoading(true);
-            const resultado = await listaActivosFijosActions("", "", "");
-            if (resultado) {
-                setLoading(false);
-            }
-            else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-            }
-        }
-    };
+    // const listaActivosFijosAuto = async () => {
+    //     if (listaActivosFijos.length === 0) {
+    //         setLoading(true);
+    //         const resultado = await listaActivosFijosActions("", "", "", "");
+    //         if (resultado) {
+    //             setLoading(false);
+    //         }
+    //         else {
+    //             Swal.fire({
+    //                 icon: "error",
+    //                 title: "Error",
+    //                 text: `Error en la solicitud. Por favor, intente nuevamente.`,
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
+    //         }
+    //     }
+    // };
 
     useEffect(() => {
         if (token) {
-            listaActivosFijosAuto();
             setlistaActivosCalculados(listaActivosCalculados);
             if (comboCuentasInforme.length === 0) { comboCuentasInformeActions() }
             if (listaActivosNoCalculados.length > 0) {
                 Swal.fire({
                     icon: "warning",
-                    title: "Activos con cálculo pendiente",
-                    text: "Algunos activos no han sido calculados porque su vida útil es 0. Haga clic en 'Ver' para revisar los detalles.",
+                    title: "Activos no incluidos en el cálculo",
+                    text: "Algunos activos no han sido calculados porque su vida útil es igual a cero. Haga clic en 'Ver' para revisar los detalles.",
                     confirmButtonText: "Ver",
                     cancelButtonText: "Cerrar",
                     showCancelButton: true,
@@ -187,18 +187,15 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        let newValue: string | number = [
-            "aF_CLAVE"
-
-        ].includes(name)
-            ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-            : value;
+        // Validación específica para af_codigo_generico: solo permitir números
+        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+            return; // Salir si contiene caracteres no numéricos
+        }
 
         setInventario((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value,
         }));
-
     };
 
     const handleCuentasChange = (selectedOption: any) => {
@@ -208,18 +205,43 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     };
 
     const handleBuscar = async () => {
-        let resultado = false;
-
         setLoading(true);
-        //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
-        if (Inventario.fDesde != "" && Inventario.fHasta != "") {
-            if (validate()) {
-                resultado = await listaActivosFijosActions(Inventario.cta_cod, Inventario.fDesde, Inventario.fHasta);
-            }
+
+        const tieneFechas = Inventario.fDesde !== "" && Inventario.fHasta !== "";
+        const tieneCuenta = Inventario.cta_cod && Inventario.cta_cod !== "";
+        const tieneCodigoGenerico = Inventario.af_codigo_generico && Inventario.af_codigo_generico !== "";
+
+        // Caso 1: no hay ningún filtro
+        if (!tieneFechas && !tieneCuenta && !tieneCodigoGenerico) {
+            Swal.fire({
+                icon: "warning",
+                title: "Por favor, filtre por alguna opción",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                customClass: {
+                    popup: "custom-border",
+                }
+            });
+            setLoading(false);
+            return;
         }
-        else {
-            resultado = await listaActivosFijosActions(Inventario.cta_cod, "", "");
+
+        // Caso 2: si hay fechas, validar antes de continuar
+        if (tieneFechas && !validate()) {
+            setLoading(false);
+            return;
         }
+
+        // Llama al backend
+        const resultado = await listaActivosFijosActions(
+            Inventario.cta_cod,
+            Inventario.fDesde,
+            Inventario.fHasta,
+            Inventario.af_codigo_generico
+        );
+
         if (!resultado) {
             Swal.fire({
                 icon: "warning",
@@ -230,24 +252,24 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
                 customClass: {
-                    popup: "custom-border", // Clase personalizada para el borde
+                    popup: "custom-border",
                 }
             });
-            setLoading(false); //Finaliza estado de carga
-            return;
         } else {
             paginar(1);
-            setLoading(false); //Finaliza estado de carga
         }
 
+        setLoading(false);
     };
+
 
     const handleLimpiar = () => {
         setInventario((prevInventario) => ({
             ...prevInventario,
             fDesde: "",
             fHasta: "",
-            cta_cod: ""
+            cta_cod: "",
+            af_codigo_generico: ""
         }));
         setFilasSeleccionadas([]);
     };
@@ -260,46 +282,46 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         await listaActivosCalculadosActions([]); // Envía un array vacío para eliminar datos previos
 
         // Seleccionar los nuevos activos
-        const selectedIndices = filasSeleccionadas.map(Number);
-        const activosSeleccionados = selectedIndices.map((index) => ({
-            aF_CLAVE: listaActivosFijos[index].aF_CLAVE,
-            aF_CODIGO_GENERICO: listaActivosFijos[index].aF_CODIGO_GENERICO,
-            aF_CODIGO_LARGO: listaActivosFijos[index].aF_CODIGO_LARGO,
-            deP_CORR: listaActivosFijos[index].deP_CORR,
-            itE_CLAVE: listaActivosFijos[index].itE_CLAVE,
-            aF_DESCRIPCION: listaActivosFijos[index].aF_DESCRIPCION,
-            aF_FINGRESO: listaActivosFijos[index].aF_FINGRESO,
-            aF_CODIGO: listaActivosFijos[index].aF_CODIGO,
-            aF_TIPO: listaActivosFijos[index].aF_TIPO,
-            aF_ALTA: listaActivosFijos[index].aF_ALTA,
-            aF_PRECIO_REF: listaActivosFijos[index].aF_PRECIO_REF,
-            aF_CANTIDAD: listaActivosFijos[index].aF_CANTIDAD,
-            aF_ORIGEN: listaActivosFijos[index].aF_ORIGEN,
-            aF_RESOLUCION: listaActivosFijos[index].aF_RESOLUCION,
-            aF_OCO_NUMERO_REF: listaActivosFijos[index].aF_OCO_NUMERO_REF,
-            usuariO_CREA: listaActivosFijos[index].usuariO_CREA,
-            f_CREA: listaActivosFijos[index].f_CREA,
-            iP_CREA: listaActivosFijos[index].iP_CREA,
-            usuariO_MOD: listaActivosFijos[index].usuariO_MOD,
-            f_MOD: listaActivosFijos[index].f_MOD,
-            aF_TIPO_DOC: listaActivosFijos[index].aF_TIPO_DOC,
-            proV_RUN: listaActivosFijos[index].proV_RUN,
-            reG_EQM: listaActivosFijos[index].reG_EQM,
-            aF_NUM_FAC: listaActivosFijos[index].aF_NUM_FAC,
-            aF_FECHAFAC: listaActivosFijos[index].aF_FECHAFAC,
-            aF_3UTM: listaActivosFijos[index].aF_3UTM,
-            iD_GRUPO: listaActivosFijos[index].iD_GRUPO,
-            ctA_COD: listaActivosFijos[index].ctA_COD,
-            transitoria: listaActivosFijos[index].transitoria,
-            aF_MONTOFACTURA: listaActivosFijos[index].aF_MONTOFACTURA,
-            esP_DESCOMPONE: listaActivosFijos[index].esP_DESCOMPONE,
-            aF_ETIQUETA: listaActivosFijos[index].aF_ETIQUETA,
-            aF_VIDAUTIL: listaActivosFijos[index].aF_VIDAUTIL,
-            aF_VIGENTE: listaActivosFijos[index].aF_VIGENTE,
-            idprograma: listaActivosFijos[index].idprograma,
-            idmodalidadcompra: listaActivosFijos[index].idmodalidadcompra,
-            idpropiedad: listaActivosFijos[index].idpropiedad,
-            especie: listaActivosFijos[index].especie
+        // const selectedIndices = filasSeleccionadas.map(Number);
+        const activosSeleccionados = listaActivosFijos.map((item) => ({
+            aF_CLAVE: item.aF_CLAVE,
+            aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+            aF_CODIGO_LARGO: item.aF_CODIGO_LARGO,
+            deP_CORR: item.deP_CORR,
+            itE_CLAVE: item.itE_CLAVE,
+            aF_DESCRIPCION: item.aF_DESCRIPCION,
+            aF_FINGRESO: item.aF_FINGRESO,
+            aF_CODIGO: item.aF_CODIGO,
+            aF_TIPO: item.aF_TIPO,
+            aF_ALTA: item.aF_ALTA,
+            aF_PRECIO_REF: item.aF_PRECIO_REF,
+            aF_CANTIDAD: item.aF_CANTIDAD,
+            aF_ORIGEN: item.aF_ORIGEN,
+            aF_RESOLUCION: item.aF_RESOLUCION,
+            aF_OCO_NUMERO_REF: item.aF_OCO_NUMERO_REF,
+            usuariO_CREA: item.usuariO_CREA,
+            f_CREA: item.f_CREA,
+            iP_CREA: item.iP_CREA,
+            usuariO_MOD: item.usuariO_MOD,
+            f_MOD: item.f_MOD,
+            aF_TIPO_DOC: item.aF_TIPO_DOC,
+            proV_RUN: item.proV_RUN,
+            reG_EQM: item.reG_EQM,
+            aF_NUM_FAC: item.aF_NUM_FAC,
+            aF_FECHAFAC: item.aF_FECHAFAC,
+            aF_3UTM: item.aF_3UTM,
+            iD_GRUPO: item.iD_GRUPO,
+            ctA_COD: item.ctA_COD,
+            transitoria: item.transitoria,
+            aF_MONTOFACTURA: item.aF_MONTOFACTURA,
+            esP_DESCOMPONE: item.esP_DESCOMPONE,
+            aF_ETIQUETA: item.aF_ETIQUETA,
+            aF_VIDAUTIL: item.aF_VIDAUTIL,
+            aF_VIGENTE: item.aF_VIGENTE,
+            idprograma: item.idprograma,
+            idmodalidadcompra: item.idmodalidadcompra,
+            idpropiedad: item.idpropiedad,
+            especie: item.especie
         }));
 
         // Se envian los datos al metodo
@@ -326,26 +348,27 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         setLoading(false);
     };
 
-    const setSeleccionaFilas = (index: number) => {
-        setFilasSeleccionadas((prev) =>
-            prev.includes(index.toString())
-                ? prev.filter((rowIndex) => rowIndex !== index.toString())
-                : [...prev, index.toString()]
-        );
-    };
+    // const setSeleccionaFilas = (index: number) => {
+    //     setFilasSeleccionadas((prev) =>
+    //         prev.includes(index.toString())
+    //             ? prev.filter((rowIndex) => rowIndex !== index.toString())
+    //             : [...prev, index.toString()]
+    //     );
+    // };
 
-    const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked) {
-            setFilasSeleccionadas(
-                elementosActuales.map((_, index) =>
-                    (indicePrimerElemento + index).toString()
-                )
-            );
-            // console.log("filas Seleccionadas ", filasSeleccionadas);
-        } else {
-            setFilasSeleccionadas([]);
-        }
-    };
+    // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     if (e.target.checked) {
+    //         setFilasSeleccionadas(
+    //             elementosActuales.map((_, index) =>
+    //                 (indicePrimerElemento + index).toString()
+    //             )
+    //         );
+    //         // console.log("filas Seleccionadas ", filasSeleccionadas);
+    //     } else {
+    //         setFilasSeleccionadas([]);
+    //     }
+    // };
+
     //------------------------------Tabla Principal(Activos Fijos)--------------------------------------//
 
     // Lógica de Paginación actualizada 
@@ -877,6 +900,19 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 }}
                             />
                         </div>
+
+                        <div className="mb-2">
+                            <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                            <input
+                                aria-label="af_codigo_generico"
+                                type="text"
+                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="af_codigo_generico"
+                                placeholder="Ej: 1000000008"
+                                onChange={handleChange}
+                                value={Inventario.af_codigo_generico}
+                            />
+                        </div>
                     </Col>
                     <Col md={5}>
                         <div className="mb-1 mt-4">
@@ -913,26 +949,23 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 </Row>
 
                 <div className="d-flex justify-content-end">
-                    {filasSeleccionadas.length > 0 ? (
+                    {listaActivosFijos.length && (
                         <Button
                             onClick={handleCalcular} disabled={listaActivosFijos.length === 0}
                             className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                             {loading ? (
                                 <>
-                                    {" Calcular"}
+                                    {" Calcular Todo"}
                                     <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                 </>
                             ) : (
                                 <>
-                                    {"Calcular"}
+                                    {"Calcular Todo"}
                                     <Calculator className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                 </>
                             )}
                         </Button>
-                    ) : (
-                        <strong className="alert alert-dark border m-1 p-2">
-                            No hay filas seleccionadas
-                        </strong>
+
                     )}
                 </div>
                 {/* Tabla principal activos fijos*/}
@@ -946,7 +979,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                             <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                 <tr>
-                                    <th style={{
+                                    {/* <th style={{
                                         position: 'sticky',
                                         left: 0,
                                         zIndex: 2,
@@ -958,7 +991,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             onChange={handleSeleccionaTodos}
                                             checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                         />
-                                    </th>
+                                    </th> */}
                                     {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
                                     <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                                     {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
@@ -1006,10 +1039,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </thead>
                             <tbody>
                                 {elementosActuales.map((Lista, index) => {
-                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                     return (
                                         <tr key={index}>
-                                            <td style={{
+                                            {/* <td style={{
                                                 position: 'sticky',
                                                 left: 0,
                                                 zIndex: 2,
@@ -1019,7 +1052,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     onChange={() => setSeleccionaFilas(indexReal)}
                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                 />
-                                            </td>
+                                            </td> */}
                                             {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
                                             <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                             {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
@@ -1139,6 +1172,25 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </Col>
 
                             <div className="d-flex justify-content-end p-4">
+                                {listaActivosNoCalculados.length > 0 && (
+                                    <Button
+                                        onClick={() => setMostrarModalNoCalculados(true)}
+                                        disabled={listaActivosCalculados.length === 0}
+                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                        className="mx-1 mb-1">
+                                        {mostrarModal ? (
+                                            <>
+                                                {"No Calculados"}
+                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {"No Calculados"}
+                                                <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                            </>
+                                        )}
+                                    </Button>
+                                )}
                                 <Button
                                     onClick={() => setMostrarModal(true)}
                                     disabled={listaActivosCalculados.length === 0}
@@ -1156,25 +1208,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         </>
                                     )}
                                 </Button>
-                                {listaActivosNoCalculados.length > 0 && (
-                                    <Button
-                                        onClick={() => setMostrarModalNoCalculados(true)}
-                                        disabled={listaActivosCalculados.length === 0}
-                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                        className="mx-1 mb-1">
-                                        {mostrarModal ? (
-                                            <>
-                                                {" No Calculados"}
-                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                {"No Calculados"}
-                                                <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                            </>
-                                        )}
-                                    </Button>
-                                )}
 
                             </div>
 
@@ -1361,7 +1394,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             {/* Modal Activos NO Calculados */}
             <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal modal-header" : "modal-header"} closeButton>
-                    <Modal.Title className="fw-semibold">Activos no calculados</Modal.Title>
+                    <Modal.Title className="fw-semibold">Activos no incluidos en el cálculo</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {/* Tabla*/}

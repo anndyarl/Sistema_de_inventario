@@ -37,7 +37,7 @@ export const comboCuentaMantenedorActions = () => async (dispatch: Dispatch, get
         } catch (err: any) {
             dispatch({
                 type: COMBO_CUENTAS_MANTENEDOR_FAIL,
-                error: "El token ha expirado.",
+                error: "Error en la solicitud:", err,
             });
             // dispatch({ type: LOGOUT });
             return false;

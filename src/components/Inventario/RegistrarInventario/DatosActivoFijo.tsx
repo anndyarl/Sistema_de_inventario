@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useMemo, useEffect } from "react";
 import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
-import { Eraser, Floppy, PencilFill, Plus, Trash } from "react-bootstrap-icons";
+import { Eraser, EraserFill, Floppy, PencilFill, Plus, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
 import {
@@ -465,25 +465,26 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
   // const handleValidar = async (): Promise<boolean> => {
   const handleValidar = () => {
+    //A peticion del usuario la serie no es obligatoria
     // Verifica si hay series vacías
-    const serieVacia = activosFijos?.some(
-      (activo) => !activo.serie || !activo.serie.trim()
-    );
+    // const serieVacia = activosFijos?.some(
+    //   (activo) => !activo.serie || !activo.serie.trim()
+    // );
 
-    if (serieVacia) {
-      Swal.fire({
-        icon: "warning",
-        title: "Serie Faltante",
-        text: "Por favor, verifique que todos los registros contengan su número de serie.",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-      return false;
-    }
+    // if (serieVacia) {
+    //   Swal.fire({
+    //     icon: "warning",
+    //     title: "Serie Faltante",
+    //     text: "Por favor, verifique que todos los registros contengan su número de serie.",
+    //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //     customClass: {
+    //       popup: "custom-border", // Clase personalizada para el borde
+    //     }
+    //   });
+    //   return false;
+    // }
 
     // Verifica si hay series duplicadas y obtiene índices
     const seriesMap = new Map();
@@ -920,22 +921,43 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
                   {/* Contenedor para los Botones */}
                   <div className="d-flex">
-                    <div className="mb-1 mx-1">
-                      <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} mx-2`}>
+                    <div className="mb-1 mx-2">
+                      <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} `}>
+                        Guardar
                         <Floppy
-                          className="flex-shrink-0 me-2 h-5 w-5"
+                          className="flex-shrink-0 me-2 h-5 w-5 ms-1"
                           aria-hidden="true"
                         />
-                        Guardar
                       </Button>
                     </div>
-                    <div className="mb-1 mx-1">
-                      <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary "}`}>
-                        <Eraser
-                          className="flex-shrink-0 me-2 h-5 w-5"
-                          aria-hidden="true"
-                        />
+                    <div className="mb-1">
+                      <Button
+                        onClick={handleLimpiar}
+                        variant="primary"
+                        className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                      >
                         Limpiar
+                        {
+                          (() => {
+                            const { ...restoTraslados } = activoActual;
+                            const tieneDatos = Object.values(restoTraslados).some(
+                              (valor) => valor !== ""
+                            );
+
+                            return tieneDatos ? (
+                              <EraserFill
+                                className="flex-shrink-0 h-5 w-5 ms-1"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <Eraser
+                                className="flex-shrink-0 h-5 w-5 ms-1"
+                                aria-hidden="true"
+                              />
+
+                            );
+                          })()
+                        }
                       </Button>
                     </div>
                   </div>

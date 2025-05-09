@@ -34,7 +34,6 @@ const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
-
         setPaginacion((prevState) => ({
             ...prevState,
             [name]: newValue,
@@ -42,7 +41,6 @@ const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
         if (name === "paginacion") {
             dispatch(setMostrarNPaginacionActions(newValue as number));
         }
-
     };
     return (
         <>

@@ -154,7 +154,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   // Función para manejar la selección de la especie en el componente `DatosCuenta`
   const handleEspecieSeleccionado = (nombreEspecie: string) => {
     setEspecieSeleccionado(nombreEspecie);
-    // console.log("nombre Especie del listado seleccionado:", nombreEspecie);
+    console.log("nombre Especie del listado seleccionado:", nombreEspecie);
     comboCuentaActions(nombreEspecie); // aqui le paso codigo de detalle
   };
 

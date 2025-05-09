@@ -44,7 +44,7 @@ export const obtenerListaRematesActions = (fDesde: string, fHasta: string, nreso
     } catch (err: any) {
       dispatch({
         type: OBTENER_REMATES_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

@@ -39,7 +39,7 @@ export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (di
     } catch (err: any) {
       dispatch({
         type: ANULAR_ALTAS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

@@ -37,7 +37,7 @@ export const listadoMantenedorDependenciasActions = () => async (dispatch: Dispa
         } catch (err: any) {
             dispatch({
                 type: LISTA_MANTENEDOR_DEPENDENCIA_FAIL,
-                error: "El token ha expirado.",
+                error: "Error en la solicitud:", err,
             });
             // dispatch({ type: LOGOUT });
             return false;

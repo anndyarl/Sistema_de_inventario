@@ -54,7 +54,7 @@ export const validaApiloginActions = (rut: string) => async (dispatch: Dispatch,
     } catch (err: any) {
       dispatch({
         type: VALIDA_PORTAL_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       dispatch({ type: LOGOUT });
       return -1;

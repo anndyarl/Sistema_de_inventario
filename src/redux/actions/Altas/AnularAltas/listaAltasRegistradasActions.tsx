@@ -48,7 +48,7 @@ export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, est
     } catch (err: any) {
       dispatch({
         type: OBTENER_ALTAS_REGISTRADAS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

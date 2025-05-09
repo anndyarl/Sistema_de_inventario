@@ -42,7 +42,7 @@ export const anularInventarioActions = (AF_CLAVE: string) => async (dispatch: Di
       console.error("Error en la solicitud:", err);
       dispatch({
         type: ANULAR_INVENTARIO_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

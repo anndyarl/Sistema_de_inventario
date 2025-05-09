@@ -45,7 +45,7 @@ export const registrarMantenedorServiciosActions = (formModal: Record<string, an
     } catch (err: any) {
       dispatch({
         type: REGISTRAR_SERVICIO_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

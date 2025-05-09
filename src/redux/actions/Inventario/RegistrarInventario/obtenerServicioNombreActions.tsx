@@ -40,7 +40,7 @@ export const obtenerServicioNombreActions = (dep_corr: number) => async (dispatc
       console.error("Error en la solicitud:", err);
       dispatch({
         type: OBTENER_SERVICIO_NOMBRE_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

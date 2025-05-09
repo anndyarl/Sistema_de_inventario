@@ -37,7 +37,7 @@ export const comboServicioInformeActions = (establ_corr: number) => async (dispa
     } catch (err: any) {
       dispatch({
         type: COMBO_SERVICIO_INFORME_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

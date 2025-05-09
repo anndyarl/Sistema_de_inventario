@@ -22,8 +22,8 @@ const Sidebar: React.FC = () => {
 
   const navigation: NavItem[] = [
     { name: 'Inventario', href: '/Inventario', icon: Box },
-    { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
     { name: 'Altas', href: '/Altas', icon: PlusCircle },
+    { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
     { name: 'Bajas', href: '/Bajas', icon: DashCircle },
     { name: 'Informes', href: '/Informes', icon: FileText },
     { name: 'Mantenedores', href: '/Mantenedores', icon: Database },

@@ -19,10 +19,10 @@ interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
-  token: string | null;
+  // token: string | null;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, token }) => {
+const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 

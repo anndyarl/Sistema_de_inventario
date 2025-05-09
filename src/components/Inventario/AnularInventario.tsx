@@ -225,10 +225,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
     ? Math.ceil(datosListaInventario.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
-  //Primera Letra en mayúscula
-  const PrimeraMayuscula = (str: string) =>
-    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
   return (
     <Layout>
       <Helmet>

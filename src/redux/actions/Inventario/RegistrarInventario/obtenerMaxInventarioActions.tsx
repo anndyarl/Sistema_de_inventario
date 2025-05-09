@@ -43,7 +43,7 @@ export const obtenerMaxInventarioActions = () => async (dispatch: Dispatch, getS
             console.error("Error en la solicitud:", err);
             dispatch({
                 type: OBTENER_MAX_INVENTARIO_FAIL,
-                error: "El token ha expirado.",
+                error: "Error en la solicitud:", err,
             });
             // dispatch({ type: LOGOUT });
             return false;

@@ -88,7 +88,6 @@ import comboEspeciesBienReducers from "./Inventario/Combos/comboEspeciesBienRedu
 import obtenerInventarioTrasladoReducers from "./Traslados/obtenerInventarioTrasladoReducers";
 import comboDependenciaModificarReducers from "./Inventario/Combos/comboDependenciaModificarReducers";
 import comboCuentaModificarReducers from "./Inventario/Combos/comboCuentaModificarReducers";
-
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
   // Autenticación

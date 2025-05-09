@@ -43,7 +43,7 @@ export const comboEstablecimientosProfileActions = () => async (dispatch: Dispat
             // console.error("Error en la solicitud:", err);
             dispatch({
                 type: COMBO_PROFILE_ESTABLECIMIENTO_FAIL,
-                error: "El token ha expirado.",
+                error: "Error en la solicitud:", err,
             });
             dispatch({ type: LOGOUT });
             return false;

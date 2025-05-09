@@ -42,7 +42,7 @@ export const registrarAltasActions = (activos: { aF_CLAVE: number }[]) => async 
     } catch (err: any) {
       dispatch({
         type: REGISTRAR_ALTAS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

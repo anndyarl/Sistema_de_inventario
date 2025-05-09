@@ -45,7 +45,7 @@ export const rematarBajasActions = (activos: Record<string, any>[]) => async (di
     } catch (err: any) {
       dispatch({
         type: REGISTRAR_REMATES_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

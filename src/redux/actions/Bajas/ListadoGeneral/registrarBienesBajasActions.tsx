@@ -40,7 +40,7 @@ export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO
     } catch (err: any) {
       dispatch({
         type: REGISTRAR_BIENES_BAJAS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

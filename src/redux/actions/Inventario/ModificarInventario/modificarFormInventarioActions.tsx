@@ -55,7 +55,7 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
       console.error("Error en la solicitud:", err);
       dispatch({
         type: POST_FORMULARIO_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

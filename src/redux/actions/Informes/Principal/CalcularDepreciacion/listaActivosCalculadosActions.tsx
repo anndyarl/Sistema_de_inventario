@@ -60,7 +60,7 @@ export const listaActivosCalculadosActions = (activosSeleccionados: Record<strin
     } catch (err: any) {
       dispatch({
         type: LISTA_ACTIVOS_CALCULADOS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

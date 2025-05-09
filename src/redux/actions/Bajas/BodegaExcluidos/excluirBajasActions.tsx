@@ -45,7 +45,7 @@ export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => asyn
     } catch (err: any) {
       dispatch({
         type: REGISTRAR_EXCLUIDOS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

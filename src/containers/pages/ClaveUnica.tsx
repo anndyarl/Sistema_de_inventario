@@ -3,7 +3,7 @@ import React, { useState } from "react";
 // import { DatosPersona } from "../../redux/interfaces"; 
 import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de tener este tipo definido correctamente
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 // import { useAppDispatch } from "../../hooks/hook";
 import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
 import ondas from "../../assets/img/ondas.png"
@@ -17,7 +17,7 @@ interface Props {
 
 const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => {
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate(); // Hook para redirigir
   // Función para redirigir a Clave Única
   const handleEnviar = () => {
     setLoading(true);
@@ -26,12 +26,16 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => 
     // window.open(redirectUrl, "_blank")
   };
 
+  const handlePrueba = () => {
+    navigate("/Login");
+  };
+
   // if ('serviceWorker' in navigator) {
   //   navigator.serviceWorker.register('/service-worker.js')
   //     .then(() => console.log('Service Worker registrado'));
   // }
-  console.log("token", token);
-  console.log("isAuthenticated", isAuthenticated);
+  // console.log("token", token);
+  // console.log("isAuthenticated", isAuthenticated);
   if (isAuthenticated) {
     return <Navigate to="/Inicio" />;
   }
@@ -53,7 +57,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => 
           </div>
 
           {/* Botón de acceso */}
-          <div className="border-top border-bottom p-5 row justify-content-center">
+          <div className="border-top border-bottom p-5 row justify-content-center ">
             <h5 className="fw-semibold fs-09em">Acceso con Clave Única</h5>
 
             <Button
@@ -78,6 +82,16 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => 
                   Iniciar sesión
                 </>
               )}
+            </Button>
+
+            <Button
+              onClick={handlePrueba}
+              disabled={loading}
+              variant="primary"
+              className={`btn mt-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+              type="submit"
+            >
+              Acceso prueba
             </Button>
           </div>
 

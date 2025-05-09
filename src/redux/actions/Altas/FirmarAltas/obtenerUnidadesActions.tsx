@@ -40,7 +40,7 @@ export const obtenerUnidadesActions = () => async (dispatch: Dispatch, getState:
     } catch (err: any) {
       dispatch({
         type: OBTENER_UNIDADES_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

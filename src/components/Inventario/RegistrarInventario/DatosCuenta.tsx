@@ -182,10 +182,12 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     }
     if (name === "bien") {
       onBienSeleccionado(value);
+      console.log("bien", value);
     }
     if (name === "detalles") {
       paginar(1);
       onDetalleSeleccionado(newValue as number);
+      console.log("detalles", value);
     }
 
   };

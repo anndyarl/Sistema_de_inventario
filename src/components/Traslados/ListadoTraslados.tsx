@@ -375,6 +375,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   {/* <th scope="col"></th> */}
                   <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Codigo Traslado</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
                   {/* <th scope="col" className="text-nowrap text-center">Servicio</th> */}
                   <th scope="col" className="text-nowrap text-center">Ubicación de Origen</th>
@@ -388,12 +389,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">Estado</th>
                   <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
                   {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
-                  <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Fecha Creación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                  <th scope="col" className="text-nowrap text-center">Número de Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Tipo Traslado</th>
 
                   {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
@@ -412,7 +412,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                         />
                         </td> */}
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                      <td className="text-nowrap">{Lista.traS_CORR}</td>
+                      {/* <td className="text-nowrap">{Lista.traS_CORR}</td> */}
+                      <td className="text-nowrap">{Lista.n_TRASLADO}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA}</td>
                       {/* <td className="text-nowrap">{Lista.seR_NOMBRE}</td> */}
                       <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
@@ -427,13 +428,13 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       {/* <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td> */}
                       <td className="text-nowrap">{Lista.traS_DET_CORR}</td>
                       {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
-                      <td className="text-nowrap">{Lista.f_CREA}</td>
+                      {/* <td className="text-nowrap">{Lista.f_CREA}</td> */}
                       {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
                       {/* <td className="text-nowrap">{Lista.usuariO_MOD}</td>
                       <td className="text-nowrap">{Lista.f_MOD}</td> */}
                       {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
-                      <td className="text-nowrap">{Lista.n_TRASLADO}</td>
-                      <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En comododato" : "Traspaso Real"}</td>
+
+                      <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td>
                       {/* <td className="text-nowrap">{Lista.estaD_D}</td> */}
 
                     </tr>
@@ -490,7 +491,6 @@ const mapStateToProps = (state: RootState) => ({
   comboServicio: state.comboServicioReducer.comboServicio,
   objeto: state.validaApiLoginReducers,
   nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
-
 });
 
 export default connect(mapStateToProps, {

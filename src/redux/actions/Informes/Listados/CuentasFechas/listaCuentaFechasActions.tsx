@@ -44,7 +44,7 @@ export const listaCuentaFechasActions = (fDesde: string, fHasta: string, codCuen
     } catch (err: any) {
       dispatch({
         type: LISTA_CUENTA_FECHAS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

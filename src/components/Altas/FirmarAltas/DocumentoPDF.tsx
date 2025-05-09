@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     firmaContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 350,
+        marginTop: 100,
         paddingHorizontal: 20,
     },
     firmaBox: {
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     },
 
 });
-const DocumentoPDF = ({ row, AltaInventario }: { row: ListaAltas; AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string, visadoInventario: string, visadoFinanzas: string }) => (
+const DocumentoPDF = ({ row, AltaInventario }: { row: ListaAltas[]; AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string, visadoInventario: string, visadoFinanzas: string }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -138,10 +138,21 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaAltas; AltaInventario
                 </View>
             </Container>
             {/* Encabezado */}
-            <View style={styles.headerContent}>
-                <Text style={styles.header}>Alta Nº: {row.altaS_CORR}</Text>
-                <Text style={styles.header}>Fecha de Alta: {row.fechA_ALTA}</Text>
-            </View>
+            {(() => {
+                const altasUnicas = [...new Set(row.map(item => item.altaS_CORR))];
+                if (altasUnicas.length === 1) {
+                    const unicaAlta = row[0]; // todos tienen la misma altaS_CORR, así que usamos el primero
+                    return (
+                        <View style={styles.headerContent}>
+                            <Text style={styles.header}>Alta Nº: {unicaAlta.altaS_CORR}</Text>
+                            <Text style={styles.header}>Fecha de Alta: {unicaAlta.fechA_ALTA}</Text>
+                        </View>
+                    );
+                }
+
+                return null; // no mostrar nada si hay más de una alta
+            })()}
+
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}
@@ -161,21 +172,23 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaAltas; AltaInventario
                     <Text style={styles.tableCellHeader}>Nº REcepción</Text>
                 </View>
                 {/* Fila de datos */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellLong}>{row.ninv}</Text>
-                    <Text style={styles.tableCellLong}>{row.altaS_CORR}</Text>
-                    <Text style={styles.tableCellLong}>{row.fechA_ALTA}</Text>
-                    <Text style={styles.tableCell}>{row.serv}</Text>
-                    <Text style={styles.tableCell}>{row.dep}</Text>
-                    <Text style={styles.tableCellLong}>{row.esp}</Text>
-                    <Text style={styles.tableCell}>{row.ncuenta}</Text>
-                    <Text style={styles.tableCell}>{row.marca}</Text>
-                    <Text style={styles.tableCell}>{row.modelo}</Text>
-                    <Text style={styles.tableCell}>{row.serie}</Text>
-                    <Text style={styles.tableCell}>{row.estado}</Text>
-                    <Text style={styles.tableCell}>{row.precio}</Text>
-                    <Text style={styles.tableCell}>{row.nrecep}</Text>
-                </View>
+                {row.map((lista) => (
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellLong}>{lista.ninv}</Text>
+                        <Text style={styles.tableCellLong}>{lista.altaS_CORR}</Text>
+                        <Text style={styles.tableCellLong}>{lista.fechA_ALTA}</Text>
+                        <Text style={styles.tableCell}>{lista.serv}</Text>
+                        <Text style={styles.tableCell}>{lista.dep}</Text>
+                        <Text style={styles.tableCellLong}>{lista.esp}</Text>
+                        <Text style={styles.tableCell}>{lista.ncuenta}</Text>
+                        <Text style={styles.tableCell}>{lista.marca}</Text>
+                        <Text style={styles.tableCell}>{lista.modelo}</Text>
+                        <Text style={styles.tableCell}>{lista.serie}</Text>
+                        <Text style={styles.tableCell}>{lista.estado}</Text>
+                        <Text style={styles.tableCell}>{lista.precio}</Text>
+                        <Text style={styles.tableCell}>{lista.nrecep}</Text>
+                    </View>
+                ))}
             </View>
             {/* Área de firmas */}
             <View style={styles.firmaContainer}>

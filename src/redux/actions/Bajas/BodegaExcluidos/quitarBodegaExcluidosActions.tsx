@@ -45,7 +45,7 @@ export const quitarBodegaExcluidosActions = (listaQuitar: Record<string, any>[])
     } catch (err: any) {
       dispatch({
         type: QUITAR_BODEGA_EXCLUIDOS_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

@@ -4,7 +4,7 @@ import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner } from "re
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CaretDown, CaretUpFill, Search } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Eraser, EraserFill, Search } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -16,7 +16,7 @@ import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Comb
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
-import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
+import { registroTrasladoActions } from "../../redux/actions/Traslados/registroTrasladoActions";
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { useNavigate } from "react-router-dom";
 // Define el tipo de los elementos del combo `Establecimiento`
@@ -48,7 +48,7 @@ interface PropsTraslados {
   traS_CO_REAL?: number; //traspasoReal
   traS_MEMO_REF?: string; //nMemoRef
   traS_FECHA_MEMO?: string; //fechaMemo
-  deT_OBS: string; //observaciones
+  traS_OBS: string; //observaciones
   traS_NOM_ENTREGA?: string; //entrgadoPor
   traS_NOM_RECIBE?: string; //recibidoPor
   traS_NOM_AUTORIZA?: string; //jefeAutoriza
@@ -95,7 +95,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   marca,
   modelo,
   serie,
-  deT_OBS,
+  traS_OBS,
   objeto,
   token,
   isDarkMode }) => {
@@ -116,7 +116,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     traS_CO_REAL: 0,
     traS_MEMO_REF: "",
     traS_FECHA_MEMO: "",
-    deT_OBS: "",
+    traS_OBS: "",
     traS_NOM_ENTREGA: "",
     traS_NOM_RECIBE: "",
     traS_NOM_AUTORIZA: "",
@@ -131,7 +131,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     if (!Traslados.traS_DET_CORR) tempErrors.traS_DET_CORR = "Campo obligatorio.";
     if (!Traslados.deP_CORR) tempErrors.deP_CORR = "Campo obligatorio.";
     if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
-    if (!Traslados.deT_OBS) tempErrors.deT_OBS = "Campo obligatorio.";
+    if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
     if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
     if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
     if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
@@ -158,7 +158,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       traS_CO_REAL: 0,
       traS_MEMO_REF: "",
       traS_FECHA_MEMO: "",
-      deT_OBS,
+      traS_OBS,
       traS_NOM_ENTREGA: "",
       traS_NOM_RECIBE: "",
       traS_NOM_AUTORIZA: "",
@@ -182,7 +182,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     marca,
     modelo,
     serie,
-    deT_OBS]);
+    traS_OBS]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -258,27 +258,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               customClass: { popup: "custom-border" }
             });
 
-            setTraslados((prevTraslados) => ({
-              ...prevTraslados,
-              aF_CLAVE: 0, //nInventario
-              deP_CORR_ORIGEN: 0,//deP_CORR_ORIGEN
-              deP_CORR: 0, //deP_CORR
-              traS_MEMO_REF: "",
-              traS_FECHA_MEMO: "",
-              traS_OBS: "",
-              marca: "",
-              modelo: "",
-              serie: "",
-              servicioOrigen: 0,
-              traS_DET_CORR: 0,
-              traS_CO_REAL: 0,
-              traS_NOM_ENTREGA: "",
-              traS_NOM_RECIBE: "",
-              traS_NOM_AUTORIZA: "",
-              n_TRASLADO: 0,
-              especie: "",
-            }));
-
           } else {
             Swal.fire({
               icon: "error",
@@ -306,6 +285,32 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
 
     }
   }
+
+  const handleLimpiar = () => {
+    setTraslados((prev) => ({
+      ...prev,
+      aF_CLAVE: 0,
+      af_codigo_generico: "",
+      seR_CORR: 0,
+      deP_CORR_ORIGEN: 0,
+      esP_CODIGO: "",
+      marca: "",
+      modelo: "",
+      serie: "",
+      traS_DET_CORR: 0,
+      deP_CORR: 0,
+      traS_CO_REAL: 0,
+      traS_MEMO_REF: "",
+      traS_FECHA_MEMO: "",
+      traS_OBS: "",
+      traS_NOM_ENTREGA: "",
+      traS_NOM_RECIBE: "",
+      traS_NOM_AUTORIZA: "",
+      n_TRASLADO: 0
+    }));
+  }
+
+
 
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
@@ -374,7 +379,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     error.deP_CORR ||
     error.traS_MEMO_REF ||
     error.traS_FECHA_MEMO ||
-    error.deT_OBS ||
+    error.traS_OBS ||
     error.traS_CO_REAL
   );
   const tieneErroresRecepcion = !!(
@@ -527,6 +532,37 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                               />
                             )}
                           </Button>
+                        </OverlayTrigger>
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id="tooltip-limpiar">Limpiar formulario</Tooltip>}
+                        >
+                          <Button
+                            onClick={handleLimpiar}
+                            variant="primary"
+                            className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} mx-1`}
+                          >
+                            {
+                              (() => {
+                                const { usuario_crea, ...restoTraslados } = Traslados;
+                                const tieneDatos = Object.values(restoTraslados).some(
+                                  (valor) => valor !== "" && valor !== 0
+                                );
+                                return tieneDatos ? (
+                                  <EraserFill
+                                    className="flex-shrink-0 h-5 w-5"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <Eraser
+                                    className="flex-shrink-0 h-5 w-5"
+                                    aria-hidden="true"
+                                  />
+                                );
+                              })()
+                            }
+                          </Button>
+
                         </OverlayTrigger>
                       </div>
                       {error.af_codigo_generico && (<div className="invalid-feedback fw-semibold d-block">{error.af_codigo_generico}
@@ -748,17 +784,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       </label>
                       <textarea
                         className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.deT_OBS ? "is-invalid" : ""}`}
-                        aria-label="deT_OBS"
-                        name="deT_OBS"
+                          } ${error.traS_OBS ? "is-invalid" : ""}`}
+                        aria-label="traS_OBS"
+                        name="traS_OBS"
                         rows={4}
                         maxLength={500}
                         style={{ minHeight: "8px", resize: "none" }}
                         onChange={handleChange}
-                        value={Traslados.deT_OBS}
+                        value={Traslados.traS_OBS}
                       />
-                      {error.deT_OBS && (
-                        <div className="invalid-feedback">{error.deT_OBS}</div>
+                      {error.traS_OBS && (
+                        <div className="invalid-feedback">{error.traS_OBS}</div>
                       )}
                     </div>
                   </Col>
@@ -821,7 +857,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         )}
                       </div>
 
-                      {/* Jefe que Autoriza */}setTraslados
+                      {/* Jefe que Autoriza */}
                       <div className="mb-1">
                         <label className="fw-semibold">
                           Jefe que Autoriza
@@ -884,7 +920,7 @@ const mapStateToProps = (state: RootState) => ({
   marca: state.obtenerInventarioTrasladoReducers.marca,
   modelo: state.obtenerInventarioTrasladoReducers.modelo,
   serie: state.obtenerInventarioTrasladoReducers.serie,
-  deT_OBS: state.obtenerInventarioTrasladoReducers.deT_OBS,
+  traS_OBS: state.obtenerInventarioTrasladoReducers.deT_OBS,
   objeto: state.validaApiLoginReducers,
   isDarkMode: state.darkModeReducer.isDarkMode
 });

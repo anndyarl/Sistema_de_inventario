@@ -50,7 +50,7 @@ export const obtenerInventarioActions = (af_codigo_generico: string) => async (d
       console.error("Error en la solicitud:", err);
       dispatch({
         type: OBTENER_INVENTARIO_FAIL,
-        error: "El token ha expirado.",
+        error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
       return false;

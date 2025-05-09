@@ -528,7 +528,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
             //  keyboard={false}     // Evita el cierre al presionar la tecla Esc
             >
               <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                <Modal.Title className="fw-semibold">Enviar a Bodega de Exluidos</Modal.Title>
+                <Modal.Title className="fw-semibold">Enviar a Bodega de Excluidos</Modal.Title>
               </Modal.Header>
               <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                 <form onSubmit={handleSubmit}>

@@ -1,4 +1,5 @@
 
+import { InventarioProps } from '../../../../components/Inventario/RegistrarInventario/DatosInventario';
 import {
     RECEPCION_REQUEST,
     RECEPCION_SUCCESS,
@@ -10,19 +11,7 @@ import {
 interface obtenerRecepcionState {
     loading: boolean;
     error: string | null;
-    recepciones: Array<{
-        numeroRecepcion: string,
-        numeroOrdenCompra: string,
-        numeroFactura: string,
-        montoRecepcion: number,
-        rutProveedor: string,
-        fechaRecepcion: string,
-        horaRecepcion: string,
-        origen: string,
-        fechaFactura: string,
-        nombreProveedor: string,
-
-    }>;
+    recepciones: InventarioProps[];
     nRecepcion: number;
     fechaRecepcion: string;
     nOrdenCompra: string;
@@ -116,10 +105,10 @@ const obtenerRecepcionReducers = (state = initialState, action: any): obtenerRec
             return {
                 ...state,
                 loading: false,
-                nRecepcion: action.payload.numeroRecepcion,
+                nRecepcion: action.payload.repeticiones[0].nRecepcion,
                 fechaRecepcion: action.payload.fechaRecepcion,
                 nOrdenCompra: action.payload.numeroOrdenCompra,
-                nFactura: action.payload.numeroFactura,
+                nFactura: action.payload.repeticiones[0].nFactura,
                 origenPresupuesto: action.payload.origen,
                 montoRecepcion: action.payload.montoRecepcion,
                 fechaFactura: action.payload.fechaFactura,
