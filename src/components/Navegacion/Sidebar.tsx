@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  Box, ArrowsMove, PlusCircle, DashCircle, FileText, Database,
+  Box, ArrowsMove, PlusCircle, DashCircle, FileText,
   FileEarmarkSpreadsheet, ChevronDown,
 } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css";
@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
     { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
     { name: 'Bajas', href: '/Bajas', icon: DashCircle },
     { name: 'Informes', href: '/Informes', icon: FileText },
-    { name: 'Mantenedores', href: '/Mantenedores', icon: Database },
+    // { name: 'Mantenedores', href: '/Mantenedores', icon: Database },
   ];
 
   const subMenus: { [key: string]: NavItem[] } = {

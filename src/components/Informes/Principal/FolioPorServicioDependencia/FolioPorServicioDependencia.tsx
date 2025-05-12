@@ -48,6 +48,9 @@ export interface ListaFolioServicioDependencia {
     ctA_COD: string;
     aF_RESOLUCION: string;
     aF_FINGRESO: string;
+    aF_MARCA: string;
+    aF_MODELO: string;
+    aF_SERIE: string;
     aF_ESPECIE: string; //Nombre especie
     aF_OBS: string;
     aF_FOLIO: string;
@@ -125,20 +128,25 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     });
     //Estado para firmar
     const [Inventario, setInventario] = useState({
-        unidadAdministrativa: null,
-        ajustarFirma: false,
+        ajustarFirma: false,//General
+        finanzas: false,//Opcional
+        abastecimiento: false,//Opcional
+        administrativa: false,//Opcional
+        unidadAdministrativa: null,//Este es el esado de un combo
         titularInventario: false,
         subroganteInventario: false,
-        finanzas: false,
         titularFinanzas: false,
         subroganteFinanzas: false,
-        administrativa: false,
+        titularAbastecimiento: false,
+        subroganteAbastecimiento: false,
         titularDemandante: false,
         subroganteDemandante: false,
         firmanteInventario: "",
         firmanteFinanzas: "",
+        firmanteAbastecimiento: "",
         visadoInventario: "",
-        visadoFinanzas: ""
+        visadoFinanzas: "",
+        visadoAbastecimiento: ""
     });
     //Estado para completar fomulario traslado
     const [Traslados, setTraslados] = useState({
@@ -330,17 +338,22 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             const cleanedState = {
                 ...updatedState,
                 finanzas: false,
+                abastecimiento: false,
                 administrativa: false,
                 titularInventario: false,
                 subroganteInventario: false,
                 titularFinanzas: false,
                 subroganteFinanzas: false,
+                titularAbastecimiento: false,
+                subroganteAbastecimiento: false,
                 titularDemandante: false,
                 subroganteDemandante: false,
                 firmanteInventario: "",
                 firmanteFinanzas: "",
+                firmanteAbastecimiento: "",
                 visadoInventario: "",
                 visadoFinanzas: "",
+                visadoAbastecimiento: ""
             };
             setIsDisabled(false);
             setIsExpanded(true);
@@ -351,8 +364,10 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
 
         let firmanteInventario = prev.firmanteInventario || "";
         let firmanteFinanzas = prev.firmanteFinanzas || "";
+        let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
         let visadoInventario = prev.visadoInventario || "";
         let visadoFinanzas = prev.visadoFinanzas || "";
+        let visadoAbastecimiento = prev.visadoAbastecimiento || "";
 
         for (const firma of datosFirmas) {
 
@@ -386,12 +401,27 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     updatedState.titularFinanzas = false;
                 }
             }
+
+            if (firma.iD_UNIDAD === 3) {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                    firmanteAbastecimiento = nombreCompleto;
+                    visadoAbastecimiento = FIRMA;
+                    updatedState.subroganteAbastecimiento = false;
+                }
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                    firmanteAbastecimiento = nombreCompleto;
+                    visadoAbastecimiento = FIRMA;
+                    updatedState.titularAbastecimiento = false;
+                }
+            }
         }
 
         updatedState.firmanteInventario = firmanteInventario;
         updatedState.firmanteFinanzas = firmanteFinanzas;
+        updatedState.firmanteAbastecimiento = firmanteAbastecimiento;
         updatedState.visadoInventario = visadoInventario;
         updatedState.visadoFinanzas = visadoFinanzas;
+        updatedState.visadoAbastecimiento = visadoAbastecimiento;
         setIsDisabled(false);
         setIsExpanded(true);
         setInventario(updatedState);
@@ -432,7 +462,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
 
             const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
 
-            console.log("datosTraslado", activosSeleccionados);
+            // console.log("datosTraslado", activosSeleccionados);
 
             if (resultado) {
                 Swal.fire({
@@ -852,6 +882,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         </th>
                                         <th scope="col" className="text-nowrap">N° Inventario</th>
                                         <th scope="col" className="text-nowrap">Nº Alta</th>
+                                        <th scope="col" className="text-nowrap">Marca</th>
+                                        <th scope="col" className="text-nowrap">Modelo</th>
+                                        <th scope="col" className="text-nowrap">Serie</th>
                                         <th scope="col" className="text-nowrap">Especie</th>
                                         <th scope="col" className="text-nowrap">Observación</th>
                                         <th scope="col" className="text-nowrap">Fecha Ingreso</th>
@@ -880,6 +913,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                 </td>
                                                 <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                                 <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                <td className="text-nowrap">{Lista.aF_MARCA}</td>
+                                                <td className="text-nowrap">{Lista.aF_MODELO}</td>
+                                                <td className="text-nowrap">{Lista.aF_SERIE}</td>
                                                 <td className="text-nowrap">{Lista.aF_ESPECIE}</td>
                                                 <td>{Lista.aF_OBS}</td>
                                                 <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
@@ -954,7 +990,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                             <Row className="m-1 p-3 rounded rounded-4 border">
                                 <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
                                 {/* Ajustar Firma | Unidad Inventario */}
-                                <Col md={6} >
+                                <Col md={4} >
                                     <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
                                     <div className="d-flex">
                                         <Form.Check
@@ -978,8 +1014,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     </div>
                                 </Col>
 
-                                {/* Opcional1 | Unidad Finanzas*/}
-                                <Col md={6}>
+                                {/* Opcional1 | Departamento Finanzas*/}
+                                <Col md={4}>
                                     <p className="border-bottom fw-semibold text-center">Departamento de Finanzas</p>
                                     <div className="d-flex">
                                         <label htmlFor="finanzas" className="me-2">Opcional</label>
@@ -1014,7 +1050,43 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     </div>
                                 </Col>
 
-                                {/* Opcional2 | Unidad Administrativa */}
+                                {/* Opcional2 | Unidad Abastecimiento*/}
+                                <Col md={4}>
+                                    <p className="border-bottom fw-semibold text-center">Unidad de Abastecimiento</p>
+                                    <div className="d-flex">
+                                        <label htmlFor="abastecimiento" className="me-2">Opcional</label>
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.ajustarFirma}
+                                            name="abastecimiento"
+                                            type="checkbox"
+                                            className="form-switch"
+                                            checked={Inventario.abastecimiento}
+                                        />
+                                    </div>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.abastecimiento}
+                                            name="titularAbastecimiento"
+                                            type="checkbox"
+                                            checked={Inventario.titularAbastecimiento}
+                                        />
+                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                    </div>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!Inventario.abastecimiento}
+                                            name="subroganteAbastecimiento"
+                                            type="checkbox"
+                                            checked={Inventario.subroganteAbastecimiento}
+                                        />
+                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                    </div>
+                                </Col>
+
+                                {/* Opcional3 | Unidad Administrativa */}
                                 {/* <Col md={4}>
                                             <p className="border-bottom fw-semibold text-center">Unidad Administrativa</p>
                                             <div className="d-flex">
@@ -1060,8 +1132,10 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                 AltaInventario={Inventario}
                                 firmanteInventario={Inventario.firmanteInventario}
                                 firmanteFinanzas={Inventario.firmanteFinanzas}
+                                firmanteAbastecimiento={Inventario.firmanteAbastecimiento}
                                 visadoInventario={Inventario.visadoInventario}
                                 visadoFinanzas={Inventario.visadoFinanzas}
+                                visadoAbastecimiento={Inventario.visadoAbastecimiento}
                             />
                         }>
                             {({ url, loading }) =>

@@ -110,20 +110,25 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     });
 
     const [AltaInventario, setAltaInventario] = useState({
-        unidadAdministrativa: null,
-        ajustarFirma: false,
+        ajustarFirma: false,//General
+        finanzas: false,//Opcional
+        abastecimiento: false,//Opcional
+        administrativa: false,//Opcional
+        unidadAdministrativa: null,//Este es el esado de un combo
         titularInventario: false,
         subroganteInventario: false,
-        finanzas: false,
         titularFinanzas: false,
         subroganteFinanzas: false,
-        administrativa: false,
+        titularAbastecimiento: false,
+        subroganteAbastecimiento: false,
         titularDemandante: false,
         subroganteDemandante: false,
         firmanteInventario: "",
         firmanteFinanzas: "",
+        firmanteAbastecimiento: "",
         visadoInventario: "",
-        visadoFinanzas: ""
+        visadoFinanzas: "",
+        visadoAbastecimiento: ""
     });
 
 
@@ -172,17 +177,22 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             const cleanedState = {
                 ...updatedState,
                 finanzas: false,
+                abastecimiento: false,
                 administrativa: false,
                 titularInventario: false,
                 subroganteInventario: false,
                 titularFinanzas: false,
                 subroganteFinanzas: false,
+                titularAbastecimiento: false,
+                subroganteAbastecimiento: false,
                 titularDemandante: false,
                 subroganteDemandante: false,
                 firmanteInventario: "",
                 firmanteFinanzas: "",
+                firmanteAbastecimiento: "",
                 visadoInventario: "",
                 visadoFinanzas: "",
+                visadoAbastecimiento: ""
             };
             setIsDisabled(false);
             setIsExpanded(true);
@@ -190,11 +200,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             return;
         }
 
-
         let firmanteInventario = prev.firmanteInventario || "";
         let firmanteFinanzas = prev.firmanteFinanzas || "";
+        let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
         let visadoInventario = prev.visadoInventario || "";
         let visadoFinanzas = prev.visadoFinanzas || "";
+        let visadoAbastecimiento = prev.visadoAbastecimiento || "";
+
 
         for (const firma of datosFirmas) {
 
@@ -228,12 +240,26 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                     updatedState.titularFinanzas = false;
                 }
             }
+            if (firma.iD_UNIDAD === 3) {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                    firmanteAbastecimiento = nombreCompleto;
+                    visadoAbastecimiento = FIRMA;
+                    updatedState.subroganteAbastecimiento = false;
+                }
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                    firmanteAbastecimiento = nombreCompleto;
+                    visadoAbastecimiento = FIRMA;
+                    updatedState.titularAbastecimiento = false;
+                }
+            }
         }
 
         updatedState.firmanteInventario = firmanteInventario;
         updatedState.firmanteFinanzas = firmanteFinanzas;
+        updatedState.firmanteAbastecimiento = firmanteAbastecimiento;
         updatedState.visadoInventario = visadoInventario;
         updatedState.visadoFinanzas = visadoFinanzas;
+        updatedState.visadoAbastecimiento = visadoAbastecimiento;
         setIsDisabled(false);
         setIsExpanded(true);
         setAltaInventario(updatedState);
@@ -635,7 +661,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                             <Row className="m-1 p-3 rounded rounded-4 border">
                                 <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
                                 {/* Ajustar Firma | Unidad Inventario */}
-                                <Col md={6} >
+                                <Col md={4} >
                                     <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
                                     <div className="d-flex">
                                         <Form.Check
@@ -660,7 +686,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                 </Col>
 
                                 {/* Opcional1 | Unidad Finanzas*/}
-                                <Col md={6}>
+                                <Col md={4}>
                                     <p className="border-bottom fw-semibold text-center">Departamento de Finanzas</p>
                                     <div className="d-flex">
                                         <label htmlFor="finanzas" className="me-2">Opcional</label>
@@ -692,6 +718,42 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                             checked={AltaInventario.subroganteFinanzas}
                                         />
                                         <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                    </div>
+                                </Col>
+
+                                {/* Opcional2 | Unidad Abastecimiento*/}
+                                <Col md={4}>
+                                    <p className="border-bottom fw-semibold text-center">Unidad de Abastecimiento</p>
+                                    <div className="d-flex">
+                                        <label htmlFor="abastecimiento" className="me-2">Opcional</label>
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!AltaInventario.ajustarFirma}
+                                            name="abastecimiento"
+                                            type="checkbox"
+                                            className="form-switch"
+                                            checked={AltaInventario.abastecimiento}
+                                        />
+                                    </div>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!AltaInventario.abastecimiento}
+                                            name="titularAbastecimiento"
+                                            type="checkbox"
+                                            checked={AltaInventario.titularAbastecimiento}
+                                        />
+                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                    </div>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            onChange={handleCheck}
+                                            disabled={!AltaInventario.abastecimiento}
+                                            name="subroganteAbastecimiento"
+                                            type="checkbox"
+                                            checked={AltaInventario.subroganteAbastecimiento}
+                                        />
+                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
                                     </div>
                                 </Col>
 
@@ -739,8 +801,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                 AltaInventario={AltaInventario}
                                 firmanteInventario={AltaInventario.firmanteInventario}
                                 firmanteFinanzas={AltaInventario.firmanteFinanzas}
+                                firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
                                 visadoInventario={AltaInventario.visadoInventario}
                                 visadoFinanzas={AltaInventario.visadoFinanzas}
+                                visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
                             />
                         }>
                             {({ url, loading }) =>

@@ -7,8 +7,6 @@ import {
 import { Dispatch } from 'redux';
 import { LOGOUT } from '../../../auth/types';
 
-
-// Acción para obtener LISTA_ACTIVOS_FIJOS_INFORME
 export const listaActivosFijosActions = (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {

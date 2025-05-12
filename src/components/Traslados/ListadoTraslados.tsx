@@ -11,7 +11,7 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { CircleFill, Eraser, Search } from "react-bootstrap-icons";
 
 interface FechasProps {
   fDesde: string;
@@ -37,7 +37,7 @@ export interface listadoTraslados {
   iP_CREA: string,
   f_MOD: number,
   f_CREA: number,
-  estaD_D: number,
+  estabL_D: number,
   deP_CORR_ORIGEN: number,
   deP_CORR: number,
   aF_CLAVE: number,
@@ -45,11 +45,12 @@ export interface listadoTraslados {
   deP_NOMBRE_ORIGEN: string;
   seR_NOMBRE_DESTINO: string,
   deP_NOMBRE_DESTINO: string;
+  traS_ACTIVO: number;
 }
 
 interface GeneralProps {
   listadoTraslados: listadoTraslados[];
-  listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number) => Promise<boolean>;
+  listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -57,7 +58,7 @@ interface GeneralProps {
   nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, nPaginacion }) => {
+const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   // const [_, setFilaSeleccionada] = useState<string[]>([]);
@@ -96,7 +97,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     if (token) {
       if (listadoTraslados.length === 0) {
         setLoading(true);
-        const resultado = await listadoTrasladosActions("", "", "", 0);
+        const resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablicimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -138,7 +139,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
       return; // Salir si contiene caracteres no numéricos
     }
     // Convertir a número solo si el campo está en la lista
-    const camposNumericos = ["tras_corr"];
+    const camposNumericos = ["tras_corr", "establ_corr"];
     const newValue: string | number = camposNumericos.includes(name)
       ? parseFloat(value) || 0
       : value;
@@ -154,14 +155,14 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
-    resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
+    resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablicimiento);
     if (ListadoTraslado.fDesde != "" || ListadoTraslado.fHasta != "") {
       if (validate()) {
-        resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
+        resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablicimiento);
       }
     }
     else {
-      resultado = await listadoTrasladosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr);
+      resultado = await listadoTrasladosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablicimiento);
     }
 
     if (!resultado) {
@@ -177,7 +178,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      resultado = await listadoTrasladosActions("", "", "", 0);
+      resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablicimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -378,8 +379,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   {/* <th scope="col" className="text-nowrap text-center">Codigo Traslado</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
                   {/* <th scope="col" className="text-nowrap text-center">Servicio</th> */}
-                  <th scope="col" className="text-nowrap text-center">Ubicación de Origen</th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación de Destino</th>
+                  <th scope="col" className="text-nowrap text-center">Ubicación de Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
+                  <th scope="col" className="text-nowrap text-center">Ubicación de Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
@@ -388,13 +389,16 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
                   <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
+                  <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
                   {/* <th scope="col" className="text-nowrap text-center">Fecha Creación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
                   <th scope="col" className="text-nowrap text-center">Tipo Traslado</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Establecimineto</th> */}
+                  {/* <th scope="col" className="text-nowrap text-center">Activo</th> */}
+
 
                   {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                 </tr>
@@ -427,7 +431,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
                       {/* <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td> */}
                       <td className="text-nowrap">{Lista.traS_DET_CORR}</td>
-                      {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
+                      <td className="text-nowrap">{Lista.usuariO_CREA}</td>
                       {/* <td className="text-nowrap">{Lista.f_CREA}</td> */}
                       {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
                       {/* <td className="text-nowrap">{Lista.usuariO_MOD}</td>
@@ -435,7 +439,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
 
                       <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td>
-                      {/* <td className="text-nowrap">{Lista.estaD_D}</td> */}
+                      {/* <td className="text-nowrap">{Lista.estabL_D}</td> */}
+                      {/* <td className="text-nowrap">{Lista.traS_ACTIVO}</td> */}
 
                     </tr>
                   );
@@ -497,3 +502,4 @@ export default connect(mapStateToProps, {
   listadoTrasladosActions,
   registrarMantenedorDependenciasActions,
 })(ListadoTraslados);
+

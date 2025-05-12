@@ -21,7 +21,7 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
         {
-            name: 'Listado General',
+            name: 'Registrar Bajas',
             description: 'Busque el activo o los activos que desee dar de baja',
             href: '/Bajas/ListadoGeneral',
             icon: Boxes

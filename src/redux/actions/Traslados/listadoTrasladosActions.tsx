@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../auth/types";
 
 // Acción para obtener la recepción por número
-export const listadoTrasladosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoTrasladosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -22,8 +22,8 @@ export const listadoTrasladosActions = (fDesde: string, fHasta: string, af_codig
     dispatch({ type: LISTA_TRASLADOS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListaDeTraslados?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&tras_corr=${tras_corr}`, config);
-
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListaDeTraslados?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&tras_corr=${tras_corr}&establ_corr=${establ_corr}`, config);
+      console.log(fDesde, fHasta, af_codigo_generico, tras_corr, establ_corr);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({
@@ -50,7 +50,7 @@ export const listadoTrasladosActions = (fDesde: string, fHasta: string, af_codig
     } catch (err: any) {
       dispatch({
         type: LISTA_TRASLADOS_SUCCESS,
-        error: "El token ha expirado.",
+        // error: "El token ha expirado.",
       });
       // dispatch({ type: LOGOUT });
       return false;

@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import Layout from "../hocs/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
-import { Boxes, BoxSeam, BoxSeamFill, PencilFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
+import { ArrowsMove, Boxes, BoxSeam, FileText, PencilFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -50,15 +50,16 @@ const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamien
   const navigation: NavItem[] = [
 
     { descripcion: 'Complete el registro de un nuevo inventario en tres sencillos pasos.', name: 'FormInventario', title: 'Registrar Inventario', href: '/Inventario/FormInventario', icon: Boxes },
+    { descripcion: 'Busque el activo o los activos que desee dar de Alta.', name: 'RegistrarAltas', title: 'Registrar Altas', href: '/Altas/RegistrarAltas', icon: PlusCircle },
+    { descripcion: 'Registre el traslados de sus bienes.', name: 'RegistrarTraslados', title: 'Registrar Traslados', href: '/Traslados/RegistrarTraslados', icon: ArrowsMove },
+    { descripcion: 'Seleccione y complete registro del activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Registrar Bajas', href: '/Bajas/ListadoGeneral', icon: Boxes },
+    { descripcion: 'Busque, exporte y traslade los bienes filtrados por Servicios Depenedencia.', name: 'FolioPorServicioDependencia', title: 'Folios por Servicio-Dependencia', href: '/Informes/FolioPorServicioDependencia', icon: FileText },
+    { descripcion: 'Filtre por cuenta y luego calcule todos sus bienes para conocer su depreciación.', name: 'CalcularDepreciacion', title: 'Calcular Depreciación', href: '/Informes/CalcularDepreciacion', icon: FileText },
     { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/Inventario/ModificarInventario', icon: PencilFill },
-    { descripcion: 'Seleccione y complete registro del activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Listado General', href: '/Bajas/ListadoGeneral', icon: Boxes },
-    { descripcion: 'Listado de todos los activos excluidos.', name: 'BienesRematados', title: 'Bienes Rematados', href: '/Bajas/BienesRematados', icon: BoxSeamFill },
-    { descripcion: 'Para anular un inventario, búsquelo previamente por fecha de inicio y término.', name: 'AnularInventario', title: 'Anular Inventario', href: '/Inventario/AnularInventario', icon: SlashCircle },
     // { descripcion: 'Adjunte el documento correspondiente para la carga masiva del inventario.', name: 'CargaMasiva', title: 'Carga Masiva', href: '/Inventario/CargaMasiva', icon: DatabaseAdd },
     { descripcion: 'Busque, verifique y autorice las altas mediante firmas.', name: 'FirmarAltas', title: 'Firmar Altas', href: '/Altas/FirmarAltas', icon: Signature },
     { descripcion: 'Busque y genere un codigo QR de los inventarios de altas.', name: 'ImprimirEtiqueta', title: 'Imprimir Etiquetas', href: '/Altas/ImprimirEtiqueta', icon: Printer },
-    { descripcion: 'Registre los bienes asignados a funcionarios.', name: 'FormBienesFuncionarios', title: 'Bienes de Funcionarios', href: '/Inventario/FormBienesFuncionarios', icon: BoxSeam },
-    { descripcion: 'Registre el traslados de sus bienes.', name: 'RegistrarTraslados', title: 'Registrar Traslados', href: '/Traslados/RegistrarTraslados', icon: PlusCircle },
+    // { descripcion: 'Registre los bienes asignados a funcionarios.', name: 'FormBienesFuncionarios', title: 'Bienes de Funcionarios', href: '/Inventario/FormBienesFuncionarios', icon: BoxSeam },
 
   ];
 

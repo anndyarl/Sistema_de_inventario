@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     },
 
 });
-const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependencia[]; AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string, visadoInventario: string, visadoFinanzas: string }) => (
+const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependencia[]; AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -188,6 +188,9 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependen
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellHeader}>N° Inventario</Text>
                     <Text style={styles.tableCellHeader}>Nº Alta</Text>
+                    <Text style={styles.tableCellHeader}>Marca</Text>
+                    <Text style={styles.tableCellHeader}>Modelo</Text>
+                    <Text style={styles.tableCellHeader}>Serie</Text>
                     <Text style={styles.tableCellHeader}>Especie</Text>
                     <Text style={styles.tableCellHeader}>Fecha Ingreso</Text>
                     <Text style={styles.tableCellHeader}>Valor Libro</Text>
@@ -199,6 +202,9 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependen
                     <View style={styles.tableRow}>
                         <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
                         <Text style={styles.tableCell}>{lista.altaS_CORR}</Text>
+                        <Text style={styles.tableCell}>{lista.aF_MARCA}</Text>
+                        <Text style={styles.tableCell}>{lista.aF_MODELO}</Text>
+                        <Text style={styles.tableCell}>{lista.aF_SERIE}</Text>
                         <Text style={styles.tableCell}>{lista.aF_ESPECIE}</Text>
                         <Text style={styles.tableCell}>{lista.aF_FINGRESO}</Text>
                         <Text style={styles.tableCell}>$ {(lista.valoR_LIBRO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
@@ -240,6 +246,22 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependen
                         <Text style={styles.firmaLabel}>Departamento de Finanzas</Text>
                     </View>
                 )}
+
+                {/* Firma Unidad Abastecimiento */}
+                {AltaInventario.abastecimiento && (
+                    <View style={styles.firmaBox}>
+                        {AltaInventario.visadoAbastecimiento ? (
+                            <Image src={AltaInventario.visadoAbastecimiento} style={{ ...styles.firmaImagen }} />
+                            // <Text style={styles.firmaLabel}>{AltaInventario.visadoFinanzas}</Text>
+                        ) : (
+                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
+                        )}
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteAbastecimiento}</Text>
+                        <Text style={styles.firmaLabel}>Unidad de Abastecimiento</Text>
+                    </View>
+                )}
+
 
                 {/* Firma Unidad Demandante */}
                 {AltaInventario.administrativa && (

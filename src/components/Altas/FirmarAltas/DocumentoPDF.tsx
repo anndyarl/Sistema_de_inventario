@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     },
 
 });
-const DocumentoPDF = ({ row, AltaInventario }: { row: ListaAltas[]; AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string, visadoInventario: string, visadoFinanzas: string }) => (
+const DocumentoPDF = ({ row, AltaInventario }: { row: ListaAltas[]; AltaInventario: any, firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string }) => (
     <Document>
         <Page style={styles.page}>
             {/* Logo */}
@@ -221,6 +221,21 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaAltas[]; AltaInventar
                         <Text>_______________________</Text>
                         <Text style={styles.firmaLabel}>{AltaInventario.firmanteFinanzas}</Text>
                         <Text style={styles.firmaLabel}>Departamento de Finanzas</Text>
+                    </View>
+                )}
+
+                {/* Firma Unidad Abastecimiento */}
+                {AltaInventario.abastecimiento && (
+                    <View style={styles.firmaBox}>
+                        {AltaInventario.visadoAbastecimiento ? (
+                            <Image src={AltaInventario.visadoAbastecimiento} style={{ ...styles.firmaImagen }} />
+                            // <Text style={styles.firmaLabel}>{AltaInventario.visadoAbastecimiento}</Text>
+                        ) : (
+                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
+                        )}
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteAbastecimiento}</Text>
+                        <Text style={styles.firmaLabel}>Unidad de Abastecimiento</Text>
                     </View>
                 )}
 

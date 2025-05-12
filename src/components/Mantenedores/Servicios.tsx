@@ -94,7 +94,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
 
     const [Mantenedor, setMantenedor] = useState({
         seR_CORR: seR_CORR,
-        estabL_corr: objeto.Roles[0].codigoEstablicimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
+        estabL_corr: objeto.Roles[0].codigoEstablicimiento,
         descripcion: "",
         usuario: objeto.IdCredencial.toString(),
     });

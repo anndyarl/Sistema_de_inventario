@@ -30,7 +30,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         { name: 'Imprimir Etiqueta', path: '/Altas/ImprimirEtiqueta', keywords: ['qr', 'Etiquetas', 'Imprimir', 'generar'] },
         { name: 'Firmar Altas', path: '/Altas/FirmarAltas' },
         { name: 'Bajas', path: '/Bajas' },
-        { name: 'Listado General', path: '/Bajas/ListadoGeneral' },
+        { name: 'Registrar Bajas', path: '/Bajas/ListadoGeneral' },
         // { name: 'Registrar Bajas', path: '/Bajas/RegistrarBajas' },
         { name: 'Bodega de exluidos', path: '/Bajas/BodegaExcluidos' },
         { name: 'Bienes Rematados', path: '/Bajas/BienesRematados' },

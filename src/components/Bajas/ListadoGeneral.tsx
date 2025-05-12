@@ -302,11 +302,11 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   return (
     <Layout>
       <Helmet>
-        <title>Listado General</title>
+        <title>Registrar Bajas</title>
       </Helmet>
       <MenuBajas />
       <div className="border-bottom shadow-sm p-4 rounded">
-        <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
+        <h3 className="form-title fw-semibold border-bottom p-1">Registrar Bajas</h3>
         <Row className="border rounded p-2 m-2">
           <Col md={2}>
             <div className="mb-1">
