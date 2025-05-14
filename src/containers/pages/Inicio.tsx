@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import Layout from "../hocs/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
-import { ArrowsMove, Boxes, BoxSeam, FileText, PencilFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
+import { ArrowsMove, Boxes, BoxSeam, FileText, PencilFill, PencilSquare, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -55,7 +55,7 @@ const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamien
     { descripcion: 'Seleccione y complete registro del activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Registrar Bajas', href: '/Bajas/ListadoGeneral', icon: Boxes },
     { descripcion: 'Busque, exporte y traslade los bienes filtrados por Servicios Depenedencia.', name: 'FolioPorServicioDependencia', title: 'Folios por Servicio-Dependencia', href: '/Informes/FolioPorServicioDependencia', icon: FileText },
     { descripcion: 'Filtre por cuenta y luego calcule todos sus bienes para conocer su depreciación.', name: 'CalcularDepreciacion', title: 'Calcular Depreciación', href: '/Informes/CalcularDepreciacion', icon: FileText },
-    { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/Inventario/ModificarInventario', icon: PencilFill },
+    { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/Inventario/ModificarInventario', icon: PencilSquare },
     // { descripcion: 'Adjunte el documento correspondiente para la carga masiva del inventario.', name: 'CargaMasiva', title: 'Carga Masiva', href: '/Inventario/CargaMasiva', icon: DatabaseAdd },
     { descripcion: 'Busque, verifique y autorice las altas mediante firmas.', name: 'FirmarAltas', title: 'Firmar Altas', href: '/Altas/FirmarAltas', icon: Signature },
     { descripcion: 'Busque y genere un codigo QR de los inventarios de altas.', name: 'ImprimirEtiqueta', title: 'Imprimir Etiquetas', href: '/Altas/ImprimirEtiqueta', icon: Printer },

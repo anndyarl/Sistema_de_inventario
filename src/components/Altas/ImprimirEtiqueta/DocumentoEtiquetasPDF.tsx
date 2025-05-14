@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         marginRight: 4,
     },
     labelText: {
-        fontSize: 10,
+        fontSize: 12,
         flexShrink: 1,              // Permite que el texto reduzca su tamaño si es necesario
         flexGrow: 1,
         wordWrap: 'break-word',     // Fuerza el quiebre de palabra si es muy larga
@@ -53,7 +53,7 @@ const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[] }) => (
                         <Text>Sin QR</Text>
                     )}
                     <Text style={styles.labelText}>
-                        {`${lista.aF_UBICACION}\n\n\n\n${lista.aF_CODIGO_LARGO}\n\n${lista.aF_DESCRIPCION}`}
+                        {`${lista.aF_UBICACION}\n\n\n${lista.aF_CODIGO_LARGO}\n\n${lista.aF_DESCRIPCION}`}
                     </Text>
                 </View>
             </Page>

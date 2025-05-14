@@ -118,9 +118,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
 };
 
 const mapStateToProps = (state: RootState) => ({
-  isDarkMode: state.darkModeReducer.isDarkMode,
-
-
+  isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 export default connect(mapStateToProps, {

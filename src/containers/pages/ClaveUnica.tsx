@@ -19,7 +19,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // Hook para redirigir
   // Función para redirigir a Clave Única
-  const handleEnviar = () => {
+  const handleClaveUnica = () => {
     setLoading(true);
     const redirectUrl = import.meta.env.VITE_CSRF_CLAVE_UNICA;
     window.location.href = redirectUrl;
@@ -61,7 +61,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => 
             <h5 className="fw-semibold fs-09em">Acceso con Clave Única</h5>
 
             <Button
-              onClick={handleEnviar}
+              onClick={handleClaveUnica}
               disabled={loading}
               variant="primary"
               className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
@@ -96,8 +96,8 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => 
           </div>
 
           {/* Footer */}
-          <footer className="fs-05em mb-2">
-            Diseñado por el Departamento de Informática | Unidad de Desarrollo 2025
+          <footer className="fs-09em mb-2">
+            Departamento de Informática | Unidad de Desarrollo 2025
           </footer>
         </div>
 

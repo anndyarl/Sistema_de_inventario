@@ -3,7 +3,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Card, Row, Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { PencilFill, PlusCircle, BoxSeam, SlashCircle } from "react-bootstrap-icons";
+import { PlusCircle, BoxSeam, SlashCircle, PencilSquare } from "react-bootstrap-icons";
 import Layout from "../hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "../../components/Inventario/RegistrarInventario/DatosInventario";
 import { BIEN, DEPENDENCIA, SERVICIO } from "../../components/Inventario/RegistrarInventario/DatosCuenta";
@@ -70,7 +70,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
       // Verifica si las acciones ya fueron disparadas
       if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
-      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablicimiento);
+      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboDependencia.length === 0) comboDependenciaActions("");
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
@@ -104,7 +104,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
   const navigation: NavItem[] = [
 
     { descripcion: 'Complete el registro de un nuevo inventario en tres sencillos pasos.', name: 'FormInventario', title: 'Registrar Inventario', href: '/Inventario/FormInventario', icon: PlusCircle },
-    { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/Inventario/ModificarInventario', icon: PencilFill },
+    { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/Inventario/ModificarInventario', icon: PencilSquare },
     { descripcion: 'Para anular un inventario, búsquelo previamente por fecha de inicio y término.', name: 'AnularInventario', title: 'Anular Inventario', href: '/Inventario/AnularInventario', icon: SlashCircle },
     { descripcion: 'Registre los bienes asignados a funcionarios.', name: 'FormBienesFuncionarios', title: 'Bienes de Funcionarios', href: '/Inventario/FormBienesFuncionarios', icon: BoxSeam },
     // { descripcion: 'Adjunte su archivo excel para realizar una carga masiva', name: 'CargaMasiva', title: 'Carga Masiva', href: '/Inventario/CargaMasiva', icon: FileExcel },

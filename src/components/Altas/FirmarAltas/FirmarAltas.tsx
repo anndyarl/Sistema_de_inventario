@@ -216,12 +216,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             console.log("FIRMA", FIRMA)
             // const FIRMA = `${firma.firma}`;
             if (firma.iD_UNIDAD === 1) {
-                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.subroganteInventario = false;
                 }
-                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.titularInventario = false;
@@ -229,24 +229,24 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             }
 
             if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.subroganteFinanzas = false;
                 }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.titularFinanzas = false;
                 }
             }
             if (firma.iD_UNIDAD === 3) {
-                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.subroganteAbastecimiento = false;
                 }
-                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.titularAbastecimiento = false;
@@ -271,11 +271,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
         if (Inventario.fDesde != "" || Inventario.fHasta != "") {
             if (validate()) {
-                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
             }
         }
         else {
-            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
         }
 
         if (!resultado) {
@@ -291,7 +291,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
+            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
@@ -337,7 +337,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         if (token) {
             if (listaAltasRegistradas.length === 0) {
                 setLoading(true);
-                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
+                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
                 if (resultado) {
                     setLoading(false);
                 }

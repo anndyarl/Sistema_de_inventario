@@ -34,11 +34,12 @@ import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/Regis
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, EraserFill, FiletypePdf } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
-import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
+import { CUENTA, DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
+import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
-  codigo: string;
+  codigo: number;
   descripcion: string;
 }
 
@@ -115,10 +116,12 @@ interface DatosInventarioProps extends InventarioProps {
   comboProveedor: PROVEEDOR[];
   comboDependencia: DEPENDENCIA[];
   listaEspecie: ListaEspecie[];
-  // comboCuenta: CUENTA[];
+  comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   // obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
   obtenerServicioNombreActions: (dep_corr: number) => Promise<Boolean>;
+  comboCuentaActions: (substr: number, esp_codigo: string, cta_tipo: number) => void;
+  onOrigenSeleccionado: (codOrigen: number) => void;
   // listaInventarioRegistradoActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   objeto: Objeto;
@@ -132,12 +135,14 @@ interface DatosInventarioProps extends InventarioProps {
 const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
   obtenerServicioNombreActions,
+  onOrigenSeleccionado,
+  comboCuentaActions,
   // obtenerRecepcionActions,
   comboOrigen,
   comboModalidad,
   comboProveedor,
   comboDependencia,
-  // comboCuenta,
+  comboCuenta,
   fechaFactura,
   fechaRecepcion,
   montoRecepcion,
@@ -191,7 +196,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const handleProveedorChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
-    // console.log("rutProveedor", value);
+    console.log("rutProveedor", value);
     dispatch(setRutProveedorActions(value));
   };
 
@@ -231,6 +236,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       [name]: newValue,
     }));
 
+
     // Ejecuta los dispatch correspondientes
     if (name === "fechaFactura") {
       dispatch(setFechaFacturaActions(newValue as string));
@@ -244,8 +250,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       dispatch(setNRecepcionActions(newValue as number)); // Convertido a número
     } else if (name === "origenPresupuesto") {
       newValue = parseFloat(value) || 0;
-      dispatch(setOrigenPresupuestoActions(newValue as number)); // Convertido a número    
-    } else if (name === "montoRecepcion") {
+      dispatch(setOrigenPresupuestoActions(newValue as number)); // Convertido a número   
+      onOrigenSeleccionado(newValue);
+      // console.log("origen seleccionado desde datos Inventario", newValue);
+      // if (newValue == 2) comboCuentaActions(5, "5115-01", 1); //Propio
+      // if (newValue == 4) comboCuentaActions(1, "", 8); //Arriendo
+    }
+    else if (name === "montoRecepcion") {
       newValue = parseFloat(value) || 0;
       dispatch(setMontoRecepcionActions(newValue as number)); // Convertido a número
     }
@@ -303,6 +314,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         return;
       }
     }
+
   };
 
   const mostrarAlerta = () => {
@@ -482,7 +494,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     if (validate()) {
       dispatch(setMontoRecepcionActions(Inventario.montoRecepcion));
       onNext(Inventario);
-      console.log(Inventario);
     }
   };
 
@@ -608,7 +619,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   type="text"
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
                     } ${error.nOrdenCompra ? "is-invalid" : ""}`}
-                  maxLength={12}
+                  maxLength={30}
                   name="nOrdenCompra"
                   onChange={handleChange}
                   value={Inventario.nOrdenCompra}
@@ -908,7 +919,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </Col>
 
             {/* Se debe colocar cuentas en cada activo en la tabla */}
-            {/* <Col md={4}>
+            <Col md={4}>
               <p><strong>Cuenta:</strong></p>
               {(() => {
                 let nombreCuenta = "N/A"; // Valor por defecto
@@ -920,7 +931,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 }
                 return <p>{nombreCuenta}</p>;
               })()}
-            </Col> */}
+            </Col>
           </Row>
 
           <div className="table-responsive">
@@ -1019,5 +1030,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   obtenerRecepcionActions,
-  obtenerServicioNombreActions
+  obtenerServicioNombreActions,
+  comboCuentaActions
 })(DatosInventario);

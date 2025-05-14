@@ -67,6 +67,7 @@ export interface ListaFolioServicioDependencia {
     traS_NOM_ENTREGA: string;
     traS_NOM_RECIBE: string;
     traS_NOM_AUTORIZA: string;
+
 }
 
 interface SERVICIO {
@@ -108,20 +109,18 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         filasSeleccionadas.includes(index.toString())
     );
     const navigate = useNavigate();
-    // const validateForm = () => {
-    //     let tempErrors: Partial<any> & {} = {};
-    //     if (!Traslados.seR_CORR) tempErrors.seR_CORR = "Campo obligatorio.";
-    //     if (!Traslados.deP_CORR_DESTINO) tempErrors.deP_CORR_DESTINO = "Campo obligatorio.";
-    //     if (!Traslados.traS_CO_REAL) tempErrors.traS_CO_REAL = "Campo obligatorio.";
-    //     if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
-    //     if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
-    //     if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
-    //     if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
-    //     if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
-    //     if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
-    //     setError(tempErrors);
-    //     return Object.keys(tempErrors).length === 0;
-    // };
+    const validateForm = () => {
+        let tempErrors: Partial<any> & {} = {};
+        if (!Traslados.deP_CORR_DESTINO) tempErrors.deP_CORR_DESTINO = "Campo obligatorio.";
+        if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
+        if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
+        if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
+        if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
+        if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
+        if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
+        setError(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+    };
     //Estado para buscar
     const [Buscar, setBuscar] = useState({
         servicio: 0,
@@ -152,7 +151,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const [Traslados, setTraslados] = useState({
         aF_CLAVE: 0,
         usuario_crea: objeto.IdCredencial.toString(),
-        estabL_CORR: objeto.Roles[0].codigoEstablicimiento,
         seR_CORR: 0,
         deP_CORR_DESTINO: 0, //Dependencia destino
         traS_DET_CORR: 0,
@@ -191,7 +189,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     // const listaAuto = async () => {
     //     if (listaFolioServicioDependencia.length === 0) {
     //         setLoading(true);
-    //         const resultado = await listaFolioServicioDependenciaActions(0, objeto.Roles[0].codigoEstablicimiento);
+    //         const resultado = await listaFolioServicioDependenciaActions(0, objeto.Roles[0].codigoEstablecimiento);
     //         if (resultado) {
     //             setLoading(false);
     //         }
@@ -214,7 +212,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     useEffect(() => {
         if (token) {
             // listaAuto();
-            comboServicioInformeActions(objeto.Roles[0].codigoEstablicimiento);
+            comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
+            console.log("objeto.Roles[0].codigoEstablecimiento", objeto.Roles[0].codigoEstablecimiento);
         }
     }, [listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia.length, comboServicioInforme.length, token]); // Asegúrate de incluir dependencias relevantes
 
@@ -261,7 +260,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             setLoading(false); //Finaliza estado de carga
             return;
         }
-        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Roles[0].codigoEstablicimiento);
+        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Roles[0].codigoEstablecimiento);
 
         //resetea campos una vez hecha la busqueda
         setInventario((prevState) => ({
@@ -377,12 +376,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             console.log("FIRMA", FIRMA)
             // const FIRMA = `${firma.firma}`;
             if (firma.iD_UNIDAD === 1) {
-                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.subroganteInventario = false;
                 }
-                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.titularInventario = false;
@@ -390,12 +389,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             }
 
             if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.subroganteFinanzas = false;
                 }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.titularFinanzas = false;
@@ -403,12 +402,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             }
 
             if (firma.iD_UNIDAD === 3) {
-                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.subroganteAbastecimiento = false;
                 }
-                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablicimiento.toString()) {
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.titularAbastecimiento = false;
@@ -429,71 +428,71 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
 
     const handleSubmitTraslado = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // if (validateForm()) {
-        const result = await Swal.fire({
-            icon: "info",
-            title: "Confirmar Traslado",
-            text: "¿Confirma que desea trasladar los inventarios seleccionados con los datos proporcionados?",
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Trasladar",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-            customClass: { popup: "custom-border" }
-        });
+        if (validateForm()) {
+            const result = await Swal.fire({
+                icon: "info",
+                title: "Confirmar Traslado",
+                text: "¿Confirma que desea trasladar los inventarios seleccionados con los datos proporcionados?",
+                showCancelButton: true,
+                confirmButtonText: "Confirmar y Trasladar",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+                customClass: { popup: "custom-border" }
+            });
 
-        if (result.isConfirmed) {
-            setLoading(true);
-            const activosSeleccionados = filasSeleccionadasPDF.map((item) => ({
-                aF_CLAVE: item.aF_CLAVE,
-                aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
-                deP_CORR: item.deP_CORR,//Dependencia Origen
-                usuariO_CREA: objeto.IdCredencial.toString(),
-                estabL_CORR: objeto.Roles[0].codigoEstablicimiento,
-                deP_CORR_DESTINO: Traslados.deP_CORR_DESTINO, //dependencia Destino
-                traS_CO_REAL: Traslados.traS_CO_REAL,
-                traS_MEMO_REF: Traslados.traS_MEMO_REF,
-                traS_FECHA_MEMO: Traslados.traS_FECHA_MEMO,
-                traS_OBS: Traslados.traS_OBS,
-                traS_NOM_ENTREGA: Traslados.traS_NOM_ENTREGA,
-                traS_NOM_RECIBE: Traslados.traS_NOM_RECIBE,
-                traS_NOM_AUTORIZA: Traslados.traS_NOM_AUTORIZA
-            }));
+            if (result.isConfirmed) {
+                setLoading(true);
+                const activosSeleccionados = filasSeleccionadasPDF.map((item) => ({
+                    aF_CLAVE: item.aF_CLAVE,
+                    aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+                    deP_CORR: item.deP_CORR,//Dependencia Origen
+                    usuariO_CREA: objeto.IdCredencial.toString(),
+                    estabL_CORR: objeto.Roles[0].codigoEstablecimiento,
+                    deP_CORR_DESTINO: Traslados.deP_CORR_DESTINO, //dependencia Destino
+                    traS_CO_REAL: Traslados.traS_CO_REAL,
+                    traS_MEMO_REF: Traslados.traS_MEMO_REF,
+                    traS_FECHA_MEMO: Traslados.traS_FECHA_MEMO,
+                    traS_OBS: Traslados.traS_OBS,
+                    traS_NOM_ENTREGA: Traslados.traS_NOM_ENTREGA,
+                    traS_NOM_RECIBE: Traslados.traS_NOM_RECIBE,
+                    traS_NOM_AUTORIZA: Traslados.traS_NOM_AUTORIZA
+                }));
 
-            const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
+                const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
 
-            // console.log("datosTraslado", activosSeleccionados);
+                // console.log("datosTraslado", activosSeleccionados);
 
-            if (resultado) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Registro Exitoso",
-                    text: `Su traslado ha sido registrado exitosamente`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-                    customClass: { popup: "custom-border" }
-                });
+                if (resultado) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Registro Exitoso",
+                        text: `Su traslado ha sido registrado exitosamente`,
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+                        customClass: { popup: "custom-border" }
+                    });
 
-                // Limpiar
-                setFilasSeleccionadas([]);
-                setMostrarModalTraslado(false);
-                // setLoading(false);
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Ocurrió un problema al intentar trasladar los activos.",
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-                    customClass: { popup: "custom-border" }
-                });
+                    // Limpiar
+                    setFilasSeleccionadas([]);
+                    setMostrarModalTraslado(false);
+                    // setLoading(false);
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Ocurrió un problema al intentar trasladar los activos.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+                        customClass: { popup: "custom-border" }
+                    });
+                }
+
+                setLoading(false);
             }
-
-            setLoading(false);
         }
-        // }
     };
 
     // Lógica de Paginación actualizada
@@ -1280,7 +1279,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         name="servicio"
                                         value={servicioFormOptions.find((option) => option.value === Traslados.deP_CORR_DESTINO) || null}
                                         placeholder="Buscar"
-                                        className={`form-select-container `}
+                                        className={`form-select-container ${error.traS_OBS ? "is-invalid" : ""}`}
                                         classNamePrefix="react-select"
                                         isClearable
                                         isSearchable
@@ -1307,9 +1306,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                             }),
                                         }}
                                     />
+                                    {error.deP_CORR_DESTINO && (
+                                        <div className="invalid-feedback">{error.deP_CORR_DESTINO}</div>
+                                    )}
                                 </div>
-                                {/* Radios */}
-                                <div className="mb-1">
+                                {/* Radios Pendiente Implementación */}
+                                {/* <div className="mb-1">
                                     <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
                                     <div className="mb-1 p-2 d-flex justify-content-center border rounded">
                                         <div className="form-check">
@@ -1343,7 +1345,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     {error.traS_CO_REAL && (
                                         <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
                                     )}
-                                </div>
+                                </div> */}
                                 {/* Observaciones */}
                                 <div className="mb-1">
                                     <label className="fw-semibold">

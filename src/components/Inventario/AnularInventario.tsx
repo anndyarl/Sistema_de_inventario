@@ -126,11 +126,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
     //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
     if (Inventario.fechaTermino != "" && Inventario.fechaInicio != "") {
       if (validate()) {
-        resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, objeto.Roles[0].codigoEstablicimiento);
+        resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, "", "", objeto.Roles[0].codigoEstablicimiento);
+      resultado = await obtenerListaInventarioActions(Inventario.af_codigo_generico, "", "", objeto.Roles[0].codigoEstablecimiento);
     }
 
     if (!resultado) {
@@ -336,7 +336,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                   <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
-                      <th scope="col" className="text-nowrap">Nº de Inventario</th>
+                      <th scope="col" className="text-nowrap">Nº Inventario</th>
                       <th scope="col" className="text-nowrap">Servicio</th>
                       <th scope="col" className="text-nowrap">Dependencia</th>
                       {/* <th scope="col" className="text-nowrap text-center">Estado Alta</th> */}
@@ -354,8 +354,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       <th scope="col" className="text-nowrap">Cuenta</th>
                       <th scope="col" className="text-nowrap">Nombre Especie</th>
                       <th scope="col" className="text-nowrap">Código Especie</th>
-                      <th scope="col" className="text-nowrap">Usuario Creador</th>
-                      {/* <th scope="col" className="text-nowrap text-center">Lote</th> */}
+                      <th scope="col" className="text-nowrap">Usuario Crea</th>
                       <th scope="col" className="text-nowrap">Marca</th>
                       <th scope="col" className="text-nowrap">Modelo</th>
                       <th scope="col" className="text-nowrap">Serie</th>
@@ -393,7 +392,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                         <td className="text-nowrap">{datosListaInventario.esP_NOMBRE}</td>
                         <td className="text-nowrap">{datosListaInventario.esP_CODIGO}</td>
                         <td className="text-nowrap">{datosListaInventario.usuariO_CREA}</td>
-                        {/* <td>{datosListaInventario.deT_LOTE}</td> */}
                         <td className="text-nowrap">{datosListaInventario.deT_MARCA}</td>
                         <td className="text-nowrap">{datosListaInventario.deT_MODELO}</td>
                         <td className="text-nowrap">{datosListaInventario.deT_SERIE}</td>

@@ -63,7 +63,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     if (token) {
       if (listaAltasRegistradas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
+        const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
         if (resultado) {
           setLoading(false);
         }
@@ -122,11 +122,11 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     setLoading(true);
     if (Inventario.fDesde != "" || Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
       }
     }
     else {
-      resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+      resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
     }
 
     if (!resultado) {
@@ -142,7 +142,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
+      resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -191,7 +191,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
       return {
         aF_CLAVE: listaAltasRegistradas[index].aF_CLAVE,
         USUARIO_MOD: objeto.IdCredencial,
-        ESTABL_CORR: objeto.Roles[0].codigoEstablicimiento,
+        ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
       };
 
     });
@@ -240,7 +240,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         });
 
         setLoadingAnular(false);
-        listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
+        listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({

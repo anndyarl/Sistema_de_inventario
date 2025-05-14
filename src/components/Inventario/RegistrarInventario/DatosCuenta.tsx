@@ -119,6 +119,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const [Cuenta, setCuenta] = useState({
     servicio: 0,
     cuenta: 0,
+    mantenerCuenta: true,
     dependencia: 0,
     especie: "",
     bien: 0
@@ -168,7 +169,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     // Otras condiciones para diferentes campos del formulario
     // Condiciones para los campos específicos
     if (name === "servicio") {
-      // console.log(value);
       onServicioSeleccionado(value);
       dispatch(setServicioActions(newValue as number));
       // Restablece dependencia al seleccionar un nuevo servicio
@@ -204,22 +204,24 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+  const { mantenerCuenta } = Cuenta;
   useEffect(() => {
     setCuenta({
       servicio,
       cuenta,
+      mantenerCuenta,
       dependencia,
       especie,
       bien: bien ?? 0
     });
-  }, [servicio, cuenta, dependencia, especie, bien]);
+  }, [servicio, cuenta, mantenerCuenta, dependencia, especie, bien]);
 
   //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
   // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
   useEffect(() => {
     //Carga combo especies
     if (comboEspecies.length === 0) {
-      comboEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, 0);
+      comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
     }
 
     // Detecta si el valor de 'especie' ha cambiado
@@ -229,6 +231,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
       if (parseInt(Especies.codigoEspecie) > 0) {
         dispatch(setNombreEspecieActions(Especies.codigoEspecie));
+        comboCuenta.length;
       }
 
       setCuenta((cuentaPrevia) => ({ ...cuentaPrevia, cuenta: 0 })); // Limpia cuenta localmente
@@ -236,6 +239,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     }
   }, [Especies.codigoEspecie]);
 
+  //validar estructura del formulario.
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
@@ -251,7 +255,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
 
   const handleBuscar = async () => {
     setLoading(true);
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, 0, Buscar.esP_CODIGO);
+    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO);
 
     if (!resultado) {
       Swal.fire({
@@ -399,7 +403,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                   aria-label="cuenta"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.cuenta ? "is-invalid" : ""}`}
                   name="cuenta"
-                  disabled={!Cuenta.especie}
                   onChange={handleChange}
                   value={Cuenta.cuenta}
                 >
@@ -413,6 +416,20 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                 {error.cuenta && (
                   <div className="invalid-feedback fw-semibold">{error.cuenta}</div>
                 )}
+              </div>
+              {/* Checkbox debajo del select */}
+              <div className="form-check mt-2">
+                <input
+                  aria-label="mantenerCuenta"
+                  className="form-check-input"
+                  type="checkbox"
+                  name="mantenerCuenta"
+                  checked={Cuenta.mantenerCuenta || false}
+                  onChange={handleChange}
+                />
+                <label className="form-check-label fw-semibold" htmlFor="mantenerCuenta">
+                  Mantener cuenta
+                </label>
               </div>
             </Col>
           </Row>
@@ -637,3 +654,7 @@ export default connect(mapStateToProps, {
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions
 })(DatosCuenta);
+
+
+
+

@@ -33,7 +33,7 @@ interface Roles {
   Descripcion: string;
   IdRol: number;
   IdAplicacion: number;
-  codigoEstablicimiento: number;
+  codigoEstablecimiento: number;
   nombreEstablecimiento: string;
 }
 

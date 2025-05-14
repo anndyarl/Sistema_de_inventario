@@ -217,7 +217,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   useEffect(() => {
     //Carga combo especies
     if (comboEspecies.length === 0) {
-      comboEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, 0);
+      comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
     }
     if (comboDependencia.length === 0) { comboDependenciaModificarActions(""); }
 
@@ -322,7 +322,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       comboDetalleActions(value);
     }
     if (name === "detalles") {
-      listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, newValue as number, "");
+      listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, newValue as number, "");
     }
     if (name === "PROV_RUN") { //rutProveedor
       comboProveedorActions(value);
@@ -523,7 +523,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleBuscar = async () => {
     setLoading(true);
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, 0, Buscar.esP_CODIGO);
+    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO);
 
     if (!resultado) {
       Swal.fire({

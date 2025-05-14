@@ -62,7 +62,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         if (token) {
             setLoading(true);
             try {
-                const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
+                const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
                 if (!resultado) {
                     throw new Error("Error al cargar la lista de bajas");
                 }
@@ -125,11 +125,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
         if (Inventario.fDesde != "" || Inventario.fHasta != "") {
             if (validate()) {
-                resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+                resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
             }
         }
         else {
-            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablicimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
         }
         if (!resultado) {
             Swal.fire({
@@ -144,7 +144,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablicimiento, 0, "");
+            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
             setLoading(false); //Finaliza estado de carga
             return;
         } else {

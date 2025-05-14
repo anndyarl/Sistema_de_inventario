@@ -97,7 +97,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     if (token) {
       if (listadoTraslados.length === 0) {
         setLoading(true);
-        const resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablicimiento);
+        const resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -155,14 +155,14 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
-    resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablicimiento);
+    resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
     if (ListadoTraslado.fDesde != "" || ListadoTraslado.fHasta != "") {
       if (validate()) {
-        resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablicimiento);
+        resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await listadoTrasladosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablicimiento);
+      resultado = await listadoTrasladosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
     }
 
     if (!resultado) {
@@ -178,7 +178,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablicimiento);
+      resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -265,7 +265,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
       <div className="border-bottom shadow-sm p-4 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traslados</h3>
         <Row className="border rounded p-2 m-2">
-          <Col md={2}>
+          <Col md={3}>
             <div className="mb-2">
               <div className="flex-grow-1 mb-2">
                 <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
@@ -376,11 +376,9 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   {/* <th scope="col"></th> */}
                   <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Codigo Traslado</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Servicio</th> */}
-                  <th scope="col" className="text-nowrap text-center">Ubicación de Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación de Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
+                  <th scope="col" className="text-nowrap text-center">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
+                  <th scope="col" className="text-nowrap text-center">Ubicación Destino / Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
@@ -388,19 +386,9 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
-                  <th scope="col" className="text-nowrap text-center">Detalle de Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Fecha Creación</th> */}
-                  {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
-                  {/* <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
-                  {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                  <th scope="col" className="text-nowrap text-center">Tipo Traslado</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Establecimineto</th> */}
-                  {/* <th scope="col" className="text-nowrap text-center">Activo</th> */}
+                  {/* <th scope="col" className="text-nowrap text-center">Tipo Traslado</th> */}
 
-
-                  {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -416,10 +404,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                         />
                         </td> */}
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                      {/* <td className="text-nowrap">{Lista.traS_CORR}</td> */}
                       <td className="text-nowrap">{Lista.n_TRASLADO}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA}</td>
-                      {/* <td className="text-nowrap">{Lista.seR_NOMBRE}</td> */}
                       <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
                       <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
                       <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
@@ -429,19 +415,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
                       <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                      {/* <td className="text-nowrap">{Lista.deP_CORR_ORIGEN}</td> */}
-                      <td className="text-nowrap">{Lista.traS_DET_CORR}</td>
                       <td className="text-nowrap">{Lista.usuariO_CREA}</td>
-                      {/* <td className="text-nowrap">{Lista.f_CREA}</td> */}
-                      {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
-                      {/* <td className="text-nowrap">{Lista.usuariO_MOD}</td>
-                      <td className="text-nowrap">{Lista.f_MOD}</td> */}
-                      {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
-
-                      <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td>
-                      {/* <td className="text-nowrap">{Lista.estabL_D}</td> */}
-                      {/* <td className="text-nowrap">{Lista.traS_ACTIVO}</td> */}
-
+                      {/* <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td> */}
                     </tr>
                   );
                 })}

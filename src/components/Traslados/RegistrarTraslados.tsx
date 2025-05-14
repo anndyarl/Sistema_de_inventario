@@ -167,9 +167,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     });
     if (token) {
       // Verifica si las acciones ya fueron disparadas
-      if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablicimiento);
+      if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
-      if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablicimiento);
+      if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboDependenciaOrigen.length === 0) comboDependenciaOrigenActions("");
     }
   }, [comboTrasladoServicioActions,
@@ -701,8 +701,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         </div>
                       )}
                     </div>
-                    {/* Radios */}
-                    <div className="mb-1">
+                    {/* Radios Pendiente implementación */}
+                    {/* <div className="mb-1">
                       <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
                       <div className="mb-1 p-2 d-flex justify-content-center border rounded">
                         <div className="form-check">
@@ -736,7 +736,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       {error.traS_CO_REAL && (
                         <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
                       )}
-                    </div>
+                    </div> */}
                   </Col>
                   <Col md={5}>
                     {/* N° Memo Ref */}

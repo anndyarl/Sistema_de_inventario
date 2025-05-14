@@ -94,7 +94,7 @@ const Componentes: React.FC<GeneralProps> = ({ seR_CORR, listadoMantenedor, comb
     const [Mantenedor, setMantenedor] = useState({
         esP_NOMBRE: '',
         ctA_NOMBRE: '',
-        estabL_corr: objeto.Roles[0].codigoEstablicimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
+        estabL_corr: objeto.Roles[0].codigoEstablecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
         usuario: objeto.IdCredencial.toString(),
     });
 

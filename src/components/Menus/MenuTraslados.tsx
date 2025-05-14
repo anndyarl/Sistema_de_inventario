@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, Pencil, List } from "react-bootstrap-icons";
+import { Plus, List, Table } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -30,7 +30,7 @@ const MenuTraslados: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Listado de Traslados',
             description: 'Lista de traslados registrados.',
             href: '/Traslados/ListadoTraslados',
-            icon: Pencil
+            icon: Table
         },
     ];
 

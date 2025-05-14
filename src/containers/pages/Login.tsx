@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
 import { login, logout } from "../../redux/actions/auth/auth";
@@ -7,21 +7,25 @@ import "../../styles/Login.css";
 // import { Spinner } from "react-bootstrap";
 // import clave_unica_svg from "../../assets/img/clave_unica_color.png"
 import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
+import { Helmet } from "react-helmet-async";
+import { Button } from "react-bootstrap";
 interface Props {
   login: (usuario: string, password: string) => void;
   validaApiloginActions: (rut: string) => Promise<number>;
   logout: () => void;
   isAuthenticated: boolean | null;
   error: string | null;
+  isDarkMode: boolean;
 }
 
-const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated }) => {
+const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated, isDarkMode }) => {
   // const [formData, setFormData] = useState({
   //   usuario: process.env.VITE_USUARIO_API_LOGIN || "",
   //   password: process.env.VITE_PASSWORD_API_LOGIN || "",
   // });
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
   // const { usuario, password } = formData;
+  const [showButton, setShowButton] = useState(false);
   const navigate = useNavigate(); // Hook para redirigir
 
   // const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -45,6 +49,15 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated 
   useEffect(() => {
     onSubmit();
   }, []);
+
+  useEffect(() => {
+    // Temporizador para mostrar el botón después de 20 segundos
+    const timer = setTimeout(() => {
+      setShowButton(true);
+    }, 20000);
+    return () => clearTimeout(timer);
+  }, []);
+
 
   if (isAuthenticated) {
     return <Navigate to="/Inicio" />;
@@ -157,11 +170,38 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated 
   //   </div>
   // </div>
   // );
+  <>
+    <Helmet>
+      <title>Redirigiendo...</title>
+    </Helmet>
+    <div className={`d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? "bg-color-dark" : ""}`}>
+      <div className="col-12 col-md-8 text-center">
+        <div className="d-flex justify-content-center align-items-center">
+          <div className="spinner-border text-primary me-2" role="status" />
+          <p className={`${isDarkMode ? "text-white" : "text-muted"}`}>
+            Redirigiendo, un momento
+            <span className="dots-animation">...</span>
+          </p>
+        </div>
+        {showButton && (
+          <div className="m-4 rounded d-inline-block">
+            <p className={`${isDarkMode ? "text-white" : "text-muted"} mb-2`}>
+              El proceso está tardando más de lo esperado. Si lo prefiere, puede volver a intentarlo.
+            </p>
+            <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={() => window.location.reload()}>
+              Reintentar
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  </>
 };
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   error: state.loginReducer.error,
+  isDarkMode: state.darkModeReducer.isDarkMode,
 });
 
 export default connect(mapStateToProps, {

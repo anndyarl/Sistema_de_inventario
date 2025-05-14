@@ -101,10 +101,27 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
             {/* Encabezado */}
             <Container style={styles.containerHeader}>
                 <View style={styles.headerContent}>
-                    <Text style={styles.p}>Total Depreciación Acumulada: $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                    {totalDep < 0 ? (
+                        <p className="fw-semibold text-center">
+                            <Text style={styles.p}>Total Depreciación Acumulada: $ 1</Text>
+                        </p>
+                    ) : (
+                        <p className="fw-semibold text-center">
+                            <Text style={styles.p}>Total Depreciación Acumulada: $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        </p>
+                    )}
+
                 </View>
                 <View style={styles.headerContent}>
-                    <Text style={styles.p}>Total Valor Residual: $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                    {totalRes < 0 ? (
+                        <p className="fw-semibold text-center">
+                            <Text style={styles.p}>Total Valor Residual: $ 1</Text>
+                        </p>
+                    ) : (
+                        <p className="fw-semibold text-center">
+                            <Text style={styles.p}>Total Valor Residual: $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        </p>
+                    )}
                 </View>
             </Container>
             {/* Tabla */}
@@ -153,7 +170,7 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                     <Text style={styles.tableCellHeader}>ID Programa</Text>
                     <Text style={styles.tableCellHeader}>ID Modalidad Compra</Text>
                     <Text style={styles.tableCellHeader}>ID Propiedad</Text>*/}
-                    <Text style={styles.tableCellHeader}>Especie</Text>
+                    <Text style={styles.tableCellHeader}>Descripción</Text>
                     <Text style={styles.tableCellHeader}>Meses Transcurridos</Text>
                     <Text style={styles.tableCellHeader}>Vida Útil</Text>
                     <Text style={styles.tableCellHeader}>Mes Vida Útil</Text>
@@ -209,7 +226,7 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                         <Text style={styles.tableCell}>{lista.idprograma}</Text>
                         <Text style={styles.tableCell}>{lista.idmodalidadcompra}</Text>
                         <Text style={styles.tableCell}>{lista.idpropiedad}</Text>*/}
-                        <Text style={styles.tableCell}>{lista.especie}</Text>
+                        <Text style={styles.tableCell}>{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</Text>
                         <Text style={styles.tableCell}>{lista.mesesTranscurridos}</Text>
                         <Text style={styles.tableCell}>{lista.vidaUtil}</Text>
                         <Text style={styles.tableCell}>{lista.mesVidaUtil}</Text>

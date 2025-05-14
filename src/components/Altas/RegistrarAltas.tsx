@@ -87,11 +87,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
     if (Inventario.fDesde != "" || Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablicimiento);
+        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await listaAltasActions("", "", Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablicimiento);
+      resultado = await listaAltasActions("", "", Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
     }
     if (!resultado) {
       Swal.fire({
@@ -100,7 +100,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
       });
-      listaAltasActions("", "", "", objeto.Roles[0].codigoEstablicimiento);
+      listaAltasActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -138,7 +138,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     if (token) {
       if (listaAltas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasActions("", "", "", objeto.Roles[0].codigoEstablicimiento);
+        const resultado = await listaAltasActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -223,7 +223,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         aF_CLAVE: listaAltas[index].aF_CLAVE,
         aF_CODIGO_GENERICO: listaAltas[index].ninv,
         USUARIO_MOD: objeto.IdCredencial,
-        ESTABL_CORR: objeto.Roles[0].codigoEstablicimiento,
+        ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
       };
 
     });
@@ -258,7 +258,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         if (resultado) {
           dispatch(setAltasRegistradas(1));
           setLoadingRegistro(false);
-          listaAltasActions("", "", "", objeto.Roles[0].codigoEstablicimiento);
+          listaAltasActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
           setFilasSeleccionadas([]);
         } else {
           Swal.fire({

@@ -2,33 +2,28 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../../../containers/hocs/layout/Layout";
 import DatosInventario, { ORIGEN, MODALIDAD, PROVEEDOR } from "./DatosInventario";
-import DatosCuenta, {
-  SERVICIO,
-  CUENTA,
-  DEPENDENCIA,
-  ListaEspecie,
-  BIEN,
-  DETALLE,
-} from "./DatosCuenta";
-import DatosActivoFijo from "./DatosActivoFijo";
+import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, ListaEspecie, BIEN, DETALLE, } from "./DatosCuenta";
 import Timeline from "./Timeline";
+import Swal from "sweetalert2";
+import { Helmet } from "react-helmet-async";
+import { Objeto } from "../../Navegacion/Profile";
+import DatosActivoFijo from "./DatosActivoFijo";
+import MenuInventario from "../../Menus/MenuInventario";
 
 // Redux global
 import { RootState } from "../../../redux/reducers";
 import { connect } from "react-redux";
+
 import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
-import MenuInventario from "../../Menus/MenuInventario";
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
-
-import { Helmet } from "react-helmet-async";
 import { comboOrigenPresupuestosActions } from "../../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
-import { Objeto } from "../../Navegacion/Profile";
-import Swal from "sweetalert2";
+import { comboCuentaInicialActions } from "../../../redux/actions/Inventario/Combos/comboCuentaInicialActions";
+
 
 export interface FormInventario {
   datosInventario: Record<string, any>;
@@ -50,7 +45,6 @@ interface FormInventarioProps {
   comboServicio: SERVICIO[];
   comboServicioActions: (establ_corr: number) => void;
   comboCuenta: CUENTA[];
-  comboCuentaActions: (nombreEspecie: string) => void;
   comboDependencia: DEPENDENCIA[];
   comboDependenciaActions: (servicioSeleccionado: string) => void;
 
@@ -60,6 +54,9 @@ interface FormInventarioProps {
 
   listaEspecie: ListaEspecie[];
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
+  origenPresupuesto: number;
+  comboCuentaActions: (substr: number, esp_codigo: string, cta_tipo: number) => void;
+  comboCuentaInicialActions: () => void;
 
   token: string | null;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
@@ -81,11 +78,12 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboProveedorActions,
-  comboCuentaActions,
   comboServicioActions,
   comboDependenciaActions,
   listadoDeEspeciesBienActions,
-  comboDetalleActions
+  comboDetalleActions,
+  comboCuentaActions,
+  comboCuentaInicialActions
 
 }) => {
   const [step, setStep] = useState<number>(0);
@@ -93,7 +91,8 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
   const [bienSeleccionado, setBienSeleccionado] = useState<string>();
   const [detalleSeleccionado, setDetalleSeleccionado] = useState<number>();
-  const [especieSeleccionado, setEspecieSeleccionado] = useState<string>();
+  const [especieSeleccionado, setEspecieSeleccionado] = useState<string>("");
+  const [codOrigenSeleccionado, setCodOrigenSeleccionado] = useState<number | null>(null);
   const [formularios, setFormularios] = useState<FormInventario>({
     datosInventario: {},
     datosCuenta: {},
@@ -106,7 +105,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
       // Verifica si las acciones ya fueron disparadas
       if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
-      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablicimiento);
+      if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
     }
@@ -138,7 +137,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   const handleDetalleSeleccionado = async (codigoDetalle: number) => {
     setDetalleSeleccionado(codigoDetalle);
     // console.log("Código del detalle seleccionado:", codigoDetalle);
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablicimiento, codigoDetalle, ""); // aqui le paso codigo de detalle
+    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, codigoDetalle, ""); // aqui le paso codigo de detalle
 
     if (!resultado) {
       Swal.fire({
@@ -151,12 +150,32 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     };
   }
 
+  const handleOrigenSeleccionado = (codOrigen: number) => {
+    if (codOrigen == 2) {
+      setCodOrigenSeleccionado(codOrigen);//guardo el codOrigen para cuando se seleccione una especie vuelva a consultar nuvemanete a la action
+      comboCuentaInicialActions(); // Propio    
+    }
+    if (codOrigen === 4) {
+      comboCuentaActions(1, "", 8); // Arriendo      
+    }
+  };
+
   // Función para manejar la selección de la especie en el componente `DatosCuenta`
   const handleEspecieSeleccionado = (nombreEspecie: string) => {
     setEspecieSeleccionado(nombreEspecie);
-    console.log("nombre Especie del listado seleccionado:", nombreEspecie);
-    comboCuentaActions(nombreEspecie); // aqui le paso codigo de detalle
+    // console.log("nombre Especie del listado seleccionado:", nombreEspecie);
+    if (codOrigenSeleccionado == 2) {
+      comboCuentaActions(5, nombreEspecie, 1); // Propio       
+      comboCuenta.length; // definir variable comboCuentaInicial en reductores para la carga de datos cuando vengan por especie
+    }
+
+    if (codOrigenSeleccionado === 4) {
+      comboCuentaActions(1, nombreEspecie, 8); // Arriendo     
+      comboCuenta.length;
+    }
   };
+
+
 
   const handleNext = (data: Record<string, any>) => {
     // Guardar los datos del formulario actual
@@ -208,6 +227,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
           comboOrigen={comboOrigen}
           comboModalidad={comboModalidad}
           comboProveedor={comboProveedor}
+          onOrigenSeleccionado={handleOrigenSeleccionado}
         />
       )}
 
@@ -265,6 +285,7 @@ export default connect(mapStateToProps, {
   listadoDeEspeciesBienActions,
   comboDetalleActions,
   comboCuentaActions,
+  comboCuentaInicialActions,
   comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboProveedorActions
