@@ -7,6 +7,7 @@ interface DatosRecepcionState {
     especie: string;
     descripcionEspecie: string;
     nombreEspecie: string[];
+    nCuenta: number[];
     datosTablaActivoFijo: ActivoFijo[];
     vidaUtil: string;
     fechaIngreso: string;
@@ -24,6 +25,7 @@ const initialState: DatosRecepcionState = {
     especie: '',
     descripcionEspecie: '',
     nombreEspecie: [],
+    nCuenta: [],
     datosTablaActivoFijo: [],
     vidaUtil: "",
     fechaIngreso: "",
@@ -91,6 +93,8 @@ const datosActivoFijoReducers = (state = initialState, action: any) => {
             return { ...state, modelo: action.payload };
         case 'SET_PRECIO':
             return { ...state, precio: action.payload };
+        case 'SET_CUENTA':
+            return { ...state, nCuenta: action.payload };
         case 'SET_CANTIDAD':
             return { ...state, cantidad: action.payload };
         case 'SET_OBSERVACIONES':

@@ -157,3 +157,10 @@ export const setInventarioRegistrado = (resultadoRegistro: number) => ({
   type: 'SET_INVENTARIO_REGISTRADO',
   payload: resultadoRegistro,
 });
+
+export const setMantieneCuentaActions = (mantenerCuenta: boolean) => ({
+  type: 'SET_MANTENER_CUENTA',
+  payload: mantenerCuenta,
+});
+
+

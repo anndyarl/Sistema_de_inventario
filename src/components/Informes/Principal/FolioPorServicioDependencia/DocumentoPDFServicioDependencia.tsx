@@ -188,28 +188,28 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependen
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellHeader}>N° Inventario</Text>
                     <Text style={styles.tableCellHeader}>Nº Alta</Text>
+                    <Text style={styles.tableCellHeader}>Fecha Ingreso</Text>
+                    <Text style={styles.tableCellHeader}>Especie</Text>
                     <Text style={styles.tableCellHeader}>Marca</Text>
                     <Text style={styles.tableCellHeader}>Modelo</Text>
                     <Text style={styles.tableCellHeader}>Serie</Text>
-                    <Text style={styles.tableCellHeader}>Especie</Text>
-                    <Text style={styles.tableCellHeader}>Fecha Ingreso</Text>
-                    <Text style={styles.tableCellHeader}>Valor Libro</Text>
-                    <Text style={styles.tableCellHeader}>Estado</Text>
-                    <Text style={styles.tableCellHeader}>Nº Traslado</Text>
+                    <Text style={styles.tableCellHeader}>Precio</Text>
+                    <Text style={styles.tableCellHeader}>Observación</Text>
+
+
                 </View>
                 {/* Fila de datos */}
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
                         <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
                         <Text style={styles.tableCell}>{lista.altaS_CORR}</Text>
+                        <Text style={styles.tableCell}>{lista.aF_FINGRESO}</Text>
+                        <Text style={styles.tableCell}>{lista.aF_ESPECIE}</Text>
                         <Text style={styles.tableCell}>{lista.aF_MARCA}</Text>
                         <Text style={styles.tableCell}>{lista.aF_MODELO}</Text>
                         <Text style={styles.tableCell}>{lista.aF_SERIE}</Text>
-                        <Text style={styles.tableCell}>{lista.aF_ESPECIE}</Text>
-                        <Text style={styles.tableCell}>{lista.aF_FINGRESO}</Text>
-                        <Text style={styles.tableCell}>$ {(lista.valoR_LIBRO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={styles.tableCell}>{lista.traS_ESTADO_AF}</Text>
-                        <Text style={styles.tableCell}>{lista.ntraslado}</Text>
+                        <Text style={styles.tableCell}>$ {(lista.aF_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={styles.tableCell}>{lista.aF_OBS}</Text>
                     </View>
                 ))}
             </View>

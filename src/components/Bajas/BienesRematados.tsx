@@ -11,12 +11,14 @@ import { Helmet } from "react-helmet-async";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { rematarBajasActions } from "../../redux/actions/Bajas/BienesRematados/rematarBajasActions.tsx";
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
+import { Objeto } from "../Navegacion/Profile.tsx";
 
 interface FechasProps {
   fDesde: string;
   fHasta: string;
 }
 export interface ListaRemates {
+  aF_CODIGO_GENERICO: string;
   boD_CORR: number;
   aF_CLAVE: number;
   bajaS_CORR: number;
@@ -43,14 +45,15 @@ export interface ListaRemates {
 }
 interface DatosBajas {
   listaRemates: ListaRemates[];
-  obtenerListaRematesActions: (fDesde: string, fHasta: string, nresolucion: string) => Promise<boolean>;
+  obtenerListaRematesActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   rematarBajasActions: (listaRemates: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   nPaginacion: number; //número de paginas establecido desde preferencias
+  objeto: Objeto;
 }
 
-const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rematarBajasActions, listaRemates, token, isDarkMode, nPaginacion }) => {
+const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rematarBajasActions, listaRemates, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaRemates> & Partial<FechasProps>>({});
@@ -73,7 +76,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
   const [Rematados, setRematados] = useState({
     fDesde: "",
     fHasta: "",
-    nresolucion: ""
+    nresolucion: "",
+    af_codigo_generico: ""
   });
 
   const validate = () => {
@@ -96,23 +100,24 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
     if (token) {
       if (listaRemates.length === 0) {
         setLoading(true);
-        const resultado = await obtenerListaRematesActions("", "", "");
+        const resultado = await obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
-        // else {
-        //   Swal.fire({
-        //     icon: "error",
-        //     title: "Error",
-        //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
-        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        //     customClass: {
-        //       popup: "custom-border", // Clase personalizada para el borde
-        //     }
-        //   });
-        // }
+        else {
+          Swal.fire({
+            icon: "warning",
+            title: "Sin resultados",
+            text: "No se han encontrado registros.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+          setLoading(false);
+        }
       }
     }
   };
@@ -124,7 +129,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "nresolucion" && !/^[0-9]*$/.test(value)) {
+    if ((name === "nresolucion" || name === "af_codigo_generico") && !/^[0-9]*$/.test(value)) {
       return; // Salir si contiene caracteres no numéricos
     }
     // Actualizar estado
@@ -173,11 +178,11 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
     setLoading(true);
     if (Rematados.fDesde != "" || Rematados.fHasta != "") {
       if (validateFechas()) {
-        resultado = await obtenerListaRematesActions(Rematados.fDesde, Rematados.fHasta, Rematados.nresolucion);
+        resultado = await obtenerListaRematesActions(Rematados.fDesde, Rematados.fHasta, Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await obtenerListaRematesActions("", "", Rematados.nresolucion);
+      resultado = await obtenerListaRematesActions("", "", Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
     }
 
     if (!resultado) {
@@ -207,7 +212,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
       ...prevInventario,
       fDesde: "",
       fHasta: "",
-      nresolucion: ""
+      nresolucion: "",
+      af_codigo_generico: ""
     }));
   };
 
@@ -263,7 +269,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
           });
 
           setLoadingRegistro(false);
-          obtenerListaRematesActions("", "", "");
+          obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
           setFilaSeleccionada([]);
           setRematados((prevState) => ({
             ...prevState,
@@ -336,7 +342,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
 
           <Col md={2}>
             <div className="mb-1">
-              <label htmlFor="nresolucion" className="fw-semibold">Nº Certificado</label>
+              <label htmlFor="nresolucion" className="fw-semibold">Nº Resolución</label>
               <input
                 aria-label="nresolucion"
                 type="text"
@@ -346,6 +352,18 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                 placeholder="0"
                 onChange={handleChange}
                 value={Rematados.nresolucion}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="af_codigo_generico" className="form-label fw-semibold">Nº Inventario</label>
+              <input
+                aria-label="af_codigo_generico"
+                type="text"
+                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="af_codigo_generico"
+                placeholder="Ej: 1000000008"
+                onChange={handleChange}
+                value={Rematados.af_codigo_generico}
               />
             </div>
           </Col>
@@ -401,6 +419,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                       checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
                     />
                   </th> */}
+                  <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                   <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
                   <th scope="col" className="text-nowrap text-center">Código Baja</th>
                   <th scope="col" className="text-nowrap text-center">Especie</th>
@@ -427,7 +446,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                         />
                       </td> */}
                       {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
-                      {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
+                      <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                       <td className="text-nowrap">{Lista.nresolucion}</td>
                       <td className="text-nowrap">{Lista.bajaS_CORR}</td>
                       <td className="text-nowrap">{Lista.especie}</td>
@@ -558,7 +577,8 @@ const mapStateToProps = (state: RootState) => ({
   listaRemates: state.obtenerListaRematesReducers.listaRemates,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

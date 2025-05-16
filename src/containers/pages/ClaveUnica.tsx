@@ -12,10 +12,10 @@ import { Button, Spinner } from "react-bootstrap";
 interface Props {
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
-  token: string | null;
+  // token: string | null;
 }
 
-const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode, token }) => {
+const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // Hook para redirigir
   // Función para redirigir a Clave Única

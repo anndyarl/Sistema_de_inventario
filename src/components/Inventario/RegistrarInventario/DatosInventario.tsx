@@ -34,9 +34,9 @@ import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/Regis
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, EraserFill, FiletypePdf } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
-import { CUENTA, DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
+import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
-import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
+
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
   codigo: number;
@@ -116,11 +116,10 @@ interface DatosInventarioProps extends InventarioProps {
   comboProveedor: PROVEEDOR[];
   comboDependencia: DEPENDENCIA[];
   listaEspecie: ListaEspecie[];
-  comboCuenta: CUENTA[];
+  // comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   // obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
   obtenerServicioNombreActions: (dep_corr: number) => Promise<Boolean>;
-  comboCuentaActions: (substr: number, esp_codigo: string, cta_tipo: number) => void;
   onOrigenSeleccionado: (codOrigen: number) => void;
   // listaInventarioRegistradoActions: () => Promise<Boolean>;
   isDarkMode: boolean;
@@ -136,13 +135,11 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
   obtenerServicioNombreActions,
   onOrigenSeleccionado,
-  comboCuentaActions,
   // obtenerRecepcionActions,
   comboOrigen,
   comboModalidad,
   comboProveedor,
   comboDependencia,
-  comboCuenta,
   fechaFactura,
   fechaRecepcion,
   montoRecepcion,
@@ -251,10 +248,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     } else if (name === "origenPresupuesto") {
       newValue = parseFloat(value) || 0;
       dispatch(setOrigenPresupuestoActions(newValue as number)); // Convertido a número   
-      onOrigenSeleccionado(newValue);
-      // console.log("origen seleccionado desde datos Inventario", newValue);
-      // if (newValue == 2) comboCuentaActions(5, "5115-01", 1); //Propio
-      // if (newValue == 4) comboCuentaActions(1, "", 8); //Arriendo
+      onOrigenSeleccionado(newValue);//guardo el origen para pasarselo a al componente FormInventario
     }
     else if (name === "montoRecepcion") {
       newValue = parseFloat(value) || 0;
@@ -918,20 +912,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
             </Col>
 
-            {/* Se debe colocar cuentas en cada activo en la tabla */}
-            <Col md={4}>
-              <p><strong>Cuenta:</strong></p>
-              {(() => {
-                let nombreCuenta = "N/A"; // Valor por defecto
-                for (let i = 0; i < comboCuenta.length; i++) {
-                  if (String(comboCuenta[i].codigo) === String(formulariosCombinados.cuentaR)) {
-                    nombreCuenta = comboCuenta[i].descripcion;
-                    break; // Salir del bucle una vez encontrado
-                  }
-                }
-                return <p>{nombreCuenta}</p>;
-              })()}
-            </Col>
           </Row>
 
           <div className="table-responsive">
@@ -946,6 +926,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   <th>Precio</th>
                   <th>Serie</th>
                   <th>Especie</th>
+                  {/* <th>Cuenta</th> */}
                   <th>Observaciones</th>
                 </tr>
               </thead>
@@ -981,6 +962,16 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                         }
                         return <td>{formulariosCombinados.especieR + ' ' + nombreEspecie}</td>;
                       })()}
+                      {/* {(() => {
+                        let nombreCuenta = "N/A"; // Valor por defecto
+                        for (let i = 0; i < comboCuenta.length; i++) {
+                          if (String(comboCuenta[i].codigo) === String(formulariosCombinados.cuentaR)) {
+                            nombreCuenta = comboCuenta[i].descripcion;
+                            break; // Salir del bucle una vez encontrado
+                          }
+                        }
+                        return <td>{formulariosCombinados.especieR + ' ' + nombreCuenta}</td>;
+                      })()} */}
                       <td>{item.observaciones || 'N/A'}</td>
                     </tr>
                   ))
@@ -1023,7 +1014,7 @@ const mapStateToProps = (state: RootState) => ({
   formulariosCombinados: state.resumenInventarioRegistroReducers,
   /*----------------Se agregan estos combos para mostrar las descripciones en resumen------------------*/
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
-  comboCuenta: state.comboCuentaReducer.comboCuenta,
+  // comboCuenta: state.comboCuentaReducer.comboCuenta,
   listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
   listaServicioNombre: state.obtenerServicioNombreReducers.listaServicioNombre
 });
@@ -1031,5 +1022,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   obtenerRecepcionActions,
   obtenerServicioNombreActions,
-  comboCuentaActions
+
 })(DatosInventario);

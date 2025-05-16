@@ -84,7 +84,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
   const listaAltasAuto = async () => {
     if (datosListaInventario.length === 0) {
       setLoading(true);
-      const resultado = await obtenerListaInventarioActions("", "", "", objeto.Establecimiento);
+      const resultado = await obtenerListaInventarioActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
       if (resultado) {
         setLoading(false);
       }
@@ -165,51 +165,73 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
 
   const handleAnular = async (index: number, aF_CLAVE: string, aF_CODIGO_GENERICO: string) => {
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+    const item = datosListaInventario.find((i) => i.aF_CLAVE === aF_CLAVE);
+    if (item && item.aF_ALTA !== "S") {
 
-    const result = await Swal.fire({
-      icon: "info",
-      title: "Anular Registro",
-      text: `Confirma anular el registro Nº ${aF_CODIGO_GENERICO}`,
-      showDenyButton: false,
-      showCancelButton: true,
-      confirmButtonText: "Confirmar y Anular",
-      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-      color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-      customClass: {
-        popup: "custom-border", // Clase personalizada para el borde
-      }
-    });
+      const result = await Swal.fire({
+        icon: "info",
+        title: "Anular Registro",
+        text: `Confirma anular el registro Nº ${aF_CODIGO_GENERICO}`,
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Confirmar y Anular",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
 
-    if (result.isConfirmed) {
-      const resultado = await anularInventarioActions(aF_CLAVE);
-      if (resultado) {
-        Swal.fire({
-          icon: "success",
-          title: "Registro anulado",
-          text: `Se ha anulado el registro Nº ${aF_CODIGO_GENERICO}.`,
-          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-          customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
-          }
-        });
-        handleBuscar();
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: ":'(",
-          text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
-          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-          customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
-          }
-        });
+      if (result.isConfirmed) {
+        const resultado = await anularInventarioActions(aF_CLAVE);
+        if (resultado) {
+          Swal.fire({
+            icon: "success",
+            title: "Registro anulado",
+            text: `Se ha anulado el registro Nº ${aF_CODIGO_GENERICO}.`,
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+          handleBuscar();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: ":'(",
+            text: `Hubo un problema al anular el registro ${aF_CLAVE}.`,
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+        }
       }
+
     }
+    else {
+      Swal.fire({
+        icon: "warning",
+        title: "Inventario con Alta",
+        text: `El inventario ${aF_CODIGO_GENERICO} no puede ser anulado porque ya está dado de alta.`,
+        showDenyButton: false,
+        showCancelButton: true,
+        showConfirmButton: false,
+        cancelButtonText: "Cerrar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+    }
+
+
   };
 
   // Lógica de Paginación actualizada
@@ -369,37 +391,37 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                     </tr>
                   </thead>
                   <tbody>
-                    {elementosActuales.map((datosListaInventario, index) => (
+                    {elementosActuales.map((lista, index) => (
                       <tr key={index}>
-                        <td className="text-nowrap">{datosListaInventario.aF_CODIGO_GENERICO}</td>
-                        <td className="text-nowrap">{datosListaInventario.seR_NOMBRE}</td>
-                        <td className="text-nowrap">{datosListaInventario.deP_NOMBRE}</td>
+                        <td className="text-nowrap">{lista.aF_CODIGO_GENERICO}</td>
+                        <td className="text-nowrap">{lista.seR_NOMBRE}</td>
+                        <td className="text-nowrap">{lista.deP_NOMBRE}</td>
                         {/* <td>{datosListaInventario.aF_ALTA}</td> */}
                         {/* <td className="text-nowrap">{datosListaInventario.aF_CANTIDAD}</td> */}
-                        <td className="text-nowrap">{datosListaInventario.aF_DESCRIPCION}</td>
+                        <td className="text-nowrap">{lista.aF_DESCRIPCION}</td>
                         {/* <td>{datosListaInventario.aF_ESTADO}</td> */}
-                        <td className="text-nowrap">{datosListaInventario.aF_FECHA_SOLICITUD}</td>
-                        <td className="text-nowrap">{datosListaInventario.aF_FECHAFAC}</td>
+                        <td className="text-nowrap">{lista.aF_FECHA_SOLICITUD}</td>
+                        <td className="text-nowrap">{lista.aF_FECHAFAC}</td>
                         <td className="text-nowrap">
-                          ${datosListaInventario.aF_MONTOFACTURA?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                          ${lista.aF_MONTOFACTURA?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                         </td>
-                        <td className="text-nowrap">{datosListaInventario.aF_NUM_FAC}</td>
+                        <td className="text-nowrap">{lista.aF_NUM_FAC}</td>
                         {/* <td>{datosListaInventario.aF_ORIGEN}</td> */}
-                        <td className="text-nowrap">{datosListaInventario.origen}</td>
+                        <td className="text-nowrap">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase()}</td>
                         {/* <td>{datosListaInventario.aF_TIPO}</td> */}
-                        <td className="text-nowrap">{datosListaInventario.aF_VIDAUTIL}</td>
-                        <td className="text-nowrap">{datosListaInventario.ctA_NOMBRE}</td>
-                        <td className="text-nowrap">{datosListaInventario.esP_NOMBRE}</td>
-                        <td className="text-nowrap">{datosListaInventario.esP_CODIGO}</td>
-                        <td className="text-nowrap">{datosListaInventario.usuariO_CREA}</td>
-                        <td className="text-nowrap">{datosListaInventario.deT_MARCA}</td>
-                        <td className="text-nowrap">{datosListaInventario.deT_MODELO}</td>
-                        <td className="text-nowrap">{datosListaInventario.deT_SERIE}</td>
+                        <td className="text-nowrap">{lista.aF_VIDAUTIL}</td>
+                        <td className="text-nowrap">{lista.ctA_NOMBRE}</td>
+                        <td className="text-nowrap">{lista.esP_NOMBRE}</td>
+                        <td className="text-nowrap">{lista.esP_CODIGO}</td>
+                        <td className="text-nowrap">{lista.usuariO_CREA}</td>
+                        <td className="text-nowrap">{lista.deT_MARCA}</td>
+                        <td className="text-nowrap">{lista.deT_MODELO}</td>
+                        <td className="text-nowrap">{lista.deT_SERIE}</td>
                         <td className="text-nowrap">
-                          ${datosListaInventario.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                          ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                         </td>
-                        <td className="text-nowrap">{datosListaInventario.deT_OBS}</td>
-                        <td className="text-nowrap">{datosListaInventario.proV_NOMBRE}</td>
+                        <td className="text-nowrap">{lista.deT_OBS}</td>
+                        <td className="text-nowrap">{lista.proV_NOMBRE}</td>
                         <td style={{
                           position: 'sticky',
                           right: 0,
@@ -409,7 +431,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                             variant="outline-danger"
                             className="fw-semibold"
                             size="sm"
-                            onClick={() => handleAnular(index, datosListaInventario.aF_CLAVE, datosListaInventario.aF_CODIGO_GENERICO)}
+                            onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
                           >
                             Anular
                           </Button>

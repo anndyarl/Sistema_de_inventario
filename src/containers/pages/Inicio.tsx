@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import Layout from "../hocs/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
-import { ArrowsMove, Boxes, BoxSeam, FileText, PencilFill, PencilSquare, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
+import { ArrowsMove, Boxes, FileText, PencilSquare, PlusCircle, Printer } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -10,7 +10,6 @@ import { Signature } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { listaVersionamientoActions } from "../../redux/actions/Configuracion/listaVersionamientoActions";
 import { ListaVersionamiento } from "../../components/Configuracion/Versionamiento";
-
 
 interface NavItem {
   name: string;

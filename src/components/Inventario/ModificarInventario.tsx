@@ -442,9 +442,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     resultado = await obtenerInventarioActions(Inventario.aF_CODIGO_GENERICO);
     if (!resultado) {
       Swal.fire({
-        icon: "error",
-        title: ":'(",
-        text: "No se encontraron resultados, inténte otro registro.",
+        icon: "warning",
+        title: "Sin Resultados",
+        text: "Nª de Inventario no encontrado",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,

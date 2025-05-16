@@ -33,7 +33,7 @@ export interface ListaAltas {
   estado: string,
   precio: number,
   aF_ESTADO_INV: number;
-  mrecepcion: string
+  nrecep: string
 }
 
 interface ListaSalidaAltas {
@@ -159,7 +159,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     }
   };
 
-
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
@@ -182,7 +181,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     }));
 
   };
-
 
   const handleLimpiar = () => {
     setInventario((prevInventario) => ({
@@ -517,7 +515,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                         <td className="text-nowrap">
                           ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                         </td>
-                        <td className="text-nowrap">{Lista.mrecepcion ? "" : "S/N"}</td>
+                        <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
                       </tr>
                     );
                   })}

@@ -116,7 +116,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     }));
   };
 
-
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
@@ -492,7 +491,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                         <td className="text-nowrap">
                           ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                         </td>
-                        <td className="text-nowrap">{Lista.nrecep}</td>
+                        <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
                         {/* <td>
                           <Button
                             variant="outline-danger"

@@ -1,4 +1,5 @@
 
+import { ListaAltas } from '../../../../components/Altas/RegistrarAltas';
 import {
   OBTENER_ALTAS_REQUEST,
   OBTENER_ALTAS_SUCCESS,
@@ -7,24 +8,7 @@ import {
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  listaAltas: Array<{
-    aF_CLAVE: number,
-    ninv: string,
-    altaS_CORR: string,
-    aF_FINGRESO: string,
-    serv: string,
-    dep: string,
-    esp: string,
-    ncuenta: string,
-    marca: string,
-    modelo: string,
-    serie: string,
-    estado: string,
-    precio: string,
-    fechA_ALTA: string,
-    aF_ESTADO_INV: number;
-    nrecep: string
-  }>;
+  listaAltas: ListaAltas[];
 }
 // Estado inicial tipado
 const initialState: DatosInventarioState = {

@@ -12,6 +12,8 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listadoGeneralBajasActions.tsx";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
+
+
 export interface ListaBajas {
   bajaS_CORR: string;
   aF_CLAVE: number;
@@ -82,19 +84,19 @@ interface DatosBajas {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
-  nPaginacion: number; //número de paginas establecido desde preferencias
-
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto, nPaginacion }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRegistro, setLoadingRegistro] = useState(false);
+  const [__, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
-  const [filasSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
-  const [mostrarModal, setMostrarModal] = useState<number | null>(null);
+  const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = nPaginacion;
-
+  const [Paginacion, setPaginacion] = useState({
+    nPaginacion: 10
+  });
+  const elementosPorPagina = Paginacion.nPaginacion;
   const [Bajas, setBajas] = useState({
     nresolucion: 0,
     observaciones: "",
@@ -104,6 +106,32 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   const [Buscar, setBuscar] = useState({
     af_codigo_generico: "",
   });
+  //Se lista automaticamente apenas entra al componente
+  const listadoGeneralBajasAuto = async () => {
+    if (token) {
+      if (listadoGeneralBajas.length === 0) {
+        setLoading(true);
+        const resultado = await listadoGeneralBajasActions("");
+        if (resultado) {
+          setLoading(false);
+        }
+        else {
+          Swal.fire({
+            icon: "warning",
+            title: "Sin resultados",
+            text: "No se han encontrado registros.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+          setLoading(false);
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     listadoGeneralBajasAuto()
@@ -118,31 +146,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
-  };
-  //Se lista automaticamente apenas entra al componente
-  const listadoGeneralBajasAuto = async () => {
-    if (token) {
-      if (listadoGeneralBajas.length === 0) {
-        setLoading(true);
-        const resultado = await listadoGeneralBajasActions("");
-        if (resultado) {
-          setLoading(false);
-        }
-        else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `Error en la solicitud. Por favor, intente nuevamente.`,
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
-          });
-        }
-      }
-    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -169,31 +172,39 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
       [name]: newValue,
     }));
 
+    setPaginacion((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
+
   };
 
-  const setSeleccionaFila = (index: number) => {
-    setMostrarModal(index); //Abre modal del indice seleccionado
-    setFilaSeleccionada((prev) =>
+  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setFilasSeleccionadas(
+        elementosActuales.map((_, index) =>
+          (indicePrimerElemento + index).toString()
+        )
+      );
+    } else {
+      setFilasSeleccionadas([]);
+    }
+  };
+  const setSeleccionaFilas = (index: number) => {
+    setFilasSeleccionadas((prev) =>
       prev.includes(index.toString())
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
   };
 
-  const handleCerrarModal = (index: number) => {
-    setFilaSeleccionada((prevSeleccionadas) =>
-      prevSeleccionadas.filter((fila) => fila !== index.toString())
-    );
-    setMostrarModal(null); //Cierra modal del indice seleccionado
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      const selectedIndices = filasSeleccionada.map(Number);
+      const selectedIndices = filasSeleccionadas.map(Number);
       const result = await Swal.fire({
         icon: "info",
-        title: "Enviar a Bienes de Bajas",
+        title: "Enviar a Bodega de Excluidos",
         text: "Confirme para enviar",
         showDenyButton: false,
         showCancelButton: true,
@@ -235,11 +246,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
 
           listadoGeneralBajasActions("");
           setLoadingRegistro(false);
-          setFilaSeleccionada([]);
-          elementosActuales.map((_, index) => (
-            handleCerrarModal(index)
-          ));
-
+          setFilasSeleccionadas([]);
+          setMostrarModal(false);
         } else {
           Swal.fire({
             icon: "error",
@@ -302,11 +310,11 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   return (
     <Layout>
       <Helmet>
-        <title>Registrar Bajas</title>
+        <title>Listado General</title>
       </Helmet>
       <MenuBajas />
       <div className="border-bottom shadow-sm p-4 rounded">
-        <h3 className="form-title fw-semibold border-bottom p-1">Registrar Bajas</h3>
+        <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
         <Row className="border rounded p-2 m-2">
           <Col md={2}>
             <div className="mb-1">
@@ -356,6 +364,45 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
             </div>
           </Col>
         </Row>
+        <div className="d-flex justify-content-end">
+          <div className="d-flex align-items-center me-2">
+            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+              Tamaño de página:
+            </label>
+            <select
+              aria-label="Seleccionar tamaño de página"
+              className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+              name="nPaginacion"
+              onChange={handleChange}
+              value={Paginacion.nPaginacion}
+            >
+              {[10, 15, 20, 25, 50].map((val) => (
+                <option key={val} value={val}>{val}</option>
+              ))}
+            </select>
+          </div>
+
+          {filasSeleccionadas.length > 0 ? (
+            <>
+              <Button
+                onClick={() => setMostrarModal(true)} // Descomenta si ya tienes el estado y función
+                disabled={listadoGeneralBajas.length === 0}
+                variant={isDarkMode ? "secondary" : "primary"}
+                className="mx-1 mb-1"
+              >
+                Enviar
+                {/* <Plus
+                  className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
+                  aria-hidden="true"
+                /> */}
+              </Button>
+            </>
+          ) : (
+            <strong className="alert alert-dark border m-1 p-2">
+              No hay filas seleccionadas
+            </strong>
+          )}
+        </div>
         {/* Tabla*/}
         {loading ? (
           <>
@@ -367,7 +414,19 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
               <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
-                  <th scope="col"></th>
+                  <th style={{
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 0,
+
+                  }}>
+                    <Form.Check
+                      className="check-danger"
+                      type="checkbox"
+                      onChange={handleSeleccionaTodos}
+                      checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                    />
+                  </th>
                   <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                   {/* <th scope="col" className="text-nowrap text-center">Código Genérico</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
@@ -427,8 +486,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                       }}>
                         <Form.Check
                           type="checkbox"
-                          onChange={() => setSeleccionaFila(index)}
-                          checked={filasSeleccionada.includes((indexReal).toString())}
+                          onChange={() => setSeleccionaFilas(indexReal)}
+                          checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
                       {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
@@ -517,121 +576,99 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
         </div>
       </div >
       {/* Modal formulario*/}
-      {
-        elementosActuales.map((lista, index) => (
-          <div key={index}>
-            <Modal
-              show={mostrarModal === index}
-              onHide={() => handleCerrarModal(index)}
-              dialogClassName="modal-right" // Clase personalizada
-              backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-            //  keyboard={false}     // Evita el cierre al presionar la tecla Esc
-            >
-              <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                <Modal.Title className="fw-semibold">Enviar a Bodega de Excluidos</Modal.Title>
-              </Modal.Header>
-              <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                <form onSubmit={handleSubmit}>
-                  {/* <div className="d-flex justify-content-end">
-                  <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                    Enviar a Bodega
-                  </Button>
-                </div> */}
-                  <div className="row">
-                    <p className="fw-semibold"> Nº Inventario: {lista.aF_CODIGO_GENERICO}</p>
-                    <p className="fw-semibold"> Especie: {lista.especie}</p>
-                  </div>
-                  <div className="d-flex justify-content-end">
-                    {filasSeleccionada.length > 0 ? (
-                      <Button
-                        variant="primary"
-                        type="submit"
-                        className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                        disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                      >
-                        {loadingRegistro ? (
-                          <>
-                            {" Enviando... "}
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
 
-                          </>
-                        ) : (
-                          <>
-                            Enviar
-                          </>
-                        )}
-                      </Button>
-                    ) : (
-                      <strong className="alert alert-light border m-1 p-2 mx-2 text-muted">
-                        No hay bajas seleccionadas para registrar
-                      </strong>
-                    )}
-                  </div>
-                  <div className="mb-1">
-                    <label htmlFor="nresolucion" className="fw-semibold">
-                      Nº Certificado
-                    </label>
-                    <input
-                      aria-label="nresolucion"
-                      type="text"
-                      className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      name="nresolucion"
-                      maxLength={100}
-                      onChange={handleChange}
-                      value={Bajas.nresolucion}
+      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" backdrop="static">
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+          <Modal.Title className="fw-semibold">Enviar a Bodega de Excluidos</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <form onSubmit={handleSubmit}>
+            <div className="d-flex justify-content-end">
+              <Button
+                variant="primary"
+                type="submit"
+                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                disabled={loading}  // Desactiva el botón mientras carga
+              >
+                {loading ? (
+                  <>
+                    {" Enviar "}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
                     />
-                    {error.nresolucion && (
-                      <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
-                    )}
-                  </div>
-                  <div className="mb-1">
-                    <label htmlFor="fechA_BAJA" className="fw-semibold">
-                      Fecha Baja
-                    </label>
-                    <input
-                      aria-label="fechA_BAJA"
-                      type="date"
-                      className={`form-select ${error.fechA_BAJA ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      name="fechA_BAJA"
-                      onChange={handleChange}
-                      value={Bajas.fechA_BAJA}
-                    />
-                    {error.fechA_BAJA && (
-                      <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
-                    )}
-                  </div>
-                  <div className="mb-1">
-                    <label htmlFor="observaciones" className="fw-semibold">
-                      Observaciones
-                    </label>
-                    <textarea
-                      className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      aria-label="observaciones"
-                      name="observaciones"
-                      rows={4}
-                      onChange={handleChange}
-                      value={Bajas.observaciones}
-                    />
-                    {error.observaciones && (
-                      <div className="invalid-feedback fw-semibold">
-                        {error.observaciones}
-                      </div>
-                    )}
-                  </div>
 
-                </form>
-              </Modal.Body>
-            </Modal >
-          </div>
-        ))
-      }
+                  </>
+                ) : (
+                  <>
+                    Enviar
+                    {/* <Down
+                      className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
+                      aria-hidden="true"
+                    /> */}
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="mb-1">
+              <label htmlFor="nresolucion" className="fw-semibold">
+                Nº Certificado
+              </label>
+              <input
+                aria-label="nresolucion"
+                type="text"
+                className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="nresolucion"
+                maxLength={100}
+                onChange={handleChange}
+                value={Bajas.nresolucion}
+              />
+              {error.nresolucion && (
+                <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
+              )}
+            </div>
+            <div className="mb-1">
+              <label htmlFor="fechA_BAJA" className="fw-semibold">
+                Fecha Baja
+              </label>
+              <input
+                aria-label="fechA_BAJA"
+                type="date"
+                className={`form-select ${error.fechA_BAJA ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="fechA_BAJA"
+                onChange={handleChange}
+                value={Bajas.fechA_BAJA}
+              />
+              {error.fechA_BAJA && (
+                <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
+              )}
+            </div>
+            <div className="mb-1">
+              <label htmlFor="observaciones" className="fw-semibold">
+                Observaciones
+              </label>
+              <textarea
+                className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                aria-label="observaciones"
+                name="observaciones"
+                rows={4}
+                onChange={handleChange}
+                value={Bajas.observaciones}
+              />
+              {error.observaciones && (
+                <div className="invalid-feedback fw-semibold">
+                  {error.observaciones}
+                </div>
+              )}
+            </div>
+
+          </form>
+        </Modal.Body>
+      </Modal >
     </Layout >
   );
 };
@@ -640,8 +677,7 @@ const mapStateToProps = (state: RootState) => ({
   listadoGeneralBajas: state.datosListadoGeneralBajasReducers.listadoGeneralBajas,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  objeto: state.validaApiLoginReducers,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

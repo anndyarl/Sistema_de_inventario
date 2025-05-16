@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useMemo, useEffect } from "react";
 import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
-import { Eraser, EraserFill, Floppy, PencilFill, Plus, Trash } from "react-bootstrap-icons";
+import { Eraser, EraserFill, Floppy, PencilSquare, Plus, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
 import {
@@ -30,7 +30,6 @@ import {
   setInventarioRegistrado,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/registrarFormInventarioActions";
-
 import {
   setNRecepcionActions,
   setFechaRecepcionActions,
@@ -44,8 +43,6 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
-// import { obtenerMaxInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerMaxInventarioActions";
-
 // Props del formulario
 export interface ActivoFijo {
   id: string;
@@ -58,6 +55,7 @@ export interface ActivoFijo {
   serie: string;
   precio: string;
   especie: string;
+  cuenta: string;
   color?: string;
 }
 
@@ -70,12 +68,12 @@ interface DatosActivoFijoProps {
   onReset: () => void; // vuelve a al componente Datos_inventario
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
   nombreEspecie: string[]; //Para obtener del estado global de redux
+  nCuenta: number[];
   datosTablaActivoFijo: ActivoFijo[];
   general?: string; // Campo para errores generales
   generalTabla?: string;
   formInventario: FormInventario;
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
-  // obtenerMaxInventarioActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   vidaUtil: string;
   fechaIngreso: string;
@@ -93,6 +91,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   onReset,
   montoRecepcion,
   nombreEspecie,
+  nCuenta,
   datosTablaActivoFijo,
   formInventario,
   isDarkMode,
@@ -104,8 +103,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   observaciones,
   precio,
   // AF_CODIGO_GENERICO,
-  registrarFormInventarioActions,
-  // obtenerMaxInventarioActions
+  registrarFormInventarioActions
 }) => {
 
   //Estado que guarda en un array los objetos que irán en la tabla
@@ -123,6 +121,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     serie: "",
     precio: "",
     especie: "",
+    cuenta: ""
   });
 
   const dispatch = useDispatch();
@@ -285,6 +284,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     if (datosTablaActivoFijo.length > 0) {
       setActivosFijos(datosTablaActivoFijo);
     }
+
     // funcionObtieneMaxRegistro();
   }, [datosTablaActivoFijo, /*funcionObtieneMaxRegistro*/, paginaActual]);
 
@@ -300,7 +300,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       observaciones,
       serie: "",
       precio,
-      especie: ""
+      especie: "",
+      cuenta: ""
     });
   }, [
     vidaUtil,
@@ -323,7 +324,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         ? prev.filter((rowIndex) => rowIndex !== index.toString())
         : [...prev, index.toString()]
     );
-    // console.log("indices seleccionmados", index);
   };
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -337,26 +337,18 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
       setFilasSeleccionadas([]);
     }
-    // console.log("indices seleccionmados", filasSeleccionadas);
   };
-
-  // const handleClone = (activo: ActivoFijo) => {
-  //   const clonedActivo = { ...activo };
-  //   setActivosFijos(prev => [...prev, clonedActivo]);
-  // };
 
   const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // let counter = 0;
-    // const generateCorrelativeId = () => {
-    //   counter += 1;
-    //   return String(counter);
-    // };
 
     if (validate()) {
       const cantidad = parseInt(activoActual.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || "";
-
+      const ultimaCuenta = nCuenta;
+      console.log("nCuenta", nCuenta);
+      console.log("ultimaEspecie", ultimaEspecie);
+      console.log("ultimaCuenta", ultimaCuenta);
       // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
       const getRandomPastelColor = () => {
         const randomChannel = () => Math.floor(Math.random() * 128 + 127); // Valores entre 127 y 255 para generar tonos claros
@@ -374,6 +366,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         ...activoActual,
         id: `${Math.floor(performance.now())}${Math.floor(Math.random() * 1000)}`,
         especie: ultimaEspecie,
+        cuenta: ultimaCuenta.toString(),
         color: colorUltimaEspecie, // Asigna el color correspondiente a la ultima especie
       }));
       setActivosFijos((prev) => [...prev, ...newActivos]);
@@ -410,6 +403,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     dispatch(setCantidadActions(""));
     dispatch(setObservacionesActions(""));
   }
+
   const handleEliminar = (index: number) => {
     setActivosFijos((prev) => {
       const actualizados = prev.filter((_, i) => i !== index);
@@ -435,7 +429,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     // Filtrar los activos y eliminar los seleccionados
     setActivosFijos((prev) => {
       const actualizados = prev.filter((_, index) => !selectedIndices.includes(index));
-
       // Limpia los errores asociados a los índices eliminados
       setErroresSerie((prevErrores) => {
         const newErrores = { ...prevErrores };
@@ -500,7 +493,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         }
       }
     });
-
 
     if (duplicados.length > 0) {
       // setIsRepeatSerie(true);
@@ -711,7 +703,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
 
         {/* Boton elimina filas seleccionadas */}
-        <div className="d-flex justify-content-start">
+        <div className="d-flex justify-content-end">
           {filasSeleccionadas.length > 0 && (
             <Button
               variant="danger"
@@ -753,15 +745,16 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       }
                     />
                   </th>
-                  {/* <th>Código</th> */}
-                  <th>Vida Útil</th>
-                  <th>Fecha Ingreso</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>Serie</th>
-                  <th>Precio</th>
-                  <th>Especie</th>
-                  <th></th>
+                  <th className="text-center">Especie</th>
+                  <th className="text-center">Vida Útil</th>
+                  <th className="text-center">Cuenta</th>
+                  <th className="text-center">Fecha Ingreso</th>
+                  <th className="text-center">Marca</th>
+                  <th className="text-center">Modelo</th>
+                  <th className="text-center">Serie</th>
+                  <th className="text-center">Precio</th>
+                  <th className="text-center">Mantener Cuenta</th>
+                  <th>Acción</th>
                 </tr>
               </thead>
               <tbody>
@@ -769,26 +762,27 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                   return (
                     <tr key={indexReal}>
-                      <td>
+                      <td className="text-center">
                         <Form.Check
                           type="checkbox"
                           onChange={() => setSeleccionaFilas(indexReal)}
                           checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
-                      {/* <td>{activo.id}</td> */}
-                      <td>{activo.vidaUtil}</td>
-                      <td> {activo.fechaIngreso
+                      <td className="fw-bold text-center" style={{ backgroundColor: activo.color || "transparent" }}> {activo.especie}</td>
+                      <td className="text-center">{activo.vidaUtil}</td>
+                      <td className="fw-bold text-center">{activo.cuenta}</td>
+                      <td className="text-center"> {activo.fechaIngreso
                         ? activo.fechaIngreso.split('-').reverse().join('/')
                         : 'N/A'
                       }</td>
-                      <td>{activo.marca}</td>
-                      <td>{activo.modelo}</td>
+                      <td className="text-center">{activo.marca}</td>
+                      <td className="text-center">{activo.modelo}</td>
                       <td
-                        className={`${isDarkMode ? "text-light" : "text-dark"} w-15`}
+                        className={` ${isDarkMode ? "text-light" : "text-dark"} w-15`}
                         onClick={() => setEditingSerie(indexReal.toString())}
                       >
-                        <div className={`d-flex align-items-center ${isDarkMode ? "text-light" : "text-dark"}`}>
+                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                           <Form.Control
                             type="text"
                             value={activo.serie}
@@ -800,10 +794,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                             placeholder="Editar"
                             data-index={indexReal}
                             // Agregar clase condicional si hay un error en la serie
-                            className={`${erroresSerie[indexReal] ? "is-invalid" : ""} ${isDarkMode ? "bg-secondary-subtle" : ""}`}
+                            className={` text-center ${erroresSerie[indexReal] ? "is-invalid" : ""} ${isDarkMode ? "bg-secondary-subtle" : ""}`}
 
                           />
-                          <PencilFill
+                          <PencilSquare
                             style={{ marginLeft: "1rem", color: "#6c757d" }}
                           />{" "}
                           {/* Ícono de lápiz */}
@@ -815,17 +809,15 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                         )}
                       </td>
 
-                      <td >
-                        $
-                        {parseFloat(activo.precio).toLocaleString("es-ES", {
-                          minimumFractionDigits: 0,
-                        })}
+                      <td className="text-center">${parseFloat(activo.precio).toLocaleString("es-ES", { minimumFractionDigits: 0, })}</td>
+                      <td className="text-center">
+                        <Form.Check
+                          type="checkbox"
+                          onChange={() => setSeleccionaFilas(indexReal)}
+                          checked={filasSeleccionadas.includes(indexReal.toString())}
+                        />
                       </td>
-                      <td className="fw-bold" style={{ backgroundColor: activo.color || "transparent" }}> {activo.especie}</td>
                       <td>
-                        {/* Clonar */}
-                        {/* <Button variant="outline-secondary" size="sm" onClick={() => handleClone(activo)} className="me-2">*/}
-
                         {/* </Button> */}
                         <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
                           <Trash
@@ -840,10 +832,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={6} className={`text-right ${isDarkMode ? "text-light" : "text-dark"}`}>
+                  <td colSpan={8} className={`text-right ${isDarkMode ? "text-light" : "text-dark"}`}>
                     <strong >Total activo fijo:</strong>
                   </td>
-                  <td colSpan={3}>
+                  <td colSpan={8}>
                     <strong >
                       ${totalSum.toLocaleString("es-ES", { minimumFractionDigits: 0, })}
                     </strong>
@@ -1113,7 +1105,7 @@ const mapStateToProps = (state: RootState) => ({
   modelo: state.datosActivoFijoReducers.modelo,
   observaciones: state.datosActivoFijoReducers.observaciones,
   precio: state.datosActivoFijoReducers.precio,
-  // AF_CODIGO_GENERICO: state.obtenerMaxInventarioReducers.AF_CODIGO_GENERICO
+  nCuenta: state.datosActivoFijoReducers.nCuenta
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,

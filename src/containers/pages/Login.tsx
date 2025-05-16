@@ -35,6 +35,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
     // setLoading(true); // Inicia el estado de carga
     await login("test_demodoc", "2023");
     const esValido = await validaApiloginActions("18250588");// Valida usuario en Api login
+    // const esValido = await validaApiloginActions("15533835");// Valida usuario en Api login --JAIME
 
     if (esValido) {
       navigate("/Inicio");

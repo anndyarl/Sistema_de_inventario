@@ -20,7 +20,7 @@ export const comboCuentaModificarActions = (ESP_CODIGO: string) => async (dispat
     dispatch({ type: CUENTA_MODIFICAR_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeCuenta?ESP_CODIGO=${ESP_CODIGO}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeCuentaXEspecie?ESP_CODIGO=${ESP_CODIGO}`, config);
 
       if (res.status === 200) {
         dispatch({

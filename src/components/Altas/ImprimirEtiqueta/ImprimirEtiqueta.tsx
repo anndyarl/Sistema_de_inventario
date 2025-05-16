@@ -28,7 +28,8 @@ export interface ListaEtiquetas {
     aF_DESCRIPCION: string,
     aF_UBICACION: string,
     aF_FECHA_ALTA: string,
-    aF_NCUENTA: string
+    aF_NCUENTA: string,
+    origen: string,
     qrImage?: string
 }
 
@@ -194,12 +195,13 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             aF_DESCRIPCION: listaEtiquetas[index].aF_DESCRIPCION,
             aF_FECHA_ALTA: listaEtiquetas[index].aF_FECHA_ALTA,
             aF_NCUENTA: listaEtiquetas[index].aF_NCUENTA,
-            aF_UBICACION: listaEtiquetas[index].aF_UBICACION
+            aF_UBICACION: listaEtiquetas[index].aF_UBICACION,
+            origen: listaEtiquetas[index].origen
         }));
 
         const etiquetasConQR = await Promise.all(
             activosSeleccionados.map(async (item) => {
-                const valueQR = `Cod. Bien: ${item.aF_CODIGO_LARGO} Nom. Bien: ${item.aF_DESCRIPCION} F. Alta: ${item.aF_FECHA_ALTA} Cta. Contable: ${item.aF_NCUENTA}`;
+                const valueQR = `Cod. Bien: ${item.aF_CODIGO_LARGO} Nom. Bien: ${item.aF_DESCRIPCION} F. Alta: ${item.aF_FECHA_ALTA} Cta. Contable: ${item.aF_NCUENTA} Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}`;
                 const qrImage = await generateQRCodeBase64(valueQR);
                 // console.log("QR generado:", qrImage);
                 return { ...item, qrImage };
@@ -432,6 +434,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                     <th scope="col" className="text-nowrap">Fecha Alta</th>
                                     <th scope="col" className="text-nowrap">Nº Cuenta</th>
                                     <th scope="col" className="text-nowrap">Ubicación</th>
+                                    <th scope="col" className="text-nowrap">Origen</th>
                                     <th scope="col" className="text-nowrap">QR</th>
                                 </tr>
                             </thead>
@@ -458,6 +461,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
                                             <td className="text-nowrap">{fila.aF_NCUENTA}</td>
                                             <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                            <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
                                             <td className="text-nowrap">
                                                 <QRCodeSVG
                                                     value={`Cod. Bien: ${fila.aF_CODIGO_LARGO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA}`}

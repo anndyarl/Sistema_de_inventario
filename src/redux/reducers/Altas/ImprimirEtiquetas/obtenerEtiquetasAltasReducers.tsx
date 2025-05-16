@@ -15,6 +15,7 @@ interface PropsState {
         aF_UBICACION: string,
         aF_FECHA_ALTA: string,
         aF_NCUENTA: string;
+        origen: string;
     }>;
     error: string | null;
 }

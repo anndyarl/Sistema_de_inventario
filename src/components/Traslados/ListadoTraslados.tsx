@@ -378,7 +378,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación Destino / Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
+                  <th scope="col" className="text-nowrap text-center">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
@@ -410,7 +410,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
                       <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
-                      <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "N/a" : Lista.traS_OBS}</td>
+                      <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "Sin observaciones" : Lista.traS_OBS}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>

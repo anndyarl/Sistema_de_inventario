@@ -3,7 +3,7 @@ import { Modal, Button, Form, Pagination, Row, Col, Spinner, } from "react-boots
 import React, { useState, useMemo, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store.ts";
-import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, setMantieneCuentaActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
 import { Check2Circle, Plus, Search } from "react-bootstrap-icons";
 import Select from "react-select";
 import { Objeto } from "../../Navegacion/Profile.tsx";
@@ -156,6 +156,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
+
     // Convierte `value` a número
     let newValue: string | number = ["servicio", "dependencia", "especie", "cuenta", "bien"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
@@ -172,7 +173,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       onServicioSeleccionado(value);
       dispatch(setServicioActions(newValue as number));
       // Restablece dependencia al seleccionar un nuevo servicio
-      setCuenta((cuentaPrevia) => ({ ...cuentaPrevia, dependencia: 0 })); // Limpia dependencia localmente     
+      setCuenta((prev) => ({ ...prev, dependencia: 0 })); // Limpia dependencia localmente     
     }
     if (name === "dependencia") {
       dispatch(setDependenciaActions(newValue as number));
@@ -187,10 +188,21 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     if (name === "detalles") {
       paginar(1);
       onDetalleSeleccionado(newValue as number);
-      console.log("detalles", value);
+
     }
 
   };
+
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setCuenta((prev) => ({
+      ...prev,
+      [name]: checked,
+    }));
+    dispatch(setMantieneCuentaActions(checked));
+
+  };
+
   //Validaciones del formulario
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -204,6 +216,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+
   const { mantenerCuenta } = Cuenta;
   useEffect(() => {
     setCuenta({
@@ -231,7 +244,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       dispatch(setDescripcionEspecieActions(Especies.descripcionEspecie));
       if (parseInt(Especies.codigoEspecie) > 0) {
         dispatch(setNombreEspecieActions(Especies.codigoEspecie));
-        comboCuenta.length;
       }
 
       setCuenta((cuentaPrevia) => ({ ...cuentaPrevia, cuenta: 0 })); // Limpia cuenta localmente
@@ -424,8 +436,8 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                   className="form-check-input"
                   type="checkbox"
                   name="mantenerCuenta"
-                  checked={Cuenta.mantenerCuenta || false}
-                  onChange={handleChange}
+                  checked={Cuenta.mantenerCuenta}
+                  onChange={handleCheck}
                 />
                 <label className="form-check-label fw-semibold" htmlFor="mantenerCuenta">
                   Mantener cuenta

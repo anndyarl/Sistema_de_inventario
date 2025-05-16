@@ -17,12 +17,14 @@ import { connect } from "react-redux";
 import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
-import { comboCuentaActions } from "../../../redux/actions/Inventario/Combos/comboCuentaActions";
+
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboOrigenPresupuestosActions } from "../../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { comboCuentaInicialActions } from "../../../redux/actions/Inventario/Combos/comboCuentaInicialActions";
+import { comboCuentaxEspecieActions } from "../../../redux/actions/Inventario/Combos/comboCuentaxEspecieActions";
+import { comboSoloxCuentaActions } from "../../../redux/actions/Inventario/Combos/comboSoloxCuentaActions";
 
 
 export interface FormInventario {
@@ -54,9 +56,11 @@ interface FormInventarioProps {
 
   listaEspecie: ListaEspecie[];
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
-  origenPresupuesto: number;
-  comboCuentaActions: (substr: number, esp_codigo: string, cta_tipo: number) => void;
+
+
   comboCuentaInicialActions: () => void;
+  comboCuentaxEspecieActions: (esp_codigo: string) => void;
+  comboSoloxCuentaActions: (cta_tipo: number) => void;
 
   token: string | null;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
@@ -82,8 +86,9 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   comboDependenciaActions,
   listadoDeEspeciesBienActions,
   comboDetalleActions,
-  comboCuentaActions,
-  comboCuentaInicialActions
+  comboCuentaInicialActions,
+  comboCuentaxEspecieActions,
+  comboSoloxCuentaActions
 
 }) => {
   const [step, setStep] = useState<number>(0);
@@ -122,21 +127,19 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   // Función para manejar la selección de dependencia en base al servicio seleccionado del componente `DatosCuenta`
   const handleServicioSeleccionado = (codigoServicio: string) => {
     setServicioSeleccionado(codigoServicio);
-    // console.log("Código del servicio seleccionado:", codigoServicio);
     comboDependenciaActions(codigoServicio);
   };
 
   // Función para manejar la selección del detalle en base al bien seleccionado en el componente `DatosCuenta`
   const handleBienSeleccionado = (codigoBien: string) => {
     setBienSeleccionado(codigoBien);
-    // console.log("Código del bien seleccionado:", codigoBien);
     comboDetalleActions(codigoBien); // aqui le paso codigo de bien
   };
 
   // Función para manejar la selección de detalles en el componente `DatosCuenta`
   const handleDetalleSeleccionado = async (codigoDetalle: number) => {
     setDetalleSeleccionado(codigoDetalle);
-    // console.log("Código del detalle seleccionado:", codigoDetalle);
+
     let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, codigoDetalle, ""); // aqui le paso codigo de detalle
 
     if (!resultado) {
@@ -151,31 +154,27 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   }
 
   const handleOrigenSeleccionado = (codOrigen: number) => {
-    if (codOrigen == 2) {
+    if (codOrigen !== 3 && codOrigen !== 4) {
       setCodOrigenSeleccionado(codOrigen);//guardo el codOrigen para cuando se seleccione una especie vuelva a consultar nuvemanete a la action
-      comboCuentaInicialActions(); // Propio    
+      comboCuentaInicialActions(); // Minsal, Propio, Donacion     
+    }
+    if (codOrigen === 3) {
+      comboSoloxCuentaActions(6); // Comodato      
+      setCodOrigenSeleccionado(codOrigen);
     }
     if (codOrigen === 4) {
-      comboCuentaActions(1, "", 8); // Arriendo      
+      comboSoloxCuentaActions(8); // Arriendo    
+      setCodOrigenSeleccionado(codOrigen);
     }
   };
 
   // Función para manejar la selección de la especie en el componente `DatosCuenta`
   const handleEspecieSeleccionado = (nombreEspecie: string) => {
     setEspecieSeleccionado(nombreEspecie);
-    // console.log("nombre Especie del listado seleccionado:", nombreEspecie);
-    if (codOrigenSeleccionado == 2) {
-      comboCuentaActions(5, nombreEspecie, 1); // Propio       
-      comboCuenta.length; // definir variable comboCuentaInicial en reductores para la carga de datos cuando vengan por especie
-    }
-
-    if (codOrigenSeleccionado === 4) {
-      comboCuentaActions(1, nombreEspecie, 8); // Arriendo     
-      comboCuenta.length;
+    if (codOrigenSeleccionado !== 3 && codOrigenSeleccionado !== 4) {
+      comboCuentaxEspecieActions(nombreEspecie); // Minsal, Propio, Donacion   
     }
   };
-
-
 
   const handleNext = (data: Record<string, any>) => {
     // Guardar los datos del formulario actual
@@ -249,6 +248,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
           bienSeleccionado={bienSeleccionado}
           detalleSeleccionado={detalleSeleccionado}
           especieSeleccionado={especieSeleccionado}
+
         />
       )}
 
@@ -258,6 +258,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
           onNext={handleNext}
           onReset={handleReset}
           formInventario={formularios}
+
         />
       )}
     </Layout>
@@ -284,8 +285,9 @@ export default connect(mapStateToProps, {
   comboDependenciaActions,
   listadoDeEspeciesBienActions,
   comboDetalleActions,
-  comboCuentaActions,
   comboCuentaInicialActions,
+  comboCuentaxEspecieActions,
+  comboSoloxCuentaActions,
   comboOrigenPresupuestosActions,
   comboModalidadesActions,
   comboProveedorActions

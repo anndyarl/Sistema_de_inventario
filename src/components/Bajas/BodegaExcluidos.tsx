@@ -8,16 +8,19 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Arrow90degLeft, Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/ListadoGeneral/obtenerListaExcluidosActions.tsx";
 import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaExcluidos/quitarBodegaExcluidosActions.tsx";
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
+import { devolverBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/devolverBajasActions.tsx";
+import { Objeto } from "../Navegacion/Profile.tsx";
 
 interface FechasProps {
   fDesde: string;
   fHasta: string;
 }
 export interface ListaExcluidos {
+  aF_CODIGO_GENERICO: string,
   nresolucion: string;
   observaciones: string;
   useR_MOD: number;
@@ -37,15 +40,17 @@ export interface ListaExcluidos {
 
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
-  obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string) => Promise<boolean>;
+  obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
+  devolverBajasActions: (devolverLista: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   nPaginacion: number; //número de paginas establecido desde preferencias
+  objeto: Objeto;
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, devolverBajasActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
@@ -59,6 +64,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     fDesde: "",
     fHasta: "",
     nresolucion: "",
+    af_codigo_generico: ""
   });
 
   const validate = () => {
@@ -81,15 +87,15 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     if (token) {
       if (listaExcluidos.length === 0) {
         setLoading(true);
-        const resultado = await obtenerListaExcluidosActions("", "", "");
+        const resultado = await obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
         else {
           Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `Error en la solicitud. Por favor, intente nuevamente.`,
+            icon: "warning",
+            title: "Sin resultados",
+            text: "No se han encontrado registros.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
@@ -97,6 +103,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
               popup: "custom-border", // Clase personalizada para el borde
             }
           });
+          setLoading(false);
         }
       }
     }
@@ -109,7 +116,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "nresolucion" && !/^[0-9]*$/.test(value)) {
+    if ((name === "nresolucion" || name === "af_codigo_generico") && !/^[0-9]*$/.test(value)) {
       return; // Salir si contiene caracteres no numéricos
     }
     // Actualizar estado
@@ -142,34 +149,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       setFilasSeleccionadas([]);
     }
   };
-
-  // const handleBuscarRemates = async () => {
-
-  //   let resultado = false;
-  //   setLoading(true);
-  //   resultado = await obtenerListaExcluidosActions(Bajas.aF_CLAVE);
-
-
-  //   if (!resultado) {
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: ":'(",
-  //       text: "No se encontraron resultados, inténte otro registro.",
-  //       confirmButtonText: "Ok",
-  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //       customClass: {
-  //         popup: "custom-border", // Clase personalizada para el borde
-  //       }
-  //     });
-  //     setLoading(false); //Finaliza estado de carga
-  //     return;
-  //   } else {
-  //     setLoading(false); //Finaliza estado de carga
-  //   }
-
-  // };
 
   const handleRematarSeleccionados = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
@@ -222,7 +201,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         });
 
         setLoadingRegistro(false);
-        obtenerListaExcluidosActions("", "", "");
+        obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -242,6 +221,69 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     }
 
   };
+
+  const handleDevolverSeleccionados = async () => {
+    const selectedIndices = filasSeleccionadas.map(Number);
+
+    const result = await Swal.fire({
+      icon: "info",
+      title: "Devolver a Listado General",
+      text: "Confirme para enviar",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Confirmar y Enviar",
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      customClass: {
+        popup: "custom-border", // Clase personalizada para el borde
+      }
+    });
+
+    if (result.isConfirmed) {
+      // setLoadingRegistro(true);
+      // Crear un array de objetos con aF_CLAVE y nombre
+      const Formulario = selectedIndices.map((activo) => ({
+        aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
+
+      }));
+
+      const resultado = await devolverBajasActions(Formulario);
+      if (resultado) {
+        Swal.fire({
+          icon: "success",
+          title: "Devuelto a Listado General",
+          text: "Se ha enviado correctamente",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+
+        setLoadingRegistro(false);
+        obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+        setFilasSeleccionadas([]);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: ":'(",
+          text: "Hubo un problema al registrar",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+        setLoadingRegistro(false);
+      }
+
+    }
+
+  };
+
 
   const handleCerrarModal = () => {
     setMostrarModal(null); //Cierra modal del indice seleccionado
@@ -301,7 +343,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
               popup: "custom-border", // Clase personalizada para el borde
             }
           });
-          obtenerListaExcluidosActions("", "", "");
+          obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
           setLoadingRegistro(false);//termina de cargar      
           setFilasSeleccionadas([]); //deselecciona las filas     
           setExcluidos((prevState) => ({
@@ -334,11 +376,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     setLoading(true);
     if (Excluidos.fDesde != "" || Excluidos.fHasta != "") {
       if (validateFechas()) {
-        resultado = await obtenerListaExcluidosActions(Excluidos.fDesde, Excluidos.fHasta, Excluidos.nresolucion);
+        resultado = await obtenerListaExcluidosActions(Excluidos.fDesde, Excluidos.fHasta, Excluidos.nresolucion, Excluidos.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await obtenerListaExcluidosActions("", "", Excluidos.nresolucion);
+      resultado = await obtenerListaExcluidosActions("", "", Excluidos.nresolucion, Excluidos.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
     }
 
     if (!resultado) {
@@ -363,7 +405,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       ...prevInventario,
       fDesde: "",
       fHasta: "",
-      nresolucion: ""
+      nresolucion: "",
+      af_codigo_generico: ""
     }));
   };
 
@@ -441,6 +484,18 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                   value={Excluidos.nresolucion}
                 />
               </div>
+              <div className="mb-2">
+                <label htmlFor="af_codigo_generico" className="form-label fw-semibold">Nº Inventario</label>
+                <input
+                  aria-label="af_codigo_generico"
+                  type="text"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="af_codigo_generico"
+                  placeholder="Ej: 1000000008"
+                  onChange={handleChange}
+                  value={Excluidos.af_codigo_generico}
+                />
+              </div>
             </Col>
 
             <Col md={5}>
@@ -479,9 +534,35 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           <div className="d-flex justify-content-end">
             {filasSeleccionadas.length > 0 ? (
               <>
-                {/* Botón Enviar a Remate */}
+                {/* Botón Devolver a Listado General*/}
                 <Button
                   variant="warning"
+                  onClick={handleDevolverSeleccionados}
+                  className="m-1 p-2 d-flex align-items-center"
+                  disabled={loadingRegistro}
+                >
+                  {loadingRegistro ? (
+                    <>
+                      {" Enviando.. "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      Devolver
+                      <Arrow90degLeft className={"flex-shrink-0 h-5 w-5 mx-1 mb-1 text-danger"} aria-hidden="true" />
+                    </>
+                  )}
+                </Button>
+                {/* Botón Enviar a Remate */}
+                <Button
+                  variant="primary"
                   onClick={handleRematarSeleccionados}
                   className="m-1 p-2 d-flex align-items-center"
                   disabled={loadingRegistro}
@@ -542,7 +623,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    {/* <th scope="col" className="text-nowrap text-center">Nº Inventario</th> */}
+                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                     <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>
                     <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
@@ -585,7 +666,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
+                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                         <td className="text-nowrap">{Lista.nresolucion}</td>
                         <td className="text-nowrap">{Lista.observaciones}</td>
                         <td className="text-nowrap">{Lista.useR_MOD}</td>
@@ -731,11 +812,13 @@ const mapStateToProps = (state: RootState) => ({
   listaExcluidos: state.obtenerListaExcluidosReducers.listaExcluidos,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {
   excluirBajasActions,
   obtenerListaExcluidosActions,
-  quitarBodegaExcluidosActions
+  quitarBodegaExcluidosActions,
+  devolverBajasActions
 })(BienesExcluidos);
