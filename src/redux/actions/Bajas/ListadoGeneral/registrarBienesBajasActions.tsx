@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
-export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, especie: string }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -26,7 +26,8 @@ export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO
 
       if (res.status === 200) {
         dispatch({
-          type: REGISTRAR_BIENES_BAJAS_SUCCESS
+          type: REGISTRAR_BIENES_BAJAS_SUCCESS,
+          payload: res.data
         });
         return true;
       } else {

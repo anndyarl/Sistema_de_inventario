@@ -35,7 +35,6 @@ import obtenerUnidadesReducers from "./Altas/FirmarAltas/obtenerUnidadesReducers
 
 //--------------------- Registrar Bajas ---------------------//
 import datosListadoGeneralBajasReducers from "./Bajas/datosListadoGeneralBajasReducers";
-import datosListaBajasReducers from "./Bajas/datosListaBajasReducers";
 import obtenerListaRematesReducers from "./Bajas/datosListaRematesReducers";
 import obtenerListaExcluidosReducers from "./Bajas/datosListaExcluidosReducers";
 
@@ -88,6 +87,7 @@ import comboEspeciesBienReducers from "./Inventario/Combos/comboEspeciesBienRedu
 import obtenerInventarioTrasladoReducers from "./Traslados/obtenerInventarioTrasladoReducers";
 import comboDependenciaModificarReducers from "./Inventario/Combos/comboDependenciaModificarReducers";
 import comboCuentaModificarReducers from "./Inventario/Combos/comboCuentaModificarReducers";
+import datosBajasRegistradaReducers from "./Bajas/datosBajasRegistradaReducers";
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
   // Autenticación
@@ -135,7 +135,7 @@ const appReducer = combineReducers({
 
   // Bajas
   datosListadoGeneralBajasReducers,
-  datosListaBajasReducers,
+  datosBajasRegistradaReducers,
   obtenerListaRematesReducers,
   obtenerListaExcluidosReducers,
 

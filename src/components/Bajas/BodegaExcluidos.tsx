@@ -624,10 +624,10 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       />
                     </th>
                     <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                    <th scope="col" className="text-nowrap text-center">Nº Baja</th>
                     <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>
                     <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
-                    <th scope="col" className="text-nowrap text-center">Código Baja</th>
                     <th scope="col" className="text-nowrap text-center">Fecha Baja</th>
                     <th scope="col" className="text-nowrap text-center">Especie</th>
                     <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
@@ -667,10 +667,10 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                           />
                         </td>
                         <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                        <td className="text-nowrap">{Lista.bajaS_CORR}</td>
                         <td className="text-nowrap">{Lista.nresolucion}</td>
                         <td className="text-nowrap">{Lista.observaciones}</td>
                         <td className="text-nowrap">{Lista.useR_MOD}</td>
-                        <td className="text-nowrap">{Lista.bajaS_CORR}</td>
                         <td className="text-nowrap">{Lista.fechA_BAJA}</td>
                         <td className="text-nowrap">{Lista.especie}</td>
                         <td className="text-nowrap">{Lista.ncuenta}</td>

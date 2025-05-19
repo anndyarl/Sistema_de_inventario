@@ -21,6 +21,7 @@ interface FechasProps {
 }
 export interface ListaAltas {
   aF_CLAVE: number,
+  altaS_CORR: number;
   ninv: string,
   aF_FINGRESO: string;
   serv: string,
@@ -42,7 +43,7 @@ interface ListaSalidaAltas {
 }
 interface DatosAltas {
   listaAltas: ListaAltas[];
-  listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
+  listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -87,11 +88,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
     if (Inventario.fDesde != "" || Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
+        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, 0, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await listaAltasActions("", "", Inventario.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
+      resultado = await listaAltasActions("", "", Inventario.af_codigo_generico, 0, objeto.Roles[0].codigoEstablecimiento);
     }
     if (!resultado) {
       Swal.fire({
@@ -100,7 +101,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
       });
-      listaAltasActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
+      listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -138,7 +139,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     if (token) {
       if (listaAltas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
+        const resultado = await listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -254,10 +255,10 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       if (activosSeleccionados[0].aF_CODIGO_GENERICO.toString() != "1") {
         const resultado = await registrarAltasActions(activosSeleccionados);
         if (resultado) {
-          dispatch(setAltasRegistradas(1));
-          setLoadingRegistro(false);
-          listaAltasActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
-          setFilasSeleccionadas([]);
+          dispatch(setAltasRegistradas(1));//Guarda el estado para mostrar modal resumen(En use effect)
+          setLoadingRegistro(false);//Detiene la carga
+          listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+          setFilasSeleccionadas([]);//Limpia Formulario
         } else {
           Swal.fire({
             icon: "error",

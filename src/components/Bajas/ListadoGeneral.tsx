@@ -1,8 +1,8 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Button, Spinner, Form, Modal, Row, Col } from "react-bootstrap";
-import { RootState } from "../../store.ts";
-import { connect } from "react-redux";
+import { AppDispatch, RootState } from "../../store.ts";
+import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
@@ -10,9 +10,10 @@ import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
-import { listadoGeneralBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listadoGeneralBajasActions.tsx";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
-
+import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
+import { ListaAltas } from "../Altas/RegistrarAltas.tsx";
+import { setBajasRegistradas } from "../../redux/actions/Bajas/ListadoGeneral/datosBajasRegistradasActions.tsx";
 
 export interface ListaBajas {
   bajaS_CORR: string;
@@ -30,69 +31,27 @@ export interface ListaBajas {
   especie: string;
   deP_ACUMULADA: number;
 }
-export interface ListadoGeneralBajas {
-  aF_CLAVE: number;
-  aF_CODIGO_GENERICO: string;
-  aF_CODIGO_LARGO: string;
-  deP_CORR: number;
-  esP_CODIGO: string;
-  aF_SECUENCIA: number;
-  itE_CLAVE: number;
-  aF_DESCRIPCION: string;
-  aF_FINGRESO: string;
-  aF_ESTADO: string;
-  aF_CODIGO: string;
-  aF_TIPO: string;
-  aF_ALTA: string;
-  aF_PRECIO_REF: number;
-  aF_CANTIDAD: number;
-  aF_ORIGEN: number;
-  aF_RESOLUCION: string;
-  aF_FECHA_SOLICITUD: string;
-  aF_OCO_NUMERO_REF: string;
-  usuariO_CREA: string;
-  f_CREA: string;
-  iP_CREA: string;
-  usuariO_MOD: string;
-  f_MOD: string;
-  iP_MOD: string;
-  aF_TIPO_DOC: string;
-  prov_RUN: number;
-  reG_EQM: string;
-  aF_NUM_FAC: string;
-  aF_FECHAFAC: string;
-  aF_3UTM: string;
-  iD_GRUPO: number;
-  ctA_COD: string;
-  transitoria: string;
-  aF_MONTOFACTURA: number;
-  esP_DESCOMPONE: string;
-  aF_ETIQUETA: string;
-  aF_VIDAUTIL: number;
-  aF_VIGENTE: string;
-  idprograma: number;
-  idmodalidadcompra: number;
-  idpropiedad: number;
-  especie: string;
-  aF_ESTADO_INV: number;
-}
 
 interface DatosBajas {
-  listadoGeneralBajas: ListadoGeneralBajas[];
-  listadoGeneralBajasActions: (af_codigo_generico: string) => Promise<boolean>;
-  registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, bajaS_CORR: number, especie: string, ctA_COD: string }[]) => Promise<boolean>;
+  listadoGeneralBajas: ListaAltas[];
+  listaSalidaBajas: ListaBajas[];
+  listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+  registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, especie: string }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
+  bajasRegistradas: number;
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, registrarBienesBajasActions, listadoGeneralBajas, token, isDarkMode, objeto }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, registrarBienesBajasActions, listadoGeneralBajas, listaSalidaBajas, token, isDarkMode, objeto, bajasRegistradas }) => {
   const [loading, setLoading] = useState(false);
   const [__, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
+  const dispatch = useDispatch<AppDispatch>();
   const [Paginacion, setPaginacion] = useState({
     nPaginacion: 10
   });
@@ -104,14 +63,19 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   });
 
   const [Buscar, setBuscar] = useState({
-    af_codigo_generico: "",
+    fDesde: "",
+    fHasta: "",
+    altaS_CORR: 0,
+    af_codigo_generico: ""
   });
+
+
   //Se lista automaticamente apenas entra al componente
   const listadoGeneralBajasAuto = async () => {
     if (token) {
       if (listadoGeneralBajas.length === 0) {
         setLoading(true);
-        const resultado = await listadoGeneralBajasActions("");
+        const resultado = await listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -134,9 +98,35 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   };
 
   useEffect(() => {
+    if (bajasRegistradas === 1) {
+      mostrarAlerta();
+    }
     listadoGeneralBajasAuto()
-  }, [listadoGeneralBajasActions, token, listadoGeneralBajas.length]); // Asegúrate de incluir dependencias relevantes
+  }, [listaAltasdesdeBajasActions, token, listadoGeneralBajas.length]); // Asegúrate de incluir dependencias relevantes
 
+  const mostrarAlerta = () => {
+    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    Swal.fire({
+      icon: "success",
+      title: "Registro Exitoso",
+      text: `Se han registrado correctamente las bajas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      customClass: { popup: "custom-border" },
+      allowOutsideClick: false,
+      showCancelButton: false, // Agrega un segundo botón
+      cancelButtonText: "Cerrar", // Texto del botón
+      willClose: () => {
+        document.body.style.overflow = "auto"; // Restaura el scroll
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setModalMostrarResumen(true);
+        dispatch(setBajasRegistradas(0));
+      }
+    });
+  };
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -190,12 +180,15 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
       setFilasSeleccionadas([]);
     }
   };
+
   const setSeleccionaFilas = (index: number) => {
+    const indexReal = indicePrimerElemento + index;
     setFilasSeleccionadas((prev) =>
-      prev.includes(index.toString())
-        ? prev.filter((rowIndex) => rowIndex !== index.toString())
-        : [...prev, index.toString()]
+      prev.includes(indexReal.toString())
+        ? prev.filter((rowIndex) => rowIndex !== indexReal.toString())
+        : [...prev, indexReal.toString()]
     );
+    // console.log("indices seleccionmados", indexReal);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -220,34 +213,20 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
         setLoadingRegistro(true);
         // Crear un array de objetos con aF_CLAVE y nombre
         const FormularioBajas = selectedIndices.map((activo) => ({
+          aF_CODIGO_GENERICO: listadoGeneralBajas[activo].ninv,
           aF_CLAVE: listadoGeneralBajas[activo].aF_CLAVE,
           usuariO_MOD: objeto.IdCredencial.toString(),
-          bajaS_CORR: listadoGeneralBajas[activo].deP_CORR,
-          especie: listadoGeneralBajas[activo].especie,
-          ctA_COD: listadoGeneralBajas[activo].ctA_COD,
+          ctA_COD: listadoGeneralBajas[activo].ncuenta,
+          especie: listadoGeneralBajas[activo].esp,
           ...Bajas,
         }));
-        console.log(FormularioBajas);
-        setLoadingRegistro(false);
         const resultado = await registrarBienesBajasActions(FormularioBajas);
-
         if (resultado) {
-          Swal.fire({
-            icon: "success",
-            title: "Enviado a Bodega de Excluidos",
-            text: "Se ha enviado correctamente.",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
-          });
-
-          listadoGeneralBajasActions("");
-          setLoadingRegistro(false);
-          setFilasSeleccionadas([]);
-          setMostrarModal(false);
+          dispatch(setBajasRegistradas(1));//Guarda el estado para mostrar modal resumen(En use effect)
+          listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento); //Carga la tabla nuevamente
+          setFilasSeleccionadas([]);//Limpia Formulario
+          setLoadingRegistro(false);//Detiene la carga
+          setMostrarModal(false);//Cierra modal formulario
         } else {
           Swal.fire({
             icon: "error",
@@ -267,8 +246,16 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
   };
 
   const handleBuscar = async () => {
+    let resultado = false;
     setLoading(true);
-    const resultado = await listadoGeneralBajasActions(Buscar.af_codigo_generico);
+    if (Buscar.fDesde != "" || Buscar.fHasta != "") {
+      if (validate()) {
+        resultado = await listaAltasdesdeBajasActions(Buscar.fDesde, Buscar.fHasta, Buscar.af_codigo_generico, Buscar.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
+      }
+    }
+    else {
+      resultado = await listaAltasdesdeBajasActions("", "", Buscar.af_codigo_generico, Buscar.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
+    }
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -276,7 +263,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
         text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
       });
-      // listadoGeneralBajasActions("");
+      // listaAltasdesdeBajasActions("");
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -328,6 +315,18 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
                 placeholder="Eje: 1000000008"
                 onChange={handleChange}
                 value={Buscar.af_codigo_generico}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
+              <input
+                aria-label="altaS_CORR"
+                type="text"
+                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="altaS_CORR"
+                placeholder="Ej: 0"
+                onChange={handleChange}
+                value={Buscar.altaS_CORR}
               />
             </div>
           </Col>
@@ -412,128 +411,67 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
 
           <div className='table-responsive'>
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+              <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   <th style={{
                     position: 'sticky',
                     left: 0,
-                    zIndex: 0,
-
+                    zIndex: 2,
                   }}>
                     <Form.Check
-                      className="check-danger"
                       type="checkbox"
                       onChange={handleSeleccionaTodos}
                       checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                     />
                   </th>
-                  <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Código Genérico</th> */}
-                  {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
-                  <th scope="col" className="text-nowrap text-center">DEP Corr</th>
-                  <th scope="col" className="text-nowrap text-center">ESP Código</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
-                  <th scope="col" className="text-nowrap text-center">ITE Clave</th>
-                  <th scope="col" className="text-nowrap text-center">Descripción</th>
+                  <th scope="col" className="text-nowrap text-center">N° Inventario</th>
+                  <th scope="col" className="text-nowrap text-center">N° Alta</th>
+                  <th scope="col" className="text-nowrap text-center">Servicio</th>
+                  <th scope="col" className="text-nowrap text-center">Dependencia</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                  <th scope="col" className="text-nowrap text-center">Estado</th>
-                  <th scope="col" className="text-nowrap text-center">Código</th>
-                  <th scope="col" className="text-nowrap text-center">Tipo</th>
-                  <th scope="col" className="text-nowrap text-center">Alta</th>
-                  <th scope="col" className="text-nowrap text-center">Precio Ref.</th>
-                  <th scope="col" className="text-nowrap text-center">Cantidad</th>
-                  <th scope="col" className="text-nowrap text-center">Origen</th>
-                  <th scope="col" className="text-nowrap text-center">Resolución</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th>
-                  <th scope="col" className="text-nowrap text-center">Número Referencia</th>
-                  <th scope="col" className="text-nowrap text-center">Usuario Creación</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                  {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
-                  <th scope="col" className="text-nowrap text-center">Usuario Modificación</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Modificación</th>
-                  {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                  <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Proveedor RUN</th> */}
-                  {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
-                  <th scope="col" className="text-nowrap text-center">Número Factura</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
-                  <th scope="col" className="text-nowrap text-center">UTM</th>
-                  <th scope="col" className="text-nowrap text-center">ID Grupo</th>
-                  <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
-                  <th scope="col" className="text-nowrap text-center">Transitoria</th>
-                  <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                  {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
-                  <th scope="col" className="text-nowrap text-center">Etiqueta</th>
-                  <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                  <th scope="col" className="text-nowrap text-center">Vigente</th>
-                  <th scope="col" className="text-nowrap text-center">ID Programa</th>
-                  <th scope="col" className="text-nowrap text-center">ID Modalidad Compra</th>
-                  <th scope="col" className="text-nowrap text-center">ID Propiedad</th>
                   <th scope="col" className="text-nowrap text-center">Especie</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Estado Inventario</th> */}
+                  <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
+                  <th scope="col" className="text-nowrap text-center">Marca</th>
+                  <th scope="col" className="text-nowrap text-center">Modelo</th>
+                  <th scope="col" className="text-nowrap text-center">Serie</th>
+                  <th scope="col" className="text-nowrap text-center">Estado</th>
+                  <th scope="col" className="text-nowrap text-center">Precio</th>
+                  <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
+                  {/* <th scope="col">Acción</th> */}
                 </tr>
               </thead>
               <tbody>
                 {elementosActuales.map((Lista, index) => {
-                  let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                  const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                   return (
                     <tr key={indexReal}>
                       <td style={{
                         position: 'sticky',
                         left: 0,
                         zIndex: 2,
-
                       }}>
                         <Form.Check
                           type="checkbox"
-                          onChange={() => setSeleccionaFilas(indexReal)}
-                          checked={filasSeleccionadas.includes(indexReal.toString())}
+                          onChange={() => setSeleccionaFilas(index)}
+                          checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
                         />
                       </td>
-                      {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
-                      <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                      {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
-                      <td className="text-nowrap">{Lista.deP_CORR}</td>
-                      <td className="text-nowrap">{Lista.esP_CODIGO}</td>
-                      {/* <td className="text-nowrap">{Lista.aF_SECUENCIA}</td> */}
-                      <td className="text-nowrap">{Lista.itE_CLAVE}</td>
-                      <td className="text-nowrap">{Lista.aF_DESCRIPCION}</td>
+
+                      <td className="text-nowrap">{Lista.ninv}</td>
+                      <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                      <td className="text-nowrap">{Lista.serv}</td>
+                      <td className="text-nowrap">{Lista.dep}</td>
                       <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                      <td className="text-nowrap">{Lista.aF_ESTADO}</td>
-                      <td className="text-nowrap">{Lista.aF_CODIGO}</td>
-                      <td className="text-nowrap">{Lista.aF_TIPO}</td>
-                      <td className="text-nowrap">{Lista.aF_ALTA}</td>
-                      <td className="text-nowrap">{Lista.aF_PRECIO_REF}</td>
-                      <td className="text-nowrap">{Lista.aF_CANTIDAD}</td>
-                      <td className="text-nowrap">{Lista.aF_ORIGEN}</td>
-                      <td className="text-nowrap">{Lista.aF_RESOLUCION}</td>
-                      <td className="text-nowrap">{Lista.aF_FECHA_SOLICITUD}</td>
-                      <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                      <td className="text-nowrap">{Lista.usuariO_CREA}</td>
-                      <td className="text-nowrap">{Lista.f_CREA}</td>
-                      {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
-                      <td className="text-nowrap">{Lista.usuariO_MOD}</td>
-                      <td className="text-nowrap">{Lista.f_MOD}</td>
-                      {/* <td className="text-nowrap">{Lista.iP_MOD}</td> */}
-                      <td className="text-nowrap">{Lista.aF_TIPO_DOC}</td>
-                      {/* <td className="text-nowrap">{Lista.prov_RUN}</td> */}
-                      {/* <td className="text-nowrap">{Lista.reG_EQM}</td> */}
-                      <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                      <td className="text-nowrap">{Lista.aF_FECHAFAC}</td>
-                      <td className="text-nowrap">{Lista.aF_3UTM}</td>
-                      <td className="text-nowrap">{Lista.iD_GRUPO}</td>
-                      <td className="text-nowrap">{Lista.ctA_COD}</td>
-                      <td className="text-nowrap">{Lista.transitoria}</td>
-                      <td className="text-nowrap">{Lista.aF_MONTOFACTURA}</td>
-                      {/* <td className="text-nowrap">{Lista.esP_DESCOMPONE}</td> */}
-                      <td className="text-nowrap">{Lista.aF_ETIQUETA}</td>
-                      <td className="text-nowrap">{Lista.aF_VIDAUTIL}</td>
-                      <td className="text-nowrap">{Lista.aF_VIGENTE}</td>
-                      <td className="text-nowrap">{Lista.idprograma}</td>
-                      <td className="text-nowrap">{Lista.idmodalidadcompra}</td>
-                      <td className="text-nowrap">{Lista.idpropiedad}</td>
-                      <td className="text-nowrap">{Lista.especie}</td>
-                      {/* <td className="text-nowrap">{Lista.aF_ESTADO_INV}</td> */}
+                      <td className="text-nowrap">{Lista.esp}</td>
+                      <td className="text-nowrap">{Lista.ncuenta}</td>
+                      <td className="text-nowrap">{Lista.marca}</td>
+                      <td className="text-nowrap">{Lista.modelo}</td>
+                      <td className="text-nowrap">{Lista.serie}</td>
+                      <td className="text-nowrap">{Lista.estado}</td>
+                      <td className="text-nowrap">
+                        ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                      </td>
+                      <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
                     </tr>
                   );
                 })}
@@ -576,7 +514,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
         </div>
       </div >
       {/* Modal formulario*/}
-
       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" backdrop="static">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Enviar a Bodega de Excluidos</Modal.Title>
@@ -669,18 +606,61 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listadoGeneralBajasActions, regi
           </form>
         </Modal.Body>
       </Modal >
+
+      <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="lg">
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+          <Modal.Title className="fw-semibold">Inventario asociado a Nº de Certificado</Modal.Title>
+        </Modal.Header>
+        {/* <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
+                  Exportar a PDF
+                </Button>
+              </div> */}
+        <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <Row className="mb-4">
+
+          </Row>
+          <div className="table-responsive">
+            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+              <thead>
+                <tr>
+                  <th>Nº Inventario</th>
+                  <th>N" Certificado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaSalidaBajas.length > 0 ? (
+                  listaSalidaBajas.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.aF_CLAVE || 'N/A'}</td>
+                      <td>{item.nresolucion || 'N/A'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan='8' className="text-center">No hay registros</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Modal.Body>
+      </Modal>
+
     </Layout >
   );
 };
 
 const mapStateToProps = (state: RootState) => ({
   listadoGeneralBajas: state.datosListadoGeneralBajasReducers.listadoGeneralBajas,
+  listaSalidaBajas: state.datosBajasRegistradaReducers.listaSalidaBajas,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  objeto: state.validaApiLoginReducers
+  objeto: state.validaApiLoginReducers,
+  bajasRegistradas: state.datosBajasRegistradaReducers.bajasRegistradas
 });
 
 export default connect(mapStateToProps, {
-  listadoGeneralBajasActions,
+  listaAltasdesdeBajasActions,
   registrarBienesBajasActions
 })(ListadoGeneral);
