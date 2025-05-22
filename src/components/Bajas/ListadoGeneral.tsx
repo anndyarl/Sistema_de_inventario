@@ -142,7 +142,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     const { name, value } = e.target;
 
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+    if ((name === "af_codigo_generico" || name === "altaS_CORR") && !/^[0-9]*$/.test(value)) {
       return; // Salir si contiene caracteres no numéricos
     }
     // Convertir a número solo si el campo está en la lista
@@ -324,7 +324,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 type="text"
                 className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                 name="altaS_CORR"
-                placeholder="Ej: 0"
+                placeholder="0"
                 onChange={handleChange}
                 value={Buscar.altaS_CORR}
               />

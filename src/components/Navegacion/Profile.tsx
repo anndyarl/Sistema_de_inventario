@@ -45,7 +45,7 @@ export interface Objeto {
   Correo: string;
   Roles: Roles[];
   Establecimiento: number;
-  Usr_run: string;
+  usr_run: string;
   error: string | null;
   isAuthenticated: boolean;
 }

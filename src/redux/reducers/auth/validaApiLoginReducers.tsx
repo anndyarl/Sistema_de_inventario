@@ -22,7 +22,7 @@ interface AuthState {
   Correo: string;
   Roles: Roles[];
   Establecimiento: number;
-  Usr_run: string;
+  usr_run: string;
   error: string | null;
   isAuthenticated: boolean;
   token: string | null;
@@ -35,7 +35,7 @@ const initialState: AuthState = {
   Apellido1: "",
   Apellido2: "",
   Correo: "",
-  Usr_run: "",
+  usr_run: "",
   Establecimiento: 0,
   Roles: [],
   error: null,
@@ -68,7 +68,7 @@ function validaApiLoginReducers(state = initialState, action: any): AuthState {
             nombreEstablecimiento: rol.nombreEstablecimiento
           }))
           : [],
-        Usr_run: action.payload.usr_run
+        usr_run: action.payload.usr_run
       };
     case VALIDA_PORTAL_FAIL:
       return { ...state, isAuthenticated: false, error: action.payload, token: null, loading: false };

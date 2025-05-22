@@ -623,8 +623,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
+                    <th scope="col" className="text-nowrap text-center">Codigo Baja</th>
                     <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                    <th scope="col" className="text-nowrap text-center">Nº Baja</th>
                     <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>
                     <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
@@ -666,8 +666,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                             checked={filasSeleccionadas.includes(indexReal.toString())}
                           />
                         </td>
-                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                         <td className="text-nowrap">{Lista.bajaS_CORR}</td>
+                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                         <td className="text-nowrap">{Lista.nresolucion}</td>
                         <td className="text-nowrap">{Lista.observaciones}</td>
                         <td className="text-nowrap">{Lista.useR_MOD}</td>

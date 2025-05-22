@@ -18,6 +18,7 @@ import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAl
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
 import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
 import { registrarBienesBajasActions } from "../../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions";
+import { FileSignatureIcon } from "lucide-react";
 
 interface FechasProps {
     fDesde: string;
@@ -53,7 +54,7 @@ export interface DatosFirmas {
     url: string,
     iD_UNIDAD: number
 }
-interface Unidades {
+export interface Unidades {
     iD_UNIDAD: number,
     nombre: string
 }
@@ -70,7 +71,7 @@ interface DatosBajas {
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, listaAltasRegistradas, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, listaAltasRegistradas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [__, setIsDisabled] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -83,11 +84,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
-
+    const [Unidad, setUnidad] = useState<number>(0);
+    const [UnidadNombre, setUnidadNombre] = useState<string>("");
     const filasSeleccionadasPDF = listaAltasRegistradas.filter((_, index) =>
         filasSeleccionadas.includes(index.toString())
     );
     // const sigCanvas = useRef<SignatureCanvas>(null);
+
     // const [isSigned, setIsSigned] = useState(false);
     // const [signatureImage, setSignatureImage] = useState<string | undefined>();
     // const [fechaDescarga, setfechaDescarga] = useState<string | undefined>();
@@ -102,6 +105,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     // const handleSignatureEnd = () => {
     //     setIsSigned(sigCanvas.current ? !sigCanvas.current.isEmpty() : false);
     // };
+
     const [Inventario, setInventario] = useState({
         fDesde: "",
         fHasta: "",
@@ -111,26 +115,33 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
     const [AltaInventario, setAltaInventario] = useState({
         ajustarFirma: false,//General
-        finanzas: false,//Opcional
-        abastecimiento: false,//Opcional
-        administrativa: false,//Opcional
-        unidadAdministrativa: null,//Este es el esado de un combo
+        chkFinanzas: false,//Opcional
+        chkAbastecimiento: false,//Opcional
+        chkUnidad: false,//Opcional
+
         titularInventario: false,
         subroganteInventario: false,
         titularFinanzas: false,
         subroganteFinanzas: false,
+
+        unidad: 0, //Combo Unidad
         titularAbastecimiento: false,
         subroganteAbastecimiento: false,
-        titularDemandante: false,
-        subroganteDemandante: false,
+        titularInformatica: false,
+        subroganteInformatica: false,
+        titularCompra: false,
+        subroganteCompra: false,
+
         firmanteInventario: "",
         firmanteFinanzas: "",
         firmanteAbastecimiento: "",
+        firmanteInformatica: "",
+        firmanteCompra: "",
+
         visadoInventario: "",
         visadoFinanzas: "",
         visadoAbastecimiento: ""
     });
-
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -158,6 +169,25 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             ...prevState,
             [name]: newValue,
         }));
+
+        if (name === "unidad") {
+            const unidadSeleccionada = parseInt(value);
+            setUnidad(unidadSeleccionada);
+            switch (unidadSeleccionada) {
+                case 3:
+                    setUnidadNombre("Unidad de Abastecimiento");
+                    break;
+                case 4:
+                    setUnidadNombre("Departamento de Informática");
+                    break;
+                case 5:
+                    setUnidadNombre("Departamento de Compra");
+                    break;
+                default:
+                    break;
+            }
+        }
+
     };
 
     function detectarTipo(base64: string): string {
@@ -166,6 +196,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         if (base64.startsWith("R0lGOD")) return "gif";
         return "png"; // fallback
     }
+
     const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
 
@@ -176,20 +207,33 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         if (name === "ajustarFirma" && !checked) {
             const cleanedState = {
                 ...updatedState,
-                finanzas: false,
-                abastecimiento: false,
-                administrativa: false,
+                chkFinanzas: false,
+                chkAbastecimiento: false,
+                chkUnidad: false,
+                //JERARQUIA 1
                 titularInventario: false,
                 subroganteInventario: false,
+                //JERARQUIA 2
                 titularFinanzas: false,
                 subroganteFinanzas: false,
+                //JERARQUIA 3
                 titularAbastecimiento: false,
                 subroganteAbastecimiento: false,
-                titularDemandante: false,
-                subroganteDemandante: false,
+                //JERARQUIA 3 //Combo
+                titularInformatica: false,
+                subroganteInformatica: false,
+                titularCompra: false,
+                subroganteCompra: false,
+
+
+                //Nombres de los firmantes
                 firmanteInventario: "",
                 firmanteFinanzas: "",
                 firmanteAbastecimiento: "",
+                firmanteInformatica: "",
+                firmanteCompra: "",
+
+                //Imagenes(esta integrado para su renderizaci+on pero no se usa) se deja de todas maneras
                 visadoInventario: "",
                 visadoFinanzas: "",
                 visadoAbastecimiento: ""
@@ -197,12 +241,33 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             setIsDisabled(false);
             setIsExpanded(true);
             setAltaInventario(cleanedState);
+
             return;
+        }
+
+
+        if (name === "chkUnidad" && !checked) {
+            setUnidad(0); // limpia combo
+            setUnidadNombre(""); // limpia nombre visible
+
+            setAltaInventario((prevState) => ({
+                ...prevState,
+                unidad: 0,
+                titularAbastecimiento: false,
+                subroganteAbastecimiento: false,
+                titularInformatica: false,
+                subroganteInformatica: false,
+                titularCompra: false,
+                subroganteCompra: false,
+            }));
         }
 
         let firmanteInventario = prev.firmanteInventario || "";
         let firmanteFinanzas = prev.firmanteFinanzas || "";
         let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
+        let firmanteInformatica = prev.firmanteInformatica || "";
+        let firmanteCompra = prev.firmanteCompra || "";
+
         let visadoInventario = prev.visadoInventario || "";
         let visadoFinanzas = prev.visadoFinanzas || "";
         let visadoAbastecimiento = prev.visadoAbastecimiento || "";
@@ -212,9 +277,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
             const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
 
+            //Antes se renderizaba la imagen de la firma, este se cargaba desde la tabla en la columna firma(tabla inv_t_firmantes) se deja de todas manera si en algun momento se necesita volver a esto
             const FIRMA = `data:image/${detectarTipo};base64,${firma.firma}`;
-            console.log("FIRMA", FIRMA)
-            // const FIRMA = `${firma.firma}`;
+
             if (firma.iD_UNIDAD === 1) {
                 if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteInventario = nombreCompleto;
@@ -227,7 +292,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                     updatedState.titularInventario = false;
                 }
             }
-
             if (firma.iD_UNIDAD === 2) {
                 if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
@@ -241,22 +305,65 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 }
             }
             if (firma.iD_UNIDAD === 3) {
-                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.subroganteAbastecimiento = false;
                 }
-                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.titularAbastecimiento = false;
                 }
             }
+
+            if (AltaInventario.chkUnidad) {
+                //Unidad de Abastecimiento
+                if (Unidad === 3) {
+                    if (name === "titularAbastecimiento" && checked && firma.rut == "12365022") {
+                        firmanteAbastecimiento = nombreCompleto;
+                        updatedState.subroganteAbastecimiento = false;
+                    }
+                    if (name === "subroganteAbastecimiento" && checked && firma.rut == "10301630") {
+                        firmanteAbastecimiento = nombreCompleto;
+                        updatedState.titularAbastecimiento = false;
+                    }
+                }
+                //Departamento de Informática
+                if (Unidad === 4) {
+                    if (name === "titularInformatica" && checked && firma.rut == "14157809") {
+                        firmanteInformatica = nombreCompleto;
+                        updatedState.subroganteInformatica = false;
+                    }
+                    if (name === "subroganteInformatica" && checked && firma.rut == "8412461") {
+                        firmanteInformatica = nombreCompleto;
+                        updatedState.titularInformatica = false;
+                    }
+                }
+                //Departamento de compra
+                if (Unidad === 5) {
+                    if (name === "titularCompra" && checked && firma.rut == "18250588") {
+                        firmanteCompra = nombreCompleto;
+                        updatedState.subroganteCompra = false;
+                    }
+                    if (name === "subroganteCompra" && checked && firma.rut == "17150482") {
+                        firmanteCompra = nombreCompleto;
+                        updatedState.titularCompra = false;
+                    }
+                }
+
+            }
+
+
+
         }
 
         updatedState.firmanteInventario = firmanteInventario;
         updatedState.firmanteFinanzas = firmanteFinanzas;
         updatedState.firmanteAbastecimiento = firmanteAbastecimiento;
+        updatedState.firmanteInformatica = firmanteInformatica;
+        updatedState.firmanteCompra = firmanteCompra;
+
         updatedState.visadoInventario = visadoInventario;
         updatedState.visadoFinanzas = visadoFinanzas;
         updatedState.visadoAbastecimiento = visadoAbastecimiento;
@@ -313,6 +420,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
+            if (comboUnidades.length === 0) obtenerUnidadesActions();
             if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
             setFilasSeleccionadas(
                 elementosActuales.map((_, index) =>
@@ -325,6 +433,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     };
 
     const setSeleccionaFilas = (index: number) => {
+        if (comboUnidades.length === 0) obtenerUnidadesActions();
         if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
         setFilasSeleccionadas((prev) =>
             prev.includes(index.toString())
@@ -360,7 +469,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
     useEffect(() => {
         listaAltasAuto();
-    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode]);
+        Unidad
+    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad]);
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado
@@ -635,33 +745,54 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 </div>
             </div>
 
-            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="lg">
+            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form >
-                        <div className="d-flex justify-content-between p-2">
-                            <div className="d-flex align-items-center  rounded p-2 mb-3 shadow-sm">
-                                <p className="fw-semibold mb-0 me-3">
-                                    Ajustar firma:
-                                </p>
-                                <Form.Check
-                                    onChange={handleCheck}
-                                    name="ajustarFirma"
-                                    type="checkbox"
-                                    className="form-switch"
-                                    checked={AltaInventario.ajustarFirma}
-                                    label=""
-                                />
-                            </div>
-                        </div>
 
+                        <div className="fw-semibold p-1" >
+                            <Form.Check
+                                onChange={handleCheck}
+                                name="ajustarFirma"
+                                type="checkbox"
+                                label="Ajustar firma"
+                                className="form-switch mx-2 "
+                                checked={AltaInventario.ajustarFirma}
+                            />
+                        </div>
+                        <div className="d-flex justify-content-end">
+                            <Button onClick={handleBuscar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1"
+                                disabled={!AltaInventario.titularInventario && !AltaInventario.subroganteInventario}>
+                                {loading ? (
+                                    <>
+                                        {"Solicitar Visado"}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-1"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        {"Solicitar Visado"}
+                                        <FileSignatureIcon className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                         <Collapse in={isExpanded} dimension="height">
                             <Row className="m-1 p-3 rounded rounded-4 border">
                                 <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
-                                {/* Ajustar Firma | Unidad Inventario */}
-                                <Col md={4} >
+
+                                {/* Unidad Inventario */}
+                                <Col md={4}>
                                     <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
                                     <div className="d-flex">
                                         <Form.Check
@@ -685,24 +816,24 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                     </div>
                                 </Col>
 
-                                {/* Opcional1 | Unidad Finanzas*/}
+                                {/* Finanzas */}
                                 <Col md={4}>
                                     <p className="border-bottom fw-semibold text-center">Departamento de Finanzas</p>
                                     <div className="d-flex">
-                                        <label htmlFor="finanzas" className="me-2">Opcional</label>
+                                        <label htmlFor="chkFinanzas" className="me-2">Opcional</label>
                                         <Form.Check
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.ajustarFirma}
-                                            name="finanzas"
+                                            name="chkFinanzas"
                                             type="checkbox"
                                             className="form-switch"
-                                            checked={AltaInventario.finanzas}
+                                            checked={AltaInventario.chkFinanzas}
                                         />
                                     </div>
                                     <div className="d-flex">
                                         <Form.Check
                                             onChange={handleCheck}
-                                            disabled={!AltaInventario.finanzas}
+                                            disabled={!AltaInventario.chkFinanzas}
                                             name="titularFinanzas"
                                             type="checkbox"
                                             checked={AltaInventario.titularFinanzas}
@@ -712,7 +843,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                     <div className="d-flex">
                                         <Form.Check
                                             onChange={handleCheck}
-                                            disabled={!AltaInventario.finanzas}
+                                            disabled={!AltaInventario.chkFinanzas}
                                             name="subroganteFinanzas"
                                             type="checkbox"
                                             checked={AltaInventario.subroganteFinanzas}
@@ -721,90 +852,170 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                     </div>
                                 </Col>
 
-                                {/* Opcional2 | Unidad Abastecimiento*/}
+                                {/* Unidades específicas */}
                                 <Col md={4}>
-                                    <p className="border-bottom fw-semibold text-center">Unidad de Abastecimiento</p>
-                                    <div className="d-flex">
-                                        <label htmlFor="abastecimiento" className="me-2">Opcional</label>
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!AltaInventario.ajustarFirma}
-                                            name="abastecimiento"
-                                            type="checkbox"
-                                            className="form-switch"
-                                            checked={AltaInventario.abastecimiento}
-                                        />
-                                    </div>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!AltaInventario.abastecimiento}
-                                            name="titularAbastecimiento"
-                                            type="checkbox"
-                                            checked={AltaInventario.titularAbastecimiento}
-                                        />
-                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
-                                    </div>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!AltaInventario.abastecimiento}
-                                            name="subroganteAbastecimiento"
-                                            type="checkbox"
-                                            checked={AltaInventario.subroganteAbastecimiento}
-                                        />
-                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
-                                    </div>
-                                </Col>
+                                    {objeto.IdCredencial === 888 || objeto.IdCredencial === 62511 ? (
+                                        <>
+                                            <p className="border-bottom fw-semibold text-center">Seleccione una Unidad</p>
 
-                                {/* Opcional2 | Unidad Administrativa */}
-                                {/* <Col md={4}>
-                                            <p className="border-bottom fw-semibold text-center">Unidad Administrativa</p>
                                             <div className="d-flex">
-                                                <label htmlFor="administrativa" className="me-2">Opcional</label>
+                                                <label htmlFor="chkUnidad" className="me-2">Opcional</label>
                                                 <Form.Check
                                                     onChange={handleCheck}
                                                     disabled={!AltaInventario.ajustarFirma}
-                                                    name="administrativa"
+                                                    name="chkUnidad"
                                                     type="checkbox"
                                                     className="form-switch"
-                                                    checked={AltaInventario.administrativa}
+                                                    checked={AltaInventario.chkUnidad}
                                                 />
                                             </div>
 
-                                            <div className="mb-1">
-                                                <label className="fw-semibold">
-                                                    Seleccione una Unidad
-                                                </label>
-                                                <select
-                                                    aria-label="unidadAdministrativa"
-                                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                    name="unidadAdministrativa"
-                                                    onChange={handleChange}
-                                                    disabled={!AltaInventario.administrativa}
-                                                >
-                                                    <option value="">Seleccionar</option>
-                                                    {comboUnidades.map((traeUnidades) => (
-                                                        <option key={traeUnidades.iD_UNIDAD} value={traeUnidades.nombre}>
-                                                            {traeUnidades.nombre}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                            <select
+                                                aria-label="unidad"
+                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="unidad"
+                                                onChange={handleChange}
+                                                disabled={!AltaInventario.chkUnidad}
+                                            >
+                                                <option value="">Seleccionar</option>
+                                                {comboUnidades.map((traeUnidades) => (
+                                                    <option key={traeUnidades.iD_UNIDAD} value={traeUnidades.iD_UNIDAD}>
+                                                        {traeUnidades.nombre}
+                                                    </option>
+                                                ))}
+                                            </select>
+
+                                            {/* Firmas según unidad */}
+                                            {Unidad === 3 && (
+                                                <>
+                                                    <div className="d-flex mt-2">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="titularAbastecimiento"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.titularAbastecimiento}
+                                                        />
+                                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                    </div>
+                                                    <div className="d-flex">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="subroganteAbastecimiento"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.subroganteAbastecimiento}
+                                                        />
+                                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {Unidad === 4 && (
+                                                <>
+                                                    <div className="d-flex mt-2">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="titularInformatica"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.titularInformatica}
+                                                        />
+                                                        <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                    </div>
+                                                    <div className="d-flex">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="subroganteInformatica"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.subroganteInformatica}
+                                                        />
+                                                        <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {Unidad === 5 && (
+                                                <>
+                                                    <div className="d-flex mt-2">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="titularCompra"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.titularCompra}
+                                                        />
+                                                        <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                    </div>
+                                                    <div className="d-flex">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="subroganteCompra"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.subroganteCompra}
+                                                        />
+                                                        <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* Vista para usuarios sin privilegios especiales */}
+                                            <p className="border-bottom fw-semibold text-center">Unidad de Abastecimiento</p>
+                                            <div className="d-flex">
+                                                <label htmlFor="chkAbastecimiento" className="me-2">Opcional</label>
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.ajustarFirma}
+                                                    name="chkAbastecimiento"
+                                                    type="checkbox"
+                                                    className="form-switch"
+                                                    checked={AltaInventario.chkAbastecimiento}
+                                                />
                                             </div>
-                                        </Col> */}
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.chkAbastecimiento}
+                                                    name="titularAbastecimiento"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.titularAbastecimiento}
+                                                />
+                                                <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                            </div>
+                                            <div className="d-flex">
+                                                <Form.Check
+                                                    onChange={handleCheck}
+                                                    disabled={!AltaInventario.chkAbastecimiento}
+                                                    name="subroganteAbastecimiento"
+                                                    type="checkbox"
+                                                    checked={AltaInventario.subroganteAbastecimiento}
+                                                />
+                                                <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                            </div>
+                                        </>
+                                    )}
+                                </Col>
                             </Row>
                         </Collapse>
+
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={
                             <DocumentoPDF
                                 row={filasSeleccionadasPDF}
                                 AltaInventario={AltaInventario}
-                                firmanteInventario={AltaInventario.firmanteInventario}
-                                firmanteFinanzas={AltaInventario.firmanteFinanzas}
-                                firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
-                                visadoInventario={AltaInventario.visadoInventario}
-                                visadoFinanzas={AltaInventario.visadoFinanzas}
-                                visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
+                                objeto={objeto}
+                                UnidadNombre={UnidadNombre}
+                                Unidad={Unidad}
+                            // firmanteInventario={AltaInventario.firmanteInventario}
+                            // firmanteFinanzas={AltaInventario.firmanteFinanzas}
+                            // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
+                            // visadoInventario={AltaInventario.visadoInventario}
+                            // visadoFinanzas={AltaInventario.visadoFinanzas}
+                            // visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
                             />
                         }>
                             {({ url, loading }) =>
@@ -884,7 +1095,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                 </div> */}
                     </form>
                 </Modal.Body>
-            </Modal>
+            </Modal >
         </Layout >
     );
 };
