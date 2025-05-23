@@ -219,7 +219,7 @@ const DocumentoPDF = ({ row, AltaInventario, objeto, UnidadNombre, Unidad }: { r
                     </View>
                 )}
                 {/* id usuario Gabriela 888 */}
-                {objeto.IdCredencial == 888 ? (
+                {objeto.IdCredencial == 888 || objeto.IdCredencial === 62511 ? (
                     <>
                         {/* Firma Abastecimiento */}
                         {Unidad === 3 && (

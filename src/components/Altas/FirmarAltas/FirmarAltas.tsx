@@ -19,6 +19,7 @@ import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas
 import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
 import { registrarBienesBajasActions } from "../../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions";
 import { FileSignatureIcon } from "lucide-react";
+import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 
 interface FechasProps {
     fDesde: string;
@@ -64,6 +65,7 @@ interface DatosBajas {
     obtenerUnidadesActions: () => Promise<boolean>;
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
+    registrarDocumentoAltaActions: (activos: { jerarquia: number }[]) => Promise<boolean>;
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
@@ -71,8 +73,10 @@ interface DatosBajas {
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, listaAltasRegistradas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
+
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
+    const [loadingSolicitarVisado, setLoadingSolicitarVisado] = useState(false);
     const [__, setIsDisabled] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
     //-------------Modal-------------//
@@ -113,11 +117,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         af_codigo_generico: ""
     });
 
+
     const [AltaInventario, setAltaInventario] = useState({
         ajustarFirma: false,//General
         chkFinanzas: false,//Opcional
         chkAbastecimiento: false,//Opcional
-        chkUnidad: false,//Opcional
+        chkUnidad: false,//Opcional        
 
         titularInventario: false,
         subroganteInventario: false,
@@ -140,7 +145,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
         visadoInventario: "",
         visadoFinanzas: "",
-        visadoAbastecimiento: ""
+        visadoAbastecimiento: "",
+
+
     });
 
     const validate = () => {
@@ -164,12 +171,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             ? parseFloat(value) || 0
             : value;
 
+
         // Actualizar estado
         setInventario((prevState) => ({
             ...prevState,
             [name]: newValue,
         }));
 
+        // Si cambió la unidad, actualiza también su nombre
         if (name === "unidad") {
             const unidadSeleccionada = parseInt(value);
             setUnidad(unidadSeleccionada);
@@ -184,10 +193,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                     setUnidadNombre("Departamento de Compra");
                     break;
                 default:
+                    setUnidadNombre("");
                     break;
             }
         }
-
     };
 
     function detectarTipo(base64: string): string {
@@ -204,6 +213,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         const prev = structuredClone(AltaInventario);
         const updatedState = { ...prev, [name]: checked };
 
+        //Limpia Todo al deshabilitar check
         if (name === "ajustarFirma" && !checked) {
             const cleanedState = {
                 ...updatedState,
@@ -244,23 +254,56 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
             return;
         }
+        //Limpia Solo Finanzas al deshabilitar check
+        if (name === "chkFinanzas" && !checked) {
+            const cleanedState = {
+                ...updatedState,
+                titularFinanzas: false,
+                subroganteFinanzas: false,
+                firmanteFinanzas: "",
 
+            };
+            setIsDisabled(false);
+            setIsExpanded(true);
+            setAltaInventario(cleanedState);
+            return;
+        }
+        //Limpia Solo Abastecimiento al deshabilitar check
+        if (name === "chkAbastecimiento" && !checked) {
+            const cleanedState = {
+                ...updatedState,
+                titularAbastecimiento: false,
+                subroganteAbastecimiento: false,
+                firmanteAbastecimiento: "",
 
+            };
+            setIsDisabled(false);
+            setIsExpanded(true);
+            setAltaInventario(cleanedState);
+            return;
+        }
+        //Limpia solo combo y sus unidades al deshabilitar check
         if (name === "chkUnidad" && !checked) {
             setUnidad(0); // limpia combo
             setUnidadNombre(""); // limpia nombre visible
-
-            setAltaInventario((prevState) => ({
-                ...prevState,
-                unidad: 0,
+            const cleanedState = {
+                ...updatedState,
                 titularAbastecimiento: false,
                 subroganteAbastecimiento: false,
                 titularInformatica: false,
                 subroganteInformatica: false,
                 titularCompra: false,
                 subroganteCompra: false,
-            }));
+                firmanteAbastecimiento: "",
+                firmanteInformatica: "",
+                firmanteCompra: "",
+            };
+            setIsDisabled(false);
+            setIsExpanded(true);
+            setAltaInventario(cleanedState);
+            return;
         }
+
 
         let firmanteInventario = prev.firmanteInventario || "";
         let firmanteFinanzas = prev.firmanteFinanzas || "";
@@ -293,12 +336,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 }
             }
             if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR") {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.subroganteFinanzas = false;
                 }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE") {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.titularFinanzas = false;
@@ -319,34 +362,35 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
             if (AltaInventario.chkUnidad) {
                 //Unidad de Abastecimiento
-                if (Unidad === 3) {
-                    if (name === "titularAbastecimiento" && checked && firma.rut == "12365022") {
+                if (firma.iD_UNIDAD === 3) {
+
+                    if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
                         firmanteAbastecimiento = nombreCompleto;
                         updatedState.subroganteAbastecimiento = false;
                     }
-                    if (name === "subroganteAbastecimiento" && checked && firma.rut == "10301630") {
+                    if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
                         firmanteAbastecimiento = nombreCompleto;
                         updatedState.titularAbastecimiento = false;
                     }
                 }
                 //Departamento de Informática
-                if (Unidad === 4) {
-                    if (name === "titularInformatica" && checked && firma.rut == "14157809") {
+                if (firma.iD_UNIDAD === 4) {
+                    if (name === "titularInformatica" && checked && firma.rol === "TITULAR") {
                         firmanteInformatica = nombreCompleto;
                         updatedState.subroganteInformatica = false;
                     }
-                    if (name === "subroganteInformatica" && checked && firma.rut == "8412461") {
+                    if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE") {
                         firmanteInformatica = nombreCompleto;
                         updatedState.titularInformatica = false;
                     }
                 }
                 //Departamento de compra
-                if (Unidad === 5) {
-                    if (name === "titularCompra" && checked && firma.rut == "18250588") {
+                if (firma.iD_UNIDAD === 5) {
+                    if (name === "titularCompra" && checked && firma.rol === "TITULAR") {
                         firmanteCompra = nombreCompleto;
                         updatedState.subroganteCompra = false;
                     }
-                    if (name === "subroganteCompra" && checked && firma.rut == "17150482") {
+                    if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE") {
                         firmanteCompra = nombreCompleto;
                         updatedState.titularCompra = false;
                     }
@@ -406,6 +450,64 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             setLoading(false); //Finaliza estado de carga
         }
 
+    };
+
+    const handleSolicitarVisado = async () => {
+        setLoadingSolicitarVisado(true);
+
+        const asignarJerarquia = (estado: typeof AltaInventario): number => {
+            const { ajustarFirma, chkFinanzas, chkAbastecimiento, chkUnidad } = estado;
+            if (ajustarFirma && chkFinanzas && (chkAbastecimiento || chkUnidad)) return 4;
+            if (ajustarFirma && (chkAbastecimiento || chkUnidad)) return 3;
+            if (ajustarFirma && chkFinanzas) return 2;
+            if (ajustarFirma) return 1;
+            return 0;
+        };
+
+        const selectedIndices = filasSeleccionadas.map(Number);
+        const activosSeleccionados = selectedIndices.map((index) => {
+            return {
+                altaS_CORR: listaAltasRegistradas[index].altaS_CORR,
+                jerarquia: asignarJerarquia(AltaInventario),
+            };
+        });
+
+        const result = await Swal.fire({
+            icon: "info",
+            title: "Solicitar Visado",
+            text: `Confirme para enviar su solicitud`,
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Confirmar y Registrar",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+            }
+        });
+
+        if (result.isConfirmed) {
+            setLoadingSolicitarVisado(true);
+            console.log(activosSeleccionados);
+            const resultado = await registrarDocumentoAltaActions(activosSeleccionados);
+            if (resultado) {
+
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: ":'(",
+                    text: `Hubo un problema al enviar las firmas.`,
+                    background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+                    customClass: {
+                        popup: "custom-border"
+                    }
+                });
+                setLoadingSolicitarVisado(false);
+            }
+        }
     };
 
     const handleLimpiar = () => {
@@ -512,7 +614,38 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     //     link.click();
     // };
 
+    //Logica para habilitar Boton "Solicitar Visado" si los opcionales son habilitados se requerira algun titular o subrogante
+    const tieneFirmaInventario =
+        AltaInventario.titularInventario || AltaInventario.subroganteInventario;
 
+    const requiereFirmaFinanzas = AltaInventario.chkFinanzas
+        ? AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas
+        : true;
+
+    const requiereFirmaAbastecimiento = AltaInventario.chkAbastecimiento
+        ? AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento
+        : true;
+
+    const requiereFirmaUnidad = (() => {
+        if (!AltaInventario.chkUnidad) return true;
+
+        switch (Unidad) {
+            case 3:
+                return AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento;
+            case 4:
+                return AltaInventario.titularInformatica || AltaInventario.subroganteInformatica;
+            case 5:
+                return AltaInventario.titularCompra || AltaInventario.subroganteCompra;
+            default:
+                return false;
+        }
+    })();
+
+    const botonHabilitado =
+        tieneFirmaInventario &&
+        requiereFirmaFinanzas &&
+        requiereFirmaAbastecimiento &&
+        requiereFirmaUnidad;
     return (
         <Layout>
             <Helmet>
@@ -763,10 +896,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                             />
                         </div>
                         <div className="d-flex justify-content-end">
-                            <Button onClick={handleBuscar}
+                            <Button onClick={handleSolicitarVisado}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1"
-                                disabled={!AltaInventario.titularInventario && !AltaInventario.subroganteInventario}>
+                                disabled={!botonHabilitado}
+                            >
                                 {loading ? (
                                     <>
                                         {"Solicitar Visado"}
@@ -1114,5 +1248,6 @@ export default connect(mapStateToProps, {
     listaAltasRegistradasActions,
     registrarBienesBajasActions,
     obtenerfirmasAltasActions,
-    obtenerUnidadesActions
+    obtenerUnidadesActions,
+    registrarDocumentoAltaActions
 })(FirmarAltas);

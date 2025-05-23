@@ -43,6 +43,9 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
+import { ListaEspecie } from "./DatosCuenta";
+import { styleText } from "util";
+import { IndicadoresProps } from "../../Navegacion/Profile";
 // Props del formulario
 export interface ActivoFijo {
   id: string;
@@ -57,6 +60,7 @@ export interface ActivoFijo {
   especie: string;
   cuenta: string;
   color?: string;
+  chkMantener?: boolean;
 }
 
 export interface Form {
@@ -82,6 +86,8 @@ interface DatosActivoFijoProps {
   modelo: string;
   observaciones: string;
   precio: string;
+  comboEspecies: ListaEspecie[];
+  utm: IndicadoresProps;
   // AF_CODIGO_GENERICO: number;//trae ultimo correlativo ingresado
 }
 
@@ -102,18 +108,20 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   modelo,
   observaciones,
   precio,
+  comboEspecies,
+  utm,
   // AF_CODIGO_GENERICO,
   registrarFormInventarioActions
 }) => {
 
   //Estado que guarda en un array los objetos que irán en la tabla
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
-
+  const fechaHoy = new Date().toISOString().split("T")[0];//Se asigana fechade manera automatica a fechaIngreso
   //Estado que guarda los objetos del formulario(dentro del Modal)
-  const [activoActual, setActivoActual] = useState<ActivoFijo>({
+  const [activoFormulario, setActivoFormulario] = useState<ActivoFijo>({
     id: "",
     vidaUtil: "",
-    fechaIngreso: "",
+    fechaIngreso: fechaHoy,
     marca: "",
     cantidad: "",
     modelo: "",
@@ -138,8 +146,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const [paginaActual, setPaginaActual] = useState(1);
   const [elementosPorPagina] = useState(10);
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
-  const vPrecio = parseFloat(activoActual.precio) || 0;
-  const vCantidad = parseInt(activoActual.cantidad, 10) || 0;
+  const vPrecio = parseFloat(activoFormulario.precio) || 0;
+  const vCantidad = parseInt(activoFormulario.cantidad, 10) || 0;
 
   // Combina el estado local de react con el estado local de redux
   const datos = useMemo(() => {
@@ -162,22 +170,22 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   // Calcular cantidad por precio
   const newTotal = vCantidad * vPrecio;
   const pendiente = montoRecepcion - totalSum;
+  const Utmxtres = utm.valor * 3;
 
-  //---------------------------------------------------------//
+  //Formatear la fecha actual en español (Chile)
 
   //Validaciones del formulario
   const validate = () => {
     let tempErrors: Partial<ActivoFijo> & { general?: string } = {};
-    if (!activoActual.vidaUtil) tempErrors.vidaUtil = "Campo obligatorio";
-    else if (!/^\d+$/.test(activoActual.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
-    if (!activoActual.fechaIngreso) tempErrors.fechaIngreso = "Campo obligatorio";
-    if (!activoActual.marca) tempErrors.marca = "Campo obligatorio";
-    if (!activoActual.modelo) tempErrors.modelo = "Campo obligatorio";
-    if (!activoActual.cantidad) tempErrors.cantidad = "Campo obligatorio";
-    else if (isNaN(parseInt(activoActual.cantidad))) tempErrors.cantidad = "Cantidad debe ser un número";
-    if (!activoActual.precio) tempErrors.precio = "Campo obligatorio";
-    else if (!/^\d+$/.test(activoActual.precio)) tempErrors.precio = "Precio debe ser un número entero";
-    if (!activoActual.observaciones) tempErrors.observaciones = "Campo obligatorio";
+    if (!activoFormulario.vidaUtil) tempErrors.vidaUtil = "Campo obligatorio";
+    else if (!/^\d+$/.test(activoFormulario.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
+    if (!activoFormulario.marca) tempErrors.marca = "Campo obligatorio";
+    if (!activoFormulario.modelo) tempErrors.modelo = "Campo obligatorio";
+    if (!activoFormulario.cantidad) tempErrors.cantidad = "Campo obligatorio";
+    else if (isNaN(parseInt(activoFormulario.cantidad))) tempErrors.cantidad = "Cantidad debe ser un número";
+    if (!activoFormulario.precio) tempErrors.precio = "Campo obligatorio";
+    else if (!/^\d+$/.test(activoFormulario.precio)) tempErrors.precio = "Precio debe ser un número entero";
+    if (!activoFormulario.observaciones) tempErrors.observaciones = "Campo obligatorio";
     if (newTotal == 0) {
       tempErrors.general = `Debe ingresar un valor mayor a cero`;
     }
@@ -195,7 +203,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   //handleChange maneja actualizaciones en tiempo real campo por campo
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setActivoActual((prevData) => ({ ...prevData, [name]: value }));
+    setActivoFormulario((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleCambiaSerie = (indexVisible: number, newSerie: string) => {
@@ -208,7 +216,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
       // Validar si hay series vacías
       const serieVacia = actualizaActivos.some((activo) => !activo.serie.trim());
-      setActivoActual((prevData) => ({
+      setActivoFormulario((prevData) => ({
         ...prevData,
         activo: serieVacia,
       }));
@@ -290,10 +298,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
   //Renderiza los datos almacenados en el estado global de redux
   useEffect(() => {
-    setActivoActual({
+    setActivoFormulario({
       id: "",
       vidaUtil,
-      fechaIngreso,
+      fechaIngreso: fechaHoy,
       marca,
       cantidad,
       modelo,
@@ -343,7 +351,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     e.preventDefault();
 
     if (validate()) {
-      const cantidad = parseInt(activoActual.cantidad, 10);
+      const cantidad = parseInt(activoFormulario.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || "";
       const ultimaCuenta = nCuenta;
       console.log("nCuenta", nCuenta);
@@ -363,7 +371,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       const colorUltimaEspecie = activosFijos.find((activo) => activo.especie === ultimaEspecie)?.color || getRandomPastelColor();
 
       const newActivos = Array.from({ length: cantidad }, (_,) => ({
-        ...activoActual,
+        ...activoFormulario,
         id: `${Math.floor(performance.now())}${Math.floor(Math.random() * 1000)}`,
         especie: ultimaEspecie,
         cuenta: ultimaCuenta.toString(),
@@ -373,19 +381,40 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
       // Despacha el array de nuevos activos a Redux
       dispatch(setDatosTablaActivoFijo(newActivos));
-      dispatch(setVidaUtilActions(activoActual.vidaUtil));
-      dispatch(setFechaIngresoActions(activoActual.fechaIngreso));
-      dispatch(setMarcaActions(activoActual.marca));
-      dispatch(setModeloActions(activoActual.modelo));
-      dispatch(setPrecioActions(activoActual.precio));
-      dispatch(setCantidadActions(activoActual.cantidad));
-      dispatch(setObservacionesActions(activoActual.observaciones));
+      dispatch(setVidaUtilActions(activoFormulario.vidaUtil));
+      dispatch(setFechaIngresoActions(activoFormulario.fechaIngreso));
+      dispatch(setMarcaActions(activoFormulario.marca));
+      dispatch(setModeloActions(activoFormulario.modelo));
+      dispatch(setPrecioActions(activoFormulario.precio));
+      dispatch(setCantidadActions(activoFormulario.cantidad));
+      dispatch(setObservacionesActions(activoFormulario.observaciones));
       setMostrarModal(false); //Cierra modal
     }
   };
 
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const { name, checked } = e.target;
+
+    if (name === "chkMantener") {
+      setActivosFijos((prevData) =>
+        prevData.map((activo, i) => {
+          if (i === index) {
+            return {
+              ...activo,
+              cuenta: checked ? activo.cuenta : "1111",
+              chkMantener: checked
+            };
+          }
+          console.log(activo);
+          return activo;
+        })
+      );
+    }
+  };
+
+
   const handleLimpiar = () => {
-    setActivoActual((prevData) => ({
+    setActivoFormulario((prevData) => ({
       ...prevData,
       vidaUtil: "",
       fechaIngreso: "",
@@ -573,87 +602,87 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
     console.log(FormulariosCombinados);
 
-    if (handleValidar()) {
-      const confirmResult = await Swal.fire({
-        icon: "info",
-        title: "Confirmar registro",
-        text: "¿Desea registrar el inventario de activos con la información proporcionada?",
-        showCancelButton: true,
-        confirmButtonText: "Confirmar y registrar",
-        cancelButtonText: "Cancelar",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-        customClass: { popup: "custom-border" }
-      });
+    // if (handleValidar()) {
+    //   const confirmResult = await Swal.fire({
+    //     icon: "info",
+    //     title: "Confirmar registro",
+    //     text: "¿Desea registrar el inventario de activos con la información proporcionada?",
+    //     showCancelButton: true,
+    //     confirmButtonText: "Confirmar y registrar",
+    //     cancelButtonText: "Cancelar",
+    //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //     customClass: { popup: "custom-border" }
+    //   });
 
-      if (confirmResult.isConfirmed) {
-        try {
-          const resultado = await registrarFormInventarioActions(FormulariosCombinados);
+    // if (confirmResult.isConfirmed) {
+    //   try {
+    //     const resultado = await registrarFormInventarioActions(FormulariosCombinados);
 
-          if (resultado) {
-            // Espera a obtener el nuevo código antes de continuar
-            // funcionObtieneMaxRegistro();
-            dispatch(setNRecepcionActions(0));
-            dispatch(setFechaRecepcionActions(""));
-            dispatch(setNOrdenCompraActions(""));
-            dispatch(setNFacturaActions(""));
-            dispatch(setOrigenPresupuestoActions(0));
-            dispatch(setMontoRecepcionActions(0));
-            dispatch(setFechaFacturaActions(""));
-            dispatch(setRutProveedorActions(""));
-            dispatch(setModalidadCompraActions(0));
-            dispatch(setServicioActions(0));
-            dispatch(setDependenciaActions(0));
-            dispatch(setCuentaActions(0));
-            dispatch(setBienActions(0));
-            dispatch(setDetalleActions(0));
-            dispatch(setEspecieActions(""));
-            dispatch(setNombreEspecieActions(""));
-            dispatch(setDescripcionEspecieActions(""));
-            dispatch(vaciarDatosTabla());
-            dispatch(showInputActions(false));
-            dispatch(setOtraModalidadActions(""));
-            dispatch(setInventarioRegistrado(1));//Estado mostrar resumen en paso 1
-            onReset(); // Vuelve al paso 1
-            //  Muestra el código obtenido después de esperarlo
-            // Swal.fire({
-            //   icon: "success",
-            //   title: "Registro exitoso",
-            //   text: `Se ha registrado con éxito su formulario`,
-            //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            //   customClass: { popup: "custom-border" }
-            // });
+    //     if (resultado) {
+    //       // Espera a obtener el nuevo código antes de continuar
+    //       // funcionObtieneMaxRegistro();
+    //       dispatch(setNRecepcionActions(0));
+    //       dispatch(setFechaRecepcionActions(""));
+    //       dispatch(setNOrdenCompraActions(""));
+    //       dispatch(setNFacturaActions(""));
+    //       dispatch(setOrigenPresupuestoActions(0));
+    //       dispatch(setMontoRecepcionActions(0));
+    //       dispatch(setFechaFacturaActions(""));
+    //       dispatch(setRutProveedorActions(""));
+    //       dispatch(setModalidadCompraActions(0));
+    //       dispatch(setServicioActions(0));
+    //       dispatch(setDependenciaActions(0));
+    //       dispatch(setCuentaActions(0));
+    //       dispatch(setBienActions(0));
+    //       dispatch(setDetalleActions(0));
+    //       dispatch(setEspecieActions(""));
+    //       dispatch(setNombreEspecieActions(""));
+    //       dispatch(setDescripcionEspecieActions(""));
+    //       dispatch(vaciarDatosTabla());
+    //       dispatch(showInputActions(false));
+    //       dispatch(setOtraModalidadActions(""));
+    //       dispatch(setInventarioRegistrado(1));//Estado mostrar resumen en paso 1
+    //       onReset(); // Vuelve al paso 1
+    //       //  Muestra el código obtenido después de esperarlo
+    //       // Swal.fire({
+    //       //   icon: "success",
+    //       //   title: "Registro exitoso",
+    //       //   text: `Se ha registrado con éxito su formulario`,
+    //       //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //       //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //       //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //       //   customClass: { popup: "custom-border" }
+    //       // });
 
-          } else {
-            dispatch(setInventarioRegistrado(0));
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Ocurrió un error al registrar el formulario. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
-              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-              color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-              customClass: { popup: "custom-border" }
-            });
-          }
-        } catch (error) {
-          console.error("Error al registrar el formulario:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error inesperado",
-            text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: { popup: "custom-border" }
-          });
-        }
-      }
+    //     } else {
+    //       dispatch(setInventarioRegistrado(0));
+    //       Swal.fire({
+    //         icon: "error",
+    //         title: "Error",
+    //         text: "Ocurrió un error al registrar el formulario. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
+    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //         customClass: { popup: "custom-border" }
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.error("Error al registrar el formulario:", error);
+    //     Swal.fire({
+    //       icon: "error",
+    //       title: "Error inesperado",
+    //       text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
+    //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //       customClass: { popup: "custom-border" }
+    //     });
+    //   }
+    // }
 
-    }
+    // }
   };
 
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
@@ -667,13 +696,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         <div className="d-flex justify-content-between align-items-center mb-4">
           {/* Contenedor para Monto Recepción y Monto Pendiente */}
           <div className="d-flex">
-            <div className="mx-1 bg-primary text-white p-1 rounded">
+            <div className="mx-1 bg-primary text-white p-2 rounded">
               <p className="text-center">Monto Recepción</p>
               <p className="fw-semibold text-center">
                 $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
               </p>
             </div>
-            <div className=" mx-1 bg-secondary text-white p-1 rounded">
+            <div className=" mx-1 bg-secondary text-white p-2 rounded">
               <p className="text-center">Monto Pendiente</p>
               <p className="fw-semibold text-center">
                 $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
@@ -737,6 +766,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   <th >
                     <Form.Check
                       type="checkbox"
+                      className="text-center"
                       onChange={handleSeleccionaTodos}
                       checked={
                         filasSeleccionadas.length ===
@@ -747,13 +777,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </th>
                   <th className="text-center">Especie</th>
                   <th className="text-center">Vida Útil</th>
-                  <th className="text-center">Cuenta</th>
                   <th className="text-center">Fecha Ingreso</th>
                   <th className="text-center">Marca</th>
                   <th className="text-center">Modelo</th>
                   <th className="text-center">Serie</th>
                   <th className="text-center">Precio</th>
-                  <th className="text-center">Mantener Cuenta</th>
+                  <th className="text-center">Cuenta</th>
+                  <th className="text-center" >Mantener Cuenta</th>
                   <th>Acción</th>
                 </tr>
               </thead>
@@ -769,9 +799,11 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                           checked={filasSeleccionadas.includes(indexReal.toString())}
                         />
                       </td>
-                      <td className="fw-bold text-center" style={{ backgroundColor: activo.color || "transparent" }}> {activo.especie}</td>
+                      <td className="fw-bold text-center" style={{ backgroundColor: activo.color || "transparent" }}>
+                        {comboEspecies.find((esp) => esp.esP_CODIGO === activo.especie)?.nombrE_ESP || activo.especie}
+                      </td>
                       <td className="text-center">{activo.vidaUtil}</td>
-                      <td className="fw-bold text-center">{activo.cuenta}</td>
+
                       <td className="text-center"> {activo.fechaIngreso
                         ? activo.fechaIngreso.split('-').reverse().join('/')
                         : 'N/A'
@@ -810,13 +842,25 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       </td>
 
                       <td className="text-center">${parseFloat(activo.precio).toLocaleString("es-ES", { minimumFractionDigits: 0, })}</td>
-                      <td className="text-center">
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => setSeleccionaFilas(indexReal)}
-                          checked={filasSeleccionadas.includes(indexReal.toString())}
-                        />
-                      </td>
+                      <td className="fw-bold text-center">{activo.cuenta}</td>
+                      {Utmxtres > parseInt(activo.precio) ? (
+                        <td
+                          className="text-center "
+                          style={{ width: "100px", minWidth: "150px", maxWidth: "40px" }}
+                        >
+
+                          <Form.Check
+                            onChange={(e) => handleCheck(e, indexReal)}
+                            name="chkMantener"
+                            type="checkbox"
+                            className="form-switch"
+                          />
+                        </td>
+                      ) : (
+                        <>
+                          <td className="text-center">--</td>
+                        </>
+                      )}
                       <td>
                         {/* </Button> */}
                         <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
@@ -844,6 +888,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               </tfoot>
             </table>
           </div>
+
+
         )}
 
         {/* Paginador*/}
@@ -894,14 +940,14 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               <Row>
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   {/* Contenedor para Monto Recepción y Monto Pendiente */}
-                  <div className="d-flex">
-                    <div className="mx-1 bg-primary text-white p-1 rounded">
+                  <div className="d-flex p-1">
+                    <div className="mx-1 bg-primary text-white p-2 rounded">
                       <p className="text-center">Monto Recepción</p>
                       <p className="fw-semibold text-center">
                         $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                       </p>
                     </div>
-                    <div className=" mx-1 bg-secondary text-white p-1 rounded">
+                    <div className=" mx-1 bg-secondary text-white p-2 rounded">
                       <p className="text-center">Monto Pendiente</p>
                       <p className="fw-semibold text-center">
                         $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
@@ -931,7 +977,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                         Limpiar
                         {
                           (() => {
-                            const { ...restoTraslados } = activoActual;
+                            const { ...restoTraslados } = activoFormulario;
                             const tieneDatos = Object.values(restoTraslados).some(
                               (valor) => valor !== ""
                             );
@@ -966,7 +1012,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       name="vidaUtil"
                       maxLength={10}
                       onChange={handleChange}
-                      value={activoActual.vidaUtil}
+                      value={activoFormulario.vidaUtil}
                     />
                     {error.vidaUtil && (
                       <div className="invalid-feedback fw-semibold">{error.vidaUtil}</div>
@@ -980,16 +1026,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                     <input
                       type="date"
                       className={`form-control ${error.fechaIngreso ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      id="fechaIngreso"
                       name="fechaIngreso"
+                      id="fechaIngreso"
                       onChange={handleChange}
-                      value={activoActual.fechaIngreso}
+                      disabled
+                      value={activoFormulario.fechaIngreso}
                     />
-                    {error.fechaIngreso && (
-                      <div className="invalid-feedback fw-semibold">{error.fechaIngreso}</div>
-                    )}
                   </div>
-
                   <div className="mb-1">
                     <label htmlFor="marca" className="fw-semibold">
                       Marca
@@ -1001,7 +1044,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       name="marca"
                       maxLength={20}
                       onChange={handleChange}
-                      value={activoActual.marca}
+                      value={activoFormulario.marca}
                     />
                     {error.marca && (
                       <div className="invalid-feedback fw-semibold">{error.marca}</div>
@@ -1019,7 +1062,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       name="modelo"
                       maxLength={20}
                       onChange={handleChange}
-                      value={activoActual.modelo}
+                      value={activoFormulario.modelo}
                     />
                     {error.modelo && (
                       <div className="invalid-feedback fw-semibold">{error.modelo}</div>
@@ -1038,7 +1081,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       name="precio"
                       maxLength={12}
                       onChange={handleChange}
-                      value={activoActual.precio}
+                      value={activoFormulario.precio}
                     />
                     {error.precio && (
                       <div className="invalid-feedback fw-semibold">{error.precio}</div>
@@ -1056,7 +1099,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       name="cantidad"
                       maxLength={6}
                       onChange={handleChange}
-                      value={activoActual.cantidad}
+                      value={activoFormulario.cantidad}
                     />
                     {error.cantidad && (
                       <div className="invalid-feedback fw-semibold">{error.cantidad}</div>
@@ -1074,7 +1117,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       // maxLength={500}
                       style={{ minHeight: "8px", resize: "none" }}
                       onChange={handleChange}
-                      value={activoActual.observaciones}
+                      value={activoFormulario.observaciones}
                     />
                     {error.observaciones && (
                       <div className="invalid-feedback fw-semibold">
@@ -1105,7 +1148,10 @@ const mapStateToProps = (state: RootState) => ({
   modelo: state.datosActivoFijoReducers.modelo,
   observaciones: state.datosActivoFijoReducers.observaciones,
   precio: state.datosActivoFijoReducers.precio,
-  nCuenta: state.datosActivoFijoReducers.nCuenta
+  nCuenta: state.datosActivoFijoReducers.nCuenta,
+  comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
+  utm: state.indicadoresReducers.utm,
+
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,

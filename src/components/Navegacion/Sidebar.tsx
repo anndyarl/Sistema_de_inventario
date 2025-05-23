@@ -24,6 +24,7 @@ const Sidebar: React.FC = () => {
     { name: 'Inventario', href: '/Inventario', icon: Box },
     { name: 'Altas', href: '/Altas', icon: PlusCircle },
     { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
+    { name: 'Traspasos', href: '/Traspasos', icon: ArrowsMove },
     { name: 'Bajas', href: '/Bajas', icon: DashCircle },
     { name: 'Informes', href: '/Informes', icon: FileText },
     // { name: 'Mantenedores', href: '/Mantenedores', icon: Database },
