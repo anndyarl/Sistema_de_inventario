@@ -796,8 +796,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     Agregar
                                     <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                 </Button>
-
-
                             </div>
                         </Col>
                     </Row>
