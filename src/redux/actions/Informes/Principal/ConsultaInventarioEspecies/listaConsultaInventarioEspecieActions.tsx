@@ -33,7 +33,10 @@ export const listaConsultaInventarioEspecieActions = (nInventario: string) => as
           return true;
         }
         else {
-          dispatch({ type: LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL });
+          dispatch({
+            type: LISTA_CONSULTA_INVENTARIO_ESPECIES_FAIL,
+            payload: []
+          });
           return false;
         }
 

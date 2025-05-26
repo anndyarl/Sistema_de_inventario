@@ -28,6 +28,7 @@ import {
   setNombreEspecieActions,
   setDescripcionEspecieActions,
   setInventarioRegistrado,
+  setActualizaMantenerCuenta,
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { registrarFormInventarioActions } from "../../../redux/actions/Inventario/RegistrarInventario/registrarFormInventarioActions";
 import {
@@ -46,6 +47,7 @@ import { FormInventario } from "./FormInventario";
 import { ListaEspecie } from "./DatosCuenta";
 import { styleText } from "util";
 import { IndicadoresProps } from "../../Navegacion/Profile";
+import Inventario from "../../../containers/pages/Inventario";
 // Props del formulario
 export interface ActivoFijo {
   id: string;
@@ -59,8 +61,10 @@ export interface ActivoFijo {
   precio: string;
   especie: string;
   cuenta: string;
+  cuentaOriginal: string;
   color?: string;
   chkMantener?: boolean;
+  chkMantenerForm?: boolean;
 }
 
 export interface Form {
@@ -113,10 +117,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   // AF_CODIGO_GENERICO,
   registrarFormInventarioActions
 }) => {
+  const fechaHoy = new Date().toISOString().split("T")[0];//Se asigana fechade manera automatica a fechaIngreso
 
   //Estado que guarda en un array los objetos que irán en la tabla
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
-  const fechaHoy = new Date().toISOString().split("T")[0];//Se asigana fechade manera automatica a fechaIngreso
   //Estado que guarda los objetos del formulario(dentro del Modal)
   const [activoFormulario, setActivoFormulario] = useState<ActivoFijo>({
     id: "",
@@ -129,7 +133,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     serie: "",
     precio: "",
     especie: "",
-    cuenta: ""
+    cuenta: "",
+    cuentaOriginal: "",
+    chkMantenerForm: true
   });
 
   const dispatch = useDispatch();
@@ -144,17 +150,21 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const [_, setEditingSerie] = useState<string | null>(null);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const [elementosPorPagina] = useState(10);
+
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
   const vPrecio = parseFloat(activoFormulario.precio) || 0;
   const vCantidad = parseInt(activoFormulario.cantidad, 10) || 0;
-
+  const [Paginacion, setPaginacion] = useState({
+    nPaginacion: 10
+  });
+  const elementosPorPagina = Paginacion.nPaginacion;
   // Combina el estado local de react con el estado local de redux
-  const datos = useMemo(() => {
-    return datosTablaActivoFijo.length > 0
-      ? datosTablaActivoFijo
-      : activosFijos;
-  }, [datosTablaActivoFijo, activosFijos]);
+  const datos = activosFijos;
+  // const datos = useMemo(() => {
+  //   return datosTablaActivoFijo.length > 0
+  //     ? datosTablaActivoFijo
+  //     : activosFijos;
+  // }, [datosTablaActivoFijo, activosFijos]);
 
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -169,7 +179,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
   // Calcular cantidad por precio
   const newTotal = vCantidad * vPrecio;
+  // Calcular pendiente
   const pendiente = montoRecepcion - totalSum;
+  //Multiplica valor utm
   const Utmxtres = utm.valor * 3;
 
   //Formatear la fecha actual en español (Chile)
@@ -201,9 +213,22 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   };
 
   //handleChange maneja actualizaciones en tiempo real campo por campo
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setActivoFormulario((prevData) => ({ ...prevData, [name]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, type, value } = e.target;
+
+    const newValue = type === "checkbox" && "checked" in e.target
+      ? (e.target as HTMLInputElement).checked
+      : value;
+
+    setActivoFormulario((prevData) => ({
+      ...prevData,
+      [name]: newValue
+    }));
+
+    setPaginacion((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
   };
 
   const handleCambiaSerie = (indexVisible: number, newSerie: string) => {
@@ -309,7 +334,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       serie: "",
       precio,
       especie: "",
-      cuenta: ""
+      cuenta: "",
+      cuentaOriginal: "",
+      chkMantenerForm: true
     });
   }, [
     vidaUtil,
@@ -335,17 +362,41 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   };
 
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setFilasSeleccionadas(
-        elementosActuales.map((_, index) =>
-          (indicePrimerElemento + index).toString()
-        )
+    const isChecked = e.target.checked;
+
+    if (isChecked) {
+      // 1) Calcula los índices reales de la página actual
+      const seleccionados = elementosActuales.map((_, idx) =>
+        (indicePrimerElemento + idx).toString()
+      );
+
+      // 2) Actualiza la selección
+      setFilasSeleccionadas(seleccionados);
+
+      // 3) Restaura chkMantener y cuentaOriginal para esas filas
+      setActivosFijos((prevActivos) =>
+        prevActivos.map((activo, i) => {
+          if (seleccionados.includes(i.toString())) {
+            const original = activo.cuentaOriginal ?? activo.cuenta;
+            // Despacha también a Redux
+            dispatch(setActualizaMantenerCuenta(i, true, original));
+            return {
+              ...activo,
+              chkMantener: true,
+              cuenta: original
+            };
+          }
+          return activo;
+        })
       );
     } else {
-
+      // Solo deselecciona sin tocar el estado de cuenta
       setFilasSeleccionadas([]);
     }
   };
+
+
+
 
   const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -353,10 +404,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     if (validate()) {
       const cantidad = parseInt(activoFormulario.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || "";
-      const ultimaCuenta = nCuenta;
-      console.log("nCuenta", nCuenta);
-      console.log("ultimaEspecie", ultimaEspecie);
-      console.log("ultimaCuenta", ultimaCuenta);
+      // console.log("ultimaEspecie", ultimaEspecie);
       // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
       const getRandomPastelColor = () => {
         const randomChannel = () => Math.floor(Math.random() * 128 + 127); // Valores entre 127 y 255 para generar tonos claros
@@ -374,8 +422,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         ...activoFormulario,
         id: `${Math.floor(performance.now())}${Math.floor(Math.random() * 1000)}`,
         especie: ultimaEspecie,
-        cuenta: ultimaCuenta.toString(),
+        cuenta: Utmxtres > parseInt(activoFormulario.precio) ? "5320413" : nCuenta.toString(),
+        cuentaOriginal: nCuenta.toString(),
         color: colorUltimaEspecie, // Asigna el color correspondiente a la ultima especie
+        chkMantener: Utmxtres > parseInt(activoFormulario.precio) ? false : true
       }));
       setActivosFijos((prev) => [...prev, ...newActivos]);
 
@@ -396,19 +446,23 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     const { name, checked } = e.target;
 
     if (name === "chkMantener") {
-      setActivosFijos((prevData) =>
-        prevData.map((activo, i) => {
-          if (i === index) {
-            return {
-              ...activo,
-              cuenta: checked ? activo.cuenta : "1111",
-              chkMantener: checked
-            };
+      const nuevosDatos = activosFijos.map((activo, i) =>
+        i === index
+          ? {
+            ...activo,
+            cuenta: checked ? activo.cuentaOriginal : "5320413",
+            chkMantener: checked,
           }
-          console.log(activo);
-          return activo;
-        })
+          : activo
       );
+
+      setActivosFijos(nuevosDatos);
+
+      // Usa tu acción personalizada
+      const nuevaCuenta = checked ? activosFijos[index].cuentaOriginal : "5320413";
+
+      //este se encargarà de despacharlo 
+      dispatch(setActualizaMantenerCuenta(index, checked, nuevaCuenta));
     }
   };
 
@@ -449,6 +503,36 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
     // Despachar acción para actualizar el estado global
     dispatch(eliminarActivoDeTabla(index));
+  };
+
+  const handleMantenerCuentaSeleccionados = () => {
+    // 1) Convierte los índices seleccionados a números
+    const selectedIndices = filasSeleccionadas.map(Number);
+
+    // 2) Recorre todo el array y aplica la lógica en los seleccionados
+    const nuevosDatos = activosFijos.map((activo, index) => {
+      if (selectedIndices.includes(index)) {
+        // Si está seleccionado, invierte el estado de chkMantener
+        const nuevoChk = !activo.chkMantener;
+        const nuevaCuenta = nuevoChk
+          ? activo.cuentaOriginal   // restaura la original si ahora la mantiene
+          : "5320413";              // sino asigna la pequeña
+
+        // Despacha también a Redux
+        dispatch(setActualizaMantenerCuenta(index, nuevoChk, nuevaCuenta));
+
+        // Retorna el objeto actualizado
+        return {
+          ...activo,
+          chkMantener: nuevoChk,
+          cuenta: nuevaCuenta
+        };
+      }
+      return activo; // no seleccionado → sin cambio
+    });
+
+    // 3) Actualiza tu estado local de la tabla
+    setActivosFijos(nuevosDatos);
   };
 
   const handleEliminarSeleccionados = () => {
@@ -594,98 +678,103 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   };
 
   const handleFinalSubmit = async () => {
+    const activosFinales = activosFijos.map(({ cuentaOriginal, ...resto }) => resto);
     const FormulariosCombinados = {
       ...formInventario.datosInventario,
       ...formInventario.datosCuenta,
-      activosFijos: datosTablaActivoFijo,
+      activosFijos: activosFinales,
     };
 
     console.log(FormulariosCombinados);
 
-    // if (handleValidar()) {
-    //   const confirmResult = await Swal.fire({
-    //     icon: "info",
-    //     title: "Confirmar registro",
-    //     text: "¿Desea registrar el inventario de activos con la información proporcionada?",
-    //     showCancelButton: true,
-    //     confirmButtonText: "Confirmar y registrar",
-    //     cancelButtonText: "Cancelar",
-    //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-    //     customClass: { popup: "custom-border" }
-    //   });
+    if (handleValidar()) {
+      const confirmResult = await Swal.fire({
+        icon: "info",
+        title: "Confirmar registro",
+        text: "¿Desea registrar el inventario de activos con la información proporcionada?",
+        showCancelButton: true,
+        confirmButtonText: "Confirmar y registrar",
+        cancelButtonText: "Cancelar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: { popup: "custom-border" }
+      });
 
-    // if (confirmResult.isConfirmed) {
-    //   try {
-    //     const resultado = await registrarFormInventarioActions(FormulariosCombinados);
+      if (confirmResult.isConfirmed) {
+        try {
+          const resultado = await registrarFormInventarioActions(FormulariosCombinados);
 
-    //     if (resultado) {
-    //       // Espera a obtener el nuevo código antes de continuar
-    //       // funcionObtieneMaxRegistro();
-    //       dispatch(setNRecepcionActions(0));
-    //       dispatch(setFechaRecepcionActions(""));
-    //       dispatch(setNOrdenCompraActions(""));
-    //       dispatch(setNFacturaActions(""));
-    //       dispatch(setOrigenPresupuestoActions(0));
-    //       dispatch(setMontoRecepcionActions(0));
-    //       dispatch(setFechaFacturaActions(""));
-    //       dispatch(setRutProveedorActions(""));
-    //       dispatch(setModalidadCompraActions(0));
-    //       dispatch(setServicioActions(0));
-    //       dispatch(setDependenciaActions(0));
-    //       dispatch(setCuentaActions(0));
-    //       dispatch(setBienActions(0));
-    //       dispatch(setDetalleActions(0));
-    //       dispatch(setEspecieActions(""));
-    //       dispatch(setNombreEspecieActions(""));
-    //       dispatch(setDescripcionEspecieActions(""));
-    //       dispatch(vaciarDatosTabla());
-    //       dispatch(showInputActions(false));
-    //       dispatch(setOtraModalidadActions(""));
-    //       dispatch(setInventarioRegistrado(1));//Estado mostrar resumen en paso 1
-    //       onReset(); // Vuelve al paso 1
-    //       //  Muestra el código obtenido después de esperarlo
-    //       // Swal.fire({
-    //       //   icon: "success",
-    //       //   title: "Registro exitoso",
-    //       //   text: `Se ha registrado con éxito su formulario`,
-    //       //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //       //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //       //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-    //       //   customClass: { popup: "custom-border" }
-    //       // });
+          if (resultado) {
+            // Espera a obtener el nuevo código antes de continuar
+            // funcionObtieneMaxRegistro();
+            dispatch(setNRecepcionActions(0));
+            dispatch(setFechaRecepcionActions(""));
+            dispatch(setNOrdenCompraActions(""));
+            dispatch(setNFacturaActions(""));
+            dispatch(setOrigenPresupuestoActions(0));
+            dispatch(setMontoRecepcionActions(0));
+            dispatch(setFechaFacturaActions(""));
+            dispatch(setRutProveedorActions(""));
+            dispatch(setModalidadCompraActions(0));
+            dispatch(setServicioActions(0));
+            dispatch(setDependenciaActions(0));
+            dispatch(setCuentaActions(0));
+            dispatch(setBienActions(0));
+            dispatch(setDetalleActions(0));
+            dispatch(setEspecieActions(""));
+            dispatch(setNombreEspecieActions(""));
+            dispatch(setDescripcionEspecieActions(""));
+            dispatch(vaciarDatosTabla());
+            dispatch(showInputActions(false));
+            dispatch(setOtraModalidadActions(""));
+            dispatch(setInventarioRegistrado(1));//Estado mostrar resumen en paso 1
+            onReset(); // Vuelve al paso 1
+            //  Muestra el código obtenido después de esperarlo
+            // Swal.fire({
+            //   icon: "success",
+            //   title: "Registro exitoso",
+            //   text: `Se ha registrado con éxito su formulario`,
+            //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            //   customClass: { popup: "custom-border" }
+            // });
 
-    //     } else {
-    //       dispatch(setInventarioRegistrado(0));
-    //       Swal.fire({
-    //         icon: "error",
-    //         title: "Error",
-    //         text: "Ocurrió un error al registrar el formulario. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
-    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-    //         customClass: { popup: "custom-border" }
-    //       });
-    //     }
-    //   } catch (error) {
-    //     console.error("Error al registrar el formulario:", error);
-    //     Swal.fire({
-    //       icon: "error",
-    //       title: "Error inesperado",
-    //       text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
-    //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-    //       customClass: { popup: "custom-border" }
-    //     });
-    //   }
-    // }
+          } else {
+            dispatch(setInventarioRegistrado(0));
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Ocurrió un error al registrar el formulario. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
+              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+              color: `${isDarkMode ? "#ffffff" : "000000"}`,
+              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              customClass: { popup: "custom-border" }
+            });
+          }
+        } catch (error) {
+          console.error("Error al registrar el formulario:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error inesperado",
+            text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: { popup: "custom-border" }
+          });
+        }
+      }
 
-    // }
+    }
   };
 
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+
+  //Selecciona todas las cuentas checadas
+  const selectedIndices = filasSeleccionadas.map(Number);
+  const mantenerTodo = selectedIndices.length > 0 && selectedIndices.every(i => activosFijos[i].chkMantener);
 
   return (
     <>
@@ -730,22 +819,50 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           </div>
         </div>
 
-
-        {/* Boton elimina filas seleccionadas */}
         <div className="d-flex justify-content-end">
+          {/* Boton Mantener Cuenta multiple */}
+          {filasSeleccionadas.length > 0 && (
+            <Button
+              variant={mantenerTodo ? "secondary" : "primary"}
+              onClick={handleMantenerCuentaSeleccionados}
+              className="mb-1 p-2 mx-1 d-flex align-items-center"
+            >
+              {mantenerTodo ? "Descartar Cuentas" : "Mantener Cuentas"}
+              <span className="badge bg-light text-dark mx-1 mt-1">
+                {filasSeleccionadas.length}
+              </span>
+            </Button>
+          )}
+
+          {/* Boton elimina filas seleccionadas */}
           {filasSeleccionadas.length > 0 && (
             <Button
               variant="danger"
               onClick={handleEliminarSeleccionados}
-              className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+              className="mb-1 p-2 mx-1 d-flex align-items-center"  // Alinea el spinner y el texto
             >
-              Eliminar
-              <span className="badge bg-light text-dark mx-1">
+              Quitar
+              <span className="badge bg-light text-dark mx-1 mt-1">
                 {filasSeleccionadas.length}
               </span>
-              {filasSeleccionadas.length === 1 ? "Activo seleccionado" : "Activos seleccionados"}
             </Button>
           )}
+          <div className="d-flex align-items-center mx-2 mb-1 p-2">
+            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+              Tamaño de página:
+            </label>
+            <select
+              aria-label="Seleccionar tamaño de página"
+              className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+              name="nPaginacion"
+              onChange={handleChange}
+              value={Paginacion.nPaginacion}
+            >
+              {[10, 20, 30, datos.length].map((val) => (
+                <option key={val} value={val}>{val}</option>
+              ))}
+            </select>
+          </div>
         </div>
         {/* Mostrar errores generales */}
         {error.generalTabla && (
@@ -768,11 +885,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       type="checkbox"
                       className="text-center"
                       onChange={handleSeleccionaTodos}
-                      checked={
-                        filasSeleccionadas.length ===
-                        elementosActuales.length &&
-                        elementosActuales.length > 0
-                      }
+                      checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                     />
                   </th>
                   <th className="text-center">Especie</th>
@@ -822,8 +935,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                             onBlur={handleSerieBlur}
                             autoFocus
                             maxLength={10}
+                            placeholder="-"
                             pattern="\d*"
-                            placeholder="Editar"
                             data-index={indexReal}
                             // Agregar clase condicional si hay un error en la serie
                             className={` text-center ${erroresSerie[indexReal] ? "is-invalid" : ""} ${isDarkMode ? "bg-secondary-subtle" : ""}`}
@@ -844,25 +957,26 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       <td className="text-center">${parseFloat(activo.precio).toLocaleString("es-ES", { minimumFractionDigits: 0, })}</td>
                       <td className="fw-bold text-center">{activo.cuenta}</td>
                       {Utmxtres > parseInt(activo.precio) ? (
-                        <td
-                          className="text-center "
+                        <td className="text-center"
                           style={{ width: "100px", minWidth: "150px", maxWidth: "40px" }}
                         >
-
                           <Form.Check
                             onChange={(e) => handleCheck(e, indexReal)}
                             name="chkMantener"
                             type="checkbox"
                             className="form-switch"
+                            checked={activo.chkMantener ?? true}
                           />
                         </td>
                       ) : (
                         <>
-                          <td className="text-center">--</td>
+                          <td className="text-center">
+                            -
+                          </td>
                         </>
                       )}
                       <td>
-                        {/* </Button> */}
+                        {/* ELiminar */}
                         <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
                           <Trash
                             className="flex-shrink-0 h-5 w-5"
@@ -1001,6 +1115,16 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   </div>
                 </div>
                 <Col md={6}>
+                  {/* <div className="mb-1">
+                    <label htmlFor="cuenta" className="fw-semibold">
+                      Cuenta
+                    </label>
+                    <p className="border p-2 bg-light rounded">
+                      {activoFormulario.chkMantener !== false
+                        ? nCuenta
+                        : "5320413"}
+                    </p>
+                  </div> */}
                   <div className="mb-1">
                     <label htmlFor="vidaUtil" className="fw-semibold">
                       Vida Útil
@@ -1068,8 +1192,22 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       <div className="invalid-feedback fw-semibold">{error.modelo}</div>
                     )}
                   </div>
+
                 </Col>
                 <Col md={6}>
+                  {/* <div className="mb-1">
+                    <label htmlFor="cantidad" className="fw-semibold">
+                      Mantener Cuenta
+                    </label>
+                    <Form.Check
+                      onChange={handleChange}
+                      name="chkMantenerForm"
+                      type="checkbox"
+                      className="form-switch"
+                      checked={activoFormulario.chkMantenerForm}
+                    />
+                  </div> */}
+
                   <div className="mb-1">
                     <label htmlFor="precio" className="fw-semibold">
                       Precio
@@ -1104,7 +1242,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                     {error.cantidad && (
                       <div className="invalid-feedback fw-semibold">{error.cantidad}</div>
                     )}
+
                   </div>
+
                   <div className="mb-1">
                     <label htmlFor="observaciones" className="fw-semibold">
                       Observaciones

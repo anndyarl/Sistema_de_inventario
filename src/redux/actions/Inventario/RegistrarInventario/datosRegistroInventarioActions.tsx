@@ -158,9 +158,10 @@ export const setInventarioRegistrado = (resultadoRegistro: number) => ({
   payload: resultadoRegistro,
 });
 
-export const setMantieneCuentaActions = (mantenerCuenta: boolean) => ({
-  type: 'SET_MANTENER_CUENTA',
-  payload: mantenerCuenta,
+export const setActualizaMantenerCuenta = (index: number, chkMantener: boolean, nCuenta: string) => ({
+  type: 'ACTUALIZAR_MANTENER_CUENTA',
+  payload: { index, chkMantener, nCuenta }
 });
+
 
 

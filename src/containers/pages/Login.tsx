@@ -36,8 +36,8 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
     await login("test_demodoc", "2023");
     // const esValido = await validaApiloginActions("18250588");// Valida usuario en Api login
     // const esValido = await validaApiloginActions("15533835");// Valida usuario en Api login --Jaime Castillo
-    // const esValido = await validaApiloginActions("16739610");// Valida usuario en Api login --Jhonatan Vargas
-    const esValido = await validaApiloginActions("10399886");// Valida usuario en Api login --Gabriela Farias
+    const esValido = await validaApiloginActions("16739610");// Valida usuario en Api login --Jhonatan Vargas
+    // const esValido = await validaApiloginActions("10399886");// Valida usuario en Api login --Gabriela Farias
 
 
 

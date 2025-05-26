@@ -8,9 +8,8 @@ import {
 import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
-export const registrarDocumentoAltaActions = (activos: { jerarquia: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
-
+export const registrarDocumentoAltaActions = (documento: any) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+  const token = getState().loginReducer.token;
   if (token) {
     const config = {
       headers: {
@@ -18,7 +17,7 @@ export const registrarDocumentoAltaActions = (activos: { jerarquia: number }[]) 
         "Content-Type": "application/json",
       },
     };
-    const body = JSON.stringify(activos);
+    const body = JSON.stringify(documento);
 
     dispatch({ type: REGISTRAR_ALTAS_REQUEST });
 

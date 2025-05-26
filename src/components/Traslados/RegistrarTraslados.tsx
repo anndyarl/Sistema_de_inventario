@@ -16,9 +16,10 @@ import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Comb
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
-import { registroTrasladoActions } from "../../redux/actions/Traslados/registroTrasladoActions";
+
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { useNavigate } from "react-router-dom";
+import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
   codigo: number;
@@ -215,7 +216,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   };
 
   const [isExpanded, setIsExpanded] = useState({
-    fila1: false,
+    fila1: true,
     fila2: false,
     fila3: false,
   });
@@ -409,87 +410,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             </div>
             <Collapse in={isExpanded.fila1} dimension="height">
               <div className="border-top ">
-                <Row className="p-1 row justify-content-center">
-                  <Col Col md={5}>
-                    {/* servicio Origen */}
-                    <div className="mb-1">
-                      <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio Origen</label>
-                      <select
-                        aria-label="seR_CORR"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_CORR ? "is-invalid" : ""}`}
-                        name="seR_CORR"
-                        onChange={handleChange}
-                        value={Traslados.seR_CORR || 0}
-                      >
-                        <option value="">Seleccionar</option>
-                        {comboTrasladoServicio.map((traeServicio) => (
-                          <option
-                            key={traeServicio.codigo}
-                            value={traeServicio.codigo}
-                          >
-                            {traeServicio.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                      {error.seR_CORR && (
-                        <div className="invalid-feedback fw-semibold d-block">
-                          {error.seR_CORR}
-                        </div>
-                      )}
-                    </div>
-                    {/* Dependencia/ Departamento */}
-                    <div className="mb-1">
-                      <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia Origen</label>
-                      <select
-                        aria-label="deP_CORR_ORIGEN"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
-                        name="deP_CORR_ORIGEN"
-                        // disabled={!Traslados.servicioOrigen}
-                        onChange={handleChange}
-                        value={Traslados.deP_CORR_ORIGEN}
-                      >
-                        <option value="">Seleccionar</option>
-                        {comboDependenciaOrigen.map((traeDependencia) => (
-                          <option
-                            key={traeDependencia.codigo}
-                            value={traeDependencia.codigo}
-                          >
-                            {traeDependencia.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                      {error.deP_CORR_ORIGEN && (
-                        <div className="invalid-feedback fw-semibold d-block">
-                          {error.deP_CORR_ORIGEN}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Especie */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Especie
-                      </label>
-                      <select
-                        aria-label="esP_CODIGO"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.esP_CODIGO ? "is-invalid" : ""}`}
-                        name="esP_CODIGO"
-                        onChange={handleChange}
-                        value={Traslados.esP_CODIGO}
-                      >
-                        <option value="">Seleccione un origen</option>
-                        {comboTrasladoEspecie.map((traeEspecie) => (
-                          <option key={traeEspecie.codigo} value={traeEspecie.codigo}>
-                            {traeEspecie.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                      {error.esP_CODIGO && (
-                        <div className="invalid-feedback">{error.esP_CODIGO}</div>
-                      )}
-                    </div>
-                  </Col>
+                <Row className="p-1 row justify-content-center ">
                   <Col md={5}>
                     {/* N° Inventario */}
                     <div className="mb-1">
@@ -569,64 +490,56 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       </div>
                       )}
                     </div>
-                    {/* Marca */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Marca
-                      </label>
-                      <input
-                        aria-label="marca"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.marca ? "is-invalid" : ""}`}
-                        maxLength={50}
-                        name="marca"
-                        onChange={handleChange}
-                        value={Traslados.marca}
-                      />
-                      {error.marca && (
-                        <div className="invalid-feedback">{error.marca}</div>
-                      )}
-                    </div>
+                  </Col>
+                  <Col md={5}>
+                    {/* Datos */}
 
-                    {/* Modelo */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Modelo
-                      </label>
-                      <input
-                        aria-label="modelo"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.modelo ? "is-invalid" : ""}`}
-                        maxLength={50}
-                        name="modelo"
-                        onChange={handleChange}
-                        value={Traslados.modelo}
-                      />
-                      {error.modelo && (
-                        <div className="invalid-feedback">{error.modelo}</div>
-                      )}
-                    </div>
-
-                    {/* Serie */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Serie
-                      </label>
-                      <input
-                        aria-label="serie"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.serie ? "is-invalid" : ""}`}
-                        maxLength={50}
-                        name="serie"
-                        onChange={handleChange}
-                        value={Traslados.serie}
-                      />
-                      {error.serie && (
-                        <div className="invalid-feedback">{error.serie}</div>
-                      )}
+                    <div className="d-flex">
+                      <div className="ms-1">
+                        <label className="fw-semibold">
+                          Marca
+                        </label>
+                        <input
+                          aria-label="marca"
+                          type="text"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                          maxLength={50}
+                          name="marca"
+                          disabled
+                          onChange={handleChange}
+                          value={Traslados.marca}
+                        />
+                      </div>
+                      <div className="ms-1">
+                        <label className="fw-semibold">
+                          Modelo
+                        </label>
+                        <input
+                          aria-label="modelo"
+                          type="text"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                          maxLength={50}
+                          name="modelo"
+                          disabled
+                          onChange={handleChange}
+                          value={Traslados.modelo}
+                        />
+                      </div>
+                      <div className="ms-1">
+                        <label className="fw-semibold">
+                          Serie
+                        </label>
+                        <input
+                          aria-label="serie"
+                          type="text"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                          maxLength={50}
+                          name="serie"
+                          disabled
+                          onChange={handleChange}
+                          value={Traslados.serie}
+                        />
+                      </div>
                     </div>
                   </Col>
                 </Row>
@@ -637,7 +550,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           {/* Fila 2 */}
           <div className={`mb-3 border p-1 rounded-4 ${tieneErroresDestino ? "border-danger" : ""}`}>
             <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
-              <h5 className="fw-semibold">SELECCIONE UBICACIÓN DE DESTINO</h5>
+              <h5 className="fw-semibold">SELECCIONE UBICACIÓN DE CENTRO DE DESTINO (Escoga su propio Centro para traslados internos)</h5>
               {isExpanded.fila2 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -647,7 +560,145 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             <Collapse in={isExpanded.fila2}>
               <div className="border-top">
                 <Row className="p-1 row justify-content-center">
+
                   <Col md={5}>
+                    {/* N° Memo Ref */}
+                    <div className="mb-1">
+                      <label className="fw-semibold">
+                        N° Memo Ref
+                      </label>
+                      <input
+                        aria-label="traS_MEMO_REF"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                          } ${error.traS_MEMO_REF ? "is-invalid" : ""}`}
+                        maxLength={50}
+                        name="traS_MEMO_REF"
+                        onChange={handleChange}
+                        value={Traslados.traS_MEMO_REF}
+                      />
+                      {error.traS_MEMO_REF && (
+                        <div className="invalid-feedback">{error.traS_MEMO_REF}</div>
+                      )}
+                    </div>
+
+                    {/* Fecha Memo */}
+                    <div className="mb-1">
+                      <label className="fw-semibold">
+                        Fecha Memo
+                      </label>
+                      <input
+                        aria-label="traS_FECHA_MEMO"
+                        type="date"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                          } ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
+                        name="traS_FECHA_MEMO"
+                        onChange={handleChange}
+                      />
+                      {error.traS_FECHA_MEMO && (
+                        <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
+                      )}
+                    </div>
+
+                    {/* Observaciones */}
+                    <div className="mb-1">
+                      <label className="fw-semibold">
+                        Observaciones
+                      </label>
+                      <textarea
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                          } ${error.traS_OBS ? "is-invalid" : ""}`}
+                        aria-label="traS_OBS"
+                        name="traS_OBS"
+                        rows={4}
+                        maxLength={500}
+                        style={{ minHeight: "8px", resize: "none" }}
+                        onChange={handleChange}
+                        value={Traslados.traS_OBS}
+                      />
+                      {error.traS_OBS && (
+                        <div className="invalid-feedback">{error.traS_OBS}</div>
+                      )}
+                    </div>
+                  </Col>
+                  <Col md={5}>
+                    {/* servicio Origen */}
+                    <div className="mb-1">
+                      <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio Origen</label>
+                      <select
+                        aria-label="seR_CORR"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_CORR ? "is-invalid" : ""}`}
+                        name="seR_CORR"
+                        onChange={handleChange}
+                        value={Traslados.seR_CORR || 0}
+                      >
+                        <option value="">Seleccionar</option>
+                        {comboTrasladoServicio.map((traeServicio) => (
+                          <option
+                            key={traeServicio.codigo}
+                            value={traeServicio.codigo}
+                          >
+                            {traeServicio.descripcion}
+                          </option>
+                        ))}
+                      </select>
+                      {error.seR_CORR && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.seR_CORR}
+                        </div>
+                      )}
+                    </div>
+                    {/* Dependencia/ Departamento */}
+                    <div className="mb-1">
+                      <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia Origen</label>
+                      <select
+                        aria-label="deP_CORR_ORIGEN"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
+                        name="deP_CORR_ORIGEN"
+                        // disabled={!Traslados.servicioOrigen}
+                        onChange={handleChange}
+                        value={Traslados.deP_CORR_ORIGEN}
+                      >
+                        <option value="">Seleccionar</option>
+                        {comboDependenciaOrigen.map((traeDependencia) => (
+                          <option
+                            key={traeDependencia.codigo}
+                            value={traeDependencia.codigo}
+                          >
+                            {traeDependencia.descripcion}
+                          </option>
+                        ))}
+                      </select>
+                      {error.deP_CORR_ORIGEN && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.deP_CORR_ORIGEN}
+                        </div>
+                      )}
+                    </div>
+                    {/* Especie */}
+                    <div className="mb-1">
+                      <label className="fw-semibold">
+                        Especie
+                      </label>
+                      <select
+                        aria-label="esP_CODIGO"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                          } ${error.esP_CODIGO ? "is-invalid" : ""}`}
+                        name="esP_CODIGO"
+                        onChange={handleChange}
+                        value={Traslados.esP_CODIGO}
+                      >
+                        <option value="">Seleccione un origen</option>
+                        {comboTrasladoEspecie.map((traeEspecie) => (
+                          <option key={traeEspecie.codigo} value={traeEspecie.codigo}>
+                            {traeEspecie.descripcion}
+                          </option>
+                        ))}
+                      </select>
+                      {error.esP_CODIGO && (
+                        <div className="invalid-feedback">{error.esP_CODIGO}</div>
+                      )}
+                    </div>
                     {/* Servicio */}
                     <div className="mb-1">
                       <label htmlFor="traS_DET_CORR" className="fw-semibold fw-semibold">Servicio Destino</label>
@@ -737,66 +788,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
                       )}
                     </div> */}
-                  </Col>
-                  <Col md={5}>
-                    {/* N° Memo Ref */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        N° Memo Ref
-                      </label>
-                      <input
-                        aria-label="traS_MEMO_REF"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_MEMO_REF ? "is-invalid" : ""}`}
-                        maxLength={50}
-                        name="traS_MEMO_REF"
-                        onChange={handleChange}
-                        value={Traslados.traS_MEMO_REF}
-                      />
-                      {error.traS_MEMO_REF && (
-                        <div className="invalid-feedback">{error.traS_MEMO_REF}</div>
-                      )}
-                    </div>
-
-                    {/* Fecha Memo */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Fecha Memo
-                      </label>
-                      <input
-                        aria-label="traS_FECHA_MEMO"
-                        type="date"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
-                        name="traS_FECHA_MEMO"
-                        onChange={handleChange}
-                      />
-                      {error.traS_FECHA_MEMO && (
-                        <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
-                      )}
-                    </div>
-
-                    {/* Observaciones */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Observaciones
-                      </label>
-                      <textarea
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.traS_OBS ? "is-invalid" : ""}`}
-                        aria-label="traS_OBS"
-                        name="traS_OBS"
-                        rows={4}
-                        maxLength={500}
-                        style={{ minHeight: "8px", resize: "none" }}
-                        onChange={handleChange}
-                        value={Traslados.traS_OBS}
-                      />
-                      {error.traS_OBS && (
-                        <div className="invalid-feedback">{error.traS_OBS}</div>
-                      )}
-                    </div>
                   </Col>
                 </Row>
               </div>

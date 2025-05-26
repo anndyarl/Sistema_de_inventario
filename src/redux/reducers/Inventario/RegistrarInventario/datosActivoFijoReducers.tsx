@@ -74,6 +74,22 @@ const datosActivoFijoReducers = (state = initialState, action: any) => {
                         : activo
                 )
             };
+        case 'ACTUALIZAR_MANTENER_CUENTA':
+            return {
+                ...state,
+                datosTablaActivoFijo: state.datosTablaActivoFijo.map((activo, i) =>
+                    i === action.payload.index
+                        ? {
+                            ...activo,
+                            chkMantener: action.payload.chkMantener,
+                            cuenta: action.payload.chkMantener
+                                ? activo.cuentaOriginal // vuelve a su cuenta original
+                                : "5320413"             // asigna cuenta reducida
+                        }
+                        : activo
+                )
+            };
+
         case 'VACIAR_DATOS_TABLA':
             return {
                 ...state,

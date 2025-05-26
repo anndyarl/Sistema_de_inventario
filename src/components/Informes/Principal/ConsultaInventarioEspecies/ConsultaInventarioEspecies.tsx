@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Form, Modal, Col, Row, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
@@ -128,6 +128,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                 }
             });
             setLoading(false); //Finaliza estado de carga
+            listaConsultaInventarioEspecie
             return;
         } else {
             paginar(1);

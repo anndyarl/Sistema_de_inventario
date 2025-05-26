@@ -6,7 +6,7 @@ import {
 } from '../../../actions//Inventario/types'
 
 // Define el tipo para el estado inicial
-interface DatosBajasState {
+interface ResumenRegistroState {
   loading: boolean;
   error: any;
   fechaFacturaR: string;
@@ -21,15 +21,14 @@ interface DatosBajasState {
   rutProveedorR: number;
   servicioR: number;
   cantidadR: number;
-  cuentaR: number;
   dependenciaR: number;
   especieR: string;
-
   activosFijos: Array<{
     id: string;
     vidaUtil: string;
     fechaIngreso: string;
     marca: string;
+    cuenta: string;
     cantidad: string;
     modelo: string;
     observaciones: string;
@@ -42,7 +41,7 @@ interface DatosBajasState {
 }
 
 // Estado inicial tipado
-const initialState: DatosBajasState = {
+const initialState: ResumenRegistroState = {
   loading: false,
   error: null,
   fechaFacturaR: '',
@@ -57,7 +56,6 @@ const initialState: DatosBajasState = {
   rutProveedorR: 0,
   servicioR: 0,
   cantidadR: 0,
-  cuentaR: 0,
   dependenciaR: 0,
   especieR: '',
   activosFijos: []
@@ -86,7 +84,6 @@ const resumenInventarioRegistroReducers = (state = initialState, action: any) =>
         usuarioCreaR: action.payload,
         servicioR: action.payload.servicio,
         cantidadR: action.payload.cantidad,
-        cuentaR: action.payload.cuenta,
         dependenciaR: action.payload.dependencia,
         especieR: action.payload.especie,
         activosFijos: action.payload.activosFijos

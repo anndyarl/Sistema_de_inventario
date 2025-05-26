@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { Helmet } from "react-helmet-async";
-import { PlusCircle, Table } from "react-bootstrap-icons";
+import { ArrowsMove, Table } from "react-bootstrap-icons";
 
 interface NavItem {
   name: string;
@@ -35,7 +35,7 @@ interface Props {
 
 const navigation: NavItem[] = [
 
-  { descripcion: 'Registre el traslados de sus bienes.', name: 'registrarTraslados', title: 'Registrar Traslados', href: '/Traslados/RegistrarTraslados/', icon: PlusCircle },
+  { descripcion: 'Registre el traslados de sus bienes.', name: 'registrarTraslados', title: 'Registrar Traslados', href: '/Traslados/RegistrarTraslados/', icon: ArrowsMove },
   { descripcion: 'Lista de traslados registrados.', name: 'listarTraslados', title: 'Listado de traslados', href: '/Traslados/ListadoTraslados', icon: Table },
 
 ];

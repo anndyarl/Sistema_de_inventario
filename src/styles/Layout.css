@@ -234,3 +234,9 @@ padding: 2px;
   margin: 0 auto; /* Centrado horizontal */
 }
 
+.modal-header .btn-close {
+  filter: invert(1); /* invierte el color para que se vea blanco */
+  width: 1.5rem;   /* ancho deseado */
+  height: 1.5rem;  /* alto deseado */
+  margin: 0.5rem;  /* opcional, para espaciarlo un poco */ 
+}

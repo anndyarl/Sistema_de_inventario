@@ -3,7 +3,7 @@ import { Pagination, Form, Modal, Col, Row, Collapse, Button, Spinner } from "re
 import { connect } from "react-redux";
 // import Swal from "sweetalert2";
 // import SignatureCanvas from 'react-signature-canvas';
-// import { pdf } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
 import MenuAltas from "../../Menus/MenuAltas";
@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
+import { Eraser, File, FiletypePdf, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -53,19 +53,26 @@ export interface DatosFirmas {
     nombrE_USUARIO: string,
     descripcion: string,
     url: string,
-    iD_UNIDAD: number
+    iD_UNIDAD: number,
+    cuerpo: string
 }
 export interface Unidades {
     iD_UNIDAD: number,
     nombre: string
 }
+
+
+
+
+
+
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
     comboUnidades: Unidades[];
     obtenerUnidadesActions: () => Promise<boolean>;
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
-    registrarDocumentoAltaActions: (activos: { jerarquia: number }[]) => Promise<boolean>;
+    registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
@@ -147,7 +154,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         visadoFinanzas: "",
         visadoAbastecimiento: "",
 
-
+        cuerpo: ""
     });
 
     const validate = () => {
@@ -205,6 +212,36 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         if (base64.startsWith("R0lGOD")) return "gif";
         return "png"; // fallback
     }
+
+    const generarPDFBase64 = async (): Promise<string> => {
+        // 1. Genera un Blob real de tu componente PDF
+        const blob = await pdf(
+            <DocumentoPDF
+                row={filasSeleccionadasPDF}
+                AltaInventario={AltaInventario}
+                objeto={objeto}
+                UnidadNombre={UnidadNombre}
+                Unidad={Unidad}
+            />
+        ).toBlob();
+
+        // 2. Léelo como Data URL
+        return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (typeof reader.result === 'string') {
+                    const dataUrl = reader.result;
+                    const base64 = dataUrl.split(',')[1];
+                    resolve(base64);
+                } else {
+                    reject(new Error('FileReader result is not a string'));
+                }
+            };
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+
+        });
+    };
 
     const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
@@ -464,13 +501,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
             return 0;
         };
 
-        const selectedIndices = filasSeleccionadas.map(Number);
-        const activosSeleccionados = selectedIndices.map((index) => {
-            return {
-                altaS_CORR: listaAltasRegistradas[index].altaS_CORR,
-                jerarquia: asignarJerarquia(AltaInventario),
-            };
-        });
 
         const result = await Swal.fire({
             icon: "info",
@@ -489,8 +519,44 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
         if (result.isConfirmed) {
             setLoadingSolicitarVisado(true);
-            console.log(activosSeleccionados);
-            const resultado = await registrarDocumentoAltaActions(activosSeleccionados);
+
+            // 1) Genera el Base64
+            const base64 = await generarPDFBase64();
+
+            // 2) Prepara el array de firmas (FirmaAlta)
+            const selectedIndices = filasSeleccionadas.map(Number);
+            const firmaAltaArray = selectedIndices.map((index) => ({
+                ALTAS_CORR: listaAltasRegistradas[index].altaS_CORR,
+                JERARQUIA: asignarJerarquia(AltaInventario),
+                IDCARGO: 0,
+                FIRMADO: 0
+            }));
+
+            // 3) Arma el objeto DocumentoIntegracionBE
+            const documento: any = {
+                // Agente: 0,
+                // IdDocumentoOrigen: 0,
+                // TipoDocumento: 0,
+                // FolioDocumento: 0,
+                // Estado: 0,
+                // FechaDocumento: "",  
+                DescripcionDocumento: "Visado de altas de inventario",
+                CuerpoDocumento: base64,
+                // UsuarioCreador: 0,
+                // DependenciaCreador: 0,
+                // CargoCreador: 0,
+                // CargoDerivacion: 0, 
+                // Validaciones: "",
+                // Antecedente: "",
+                // TraeAnexo: 0,
+                // IdOfPartes: 0,
+                ListaDistribucion: [],
+                ListaAnexos: [],
+                FirmaAlta: firmaAltaArray
+            };
+
+            // 4) Envías al endpoint
+            const resultado = await registrarDocumentoAltaActions(documento);
             if (resultado) {
 
             } else {
@@ -508,6 +574,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 setLoadingSolicitarVisado(false);
             }
         }
+
+
+
     };
 
     const handleLimpiar = () => {
@@ -656,6 +725,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>
                 <Row className="border rounded p-2 m-2">
                     <Col md={3}>
+
                         <div className="mb-2">
                             <div className="flex-grow-1 mb-2">
                                 <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
@@ -1244,6 +1314,7 @@ const mapStateToProps = (state: RootState) => ({
     nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
+
 export default connect(mapStateToProps, {
     listaAltasRegistradasActions,
     registrarBienesBajasActions,
@@ -1251,3 +1322,4 @@ export default connect(mapStateToProps, {
     obtenerUnidadesActions,
     registrarDocumentoAltaActions
 })(FirmarAltas);
+

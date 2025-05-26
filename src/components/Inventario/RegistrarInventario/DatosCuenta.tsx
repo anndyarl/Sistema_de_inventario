@@ -3,7 +3,7 @@ import { Modal, Button, Form, Pagination, Row, Col, Spinner, } from "react-boots
 import React, { useState, useMemo, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store.ts";
-import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, setMantieneCuentaActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
 import { Check2Circle, Plus, Search } from "react-bootstrap-icons";
 import Select from "react-select";
 import { Objeto } from "../../Navegacion/Profile.tsx";
@@ -190,16 +190,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       onDetalleSeleccionado(newValue as number);
 
     }
-
-  };
-
-  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setCuenta((prev) => ({
-      ...prev,
-      [name]: checked,
-    }));
-    dispatch(setMantieneCuentaActions(checked));
 
   };
 
@@ -428,20 +418,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                 {error.cuenta && (
                   <div className="invalid-feedback fw-semibold">{error.cuenta}</div>
                 )}
-              </div>
-              {/* Checkbox debajo del select */}
-              <div className="form-check mt-2">
-                <input
-                  aria-label="mantenerCuenta"
-                  className="form-check-input"
-                  type="checkbox"
-                  name="mantenerCuenta"
-                  checked={Cuenta.mantenerCuenta}
-                  onChange={handleCheck}
-                />
-                <label className="form-check-label fw-semibold" htmlFor="mantenerCuenta">
-                  Mantener cuenta
-                </label>
               </div>
             </Col>
           </Row>

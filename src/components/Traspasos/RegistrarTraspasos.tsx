@@ -16,10 +16,11 @@ import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Comb
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
+
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { useNavigate } from "react-router-dom";
-import { registroTraspasosActions } from "../../redux/actions/Trapasos/registroTraspasosActions";
-
+import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
+import MenuTraspasos from "../Menus/MenuTraspasos";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
     codigo: number;
@@ -35,7 +36,7 @@ interface TRASLADOESPECIE {
     codigo: number;
     descripcion: string;
 }
-interface PropsTraspasos {
+interface PropsTraslados {
     aF_CLAVE: number;
     seR_CORR: number;
     deP_CORR_ORIGEN: number; //deP_CORR_ORIGEN
@@ -56,7 +57,7 @@ interface PropsTraspasos {
     n_TRASLADO?: number; //nTraslado
 }
 
-interface TraspasosProps extends PropsTraspasos {
+interface TraspasosProps extends PropsTraslados {
     comboTrasladoServicio: TRASLADOSERVICIO[];
     comboTrasladoServicioActions: (establ_corr: number) => void;
     comboEstablecimiento: ESTABLECIMIENTO[];
@@ -67,15 +68,16 @@ interface TraspasosProps extends PropsTraspasos {
     comboDependenciaDestino: DEPENDENCIA[];
     comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
     comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
-    registroTraspasosActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
+    registroTrasladoActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
     obtenerInventarioTrasladoActions: (af_codigo_generico: string) => Promise<boolean>
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
 }
 
-const RegistrarTraslados: React.FC<TraspasosProps> = ({
-    registroTraspasosActions,
+
+const RegistrarTraspasos: React.FC<TraspasosProps> = ({
+    registroTrasladoActions,
     comboTrasladoServicioActions,
     comboEstablecimientoActions,
     comboTrasladoEspecieActions,
@@ -101,7 +103,7 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
     isDarkMode }) => {
     const navigate = useNavigate(); // Hook para redirigir
     const [loading, setLoading] = useState(false); // Estado para controlar la carga
-    const [error, setError] = useState<Partial<PropsTraspasos> & {}>({});
+    const [error, setError] = useState<Partial<PropsTraslados> & {}>({});
     const [Traslados, setTraslados] = useState({
         aF_CLAVE: 0,
         af_codigo_generico: "",
@@ -127,17 +129,17 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
     const validateForm = () => {
         let tempErrors: Partial<any> & {} = {};
         if (!Traslados.seR_CORR) tempErrors.seR_CORR = "Campo obligatorio.";
-        // if (!Traslados.deP_CORR_ORIGEN) tempErrors.deP_CORR_ORIGEN = "Campo obligatorio.";
-        // if (!Traslados.traS_DET_CORR) tempErrors.traS_DET_CORR = "Campo obligatorio.";
-        // if (!Traslados.deP_CORR) tempErrors.deP_CORR = "Campo obligatorio.";
-        // if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
-        // if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
-        // if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
-        // if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
-        // if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
-        // if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
+        if (!Traslados.deP_CORR_ORIGEN) tempErrors.deP_CORR_ORIGEN = "Campo obligatorio.";
+        if (!Traslados.traS_DET_CORR) tempErrors.traS_DET_CORR = "Campo obligatorio.";
+        if (!Traslados.deP_CORR) tempErrors.deP_CORR = "Campo obligatorio.";
+        if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
+        if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
+        if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
+        if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
+        if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
+        if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
         // if (!Traslados.traS_CO_REAL) tempErrors.traS_CO_REAL = "Campo obligatorio.";
-        // if (!Traslados.esP_CODIGO) tempErrors.esP_CODIGO = "Campo obligatorio.";
+        if (!Traslados.esP_CODIGO) tempErrors.esP_CODIGO = "Campo obligatorio.";
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -215,7 +217,7 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
     };
 
     const [isExpanded, setIsExpanded] = useState({
-        fila1: false,
+        fila1: true,
         fila2: false,
         fila3: false,
     });
@@ -245,7 +247,7 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
 
             if (confirmResult.isConfirmed) {
                 try {
-                    const resultado = await registroTraspasosActions(Traslados);
+                    const resultado = await registroTrasladoActions(Traslados);
                     console.log(Traslados);
                     if (resultado) {
                         Swal.fire({
@@ -309,6 +311,8 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
             n_TRASLADO: 0
         }));
     }
+
+
 
     const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
         let resultado = false;
@@ -391,14 +395,14 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
             <Helmet>
                 <title>Registrar Traspasos</title>
             </Helmet>
-            <MenuTraslados />
+            <MenuTraspasos />
             <form onSubmit={handleFormSubmit}>
                 <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traspasos</h3>
                     {/* Fila 1 */}
                     <div className={`mb-3 border p-1 rounded-4 ${tieneErroresBusqueda ? "border-danger" : ""}`}>
                         <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
-                            <h5 className="fw-semibold">BÚSQUEDA INVENTARIO</h5>
+                            <h5 className="fw-semibold">PARÁMETROS DE BÚSQUEDA</h5>
                             {isExpanded.fila1 ? (
                                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
                             ) : (
@@ -407,8 +411,9 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
                         </div>
                         <Collapse in={isExpanded.fila1} dimension="height">
                             <div className="border-top ">
-                                <Row className="p-1 row justify-content-center">
-                                    <Col Col md={5}>
+                                <Row className="p-1 row justify-content-center ">
+                                    <Col md={5}>
+                                        {/* N° Inventario */}
                                         <div className="mb-1">
                                             <label className="fw-semibold">
                                                 Nº Inventario
@@ -488,28 +493,53 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
                                         </div>
                                     </Col>
                                     <Col md={5}>
+                                        {/* Datos */}
 
-                                        {/* Marca */}
-                                        <div className="row">
-                                            {/* Columna 1 */}
-                                            <div className="col-4 mb-2">
-                                                <div><span className="fw-semibold">Marca: </span>{Traslados.marca || <span className="text-muted">Sin información</span>}</div>
-                                                <div><span className="fw-semibold">Modelo: </span>{Traslados.modelo || <span className="text-muted">Sin información</span>}</div>
-                                                <div><span className="fw-semibold">Serie: </span>{Traslados.serie || <span className="text-muted">Sin información</span>}</div>
+                                        <div className="d-flex">
+                                            <div className="ms-1">
+                                                <label className="fw-semibold">
+                                                    Marca
+                                                </label>
+                                                <input
+                                                    aria-label="marca"
+                                                    type="text"
+                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                    maxLength={50}
+                                                    name="marca"
+                                                    disabled
+                                                    onChange={handleChange}
+                                                    value={Traslados.marca}
+                                                />
                                             </div>
-
-                                            {/* Columna 2 */}
-                                            <div className="col-4 mb-2">
-                                                <div><span className="fw-semibold">Marca: </span>{Traslados.marca || <span className="text-muted">Sin información</span>}</div>
-                                                <div><span className="fw-semibold">Modelo: </span>{Traslados.modelo || <span className="text-muted">Sin información</span>}</div>
-                                                <div><span className="fw-semibold">Serie: </span>{Traslados.serie || <span className="text-muted">Sin información</span>}</div>
+                                            <div className="ms-1">
+                                                <label className="fw-semibold">
+                                                    Modelo
+                                                </label>
+                                                <input
+                                                    aria-label="modelo"
+                                                    type="text"
+                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                    maxLength={50}
+                                                    name="modelo"
+                                                    disabled
+                                                    onChange={handleChange}
+                                                    value={Traslados.modelo}
+                                                />
                                             </div>
-
-                                            {/* Columna 3 */}
-                                            <div className="col-4 mb-2">
-                                                <div><span className="fw-semibold">Marca: </span>{Traslados.marca || <span className="text-muted">Sin información</span>}</div>
-                                                <div><span className="fw-semibold">Modelo: </span>{Traslados.modelo || <span className="text-muted">Sin información</span>}</div>
-                                                <div><span className="fw-semibold">Serie: </span>{Traslados.serie || <span className="text-muted">Sin información</span>}</div>
+                                            <div className="ms-1">
+                                                <label className="fw-semibold">
+                                                    Serie
+                                                </label>
+                                                <input
+                                                    aria-label="serie"
+                                                    type="text"
+                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                    maxLength={50}
+                                                    name="serie"
+                                                    disabled
+                                                    onChange={handleChange}
+                                                    value={Traslados.serie}
+                                                />
                                             </div>
                                         </div>
                                     </Col>
@@ -521,7 +551,7 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
                     {/* Fila 2 */}
                     <div className={`mb-3 border p-1 rounded-4 ${tieneErroresDestino ? "border-danger" : ""}`}>
                         <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
-                            <h5 className="fw-semibold">SELECCIONE UBICACIÓN DE  ORIGEN Y DESTINO</h5>
+                            <h5 className="fw-semibold">SELECCIONE UBICACIÓN DE CENTRO DE DESTINO</h5>
                             {isExpanded.fila2 ? (
                                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
                             ) : (
@@ -532,73 +562,7 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
                             <div className="border-top">
                                 <Row className="p-1 row justify-content-center">
                                     <Col md={5}>
-                                        <div className="mb-1">
-                                            <label htmlFor="establecimiento_general" className="fw-semibold">Establecimiento Origen</label>
-                                            <select
-                                                aria-label="establecimiento_general"
-                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                name="establecimiento_general"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    // Podrías usar este valor para cargar otros combos o hacer lógica adicional
-                                                    comboTrasladoServicioActions(parseInt(value));
-                                                    comboTrasladoEspecieActions(parseInt(value));
-                                                }}
-                                            >
-                                                <option value="">Seleccionar</option>
-                                                {comboEstablecimiento.map((est) => (
-                                                    <option key={est.codigo} value={est.codigo}>
-                                                        {est.descripcion}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div className="mb-1">
-                                            <label htmlFor="establecimiento_general" className="fw-semibold">Establecimiento Origen</label>
-                                            <select
-                                                aria-label="establecimiento_general"
-                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                name="establecimiento_general"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    // Podrías usar este valor para cargar otros combos o hacer lógica adicional
-                                                    comboTrasladoServicioActions(parseInt(value));
-                                                    comboTrasladoEspecieActions(parseInt(value));
-                                                }}
-                                            >
-                                                <option value="">Seleccionar</option>
-                                                {comboEstablecimiento.map((est) => (
-                                                    <option key={est.codigo} value={est.codigo}>
-                                                        {est.descripcion}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                    </Col>
-                                    <Col md={5}>
-
-                                    </Col>
-                                </Row>
-                            </div>
-                        </Collapse>
-                    </div>
-                    <div className={`mb-3 border p-1 rounded-4 ${tieneErroresDestino ? "border-danger" : ""}`}>
-                        <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
-                            <h5 className="fw-semibold">DATOS TRASPASOS</h5>
-                            {isExpanded.fila2 ? (
-                                <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-                            ) : (
-                                <CaretDown className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-                            )}
-                        </div>
-                        <Collapse in={isExpanded.fila2}>
-                            <div className="border-top">
-                                <Row className="p-1 row justify-content-center">
-                                    <Col md={5}>
-
-                                        {/* Radios */}
+                                        {/* Radios Pendiente implementación */}
                                         <div className="mb-1">
                                             <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
                                             <div className="mb-1 p-2 d-flex justify-content-center border rounded">
@@ -634,8 +598,6 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
                                                 <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
                                             )}
                                         </div>
-                                    </Col>
-                                    <Col md={5}>
                                         {/* N° Memo Ref */}
                                         <div className="mb-1">
                                             <label className="fw-semibold">
@@ -694,6 +656,174 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
                                                 <div className="invalid-feedback">{error.traS_OBS}</div>
                                             )}
                                         </div>
+                                    </Col>
+                                    <Col md={5}>
+                                        {/* servicio Origen */}
+                                        <div className="mb-1">
+                                            <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio Origen</label>
+                                            <select
+                                                aria-label="seR_CORR"
+                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_CORR ? "is-invalid" : ""}`}
+                                                name="seR_CORR"
+                                                onChange={handleChange}
+                                                value={Traslados.seR_CORR || 0}
+                                            >
+                                                <option value="">Seleccionar</option>
+                                                {comboTrasladoServicio.map((traeServicio) => (
+                                                    <option
+                                                        key={traeServicio.codigo}
+                                                        value={traeServicio.codigo}
+                                                    >
+                                                        {traeServicio.descripcion}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {error.seR_CORR && (
+                                                <div className="invalid-feedback fw-semibold d-block">
+                                                    {error.seR_CORR}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {/* Dependencia/ Departamento */}
+                                        <div className="mb-1">
+                                            <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia Origen</label>
+                                            <select
+                                                aria-label="deP_CORR_ORIGEN"
+                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
+                                                name="deP_CORR_ORIGEN"
+                                                // disabled={!Traslados.servicioOrigen}
+                                                onChange={handleChange}
+                                                value={Traslados.deP_CORR_ORIGEN}
+                                            >
+                                                <option value="">Seleccionar</option>
+                                                {comboDependenciaOrigen.map((traeDependencia) => (
+                                                    <option
+                                                        key={traeDependencia.codigo}
+                                                        value={traeDependencia.codigo}
+                                                    >
+                                                        {traeDependencia.descripcion}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {error.deP_CORR_ORIGEN && (
+                                                <div className="invalid-feedback fw-semibold d-block">
+                                                    {error.deP_CORR_ORIGEN}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {/* Especie */}
+                                        <div className="mb-1">
+                                            <label className="fw-semibold">
+                                                Especie
+                                            </label>
+                                            <select
+                                                aria-label="esP_CODIGO"
+                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                                    } ${error.esP_CODIGO ? "is-invalid" : ""}`}
+                                                name="esP_CODIGO"
+                                                onChange={handleChange}
+                                                value={Traslados.esP_CODIGO}
+                                            >
+                                                <option value="">Seleccione un origen</option>
+                                                {comboTrasladoEspecie.map((traeEspecie) => (
+                                                    <option key={traeEspecie.codigo} value={traeEspecie.codigo}>
+                                                        {traeEspecie.descripcion}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {error.esP_CODIGO && (
+                                                <div className="invalid-feedback">{error.esP_CODIGO}</div>
+                                            )}
+                                        </div>
+                                        {/* Servicio */}
+                                        <div className="mb-1">
+                                            <label htmlFor="traS_DET_CORR" className="fw-semibold fw-semibold">Servicio Destino</label>
+                                            <select
+                                                aria-label="traS_DET_CORR"
+                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_DET_CORR ? "is-invalid" : ""}`}
+                                                name="traS_DET_CORR"
+                                                onChange={handleChange}
+                                                value={Traslados.traS_DET_CORR || 0}
+                                            >
+                                                <option value="">Seleccionar</option>
+                                                {comboTrasladoServicio.map((traeServicio) => (
+                                                    <option
+                                                        key={traeServicio.codigo}
+                                                        value={traeServicio.codigo}
+                                                    >
+                                                        {traeServicio.descripcion}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {error.traS_DET_CORR && (
+                                                <div className="invalid-feedback fw-semibold d-block">
+                                                    {error.traS_DET_CORR}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {/* Dependencia */}
+                                        <div className="mb-1">
+                                            <label htmlFor="deP_CORR" className="fw-semibold">Dependencia Destino</label>
+                                            <select
+                                                aria-label="deP_CORR"
+                                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR ? "is-invalid" : ""}`}
+                                                name="deP_CORR"
+                                                disabled={!Traslados.traS_DET_CORR}
+                                                onChange={handleChange}
+                                                value={Traslados.deP_CORR || 0}
+                                            >
+                                                <option value="">Seleccionar</option>
+                                                {comboDependenciaDestino.map((traeDependencia) => (
+                                                    <option
+                                                        key={traeDependencia.codigo}
+                                                        value={traeDependencia.codigo}
+                                                    >
+                                                        {traeDependencia.descripcion}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {error.deP_CORR && (
+                                                <div className="invalid-feedback fw-semibold d-block">
+                                                    {error.deP_CORR}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {/* Radios Pendiente implementación */}
+                                        {/* <div className="mb-1">
+                      <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
+                      <div className="mb-1 p-2 d-flex justify-content-center border rounded">
+                        <div className="form-check">
+                          <input
+                            aria-label="traS_CO_REAL"
+                            className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
+                            onChange={handleChange}
+                            type="radio"
+                            name="traS_CO_REAL"
+                            value="1"
+
+                          />
+                          <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                            En Comodato
+                          </label>
+                        </div>
+                        <div className="form-check">
+                          <input
+                            aria-label="traS_CO_REAL"
+                            className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
+                            onChange={handleChange}
+                            type="radio"
+                            name="traS_CO_REAL"
+                            value="2"
+                          />
+                          <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
+                            Traspaso Real
+                          </label>
+                        </div>
+                      </div>
+                      {error.traS_CO_REAL && (
+                        <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
+                      )}
+                    </div> */}
                                     </Col>
                                 </Row>
                             </div>
@@ -773,7 +903,17 @@ const RegistrarTraslados: React.FC<TraspasosProps> = ({
                                                 )}
                                             </div>
                                         </Col>
-
+                                        {/* <Col> */}
+                                        {/* N° de Traslado */}
+                                        {/* <div className="mb-1">
+                      <label className="fw-semibold">
+                        N° de Traslado
+                      </label>
+                      <p className={`${isDarkMode ? "text-light" : "text-dark"}`}>
+                        {Traslados.n_TRASLADO}
+                      </p>
+                    </div> */}
+                                        {/* </Col> */}
                                     </Row>
                                 </div>
                             </Collapse>
@@ -818,7 +958,6 @@ export default connect(mapStateToProps, {
     comboTrasladoEspecieActions,
     comboDependenciaOrigenActions,
     comboDependenciaDestinoActions,
-    registroTraspasosActions,
+    registroTrasladoActions,
     obtenerInventarioTrasladoActions
-})(RegistrarTraslados);
-
+})(RegistrarTraspasos);

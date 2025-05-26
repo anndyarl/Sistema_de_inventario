@@ -57,6 +57,8 @@ import BajasMensuales from '../../../components/Informes/Principal/BajasMensuale
 import ConsultaInventarioEspecies from '../../../components/Informes/Principal/ConsultaInventarioEspecies/ConsultaInventarioEspecies';
 import ExcelFolioPorServicios from '../../../components/Informes/Principal/ExcelFolioPorServicios';
 import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/ImprimirEtiqueta';
+import RegistrarTraspasos from '../../../components/Traspasos/RegistrarTraspasos';
+import Traspasos from '../../pages/Traspasos';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -95,6 +97,12 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Traslados" element={<Traslados />} />
                 <Route path="/Traslados/RegistrarTraslados" element={<RegistrarTraslados />} />
                 <Route path="/Traslados/ListadoTraslados" element={<ListadoTraslados />} />
+                {/* Fin Módulo Traslados */}
+
+                {/* Módulo Traspasos */}
+                <Route path="/Traspasos" element={<Traspasos />} />
+                <Route path="/Traspasos/RegistrarTraspasos" element={<RegistrarTraspasos />} />
+                {/* <Route path="/Traspasos/ListadoTraspasos" element={<ListadoTraspasos />} /> */}
                 {/* Fin Módulo Traslados */}
 
                 {/* Módulo Altas */}

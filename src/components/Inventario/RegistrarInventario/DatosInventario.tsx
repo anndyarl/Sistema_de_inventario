@@ -34,7 +34,7 @@ import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/Regis
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, EraserFill, FiletypePdf } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
-import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
+import { CUENTA, DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
@@ -84,7 +84,6 @@ interface FormulariosCombinados {
   rutProveedorR: number;
   servicioR: number;
   cantidadR: number;
-  cuentaR: number;
   dependenciaR: number;
   especieR: string;
 }
@@ -94,6 +93,7 @@ interface ActijosFijos {
   vidaUtil: string;
   fechaIngreso: string;
   marca: string;
+  cuenta: string;
   cantidad: string;
   modelo: string;
   observaciones: string;
@@ -115,8 +115,8 @@ interface DatosInventarioProps extends InventarioProps {
   comboModalidad: MODALIDAD[];
   comboProveedor: PROVEEDOR[];
   comboDependencia: DEPENDENCIA[];
-  listaEspecie: ListaEspecie[];
-  // comboCuenta: CUENTA[];
+  comboEspecies: ListaEspecie[];
+  comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   // obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
   obtenerServicioNombreActions: (dep_corr: number) => Promise<Boolean>;
@@ -140,6 +140,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   comboModalidad,
   comboProveedor,
   comboDependencia,
+  comboCuenta,
   fechaFactura,
   fechaRecepcion,
   montoRecepcion,
@@ -161,7 +162,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   /*----resumen inventario registrado*/
   formulariosCombinados,
   activosFijos,
-  listaEspecie,
+  comboEspecies,
   listaServicioNombre
 }) => {
   const [Inventario, setInventario] = useState<InventarioProps>({
@@ -808,7 +809,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       </form>
       <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="xl">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Resumen de Ingreso de Inventario</Modal.Title>
+          <Modal.Title className="fw-semibold">Resumen</Modal.Title>
         </Modal.Header>
 
         <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -887,10 +888,9 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             <Col md={4}>
               <p><strong>Servicio:</strong></p>
               {(() => {
-                let nombreServicio = ""; // Valor por defecto
+                let nombreServicio = "N/A"; // Valor por defecto
                 for (let i = 0; i < listaServicioNombre.length; i++) {
                   nombreServicio = listaServicioNombre[i].nombre;
-
                   break;
                 }
                 // console.log("nombreServicio", nombreServicio);
@@ -909,7 +909,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 }
                 return <p>{nombreDependencia}</p>;
               })()}
-
+            </Col>
+            <Col>
+              <p><strong>Fecha Ingreso:</strong></p>
+              <p>{activosFijos[0]?.fechaIngreso || 'N/A'}</p>
             </Col>
 
           </Row>
@@ -919,15 +922,14 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               <thead>
                 <tr>
                   <th>Nº Inventario</th>
+                  <th>Especie</th>
                   <th>Vida Útil</th>
-                  <th>Fecha Ingreso</th>
                   <th>Marca</th>
                   <th>Modelo</th>
                   <th>Precio</th>
                   <th>Serie</th>
-                  <th>Especie</th>
-                  {/* <th>Cuenta</th> */}
-                  <th>Observaciones</th>
+                  <th>Cuenta</th>
+                  {/* <th>Observaciones</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -935,13 +937,17 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   activosFijos.map((item, index) => (
                     <tr key={index}>
                       <td>{item.id || 'N/A'}</td>
-                      <td>{item.vidaUtil || 'N/A'}</td>
-                      <td>
-                        {item.fechaIngreso
-                          ? item.fechaIngreso.split('-').reverse().join('/')
-                          : 'N/A'
+                      {(() => {
+                        let nombreEspecie = "N/A"; // Valor por defecto
+                        for (let i = 0; i < comboEspecies.length; i++) {
+                          if (String(comboEspecies[i].esP_CODIGO) === String(item.especie)) {
+                            nombreEspecie = comboEspecies[i].nombrE_ESP;
+                            break; // Salir del bucle una vez encontrado
+                          }
                         }
-                      </td>
+                        return <td>{nombreEspecie}</td>;
+                      })()}
+                      <td>{item.vidaUtil || 'N/A'}</td>
                       <td>{item.marca || 'N/A'}</td>
                       <td>{item.modelo || 'N/A'}</td>
                       <td >
@@ -951,28 +957,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                         })}
                       </td>
                       <td>{item.serie || 'N/A'}</td>
-
-                      {(() => {
-                        let nombreEspecie = "N/A"; // Valor por defecto
-                        for (let i = 0; i < listaEspecie.length; i++) {
-                          if (String(listaEspecie[i].esP_CODIGO) === String(item.especie)) {
-                            nombreEspecie = listaEspecie[i].nombrE_ESP;
-                            break; // Salir del bucle una vez encontrado
-                          }
-                        }
-                        return <td>{formulariosCombinados.especieR + ' ' + nombreEspecie}</td>;
-                      })()}
-                      {/* {(() => {
-                        let nombreCuenta = "N/A"; // Valor por defecto
-                        for (let i = 0; i < comboCuenta.length; i++) {
-                          if (String(comboCuenta[i].codigo) === String(formulariosCombinados.cuentaR)) {
-                            nombreCuenta = comboCuenta[i].descripcion;
-                            break; // Salir del bucle una vez encontrado
-                          }
-                        }
-                        return <td>{formulariosCombinados.especieR + ' ' + nombreCuenta}</td>;
-                      })()} */}
-                      <td>{item.observaciones || 'N/A'}</td>
+                      <td>{item.cuenta || 'N/A'}</td>
+                      {/* <td>{item.observaciones || 'N/A'}</td> */}
                     </tr>
                   ))
                 ) : (
@@ -1014,13 +1000,12 @@ const mapStateToProps = (state: RootState) => ({
   formulariosCombinados: state.resumenInventarioRegistroReducers,
   /*----------------Se agregan estos combos para mostrar las descripciones en resumen------------------*/
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
-  // comboCuenta: state.comboCuentaReducer.comboCuenta,
-  listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
+  comboCuenta: state.comboCuentaReducer.comboCuenta,
+  comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
   listaServicioNombre: state.obtenerServicioNombreReducers.listaServicioNombre
 });
 
 export default connect(mapStateToProps, {
   obtenerRecepcionActions,
   obtenerServicioNombreActions,
-
 })(DatosInventario);

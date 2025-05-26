@@ -59,6 +59,7 @@ const listaConsultaInventarioEspeciesReducers = (state = initialState, action: a
       return {
         ...state,
         loading: false,
+        listaConsultaInventarioEspecie: [],
         error: action.error
       };
     default:
