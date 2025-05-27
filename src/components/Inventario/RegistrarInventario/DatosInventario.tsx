@@ -116,7 +116,6 @@ interface DatosInventarioProps extends InventarioProps {
   comboProveedor: PROVEEDOR[];
   comboDependencia: DEPENDENCIA[];
   comboEspecies: ListaEspecie[];
-  comboCuenta: CUENTA[];
   datosTablaActivoFijo: ActivoFijo[]; // se utliza aqui para validar el monto recepción, por si se tipea un cambio
   // obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
   obtenerServicioNombreActions: (dep_corr: number) => Promise<Boolean>;
@@ -140,7 +139,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   comboModalidad,
   comboProveedor,
   comboDependencia,
-  comboCuenta,
   fechaFactura,
   fechaRecepcion,
   montoRecepcion,
@@ -325,8 +323,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         popup: "custom-border", // Clase personalizada para el borde
       },
       allowOutsideClick: false,
-      showCancelButton: false, // Agrega un segundo botón
-      cancelButtonText: "Cerrar", // Texto del botón
+      showCancelButton: false,
+      cancelButtonText: "Cerrar",
       willClose: () => {
         document.body.style.overflow = "auto"; // Restaura el scroll
       }
@@ -344,7 +342,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   // Muestra la alerta solo si resultadoRegistro es 1
   useEffect(() => {
     // dispatch(setInventarioRegistrado(1));
-    setModalMostrarResumen(true);
+    // setModalMostrarResumen(true);
     if (resultadoRegistro === 1) {
       for (let i = 0; i < comboDependencia.length; i++) {
         const dep_corr_n = comboDependencia[i].codigo;
@@ -920,14 +918,14 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
               <thead>
                 <tr>
-                  <th>Nº Inventario</th>
-                  <th>Especie</th>
-                  <th>Vida Útil</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>Precio</th>
-                  <th>Serie</th>
-                  <th>Cuenta</th>
+                  <th className="text-center">Nº Inventario</th>
+                  <th className="text-center">Especie</th>
+                  <th className="text-center">Vida Útil</th>
+                  <th className="text-center">Marca</th>
+                  <th className="text-center">Modelo</th>
+                  <th className="text-center">Precio</th>
+                  <th className="text-center">Serie</th>
+                  <th className="text-center">Cuenta</th>
                   {/* <th>Observaciones</th> */}
                 </tr>
               </thead>
@@ -935,7 +933,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 {activosFijos?.length > 0 ? (
                   activosFijos.map((item, index) => (
                     <tr key={index}>
-                      <td>{item.id || 'N/A'}</td>
+                      <td className="text-center">{item.id || 'N/A'}</td>
                       {(() => {
                         let nombreEspecie = "N/A"; // Valor por defecto
                         for (let i = 0; i < comboEspecies.length; i++) {
@@ -946,17 +944,17 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                         }
                         return <td>{nombreEspecie}</td>;
                       })()}
-                      <td>{item.vidaUtil || 'N/A'}</td>
-                      <td>{item.marca || 'N/A'}</td>
-                      <td>{item.modelo || 'N/A'}</td>
-                      <td >
+                      <td className="text-center">{item.vidaUtil || 'N/A'}</td>
+                      <td className="text-center">{item.marca || 'N/A'}</td>
+                      <td className="text-center">{item.modelo || 'N/A'}</td>
+                      <td className="text-center">
                         $
                         {parseFloat(item.precio).toLocaleString("es-ES", {
                           minimumFractionDigits: 0,
                         })}
                       </td>
-                      <td>{item.serie || 'N/A'}</td>
-                      <td>{item.cuenta || 'N/A'}</td>
+                      <td className="text-center">{item.serie || '-'}</td>
+                      <td className="text-center">{item.cuenta || 'N/A'}</td>
                       {/* <td>{item.observaciones || 'N/A'}</td> */}
                     </tr>
                   ))
@@ -999,7 +997,6 @@ const mapStateToProps = (state: RootState) => ({
   formulariosCombinados: state.resumenInventarioRegistroReducers,
   /*----------------Se agregan estos combos para mostrar las descripciones en resumen------------------*/
   comboDependencia: state.comboDependenciaReducer.comboDependencia,
-  comboCuenta: state.comboCuentaReducer.comboCuenta,
   comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
   listaServicioNombre: state.obtenerServicioNombreReducers.listaServicioNombre
 });

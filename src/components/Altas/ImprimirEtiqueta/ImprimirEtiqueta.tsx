@@ -412,7 +412,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 ) : (
                     <div className='table-responsive'>
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                            <thead className={` sticky-top z-0  ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                 <tr >
                                     <th style={{
                                         position: 'sticky',

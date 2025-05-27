@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal, Row, Col } from "react-bootstrap";
+import { Pagination, Form, Button, Spinner, Modal, Row, Col } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
 import { rematarBajasActions } from "../../redux/actions/Bajas/BienesRematados/rematarBajasActions.tsx";
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
@@ -58,7 +58,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaRemates> & Partial<FechasProps>>({});
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
-  const [mostrarModal, setMostrarModal] = useState<number | null>(null);
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = nPaginacion;
   // Lógica de Paginación actualizada
@@ -141,32 +141,30 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
   };
 
 
-  // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.checked) {
-  //     setFilaSeleccionada(
-  //       elementosActuales.map((_, index) =>
-  //         (indicePrimerElemento + index).toString()
-  //       )
-  //     );
-  //   } else {
-  //     setFilaSeleccionada([]);
-  //   }
-  // };
+  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setFilaSeleccionada(
+        elementosActuales.map((_, index) =>
+          (indicePrimerElemento + index).toString()
+        )
+      );
+    } else {
+      setFilaSeleccionada([]);
+    }
+  };
 
-  // const setSeleccionaFila = (index: number) => {
-  //   setMostrarModal(index); //Abre modal del indice seleccionado
-  //   setFilaSeleccionada((prev) =>
-  //     prev.includes(index.toString())
-  //       ? prev.filter((rowIndex) => rowIndex !== index.toString())
-  //       : [...prev, index.toString()]
-  //   );
-  // };
+  const setSeleccionaFila = (index: number) => {
+    setFilaSeleccionada((prev) =>
+      prev.includes(index.toString())
+        ? prev.filter((rowIndex) => rowIndex !== index.toString())
+        : [...prev, index.toString()]
+    );
+  };
 
   const handleCerrarModal = (index: number) => {
     setFilaSeleccionada((prevSeleccionadas) =>
       prevSeleccionadas.filter((fila) => fila !== index.toString())
     );
-    setMostrarModal(null); //Cierra modal del indice seleccionado
     setRematados((prevState) => ({
       ...prevState,
       nresolucion: "",
@@ -275,7 +273,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
             ...prevState,
             nresolucion: "",
           }));
-          setMostrarModal(null);
+          setMostrarModal(false);
         } else {
           Swal.fire({
             icon: "error",
@@ -401,6 +399,30 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
             </div>
           </Col>
         </Row>
+        <div className="d-flex justify-content-end">
+          {filaSeleccionada.length > 0 ? (
+            <>
+              <Button
+                onClick={() => setMostrarModal(true)}
+                disabled={listaRemates.length === 0}
+                variant={isDarkMode ? "secondary" : "primary"}
+                className="mx-1 mb-1"
+              >
+                Exportar
+                <FiletypePdf
+                  className="flex-shrink-0 h-5 w-5 ms-1"
+                  aria-hidden="true"
+                />
+
+              </Button>
+
+            </>
+          ) : (
+            <strong className="alert alert-dark border m-1 p-2">
+              No hay filas seleccionadas
+            </strong>
+          )}
+        </div>
         {/* Tabla*/}
         {loading ? (
           <>
@@ -409,16 +431,21 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
         ) : (
           <div className='table-responsive'>
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+              <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
-                  {/* <th >
+                  <th style={{
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 0,
+
+                  }}>
                     <Form.Check
                       className="check-danger"
                       type="checkbox"
                       onChange={handleSeleccionaTodos}
                       checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
                     />
-                  </th> */}
+                  </th>
                   <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                   <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
                   <th scope="col" className="text-nowrap text-center">Código Baja</th>
@@ -438,13 +465,13 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
                   const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                   return (
                     <tr key={indexReal}>
-                      {/* <td>
+                      <td>
                         <Form.Check
                           type="checkbox"
                           onChange={() => setSeleccionaFila(index)}
                           checked={filaSeleccionada.includes(indexReal.toString())}
                         />
-                      </td> */}
+                      </td>
                       {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                       <td className="text-nowrap">{Lista.nresolucion}</td>
@@ -499,77 +526,65 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, rem
       </div>
 
       {/* Modal formulario*/}
-      {elementosActuales.map((Lista, index) => (
-        <div key={index}>
-          <Modal
-            show={mostrarModal === index}
-            onHide={() => handleCerrarModal(index)}
-            dialogClassName="modal-right" // Clase personalizada
-          // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-          // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-          >
-            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-              <Modal.Title className="fw-semibold">Quitar registro: {Lista.aF_CLAVE}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-              <form>
-                {/* <div className="d-flex justify-content-end">
-                  <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
-                    Enviar a Bodega
-                  </Button>
-                </div> */}
-                {/* Boton quitar */}
-                <div className="d-flex justify-content-end">
-                  <Button
-                    variant="danger"
-                    onClick={handleQuitar}
-                    className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                    disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                  >
-                    {loadingRegistro ? (
-                      <>
-                        {" Quitando... "}
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                          className="me-2"  // Espaciado entre el spinner y el texto
-                        />
+    </Layout>
+    //{ elementosActuales.map((Lista, index) => (
+    // <div key={index}>
+    //   <Modal show={mostrarModal === index} onHide={() => handleCerrarModal(index)} dialogClassName="modal-right">
+    //     <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+    //       <Modal.Title className="fw-semibold">Quitar registro: {Lista.aF_CLAVE}</Modal.Title>
+    //     </Modal.Header>
+    //     <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+    //       <form>
+    //         {/* Boton quitar */}
+    //         <div className="d-flex justify-content-end">
+    //           <Button
+    //             variant="danger"
+    //             onClick={handleQuitar}
+    //             className="m-1 p-2 d-flex align-items-center"
+    //             disabled={loadingRegistro}
+    //           >
+    //             {loadingRegistro ? (
+    //               <>
+    //                 {" Quitando... "}
+    //                 <Spinner
+    //                   as="span"
+    //                   animation="border"
+    //                   size="sm"
+    //                   role="status"
+    //                   aria-hidden="true"
+    //                   className="me-2"
+    //                 />
 
-                      </>
-                    ) : (
-                      <>
-                        Quitar
-                      </>
-                    )}
-                  </Button>
-
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="nresolucion" className="fw-semibold">
-                    Ingrese número de resolución
-                  </label>
-                  <input
-                    aria-label="nresolucion"
-                    type="text"
-                    className={`form-control ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nresolucion"
-                    maxLength={100}
-                    onChange={handleChange}
-                    value={Rematados.nresolucion}
-                  />
-                  {error.nresolucion && (
-                    <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
-                  )}
-                </div>
-              </form>
-            </Modal.Body>
-          </Modal >
-        </div>
-      ))}
-    </Layout >
+    //               </>
+    //             ) : (
+    //               <>
+    //                 Quitar
+    //               </>
+    //             )}
+    //           </Button>
+    //         </div>
+    //         <div className="mb-1">
+    //           <label htmlFor="nresolucion" className="fw-semibold">
+    //             Ingrese número de resolución
+    //           </label>
+    //           <input
+    //             aria-label="nresolucion"
+    //             type="text"
+    //             className={`form-control ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+    //             name="nresolucion"
+    //             maxLength={100}
+    //             onChange={handleChange}
+    //             value={Rematados.nresolucion}
+    //           />
+    //           {error.nresolucion && (
+    //             <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
+    //           )}
+    //         </div>
+    //       </form>
+    //     </Modal.Body>
+    //   </Modal >
+    // </div>
+    //  ))}  
   );
 };
 

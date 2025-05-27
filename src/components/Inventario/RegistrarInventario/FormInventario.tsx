@@ -114,7 +114,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
     }
-
     //Carga combo bien con valor 0
     comboDetalleActions("0");
   }, [

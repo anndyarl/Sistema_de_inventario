@@ -79,8 +79,31 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       mostrarAlerta();
     }
     listaAltasAuto();
+  }, [listaAltasActions, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
 
-  }, [listaAltasActions, token, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
+  const mostrarAlerta = () => {
+    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    Swal.fire({
+      icon: "success",
+      title: "Registro Exitoso",
+      text: `Se han registrado correctamente las Altas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      customClass: { popup: "custom-border" },
+      allowOutsideClick: false,
+      showCancelButton: false, // Agrega un segundo botón
+      cancelButtonText: "Cerrar", // Texto del botón
+      willClose: () => {
+        document.body.style.overflow = "auto"; // Restaura el scroll
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setModalMostrarResumen(true);
+        dispatch(setAltasRegistradas(0));
+      }
+    });
+  };
 
   const handleBuscar = async () => {
     let resultado = false;
@@ -109,30 +132,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       setLoading(false); //Finaliza estado de carga
     }
 
-  };
-
-  const mostrarAlerta = () => {
-    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
-    Swal.fire({
-      icon: "success",
-      title: "Registro Exitoso",
-      text: `Se han registrado correctamente las Altas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
-      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-      color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-      customClass: { popup: "custom-border" },
-      allowOutsideClick: false,
-      showCancelButton: false, // Agrega un segundo botón
-      cancelButtonText: "Cerrar", // Texto del botón
-      willClose: () => {
-        document.body.style.overflow = "auto"; // Restaura el scroll
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setModalMostrarResumen(true);
-        dispatch(setAltasRegistradas(0));
-      }
-    });
   };
 
   const listaAltasAuto = async () => {
@@ -256,8 +255,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         const resultado = await registrarAltasActions(activosSeleccionados);
         if (resultado) {
           dispatch(setAltasRegistradas(1));//Guarda el estado para mostrar modal resumen(En use effect)
-          setLoadingRegistro(false);//Detiene la carga
           listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+          setLoadingRegistro(false);//Detiene la carga
           setFilasSeleccionadas([]);//Limpia Formulario
         } else {
           Swal.fire({
@@ -568,9 +567,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           </Button>
         </div> */}
         <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <Row className="mb-4">
-
-          </Row>
           <div className="table-responsive">
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
               <thead>

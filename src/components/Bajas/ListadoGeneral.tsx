@@ -52,10 +52,9 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const dispatch = useDispatch<AppDispatch>();
-  const [Paginacion, setPaginacion] = useState({
-    nPaginacion: 10
-  });
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
+
   const [Bajas, setBajas] = useState({
     nresolucion: 0,
     observaciones: "",
@@ -68,7 +67,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     altaS_CORR: 0,
     af_codigo_generico: ""
   });
-
 
   //Se lista automaticamente apenas entra al componente
   const listadoGeneralBajasAuto = async () => {
@@ -101,15 +99,15 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     if (bajasRegistradas === 1) {
       mostrarAlerta();
     }
-    listadoGeneralBajasAuto()
-  }, [listaAltasdesdeBajasActions, token, listadoGeneralBajas.length]); // Asegúrate de incluir dependencias relevantes
+    listadoGeneralBajasAuto();
+  }, [listaAltasdesdeBajasActions, listadoGeneralBajas.length]); // Asegúrate de incluir dependencias relevantes
 
   const mostrarAlerta = () => {
     document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
     Swal.fire({
       icon: "success",
       title: "Registro Exitoso",
-      text: `Se han registrado correctamente las bajas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+      text: `Se han registrado correctamente las Bajas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
       confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
@@ -127,6 +125,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       }
     });
   };
+
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
@@ -224,8 +223,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         if (resultado) {
           dispatch(setBajasRegistradas(1));//Guarda el estado para mostrar modal resumen(En use effect)
           listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento); //Carga la tabla nuevamente
-          setFilasSeleccionadas([]);//Limpia Formulario
           setLoadingRegistro(false);//Detiene la carga
+          setFilasSeleccionadas([]);//Limpia Formulario
           setMostrarModal(false);//Cierra modal formulario
         } else {
           Swal.fire({
@@ -234,7 +233,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
             text: "Hubo un problema al registrar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -617,9 +616,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 </Button>
               </div> */}
         <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <Row className="mb-4">
-
-          </Row>
           <div className="table-responsive">
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
               <thead>

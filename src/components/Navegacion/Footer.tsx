@@ -36,29 +36,30 @@ const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode }) => {
         };
 
         return (
-
-            <Row>
-                <Col md={4}>
-                    {navigation.map((item) => (
-                        <button
-                            key={item.name}
-                            onClick={() => handleClick(item.name)}
-                            type="button"
-                            className={`  ${activeTab === item.name ? 'bg-secondary text-white' : ''} btn btn-outline-secondary fw-semibold d-flex align-items-center py-2 px-3 mb-2 rounded w-100 border-0 `}
-                        >
-                            <item.icon className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
-                            {item.name}
-                        </button>
-                    ))}
-                </Col>
-                <Col md={8}>
-                    {activeTab === 'General' && <General />}
-                    {activeTab === 'Datos' && <Datos />}
-                    {/* {activeTab === 'Firma' && <Firma />}
+            <>
+                <Row>
+                    <Col md={4}>
+                        {navigation.map((item) => (
+                            <button
+                                key={item.name}
+                                onClick={() => handleClick(item.name)}
+                                type="button"
+                                className={` ${activeTab === item.name ? 'bg-secondary text-white' : ''} btn btn-outline-secondary fw-semibold d-flex align-items-center py-2 px-3 mb-2 rounded w-100 border-0 `}
+                            >
+                                <item.icon className={classNames('me-3 flex-shrink-0', 'h-5 w-5')} aria-hidden="true" />
+                                {item.name}
+                            </button>
+                        ))}
+                    </Col>
+                    <Col md={8}>
+                        {activeTab === 'General' && <General />}
+                        {activeTab === 'Datos' && <Datos />}
+                        {/* {activeTab === 'Firma' && <Firma />}
                     {activeTab === 'Indicadores' && <Indicadores />} */}
-                    {activeTab === 'Versionamiento' && <Versionamiento />}
-                </Col>
-            </Row >
+                        {activeTab === 'Versionamiento' && <Versionamiento />}
+                    </Col>
+                </Row >
+            </>
         );
     };
     const version = listaVersionamiento[0]?.numerO_VERSION || "";

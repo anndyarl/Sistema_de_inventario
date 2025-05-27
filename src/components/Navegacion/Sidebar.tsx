@@ -45,7 +45,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className='sticky-top z-1050'>
       <div className="text-center text-white">
         <div className="d-flex mx-2 top-0 w-75">
           <div className="text-bg-primary p-1 w-50"></div>

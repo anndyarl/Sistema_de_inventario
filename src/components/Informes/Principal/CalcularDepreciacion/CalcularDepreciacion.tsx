@@ -1160,278 +1160,300 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 < Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)}
                     fullscreen
                     dialogClassName="draggable-modal"
+
+                // scrollable={false}
+
                 // backdrop="static" // Evita que se cierre al hacer clic afuera
                 // keyboard={false}
                 >
                     <Modal.Header className={`modal-header text-white bg-success`} closeButton>
                         <Modal.Title className="fw-semibold">
-                            <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-1 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
+                            <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-1 "} aria-hidden="true" />Depreciación Calculada</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-
-                        <Row>
-                            <Col sm={6} md={6} lg={3}>
-                                <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded m-2">
-                                    <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
-                                        Total Depreciación Acumulada
-                                    </p>
-                                    <h4 className="fw-bold text-primary text-center m-0">
-                                        $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                    </h4>
-                                </div>
-                            </Col>
-
-                            <Col sm={6} md={6} lg={3}>
-                                <div className="bg-light border-start border-4 border-success shadow-sm p-3 rounded m-2">
-                                    <p className="text-uppercase text-success fw-semibold small mb-1 text-center">
-                                        Total Valor Residual
-                                    </p>
-                                    <h4 className="fw-bold text-success text-center m-0">
-                                        $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                    </h4>
-                                </div>
-                            </Col>
-
-                            <div className="d-flex justify-content-end p-4">
-                                {listaActivosFijos.length > 10 && (
-                                    <div className="d-flex align-items-center me-2">
-                                        <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
-                                            Tamaño de página:
-                                        </label>
-                                        <select
-                                            aria-label="Seleccionar tamaño de página"
-                                            className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                            name="nPaginacion2"
-                                            onChange={handleChange}
-                                            value={Paginacion.nPaginacion2}
-                                        >
-                                            {[10, 15, 20, 30].map((val) => (
-                                                <option key={val} value={val}>{val}</option>
-                                            ))}
-                                        </select>
+                    <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                        <div
+                            className="bg-white shadow-sm sticky-top p-3">
+                            <Row >
+                                <Col sm={6} md={6} lg={3}>
+                                    <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded m-2">
+                                        <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                                            Total Depreciación Acumulada
+                                        </p>
+                                        <h4 className="fw-bold text-primary text-center m-0">
+                                            $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </h4>
                                     </div>
-                                )}
-                                {listaActivosNoCalculados.length > 0 && (
-                                    <Button
-                                        onClick={() => setMostrarModalNoCalculados(true)}
-                                        disabled={listaActivosCalculados.length === 0}
-                                        variant="warning"
-                                        className="mx-1 mb-1">
-                                        <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1 text-danger")} aria-hidden="true" />
-                                        {"No Calculados"} <b>{listaActivosNoCalculados.length}</b>
-                                    </Button>
-                                )}
-                                <Button
-                                    onClick={() => setMostrarModal(true)}
-                                    disabled={listaActivosCalculados.length === 0}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1" >
+                                </Col>
 
-                                    {mostrarModal ? (
-                                        <>
-                                            {" Un Momento..."}
-                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FiletypePdf className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1")} aria-hidden="true" />
-                                            {"Exportar"} <b>{listaActivosCalculados.length}</b>  {"Calculados"}
+                                <Col sm={6} md={6} lg={3}>
+                                    <div className="bg-light border-start border-4 border-success shadow-sm p-3 rounded m-2">
+                                        <p className="text-uppercase text-success fw-semibold small mb-1 text-center">
+                                            Total Valor Residual
+                                        </p>
+                                        <h4 className="fw-bold text-success text-center m-0">
+                                            $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </h4>
+                                    </div>
+                                </Col>
 
-                                        </>
+                                <div className="d-flex justify-content-end">
+                                    {listaActivosFijos.length > 10 && (
+                                        <div className="d-flex align-items-center me-2">
+                                            <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                                                Tamaño de página:
+                                            </label>
+                                            <select
+                                                aria-label="Seleccionar tamaño de página"
+                                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="nPaginacion2"
+                                                onChange={handleChange}
+                                                value={Paginacion.nPaginacion2}
+                                            >
+                                                {[10, 25, 50, 75, 100, listaActivosCalculados.length].map((val) => (
+                                                    <option key={val} value={val}>{val}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     )}
-                                </Button>
+                                    {listaActivosNoCalculados.length > 0 && (
+                                        <Button
+                                            onClick={() => setMostrarModalNoCalculados(true)}
+                                            disabled={listaActivosCalculados.length === 0}
+                                            variant="warning"
+                                            className="mx-1 mb-1">
+                                            <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1 text-danger")} aria-hidden="true" />
+                                            {"No Calculados"} <b>{listaActivosNoCalculados.length}</b>
+                                        </Button>
+                                    )}
+                                    <Button
+                                        onClick={() => setMostrarModal(true)}
+                                        disabled={listaActivosCalculados.length === 0}
+                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                        className="mx-1 mb-1" >
 
-                            </div>
+                                        {mostrarModal ? (
+                                            <>
+                                                {" Un Momento..."}
+                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiletypePdf className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1")} aria-hidden="true" />
+                                                {"Exportar"} <b>{listaActivosCalculados.length}</b>  {"Calculados"}
 
-                        </Row>
-
-                        {/* Tabla*/}
-                        {loading ? (
-                            <>
-                                {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                <SkeletonLoader rowCount={10} columnCount={10} />
-                            </>
-                        ) : (
-                            <div className='table-responsive'>
-                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                    <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                        <tr>
-                                            {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                            <th
-                                                scope="col"
-                                                className="text-nowrap text-center"
-                                                style={{
-                                                    position: 'sticky',
-                                                    left: 0,
-                                                    zIndex: 0,
-
-                                                }}>
-                                                Nº Inventario
-                                            </th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Dependencia</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Especie</th>
-                                            <th scope="col" className="text-nowrap text-center">Marca</th>
-                                            <th scope="col" className="text-nowrap text-center">Modelo</th>
-                                            <th scope="col" className="text-nowrap text-center">Serie</th>
-                                            <th scope="col" className="text-nowrap text-center">Precio</th>
-                                            <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                            <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Tipo</th>
-                                            <th scope="col" className="text-nowrap text-center">Alta</th>
-                                            <th scope="col" className="text-nowrap text-center">Precio Referencial</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Origen</th>
-                                            <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Número OCO Ref</th>
-                                            <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
-                                            <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Usuario Modificador</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
-                                            <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Número Factura</th>
-                                            <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
-                                            <th scope="col" className="text-nowrap text-center">3 UTM</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ID Grupo</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Código Cuenta</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Transitoria</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Etiqueta</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Vigente</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ID Programa</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Modalidad Compra</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ID Propiedad</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Especie</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Meses transcurrido</th>
-                                            <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                                            <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
-                                            <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
-                                            <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
-                                            <th scope="col" className="text-nowrap text-center">Depreciación por Año</th>
-                                            <th scope="col" className="text-nowrap text-center">Depreciación por Mes</th>
-                                            <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
-                                            <td
-                                                scope="col"
-                                                className="text-nowrap text-center bg-success text-white"
-                                                style={{
-                                                    position: 'sticky',
-                                                    right: 0,
-                                                    zIndex: 0
-                                                }}>
-                                                <b> Valor Residual</b>
-                                            </td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales2.map((lista, index) =>
-
-                                            <tr key={index}>
-                                                {/* <td className="text-nowrap text-center">{lista.aF_CLAVE}</td> */}
-                                                <td
-                                                    className="text-nowrap text-center"
-                                                    style={{
-                                                        position: 'sticky',
-                                                        left: 0,
-                                                        zIndex: 0,
-
-                                                    }}>
-                                                    {lista.aF_CODIGO_GENERICO}
-                                                </td>
-                                                {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.deP_CORR}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
-                                                <td className="text-nowrap text-center">{lista.especie}</td>
-                                                <td className="text-nowrap text-center">{lista.marca}</td>
-                                                <td className="text-nowrap text-center">{lista.modelo}</td>
-                                                <td className="text-nowrap text-center">{lista.serie}</td>
-                                                <td className="text-nowrap text-center">
-                                                    ${(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                <td className="text-nowrap text-center">{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</td>
-                                                <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.aF_CODIGO}</td> */}
-                                                <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
-                                                <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
-                                                <td className="text-nowrap text-center">
-                                                    ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                {/* <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td> */}
-                                                <td className="text-nowrap text-center">{lista.origen}</td>
-                                                <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
-                                                <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
-                                                <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
-                                                <td className="text-nowrap text-center">{lista.f_CREA}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.iP_CREA}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.usuariO_MOD}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.f_MOD}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.iP_MODt}</td> */}
-                                                <td className="text-nowrap text-center">{lista.aF_TIPO_DOC}</td>
-                                                <td className="text-nowrap text-center">{lista.proV_RUN}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.reG_EQM}</td> */}
-                                                <td className="text-nowrap text-center">{lista.aF_NUM_FAC}</td>
-                                                <td className="text-nowrap text-center">{lista.aF_FECHAFAC}</td>
-                                                <td className="text-nowrap text-center">{lista.aF_3UTM}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.iD_GRUPO}</td> */}
-                                                <td className="text-nowrap text-center">{lista.ctA_COD}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.transitoria}</td> */}
-                                                <td className="text-nowrap text-center">
-                                                    ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                {/* <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td> */}
-                                                <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.idprograma}</td> */}
-                                                <td className="text-nowrap text-center">{lista.modalidad}</td>
-                                                {/* <td className="text-nowrap text-center">{lista.idpropiedad}</td> */}
-                                                {/* <td className="text-nowrap text-center">{lista.especie}</td> */}
-
-                                                {/* valores calculados */}
-                                                <td className="text-nowrap text-center">{lista.mesesTranscurridos}</td>
-                                                <td className="text-nowrap text-center">{lista.vidaUtil}</td>
-                                                <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
-                                                <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
-                                                <td className="text-nowrap text-center">
-                                                    $ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                <td className="text-nowrap text-center">
-                                                    $ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                <td className="text-nowrap text-center">
-                                                    $ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                                <td className="text-nowrap text-center">
-                                                    ${lista.depreciacionAcumuladaActualizada}
-                                                </td>
-                                                <td
-                                                    className="text-nowrap text-center"
-                                                    style={{
-                                                        position: 'sticky',
-                                                        right: 0,
-                                                        zIndex: 0,
-                                                        background: '#baecbf'
-                                                    }}>
-                                                    ${lista.valorResidual}
-                                                </td>
-                                            </tr>
+                                            </>
                                         )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
+                                    </Button>
+
+                                </div>
+                            </Row>
+                        </div>
+                        {/* Tabla activos calculados*/}
+                        <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
+                            {loading ? (
+                                <>
+                                    {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                                    <SkeletonLoader rowCount={10} columnCount={10} />
+                                </>
+                            ) : (
+                                <div className='table-responsive position-relative z-0'>
+                                    <div style={{ maxHeight: "70vh" }}>
+                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                <tr>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                                    <th
+                                                        scope="col"
+                                                        className="text-nowrap text-center"
+                                                        style={{
+                                                            position: 'sticky',
+                                                            left: 0,
+                                                            zIndex: 0,
+
+                                                        }}>
+                                                        Nº Inventario
+                                                    </th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Dependencia</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
+                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                                                    <th scope="col" className="text-nowrap text-center">Marca</th>
+                                                    <th scope="col" className="text-nowrap text-center">Modelo</th>
+                                                    <th scope="col" className="text-nowrap text-center">Serie</th>
+                                                    <th scope="col" className="text-nowrap text-center">Precio</th>
+                                                    <th scope="col" className="text-nowrap text-center">Descripción</th>
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Tipo</th>
+                                                    <th scope="col" className="text-nowrap text-center">Alta</th>
+                                                    <th scope="col" className="text-nowrap text-center">Precio Referencial</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Origen</th>
+                                                    <th scope="col" className="text-nowrap text-center">Resolución</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Número OCO Ref</th>
+                                                    <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Usuario Modificador</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
+                                                    <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Número Factura</th>
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
+                                                    <th scope="col" className="text-nowrap text-center">3 UTM</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ID Grupo</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Código Cuenta</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Transitoria</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Monto Factura</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Etiqueta</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Vigente</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ID Programa</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Modalidad Compra</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ID Propiedad</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Especie</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Meses transcurrido</th>
+                                                    <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                                                    <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
+                                                    <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
+                                                    <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
+                                                    <th scope="col" className="text-nowrap text-center">Depreciación por Año</th>
+                                                    <th scope="col" className="text-nowrap text-center">Depreciación por Mes</th>
+                                                    <td
+                                                        scope="col"
+                                                        className="text-nowrap text-center bg-primary text-white rounded-top"
+                                                        style={{
+                                                            position: 'sticky',
+                                                            right: 123,
+                                                            zIndex: 0
+                                                        }}>
+                                                        <b> Depreciación Acumulada </b>
+                                                    </td>
+                                                    <td
+                                                        scope="col"
+                                                        className="text-nowrap text-center bg-success text-white rounded-top"
+                                                        style={{
+                                                            position: 'sticky',
+                                                            right: 0,
+                                                            zIndex: 0
+                                                        }}>
+                                                        <b> Valor Residual</b>
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {elementosActuales2.map((lista, index) =>
+
+                                                    <tr key={index}>
+                                                        {/* <td className="text-nowrap text-center">{lista.aF_CLAVE}</td> */}
+                                                        <td
+                                                            className="text-nowrap text-center"
+                                                            style={{
+                                                                position: 'sticky',
+                                                                left: 0,
+                                                                zIndex: 0,
+
+                                                            }}>
+                                                            {lista.aF_CODIGO_GENERICO}
+                                                        </td>
+                                                        {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.deP_CORR}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
+                                                          <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.especie}</td>
+                                                        <td className="text-nowrap text-center">{lista.marca}</td>
+                                                        <td className="text-nowrap text-center">{lista.modelo}</td>
+                                                        <td className="text-nowrap text-center">{lista.serie}</td>
+                                                        <td className="text-nowrap text-center">
+                                                            ${(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        <td className="text-nowrap text-center">{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</td>
+                                                        <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.aF_CODIGO}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
+                                                        <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
+                                                        <td className="text-nowrap text-center">
+                                                            ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        {/* <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.origen}</td>
+                                                        <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
+                                                        <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
+                                                        <td className="text-nowrap text-center">{lista.f_CREA}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.iP_CREA}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.usuariO_MOD}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.f_MOD}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.iP_MODt}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.aF_TIPO_DOC}</td>
+                                                        <td className="text-nowrap text-center">{lista.proV_RUN}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.reG_EQM}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.aF_NUM_FAC}</td>
+                                                        <td className="text-nowrap text-center">{lista.aF_FECHAFAC}</td>
+                                                        <td className="text-nowrap text-center">{lista.aF_3UTM}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.iD_GRUPO}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.ctA_COD}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.transitoria}</td> */}
+                                                        <td className="text-nowrap text-center">
+                                                            ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        {/* <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.idprograma}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.modalidad}</td>
+                                                        {/* <td className="text-nowrap text-center">{lista.idpropiedad}</td> */}
+                                                        {/* <td className="text-nowrap text-center">{lista.especie}</td> */}
+
+                                                        {/* valores calculados */}
+                                                        <td className="text-nowrap text-center">{lista.mesesTranscurridos}</td>
+                                                        <td className="text-nowrap text-center">{lista.vidaUtil}</td>
+                                                        <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
+                                                        <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
+                                                        <td className="text-nowrap text-center">
+                                                            $ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        <td className="text-nowrap text-center">
+                                                            $ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        <td className="text-nowrap text-center">
+                                                            $ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        <td className="text-nowrap text-center"
+                                                            style={{
+                                                                position: 'sticky',
+                                                                right: 123,
+                                                                zIndex: 0,
+                                                                background: '#a4d1ff'
+                                                            }}>
+                                                            ${lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        <td
+                                                            className="text-nowrap text-center"
+                                                            style={{
+                                                                position: 'sticky',
+                                                                right: 0,
+                                                                zIndex: 0,
+                                                                background: '#baecbf'
+                                                            }}>
+                                                            ${lista.valorResidual === 0 ? 1 : lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         {/* Paginador */}
                         <div className="paginador-container">
                             <Pagination className="paginador-scroll">
@@ -1488,15 +1510,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                     <tr>
                                         <th scope="col" className="text-nowrap text-center">Código</th>
-                                        <th
-                                            scope="col"
-                                            className="text-nowrap text-center"
-                                            style={{
-                                                position: 'sticky',
-                                                left: 0,
-                                                zIndex: 0,
-
-                                            }}>
+                                        <th scope="col" className="text-nowrap text-center sticky-left z-0">
                                             Nº Inventario
                                         </th>
                                         {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
@@ -1552,16 +1566,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
                                         <tr key={index}>
                                             <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
-                                            <td
-                                                className="text-nowrap text-center"
-                                                style={{
-                                                    position: 'sticky',
-                                                    left: 0,
-                                                    zIndex: 0,
-
-                                                }}>
-                                                {lista.aF_CODIGO_GENERICO}
-                                            </td>
+                                            <td scope="col" className="text-nowrap text-center sticky-left z-0">  {lista.aF_CODIGO_GENERICO}</td>
                                             {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
                                             {/* <td className="text-nowrap text-center">{lista.deP_CORR}</td> */}
                                             {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>

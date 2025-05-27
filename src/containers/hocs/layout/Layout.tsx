@@ -63,7 +63,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
     <div className={`d-flex min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
 
       {/* Sidebar siempre visible en pantallas grandes */}
-      <div className={`d-none d-md-block min-vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left`}>
+      <div className={`d-none d-md-block min-vh-100  ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left`}>
         <Sidebar />
       </div>
 
@@ -87,7 +87,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
       <div id="page-content-wrapper" className="d-flex flex-column justify-content-between w-100">
 
         {/* Navbar (móvil) */}
-        <div className={`d-flex justify-content-between shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
+        <div className={`d-flex justify-content-between shadow-sm sticky-top z-1050 ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
           <button className="navbar-toggler m-4" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={30} />
           </button>
@@ -95,21 +95,23 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
         </div>
 
         {/* Navbar (escritorio) */}
-        <div className="d-none d-md-block mx-1 rounded-3">
+        <div className="d-none d-md-block mx-1 rounded-3 sticky-top z-1050">
           <Navbar />
         </div>
 
         {/* Contenido (ocupa el espacio entre Navbar y Footer) */}
-        <div className="flex-grow-1">
-          <Container fluid className="my-3">
+        <div className="flex-grow-1 ">
+          <Container fluid>
             {children}
           </Container>
         </div>
 
         {/* Footer siempre al final */}
-        <Footer />
+        <div className="sticky-bottom z-1050">
+          <Footer />
+        </div>
       </div>
-    </div>
+    </div >
   );
 
 };

@@ -325,7 +325,7 @@ const RegistrarTraspasos: React.FC<TraspasosProps> = ({
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -342,7 +342,7 @@ const RegistrarTraspasos: React.FC<TraspasosProps> = ({
                 text: "Primero debe dar de alta el inventario para realizar un traslado.",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
                 customClass: { popup: "custom-border" },
                 allowOutsideClick: false,
                 confirmButtonText: "Registrar Alta",

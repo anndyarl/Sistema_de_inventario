@@ -123,7 +123,6 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
           </span>
         </button >
       </div>
-
       <AnimatePresence >
         {isOpen && (
           <motion.div
@@ -136,7 +135,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
             onClick={togglePanel}
           >
             <motion.div onClick={(e) => e.stopPropagation()}>
-              <div className="d-flex justify-content-end">
+              <div className="d-flex justify-content-end ">
                 <button
                   className={`btn fs-2 p-0 ${isDarkMode ? "text-light" : "text-dark"}`}
                   onClick={togglePanel}
@@ -219,6 +218,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
           <ModalContent />
         </Modal.Body>
       </Modal>
+
     </>
   );
 };

@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useMemo, useEffect } from "react";
-import { Modal, Button, Form, Pagination, Row, Col, } from "react-bootstrap";
+import { Modal, Button, Form, Pagination, Row, Col, Tooltip, OverlayTrigger, } from "react-bootstrap";
 import { Eraser, EraserFill, Floppy, PencilSquare, Plus, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
@@ -44,10 +44,8 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
-import { ListaEspecie } from "./DatosCuenta";
-import { styleText } from "util";
+import { CUENTA, ListaEspecie } from "./DatosCuenta";
 import { IndicadoresProps } from "../../Navegacion/Profile";
-import Inventario from "../../../containers/pages/Inventario";
 // Props del formulario
 export interface ActivoFijo {
   id: string;
@@ -91,6 +89,7 @@ interface DatosActivoFijoProps {
   observaciones: string;
   precio: string;
   comboEspecies: ListaEspecie[];
+  comboCuenta: CUENTA[];
   utm: IndicadoresProps;
   // AF_CODIGO_GENERICO: number;//trae ultimo correlativo ingresado
 }
@@ -113,11 +112,19 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   observaciones,
   precio,
   comboEspecies,
+  comboCuenta,
   utm,
   // AF_CODIGO_GENERICO,
   registrarFormInventarioActions
 }) => {
-  const fechaHoy = new Date().toISOString().split("T")[0];//Se asigana fechade manera automatica a fechaIngreso
+
+  let fechaHoy = new Date(); // objeto Date
+  if (fechaHoy.getDate() > 15) {
+    fechaHoy = new Date(fechaHoy.getFullYear(), fechaHoy.getMonth() + 1, 1);
+  }
+
+  // Si necesitas formatearla como yyyy-mm-dd
+  const fechaFormateada = fechaHoy.toISOString().split("T")[0];
 
   //Estado que guarda en un array los objetos que irán en la tabla
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
@@ -125,7 +132,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const [activoFormulario, setActivoFormulario] = useState<ActivoFijo>({
     id: "",
     vidaUtil: "",
-    fechaIngreso: fechaHoy,
+    fechaIngreso: fechaFormateada,
     marca: "",
     cantidad: "",
     modelo: "",
@@ -154,9 +161,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
   const vPrecio = parseFloat(activoFormulario.precio) || 0;
   const vCantidad = parseInt(activoFormulario.cantidad, 10) || 0;
-  const [Paginacion, setPaginacion] = useState({
-    nPaginacion: 10
-  });
+  const [loadingEnvio, setLoadingEnvio] = useState(false);
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
   // Combina el estado local de react con el estado local de redux
   const datos = activosFijos;
@@ -326,7 +332,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     setActivoFormulario({
       id: "",
       vidaUtil,
-      fechaIngreso: fechaHoy,
+      fechaIngreso: fechaFormateada,
       marca,
       cantidad,
       modelo,
@@ -717,9 +723,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       });
 
       if (confirmResult.isConfirmed) {
+        setLoadingEnvio(true);
         try {
           const resultado = await registrarFormInventarioActions(FormulariosCombinados);
-
           if (resultado) {
             // Espera a obtener el nuevo código antes de continuar
             // funcionObtieneMaxRegistro();
@@ -755,7 +761,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
             //   customClass: { popup: "custom-border" }
             // });
-
+            setLoadingEnvio(false);
           } else {
             dispatch(setInventarioRegistrado(0));
             Swal.fire({
@@ -767,9 +773,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
               customClass: { popup: "custom-border" }
             });
+            setLoadingEnvio(false);
           }
         } catch (error) {
-          console.error("Error al registrar el formulario:", error);
+          // console.error("Error al registrar el formulario:", error);
           Swal.fire({
             icon: "error",
             title: "Error inesperado",
@@ -779,6 +786,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
             customClass: { popup: "custom-border" }
           });
+          setLoadingEnvio(false);
         }
       }
 
@@ -820,6 +828,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   })}
                 </h4>
               </div>
+
             </div>
           </Col>
           <Col>
@@ -950,10 +959,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       }</td>
                       <td className="text-center">{activo.marca}</td>
                       <td className="text-center">{activo.modelo}</td>
-                      <td
-                        className={` ${isDarkMode ? "text-light" : "text-dark"} w-15`}
-                        onClick={() => setEditingSerie(indexReal.toString())}
-                      >
+                      <td className={` ${isDarkMode ? "text-light" : "text-dark"}`} style={{
+                        width: "12%"
+                      }} onClick={() => setEditingSerie(indexReal.toString())}>
                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                           <Form.Control
                             type="text"
@@ -961,17 +969,16 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                             onChange={(e) => handleCambiaSerie(index, e.target.value)}
                             onBlur={handleSerieBlur}
                             autoFocus
-                            maxLength={10}
+                            maxLength={20}
                             placeholder="-"
                             pattern="\d*"
                             data-index={indexReal}
+
                             // Agregar clase condicional si hay un error en la serie
                             className={` text-center ${erroresSerie[indexReal] ? "is-invalid" : ""} ${isDarkMode ? "bg-secondary-subtle" : ""}`}
 
                           />
-                          <PencilSquare
-                            style={{ marginLeft: "1rem", color: "#6c757d" }}
-                          />{" "}
+                          <PencilSquare style={{ marginLeft: "0.5rem", color: "#6c757d" }} />
                           {/* Ícono de lápiz */}
                         </div>
                         {erroresSerie[indexReal] && (
@@ -982,7 +989,20 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       </td>
 
                       <td className="text-center">${parseFloat(activo.precio).toLocaleString("es-ES", { minimumFractionDigits: 0, })}</td>
-                      <td className="fw-bold text-center">{activo.cuenta}</td>
+                      <td className="fw-bold text-center">
+                        {activo.cuenta === "5320413" ? (
+                          <OverlayTrigger placement="top" overlay={<Tooltip>Equipos Menores</Tooltip>}>
+                            <span className="d-inline-flex align-items-center text-warning">
+                              {activo.cuenta}
+                              <i className="bi bi-info-circle ms-1" />
+                            </span>
+                          </OverlayTrigger>
+                        ) : (
+                          <>
+                            {activo.cuenta}
+                          </>
+                        )}
+                      </td>
                       {Utmxtres > parseInt(activo.precio) ? (
                         <td className="text-center"
                           style={{ width: "100px", minWidth: "150px", maxWidth: "40px" }}
@@ -1001,7 +1021,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                             -
                           </td>
                         </>
-                      )}
+                      )
+                      }
                       <td>
                         {/* ELiminar */}
                         <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleQuitar(indexReal)} /*, parseFloat(activo.precio */>
@@ -1029,8 +1050,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               </tfoot>
             </table>
           </div>
-
-
         )}
 
         {/* Paginador*/}
@@ -1060,13 +1079,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           )}
         </div>
         {/* Modal formulario Activos Fijo*/}
-        < Modal
-          show={mostrarModal}
-          onHide={() => setMostrarModal(false)}
-          size="lg"
-        >
+        < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
           <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-            <Modal.Title className="fw-semibold">Agregar activos fijos</Modal.Title>
+            <Modal.Title className="fw-semibold">Agregar</Modal.Title>
           </Modal.Header>
 
           <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -1082,19 +1097,25 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   {/* Contenedor para Monto Recepción y Monto Pendiente */}
                   <div className="d-flex p-1">
-                    <div className="mx-1 bg-primary text-white p-2 rounded">
-                      <p className="text-center">Monto Recepción</p>
-                      <p className="fw-semibold text-center">
-                        $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                    {/*Indicadores */}
+                    <div className="bg-light border-start border-4 border-primary shadow-sm p-3 mx-2 rounded">
+                      <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                        Monto Recepción
                       </p>
+                      <h4 className="fw-bold text-primary text-center m-0">
+                        $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                      </h4>
                     </div>
-                    <div className=" mx-1 bg-secondary text-white p-2 rounded">
-                      <p className="text-center">Monto Pendiente</p>
-                      <p className="fw-semibold text-center">
+
+                    <div className="bg-light border-start border-4 border-warning shadow-sm p-3 mx-2 rounded">
+                      <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
+                        Monto Pendiente
+                      </p>
+                      <h4 className="fw-bold text-warning text-center m-0">
                         $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
                           minimumFractionDigits: 0,
                         })}
-                      </p>
+                      </h4>
                     </div>
                   </div>
 
@@ -1297,6 +1318,21 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             </form>
           </Modal.Body >
         </Modal >
+
+        {loadingEnvio && (
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 1050,
+            }}
+          >
+            <div className="text-center">
+              <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+              <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+            </div>
+          </div>
+        )}
       </div >
     </>
   );
@@ -1317,6 +1353,7 @@ const mapStateToProps = (state: RootState) => ({
   precio: state.datosActivoFijoReducers.precio,
   nCuenta: state.datosActivoFijoReducers.nCuenta,
   comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
+  comboCuenta: state.comboCuentaReducer.comboCuenta,
   utm: state.indicadoresReducers.utm,
 
 });
