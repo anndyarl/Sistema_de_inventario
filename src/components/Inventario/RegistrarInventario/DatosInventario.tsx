@@ -344,7 +344,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   // Muestra la alerta solo si resultadoRegistro es 1
   useEffect(() => {
     // dispatch(setInventarioRegistrado(1));
-    // setModalMostrarResumen(true);
+    setModalMostrarResumen(true);
     if (resultadoRegistro === 1) {
       for (let i = 0; i < comboDependencia.length; i++) {
         const dep_corr_n = comboDependencia[i].codigo;
@@ -912,9 +912,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </Col>
             <Col>
               <p><strong>Fecha Ingreso:</strong></p>
-              <p>{activosFijos[0]?.fechaIngreso || 'N/A'}</p>
+              <p>{activosFijos[0]?.fechaIngreso.split('-').reverse().join('/') || 'N/A'}</p>
             </Col>
-
           </Row>
 
           <div className="table-responsive">

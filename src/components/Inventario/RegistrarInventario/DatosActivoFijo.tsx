@@ -395,9 +395,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     }
   };
 
-
-
-
   const handleAgregar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -466,7 +463,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     }
   };
 
-
   const handleLimpiar = () => {
     setActivoFormulario((prevData) => ({
       ...prevData,
@@ -486,24 +482,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     dispatch(setCantidadActions(""));
     dispatch(setObservacionesActions(""));
   }
-
-  const handleEliminar = (index: number) => {
-    setActivosFijos((prev) => {
-      const actualizados = prev.filter((_, i) => i !== index);
-
-      // Limpia los errores asociados al índice eliminado
-      setErroresSerie((prevErrores) => {
-        const newErrores = { ...prevErrores };
-        delete newErrores[index];
-        return newErrores;
-      });
-      paginar(1);
-      return actualizados;
-    });
-
-    // Despachar acción para actualizar el estado global
-    dispatch(eliminarActivoDeTabla(index));
-  };
 
   const handleMantenerCuentaSeleccionados = () => {
     // 1) Convierte los índices seleccionados a números
@@ -535,7 +513,44 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     setActivosFijos(nuevosDatos);
   };
 
-  const handleEliminarSeleccionados = () => {
+  const handleQuitar = (index: number) => {
+    setActivosFijos((prev) => {
+      const nuevos = [...prev];
+      nuevos.splice(index, 1); // Elimina por índice real
+
+      // Limpia errores asociados a ese índice
+      setErroresSerie((prevErrores) => {
+        const nuevosErrores: Record<number, string> = {};
+        Object.entries(prevErrores).forEach(([key, value]) => {
+          const i = parseInt(key);
+          if (i < index) {
+            nuevosErrores[i] = value;
+          } else if (i > index) {
+            nuevosErrores[i - 1] = value; // Reindexa los siguientes
+          }
+          // El índice eliminado se omite
+        });
+        return nuevosErrores;
+      });
+
+      // Actualiza filas seleccionadas (reindexando también)
+      setFilasSeleccionadas((prevSel) =>
+        prevSel
+          .map(Number)
+          .filter((i) => i !== index)
+          .map((i) => (i > index ? (i - 1).toString() : i.toString()))
+      );
+
+      paginar(1); // opcional: puedes condicionar si deseas
+
+      return nuevos;
+    });
+
+    // Despacha a Redux
+    dispatch(eliminarActivoDeTabla(index));
+  };
+
+  const handleQuitarSeleccionados = () => {
     // Convertir los índices seleccionados a números
     const selectedIndices = filasSeleccionadas.map(Number);
 
@@ -782,88 +797,100 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         <h3 className="form-title fw-semibold border-bottom">
           Detalles activo
         </h3>
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          {/* Contenedor para Monto Recepción y Monto Pendiente */}
-          <div className="d-flex">
-            <div className="mx-1 bg-primary text-white p-2 rounded">
-              <p className="text-center">Monto Recepción</p>
-              <p className="fw-semibold text-center">
-                $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-              </p>
-            </div>
-            <div className=" mx-1 bg-secondary text-white p-2 rounded">
-              <p className="text-center">Monto Pendiente</p>
-              <p className="fw-semibold text-center">
-                $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
-                  minimumFractionDigits: 0,
-                })}
-              </p>
-            </div>
-          </div>
+        <Row>
+          <Col>
+            <div className="d-flex">
+              {/*Indicadores */}
+              <div className="bg-light border-start border-4 border-primary shadow-sm p-3 mx-2 rounded">
+                <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                  Monto Recepción
+                </p>
+                <h4 className="fw-bold text-primary text-center m-0">
+                  $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                </h4>
+              </div>
 
-          {/* Contenedor para los Botones */}
-          <div className="d-flex">
-            <div className="mb-1 mx-1">
+              <div className="bg-light border-start border-4 border-warning shadow-sm p-3 mx-2 rounded">
+                <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
+                  Monto Pendiente
+                </p>
+                <h4 className="fw-bold text-warning text-center m-0">
+                  $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                    minimumFractionDigits: 0,
+                  })}
+                </h4>
+              </div>
+            </div>
+          </Col>
+          <Col>
+            <div className="d-flex justify-content-end">
               {/* habilita Boton Modal formulario si solo monto recepcion y total coinciden y si la especie tiene datos */}
               {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
                 <Button
-                  className="align-content-center"
+                  className="mb-1 p-2 mx-1 align-content-center"
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   onClick={() => setMostrarModal(true)}
                 >
-                  <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                   Agregar
+                  <Plus className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
                 </Button>
               )}
             </div>
-          </div>
-        </div>
+          </Col>
+        </Row>
 
-        <div className="d-flex justify-content-end">
-          {/* Boton Mantener Cuenta multiple */}
-          {filasSeleccionadas.length > 0 && (
-            <Button
-              variant={mantenerTodo ? "secondary" : "primary"}
-              onClick={handleMantenerCuentaSeleccionados}
-              className="mb-1 p-2 mx-1 d-flex align-items-center"
-            >
-              {mantenerTodo ? "Descartar Cuentas" : "Mantener Cuentas"}
-              <span className="badge bg-light text-dark mx-1 mt-1">
-                {filasSeleccionadas.length}
-              </span>
-            </Button>
-          )}
+        {/*Agregar */}
+        <Row>
+          <Col>
+            {/* TAmaño de pagina*/}
+            {datos.length > 0 && (
+              <div className="d-flex align-items-center mx-2 mb-1 p-2">
+                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                  Tamaño de página:
+                </label>
+                <select
+                  aria-label="Seleccionar tamaño de página"
+                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="nPaginacion"
+                  onChange={handleChange}
+                  value={Paginacion.nPaginacion}
+                >
+                  {[10, 20, 30, datos.length].map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </Col>
+          <Col>
+            <div className="d-flex justify-content-end">
+              {/* Boton Mantener Cuenta multiple */}
+              {filasSeleccionadas.length > 0 && (
+                <Button
+                  variant={mantenerTodo ? "secondary" : "primary"}
+                  onClick={handleMantenerCuentaSeleccionados}
+                  className="mb-1 p-2 mx-1"
+                >
+                  {mantenerTodo ? "Descartar Cuentas" : "Mantener Cuentas"}
+                </Button>
+              )}
 
-          {/* Boton elimina filas seleccionadas */}
-          {filasSeleccionadas.length > 0 && (
-            <Button
-              variant="danger"
-              onClick={handleEliminarSeleccionados}
-              className="mb-1 p-2 mx-1 d-flex align-items-center"  // Alinea el spinner y el texto
-            >
-              Quitar
-              <span className="badge bg-light text-dark mx-1 mt-1">
-                {filasSeleccionadas.length}
-              </span>
-            </Button>
-          )}
-          <div className="d-flex align-items-center mx-2 mb-1 p-2">
-            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-              Tamaño de página:
-            </label>
-            <select
-              aria-label="Seleccionar tamaño de página"
-              className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-              name="nPaginacion"
-              onChange={handleChange}
-              value={Paginacion.nPaginacion}
-            >
-              {[10, 20, 30, datos.length].map((val) => (
-                <option key={val} value={val}>{val}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+              {/* Boton elimina filas seleccionadas */}
+              {filasSeleccionadas.length > 0 && (
+                <Button
+                  variant="danger"
+                  onClick={handleQuitarSeleccionados}
+                  className="mb-1 p-2 mx-1"  // Alinea el spinner y el texto
+                >
+                  Quitar
+                  <span className="badge bg-light text-dark mx-1 mt-1">
+                    {filasSeleccionadas.length}
+                  </span>
+                </Button>
+              )}
+            </div>
+          </Col>
+        </Row>
         {/* Mostrar errores generales */}
         {error.generalTabla && (
           <div className="alert alert-danger" role="alert">
@@ -977,7 +1004,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       )}
                       <td>
                         {/* ELiminar */}
-                        <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleEliminar(indexReal)} /*, parseFloat(activo.precio */>
+                        <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleQuitar(indexReal)} /*, parseFloat(activo.precio */>
                           <Trash
                             className="flex-shrink-0 h-5 w-5"
                             aria-hidden="true"

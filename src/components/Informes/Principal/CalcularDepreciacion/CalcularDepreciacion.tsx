@@ -167,6 +167,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             ...prevState,
             [name]: value,
         }));
+
+        if (name === "nPaginacion2") {
+            paginar2(1);
+        }
     };
 
     const handleCuentasChange = (selectedOption: any) => {
@@ -929,7 +933,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 </Row>
 
                 <div className="d-flex justify-content-end">
-                    {listaActivosFijos.length && (
+                    {listaActivosFijos.length > 0 && (
                         <Button
                             onClick={handleCalcular} disabled={listaActivosFijos.length === 0}
                             className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
@@ -1167,50 +1171,46 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
                         <Row>
                             <Col sm={6} md={6} lg={3}>
-                                <div className=" bg-primary text-white p-2 rounded m-1">
-                                    <p className="text-center">Total Depreciación Acumulada</p>
-                                    {totalDep < 0 ? (
-                                        <p className="fw-bold text-center">
-                                            $ 1
-                                        </p>
-                                    ) : (
-                                        <p className="fw-semibold text-center">
-                                            $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                        </p>
-                                    )}
+                                <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded m-2">
+                                    <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                                        Total Depreciación Acumulada
+                                    </p>
+                                    <h4 className="fw-bold text-primary text-center m-0">
+                                        $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                    </h4>
                                 </div>
                             </Col>
+
                             <Col sm={6} md={6} lg={3}>
-                                <div className="bg-primary text-white p-2 rounded m-1">
-                                    <p className="text-center">Total Valor Residual</p>
-                                    {totalRes < 0 ? (
-                                        <p className="fw-bold text-center">
-                                            $ 1
-                                        </p>
-                                    ) : (
-                                        <p className="fw-semibold text-center">
-                                            $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                        </p>
-                                    )}
+                                <div className="bg-light border-start border-4 border-success shadow-sm p-3 rounded m-2">
+                                    <p className="text-uppercase text-success fw-semibold small mb-1 text-center">
+                                        Total Valor Residual
+                                    </p>
+                                    <h4 className="fw-bold text-success text-center m-0">
+                                        $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                    </h4>
                                 </div>
                             </Col>
+
                             <div className="d-flex justify-content-end p-4">
-                                <div className="d-flex align-items-center me-2">
-                                    <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
-                                        Tamaño de página:
-                                    </label>
-                                    <select
-                                        aria-label="Seleccionar tamaño de página"
-                                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                        name="nPaginacion2"
-                                        onChange={handleChange}
-                                        value={Paginacion.nPaginacion2}
-                                    >
-                                        {[10, 15, 20, 50].map((val) => (
-                                            <option key={val} value={val}>{val}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                                {listaActivosFijos.length > 10 && (
+                                    <div className="d-flex align-items-center me-2">
+                                        <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                                            Tamaño de página:
+                                        </label>
+                                        <select
+                                            aria-label="Seleccionar tamaño de página"
+                                            className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="nPaginacion2"
+                                            onChange={handleChange}
+                                            value={Paginacion.nPaginacion2}
+                                        >
+                                            {[10, 15, 20, 30].map((val) => (
+                                                <option key={val} value={val}>{val}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                                 {listaActivosNoCalculados.length > 0 && (
                                     <Button
                                         onClick={() => setMostrarModalNoCalculados(true)}

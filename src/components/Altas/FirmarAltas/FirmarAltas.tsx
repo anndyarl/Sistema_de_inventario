@@ -954,17 +954,19 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form >
+                        <Row>
+                            <Col md={2}>
+                                <Form.Check
+                                    onChange={handleCheck}
+                                    name="ajustarFirma"
+                                    type="checkbox"
+                                    label="Ajustar firma"
+                                    style={{ transform: 'scale(1)' }}
+                                    className="form-switch mx-2 "
+                                    checked={AltaInventario.ajustarFirma}
+                                /></Col>
+                        </Row>
 
-                        <div className="fw-semibold p-1" >
-                            <Form.Check
-                                onChange={handleCheck}
-                                name="ajustarFirma"
-                                type="checkbox"
-                                label="Ajustar firma"
-                                className="form-switch mx-2 "
-                                checked={AltaInventario.ajustarFirma}
-                            />
-                        </div>
                         <div className="d-flex justify-content-end">
                             <Button onClick={handleSolicitarVisado}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}

@@ -411,7 +411,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             <Collapse in={isExpanded.fila1} dimension="height">
               <div className="border-top ">
                 <Row className="p-1 row justify-content-center ">
-                  <Col md={5}>
+                  <Col md={4}>
                     {/* N° Inventario */}
                     <div className="mb-1">
                       <label className="fw-semibold">
@@ -491,7 +491,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       )}
                     </div>
                   </Col>
-                  <Col md={5}>
+                  <Col md={4}>
                     {/* Datos */}
 
                     <div className="d-flex">
