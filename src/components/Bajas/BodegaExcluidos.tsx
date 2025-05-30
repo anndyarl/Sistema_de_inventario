@@ -14,6 +14,7 @@ import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaEx
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
 import { devolverBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/devolverBajasActions.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
+import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 
 interface FechasProps {
   fDesde: string;
@@ -41,16 +42,17 @@ export interface ListaExcluidos {
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
   obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
+  listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
   quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
-  devolverBajasActions: (devolverLista: Record<string, any>[]) => Promise<boolean>;
+  devolverBajasActions: (devolverBaja: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   nPaginacion: number; //número de paginas establecido desde preferencias
   objeto: Objeto;
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, devolverBajasActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, listaAltasdesdeBajasActions, quitarBodegaExcluidosActions, excluirBajasActions, devolverBajasActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
@@ -126,7 +128,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     }));
 
   };
-
 
   //Funcion para seleccion multiple
   const setSeleccionaFila = (index: number) => {
@@ -264,6 +265,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
 
         setLoadingRegistro(false);
         obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+        listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+        handleBuscar();
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -283,7 +286,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     }
 
   };
-
 
   const handleCerrarModal = () => {
     setMostrarModal(null); //Cierra modal del indice seleccionado
@@ -370,7 +372,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
 
   };
 
-
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
@@ -390,7 +391,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         text: "El Nº de Inventario consultado no se encuentra en este listado.",
         confirmButtonText: "Ok",
       });
-      // obtenerListaExcluidosActions("", "", "");
+      obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -819,6 +820,7 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   excluirBajasActions,
   obtenerListaExcluidosActions,
+  listaAltasdesdeBajasActions,
   quitarBodegaExcluidosActions,
   devolverBajasActions
 })(BienesExcluidos);

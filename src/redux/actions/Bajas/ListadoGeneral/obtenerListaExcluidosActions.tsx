@@ -22,22 +22,26 @@ export const obtenerListaExcluidosActions = (fDesde: string, fHasta: string, nre
 
     try {
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBodegaExcluido?fDesde=${fDesde}&fHasta=${fHasta}&nresolucion=${nresolucion}&af_codigo_generico=${af_codigo_generico}&establ_corr=${establ_corr}`, config);
-
+      const data = res.data;
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({
             type: OBTENER_EXCLUIDOS_SUCCESS,
-            payload: res.data,
+            payload: data ? data : [],
           });
           return true;
         } else {
+          dispatch({
+            type: OBTENER_EXCLUIDOS_FAIL,
+            error: "Listado sin información",
+          });
           return false;
         }
       } else {
         dispatch({
           type: OBTENER_EXCLUIDOS_FAIL,
-          error:
-            "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
+          error: "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
+          payload: []
         });
         return false;
       }

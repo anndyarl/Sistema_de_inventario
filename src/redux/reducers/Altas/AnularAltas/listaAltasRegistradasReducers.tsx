@@ -41,7 +41,11 @@ const listaAltasRegistradasReducers = (state = initialState, action: any) => {
         listaAltasRegistradas: action.payload,
       };
     case OBTENER_ALTAS_REGISTRADAS_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state, loading: false,
+        error: action.error,
+        listaAltasRegistradas: []
+      };
     default:
       return state;
   }

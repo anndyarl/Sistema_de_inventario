@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
-export const devolverBajasActions = (listaExcluir: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const devolverBajasActions = (devolverBaja: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -18,11 +18,11 @@ export const devolverBajasActions = (listaExcluir: Record<string, any>[]) => asy
         "Content-Type": "application/json",
       },
     };
-    if (!listaExcluir || Object.keys(listaExcluir).length === 0) {
+    if (!devolverBaja || Object.keys(devolverBaja).length === 0) {
       // console.error("El objeto datosInventario está vacío.");
       return false;
     }
-    const body = JSON.stringify(listaExcluir);
+    const body = JSON.stringify(devolverBaja);
 
     dispatch({ type: DEVOLVER_BAJAS_REQUEST });
 
@@ -31,14 +31,14 @@ export const devolverBajasActions = (listaExcluir: Record<string, any>[]) => asy
 
       if (res.status === 200) {
         dispatch({
-          type: DEVOLVER_BAJAS_SUCCESS
+          type: DEVOLVER_BAJAS_SUCCESS,
+          payload: res.data
         });
         return true;
       } else {
         dispatch({
           type: DEVOLVER_BAJAS_FAIL,
-          error:
-            "No se pudo devolver a bajas la fila seleccionada. Por favor, intente nuevamente.",
+          error: "Listado sin información",
         });
         return false;
       }

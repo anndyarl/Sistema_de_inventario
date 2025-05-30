@@ -71,7 +71,11 @@ const datosListadoGeneralBajasReducers = (state = initialState, action: any) => 
         listadoGeneralBajas: action.payload,
       };
     case LISTADO_GENERAL_BAJAS_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state, loading: false,
+        error: action.error,
+        listadoGeneralBajas: []
+      };
     default:
       return state;
   }

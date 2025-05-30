@@ -57,6 +57,7 @@ export interface ListaFolioServicioDependencia {
     ntraslado: number;
     valoR_LIBRO: number;
     aF_PRECIO: number;
+    aF_PRECIO_REF: number;
 
     //Props formulario;
     seR_CORR: number;
@@ -879,15 +880,18 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                             />
                                         </th>
                                         <th scope="col" className="text-nowrap">N° Inventario</th>
-                                        <th scope="col" className="text-nowrap">Nº Alta</th>
-                                        <th scope="col" className="text-nowrap">Fecha Ingreso</th>
-                                        <th scope="col" className="text-nowrap">Dependencia</th>
                                         <th scope="col" className="text-nowrap">Especie</th>
                                         <th scope="col" className="text-nowrap">Marca</th>
                                         <th scope="col" className="text-nowrap">Modelo</th>
                                         <th scope="col" className="text-nowrap">Serie</th>
-                                        <th scope="col" className="text-nowrap">Precio</th>
                                         <th scope="col" className="text-nowrap">Observación</th>
+                                        <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                                        <th scope="col" className="text-nowrap">Nº Alta</th>
+                                        <th scope="col" className="text-nowrap">Estado</th>
+                                        <th scope="col" className="text-nowrap">Nº Traslado</th>
+                                        <th scope="col" className="text-nowrap">Valor Inicial</th>
+                                        <th scope="col" className="text-nowrap">Cuenta Contable</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -908,15 +912,17 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                     />
                                                 </td>
                                                 <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                                                <td className="text-nowrap">{Lista.dependencia}</td>
                                                 <td className="text-nowrap">{Lista.aF_ESPECIE}</td>
                                                 <td className="text-nowrap">{Lista.aF_MARCA}</td>
                                                 <td className="text-nowrap">{Lista.aF_MODELO}</td>
                                                 <td className="text-nowrap">{Lista.aF_SERIE}</td>
-                                                <td className="text-nowrap"> ${(Lista.aF_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
                                                 <td>{Lista.aF_OBS}</td>
+                                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
+                                                <td className="text-nowrap">{Lista.ntraslado}</td>
+                                                <td className="text-nowrap"> ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                                                <td className="text-nowrap">{Lista.ctA_COD}</td>
                                             </tr>
                                         );
                                     })}
@@ -1125,12 +1131,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                             <DocumentoPDF
                                 row={filasSeleccionadasPDF}
                                 AltaInventario={Inventario}
-                                firmanteInventario={Inventario.firmanteInventario}
-                                firmanteFinanzas={Inventario.firmanteFinanzas}
-                                firmanteAbastecimiento={Inventario.firmanteAbastecimiento}
-                                visadoInventario={Inventario.visadoInventario}
-                                visadoFinanzas={Inventario.visadoFinanzas}
-                                visadoAbastecimiento={Inventario.visadoAbastecimiento}
+                            // firmanteInventario={Inventario.firmanteInventario}
+                            // firmanteFinanzas={Inventario.firmanteFinanzas}
+                            // firmanteAbastecimiento={Inventario.firmanteAbastecimiento}
+                            // visadoInventario={Inventario.visadoInventario}
+                            // visadoFinanzas={Inventario.visadoFinanzas}
+                            // visadoAbastecimiento={Inventario.visadoAbastecimiento}
                             />
                         }>
                             {({ url, loading }) =>

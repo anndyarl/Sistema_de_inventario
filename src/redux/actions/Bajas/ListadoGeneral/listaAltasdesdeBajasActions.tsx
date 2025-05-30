@@ -25,13 +25,17 @@ export const listaAltasdesdeBajasActions = (fDesde: string, fHasta: string, af_c
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAltas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altasCorr=${altasCorr}&establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
-        if (res.data.length > 0) {
+        if (res.data?.length) {
           dispatch({
             type: LISTADO_GENERAL_BAJAS_SUCCESS,
             payload: res.data,
           });
           return true;
         } else {
+          dispatch({
+            type: LISTADO_GENERAL_BAJAS_FAIL,
+            error: "Listado sin información"
+          });
           return false;
         }
       } else {

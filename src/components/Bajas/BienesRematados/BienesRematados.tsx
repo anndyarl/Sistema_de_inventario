@@ -532,7 +532,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
       {/* Modal exportar*/}
       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
         <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-          <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
+          <Modal.Title className="fw-semibold">Bienes Rematados</Modal.Title>
         </Modal.Header>
         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
           <form >

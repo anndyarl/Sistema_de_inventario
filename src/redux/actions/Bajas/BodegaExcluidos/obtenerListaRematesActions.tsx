@@ -31,6 +31,11 @@ export const obtenerListaRematesActions = (fDesde: string, fHasta: string, nreso
           });
           return true;
         } else {
+          dispatch({
+            type: OBTENER_REMATES_FAIL,
+            error: "Listado sin información",
+            payload: []
+          });
           return false;
         }
       } else {

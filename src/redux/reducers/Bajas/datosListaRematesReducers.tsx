@@ -52,7 +52,11 @@ const obtenerListaRematesReducers = (state = initialState, action: any) => {
         listaRemates: action.payload,
       };
     case OBTENER_REMATES_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state, loading: false,
+        error: action.error,
+        listaRemates: []
+      };
     default:
       return state;
   }

@@ -140,20 +140,18 @@ const DocumentoEstadodFirmaPDF = ({ row }: { row: ListaEstadoFirmas[]; }) => (
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}
                 <View style={styles.tableRow}>
+                    <Text style={styles.tableCellHeaderLong}>nº DOCUMENTO</Text>
                     <Text style={styles.tableCellHeaderLong}>N° Alta</Text>
-                    <Text style={styles.tableCellHeaderLong}>Id Cargo</Text>
-                    <Text style={styles.tableCellHeaderLong}>Firmantes</Text>
                     <Text style={styles.tableCellHeader}>Estado Firma</Text>
-                    <Text style={styles.tableCellHeader}>Id Movimiento</Text>
+
                 </View>
                 {/* Fila de datos */}
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
+                        <Text style={styles.tableCellLong}>{lista.idocumento}</Text>
                         <Text style={styles.tableCellLong}>{lista.altaS_CORR}</Text>
-                        <Text style={styles.tableCellLong}>{lista.idcargo}</Text>
-                        <Text style={styles.tableCellLong}>{lista.jerarquia}</Text>
-                        <Text style={styles.tableCell}>{lista.firmado}</Text>
-                        <Text style={styles.tableCell}>{lista.imovimiento}</Text>
+                        <Text style={styles.tableCellLong}>{lista.estado}</Text>
+
                     </View>
                 ))}
             </View>

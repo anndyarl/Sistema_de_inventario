@@ -10,27 +10,28 @@ import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
 import { Eye, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
-import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/listaEstadoFirmasActions";
+
 import DocumentoEstadodFirmaPDF from "./DocumentoEstadodFirmaPDF";
+import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/EstadoFirmas/listaEstadoFirmasActions";
+import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/FirmarAltas/EstadoFirmas/obtieneVisadoCompletoActions";
 
 export interface ListaEstadoFirmas {
+    idocumento: number;
     altaS_CORR: number;
-    idcargo: number;
-    jerarquia: number;
-    firmado: number;
-    imovimiento: number;
+    estado: number;
 }
 
 interface DatosBajas {
     listaEstadoFirmas: ListaEstadoFirmas[];
     listaEstadoFirmasActions: (altasCorr: number) => Promise<boolean>;
+    obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, listaEstadoFirmas, token, isDarkMode, nPaginacion }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneVisadoCompletoActions, listaEstadoFirmas, token, isDarkMode, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [filasSeleccionadas, _] = useState<string[]>([]);
@@ -39,6 +40,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, listaEst
     const filasSeleccionadasPDF = listaEstadoFirmas.filter((_, index) =>
         filasSeleccionadas.includes(index.toString())
     );
+    const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
     });
@@ -90,7 +92,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, listaEst
 
     };
 
-
     const listaAltasAuto = async () => {
         if (token) {
             if (listaEstadoFirmas.length === 0) {
@@ -107,6 +108,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, listaEst
         listaAltasAuto();
     }, [listaEstadoFirmasActions]);
 
+    const handleObtenerVisado = async (index: number, idocumento: number) => {
+        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+        obtieneVisadoCompletoActions(idocumento);
+    }
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -176,72 +181,60 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, listaEst
                 {loading ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
-                    <div className='table-responsive'>
-                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                <tr>
-                                    <th scope="col" className="text-nowrap">N° Alta</th>
-                                    <th scope="col" className="text-nowrap">Id Cargo</th>
-                                    <th scope="col" className="text-nowrap">Firmantes</th>
-                                    <th scope="col" className="text-nowrap">Estado Firma</th>
-                                    <th scope="col" className="text-nowrap">Id movimiento</th>
-                                    <th scope="col" className="text-nowrap">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {elementosActuales.map((Lista, index) => {
-                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                    return (
-                                        <tr key={index}>
-                                            <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                            <td className="text-nowrap">{Lista.idcargo}</td>
-                                            <td className="text-nowrap">
-                                                {
-                                                    Lista.jerarquia === 1 ? "Unindad de Inventario" :
-                                                        Lista.jerarquia === 2 ? "Departamento de Finanzas" :
-                                                            Lista.jerarquia === 3 ? "Unidad de Abastecimiento" : "Desconocido"
-                                                }
-                                            </td>
-                                            <td className="text-nowrap">
-                                                {
-                                                    Lista.firmado === 0 ? <p className="bg-warning text-white text-center p-1">Pendiente</p> :
-                                                        Lista.firmado === 1 ? <p className="bg-success text-white text-center p-1">Firmado</p> :
-                                                            Lista.firmado === 2 ? <p className="bg-success text-white text-center p-1">Rechazado</p> : "Desconocido"
-                                                }
-                                            </td>
-                                            <td className="text-nowrap">{Lista.imovimiento}</td>
-                                            <td style={{
-                                                position: 'sticky',
-                                                left: 0,
-                                                zIndex: 2
-                                            }}>
-                                                {Lista.firmado === 1 ? (
+                    <div className="w-full flex justify-center">
+                        <div className="table-responsive w-fit max-w-full">
+                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                    <tr>
+                                        <th scope="col" className="text-nowrap text-center">N° DOCUMENTO</th>
+                                        <th scope="col" className="text-nowrap text-center">Nº Alta</th>
+                                        <th scope="col" className="text-nowrap text-center">Estado</th>
+                                        <th scope="col" className="text-nowrap text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {elementosActuales.map((Lista, index) => {
+                                        // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                        return (
+                                            <tr key={index}>
+                                                <td className="text-nowrap text-center">{Lista.idocumento}</td>
+                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
+                                                <td className="text-nowrap text-center">
+                                                    {
+                                                        Lista.estado === 0 ? <p className="bg-warning text-white text-center p-1 rounded">Pendiente</p> :
+                                                            Lista.estado === 1 ? <p className="bg-success text-white text-center p-1 rounded">Firmado</p> :
+                                                                Lista.estado === 2 ? <p className="bg-danger text-white text-center p-1 rounded">Rechazado</p> : "Desconocido"
+                                                    }
+                                                </td>
+                                                <td
+                                                    className="text-nowrap text-center"
+                                                    style={{
+                                                        position: 'sticky',
+                                                        left: 0,
+                                                        zIndex: 2
+                                                    }}>
 
-                                                    <Button
-                                                        type="button"
-                                                    // onChange={() => setSeleccionaFilas(indexReal)}
-                                                    >
-                                                        Ver
-                                                        < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                    </Button>
+                                                    {Lista.estado === 1 ? (
 
-                                                ) : (
-                                                    <Button
-                                                        type="button"
-                                                        disabled
-                                                    // onChange={() => setSeleccionaFilas(indexReal)}
-                                                    >
-                                                        Ver
-                                                        < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                    </Button>
-                                                )}
+                                                        <Button type="button" className="fw-semibold" onClick={() => handleObtenerVisado(index, Lista.idocumento)}>
+                                                            Ver
+                                                            < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                        </Button>
 
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                                    ) : (
+                                                        <Button type="button" disabled>
+                                                            Ver
+                                                            < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                        </Button>
+                                                    )}
+
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
                 <div className="paginador-container">
@@ -310,5 +303,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
     listaEstadoFirmasActions,
+    obtieneVisadoCompletoActions
 })(EstadoFirmas);
 

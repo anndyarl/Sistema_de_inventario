@@ -54,7 +54,11 @@ const obtenerListaExcluidosReducers = (state = initialState, action: any) => {
         listaExcluidos: action.payload,
       };
     case OBTENER_EXCLUIDOS_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state, loading: false,
+        error: action.error,
+        listaExcluidos: []
+      };
     default:
       return state;
   }

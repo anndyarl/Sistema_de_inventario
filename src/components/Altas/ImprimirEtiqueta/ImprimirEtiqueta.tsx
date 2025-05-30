@@ -224,7 +224,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     `F. Alta: ${item.aF_FECHA_ALTA}\n` +
                     `Cta. Contable: ${item.aF_NCUENTA}\n` +
                     `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
-                    `http://localhost:3002/Altas/InfoActivo?codigoinv=${item.aF_CODIGO_GENERICO}`;
+                    `${import.meta.env.VITE_CSRF_INFO_PDF}?codigoinv=${item.aF_CODIGO_GENERICO}`;
                 const qrImage = await generateQRCodeBase64(valueQR);
                 return { ...item, qrImage };
             })

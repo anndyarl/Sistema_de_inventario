@@ -27,7 +27,11 @@ const listaAltasReducers = (state = initialState, action: any) => {
         listaAltas: action.payload,
       };
     case OBTENER_ALTAS_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state, loading: false,
+        error: action.error,
+        listaAltas: []
+      };
     default:
       return state;
   }

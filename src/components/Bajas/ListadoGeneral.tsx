@@ -559,7 +559,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 type="text"
                 className={`form-select ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                 name="nresolucion"
-                maxLength={100}
+                maxLength={8}
                 onChange={handleChange}
                 value={Bajas.nresolucion}
               />

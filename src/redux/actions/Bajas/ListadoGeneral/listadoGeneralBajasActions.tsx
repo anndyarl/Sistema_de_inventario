@@ -33,8 +33,7 @@ export const listadoGeneralBajasActions = (af_codigo_generico: string, altaS_COR
         } else {
           dispatch({
             type: LISTADO_GENERAL_BAJAS_FAIL,
-            error:
-              "Status 200, pero con arreglo de datos vacío",
+            error: "Listado sin información",
           });
           return false;
         }
