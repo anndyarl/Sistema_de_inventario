@@ -53,7 +53,7 @@ const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[] }) => (
                         <Text>Sin QR</Text>
                     )}
                     <Text style={styles.labelText}>
-                        {`${lista.aF_UBICACION}\n\n${lista.aF_CODIGO_LARGO}\n\n${lista.aF_DESCRIPCION}\n${lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase()}`}
+                        {`${lista.aF_UBICACION}\n\n${lista.aF_CODIGO_GENERICO}\n\n${lista.aF_DESCRIPCION}\n${lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase()}`}
                     </Text>
                 </View>
             </Page>

@@ -31,7 +31,7 @@ import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFun
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
 import RegistrarTraslados from '../../../components/Traslados/RegistrarTraslados';
 import FirmarAltas from '../../../components/Altas/FirmarAltas/FirmarAltas';
-import BienesRematados from '../../../components/Bajas/BienesRematados';
+import BienesRematados from '../../../components/Bajas/BienesRematados/BienesRematados';
 import ValidaPortal from '../../pages/ValidaPortal';
 import Denegado from '../../errors/Denegado';
 import ListadoGeneral from '../../../components/Bajas/ListadoGeneral';
@@ -59,6 +59,8 @@ import ExcelFolioPorServicios from '../../../components/Informes/Principal/Excel
 import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/ImprimirEtiqueta';
 import RegistrarTraspasos from '../../../components/Traspasos/RegistrarTraspasos';
 import Traspasos from '../../pages/Traspasos';
+import InfoActivo from '../../../components/Altas/ImprimirEtiqueta/InfoActivo';
+import EstadoFirmas from '../../../components/Altas/FirmarAltas/EstadoFirmas ';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -111,6 +113,9 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Altas/AnularAltas" element={<AnularAltas />} />
                 <Route path="/Altas/ImprimirEtiqueta" element={<ImprimirEtiqueta />} />
                 <Route path="/Altas/FirmarAltas" element={<FirmarAltas />} />
+                <Route path="/Altas/EstadoFirmas" element={<EstadoFirmas />} />
+                <Route path="/Altas/InfoActivo" element={<InfoActivo />} />
+
                 {/* Fin Módulo Altas */}
 
                 {/* Módulo Bajas */}

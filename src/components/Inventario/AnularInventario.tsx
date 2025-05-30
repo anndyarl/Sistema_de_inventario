@@ -356,7 +356,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
             <div className='skeleton-table table-responsive'>
               {elementosActuales.length > 0 && (
                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                  <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                  <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
                       <th scope="col" className="text-nowrap">Nº Inventario</th>
                       <th scope="col" className="text-nowrap">Servicio</th>

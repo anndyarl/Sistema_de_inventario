@@ -1,4 +1,6 @@
 
+
+import { ListaAltas } from '../../../../components/Altas/AnularAltas';
 import {
   LISTA_ALTAS_REQUEST,
   LISTA_ALTAS_SUCCESS,
@@ -7,19 +9,7 @@ import {
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  listaAltas: Array<{
-    aF_CLAVE: number,
-    ninv: string,
-    serv: string,
-    dep: string,
-    esp: string,
-    ncuenta: string,
-    marca: string,
-    modelo: string,
-    serie: string,
-    precio: string,
-    mrecepcion: string
-  }>;
+  listaAltas: ListaAltas[];
 }
 // Estado inicial tipado
 const initialState: DatosInventarioState = {

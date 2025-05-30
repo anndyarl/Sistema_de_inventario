@@ -1,4 +1,5 @@
 
+import { ListaEtiquetas } from '../../../../components/Altas/ImprimirEtiqueta/ImprimirEtiqueta';
 import {
     ETIQUETAS_ALTAS_REQUEST,
     ETIQUETAS_ALTAS_SUCCESS,
@@ -8,15 +9,7 @@ import {
 // Define el tipo para el estado inicial
 interface PropsState {
     loading: boolean;
-    listaEtiquetas: Array<{
-        aF_CODIGO_LARGO: string,
-        altaS_CORR?: number,
-        aF_DESCRIPCION: string,
-        aF_UBICACION: string,
-        aF_FECHA_ALTA: string,
-        aF_NCUENTA: string;
-        origen: string;
-    }>;
+    listaEtiquetas: ListaEtiquetas[];
     error: string | null;
 }
 

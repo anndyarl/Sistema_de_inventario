@@ -88,6 +88,7 @@ import obtenerInventarioTrasladoReducers from "./Traslados/obtenerInventarioTras
 import comboDependenciaModificarReducers from "./Inventario/Combos/comboDependenciaModificarReducers";
 import comboCuentaModificarReducers from "./Inventario/Combos/comboCuentaModificarReducers";
 import datosBajasRegistradaReducers from "./Bajas/datosBajasRegistradaReducers";
+import listaEstadoFirmasReducers from "./Altas/FirmarAltas/listaEstadoFirmasReducers";
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
   // Autenticación
@@ -132,6 +133,7 @@ const appReducer = combineReducers({
   obtenerfirmasAltasReducers,
   obtenerUnidadesReducers,
   datosAltaRegistradaReducers,
+  listaEstadoFirmasReducers,
 
   // Bajas
   datosListadoGeneralBajasReducers,

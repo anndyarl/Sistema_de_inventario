@@ -112,7 +112,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   observaciones,
   precio,
   comboEspecies,
-  comboCuenta,
   utm,
   // AF_CODIGO_GENERICO,
   registrarFormInventarioActions

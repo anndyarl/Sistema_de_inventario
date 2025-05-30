@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { Eraser, File, FiletypePdf, Search } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -39,7 +39,7 @@ export interface ListaAltas {
     estado: string,
     precio: number,
     fechA_ALTA: string,
-    nrecep: string
+    nrecep: string,
 }
 export interface DatosFirmas {
     nombre: string,
@@ -54,15 +54,13 @@ export interface DatosFirmas {
     descripcion: string,
     url: string,
     iD_UNIDAD: number,
+    idcargo: number;
     cuerpo: string
 }
 export interface Unidades {
     iD_UNIDAD: number,
     nombre: string
 }
-
-
-
 
 
 
@@ -83,8 +81,8 @@ interface DatosBajas {
 
 const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
-    const [loadingSolicitarVisado, setLoadingSolicitarVisado] = useState(false);
-    const [__, setIsDisabled] = useState(true);
+    const [_, setLoadingSolicitarVisado] = useState(false);
+    const [___, setIsDisabled] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
     //-------------Modal-------------//
     // const [mostrarModal, setMostrarModal] = useState<number | null>(null);
@@ -492,91 +490,164 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
 
-        const asignarJerarquia = (estado: typeof AltaInventario): number => {
-            const { ajustarFirma, chkFinanzas, chkAbastecimiento, chkUnidad } = estado;
-            if (ajustarFirma && chkFinanzas && (chkAbastecimiento || chkUnidad)) return 4;
-            if (ajustarFirma && (chkAbastecimiento || chkUnidad)) return 3;
-            if (ajustarFirma && chkFinanzas) return 2;
-            if (ajustarFirma) return 1;
-            return 0;
-        };
-
-
         const result = await Swal.fire({
             icon: "info",
             title: "Solicitar Visado",
             text: `Confirme para enviar su solicitud`,
-            showDenyButton: false,
             showCancelButton: true,
             confirmButtonText: "Confirmar y Registrar",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-            }
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+            customClass: { popup: "custom-border" }
         });
 
-        if (result.isConfirmed) {
-            setLoadingSolicitarVisado(true);
-
-            // 1) Genera el Base64
-            const base64 = await generarPDFBase64();
-
-            // 2) Prepara el array de firmas (FirmaAlta)
-            const selectedIndices = filasSeleccionadas.map(Number);
-            const firmaAltaArray = selectedIndices.map((index) => ({
-                ALTAS_CORR: listaAltasRegistradas[index].altaS_CORR,
-                JERARQUIA: asignarJerarquia(AltaInventario),
-                IDCARGO: 0,
-                FIRMADO: 0
-            }));
-
-            // 3) Arma el objeto DocumentoIntegracionBE
-            const documento: any = {
-                // Agente: 0,
-                // IdDocumentoOrigen: 0,
-                // TipoDocumento: 0,
-                // FolioDocumento: 0,
-                // Estado: 0,
-                // FechaDocumento: "",  
-                DescripcionDocumento: "Visado de altas de inventario",
-                CuerpoDocumento: base64,
-                // UsuarioCreador: 0,
-                // DependenciaCreador: 0,
-                // CargoCreador: 0,
-                // CargoDerivacion: 0, 
-                // Validaciones: "",
-                // Antecedente: "",
-                // TraeAnexo: 0,
-                // IdOfPartes: 0,
-                ListaDistribucion: [],
-                ListaAnexos: [],
-                FirmaAlta: firmaAltaArray
-            };
-
-            // 4) Envías al endpoint
-            const resultado = await registrarDocumentoAltaActions(documento);
-            if (resultado) {
-
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: ":'(",
-                    text: `Hubo un problema al enviar las firmas.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
-                    customClass: {
-                        popup: "custom-border"
-                    }
-                });
-                setLoadingSolicitarVisado(false);
-            }
+        if (!result.isConfirmed) {
+            setLoadingSolicitarVisado(false);
+            return;
         }
 
+        // Genera el PDF
+        const base64 = await generarPDFBase64();
+
+        // Obtiene firmas según jerarquía activada
+        const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number }[] => {
+            const firmasSeleccionadas: { jerarquia: number; idcargo: number }[] = [];
+            const establecimiento = objeto.Roles[0].codigoEstablecimiento.toString();
+
+            // Jerarquía 1 → ajustarFirma
+            if (AltaInventario.ajustarFirma) {
+                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 1);
+
+                if (AltaInventario.titularInventario) {
+                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: titular.idcargo });
+                    }
+                } else if (AltaInventario.subroganteInventario) {
+                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: subrogante.idcargo });
+                    }
+                }
+            }
 
 
+            // Jerarquía 2 → chkFinanzas
+            if (AltaInventario.chkFinanzas) {
+                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
+
+                if (AltaInventario.titularFinanzas) {
+                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo });
+                    }
+                } else if (AltaInventario.subroganteFinanzas) {
+                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo });
+                    }
+                }
+            }
+
+            // Jerarquía 3 → chkAbastecimiento o chkUnidad
+            if (AltaInventario.chkAbastecimiento) {
+                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
+
+                if (AltaInventario.titularAbastecimiento) {
+                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                    }
+                } else if (AltaInventario.subroganteAbastecimiento) {
+                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                    }
+                }
+            }
+            if (AltaInventario.chkUnidad) {
+
+                const firmasUnidad1 = datosFirmas.filter(f => f.iD_UNIDAD === 3);
+                if (AltaInventario.titularAbastecimiento) {
+                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                    }
+                } else if (AltaInventario.subroganteAbastecimiento) {
+                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                    }
+                }
+                const firmasUnidad2 = datosFirmas.filter(f => f.iD_UNIDAD === 4);
+                if (AltaInventario.titularInformatica) {
+                    const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                    }
+                } else if (AltaInventario.subroganteInformatica) {
+                    const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                    }
+                }
+
+                const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 5);
+                if (AltaInventario.titularCompra) {
+                    const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                    }
+                } else if (AltaInventario.subroganteCompra) {
+                    const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                    }
+                }
+            }
+
+
+            return firmasSeleccionadas;
+        };
+
+        const selectedIndices = filasSeleccionadas.map(Number);
+        const firmaAltaArray = selectedIndices.flatMap(index => {
+            const item = listaAltasRegistradas[index];
+
+            return obtenerFirmasJerarquia().map(({ jerarquia, idcargo }) => ({
+                ALTAS_CORR: item.altaS_CORR,
+                JERARQUIA: jerarquia,
+                IDCARGO: idcargo,
+                FIRMADO: 0
+            }));
+        });
+
+
+        const documento = {
+            DescripcionDocumento: "Visado de altas de inventario",
+            CuerpoDocumento: base64,
+            UsuarioCreador: objeto.IdCredencial,
+            ListaDistribucion: [],
+            ListaAnexos: [],
+            FirmaAlta: firmaAltaArray
+        };
+
+        const resultado = await registrarDocumentoAltaActions(documento);
+
+        if (!resultado) {
+            await Swal.fire({
+                icon: "error",
+                title: ":'(",
+                text: "Hubo un problema al enviar las firmas.",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                customClass: { popup: "custom-border" }
+            });
+        }
+
+        setLoadingSolicitarVisado(false);
     };
 
     const handleLimpiar = () => {

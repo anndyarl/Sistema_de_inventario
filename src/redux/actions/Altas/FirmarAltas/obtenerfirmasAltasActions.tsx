@@ -42,7 +42,6 @@ export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getSta
         type: OBTENER_FIRMAS_ALTAS_FAIL,
         error: "Error en la solicitud:", err,
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {

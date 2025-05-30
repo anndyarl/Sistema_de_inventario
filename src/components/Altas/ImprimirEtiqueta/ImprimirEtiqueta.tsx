@@ -23,14 +23,30 @@ interface FechasProps {
     fHasta: string;
 }
 export interface ListaEtiquetas {
-    aF_CODIGO_LARGO: string,
-    altaS_CORR?: number,
-    aF_DESCRIPCION: string,
-    aF_UBICACION: string,
-    aF_FECHA_ALTA: string,
-    aF_NCUENTA: string,
-    origen: string,
-    qrImage?: string
+    aF_CODIGO_GENERICO: string;
+    aF_CLAVE?: string;
+    nrecepcion?: string;
+    fechA_RECEPCION?: string;
+    altaS_CORR?: number;
+    n_FACTURA?: string;
+    n_ORDEN_COMPRA?: string;
+    fechA_FACTURA?: string;
+    iD_GRUPO?: number;
+    aF_DESCRIPCION: string;
+    aF_UBICACION: string;
+    aF_FECHA_ALTA: string;
+    aF_NCUENTA: string;
+    ctA_NOMBRE?: string;
+    origen: string;
+    deT_MARCA?: string;
+    deT_MODELO?: string;
+    deT_SERIE?: string;
+    deT_OBS?: string;
+    valoR_INGRESO?: number;
+    aF_VIDAUTIL?: number;
+    proV_RUN?: string;
+    proV_NOMBRE?: string;
+    qrImage?: string;
 }
 
 export interface DatosBajas {
@@ -191,7 +207,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         // Seleccionar los nuevos activos
         const selectedIndices = filasSeleccionadas.map(Number);
         const activosSeleccionados = selectedIndices.map((index) => ({
-            aF_CODIGO_LARGO: listaEtiquetas[index].aF_CODIGO_LARGO,
+            aF_CODIGO_GENERICO: listaEtiquetas[index].aF_CODIGO_GENERICO,
             aF_DESCRIPCION: listaEtiquetas[index].aF_DESCRIPCION,
             aF_FECHA_ALTA: listaEtiquetas[index].aF_FECHA_ALTA,
             aF_NCUENTA: listaEtiquetas[index].aF_NCUENTA,
@@ -201,12 +217,19 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
         const etiquetasConQR = await Promise.all(
             activosSeleccionados.map(async (item) => {
-                const valueQR = `Cod. Bien: ${item.aF_CODIGO_LARGO} Nom. Bien: ${item.aF_DESCRIPCION} F. Alta: ${item.aF_FECHA_ALTA} Cta. Contable: ${item.aF_NCUENTA} Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}`;
+
+                const valueQR =
+                    `Cod. Bien: ${item.aF_CODIGO_GENERICO}\n` +
+                    `Nom. Bien: ${item.aF_DESCRIPCION}\n` +
+                    `F. Alta: ${item.aF_FECHA_ALTA}\n` +
+                    `Cta. Contable: ${item.aF_NCUENTA}\n` +
+                    `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
+                    `http://localhost:3002/Altas/InfoActivo?codigoinv=${item.aF_CODIGO_GENERICO}`;
                 const qrImage = await generateQRCodeBase64(valueQR);
-                // console.log("QR generado:", qrImage);
                 return { ...item, qrImage };
             })
         );
+
 
         setListaConQR(etiquetasConQR);
 
@@ -455,7 +478,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                 />
                                             </td>
-                                            <td className="text-nowrap">{fila.aF_CODIGO_LARGO}</td>
+                                            <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
                                             <td className="text-nowrap">{fila.altaS_CORR}</td>
                                             <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
                                             <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
@@ -464,7 +487,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
                                             <td className="text-nowrap">
                                                 <QRCodeSVG
-                                                    value={`Cod. Bien: ${fila.aF_CODIGO_LARGO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA}`}
+                                                    value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
                                                     size={50}
                                                     level="H"
                                                 />

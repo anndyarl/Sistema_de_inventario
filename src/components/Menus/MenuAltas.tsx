@@ -45,6 +45,12 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Altas/FirmarAltas',
             icon: Signature
         },
+        {
+            name: 'Estado Firmas',
+            description: ' Verifique el estado de las firmas que han sido firmadas.',
+            href: '/Altas/EstadoFirmas',
+            icon: Signature
+        },
 
     ];
 

@@ -1,5 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { ListaAltas, Unidades } from './FirmarAltas';
+import { ListaAltas } from './FirmarAltas';
 import { Objeto } from '../../Navegacion/Profile';
 const styles = StyleSheet.create({
     page: {
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     firmaContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 100,
+        marginTop: 250,
         paddingHorizontal: 20,
     },
     firmaBox: {

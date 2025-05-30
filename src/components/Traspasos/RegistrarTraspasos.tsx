@@ -9,7 +9,6 @@ import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
-import MenuTraslados from "../Menus/MenuTraslados";
 import { DEPENDENCIA } from "../Inventario/RegistrarInventario/DatosCuenta";
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
