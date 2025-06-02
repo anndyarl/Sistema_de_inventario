@@ -60,7 +60,7 @@ import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/Imprimi
 import RegistrarTraspasos from '../../../components/Traspasos/RegistrarTraspasos';
 import Traspasos from '../../pages/Traspasos';
 import InfoActivo from '../../../components/Altas/ImprimirEtiqueta/InfoActivo';
-import EstadoFirmas from '../../../components/Altas/FirmarAltas/EstadoFirmas ';
+import EstadoFirmas from '../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();

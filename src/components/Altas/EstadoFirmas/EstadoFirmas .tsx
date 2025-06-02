@@ -5,15 +5,12 @@ import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
 import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
-import { BlobProvider } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
 import { Eye, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
-
-import DocumentoEstadodFirmaPDF from "./DocumentoEstadodFirmaPDF";
-import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/EstadoFirmas/listaEstadoFirmasActions";
-import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/FirmarAltas/EstadoFirmas/obtieneVisadoCompletoActions";
+import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoFirmasActions";
+import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 
 export interface ListaEstadoFirmas {
     idocumento: number;
@@ -29,18 +26,20 @@ interface DatosBajas {
     isDarkMode: boolean;
     objeto: Objeto;
     nPaginacion: number; //número de paginas establecido desde preferencias
+    documentoByte64: string;
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneVisadoCompletoActions, listaEstadoFirmas, token, isDarkMode, nPaginacion }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneVisadoCompletoActions, listaEstadoFirmas, token, isDarkMode, nPaginacion, documentoByte64 }) => {
     const [loading, setLoading] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [filasSeleccionadas, _] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
-    const filasSeleccionadasPDF = listaEstadoFirmas.filter((_, index) =>
-        filasSeleccionadas.includes(index.toString())
-    );
+    // const filasSeleccionadasPDF = listaEstadoFirmas.filter((_, index) =>
+    //     filasSeleccionadas.includes(index.toString())
+    // );
     const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
+    const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
         CuerpoDocumento: ""
@@ -105,25 +104,26 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
         }
     };
 
-    useEffect(() => {
-        listaAltasAuto();
-    }, [listaEstadoFirmasActions]);
-
     function detectarTipo(base64: string): string {
+        if (base64.startsWith("JVBERi0")) return "pdf";
         if (base64.startsWith("/9j/")) return "jpeg";
         if (base64.startsWith("iVBOR")) return "png";
         if (base64.startsWith("R0lGOD")) return "gif";
         return "png"; // fallback
     }
-    // const handleObtenerVisado = useCallback(async (index: number, idocumento: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const { name, value } = e.target;
-    //     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
-    //     obtieneVisadoCompletoActions(idocumento);
-    //     const prev = structuredClone(Buscar);
-    //     const updatedState = { ...prev, [name]: value };
-    //     const CuerpoDocumento = `data:application/pdf;base64,${Buscar.CuerpoDocumento}`;
-    //     updatedState.CuerpoDocumento = CuerpoDocumento;
-    // }, [Buscar, listaEstadoFirmas]);
+    const handleObtenerVisado = useCallback((index: number, idocumento: number) => {
+        setMostrarModal(true);
+        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+        obtieneVisadoCompletoActions(idocumento); // solo dispara la acción
+    }, []);
+
+    useEffect(() => {
+        if (!documentoByte64) return;
+
+        const tipo = detectarTipo(documentoByte64);
+        const visadoBase64 = `data:application/${tipo};base64,${documentoByte64}`;
+        setCuerpoDocumentoPDF(visadoBase64);
+    }, [documentoByte64]);
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -213,9 +213,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                                                 <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
                                                 <td className="text-nowrap text-center">
                                                     {
-                                                        Lista.estado === 0 ? <p className="bg-warning text-white text-center p-1 rounded">Pendiente</p> :
-                                                            Lista.estado === 1 ? <p className="bg-success text-white text-center p-1 rounded">Firmado</p> :
-                                                                Lista.estado === 2 ? <p className="bg-danger text-white text-center p-1 rounded">Rechazado</p> : "Desconocido"
+                                                        Lista.estado === 0 ? <p className="text-warning fw-bold text-center p-1 rounded">Pendiente</p> :
+                                                            Lista.estado === 1 ? <p className="text-success fw-bold  text-center p-1 rounded">Firmado</p> :
+                                                                Lista.estado === 2 ? <p className="text-danger fw-bold text-center p-1 rounded">Rechazado</p> : "Desconocido"
                                                     }
                                                 </td>
                                                 <td
@@ -229,7 +229,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                                                     {Lista.estado === 1 ? (
 
                                                         <Button type="button" className="fw-semibold"
-                                                        // onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                            onClick={() => handleObtenerVisado(index, Lista.idocumento)}
                                                         >
                                                             Ver
                                                             < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
@@ -272,42 +272,42 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
 
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Estado Firmas</Modal.Title>
+                    <Modal.Title className="fw-semibold">Visado Completado</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form >
-
-                        {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-                        <BlobProvider document={
-                            <DocumentoEstadodFirmaPDF
-                                row={filasSeleccionadasPDF}
+                    <form>
+                        {CuerpoDocumentoPDF.includes("application/pdf") ? (
+                            <iframe
+                                src={CuerpoDocumentoPDF}
+                                title="Vista Previa del PDF"
+                                style={{
+                                    width: "100%",
+                                    height: "900px",
+                                    border: "none"
+                                }}
+                            ></iframe>
+                        ) : (
+                            <img
+                                src={CuerpoDocumentoPDF}
+                                alt="Documento"
+                                style={{
+                                    width: "100%",
+                                    maxHeight: "900px",
+                                    objectFit: "contain"
+                                }}
                             />
-                        }>
-                            {({ url, loading }) =>
-                                loading ? (
-                                    <p>Generando vista previa...</p>
-                                ) : (
-                                    <iframe
-                                        src={url ? `${url}` : ""}
-                                        title="Vista Previa del PDF"
-                                        style={{
-                                            width: "100%",
-                                            height: "900px",
-                                            border: "none"
-                                        }}
-                                    ></iframe>
-                                )
-                            }
-                        </BlobProvider>
+                        )}
                     </form>
                 </Modal.Body>
-            </Modal >
+            </Modal>
+
         </Layout >
     );
 };
 
 const mapStateToProps = (state: RootState) => ({
     listaEstadoFirmas: state.listaEstadoFirmasReducers.listaEstadoFirmas,
+    documentoByte64: state.obtieneVisadoCompletoReducers.documentoByte64,
     objeto: state.validaApiLoginReducers,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,

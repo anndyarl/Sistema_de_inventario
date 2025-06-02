@@ -392,6 +392,12 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         return listaActivosCalculados.reduce((sum, activo) => sum + (activo.depreciacionAcumuladaActualizada ?? 0), 0);
     }, [listaActivosCalculados]);
 
+    // Calcula el total de la depreciación de la tabla
+    const totalDepAnual = useMemo(() => {
+        return listaActivosCalculados.reduce((sum, activo) => sum + (activo.depreciacionPorAno ?? 0), 0);
+    }, [listaActivosCalculados]);
+
+
     //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
 
     //------------------------------Tabla Modal(Activos no calculados)--------------------------------------//
@@ -1196,6 +1202,17 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     </div>
                                 </Col>
 
+                                <Col sm={6} md={6} lg={3}>
+                                    <div className="bg-light border-start border-4 border-warning shadow-sm p-3 rounded m-2">
+                                        <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
+                                            Total Depreciación Anual
+                                        </p>
+                                        <h4 className="fw-bold text-warning text-center m-0">
+                                            $ {totalDepAnual.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </h4>
+                                    </div>
+                                </Col>
+
                                 <div className="d-flex justify-content-end">
                                     {listaActivosFijos.length > 10 && (
                                         <div className="d-flex align-items-center me-2">
@@ -1323,14 +1340,23 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
                                                     <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
                                                     <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
-                                                    <th scope="col" className="text-nowrap text-center">Depreciación por Año</th>
-                                                    <th scope="col" className="text-nowrap text-center">Depreciación por Mes</th>
+                                                    <th scope="col" className="text-nowrap text-center">Depreciación Mensual</th>
+                                                    <td
+                                                        scope="col"
+                                                        className="text-nowrap text-center bg-warning text-white rounded-top"
+                                                        style={{
+                                                            position: 'sticky',
+                                                            right: 325,
+                                                            zIndex: 0
+                                                        }}>
+                                                        <b> Depreciación Anual </b>
+                                                    </td>
                                                     <td
                                                         scope="col"
                                                         className="text-nowrap text-center bg-primary text-white rounded-top"
                                                         style={{
                                                             position: 'sticky',
-                                                            right: 123,
+                                                            right: 122,
                                                             zIndex: 0
                                                         }}>
                                                         <b> Depreciación Acumulada </b>
@@ -1422,27 +1448,40 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                             $ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>
                                                         <td className="text-nowrap text-center">
-                                                            $ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                        </td>
-                                                        <td className="text-nowrap text-center">
                                                             $ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>
-                                                        <td className="text-nowrap text-center"
+                                                        <td
+                                                            className="text-nowrap text-center fw-bold"
                                                             style={{
                                                                 position: 'sticky',
-                                                                right: 123,
+                                                                right: 325,
                                                                 zIndex: 0,
+                                                                color: '#2f3e78',
+                                                                background: '#a4d1ff'
+                                                                // background: '#a4d1ff'
+                                                            }}>
+                                                            ${lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                        <td
+                                                            className="text-nowrap text-center fw-bold"
+                                                            style={{
+                                                                position: 'sticky',
+                                                                right: 122,
+                                                                zIndex: 0,
+                                                                color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
                                                             ${lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>
                                                         <td
-                                                            className="text-nowrap text-center"
+                                                            className="text-nowrap text-center fw-bold"
                                                             style={{
                                                                 position: 'sticky',
                                                                 right: 0,
                                                                 zIndex: 0,
-                                                                background: '#baecbf'
+                                                                color: '#2f3e78',
+                                                                background: '#a4d1ff'
+                                                                // background: '#baecbf'
                                                             }}>
                                                             ${lista.valorResidual === 0 ? 1 : lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>

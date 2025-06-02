@@ -215,10 +215,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         const blob = await pdf(
             <DocumentoPDF
                 row={filasSeleccionadasPDF}
-                AltaInventario={AltaInventario}
-                objeto={objeto}
-                UnidadNombre={UnidadNombre}
-                Unidad={Unidad}
+            // AltaInventario={AltaInventario}
+            // objeto={objeto}
+            // UnidadNombre={UnidadNombre}
+            // Unidad={Unidad}
             />
         ).toBlob();
 
@@ -370,12 +370,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 }
             }
             if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR") {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.subroganteFinanzas = false;
                 }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE") {
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.titularFinanzas = false;
@@ -534,15 +534,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
             // Jerarquía 2 → chkFinanzas
             if (AltaInventario.chkFinanzas) {
-                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
+                const firmasUnidad2 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
 
                 if (AltaInventario.titularFinanzas) {
-                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                    const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
                     if (titular) {
                         firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo });
                     }
                 } else if (AltaInventario.subroganteFinanzas) {
-                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                    const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
                         firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo });
                     }
@@ -551,15 +551,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
             // Jerarquía 3 → chkAbastecimiento o chkUnidad
             if (AltaInventario.chkAbastecimiento) {
-                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
+                const firmasUnidad3 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
 
                 if (AltaInventario.titularAbastecimiento) {
-                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                    const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
                     if (titular) {
                         firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
                     }
                 } else if (AltaInventario.subroganteAbastecimiento) {
-                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                    const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
                         firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
                     }
@@ -754,16 +754,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     // };
 
     //Logica para habilitar Boton "Solicitar Visado" si los opcionales son habilitados se requerira algun titular o subrogante
-    const tieneFirmaInventario =
-        AltaInventario.titularInventario || AltaInventario.subroganteInventario;
-
-    const requiereFirmaFinanzas = AltaInventario.chkFinanzas
-        ? AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas
-        : true;
-
-    const requiereFirmaAbastecimiento = AltaInventario.chkAbastecimiento
-        ? AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento
-        : true;
+    const tieneFirmaInventario = AltaInventario.titularInventario || AltaInventario.subroganteInventario;
+    const requiereFirmaFinanzas = AltaInventario.chkFinanzas ? AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas : true;
+    const requiereFirmaAbastecimiento = AltaInventario.chkAbastecimiento ? AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento : true;
 
     const requiereFirmaUnidad = (() => {
         if (!AltaInventario.chkUnidad) return true;
@@ -780,11 +773,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         }
     })();
 
-    const botonHabilitado =
-        tieneFirmaInventario &&
-        requiereFirmaFinanzas &&
-        requiereFirmaAbastecimiento &&
-        requiereFirmaUnidad;
+    const botonHabilitado = tieneFirmaInventario && requiereFirmaFinanzas && requiereFirmaAbastecimiento && requiereFirmaUnidad;
     return (
         <Layout>
             <Helmet>
@@ -1282,10 +1271,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                         <BlobProvider document={
                             <DocumentoPDF
                                 row={filasSeleccionadasPDF}
-                                AltaInventario={AltaInventario}
-                                objeto={objeto}
-                                UnidadNombre={UnidadNombre}
-                                Unidad={Unidad}
+                            // AltaInventario={AltaInventario}
+                            // objeto={objeto}
+                            // UnidadNombre={UnidadNombre}
+                            // Unidad={Unidad}
                             // firmanteInventario={AltaInventario.firmanteInventario}
                             // firmanteFinanzas={AltaInventario.firmanteFinanzas}
                             // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}

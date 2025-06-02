@@ -1,5 +1,5 @@
 
-import { ListaEstadoFirmas } from '../../../../components/Altas/FirmarAltas/EstadoFirmas ';
+import { ListaEstadoFirmas } from '../../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 import {
     LISTA_ESTADO_FIRMAS_REQUEST,
     LISTA_ESTADO_FIRMAS_SUCCESS,
