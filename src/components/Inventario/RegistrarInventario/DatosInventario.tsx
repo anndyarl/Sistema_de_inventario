@@ -880,7 +880,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 return <p>{nombreModalidad}</p>;
               })()}
             </Col>
-
           </Row>
           <Row>
             <Col md={4}>

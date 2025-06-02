@@ -119,7 +119,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
 
     useEffect(() => {
         if (!documentoByte64) return;
-
         const tipo = detectarTipo(documentoByte64);
         const visadoBase64 = `data:application/${tipo};base64,${documentoByte64}`;
         setCuerpoDocumentoPDF(visadoBase64);
@@ -213,7 +212,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                                                 <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
                                                 <td className="text-nowrap text-center">
                                                     {
-                                                        Lista.estado === 0 ? <p className="text-warning fw-bold text-center p-1 rounded">Pendiente</p> :
+                                                        Lista.estado === 0 ? <p className="text-warning fw-bold text-center p-1 rounded">Solicitud Enviada</p> :
                                                             Lista.estado === 1 ? <p className="text-success fw-bold  text-center p-1 rounded">Firmado</p> :
                                                                 Lista.estado === 2 ? <p className="text-danger fw-bold text-center p-1 rounded">Rechazado</p> : "Desconocido"
                                                     }

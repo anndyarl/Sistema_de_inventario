@@ -20,6 +20,8 @@ import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/Anula
 import { registrarBienesBajasActions } from "../../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions";
 import { FileSignatureIcon } from "lucide-react";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
+import { ListaEstadoFirmas } from "../EstadoFirmas/EstadoFirmas ";
+import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoFirmasActions";
 
 interface FechasProps {
     fDesde: string;
@@ -69,6 +71,7 @@ interface DatosBajas {
     comboUnidades: Unidades[];
     obtenerUnidadesActions: () => Promise<boolean>;
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
+    listaEstadoFirmasActions: (altasCorr: number) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
     datosFirmas: DatosFirmas[];
@@ -76,10 +79,12 @@ interface DatosBajas {
     isDarkMode: boolean;
     objeto: Objeto;
     nPaginacion: number; //número de paginas establecido desde preferencias
+    listaEstadoFirmas: ListaEstadoFirmas[];
+
 }
 
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
     const [___, setIsDisabled] = useState(true);
@@ -95,6 +100,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
     const elementosPorPagina = nPaginacion;
     const [Unidad, setUnidad] = useState<number>(0);
     const [UnidadNombre, setUnidadNombre] = useState<string>("");
+    const [altaSeleccionada, setAltaSeleccionada] = useState<number | null>(null);
+    const [indiceSeleccionado, setIndiceSeleccionado] = useState<number | null>(null);
     const filasSeleccionadasPDF = listaAltasRegistradas.filter((_, index) =>
         filasSeleccionadas.includes(index.toString())
     );
@@ -687,15 +694,57 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         }
     };
 
-    const setSeleccionaFilas = (index: number) => {
-        if (comboUnidades.length === 0) obtenerUnidadesActions();
-        if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
-        setFilasSeleccionadas((prev) =>
-            prev.includes(index.toString())
-                ? prev.filter((rowIndex) => rowIndex !== index.toString())
-                : [...prev, index.toString()]
+    useEffect(() => {
+        if (altaSeleccionada === null || indiceSeleccionado === null) return;
+
+        const estado = listaEstadoFirmas.find(
+            (f) => f.altaS_CORR === altaSeleccionada && f.estado === 0
         );
+
+        if (estado) {
+            Swal.fire({
+                icon: "warning",
+                title: "Solicitud en proceso",
+                text: `Ya se ha enviado una solicitud al número de alta seleccionado`,
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border",
+                },
+            });
+
+            // Deseleccionar si estaba seleccionada
+            setFilasSeleccionadas((prev) =>
+                prev.filter((rowIndex) => rowIndex !== indiceSeleccionado.toString())
+            );
+        } else {
+            // Selección normal si estado != 0
+            setFilasSeleccionadas((prev) =>
+                prev.includes(indiceSeleccionado.toString())
+                    ? prev.filter((rowIndex) => rowIndex !== indiceSeleccionado.toString())
+                    : [...prev, indiceSeleccionado.toString()]
+            );
+        }
+
+        // Reset después de ejecutar
+        setAltaSeleccionada(null);
+        setIndiceSeleccionado(null);
+    }, [listaEstadoFirmas]);
+
+    // Función al seleccionar una fila
+    const setSeleccionaFilas = (index: number, altaS_CORR: number) => {
+        if (comboUnidades.length === 0) obtenerUnidadesActions();
+        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
+
+        // Llama a la acción que pobla listaEstadoFirmas
+        listaEstadoFirmasActions(altaS_CORR);
+
+        // Guarda la selección temporal para que el efecto reaccione
+        setAltaSeleccionada(altaS_CORR);
+        setIndiceSeleccionado(index);
     };
+
 
     const listaAltasAuto = async () => {
         if (token) {
@@ -724,8 +773,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
     useEffect(() => {
         listaAltasAuto();
+        listaEstadoFirmas
         Unidad
-    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad]);
+    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, listaEstadoFirmas.length, isDarkMode, Unidad]);
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado
@@ -976,7 +1026,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                                             /> */}
                                                 <Form.Check
                                                     type="checkbox"
-                                                    onChange={() => setSeleccionaFilas(indexReal)}
+                                                    onClick={() => setSeleccionaFilas(indexReal, Lista.altaS_CORR)}
+                                                    // onChange={() => setSeleccionaFilas(indexReal)}
                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                 />
                                             </td>
@@ -1381,6 +1432,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
 
 const mapStateToProps = (state: RootState) => ({
     listaAltasRegistradas: state.listaAltasRegistradasReducers.listaAltasRegistradas,
+    listaEstadoFirmas: state.listaEstadoFirmasReducers.listaEstadoFirmas,
     objeto: state.validaApiLoginReducers,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
@@ -1395,6 +1447,7 @@ export default connect(mapStateToProps, {
     registrarBienesBajasActions,
     obtenerfirmasAltasActions,
     obtenerUnidadesActions,
-    registrarDocumentoAltaActions
+    registrarDocumentoAltaActions,
+    listaEstadoFirmasActions
 })(FirmarAltas);
 
