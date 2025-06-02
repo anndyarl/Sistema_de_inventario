@@ -645,6 +645,20 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                 customClass: { popup: "custom-border" }
             });
         }
+        else {
+            await Swal.fire({
+                icon: "success",
+                title: "Solicitud enviada",
+                text: "Su solicitud de visado ha sido enviada con exito",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                customClass: { popup: "custom-border" }
+            });
+
+            handleBuscar();
+            setMostrarModal(false);
+        }
 
         setLoadingSolicitarVisado(false);
     };
