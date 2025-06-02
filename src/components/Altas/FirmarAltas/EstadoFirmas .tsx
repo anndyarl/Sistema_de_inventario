@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Pagination, Modal, Col, Row, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
@@ -43,6 +43,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
     const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
+        CuerpoDocumento: ""
     });
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -108,10 +109,21 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
         listaAltasAuto();
     }, [listaEstadoFirmasActions]);
 
-    const handleObtenerVisado = async (index: number, idocumento: number) => {
-        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
-        obtieneVisadoCompletoActions(idocumento);
+    function detectarTipo(base64: string): string {
+        if (base64.startsWith("/9j/")) return "jpeg";
+        if (base64.startsWith("iVBOR")) return "png";
+        if (base64.startsWith("R0lGOD")) return "gif";
+        return "png"; // fallback
     }
+    // const handleObtenerVisado = useCallback(async (index: number, idocumento: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { name, value } = e.target;
+    //     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+    //     obtieneVisadoCompletoActions(idocumento);
+    //     const prev = structuredClone(Buscar);
+    //     const updatedState = { ...prev, [name]: value };
+    //     const CuerpoDocumento = `data:application/pdf;base64,${Buscar.CuerpoDocumento}`;
+    //     updatedState.CuerpoDocumento = CuerpoDocumento;
+    // }, [Buscar, listaEstadoFirmas]);
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -216,7 +228,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
 
                                                     {Lista.estado === 1 ? (
 
-                                                        <Button type="button" className="fw-semibold" onClick={() => handleObtenerVisado(index, Lista.idocumento)}>
+                                                        <Button type="button" className="fw-semibold"
+                                                        // onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                        >
                                                             Ver
                                                             < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                         </Button>

@@ -135,7 +135,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         }));
     };
 
-
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);

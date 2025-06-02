@@ -122,7 +122,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
         af_codigo_generico: ""
     });
 
-
     const [AltaInventario, setAltaInventario] = useState({
         ajustarFirma: false,//General
         chkFinanzas: false,//Opcional
@@ -232,7 +231,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, obten
                     const base64 = dataUrl.split(',')[1];
                     resolve(base64);
                 } else {
-                    reject(new Error('FileReader result is not a string'));
+                    reject(new Error('FileReader no es un string'));
                 }
             };
             reader.onerror = () => reject(reader.error);
