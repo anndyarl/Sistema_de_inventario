@@ -460,7 +460,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
-
         if (Inventario.fDesde != "" || Inventario.fHasta != "") {
             if (validate()) {
                 resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
@@ -474,7 +473,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "El Nº de Inventario consultado no se encuentra en este listado.",
+                text: "No hay registros disponibles para mostrar.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -720,12 +719,51 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     };
 
 
-    useEffect(() => {
-        if (altaSeleccionada === null || indiceSeleccionado === null) return;
+    // Función al seleccionar una fila
+    const setSeleccionaFilas = (index: number, altaS_CORR: number) => {
+        if (comboUnidades.length === 0) obtenerUnidadesActions();
+        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
 
-        const estado = listaEstadoFirmas.find(
-            (f) => f.altaS_CORR === altaSeleccionada && f.estado === 0
-        );
+        // Llama a la acción que pobla listaEstadoFirmas
+        listaEstadoFirmasActions(altaS_CORR);
+
+        // Guarda la selección temporal para que el efecto reaccione
+        setAltaSeleccionada(altaS_CORR);
+        setIndiceSeleccionado(index);
+    };
+
+    const listaAuto = async () => {
+        if (token) {
+            if (listaAltasRegistradas.length === 0) {
+                setLoading(true);
+                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+                if (!resultado) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Sin Resultados",
+                        text: "No hay registros disponibles para mostrar.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoading(false);
+                }
+                else {
+                    setLoading(false);
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        listaAuto();
+        listaEstadoFirmas
+        Unidad
+        if (altaSeleccionada === null || indiceSeleccionado === null) return;
+        const estado = listaEstadoFirmas.find((f) => f.altaS_CORR === altaSeleccionada && f.estado === 0);
 
         if (estado) {
             Swal.fire({
@@ -756,52 +794,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         // Reset después de ejecutar
         setAltaSeleccionada(null);
         setIndiceSeleccionado(null);
-    }, [listaEstadoFirmas]);
+    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, listaEstadoFirmas.length, isDarkMode, Unidad, setLoading]);
 
-    // Función al seleccionar una fila
-    const setSeleccionaFilas = (index: number, altaS_CORR: number) => {
-        if (comboUnidades.length === 0) obtenerUnidadesActions();
-        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
-
-        // Llama a la acción que pobla listaEstadoFirmas
-        listaEstadoFirmasActions(altaS_CORR);
-
-        // Guarda la selección temporal para que el efecto reaccione
-        setAltaSeleccionada(altaS_CORR);
-        setIndiceSeleccionado(index);
-    };
-
-
-    const listaAltasAuto = async () => {
-        if (token) {
-            if (listaAltasRegistradas.length === 0) {
-                setLoading(true);
-                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
-                if (resultado) {
-                    setLoading(false);
-                }
-                // else {
-                //   Swal.fire({
-                //     icon: "error",
-                //     title: "Error",
-                //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
-                //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                //     customClass: {
-                //       popup: "custom-border", // Clase personalizada para el borde
-                //     }
-                //   });
-                // }
-            }
-        }
-    };
-
-    useEffect(() => {
-        listaAltasAuto();
-        listaEstadoFirmas
-        Unidad
-    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, listaEstadoFirmas.length, isDarkMode, Unidad]);
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado
@@ -886,6 +880,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         name="fDesde"
                                         onChange={handleChange}
                                         value={Inventario.fDesde}
+                                        max={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>
                                 {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
@@ -901,6 +896,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         name="fHasta"
                                         onChange={handleChange}
                                         value={Inventario.fHasta}
+                                        max={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>
                                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

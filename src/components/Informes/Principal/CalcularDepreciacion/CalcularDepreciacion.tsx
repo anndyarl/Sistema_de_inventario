@@ -827,6 +827,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     name="fDesde"
                                     onChange={handleChange}
                                     value={Inventario.fDesde}
+                                    max={new Date().toISOString().split("T")[0]}
                                 />
                                 {error.fDesde && (
                                     <div className="invalid-feedback d-block">{error.fDesde}</div>
@@ -843,6 +844,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         name="fHasta"
                                         onChange={handleChange}
                                         value={Inventario.fHasta}
+                                        max={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>
                                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

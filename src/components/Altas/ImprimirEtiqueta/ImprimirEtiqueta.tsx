@@ -78,25 +78,26 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const listaAuto = async () => {
         if (token) {
             setLoading(true);
-            try {
+            if (listaEtiquetas.length === 0) {
                 const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
                 if (!resultado) {
-                    throw new Error("Error al cargar la lista de bajas");
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Sin Resultados",
+                        text: "No hay registros disponibles para mostrar.",
+                        confirmButtonText: "Ok",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoading(false);
                 }
-            } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: `Error en la solicitud. Por favor, intente nuevamente.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-            } finally {
-                setLoading(false);
+                else {
+                    setLoading(false);
+                }
             }
         }
     };
@@ -151,7 +152,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "El Nº de Inventario consultado no se encuentra en este listado.",
+                text: "No hay registros disponibles para mostrar.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -319,6 +320,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         name="fDesde"
                                         onChange={handleChange}
                                         value={Inventario.fDesde}
+                                        max={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>
                                 {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
@@ -334,6 +336,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         name="fHasta"
                                         onChange={handleChange}
                                         value={Inventario.fHasta}
+                                        max={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>
                                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

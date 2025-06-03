@@ -446,6 +446,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, l
                     name="fDesde"
                     onChange={handleChange}
                     value={Excluidos.fDesde}
+                    max={new Date().toISOString().split("T")[0]}
                   />
                   {error.fDesde && (
                     <div className="invalid-feedback d-block">{error.fDesde}</div>
@@ -462,6 +463,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, l
                       name="fHasta"
                       onChange={handleChange}
                       value={Excluidos.fHasta}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

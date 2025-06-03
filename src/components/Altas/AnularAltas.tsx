@@ -59,34 +59,36 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     altaS_CORR: 0,
     af_codigo_generico: ""
   });
-  const listaAltasAuto = async () => {
+
+  const listaAuto = async () => {
     if (token) {
       if (listaAltasRegistradas.length === 0) {
         setLoading(true);
         const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
-        if (resultado) {
+        if (!resultado) {
+          Swal.fire({
+            icon: "warning",
+            title: "Sin Resultados",
+            text: "No hay registros disponibles para mostrar.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
           setLoading(false);
         }
-        // else {
-        //   Swal.fire({
-        //     icon: "error",
-        //     title: "Error",
-        //     text: `Error en la solicitud. Por favor, intente nuevamente.`,
-        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        //     confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-        //     customClass: {
-        //       popup: "custom-border", // Clase personalizada para el borde
-        //     }
-        //   });
-        // }
+        else {
+          setLoading(false);
+        }
       }
     }
   };
 
   useEffect(() => {
-    listaAltasAuto();
-  }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length]); // Asegúrate de incluir dependencias relevantes
+    listaAuto();
+  }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, setLoading]); // Asegúrate de incluir dependencias relevantes
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -295,6 +297,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                       name="fDesde"
                       onChange={handleChange}
                       value={Inventario.fDesde}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
@@ -310,6 +313,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                       name="fHasta"
                       onChange={handleChange}
                       value={Inventario.fHasta}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

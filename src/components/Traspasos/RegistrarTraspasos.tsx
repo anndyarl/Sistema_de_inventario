@@ -628,6 +628,7 @@ const RegistrarTraspasos: React.FC<TraspasosProps> = ({
                                                     } ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
                                                 name="traS_FECHA_MEMO"
                                                 onChange={handleChange}
+                                                max={new Date().toISOString().split("T")[0]}
                                             />
                                             {error.traS_FECHA_MEMO && (
                                                 <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>

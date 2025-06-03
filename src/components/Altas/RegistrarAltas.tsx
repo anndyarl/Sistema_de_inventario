@@ -340,6 +340,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                       name="fDesde"
                       onChange={handleChange}
                       value={Inventario.fDesde}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
@@ -355,6 +356,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                       name="fHasta"
                       onChange={handleChange}
                       value={Inventario.fHasta}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

@@ -1,9 +1,9 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-  POST_FORMULARIO_REQUEST,
-  POST_FORMULARIO_SUCCESS,
-  POST_FORMULARIO_FAIL,
+  ACTUALIZAR_FORMULARIO_REQUEST,
+  ACTUALIZAR_FORMULARIO_SUCCESS,
+  ACTUALIZAR_FORMULARIO_FAIL,
 } from "../types";
 import { LOGOUT } from "../../auth/types";
 
@@ -23,7 +23,7 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
     }
     const body = JSON.stringify(ActivoFijoCompleto);
 
-    dispatch({ type: POST_FORMULARIO_REQUEST });
+    dispatch({ type: ACTUALIZAR_FORMULARIO_REQUEST });
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/actualizaActivoFijo/`, body, config);
@@ -31,14 +31,14 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
       if (response.status === 200) {
         if (response.data === 1) {
           dispatch({
-            type: POST_FORMULARIO_SUCCESS,
+            type: ACTUALIZAR_FORMULARIO_SUCCESS,
             payload: response.data,
           });
           return true;
         }
         else {
           dispatch({
-            type: POST_FORMULARIO_SUCCESS,
+            type: ACTUALIZAR_FORMULARIO_SUCCESS,
             payload: response.data,
           });
           return false;
@@ -46,7 +46,7 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
 
       } else {
         dispatch({
-          type: POST_FORMULARIO_FAIL,
+          type: ACTUALIZAR_FORMULARIO_FAIL,
           error: "No se pudo obtener el inventario. Por favor, intente nuevamente.",
         });
         return false;
@@ -54,7 +54,7 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
     } catch (err: any) {
       console.error("Error en la solicitud:", err);
       dispatch({
-        type: POST_FORMULARIO_FAIL,
+        type: ACTUALIZAR_FORMULARIO_FAIL,
         error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
@@ -62,7 +62,7 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
     }
   } else {
     dispatch({
-      type: POST_FORMULARIO_FAIL,
+      type: ACTUALIZAR_FORMULARIO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
     dispatch({ type: LOGOUT });

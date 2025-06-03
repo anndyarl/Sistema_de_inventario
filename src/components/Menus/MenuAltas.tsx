@@ -34,12 +34,6 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
             icon: SlashCircle
         },
         {
-            name: 'Imprimir Etiquetas',
-            description: 'Encuentre y modifique el inventario existente.',
-            href: '/Altas/ImprimirEtiqueta',
-            icon: Printer
-        },
-        {
             name: 'Firmar Altas',
             description: ' Busque, verifique y autorice las altas mediante firmas.',
             href: '/Altas/FirmarAltas',
@@ -50,6 +44,12 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
             description: ' Verifique el estado de las firmas que han sido firmadas.',
             href: '/Altas/EstadoFirmas',
             icon: Signature
+        },
+        {
+            name: 'Imprimir Etiquetas',
+            description: 'Encuentre y modifique el inventario existente.',
+            href: '/Altas/ImprimirEtiqueta',
+            icon: Printer
         },
 
     ];

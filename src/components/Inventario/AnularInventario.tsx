@@ -271,6 +271,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       name="fechaInicio"
                       onChange={handleChange}
                       value={Inventario.fechaInicio}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
@@ -286,6 +287,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       name="fechaTermino"
                       onChange={handleChange}
                       value={Inventario.fechaTermino}
+                      max={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
