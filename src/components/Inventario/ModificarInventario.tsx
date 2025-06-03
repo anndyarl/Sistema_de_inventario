@@ -469,6 +469,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const handleValidar = () => {
     // console.log("campos", JSON.stringify(Inventario, null, 2));
     if (validate()) {
+      console.log(Inventario);
       Swal.fire({
         icon: "info",
         // title: 'Confirmar',
@@ -641,6 +642,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   onChange={handleChange}
                   value={Inventario.AF_FECHA_SOLICITUD}
                   disabled={isDisabled}
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 {error.AF_FECHA_SOLICITUD && (
                   <div className="invalid-feedback fw-semibold">{error.AF_FECHA_SOLICITUD}</div>
@@ -719,7 +721,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   name="AF_MONTOFACTURA"
                   onChange={handleChange}
                   value={Inventario.AF_MONTOFACTURA}
-                  disabled={isDisabled}
+                  disabled
                 />
                 {error.AF_MONTOFACTURA && (
                   <div className="invalid-feedback fw-semibold">{error.AF_MONTOFACTURA}</div>
@@ -736,6 +738,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   onChange={handleChange}
                   value={Inventario.AF_FECHAFAC}
                   disabled={isDisabled}
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 {error.AF_FECHAFAC && (
                   <div className="invalid-feedback fw-semibold">{error.AF_FECHAFAC}</div>
@@ -1251,11 +1254,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     <td className={`align-items-center p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>
                       <input
                         aria-label="AF_FINGRESO"
-                        type="text"
+                        type="date"
                         name="AF_FINGRESO"
                         className={` form-control border border-0 rounded-0  ${isDarkMode ? "bg-secondary text-white" : ""}`}
                         value={Inventario.AF_FINGRESO}
                         onChange={(e) => handleChange(e)}
+                        max={new Date().toISOString().split("T")[0]}
                       />
                     </td>
                     <td className={`align-items-center p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>
@@ -1297,9 +1301,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         aria-label="DET_PRECIO"
                         type="text"
                         name="DET_PRECIO"
+                        disabled
                         className={` form-control border border-0 rounded-0  ${isDarkMode ? "bg-secondary text-white" : ""}`}
-                        value={Inventario.DET_PRECIO}
-
+                        value={`$ ${Inventario.DET_PRECIO.toLocaleString("es-ES", { minimumFractionDigits: 0 })}`}
                         onChange={(e) => handleChange(e)}
                       />
                     </td>

@@ -1,6 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ListaAltas } from './FirmarAltas';
-import { Objeto } from '../../Navegacion/Profile';
 const styles = StyleSheet.create({
     page: {
         padding: 20,

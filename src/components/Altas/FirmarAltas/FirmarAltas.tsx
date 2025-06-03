@@ -99,7 +99,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
     const [Unidad, setUnidad] = useState<number>(0);
-    const [UnidadNombre, setUnidadNombre] = useState<string>("");
+    const [__, setUnidadNombre] = useState<string>("");
     const [altaSeleccionada, setAltaSeleccionada] = useState<number | null>(null);
     const [indiceSeleccionado, setIndiceSeleccionado] = useState<number | null>(null);
     const filasSeleccionadasPDF = listaAltasRegistradas.filter((_, index) =>
@@ -681,18 +681,44 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     };
 
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (comboUnidades.length === 0) obtenerUnidadesActions();
+        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
+
         if (e.target.checked) {
-            if (comboUnidades.length === 0) obtenerUnidadesActions();
-            if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
-            setFilasSeleccionadas(
-                elementosActuales.map((_, index) =>
-                    (indicePrimerElemento + index).toString()
-                )
-            );
+            const filasValidas: string[] = [];
+
+            elementosActuales.forEach((elemento, index) => {
+                const altaS_CORR = elemento.altaS_CORR;
+
+                const estado = listaEstadoFirmas.find(
+                    (f) => f.altaS_CORR === altaS_CORR && f.estado === 0
+                );
+
+                if (!estado) {
+                    // Si no está en proceso, se puede seleccionar
+                    filasValidas.push((indicePrimerElemento + index).toString());
+                } else {
+                    // Si está en proceso, opcionalmente muestra alerta (solo si quieres mostrar una por cada uno)
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Solicitud en proceso",
+                        text: `La fila con número de alta ${altaS_CORR} ya tiene una solicitud en curso y será omitida.`,
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border",
+                        },
+                    });
+                }
+            });
+
+            setFilasSeleccionadas(filasValidas);
         } else {
             setFilasSeleccionadas([]);
         }
     };
+
 
     useEffect(() => {
         if (altaSeleccionada === null || indiceSeleccionado === null) return;

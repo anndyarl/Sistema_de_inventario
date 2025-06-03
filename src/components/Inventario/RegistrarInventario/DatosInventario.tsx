@@ -597,6 +597,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion}
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 {error.fechaRecepcion && (
                   <div className="invalid-feedback fw-semibold">{error.fechaRecepcion}</div>
@@ -701,6 +702,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   name="fechaFactura"
                   onChange={handleChange}
                   value={Inventario.fechaFactura}
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 {error.fechaFactura && (
                   <div className="invalid-feedback fw-semibold">{error.fechaFactura}</div>
@@ -824,10 +826,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               <p>{formulariosCombinados.nRecepcionR || 'N/A'}</p>
               <p><strong>Fecha Recepción:</strong></p>
               <p>
-                {formulariosCombinados.fechaRecepcionR
-                  ? formulariosCombinados.fechaRecepcionR.split('-').reverse().join('/')
-                  : 'N/A'
-                }
+                {formulariosCombinados.fechaRecepcionR ? formulariosCombinados.fechaRecepcionR.split('-').reverse().join('/') : 'N/A'}
               </p>
               <p><strong>N° Orden de Compra:</strong></p>
               <p>{formulariosCombinados.nOrdenCompraR || 'N/A'}</p>
@@ -909,7 +908,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </Col>
             <Col>
               <p><strong>Fecha Ingreso:</strong></p>
-              <p>{activosFijos[0]?.fechaIngreso.split('-').reverse().join('/') || 'N/A'}</p>
+              {activosFijos.length > 0 && activosFijos[0]?.fechaIngreso ? (
+                <p>{activosFijos[0].fechaIngreso.split('-').reverse().join('/')}</p>
+              ) : (
+                <p>N/A</p>
+              )}
+
             </Col>
           </Row>
 

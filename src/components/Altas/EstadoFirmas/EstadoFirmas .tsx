@@ -32,7 +32,6 @@ interface DatosBajas {
 const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneVisadoCompletoActions, listaEstadoFirmas, token, isDarkMode, nPaginacion, documentoByte64 }) => {
     const [loading, setLoading] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [filasSeleccionadas, _] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
     // const filasSeleccionadasPDF = listaEstadoFirmas.filter((_, index) =>
@@ -118,6 +117,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
     }, []);
 
     useEffect(() => {
+        listaAltasAuto();
         if (!documentoByte64) return;
         const tipo = detectarTipo(documentoByte64);
         const visadoBase64 = `data:application/${tipo};base64,${documentoByte64}`;

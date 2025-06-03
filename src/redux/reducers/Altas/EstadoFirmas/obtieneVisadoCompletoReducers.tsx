@@ -1,5 +1,4 @@
 
-import { ListaEstadoFirmas } from '../../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 import {
     OBTIENE_VISADO_COMPLETO_REQUEST,
     OBTIENE_VISADO_COMPLETO_SUCCESS,
