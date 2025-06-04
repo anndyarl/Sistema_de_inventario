@@ -54,7 +54,7 @@ const DocumentoPDF = ({ row }: { row: ListaInvenarioEspecies }) => (
                         <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
                         <Text style={styles.p}>Subdirección Administrativa</Text>
                         <Text style={styles.p}>Departamento de Finanzas</Text>
-                        <Text style={styles.p}>Unidad de Inventarios</Text>
+                        <Text style={styles.p}>Unidad de Inventario</Text>
                     </View>
                 </View>
             </Container>

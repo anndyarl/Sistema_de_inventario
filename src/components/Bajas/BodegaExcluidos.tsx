@@ -8,13 +8,13 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Arrow90degLeft, Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/ListadoGeneral/obtenerListaExcluidosActions.tsx";
 import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaExcluidos/quitarBodegaExcluidosActions.tsx";
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
-import { devolverBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/devolverBajasActions.tsx";
+// import { devolverBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/devolverBajasActions.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
+// import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 
 interface FechasProps {
   fDesde: string;
@@ -42,17 +42,17 @@ export interface ListaExcluidos {
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
   obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
-  listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+  // listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
   quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
-  devolverBajasActions: (devolverBaja: Record<string, any>[]) => Promise<boolean>;
+  // devolverBajasActions: (devolverBaja: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   nPaginacion: number; //número de paginas establecido desde preferencias
   objeto: Objeto;
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, listaAltasdesdeBajasActions, quitarBodegaExcluidosActions, excluirBajasActions, devolverBajasActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
@@ -223,69 +223,69 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, l
 
   };
 
-  const handleDevolverSeleccionados = async () => {
-    const selectedIndices = filasSeleccionadas.map(Number);
+  // const handleDevolverSeleccionados = async () => {
+  //   const selectedIndices = filasSeleccionadas.map(Number);
 
-    const result = await Swal.fire({
-      icon: "info",
-      title: "Devolver a Listado General",
-      text: "Confirme para enviar",
-      showDenyButton: false,
-      showCancelButton: true,
-      confirmButtonText: "Confirmar y Enviar",
-      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-      color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-      customClass: {
-        popup: "custom-border", // Clase personalizada para el borde
-      }
-    });
+  //   const result = await Swal.fire({
+  //     icon: "info",
+  //     title: "Devolver a Listado General",
+  //     text: "Confirme para enviar",
+  //     showDenyButton: false,
+  //     showCancelButton: true,
+  //     confirmButtonText: "Confirmar y Enviar",
+  //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //     confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+  //     customClass: {
+  //       popup: "custom-border", // Clase personalizada para el borde
+  //     }
+  //   });
 
-    if (result.isConfirmed) {
-      // setLoadingRegistro(true);
-      // Crear un array de objetos con aF_CLAVE y nombre
-      const Formulario = selectedIndices.map((activo) => ({
-        aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
+  //   if (result.isConfirmed) {
+  //     // setLoadingRegistro(true);
+  //     // Crear un array de objetos con aF_CLAVE y nombre
+  //     const Formulario = selectedIndices.map((activo) => ({
+  //       aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
 
-      }));
+  //     }));
 
-      const resultado = await devolverBajasActions(Formulario);
-      if (resultado) {
-        Swal.fire({
-          icon: "success",
-          title: "Devuelto a Listado General",
-          text: "Se ha enviado correctamente",
-          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-          customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
-          }
-        });
+  //     const resultado = await devolverBajasActions(Formulario);
+  //     if (resultado) {
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Devuelto a Listado General",
+  //         text: "Se ha enviado correctamente",
+  //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+  //         customClass: {
+  //           popup: "custom-border", // Clase personalizada para el borde
+  //         }
+  //       });
 
-        setLoadingRegistro(false);
-        obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
-        listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-        handleBuscar();
-        setFilasSeleccionadas([]);
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: ":'(",
-          text: "Hubo un problema al registrar",
-          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-          customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
-          }
-        });
-        setLoadingRegistro(false);
-      }
+  //       setLoadingRegistro(false);
+  //       obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+  //       listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+  //       handleBuscar();
+  //       setFilasSeleccionadas([]);
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: ":'(",
+  //         text: "Hubo un problema al registrar",
+  //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+  //         customClass: {
+  //           popup: "custom-border", // Clase personalizada para el borde
+  //         }
+  //       });
+  //       setLoadingRegistro(false);
+  //     }
 
-    }
+  //   }
 
-  };
+  // };
 
   const handleCerrarModal = () => {
     setMostrarModal(null); //Cierra modal del indice seleccionado
@@ -538,7 +538,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, l
             {filasSeleccionadas.length > 0 ? (
               <>
                 {/* Botón Devolver a Listado General*/}
-                <Button
+                {/* <Button
                   variant="warning"
                   onClick={handleDevolverSeleccionados}
                   className="m-1 p-2 d-flex align-items-center"
@@ -562,7 +562,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, l
                       <Arrow90degLeft className={"flex-shrink-0 h-5 w-5 mx-1 mb-1 text-danger"} aria-hidden="true" />
                     </>
                   )}
-                </Button>
+                </Button> */}
                 {/* Botón Enviar a Remate */}
                 <Button
                   variant="primary"
@@ -822,7 +822,7 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   excluirBajasActions,
   obtenerListaExcluidosActions,
-  listaAltasdesdeBajasActions,
+  // listaAltasdesdeBajasActions,
   quitarBodegaExcluidosActions,
-  devolverBajasActions
+  // devolverBajasActions
 })(BienesExcluidos);

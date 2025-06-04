@@ -3,7 +3,7 @@ import React, { useState } from "react";
 // import { DatosPersona } from "../../redux/interfaces"; 
 import { connect } from "react-redux";
 import { RootState } from "../../redux/reducers"; // Asegúrate de tener este tipo definido correctamente
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 // import { useAppDispatch } from "../../hooks/hook";
 import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
 import ondas from "../../assets/img/ondas.png"
@@ -17,7 +17,7 @@ interface Props {
 
 const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Hook para redirigir
+  // const navigate = useNavigate(); // Hook para redirigir
   // Función para redirigir a Clave Única
   const handleClaveUnica = () => {
     setLoading(true);
@@ -26,9 +26,9 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
     // window.open(redirectUrl, "_blank")
   };
 
-  const handlePrueba = () => {
-    navigate("/Login");
-  };
+  // const handlePrueba = () => {
+  //   navigate("/Login");
+  // };
 
   // if ('serviceWorker' in navigator) {
   //   navigator.serviceWorker.register('/service-worker.js')
@@ -84,7 +84,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
               )}
             </Button>
 
-            <Button
+            {/* <Button
               onClick={handlePrueba}
               disabled={loading}
               variant="primary"
@@ -92,7 +92,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated, isDarkMode }) => {
               type="submit"
             >
               Acceso prueba
-            </Button>
+            </Button> */}
           </div>
 
           {/* Footer */}

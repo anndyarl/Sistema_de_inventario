@@ -4,15 +4,6 @@ import ago from "../../../../assets/img/ago.jpg"
 import { Container } from 'react-bootstrap';
 import { ListaFolioServicioDependencia } from './FolioPorServicioDependencia';
 
-// Formatear la fecha actual en español (Chile)
-const fechaHoy = new Date()
-    .toLocaleDateString('es-CL', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    })
-    .replace(/-/g, '/');
-
 const styles = StyleSheet.create({
     page: {
         padding: 20,
@@ -171,6 +162,16 @@ const styles = StyleSheet.create({
 
 });
 
+// Formatear la fecha actual en español (Chile)
+const fechaHoy = new Date()
+    .toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    })
+    .replace(/-/g, '/');
+
+
 const arreglo = (array: any[], size: number) => {
     const result = [];
     for (let i = 0; i < array.length; i += size) {
@@ -180,7 +181,7 @@ const arreglo = (array: any[], size: number) => {
 };
 
 
-const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependencia[]; AltaInventario: any; }) => {
+const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDependencia[]; }) => {
     const filasPorPagina = 12;
     const paginas = arreglo(row, filasPorPagina);
 
@@ -245,63 +246,29 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependen
                             </View>
                         ))}
                     </View>
-
-                    {/* Solo en la última página: firmas y pie */}
                     {indicePagina === paginas.length - 1 && (
                         <>
                             <View style={styles.firmaContainer}>
-                                {AltaInventario.ajustarFirma && (
-                                    <View style={styles.firmaBox}>
-                                        {AltaInventario.visadoInventario ? (
-                                            <Image src={AltaInventario.visadoInventario} style={styles.firmaImagen} />
-                                        ) : (
-                                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
-                                        )}
-                                        <Text>_______________________</Text>
-                                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteInventario}</Text>
-                                        <Text style={styles.firmaLabel}>Unidad Inventario</Text>
-                                    </View>
-                                )}
-                                {AltaInventario.finanzas && (
-                                    <View style={styles.firmaBox}>
-                                        {AltaInventario.visadoFinanzas ? (
-                                            <Image src={AltaInventario.visadoFinanzas} style={styles.firmaImagen} />
-                                        ) : (
-                                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
-                                        )}
-                                        <Text>_______________________</Text>
-                                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteFinanzas}</Text>
-                                        <Text style={styles.firmaLabel}>Departamento de Finanzas</Text>
-                                    </View>
-                                )}
-                                {AltaInventario.abastecimiento && (
-                                    <View style={styles.firmaBox}>
-                                        {AltaInventario.visadoAbastecimiento ? (
-                                            <Image src={AltaInventario.visadoAbastecimiento} style={styles.firmaImagen} />
-                                        ) : (
-                                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
-                                        )}
-                                        <Text>_______________________</Text>
-                                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteAbastecimiento}</Text>
-                                        <Text style={styles.firmaLabel}>Unidad de Abastecimiento</Text>
-                                    </View>
-                                )}
-                                {AltaInventario.administrativa && (
-                                    <View style={styles.firmaBox}>
-                                        <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
-                                        <Text>_______________________</Text>
-                                        <Text style={styles.firmaLabel}>{AltaInventario.unidadAdministrativa}</Text>
-                                    </View>
-                                )}
+                                <View style={styles.firmaBox}>
+                                    <Text>_______________________</Text>
+                                    <Text style={styles.firmaLabel}>Encargado</Text>
+                                </View>
+                                <View style={styles.firmaBox}>
+                                    <Text>_______________________</Text>
+                                    <Text style={styles.firmaLabel}>Jefe</Text>
+                                </View>
+                                <View style={styles.firmaBox}>
+                                    <Text>_______________________</Text>
+                                    <Text style={styles.firmaLabel}>Jefe de Inventario</Text>
+                                </View>
                             </View>
 
                             <Container style={styles.containerFooter}>
                                 <Text style={styles.fechaHoy}>{fechaHoy}</Text>
-                                <Text>Página {indicePagina + 1} de {paginas.length}</Text>
+                                <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
                             </Container>
                         </>
                     )}
-
                     {/* Pie de página para otras páginas */}
                     {indicePagina !== paginas.length - 1 && (
                         <Container style={styles.containerFooter}>
@@ -309,7 +276,6 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependen
                             <Text style={styles.fechaHoy}>{fechaHoy}</Text>
                             <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
                             {/* </View> */}
-
                         </Container>
                     )}
                 </Page>
@@ -319,4 +285,4 @@ const DocumentoPDF = ({ row, AltaInventario }: { row: ListaFolioServicioDependen
 };
 
 
-export default DocumentoPDF;
+export default DocumentoPDFServicioDependencia;

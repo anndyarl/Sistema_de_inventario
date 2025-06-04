@@ -21,7 +21,9 @@ import { registrarBienesBajasActions } from "../../../redux/actions/Bajas/Listad
 import { FileSignatureIcon } from "lucide-react";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { ListaEstadoFirmas } from "../EstadoFirmas/EstadoFirmas ";
-import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoFirmasActions";
+import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/listaEstadoFirmasActions";
+import { useLocation } from "react-router-dom";
+
 
 interface FechasProps {
     fDesde: string;
@@ -64,8 +66,6 @@ export interface Unidades {
     nombre: string
 }
 
-
-
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
     comboUnidades: Unidades[];
@@ -100,11 +100,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const elementosPorPagina = nPaginacion;
     const [Unidad, setUnidad] = useState<number>(0);
     const [__, setUnidadNombre] = useState<string>("");
-    const [altaSeleccionada, setAltaSeleccionada] = useState<number | null>(null);
-    const [indiceSeleccionado, setIndiceSeleccionado] = useState<number | null>(null);
+    const [altaSeleccionada, setAltaSeleccionada] = useState(0);
     const filasSeleccionadasPDF = listaAltasRegistradas.filter((_, index) =>
         filasSeleccionadas.includes(index.toString())
     );
+    const location = useLocation();
+    const afaltaS_CORR = location.state?.prop_altaS_CORR ?? 0;
     // const sigCanvas = useRef<SignatureCanvas>(null);
 
     // const [isSigned, setIsSigned] = useState(false);
@@ -125,7 +126,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const [Inventario, setInventario] = useState({
         fDesde: "",
         fHasta: "",
-        altaS_CORR: 0,
+        altaS_CORR: afaltaS_CORR,
         af_codigo_generico: ""
     });
 
@@ -160,6 +161,81 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
         cuerpo: ""
     });
+
+    const listaAuto = async () => {
+        if (token) {
+            if (listaAltasRegistradas.length === 0) {
+                setLoading(true);
+                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+                if (!resultado) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Sin Resultados",
+                        text: "No hay registros disponibles para mostrar.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoading(false);
+                }
+                else {
+                    setLoading(false);
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (listaEstadoFirmas.length === 0) {
+            listaEstadoFirmasActions(altaSeleccionada)
+        }
+        listaAuto();
+        Unidad
+    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length]);
+
+    // Función al seleccionar una fila
+    const setSeleccionaFilas = (index: number, altaS_CORR: number) => {
+        if (comboUnidades.length === 0) obtenerUnidadesActions();
+        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
+        setAltaSeleccionada(altaS_CORR);
+
+        if (altaS_CORR === null || index === null) return;
+        const estado = listaEstadoFirmas.find((f) => f.altaS_CORR === altaS_CORR && f.estado === 0);
+
+        if (estado) {
+            Swal.fire({
+                icon: "warning",
+                title: "Solicitud en proceso",
+                text: `Ya se ha enviado una solicitud al número de alta seleccionado`,
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border",
+                },
+            });
+
+            // Deseleccionar si estaba seleccionada
+            setFilasSeleccionadas((prev) =>
+                prev.filter((rowIndex) => rowIndex !== index.toString())
+            );
+            setAltaSeleccionada(0);
+
+        } else {
+            // Selección normal si estado != 0
+            setFilasSeleccionadas((prev) =>
+                prev.includes(index.toString())
+                    ? prev.filter((rowIndex) => rowIndex !== index.toString())
+                    : [...prev, index.toString()]
+            );
+        }
+        // Guarda la selección temporal para que el efecto reaccione
+        setAltaSeleccionada(altaS_CORR);
+
+    };
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -661,7 +737,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 confirmButtonColor: isDarkMode ? "#007bff" : "#444",
                 customClass: { popup: "custom-border" }
             });
-
+            listaEstadoFirmasActions(0);
+            setFilasSeleccionadas([]);
             handleBuscar();
             setMostrarModal(false);
         }
@@ -701,7 +778,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     Swal.fire({
                         icon: "warning",
                         title: "Solicitud en proceso",
-                        text: `La fila con número de alta ${altaS_CORR} ya tiene una solicitud en curso y será omitida.`,
+                        text: `Ya existen solicitudes en curso, por lo que serán omitida del proceso`,
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
                         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -717,85 +794,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             setFilasSeleccionadas([]);
         }
     };
-
-
-    // Función al seleccionar una fila
-    const setSeleccionaFilas = (index: number, altaS_CORR: number) => {
-        if (comboUnidades.length === 0) obtenerUnidadesActions();
-        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
-
-        // Llama a la acción que pobla listaEstadoFirmas
-        listaEstadoFirmasActions(altaS_CORR);
-
-        // Guarda la selección temporal para que el efecto reaccione
-        setAltaSeleccionada(altaS_CORR);
-        setIndiceSeleccionado(index);
-    };
-
-    const listaAuto = async () => {
-        if (token) {
-            if (listaAltasRegistradas.length === 0) {
-                setLoading(true);
-                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
-                if (!resultado) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Sin Resultados",
-                        text: "No hay registros disponibles para mostrar.",
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                    setLoading(false);
-                }
-                else {
-                    setLoading(false);
-                }
-            }
-        }
-    };
-
-    useEffect(() => {
-        listaAuto();
-        listaEstadoFirmas
-        Unidad
-        if (altaSeleccionada === null || indiceSeleccionado === null) return;
-        const estado = listaEstadoFirmas.find((f) => f.altaS_CORR === altaSeleccionada && f.estado === 0);
-
-        if (estado) {
-            Swal.fire({
-                icon: "warning",
-                title: "Solicitud en proceso",
-                text: `Ya se ha enviado una solicitud al número de alta seleccionado`,
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                customClass: {
-                    popup: "custom-border",
-                },
-            });
-
-            // Deseleccionar si estaba seleccionada
-            setFilasSeleccionadas((prev) =>
-                prev.filter((rowIndex) => rowIndex !== indiceSeleccionado.toString())
-            );
-        } else {
-            // Selección normal si estado != 0
-            setFilasSeleccionadas((prev) =>
-                prev.includes(indiceSeleccionado.toString())
-                    ? prev.filter((rowIndex) => rowIndex !== indiceSeleccionado.toString())
-                    : [...prev, indiceSeleccionado.toString()]
-            );
-        }
-
-        // Reset después de ejecutar
-        setAltaSeleccionada(null);
-        setIndiceSeleccionado(null);
-    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, listaEstadoFirmas.length, isDarkMode, Unidad, setLoading]);
-
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado
@@ -975,7 +973,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 onClick={() => setMostrarModal(true)}
                                 disabled={listaAltasRegistradas.length === 0}
                                 variant={isDarkMode ? "secondary" : "primary"}
-                                className="mx-1 mb-1"
+                                className="mx-1 mb-1 p-2"
                             >
                                 Exportar
                                 <FiletypePdf
@@ -987,7 +985,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
                         </>
                     ) : (
-                        <strong className="alert alert-dark border m-1 p-2">
+                        <strong className="alert alert-dark border mb-1 p-2">
                             No hay filas seleccionadas
                         </strong>
                     )}
@@ -1010,8 +1008,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             className="check-danger"
                                             type="checkbox"
                                             onChange={handleSeleccionaTodos}
-                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                                            checked={
+                                                elementosActuales.filter(
+                                                    (elemento) =>
+                                                        !listaEstadoFirmas.find(
+                                                            (f) => f.altaS_CORR === elemento.altaS_CORR && f.estado === 0
+                                                        )
+                                                ).length === filasSeleccionadas.length &&
+                                                filasSeleccionadas.length > 0
+                                            }
                                         />
+
                                     </th>
                                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                                     <th scope="col" className="text-nowrap text-center">N° Alta</th>
@@ -1030,26 +1037,18 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                             </thead>
                             <tbody>
                                 {elementosActuales.map((Lista, index) => {
-                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                    const indexReal = indicePrimerElemento + index;
+                                    const esEstado0 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 0);
                                     return (
-                                        <tr key={index}>
+                                        <tr key={index} className={esEstado0 ? "table-warning" : ""}>
                                             <td style={{
                                                 position: 'sticky',
                                                 left: 0,
                                                 zIndex: 2,
-
                                             }}>
-                                                {/* <Form.Check
-                                                type="checkbox"
-                                                onChange={() => setSeleccionaFila(index)}
-                                                checked={filasSeleccionadas.includes(
-                                                    (indicePrimerElemento + index).toString()
-                                                )}
-                                            /> */}
                                                 <Form.Check
                                                     type="checkbox"
                                                     onClick={() => setSeleccionaFilas(indexReal, Lista.altaS_CORR)}
-                                                    // onChange={() => setSeleccionaFilas(indexReal)}
                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                 />
                                             </td>
@@ -1071,6 +1070,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         </tr>
                                     );
                                 })}
+
                             </tbody>
                         </table>
                     </div>

@@ -7,10 +7,10 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { Eye, Search } from "react-bootstrap-icons";
+import { Eraser, Eye, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
-import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoFirmasActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
+import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 
 export interface ListaEstadoFirmas {
     idocumento: number;
@@ -19,8 +19,8 @@ export interface ListaEstadoFirmas {
 }
 
 interface DatosBajas {
-    listaEstadoFirmas: ListaEstadoFirmas[];
-    listaEstadoFirmasActions: (altasCorr: number) => Promise<boolean>;
+    listaEstado: ListaEstadoFirmas[];
+    listaEstadoActions: (altasCorr: number, idDocumento: number) => Promise<boolean>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
@@ -29,7 +29,7 @@ interface DatosBajas {
     documentoByte64: string;
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneVisadoCompletoActions, listaEstadoFirmas, token, isDarkMode, nPaginacion, documentoByte64 }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstado, token, isDarkMode, nPaginacion, documentoByte64 }) => {
     const [loading, setLoading] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -41,12 +41,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
+        idDocumento: 0,
         CuerpoDocumento: ""
     });
+
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "altaS_CORR" && !/^[0-9]*$/.test(value)) {
+        if ((name === "altaS_CORR" || name === "idDocumento") && !/^[0-9]*$/.test(value)) {
             return; // Salir si contiene caracteres no numéricos
         }
 
@@ -67,12 +69,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
         let resultado = false;
         setLoading(true);
 
-        resultado = await listaEstadoFirmasActions(Buscar.altaS_CORR);
+        resultado = await listaEstadoActions(Buscar.altaS_CORR, Buscar.idDocumento);
         if (!resultado) {
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "El Nº de Alta consultado no se encuentra en este listado.",
+                text: "El dato consultado no se encuentra en este listado.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -81,7 +83,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await listaEstadoFirmasActions(0);
+            resultado = await listaEstadoActions(0, 0);
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
@@ -93,14 +95,22 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
 
     const listaAltasAuto = async () => {
         if (token) {
-            if (listaEstadoFirmas.length === 0) {
+            if (listaEstado.length === 0) {
                 setLoading(true);
-                const resultado = await listaEstadoFirmasActions(0);
+                const resultado = await listaEstadoActions(0, 0);
                 if (resultado) {
                     setLoading(false);
                 }
             }
         }
+    };
+
+    const handleLimpiar = () => {
+        setBuscar((prevInventario) => ({
+            ...prevInventario,
+            altaS_CORR: 0,
+            idDocumento: 0,
+        }));
     };
 
     function detectarTipo(base64: string): string {
@@ -127,10 +137,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
-        () => listaEstadoFirmas.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listaEstadoFirmas, indicePrimerElemento, indiceUltimoElemento]
+        () => listaEstado.slice(indicePrimerElemento, indiceUltimoElemento),
+        [listaEstado, indicePrimerElemento, indiceUltimoElemento]
     );
-    const totalPaginas = Math.ceil(listaEstadoFirmas.length / elementosPorPagina);
+    const totalPaginas = Math.ceil(listaEstado.length / elementosPorPagina);
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     return (
@@ -152,9 +162,23 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                                     type="text"
                                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                     name="altaS_CORR"
-                                    placeholder="Ej: 0"
+                                    placeholder="0"
                                     onChange={handleChange}
                                     value={Buscar.altaS_CORR}
+                                />
+                            </div>
+                        </div>
+                        <div className="mb-2">
+                            <div className="mb-2">
+                                <label htmlFor="idDocumento" className="form-label fw-semibold small">Nº Documento</label>
+                                <input
+                                    aria-label="idDocumento"
+                                    type="text"
+                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="idDocumento"
+                                    placeholder="0"
+                                    onChange={handleChange}
+                                    value={Buscar.idDocumento}
                                 />
                             </div>
                         </div>
@@ -184,7 +208,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                                     </>
                                 )}
                             </Button>
-
+                            <Button onClick={handleLimpiar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                Limpiar
+                                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                            </Button>
                         </div>
                     </Col>
                 </Row>
@@ -199,7 +228,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                                     <tr>
                                         <th scope="col" className="text-nowrap text-center">N° DOCUMENTO</th>
                                         <th scope="col" className="text-nowrap text-center">Nº Alta</th>
-                                        <th scope="col" className="text-nowrap text-center">Estado</th>
+                                        <th scope="col" className="text-nowrap text-center">Estado Solicitud</th>
                                         <th scope="col" className="text-nowrap text-center">Acción</th>
                                     </tr>
                                 </thead>
@@ -212,9 +241,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
                                                 <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
                                                 <td className="text-nowrap text-center">
                                                     {
-                                                        Lista.estado === 0 ? <p className="text-warning fw-bold text-center p-1 rounded">Solicitud Enviada</p> :
-                                                            Lista.estado === 1 ? <p className="text-success fw-bold  text-center p-1 rounded">Firmado</p> :
-                                                                Lista.estado === 2 ? <p className="text-danger fw-bold text-center p-1 rounded">Rechazado</p> : "Desconocido"
+                                                        Lista.estado === 0 ? <p className="text-warning fw-bold text-center p-1 rounded">Enviada</p> :
+                                                            Lista.estado === 1 ? <p className="text-success fw-bold  text-center p-1 rounded">Firmada</p> :
+                                                                Lista.estado === 2 ? <p className="text-danger fw-bold text-center p-1 rounded">Rechazada</p> : "Desconocido"
                                                     }
                                                 </td>
                                                 <td
@@ -305,7 +334,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoFirmasActions, obtieneV
 };
 
 const mapStateToProps = (state: RootState) => ({
-    listaEstadoFirmas: state.listaEstadoFirmasReducers.listaEstadoFirmas,
+    listaEstado: state.listaEstadoReducers.listaEstado,
     documentoByte64: state.obtieneVisadoCompletoReducers.documentoByte64,
     objeto: state.validaApiLoginReducers,
     token: state.loginReducer.token,
@@ -315,7 +344,7 @@ const mapStateToProps = (state: RootState) => ({
 
 
 export default connect(mapStateToProps, {
-    listaEstadoFirmasActions,
+    listaEstadoActions,
     obtieneVisadoCompletoActions
 })(EstadoFirmas);
 

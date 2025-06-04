@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useMemo, useEffect } from "react";
 import { Modal, Button, Form, Pagination, Row, Col, Tooltip, OverlayTrigger, } from "react-bootstrap";
-import { Eraser, EraserFill, Floppy, PencilSquare, Plus, Trash } from "react-bootstrap-icons";
+import { Eraser, Floppy, PencilSquare, Plus, Trash } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import { connect, useDispatch } from "react-redux";
 import {
@@ -472,7 +472,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     setActivoFormulario((prevData) => ({
       ...prevData,
       vidaUtil: "",
-      fechaIngreso: "",
       marca: "",
       modelo: "",
       precio: "",
@@ -835,12 +834,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               {/* habilita Boton Modal formulario si solo monto recepcion y total coinciden y si la especie tiene datos */}
               {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
                 <Button
-                  className="mb-1 p-2 mx-1 align-content-center"
+                  className="mx-1 align-content-center"
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   onClick={() => setMostrarModal(true)}
                 >
                   Agregar
-                  <Plus className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
+                  <Plus className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
               )}
             </div>
@@ -852,13 +851,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           <Col>
             {/* TAmaño de pagina*/}
             {datos.length > 0 && (
-              <div className="d-flex align-items-center mx-2 mb-1 p-2">
+              <div className="d-flex align-items-center mx-2 mb-1 p-2 mt-4">
                 <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                   Tamaño de página:
                 </label>
                 <select
                   aria-label="Seleccionar tamaño de página"
-                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  className={`form-select form-select-sm w-auto  rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                   name="nPaginacion"
                   onChange={handleChange}
                   value={Paginacion.nPaginacion}
@@ -1124,7 +1123,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} `}>
                         Guardar
                         <Floppy
-                          className="flex-shrink-0 me-2 h-5 w-5 ms-1"
+                          className="flex-shrink-0 h-5 w-5 ms-1"
                           aria-hidden="true"
                         />
                       </Button>
@@ -1136,27 +1135,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                         className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
                       >
                         Limpiar
-                        {
-                          (() => {
-                            const { ...restoTraslados } = activoFormulario;
-                            const tieneDatos = Object.values(restoTraslados).some(
-                              (valor) => valor !== ""
-                            );
-
-                            return tieneDatos ? (
-                              <EraserFill
-                                className="flex-shrink-0 h-5 w-5 ms-1"
-                                aria-hidden="true"
-                              />
-                            ) : (
-                              <Eraser
-                                className="flex-shrink-0 h-5 w-5 ms-1"
-                                aria-hidden="true"
-                              />
-
-                            );
-                          })()
-                        }
+                        <Eraser
+                          className="flex-shrink-0 h-5 w-5 ms-1"
+                          aria-hidden="true"
+                        />
                       </Button>
                     </div>
                   </div>

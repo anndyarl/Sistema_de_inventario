@@ -32,6 +32,7 @@ interface InventarioCompleto {
   aF_TIPO: string;
   aF_VIDAUTIL: number;
   ctA_NOMBRE: string;
+  ctA_COD: string;
   esP_NOMBRE: string;
   esP_CODIGO: number;
   usuariO_CREA: string;
@@ -375,7 +376,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                       <th scope="col" className="text-nowrap">Origen</th>
                       {/* <th scope="col" className="text-nowrap text-center">Tipo</th> */}
                       <th scope="col" className="text-nowrap">Vida Útil</th>
-                      <th scope="col" className="text-nowrap">Cuenta</th>
+                      <th scope="col" className="text-nowrap">Nombre Cuenta</th>
+                      <th scope="col" className="text-nowrap">Código Cuenta</th>
                       <th scope="col" className="text-nowrap">Nombre Especie</th>
                       <th scope="col" className="text-nowrap">Código Especie</th>
                       <th scope="col" className="text-nowrap">Usuario Crea</th>
@@ -402,7 +404,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                         {/* <td className="text-nowrap">{datosListaInventario.aF_CANTIDAD}</td> */}
                         <td className="text-nowrap">{lista.aF_DESCRIPCION}</td>
                         {/* <td>{datosListaInventario.aF_ESTADO}</td> */}
-                        <td className="text-nowrap">{lista.aF_FECHA_SOLICITUD}</td>
+                        <td className="text-nowrap">{lista.aF_FECHA_SOLICITUD == "" ? "Sin fecha" : lista.aF_FECHA_SOLICITUD}</td>
                         <td className="text-nowrap">{lista.aF_FECHAFAC}</td>
                         <td className="text-nowrap">
                           ${lista.aF_MONTOFACTURA?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
@@ -413,6 +415,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ obtenerListaInventar
                         {/* <td>{datosListaInventario.aF_TIPO}</td> */}
                         <td className="text-nowrap">{lista.aF_VIDAUTIL}</td>
                         <td className="text-nowrap">{lista.ctA_NOMBRE}</td>
+                        <td className="text-nowrap">{lista.ctA_COD}</td>
                         <td className="text-nowrap">{lista.esP_NOMBRE}</td>
                         <td className="text-nowrap">{lista.esP_CODIGO}</td>
                         <td className="text-nowrap">{lista.usuariO_CREA}</td>

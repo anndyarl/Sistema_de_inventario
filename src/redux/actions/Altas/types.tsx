@@ -33,11 +33,16 @@ export const OBTENER_UNIDADES_REQUEST = 'OBTENER_UNIDADES_REQUEST';
 export const OBTENER_UNIDADES_SUCCESS = 'OBTENER_UNIDADES_SUCCESS';
 export const OBTENER_UNIDADES_FAIL = 'OBTENER_UNIDADES_FAIL';
 
-// Acción obtener unidades
+// Acción obtener listado estado firmantes(Firmas Altas)
 export const LISTA_ESTADO_FIRMAS_REQUEST = 'LISTA_ESTADO_FIRMAS_REQUEST';
 export const LISTA_ESTADO_FIRMAS_SUCCESS = 'LISTA_ESTADO_FIRMAS_SUCCESS';
 export const LISTA_ESTADO_FIRMAS_FAIL = 'LISTA_ESTADO_FIRMAS_FAIL';
 
+
+// Acción obtener listado estado firmantes(Estado Altas)
+export const LISTA_ESTADO_REQUEST = 'LISTA_ESTADO_REQUEST';
+export const LISTA_ESTADO_SUCCESS = 'LISTA_ESTADO_SUCCESS';
+export const LISTA_ESTADO_FAIL = 'LISTA_ESTADO_FAIL';
 
 // Acción obtener altas
 export const LISTA_ALTAS_REQUEST = 'LISTA_ALTAS_REQUEST';

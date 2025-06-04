@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Row, Col, Form, Pagination, Button, Spinner, Modal, Collapse } from "react-bootstrap";
+import React, { useEffect, useMemo, useState } from "react";
+import { Row, Col, Form, Pagination, Button, Spinner, Modal } from "react-bootstrap";
 import { RootState } from "../../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../../containers/hocs/layout/Layout";
@@ -11,7 +11,6 @@ import { Helmet } from "react-helmet-async";
 import MenuInformes from "../../../Menus/MenuInformes";
 import { Objeto } from "../../../Navegacion/Profile";
 import { BlobProvider } from "@react-pdf/renderer";
-import DocumentoPDF from "./DocumentoPDFServicioDependencia";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import Select from "react-select";
@@ -24,6 +23,7 @@ import { obtenerfirmasAltasActions } from "../../../../redux/actions/Altas/Firma
 import { comboDependenciaDestinoActions } from "../../../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
 import { comboTrasladoServicioActions } from "../../../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { registroTrasladoMultipleActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
+import DocumentoPDFServicioDependencia from "./DocumentoPDFServicioDependencia";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -100,9 +100,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const [error, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
     const [loading, setLoading] = useState(false); // Estado para controlar la carga busqueda 
     const [paginaActual, setPaginaActual] = useState(1);
-    const [isExpanded, setIsExpanded] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-    const [__, setIsDisabled] = useState(true);
     const [Paginacion, setPaginacion] = useState({
         nPaginacion: 10
     });
@@ -127,28 +125,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const [Buscar, setBuscar] = useState({
         servicio: 0,
     });
-    //Estado para firmar
-    const [Inventario, setInventario] = useState({
-        ajustarFirma: false,//General
-        finanzas: false,//Opcional
-        abastecimiento: false,//Opcional
-        administrativa: false,//Opcional
-        unidadAdministrativa: null,//Este es el esado de un combo
-        titularInventario: false,
-        subroganteInventario: false,
-        titularFinanzas: false,
-        subroganteFinanzas: false,
-        titularAbastecimiento: false,
-        subroganteAbastecimiento: false,
-        titularDemandante: false,
-        subroganteDemandante: false,
-        firmanteInventario: "",
-        firmanteFinanzas: "",
-        firmanteAbastecimiento: "",
-        visadoInventario: "",
-        visadoFinanzas: "",
-        visadoAbastecimiento: ""
-    });
+
     //Estado para completar fomulario traslado
     const [Traslados, setTraslados] = useState({
         aF_CLAVE: 0,
@@ -264,11 +241,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         }
         resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Roles[0].codigoEstablecimiento);
 
-        //resetea campos una vez hecha la busqueda
-        setInventario((prevState) => ({
-            ...prevState,
-            servicio: 0,
-        }));
         setError({});
         if (!resultado) {
             Swal.fire({
@@ -321,113 +293,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         );
     };
 
-    function detectarTipo(base64: string): string {
-        if (base64.startsWith("/9j/")) return "jpeg";
-        if (base64.startsWith("iVBOR")) return "png";
-        if (base64.startsWith("R0lGOD")) return "gif";
-        return "png"; // fallback
-    };
-
-    const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = e.target;
-
-        // Copia del estado actual
-        const prev = structuredClone(Inventario);
-        const updatedState = { ...prev, [name]: checked };
-
-        if (name === "ajustarFirma" && !checked) {
-            const cleanedState = {
-                ...updatedState,
-                finanzas: false,
-                abastecimiento: false,
-                administrativa: false,
-                titularInventario: false,
-                subroganteInventario: false,
-                titularFinanzas: false,
-                subroganteFinanzas: false,
-                titularAbastecimiento: false,
-                subroganteAbastecimiento: false,
-                titularDemandante: false,
-                subroganteDemandante: false,
-                firmanteInventario: "",
-                firmanteFinanzas: "",
-                firmanteAbastecimiento: "",
-                visadoInventario: "",
-                visadoFinanzas: "",
-                visadoAbastecimiento: ""
-            };
-            setIsDisabled(false);
-            setIsExpanded(true);
-            setInventario(cleanedState);
-            return;
-        }
-
-
-        let firmanteInventario = prev.firmanteInventario || "";
-        let firmanteFinanzas = prev.firmanteFinanzas || "";
-        let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
-        let visadoInventario = prev.visadoInventario || "";
-        let visadoFinanzas = prev.visadoFinanzas || "";
-        let visadoAbastecimiento = prev.visadoAbastecimiento || "";
-
-        for (const firma of datosFirmas) {
-
-            const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
-
-            const FIRMA = `data:image/${detectarTipo};base64,${firma.firma}`;
-            console.log("FIRMA", FIRMA)
-            // const FIRMA = `${firma.firma}`;
-            if (firma.iD_UNIDAD === 1) {
-                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteInventario = nombreCompleto;
-                    visadoInventario = FIRMA;
-                    updatedState.subroganteInventario = false;
-                }
-                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteInventario = nombreCompleto;
-                    visadoInventario = FIRMA;
-                    updatedState.titularInventario = false;
-                }
-            }
-
-            if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteFinanzas = nombreCompleto;
-                    visadoFinanzas = FIRMA;
-                    updatedState.subroganteFinanzas = false;
-                }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteFinanzas = nombreCompleto;
-                    visadoFinanzas = FIRMA;
-                    updatedState.titularFinanzas = false;
-                }
-            }
-
-            if (firma.iD_UNIDAD === 3) {
-                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteAbastecimiento = nombreCompleto;
-                    visadoAbastecimiento = FIRMA;
-                    updatedState.subroganteAbastecimiento = false;
-                }
-                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteAbastecimiento = nombreCompleto;
-                    visadoAbastecimiento = FIRMA;
-                    updatedState.titularAbastecimiento = false;
-                }
-            }
-        }
-
-        updatedState.firmanteInventario = firmanteInventario;
-        updatedState.firmanteFinanzas = firmanteFinanzas;
-        updatedState.firmanteAbastecimiento = firmanteAbastecimiento;
-        updatedState.visadoInventario = visadoInventario;
-        updatedState.visadoFinanzas = visadoFinanzas;
-        updatedState.visadoAbastecimiento = visadoAbastecimiento;
-        setIsDisabled(false);
-        setIsExpanded(true);
-        setInventario(updatedState);
-    }, [Inventario, datosFirmas, objeto]);
-
     const handleSubmitTraslado = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (validateForm()) {
@@ -439,8 +304,10 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 confirmButtonText: "Confirmar y Trasladar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-                customClass: { popup: "custom-border" }
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
             });
 
             if (result.isConfirmed) {
@@ -971,172 +838,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form >
-                        <div className="d-flex justify-content-between p-2">
-                            <div className="d-flex align-items-center  rounded p-2 mb-3 shadow-sm">
-                                <p className="fw-semibold mb-0 me-3">
-                                    Ajustar firma:
-                                </p>
-                                <Form.Check
-                                    onChange={handleCheck}
-                                    name="ajustarFirma"
-                                    type="checkbox"
-                                    className="form-switch"
-                                    checked={Inventario.ajustarFirma}
-                                    label=""
-                                />
-                            </div>
-                        </div>
 
-                        <Collapse in={isExpanded} dimension="height">
-                            <Row className="m-1 p-3 rounded rounded-4 border">
-                                <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
-                                {/* Ajustar Firma | Unidad Inventario */}
-                                <Col md={4} >
-                                    <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.ajustarFirma}
-                                            name="titularInventario"
-                                            type="checkbox"
-                                            checked={Inventario.titularInventario}
-                                        />
-                                        <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
-                                    </div>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.ajustarFirma}
-                                            name="subroganteInventario"
-                                            type="checkbox"
-                                            checked={Inventario.subroganteInventario}
-                                        />
-                                        <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
-                                    </div>
-                                </Col>
-
-                                {/* Opcional1 | Departamento Finanzas*/}
-                                <Col md={4}>
-                                    <p className="border-bottom fw-semibold text-center">Departamento de Finanzas</p>
-                                    <div className="d-flex">
-                                        <label htmlFor="finanzas" className="me-2">Opcional</label>
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.ajustarFirma}
-                                            name="finanzas"
-                                            type="checkbox"
-                                            className="form-switch"
-                                            checked={Inventario.finanzas}
-                                        />
-                                    </div>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.finanzas}
-                                            name="titularFinanzas"
-                                            type="checkbox"
-                                            checked={Inventario.titularFinanzas}
-                                        />
-                                        <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
-                                    </div>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.finanzas}
-                                            name="subroganteFinanzas"
-                                            type="checkbox"
-                                            checked={Inventario.subroganteFinanzas}
-                                        />
-                                        <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
-                                    </div>
-                                </Col>
-
-                                {/* Opcional2 | Unidad Abastecimiento*/}
-                                <Col md={4}>
-                                    <p className="border-bottom fw-semibold text-center">Unidad de Abastecimiento</p>
-                                    <div className="d-flex">
-                                        <label htmlFor="abastecimiento" className="me-2">Opcional</label>
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.ajustarFirma}
-                                            name="abastecimiento"
-                                            type="checkbox"
-                                            className="form-switch"
-                                            checked={Inventario.abastecimiento}
-                                        />
-                                    </div>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.abastecimiento}
-                                            name="titularAbastecimiento"
-                                            type="checkbox"
-                                            checked={Inventario.titularAbastecimiento}
-                                        />
-                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
-                                    </div>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            onChange={handleCheck}
-                                            disabled={!Inventario.abastecimiento}
-                                            name="subroganteAbastecimiento"
-                                            type="checkbox"
-                                            checked={Inventario.subroganteAbastecimiento}
-                                        />
-                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
-                                    </div>
-                                </Col>
-
-                                {/* Opcional3 | Unidad Administrativa */}
-                                {/* <Col md={4}>
-                                            <p className="border-bottom fw-semibold text-center">Unidad Administrativa</p>
-                                            <div className="d-flex">
-                                                <label htmlFor="administrativa" className="me-2">Opcional</label>
-                                                <Form.Check
-                                                    onChange={handleCheck}
-                                                    disabled={!AltaInventario.ajustarFirma}
-                                                    name="administrativa"
-                                                    type="checkbox"
-                                                    className="form-switch"
-                                                    checked={AltaInventario.administrativa}
-                                                />
-                                            </div>
-
-                                            <div className="mb-1">
-                                                <label className="fw-semibold">
-                                                    Seleccione una Unidad
-                                                </label>
-                                                <select
-                                                    aria-label="unidadAdministrativa"
-                                                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                    name="unidadAdministrativa"
-                                                    onChange={handleChange}
-                                                    disabled={!AltaInventario.administrativa}
-                                                >
-                                                    <option value="">Seleccionar</option>
-                                                    {comboUnidades.map((traeUnidades) => (
-                                                        <option key={traeUnidades.iD_UNIDAD} value={traeUnidades.nombre}>
-                                                            {traeUnidades.nombre}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </Col> */}
-                            </Row>
-                        </Collapse>
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-
                         <BlobProvider document={
-
-                            <DocumentoPDF
+                            <DocumentoPDFServicioDependencia
                                 row={filasSeleccionadasPDF}
-                                AltaInventario={Inventario}
-                            // firmanteInventario={Inventario.firmanteInventario}
-                            // firmanteFinanzas={Inventario.firmanteFinanzas}
-                            // firmanteAbastecimiento={Inventario.firmanteAbastecimiento}
-                            // visadoInventario={Inventario.visadoInventario}
-                            // visadoFinanzas={Inventario.visadoFinanzas}
-                            // visadoAbastecimiento={Inventario.visadoAbastecimiento}
                             />
                         }>
                             {({ url, loading }) =>
@@ -1400,6 +1106,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         name="traS_FECHA_MEMO"
                                         onChange={handleChange}
                                         value={Traslados.traS_FECHA_MEMO}
+                                        max={new Date().toISOString().split("T")[0]}
                                     />
                                     {error.traS_FECHA_MEMO && (
                                         <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>

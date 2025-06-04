@@ -13,7 +13,8 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
 import { Eraser, Search } from "react-bootstrap-icons";
 import { setAltasRegistradas } from "../../redux/actions/Altas/RegistrarAltas/datosAltasRegistradasActions.tsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { listaAltasRegistradasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions.tsx";
 
 interface FechasProps {
   fDesde: string;
@@ -44,26 +45,30 @@ interface ListaSalidaAltas {
 interface DatosAltas {
   listaAltas: ListaAltas[];
   listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
   registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
-  nPaginacion: number; //número de paginas establecido desde preferencias
+
   listaSalidaAltas: ListaSalidaAltas[];
   altasRegistradas: number;
 }
 
-const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltas, objeto, token, isDarkMode, nPaginacion, listaSalidaAltas, altasRegistradas }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltasRegistradasActions, listaAltas, objeto, token, isDarkMode, listaSalidaAltas, altasRegistradas }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
-  const elementosPorPagina = nPaginacion;
-  const dispatch = useDispatch<AppDispatch>();
 
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const location = useLocation();
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+
+  const elementosPorPagina = Paginacion.nPaginacion;
   const afCodigoGenerico = location.state?.prop_codigo_origen ?? "";
 
   const [Inventario, setInventario] = useState({
@@ -180,6 +185,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       [name]: value,
     }));
 
+    setPaginacion((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
   };
 
   const handleLimpiar = () => {
@@ -290,6 +300,13 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     }
     // })
   };
+
+  const HandleFirmarAltas = () => {
+    listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, listaSalidaAltas[0].altaS_CORR, "");
+    navigate("/Altas/FirmarAltas", {
+      state: { prop_altaS_CORR: listaSalidaAltas[0].altaS_CORR }
+    });
+  }
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -415,6 +432,22 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           </Row>
           {/* Boton registrar filas seleccionadas */}
           <div className="d-flex justify-content-end">
+            <div className="d-flex align-items-center me-2">
+              <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                Tamaño de página:
+              </label>
+              <select
+                aria-label="Seleccionar tamaño de página"
+                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="nPaginacion"
+                onChange={handleChange}
+                value={Paginacion.nPaginacion}
+              >
+                {[10, 15, 20, 25, 50].map((val) => (
+                  <option key={val} value={val}>{val}</option>
+                ))}
+              </select>
+            </div>
             {filasSeleccionadas.length > 0 ? (
               <Button
                 variant="primary"
@@ -569,6 +602,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           </Button>
         </div> */}
         <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <div className="d-flex justify-content-end">
+            <Button onClick={HandleFirmarAltas} className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
+              Ir a Firmar Altas
+            </Button>
+          </div>
           <div className="table-responsive">
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
               <thead>
@@ -605,12 +643,12 @@ const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
   listaSalidaAltas: state.datosAltaRegistradaReducers.listaSalidaAltas,
   altasRegistradas: state.datosAltaRegistradaReducers.altasRegistradas
 });
 
 export default connect(mapStateToProps, {
   listaAltasActions,
+  listaAltasRegistradasActions,
   registrarAltasActions
 })(RegistrarAltas);

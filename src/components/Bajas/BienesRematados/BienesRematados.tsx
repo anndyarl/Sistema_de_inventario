@@ -13,7 +13,8 @@ import { rematarBajasActions } from "../../../redux/actions/Bajas/BienesRematado
 import { obtenerListaRematesActions } from "../../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
 import { Objeto } from "../../Navegacion/Profile.tsx";
 import { BlobProvider } from "@react-pdf/renderer";
-import DocumentoRematesPDF from './DocumentoRematesPDF';
+import DocumentoRematesPDF from "./DocumentoRematesPDF.tsx";
+
 interface FechasProps {
   fDesde: string;
   fHasta: string;

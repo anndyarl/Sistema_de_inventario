@@ -16,7 +16,6 @@ import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Comb
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
-
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { useNavigate } from "react-router-dom";
 import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
@@ -209,10 +208,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       comboDependenciaDestinoActions(value);
     }
 
-    if (name === "esP_CODIGO") {
-      console.log(value);
-    }
-
   };
 
   const [isExpanded, setIsExpanded] = useState({
@@ -237,17 +232,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         text: "¿Confirma que desea trasladar el inventario con los datos proporcionados?",
         showCancelButton: true,
         confirmButtonText: "Confirmar y Trasladar",
-        cancelButtonText: "Cancelar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-        customClass: { popup: "custom-border" }
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
       });
 
       if (confirmResult.isConfirmed) {
         try {
           const resultado = await registroTrasladoActions(Traslados);
-          console.log(Traslados);
           if (resultado) {
             Swal.fire({
               icon: "success",

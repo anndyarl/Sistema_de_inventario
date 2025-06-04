@@ -54,7 +54,7 @@ const Datos: React.FC<Props> = ({ limpiarDataActions, isDarkMode }) => {
     return (
         <>
             <div className="d-flex border-bottom justify-content-between align-items-center p-2">
-                <p>Limpiar todos los datos en formularios y tablas</p>
+                <p>Limpiar todos los campos rellenados en formularios y busquedas en tablas</p>
                 <button onClick={handleLimpiarData} type="button" className="btn btn-danger">
                     Limpiar todo
                 </button>

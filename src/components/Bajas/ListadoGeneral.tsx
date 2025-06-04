@@ -379,7 +379,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
               ))}
             </select>
           </div>
-
           {filasSeleccionadas.length > 0 ? (
             <>
               <Button
