@@ -26,6 +26,8 @@ interface ListaEstadoVisadores {
     firmado: number;
     altaS_CORR: number;
     imovimiento: number;
+    firmante: string;
+    temails: string;
 }
 interface DatosBajas {
     listaEstado: ListaEstadoFirmas[];
@@ -277,25 +279,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                 <td className="text-nowrap">
                                                     <Button
                                                         onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
-                                                        variant={
-                                                            Lista.estado === 0
-                                                                ? "warning"
-                                                                : Lista.estado === 1
-                                                                    ? "success"
-                                                                    : Lista.estado === 2
-                                                                        ? "danger"
-                                                                        : "secondary"
-                                                        }
+                                                        variant={Lista.estado === 0 ? "warning" : Lista.estado === 1 ? "success" : Lista.estado === 2 ? "danger" : "secondary"}
                                                         size="sm"
                                                         className="d-flex align-items-center  w-25 justify-content-center gap-2 px-3 py-1 fw-semibold text-nowrap"
                                                     >
-                                                        {Lista.estado === 0
-                                                            ? "Enviada"
-                                                            : Lista.estado === 1
-                                                                ? "Firmada"
-                                                                : Lista.estado === 2
-                                                                    ? "Rechazada"
-                                                                    : "Desconocido"}
+                                                        {Lista.estado === 0 ? "Enviada" : Lista.estado === 1 ? "Firmada" : Lista.estado === 2 ? "Rechazada" : "Desconocido"}
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
                                                 </td>
@@ -399,7 +387,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                 <tr>
                                     <th className="text-center">N" Alta</th>
                                     <th className="text-center">Cargo</th>
-                                    <th className="text-center">Estado Firma</th>
+                                    <th className="text-center">Firmante</th>
+                                    <th className="text-center">Correo</th>
+                                    <th className="text-center">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -409,7 +399,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
                                             <td className="text-center">{item.altaS_CORR}</td>
                                             <td className="text-center">{item.idcargo}</td>
-                                            <td className="text-center">{item.firmado == 1 ? <p className="text-success fw-bold text-center">Firmado</p> : <p className="text-warning fw-bold text-center">Pendiente</p>}</td>
+                                            <td className="text-center">{item.firmante}</td>
+                                            <td className="text-center">{item.temails}</td>
+                                            <td className="text-center">{
+                                                item.firmado === 0 ? <p className="fw-bold text-warning">Pendiente</p> : item.firmado === 1 ? <p className="fw-bold text-success">Firmado</p> : item.firmado === 2 ? <p className="fw-bold text-danger">Rechazado</p> : <p className="fw-bold">-</p>
+                                            }</td>
                                         </tr>
                                     ))
                                 ) : (

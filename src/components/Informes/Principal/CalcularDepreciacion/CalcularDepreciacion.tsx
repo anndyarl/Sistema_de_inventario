@@ -27,6 +27,7 @@ interface FechasProps {
 }
 export interface ListaActivosFijos {
     aF_CLAVE: number;
+    altaS_CORR: number;
     aF_CODIGO_GENERICO: string;
     aF_CODIGO_LARGO: string;
     deP_CORR: number;
@@ -262,6 +263,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         // const selectedIndices = filasSeleccionadas.map(Number);
         const activosSeleccionados = listaActivosFijos.map((item) => ({
             aF_CLAVE: item.aF_CLAVE,
+            altaS_CORR: item.altaS_CORR,
             aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
             aF_CODIGO_LARGO: item.aF_CODIGO_LARGO,
             deP_CORR: item.deP_CORR,
@@ -745,7 +747,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     name="fDesde"
                                     onChange={handleChange}
                                     value={Inventario.fDesde}
-                                    max={new Date().toISOString().split("T")[0]}
+                                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                 />
                                 {error.fDesde && (
                                     <div className="invalid-feedback d-block">{error.fDesde}</div>
@@ -762,7 +764,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         name="fHasta"
                                         onChange={handleChange}
                                         value={Inventario.fHasta}
-                                        max={new Date().toISOString().split("T")[0]}
+                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                     />
                                 </div>
                                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
@@ -919,6 +921,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
                                         <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
                                     {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
+                                    <th scope="col" className="text-nowrap text-center">Nº Altas</th>
                                     <th scope="col" className="text-nowrap text-center">Especie</th>
                                     <th scope="col" className="text-nowrap text-center">Marca</th>
                                     <th scope="col" className="text-nowrap text-center">Modelo</th>
@@ -934,7 +937,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     <th scope="col" className="text-nowrap text-center">Origen</th>
                                     <th scope="col" className="text-nowrap text-center">Resolución</th>
                                     {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                    {/* <th scope="col" className="text-nowrap text-center">Número OCO Ref</th> */}
+                                    <th scope="col" className="text-nowrap text-center">N° Orden de Compra</th>
                                     <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
                                     <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
                                     {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
@@ -991,6 +994,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             {/* <td className="text-nowrap">{Lista.deP_CORR}</td> */}
                                             {/* <td className="text-nowrap text-center">{Lista.esP_CODIGO}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_SECUENCIA}</td> */}
+                                            <td className="text-nowrap">{Lista.altaS_CORR}</td>
                                             <td className="text-nowrap">{Lista.especie}</td>
                                             <td className="text-nowrap">{Lista.marca}</td>
                                             <td className="text-nowrap">{Lista.modelo}</td>
@@ -1008,7 +1012,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             <td className="text-nowrap">{Lista.origen}</td>
                                             <td className="text-nowrap">{Lista.aF_RESOLUCION}</td>
                                             {/* <td className="text-nowrap text-center">{Lista.aF_FECHA_SOLICITUD}</td> */}
-                                            {/* <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td> */}
+                                            <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
                                             <td className="text-nowrap">{Lista.usuariO_CREA}</td>
                                             <td className="text-nowrap">{Lista.f_CREA}</td>
                                             {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
@@ -1211,6 +1215,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
                                         <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
                                                     {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Nº Altas</th>
                                                     <th scope="col" className="text-nowrap text-center">Especie</th>
                                                     <th scope="col" className="text-nowrap text-center">Marca</th>
                                                     <th scope="col" className="text-nowrap text-center">Modelo</th>
@@ -1226,7 +1231,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <th scope="col" className="text-nowrap text-center">Origen</th>
                                                     <th scope="col" className="text-nowrap text-center">Resolución</th>
                                                     {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                                    {/* <th scope="col" className="text-nowrap text-center">N° Orden de compra</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">N° Orden de compra</th>
                                                     <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
                                                     <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
                                                     {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
@@ -1307,6 +1312,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         {/* <td className="text-nowrap text-center">{lista.deP_CORR}</td> */}
                                                         {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
                                                           <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
                                                         <td className="text-nowrap text-center">{lista.especie}</td>
                                                         <td className="text-nowrap text-center">{lista.marca}</td>
                                                         <td className="text-nowrap text-center">{lista.modelo}</td>
@@ -1324,7 +1330,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         <td className="text-nowrap text-center">{lista.origen}</td>
                                                         <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
                                                         {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
-                                                        {/* <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td> */}
+                                                        <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
                                                         <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
                                                         <td className="text-nowrap text-center">{lista.f_CREA}</td>
                                                         {/* <td className="text-nowrap text-center">{lista.iP_CREA}</td> */}
@@ -1464,11 +1470,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         <th scope="col" className="text-nowrap text-center sticky-left z-0">
                                             Nº Inventario
                                         </th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">Dependencia</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
+                                        <th scope="col" className="text-nowrap text-center">Nº Altas</th>
                                         <th scope="col" className="text-nowrap text-center">Especie</th>
                                         <th scope="col" className="text-nowrap text-center">Marca</th>
                                         <th scope="col" className="text-nowrap text-center">Modelo</th>
@@ -1477,39 +1479,19 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         <th scope="col" className="text-nowrap text-center">Descripción</th>
                                         <th scope="col" className="text-nowrap text-center">Vida Útil</th>
                                         <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                        <th scope="col" className="text-nowrap text-center">Tipo</th>
-                                        <th scope="col" className="text-nowrap text-center">Alta</th>
-
-                                        {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
-                                        <th scope="col" className="text-nowrap text-center">Origen</th>
-                                        <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">N° Orden de compra</th> */}
+                                        <th scope="col" className="text-nowrap text-center">N° Orden de compra</th>
                                         <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
                                         <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">Usuario Modificador</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
                                         <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
                                         <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
                                         <th scope="col" className="text-nowrap text-center">Número Factura</th>
                                         <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
                                         <th scope="col" className="text-nowrap text-center">3 UTM</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">ID Grupo</th> */}
                                         <th scope="col" className="text-nowrap text-center">Cuenta</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">Transitoria</th> */}
                                         <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">Etiqueta</th> */}
                                         <th scope="col" className="text-nowrap text-center">Vigente</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">ID Programa</th> */}
                                         <th scope="col" className="text-nowrap text-center">Modalidad Compra</th>
-                                        {/* <th scope="col" className="text-nowrap text-center">ID Propiedad</th> */}
-                                        {/* <th scope="col" className="text-nowrap text-center">Especie</th> */}
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1518,10 +1500,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         <tr key={index}>
                                             <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
                                             <td scope="col" className="text-nowrap text-center sticky-left z-0">  {lista.aF_CODIGO_GENERICO}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.deP_CORR}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
+                                            <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
                                             <td className="text-nowrap text-center">{lista.especie}</td>
                                             <td className="text-nowrap text-center">{lista.marca}</td>
                                             <td className="text-nowrap text-center">{lista.modelo}</td>
@@ -1529,46 +1508,24 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             <td className="text-nowrap text-center">
                                                 ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                             </td>
-                                            <td className="text-nowrap text-center">
-                                                ${(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                            </td>
                                             <td className="text-nowrap">{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</td>
                                             <td className={`text-nowrap text-center ${isDarkMode ? "bg-warning" : "bg-warning-subtle"}`}>{lista.vidaUtil}</td>
                                             <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.aF_CODIGO}</td> */}
-                                            <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td> */}
-                                            <td className="text-nowrap text-center">{lista.origen}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td> */}
+                                            <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
                                             <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
                                             <td className="text-nowrap text-center">{lista.f_CREA}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.iP_CREA}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.usuariO_MOD}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.f_MOD}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.iP_MODt}</td> */}
                                             <td className="text-nowrap text-center">{lista.aF_TIPO_DOC}</td>
                                             <td className="text-nowrap text-center">{lista.proV_RUN}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.reG_EQM}</td> */}
                                             <td className="text-nowrap text-center">{lista.aF_NUM_FAC}</td>
                                             <td className="text-nowrap text-center">{lista.aF_FECHAFAC}</td>
                                             <td className="text-nowrap text-center">{lista.aF_3UTM}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.iD_GRUPO}</td> */}
                                             <td className="text-nowrap text-center">{lista.ctA_COD}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.transitoria}</td> */}
                                             <td className="text-nowrap text-center">
                                                 ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                             </td>
-                                            {/* <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td> */}
                                             <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.idprograma}</td> */}
                                             <td className="text-nowrap text-center">{lista.modalidad}</td>
-                                            {/* <td className="text-nowrap text-center">{lista.idpropiedad}</td> */}
-                                            {/* <td className="text-nowrap text-center">{lista.especie}</td> */}
+
                                         </tr>
                                     )}
                                 </tbody>

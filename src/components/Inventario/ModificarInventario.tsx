@@ -213,7 +213,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const validateDetalles = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)  
+    if (!Inventario.AF_VIDAUTIL) tempErrors.AF_VIDAUTIL = "Campo obligatorio";
     if (!Inventario.AF_FINGRESO || Inventario.AF_FINGRESO === "0") tempErrors.AF_FINGRESO = "Campo obligatorio";
+    if (!Inventario.DET_MARCA) tempErrors.DET_MARCA = "Campo obligatorio";
+    if (!Inventario.DET_MODELO) tempErrors.DET_MODELO = "Campo obligatorio";
+    // if (!Inventario.DET_SERIE) tempErrors.DET_SERIE = "Campo obligatorio";
 
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -1271,6 +1275,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         value={Inventario.AF_VIDAUTIL}
                         onChange={(e) => handleChange(e)}
                       />
+                      {error.AF_VIDAUTIL && (
+                        <div className="invalid-feedback fw-semibold d-block">{error.AF_VIDAUTIL}</div>
+                      )}
                     </td>
 
                     <td className={`align-items-center p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>
@@ -1296,6 +1303,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         value={Inventario.DET_MARCA}
                         onChange={(e) => handleChange(e)}
                       />
+                      {error.DET_MARCA && (
+                        <div className="invalid-feedback fw-semibold d-block">{error.DET_MARCA}</div>
+                      )}
                     </td>
                     <td className={`align-items-center p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>
                       <input
@@ -1306,6 +1316,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         value={Inventario.DET_MODELO}
                         onChange={(e) => handleChange(e)}
                       />
+                      {error.DET_MODELO && (
+                        <div className="invalid-feedback fw-semibold d-block">{error.DET_MODELO}</div>
+                      )}
                     </td>
                     <td className={` p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>
                       <input

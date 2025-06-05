@@ -318,7 +318,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                   name="fDesde"
                   onChange={handleChange}
                   value={Rematados.fDesde}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                 />
                 {error.fDesde && (
                   <div className="invalid-feedback d-block">{error.fDesde}</div>
@@ -335,7 +335,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                     name="fHasta"
                     onChange={handleChange}
                     value={Rematados.fHasta}
-                    max={new Date().toISOString().split("T")[0]}
+                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                   />
                 </div>
                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

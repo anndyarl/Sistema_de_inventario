@@ -277,7 +277,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                     name="fDesde"
                     onChange={handleChange}
                     value={ListadoTraslado.fDesde}
-                    max={new Date().toISOString().split("T")[0]}
+                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                   />
                 </div>
                 {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
@@ -293,7 +293,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                     name="fHasta"
                     onChange={handleChange}
                     value={ListadoTraslado.fHasta}
-                    max={new Date().toISOString().split("T")[0]}
+                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                   />
                 </div>
                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

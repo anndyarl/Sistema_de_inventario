@@ -589,7 +589,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           } ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
                         name="traS_FECHA_MEMO"
                         onChange={handleChange}
-                        max={new Date().toISOString().split("T")[0]}
+                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                       />
                       {error.traS_FECHA_MEMO && (
                         <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>

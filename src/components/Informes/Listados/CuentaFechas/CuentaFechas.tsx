@@ -495,6 +495,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                                     name="fDesde"
                                     onChange={handleChange}
                                     value={Inventario.fDesde}
+                                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                 />
                                 {error.fDesde && (
                                     <div className="invalid-feedback d-block">{error.fDesde}</div>
@@ -509,6 +510,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                                     name="fHasta"
                                     onChange={handleChange}
                                     value={Inventario.fHasta}
+                                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                 />
                                 {error.fHasta && (
                                     <div className="invalid-feedback">{error.fHasta}</div>

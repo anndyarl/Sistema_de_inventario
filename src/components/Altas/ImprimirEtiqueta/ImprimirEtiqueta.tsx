@@ -320,7 +320,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         name="fDesde"
                                         onChange={handleChange}
                                         value={Inventario.fDesde}
-                                        max={new Date().toISOString().split("T")[0]}
+                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                     />
                                 </div>
                                 {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
@@ -336,7 +336,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         name="fHasta"
                                         onChange={handleChange}
                                         value={Inventario.fHasta}
-                                        max={new Date().toISOString().split("T")[0]}
+                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                     />
                                 </div>
                                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}

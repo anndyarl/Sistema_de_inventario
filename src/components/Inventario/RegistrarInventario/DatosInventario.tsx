@@ -191,9 +191,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     value: item.proV_RUN.toString(),
     label: item.proV_NOMBRE,
   }));
-  const hoyChile = new Date().toLocaleDateString("sv-SE", {
-    timeZone: "America/Santiago",
-  });
 
   const handleProveedorChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
