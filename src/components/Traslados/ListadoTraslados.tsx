@@ -91,35 +91,34 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     af_codigo_generico: ""
   });
 
-
-  //Se lista automaticamente apenas entra al componente
-  const listadoTrasladosAuto = async () => {
+  const listaAuto = async () => {
     if (token) {
       if (listadoTraslados.length === 0) {
         setLoading(true);
         const resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-        if (resultado) {
-          setLoading(false);
-        }
-        else {
+        if (!resultado) {
           Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: `Error en la solicitud. Por favor, intente nuevamente.`,
+            icon: "warning",
+            title: "Sin Resultados",
+            text: "No hay registros disponibles para mostrar.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
           });
+          setLoading(false);
+        }
+        else {
+          setLoading(false);
         }
       }
     }
   };
 
   useEffect(() => {
-    listadoTrasladosAuto()
+    listaAuto()
   }, [listadoTrasladosActions, token, listadoTraslados.length]); // Asegúrate de incluir dependencias relevantes
 
   const handleLimpiar = () => {

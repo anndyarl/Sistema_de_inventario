@@ -583,14 +583,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             customClass: { popup: "custom-border" }
         });
 
-        if (!result.isConfirmed) {
-            setLoadingSolicitarVisado(false);
-            return;
-        }
 
         // Genera el PDF
         const base64 = await generarPDFBase64();
-
         // Obtiene firmas según jerarquía activada
         const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number }[] => {
             const firmasSeleccionadas: { jerarquia: number; idcargo: number }[] = [];
@@ -704,7 +699,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             }));
         });
 
-
         const documento = {
             DescripcionDocumento: "Visado de altas de inventario",
             CuerpoDocumento: base64,
@@ -713,37 +707,39 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             ListaAnexos: [],
             FirmaAlta: firmaAltaArray
         };
+        console.log("documento", documento);
+        if (result.isConfirmed) {
+            const resultado = await registrarDocumentoAltaActions(documento);
 
-        const resultado = await registrarDocumentoAltaActions(documento);
+            if (!resultado) {
+                await Swal.fire({
+                    icon: "error",
+                    title: ":'(",
+                    text: "Hubo un problema al enviar las firmas.",
+                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                    customClass: { popup: "custom-border" }
+                });
+            }
+            else {
+                await Swal.fire({
+                    icon: "success",
+                    title: "Solicitud enviada",
+                    text: "Su solicitud de visado ha sido enviada con exito",
+                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                    customClass: { popup: "custom-border" }
+                });
+                listaEstadoFirmasActions(0);
+                setFilasSeleccionadas([]);
+                handleBuscar();
+                setMostrarModal(false);
+                setLoadingSolicitarVisado(false);
+            }
 
-        if (!resultado) {
-            await Swal.fire({
-                icon: "error",
-                title: ":'(",
-                text: "Hubo un problema al enviar las firmas.",
-                background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                color: isDarkMode ? "#ffffff" : "#000000",
-                confirmButtonColor: isDarkMode ? "#007bff" : "#444",
-                customClass: { popup: "custom-border" }
-            });
         }
-        else {
-            await Swal.fire({
-                icon: "success",
-                title: "Solicitud enviada",
-                text: "Su solicitud de visado ha sido enviada con exito",
-                background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                color: isDarkMode ? "#ffffff" : "#000000",
-                confirmButtonColor: isDarkMode ? "#007bff" : "#444",
-                customClass: { popup: "custom-border" }
-            });
-            listaEstadoFirmasActions(0);
-            setFilasSeleccionadas([]);
-            handleBuscar();
-            setMostrarModal(false);
-        }
-
-        setLoadingSolicitarVisado(false);
     };
 
     const handleLimpiar = () => {
