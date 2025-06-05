@@ -38,20 +38,28 @@ export const listaActivosCalculadosActions = (activosSeleccionados: Record<strin
             type: LISTA_ACTIVOS_CALCULADOS_SUCCESS,
             payload: res.data.depreciaciones
           });
+        } else {
+          dispatch({
+            type: LISTA_ACTIVOS_CALCULADOS_SUCCESS,
+            payload: []
+          });
         }
+
         if (res.data?.vidaUtilCero?.length > 0) {
           dispatch({
             type: LISTA_ACTIVOS_NO_CALCULADOS_SUCCESS,
             payload: res.data.vidaUtilCero
           });
-        }
-        else {
+        } else {
           dispatch({
             type: LISTA_ACTIVOS_NO_CALCULADOS_SUCCESS,
             payload: []
           });
         }
+        console.log("Depreciaciones:", res.data?.depreciaciones);
+        console.log("vidaUtilCero:", res.data?.vidaUtilCero);
         return true;
+
       } else {
         dispatch({ type: LISTA_ACTIVOS_CALCULADOS_FAIL });
         dispatch({ type: LISTA_ACTIVOS_NO_CALCULADOS_FAIL });

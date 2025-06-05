@@ -49,7 +49,7 @@ export interface ListaActivosFijos {
     f_CREA: string;
     iP_CREA: string;
     usuariO_MOD: string;
-    f_MOD: string;
+    // f_MOD: string;
     // iP_MODt: string;
     aF_TIPO_DOC: number;
     proV_RUN: string;
@@ -176,7 +176,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const handleCuentasChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : "";
         setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
-        console.log(value);
     };
 
     const handleBuscar = async () => {
@@ -225,7 +224,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "El Nº de Inventario consultado no se encuentra en este listado.",
+                text: "No se encontraron resultados para la consulta realizada.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -281,7 +280,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             f_CREA: item.f_CREA,
             iP_CREA: item.iP_CREA,
             usuariO_MOD: item.usuariO_MOD,
-            f_MOD: item.f_MOD,
+            // f_MOD: item.f_MOD,
             aF_TIPO_DOC: item.aF_TIPO_DOC,
             proV_RUN: item.proV_RUN,
             reG_EQM: item.reG_EQM,

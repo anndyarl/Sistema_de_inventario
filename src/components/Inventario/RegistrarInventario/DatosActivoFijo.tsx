@@ -117,13 +117,18 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   registrarFormInventarioActions
 }) => {
 
-  let fechaHoy = new Date(); // objeto Date
+  // Obtener fecha actual en horario de Chile
+  let fechaHoy = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/Santiago" })
+  );
+
+  // Si el día es mayor a 15, pasar al primer día del mes siguiente
   if (fechaHoy.getDate() > 15) {
     fechaHoy = new Date(fechaHoy.getFullYear(), fechaHoy.getMonth() + 1, 1);
   }
 
-  // Si necesitas formatearla como yyyy-mm-dd
-  const fechaFormateada = fechaHoy.toISOString().split("T")[0];
+  // Convertir a formato YYYY-MM-DD compatible con input[type="date"]
+  const fechaFormateada = fechaHoy.toLocaleDateString("sv-SE");
 
   //Estado que guarda en un array los objetos que irán en la tabla
   const [activosFijos, setActivosFijos] = useState<ActivoFijo[]>([]);
@@ -907,12 +912,12 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         {/* Tabla */}
         {datos.length === 0 ? (
           <p className="d-flex justify-content-center m-1 p-1 ">
-            Haz clic en (+ Agregar) para listar aquí los detalles de cada activo.
+            Haz clic en (Agregar +) para listar aquí los detalles de cada activo.
           </p>
         ) : (
           <div className='table-responsive'>
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+              <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                 <tr >
                   <th >
                     <Form.Check

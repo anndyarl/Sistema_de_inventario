@@ -152,7 +152,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "No hay registros disponibles para mostrar.",
+                text: "No se encontraron resultados para la consulta realizada.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,

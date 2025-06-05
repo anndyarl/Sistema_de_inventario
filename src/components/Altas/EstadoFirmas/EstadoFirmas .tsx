@@ -11,6 +11,7 @@ import { Eraser, Eye, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
+import { listaEstadoVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
 
 export interface ListaEstadoFirmas {
     idocumento: number;
@@ -18,18 +19,28 @@ export interface ListaEstadoFirmas {
     estado: number;
 }
 
+interface ListaEstadoVisadores {
+    id: number;
+    idcargo: number;
+    jerarquia: number;
+    firmado: number;
+    altaS_CORR: number;
+    imovimiento: number;
+}
 interface DatosBajas {
     listaEstado: ListaEstadoFirmas[];
     listaEstadoActions: (altasCorr: number, idDocumento: number) => Promise<boolean>;
+    listaEstadoVisadoresActions: (altasCorr: number) => Promise<boolean>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
     nPaginacion: number; //número de paginas establecido desde preferencias
     documentoByte64: string;
+    listaEstadoVisadores: ListaEstadoVisadores[];
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstado, token, isDarkMode, nPaginacion, documentoByte64 }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaEstadoVisadores, listaEstado, token, isDarkMode, nPaginacion, documentoByte64 }) => {
     const [loading, setLoading] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -37,6 +48,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     // const filasSeleccionadasPDF = listaEstadoFirmas.filter((_, index) =>
     //     filasSeleccionadas.includes(index.toString())
     // );
+    const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
     const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [Buscar, setBuscar] = useState({
@@ -74,7 +86,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "El dato consultado no se encuentra en este listado.",
+                text: "No se encontraron resultados para la consulta realizada.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -85,7 +97,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             });
             resultado = await listaEstadoActions(0, 0);
             setLoading(false); //Finaliza estado de carga
-            return;
         } else {
             paginar(1);
             setLoading(false); //Finaliza estado de carga
@@ -93,17 +104,41 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     };
 
-    const listaAltasAuto = async () => {
+    const listaAuto = async () => {
         if (token) {
             if (listaEstado.length === 0) {
                 setLoading(true);
                 const resultado = await listaEstadoActions(0, 0);
-                if (resultado) {
+                if (!resultado) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Sin Resultados",
+                        text: "No hay registros disponibles para mostrar.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoading(false);
+                }
+                else {
                     setLoading(false);
                 }
             }
         }
     };
+
+    useEffect(() => {
+        listaEstadoVisadores
+        listaAuto();
+        if (!documentoByte64) return;
+        const tipo = detectarTipo(documentoByte64);
+        const visadoBase64 = `data:application/${tipo};base64,${documentoByte64}`;
+        setCuerpoDocumentoPDF(visadoBase64);
+    }, [documentoByte64, listaEstado.length, listaEstadoVisadores.length]);
+
 
     const handleLimpiar = () => {
         setBuscar((prevInventario) => ({
@@ -126,13 +161,13 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         obtieneVisadoCompletoActions(idocumento); // solo dispara la acción
     }, []);
 
-    useEffect(() => {
-        listaAltasAuto();
-        if (!documentoByte64) return;
-        const tipo = detectarTipo(documentoByte64);
-        const visadoBase64 = `data:application/${tipo};base64,${documentoByte64}`;
-        setCuerpoDocumentoPDF(visadoBase64);
-    }, [documentoByte64]);
+    const handleObtenerEstadoVisadores = useCallback((index: number, altaS_CORR: number) => {
+        setMostrarModalEstado(true);
+        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+        listaEstadoVisadoresActions(altaS_CORR); // solo dispara la acción
+        console.log(listaEstadoVisadores);
+    }, []);
+
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -226,10 +261,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                                 <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                     <tr>
-                                        <th scope="col" className="text-nowrap text-center">N° DOCUMENTO</th>
-                                        <th scope="col" className="text-nowrap text-center">Nº Alta</th>
-                                        <th scope="col" className="text-nowrap text-center">Estado Solicitud</th>
-                                        <th scope="col" className="text-nowrap text-center">Acción</th>
+                                        <th scope="col" className="text-nowrap">N° DOCUMENTO</th>
+                                        <th scope="col" className="text-nowrap">Nº Alta</th>
+                                        <th scope="col" className="text-nowrap">Estado Solicitud</th>
+                                        <th scope="col" className="text-nowrap">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -237,17 +272,36 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                         return (
                                             <tr key={index}>
-                                                <td className="text-nowrap text-center">{Lista.idocumento}</td>
-                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                                                <td className="text-nowrap text-center">
-                                                    {
-                                                        Lista.estado === 0 ? <p className="text-warning fw-bold text-center p-1 rounded">Enviada</p> :
-                                                            Lista.estado === 1 ? <p className="text-success fw-bold  text-center p-1 rounded">Firmada</p> :
-                                                                Lista.estado === 2 ? <p className="text-danger fw-bold text-center p-1 rounded">Rechazada</p> : "Desconocido"
-                                                    }
+                                                <td className="text-nowrap">{Lista.idocumento}</td>
+                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                <td className="text-nowrap">
+                                                    <Button
+                                                        onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
+                                                        variant={
+                                                            Lista.estado === 0
+                                                                ? "warning"
+                                                                : Lista.estado === 1
+                                                                    ? "success"
+                                                                    : Lista.estado === 2
+                                                                        ? "danger"
+                                                                        : "secondary"
+                                                        }
+                                                        size="sm"
+                                                        className="d-flex align-items-center  w-25 justify-content-center gap-2 px-3 py-1 fw-semibold text-nowrap"
+                                                    >
+                                                        {Lista.estado === 0
+                                                            ? "Enviada"
+                                                            : Lista.estado === 1
+                                                                ? "Firmada"
+                                                                : Lista.estado === 2
+                                                                    ? "Rechazada"
+                                                                    : "Desconocido"}
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
                                                 </td>
+
                                                 <td
-                                                    className="text-nowrap text-center"
+                                                    className="text-nowrap"
                                                     style={{
                                                         position: 'sticky',
                                                         left: 0,
@@ -329,12 +383,53 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </Modal.Body>
             </Modal>
 
+            <Modal show={mostrarModalEstado} onHide={() => setMostrarModalEstado(false)} size="lg">
+                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                    <Modal.Title className="fw-semibold">Estado Visadores</Modal.Title>
+                </Modal.Header>
+                {/* <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                      <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
+                        Exportar a PDF
+                      </Button>
+                    </div> */}
+                <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <div className="table-responsive">
+                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                            <thead>
+                                <tr>
+                                    <th className="text-center">N" Alta</th>
+                                    <th className="text-center">Cargo</th>
+                                    <th className="text-center">Estado Firma</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {listaEstadoVisadores.length ? (
+                                    listaEstadoVisadores.map((item, index) => (
+                                        <tr key={index}>
+
+                                            <td className="text-center">{item.altaS_CORR}</td>
+                                            <td className="text-center">{item.idcargo}</td>
+                                            <td className="text-center">{item.firmado == 1 ? <p className="text-success fw-bold text-center">Firmado</p> : <p className="text-warning fw-bold text-center">Pendiente</p>}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan='8' className="text-center">No hay registros</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </Modal.Body>
+            </Modal>
+
         </Layout >
     );
 };
 
 const mapStateToProps = (state: RootState) => ({
     listaEstado: state.listaEstadoReducers.listaEstado,
+    listaEstadoVisadores: state.listaEstadoVisadoresReducers.listaEstadoVisadores,
     documentoByte64: state.obtieneVisadoCompletoReducers.documentoByte64,
     objeto: state.validaApiLoginReducers,
     token: state.loginReducer.token,
@@ -345,6 +440,7 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
     listaEstadoActions,
-    obtieneVisadoCompletoActions
+    obtieneVisadoCompletoActions,
+    listaEstadoVisadoresActions
 })(EstadoFirmas);
 

@@ -118,7 +118,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "No se encontraron resultados para la busqueda, inténte con otro Nº de inventario.",
+                text: "No se encontraron resultados para la consulta realizada.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,

@@ -183,7 +183,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     }
     if (name === "bien") {
       onBienSeleccionado(value);
-      console.log("bien", value);
     }
     if (name === "detalles") {
       paginar(1);
@@ -246,7 +245,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     e.preventDefault();
     if (validate()) {
       onNext(Cuenta);
-      // console.log("Formulario Datos cuenta:", Cuenta);
     }
   };
 
@@ -279,7 +277,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     const item = listaEspecie[index];
     setFilasSeleccionadas([index.toString()]);
     setElementoSeleccionado(item);
-    // console.log("Elemento seleccionado", item);
   };
 
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {

@@ -134,7 +134,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
       Swal.fire({
         icon: "warning",
         title: "Sin Resultados",
-        text: "El Nº de Inventario consultado no se encuentra en este listado.",
+        text: "No se encontraron resultados para la consulta realizada.",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,

@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Form, Row, Col, Modal, Pagination, Spinner, OverlayTrigger, Tooltip, } from "react-bootstrap";
+import { Button, Form, Row, Col, Modal, Pagination, Spinner, OverlayTrigger, Tooltip, CloseButton, } from "react-bootstrap";
 import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -193,23 +193,28 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
     if (!Inventario.aF_CODIGO_GENERICO) tempErrors.aF_CODIGO_GENERICO = "Campo obligatorio";
-    if (!Inventario.AF_FECHA_SOLICITUD) tempErrors.AF_FECHA_SOLICITUD = "Campo obligatorio";
-    if (!Inventario.AF_OCO_NUMERO_REF || Inventario.AF_OCO_NUMERO_REF == 0)
-      tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
-    if (!Inventario.AF_NUM_FAC || Inventario.AF_NUM_FAC == "0")
-      tempErrors.AF_NUM_FAC = "Campo obligatorio";
+    if (!Inventario.AF_FECHA_SOLICITUD || Inventario.AF_FECHA_SOLICITUD === "0") tempErrors.AF_FECHA_SOLICITUD = "Campo obligatorio";
+    if (!Inventario.AF_OCO_NUMERO_REF || Inventario.AF_OCO_NUMERO_REF == 0) tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
+    if (!Inventario.AF_NUM_FAC || Inventario.AF_NUM_FAC == "0") tempErrors.AF_NUM_FAC = "Campo obligatorio";
     if (!Inventario.AF_ORIGEN) tempErrors.AF_ORIGEN = "Campo obligatorio";
-    if (!Inventario.AF_MONTOFACTURA || Inventario.AF_MONTOFACTURA == 0)
-      tempErrors.AF_MONTOFACTURA = "Campo obligatorio";
-    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.AF_MONTOFACTURA)))
-      tempErrors.AF_MONTOFACTURA = "El Monto debe ser un número válido con hasta dos decimales.";
-    if (!Inventario.AF_FECHAFAC) tempErrors.AF_FECHAFAC = "Campo obligatorio";
+    if (!Inventario.AF_MONTOFACTURA || Inventario.AF_MONTOFACTURA == 0) tempErrors.AF_MONTOFACTURA = "Campo obligatorio";
+    else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.AF_MONTOFACTURA))) tempErrors.AF_MONTOFACTURA = "El Monto debe ser un número válido con hasta dos decimales.";
+    if (!Inventario.AF_FECHAFAC || Inventario.AF_FECHAFAC == "0") tempErrors.AF_FECHAFAC = "Campo obligatorio";
     if (!Inventario.PROV_RUN || Inventario.PROV_RUN === 0) tempErrors.PROV_RUN = "Campo obligatorio";
     if (!Inventario.IDMODALIDADCOMPRA) tempErrors.IDMODALIDADCOMPRA = "Campo obligatorio.";
     // if (!Inventario.SER_CORR) tempErrors.SER_CORR = "Campo obligatorio";
     if (!Inventario.DEP_CORR) tempErrors.DEP_CORR = "Campo obligatorio";
     if (!Inventario.CTA_COD || Inventario.CTA_COD === "") tempErrors.CTA_COD = "Campo obligatorio";
     if (!Inventario.ESP_CODIGO) tempErrors.ESP_CODIGO = "Campo obligatorio";
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const validateDetalles = () => {
+    let tempErrors: Partial<any> & {} = {};
+    // Validación para N° de Recepción (debe ser un número)  
+    if (!Inventario.AF_FINGRESO || Inventario.AF_FINGRESO === "0") tempErrors.AF_FINGRESO = "Campo obligatorio";
+
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -298,8 +303,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       "AF_ORIGEN", //origenPresupuesto
       "PROV_RUN", //rutProveedor
       "DEP_CORR", //dependencia
-      "idprograma", //servicio
-      "CTA_COD", //cuenta
+      "idprograma", //servicio     
       "AF_VIDAUTIL", //vidaUtil
       "DET_PRECIO",
       "USUARIO_MOD" //precio
@@ -469,7 +473,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const handleValidar = () => {
     // console.log("campos", JSON.stringify(Inventario, null, 2));
     if (validate()) {
-      console.log(Inventario);
       Swal.fire({
         icon: "info",
         // title: 'Confirmar',
@@ -542,6 +545,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
 
   };
+
+  const handleCerrarModal = () => {
+    if (validateDetalles()) {
+      setMostrarModalLista(false);
+    }
+  }
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -642,7 +651,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   onChange={handleChange}
                   value={Inventario.AF_FECHA_SOLICITUD}
                   disabled={isDisabled}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                 />
                 {error.AF_FECHA_SOLICITUD && (
                   <div className="invalid-feedback fw-semibold">{error.AF_FECHA_SOLICITUD}</div>
@@ -738,7 +747,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   onChange={handleChange}
                   value={Inventario.AF_FECHAFAC}
                   disabled={isDisabled}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                 />
                 {error.AF_FECHAFAC && (
                   <div className="invalid-feedback fw-semibold">{error.AF_FECHAFAC}</div>
@@ -1217,11 +1226,24 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         show={mostrarModalLista}
         onHide={() => setMostrarModalLista(false)}
         size="xl"
+        backdrop="static"
       >
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">
-            Detalles Activo Fijo
-          </Modal.Title>
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} >
+          <div className="d-flex justify-content-between w-100">
+            <Modal.Title className="fw-semibold">
+              Detalles Activo Fijo
+            </Modal.Title>
+            <Button
+              variant="transparent"
+              className="border-0"
+              onClick={handleCerrarModal}
+            >
+              <CloseButton
+                aria-hidden="true"
+                className={"flex-shrink-0 h-5 w-5"}
+              />
+            </Button>
+          </div>
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <div className="shadow-sm">
@@ -1259,8 +1281,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         className={` form-control border border-0 rounded-0  ${isDarkMode ? "bg-secondary text-white" : ""}`}
                         value={Inventario.AF_FINGRESO}
                         onChange={(e) => handleChange(e)}
-                        max={new Date().toISOString().split("T")[0]}
+                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                       />
+                      {error.AF_FINGRESO && (
+                        <div className="invalid-feedback fw-semibold d-block">{error.AF_FINGRESO}</div>
+                      )}
                     </td>
                     <td className={`align-items-center p-1  ${isDarkMode ? "text-light" : "text-dark"}`}>
                       <input

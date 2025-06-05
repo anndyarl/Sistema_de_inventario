@@ -91,6 +91,7 @@ import datosBajasRegistradaReducers from "./Bajas/datosBajasRegistradaReducers";
 import obtieneVisadoCompletoReducers from "./Altas/EstadoFirmas/obtieneVisadoCompletoReducers";
 import listaEstadoFirmasReducers from "./Altas/FirmarAltas/listaEstadoFirmasReducers";
 import listaEstadoReducers from "./Altas/EstadoFirmas/listaEstadoReducers";
+import listaEstadoVisadoresReducers from "./Altas/EstadoFirmas/listaEstadoVisadoresReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -139,6 +140,7 @@ const appReducer = combineReducers({
   listaEstadoFirmasReducers,
   listaEstadoReducers,
   obtieneVisadoCompletoReducers,
+  listaEstadoVisadoresReducers,
 
   // Bajas
   datosListadoGeneralBajasReducers,

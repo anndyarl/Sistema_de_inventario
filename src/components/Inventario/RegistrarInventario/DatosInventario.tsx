@@ -68,6 +68,7 @@ export interface InventarioProps {
   modalidadDeCompra: number;
   otraModalidad?: string;
   showInputReducer?: boolean;
+  establecimiento?: number;
 }
 
 /*-----Se definen nuevas props para no tener conflictos------*/
@@ -146,6 +147,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   nOrdenCompra,
   nRecepcion,
   usuarioCrea,
+  establecimiento,
   origenPresupuesto,
   /*-------Modalidad compra----*/
   modalidadDeCompra,
@@ -173,7 +175,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     nRecepcion: 0,
     origenPresupuesto: 0,
     rutProveedor: "",
-    otraModalidad: ""
+    otraModalidad: "",
+    establecimiento: objeto.Roles[0].codigoEstablecimiento
   });
 
   const dispatch = useDispatch<AppDispatch>();
@@ -188,11 +191,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     value: item.proV_RUN.toString(),
     label: item.proV_NOMBRE,
   }));
-  // console.log("listaServicioNombre", listaServicioNombre);
+  const hoyChile = new Date().toLocaleDateString("sv-SE", {
+    timeZone: "America/Santiago",
+  });
+
   const handleProveedorChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
-    console.log("rutProveedor", value);
     dispatch(setRutProveedorActions(value));
   };
 
@@ -369,7 +374,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       nRecepcion,
       origenPresupuesto,
       rutProveedor,
-      usuarioCrea: objeto.IdCredencial.toString()
+      usuarioCrea: objeto.IdCredencial.toString(),
+      establecimiento: objeto.Roles[0].codigoEstablecimiento
     });
   }, [
     fechaFactura,
@@ -383,7 +389,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     rutProveedor,
     otraModalidad,
     showInputReducer,
-    usuarioCrea
+    usuarioCrea,
+    establecimiento
   ]);
 
   // const handleRecepcionSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -597,7 +604,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   name="fechaRecepcion"
                   onChange={handleChange}
                   value={Inventario.fechaRecepcion}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                 />
                 {error.fechaRecepcion && (
                   <div className="invalid-feedback fw-semibold">{error.fechaRecepcion}</div>
@@ -702,7 +709,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   name="fechaFactura"
                   onChange={handleChange}
                   value={Inventario.fechaFactura}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                 />
                 {error.fechaFactura && (
                   <div className="invalid-feedback fw-semibold">{error.fechaFactura}</div>
@@ -889,7 +896,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   nombreServicio = listaServicioNombre[i].nombre;
                   break;
                 }
-                // console.log("nombreServicio", nombreServicio);
                 return <p>{nombreServicio}</p>;
               })()}
             </Col>

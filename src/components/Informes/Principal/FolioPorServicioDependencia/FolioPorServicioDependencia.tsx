@@ -157,13 +157,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleServicioChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : 0;
         setBuscar((prevInventario) => ({ ...prevInventario, servicio: value }));
-        console.log("combo principal", value);
     };
 
     const handleServicioFormChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : 0;
         setTraslados((prevInventario) => ({ ...prevInventario, deP_CORR_DESTINO: value }));
-        console.log("combo formulario", value);
     };
     // const listaAuto = async () => {
     //     if (listaFolioServicioDependencia.length === 0) {
@@ -192,7 +190,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         if (token) {
             // listaAuto();
             comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
-            console.log("objeto.Roles[0].codigoEstablecimiento", objeto.Roles[0].codigoEstablecimiento);
         }
     }, [listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia.length, comboServicioInforme.length, token]); // Asegúrate de incluir dependencias relevantes
 
@@ -246,7 +243,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             Swal.fire({
                 icon: "warning",
                 title: "Sin Resultados",
-                text: "No se encontraron resultados para la busqueda, inténte con otro servicio.",
+                text: "No se encontraron resultados para la consulta realizada.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
