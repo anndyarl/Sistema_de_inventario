@@ -231,7 +231,9 @@ const rootReducer = (state: any, action: any) => {
       listaActivosCalculadosReducers,
       listaActivosNoCalculadosReducers,
       listaConsultaInventarioEspeciesReducers,
-      listaVersionamientoReducers
+      listaVersionamientoReducers,
+      obtenerUnidadesReducers,
+      comboCuentasInformeReducers
     } = state || {};
 
     state = {
@@ -258,8 +260,9 @@ const rootReducer = (state: any, action: any) => {
       listaActivosCalculadosReducers,
       listaActivosNoCalculadosReducers,
       listaConsultaInventarioEspeciesReducers,
-      listaVersionamientoReducers
-
+      listaVersionamientoReducers,
+      obtenerUnidadesReducers,
+      comboCuentasInformeReducers
     };
   }
   return appReducer(state, action);

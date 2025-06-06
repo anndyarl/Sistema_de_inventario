@@ -265,25 +265,59 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             [name]: newValue,
         }));
 
-        // Si cambió la unidad, actualiza también su nombre
+        const prev = structuredClone(AltaInventario);
+        const updatedState = { ...prev, [name]: value };
+
         if (name === "unidad") {
             const unidadSeleccionada = parseInt(value);
             setUnidad(unidadSeleccionada);
+
+            let nombreUnidad = "";
+            let cleanedState = { ...updatedState };
+
             switch (unidadSeleccionada) {
                 case 3:
-                    setUnidadNombre("Unidad de Abastecimiento");
+                    nombreUnidad = "Unidad de Abastecimiento";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                    };
                     break;
+
                 case 4:
-                    setUnidadNombre("Departamento de Informática");
+                    nombreUnidad = "Departamento de Informática";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                    };
                     break;
+
                 case 5:
-                    setUnidadNombre("Departamento de Compra");
+                    nombreUnidad = "Departamento de Compra";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                    };
                     break;
+
                 default:
-                    setUnidadNombre("");
+                    nombreUnidad = "";
                     break;
             }
+
+            setUnidadNombre(nombreUnidad);
+            setAltaInventario(cleanedState);
         }
+
     };
 
     function detectarTipo(base64: string): string {
@@ -329,7 +363,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         // Copia del estado actual
         const prev = structuredClone(AltaInventario);
         const updatedState = { ...prev, [name]: checked };
-
+        console.log("updatedState", updatedState);
         //Limpia Todo al deshabilitar check
         if (name === "ajustarFirma" && !checked) {
             const cleanedState = {
@@ -368,7 +402,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             setIsDisabled(false);
             setIsExpanded(true);
             setAltaInventario(cleanedState);
-
             return;
         }
         //Limpia Solo Finanzas al deshabilitar check
@@ -515,8 +548,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
             }
 
-
-
         }
 
         updatedState.firmanteInventario = firmanteInventario;
@@ -571,6 +602,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
 
+        console.log("AltaInventario", AltaInventario);
         const result = await Swal.fire({
             icon: "info",
             title: "Solicitar Visado",
@@ -582,7 +614,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             confirmButtonColor: isDarkMode ? "#007bff" : "#444",
             customClass: { popup: "custom-border" }
         });
-
 
         // Genera el PDF
         const base64 = await generarPDFBase64();
@@ -608,7 +639,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 }
             }
 
-
             // Jerarquía 2 → chkFinanzas
             if (AltaInventario.chkFinanzas) {
                 const firmasUnidad2 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
@@ -628,7 +658,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
             // Jerarquía 3 → chkAbastecimiento o chkUnidad
             if (AltaInventario.chkAbastecimiento) {
-                const firmasUnidad3 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
+                const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 3);
 
                 if (AltaInventario.titularAbastecimiento) {
                     const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
@@ -642,8 +672,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     }
                 }
             }
-            if (AltaInventario.chkUnidad) {
 
+            if (AltaInventario.chkUnidad) {
                 const firmasUnidad1 = datosFirmas.filter(f => f.iD_UNIDAD === 3);
                 if (AltaInventario.titularAbastecimiento) {
                     const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
@@ -668,7 +698,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
                     }
                 }
-
                 const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 5);
                 if (AltaInventario.titularCompra) {
                     const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
@@ -683,12 +712,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 }
             }
 
-
             return firmasSeleccionadas;
         };
 
         const selectedIndices = filasSeleccionadas.map(Number);
-        const firmaAltaArray = selectedIndices.flatMap(index => {
+        const FirmaAlta = selectedIndices.flatMap(index => {
             const item = listaAltasRegistradas[index];
 
             return obtenerFirmasJerarquia().map(({ jerarquia, idcargo }) => ({
@@ -703,9 +731,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             DescripcionDocumento: "Visado de altas de inventario",
             CuerpoDocumento: base64,
             UsuarioCreador: objeto.IdCredencial,
+            FirmaAlta: FirmaAlta,
             ListaDistribucion: [],
-            ListaAnexos: [],
-            FirmaAlta: firmaAltaArray
+            ListaAnexos: []
         };
         console.log("documento", documento);
         if (result.isConfirmed) {

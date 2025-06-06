@@ -19,6 +19,8 @@ import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Co
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { useNavigate } from "react-router-dom";
 import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
+import Select from "react-select";
+import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
   codigo: number;
@@ -55,6 +57,12 @@ interface PropsTraslados {
   n_TRASLADO?: number; //nTraslado
 }
 
+interface ListaEspecie {
+  estabL_CORR: number;
+  esP_CODIGO: string;
+  nombrE_ESP: string;
+}
+
 interface TrasladosProps extends PropsTraslados {
   comboTrasladoServicio: TRASLADOSERVICIO[];
   comboTrasladoServicioActions: (establ_corr: number) => void;
@@ -67,7 +75,9 @@ interface TrasladosProps extends PropsTraslados {
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
   comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
   registroTrasladoActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
-  obtenerInventarioTrasladoActions: (af_codigo_generico: string) => Promise<boolean>
+  obtenerInventarioTrasladoActions: (af_codigo_generico: string, esP_CODIGO: string) => Promise<boolean>
+
+  comboEspecies: ListaEspecie[];
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
@@ -87,6 +97,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   comboTrasladoEspecie,
   comboDependenciaOrigen,
   comboDependenciaDestino,
+  comboEspecies,
   aF_CLAVE,
   af_codigo_generico,
   seR_CORR,
@@ -123,6 +134,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     n_TRASLADO: 0,
     usuario_crea: objeto.IdCredencial.toString()
   });
+
+  const especieOptions = comboEspecies.map((item) => ({
+    value: item.esP_CODIGO,
+    label: item.nombrE_ESP,
+  }));
+
+  const handleComboEspecieChange = (selectedOption: any) => {
+    const value = selectedOption ? selectedOption.value : "";
+    setTraslados((prev) => ({ ...prev, esP_CODIGO: value }));
+    console.log(value);
+  };
 
   const validateForm = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -206,6 +228,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
     if (name === "traS_DET_CORR") {
       comboDependenciaDestinoActions(value);
+    }
+    if (name === "deP_CORR_ORIGEN") {
+      console.log("deP_CORR_ORIGEN", value);
     }
 
   };
@@ -306,8 +331,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }));
   }
 
-
-
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
@@ -327,7 +350,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       setLoading(false); //Finaliza estado de carga
       return;
     }
-    resultado = await obtenerInventarioTrasladoActions(Traslados.af_codigo_generico);
+    resultado = await obtenerInventarioTrasladoActions(Traslados.af_codigo_generico, Traslados.esP_CODIGO);
     if (!resultado) {
 
       Swal.fire({
@@ -359,7 +382,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       setLoading(false); //Finaliza estado de carga
     }
   };
-
   //Se usa para resaltar cuales son los datos restante(se marca con un borde rojo)
   const tieneErroresBusqueda = !!(
     error.seR_CORR ||
@@ -485,56 +507,146 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       </div>
                       )}
                     </div>
+                    {/* servicio Origen */}
+                    <div className="mb-1">
+                      <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio</label>
+                      <select
+                        aria-label="seR_CORR"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_CORR ? "is-invalid" : ""}`}
+                        name="seR_CORR"
+                        onChange={handleChange}
+                        value={Traslados.seR_CORR || 0}
+                      >
+                        <option value="">Seleccionar</option>
+                        {comboTrasladoServicio.map((traeServicio) => (
+                          <option
+                            key={traeServicio.codigo}
+                            value={traeServicio.codigo}
+                          >
+                            {traeServicio.descripcion}
+                          </option>
+                        ))}
+                      </select>
+                      {error.seR_CORR && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.seR_CORR}
+                        </div>
+                      )}
+                    </div>
+                    {/* Dependencia/ Departamento */}
+                    <div className="mb-1">
+                      <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia</label>
+                      <select
+                        aria-label="deP_CORR_ORIGEN"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
+                        name="deP_CORR_ORIGEN"
+                        // disabled={!Traslados.servicioOrigen}
+                        onChange={handleChange}
+                        value={Traslados.deP_CORR_ORIGEN}
+                        disabled={!Traslados.seR_CORR}
+                      >
+                        <option value="">Seleccionar</option>
+                        {comboDependenciaOrigen.map((traeDependencia) => (
+                          <option
+                            key={traeDependencia.codigo}
+                            value={traeDependencia.codigo}
+                          >
+                            {traeDependencia.descripcion}
+                          </option>
+                        ))}
+                      </select>
+                      {error.deP_CORR_ORIGEN && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.deP_CORR_ORIGEN}
+                        </div>
+                      )}
+                    </div>
+                    {/* Especie */}
+                    <div className="d-flex">
+                      <div className="mb-1 w-100">
+                        <label className="fw-semibold">
+                          Buscar Especie
+                        </label>
+                        <Select
+                          options={especieOptions}
+                          onChange={(selectedOption) => { handleComboEspecieChange(selectedOption) }}
+                          name="esP_CODIGO"
+                          placeholder="Buscar"
+                          className={`form-select-container `}
+                          classNamePrefix="react-select"
+                          isClearable
+                          // isSearchable
+                          styles={{
+                            control: (baseStyles) => ({
+                              ...baseStyles,
+                              backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                              color: isDarkMode ? "white" : "#212529", // Texto blanco
+                              borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                              color: isDarkMode ? "white" : "#212529",
+                            }),
+                            option: (base, { isFocused, isSelected }) => ({
+                              ...base,
+                              backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                              color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                            }),
+                          }}
+                        />
+                      </div>
+                    </div>
                   </Col>
                   <Col md={4}>
-                    {/* Datos */}
-
-                    <div className="d-flex">
-                      <div className="ms-1">
-                        <label className="fw-semibold">
-                          Marca
-                        </label>
-                        <input
-                          aria-label="marca"
-                          type="text"
-                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                          maxLength={50}
-                          name="marca"
-                          disabled
-                          onChange={handleChange}
-                          value={Traslados.marca}
-                        />
-                      </div>
-                      <div className="ms-1">
-                        <label className="fw-semibold">
-                          Modelo
-                        </label>
-                        <input
-                          aria-label="modelo"
-                          type="text"
-                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                          maxLength={50}
-                          name="modelo"
-                          disabled
-                          onChange={handleChange}
-                          value={Traslados.modelo}
-                        />
-                      </div>
-                      <div className="ms-1">
-                        <label className="fw-semibold">
-                          Serie
-                        </label>
-                        <input
-                          aria-label="serie"
-                          type="text"
-                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                          maxLength={50}
-                          name="serie"
-                          disabled
-                          onChange={handleChange}
-                          value={Traslados.serie}
-                        />
-                      </div>
+                    <div className="ms-1">
+                      <label className="fw-semibold">
+                        Marca
+                      </label>
+                      <input
+                        aria-label="marca"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        maxLength={50}
+                        name="marca"
+                        disabled
+                        onChange={handleChange}
+                        value={Traslados.marca}
+                      />
+                    </div>
+                    <div className="ms-1">
+                      <label className="fw-semibold">
+                        Modelo
+                      </label>
+                      <input
+                        aria-label="modelo"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        maxLength={50}
+                        name="modelo"
+                        disabled
+                        onChange={handleChange}
+                        value={Traslados.modelo}
+                      />
+                    </div>
+                    <div className="ms-1">
+                      <label className="fw-semibold">
+                        Serie
+                      </label>
+                      <input
+                        aria-label="serie"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        maxLength={50}
+                        name="serie"
+                        disabled
+                        onChange={handleChange}
+                        value={Traslados.serie}
+                      />
                     </div>
                   </Col>
                 </Row>
@@ -555,7 +667,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             <Collapse in={isExpanded.fila2}>
               <div className="border-top">
                 <Row className="p-1 row justify-content-center">
-
                   <Col md={5}>
                     {/* N° Memo Ref */}
                     <div className="mb-1">
@@ -618,83 +729,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     </div>
                   </Col>
                   <Col md={5}>
-                    {/* servicio Origen */}
-                    <div className="mb-1">
-                      <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio Origen</label>
-                      <select
-                        aria-label="seR_CORR"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_CORR ? "is-invalid" : ""}`}
-                        name="seR_CORR"
-                        onChange={handleChange}
-                        value={Traslados.seR_CORR || 0}
-                      >
-                        <option value="">Seleccionar</option>
-                        {comboTrasladoServicio.map((traeServicio) => (
-                          <option
-                            key={traeServicio.codigo}
-                            value={traeServicio.codigo}
-                          >
-                            {traeServicio.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                      {error.seR_CORR && (
-                        <div className="invalid-feedback fw-semibold d-block">
-                          {error.seR_CORR}
-                        </div>
-                      )}
-                    </div>
-                    {/* Dependencia/ Departamento */}
-                    <div className="mb-1">
-                      <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia Origen</label>
-                      <select
-                        aria-label="deP_CORR_ORIGEN"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
-                        name="deP_CORR_ORIGEN"
-                        // disabled={!Traslados.servicioOrigen}
-                        onChange={handleChange}
-                        value={Traslados.deP_CORR_ORIGEN}
-                      >
-                        <option value="">Seleccionar</option>
-                        {comboDependenciaOrigen.map((traeDependencia) => (
-                          <option
-                            key={traeDependencia.codigo}
-                            value={traeDependencia.codigo}
-                          >
-                            {traeDependencia.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                      {error.deP_CORR_ORIGEN && (
-                        <div className="invalid-feedback fw-semibold d-block">
-                          {error.deP_CORR_ORIGEN}
-                        </div>
-                      )}
-                    </div>
-                    {/* Especie */}
-                    <div className="mb-1">
-                      <label className="fw-semibold">
-                        Especie
-                      </label>
-                      <select
-                        aria-label="esP_CODIGO"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.esP_CODIGO ? "is-invalid" : ""}`}
-                        name="esP_CODIGO"
-                        onChange={handleChange}
-                        value={Traslados.esP_CODIGO}
-                      >
-                        <option value="">Seleccione un origen</option>
-                        {comboTrasladoEspecie.map((traeEspecie) => (
-                          <option key={traeEspecie.codigo} value={traeEspecie.codigo}>
-                            {traeEspecie.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                      {error.esP_CODIGO && (
-                        <div className="invalid-feedback">{error.esP_CODIGO}</div>
-                      )}
-                    </div>
                     {/* Servicio */}
                     <div className="mb-1">
                       <label htmlFor="traS_DET_CORR" className="fw-semibold fw-semibold">Servicio Destino</label>
@@ -748,6 +782,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         </div>
                       )}
                     </div>
+
                     {/* Radios Pendiente implementación */}
                     {/* <div className="mb-1">
                       <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
@@ -909,7 +944,8 @@ const mapStateToProps = (state: RootState) => ({
   serie: state.obtenerInventarioTrasladoReducers.serie,
   traS_OBS: state.obtenerInventarioTrasladoReducers.deT_OBS,
   objeto: state.validaApiLoginReducers,
-  isDarkMode: state.darkModeReducer.isDarkMode
+  isDarkMode: state.darkModeReducer.isDarkMode,
+  comboEspecies: state.comboEspeciesBienReducers.comboEspecies
 });
 
 export default connect(mapStateToProps, {
@@ -919,5 +955,6 @@ export default connect(mapStateToProps, {
   comboDependenciaOrigenActions,
   comboDependenciaDestinoActions,
   registroTrasladoActions,
-  obtenerInventarioTrasladoActions
+  obtenerInventarioTrasladoActions,
+  listadoDeEspeciesBienActions
 })(RegistrarTraslados);
