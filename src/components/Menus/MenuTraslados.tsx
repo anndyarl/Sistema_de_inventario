@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { List, Table, ArrowsMove } from "react-bootstrap-icons";
+import { List, Table, ArrowLeftRight } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -24,7 +24,7 @@ const MenuTraslados: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Registrar Traslados',
             description: 'Registre el traslados de sus bienes.',
             href: '/Traslados/RegistrarTraslados',
-            icon: ArrowsMove
+            icon: ArrowLeftRight
         },
         {
             name: 'Listado de Traslados',

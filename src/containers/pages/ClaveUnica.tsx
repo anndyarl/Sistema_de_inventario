@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { connect } from "react-redux"
 import type { RootState } from "../../redux/reducers"
-import { Navigate, useNavigate } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 import { Button, Spinner } from "react-bootstrap"
 import ssmso_logo from "../../assets/img/SSMSO-LOGO.png"
 import { ChevronDown } from "lucide-react"
@@ -18,7 +18,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
   const [loading, setLoading] = useState(false)
 
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
-  const navigate = useNavigate(); // Hook para redirigir
+  // const navigate = useNavigate(); // Hook para redirigir
   const handleClaveUnica = () => {
     setLoading(true)
     const redirectUrl = import.meta.env.VITE_CSRF_CLAVE_UNICA
@@ -51,9 +51,9 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
         "En caso de inconvenientes, puede comunicarse con la Unidad de Desarrollo del Departamento de Informática al anexo 262505 o vía correo electrónico a desarrollo@ssmso.cl. Horario de atención: lunes a viernes de 08:30 a 17:30 hrs.",
     },
   ];
-  const handlePrueba = () => {
-    navigate("/Login");
-  };
+  // const handlePrueba = () => {
+  //   navigate("/Login");
+  // };
 
   if (isAuthenticated) {
     return <Navigate to="/Inicio" />
@@ -99,7 +99,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
             )}
           </Button>
 
-          <Button
+          {/* <Button
             onClick={handlePrueba}
             disabled={loading}
             variant="primary"
@@ -107,7 +107,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
             type="submit"
           >
             Acceso prueba
-          </Button>
+          </Button> */}
         </div>
       </div>
 

@@ -5,7 +5,7 @@ import { RootState } from "../../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { ArrowsMove, Eraser, FileEarmarkExcel, FiletypePdf, Plus, Search } from "react-bootstrap-icons";
+import { ArrowLeft, ArrowLeftRight, ArrowsMove, Eraser, FileEarmarkExcel, FiletypePdf, Plus, Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import MenuInformes from "../../../Menus/MenuInformes";
@@ -76,6 +76,7 @@ interface SERVICIO {
     deP_CORR: number;
     descripcion: string;
 }
+
 interface DatosAltas {
     registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
     listaFolioServicioDependencia: ListaFolioServicioDependencia[];
@@ -128,9 +129,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
 
     //Estado para completar fomulario traslado
     const [Traslados, setTraslados] = useState({
-        aF_CLAVE: 0,
         usuario_crea: objeto.IdCredencial.toString(),
-        seR_CORR: 0,
         deP_CORR_DESTINO: 0, //Dependencia destino
         traS_DET_CORR: 0,
         traS_CO_REAL: 0,
@@ -296,7 +295,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             const result = await Swal.fire({
                 icon: "info",
                 title: "Confirmar Traslado",
-                text: "¿Confirma que desea trasladar los inventarios seleccionados con los datos proporcionados?",
+                text: "¿Confirma que desea trasladar los artículos seleccionados con los datos proporcionados?",
                 showCancelButton: true,
                 confirmButtonText: "Confirmar y Trasladar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
@@ -343,7 +342,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     // Limpiar
                     setFilasSeleccionadas([]);
                     setMostrarModalTraslado(false);
-                    // setLoading(false);
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -355,7 +353,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                         customClass: { popup: "custom-border" }
                     });
                 }
-
                 setLoading(false);
             }
         }
@@ -693,7 +690,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
 
                                     Exportar
                                     <FiletypePdf
-                                        className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
+                                        className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
                                         aria-hidden="true"
                                     />
 
@@ -705,15 +702,15 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     variant={isDarkMode ? "secondary" : "warning"}
                                     className="mx-1 mb-1"
                                 >
-                                    Trasladar
-                                    <ArrowsMove
-                                        className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
-                                        aria-hidden="true"
-                                    />
+                                    <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
+                                    {"Trasladar"}
+                                    <span className="badge bg-light text-dark mx-1 mt-1">
+                                        {filasSeleccionadas.length}
+                                    </span>
                                 </Button>
                             </>
                         ) : (
-                            <strong className="alert alert-dark border m-1 p-2">
+                            <strong className="alert alert-dark border mb-1 p-2">
                                 No hay filas seleccionadas
                             </strong>
                         )}
@@ -913,7 +910,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                 ) : (
                                     <>
                                         Trasladar
-                                        <ArrowsMove
+                                        <ArrowLeftRight
                                             className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
                                             aria-hidden="true"
                                         />
@@ -976,7 +973,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                             <Col>
                                 <div className="mb-1 position-relative z-1">
                                     <label className="fw-semibold">
-                                        Servicio / Dependencia
+                                        Servicio / Dependencia Destino
                                     </label>
                                     <Select
                                         options={servicioFormOptions}

@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import Layout from "../hocs/layout/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
-import { ArrowsMove, Boxes, FileText, PencilSquare, PlusCircle, Printer } from "react-bootstrap-icons";
+import { ArrowLeftRight, Boxes, FileText, PencilSquare, PlusCircle, Printer } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -50,7 +50,7 @@ const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamien
 
     { descripcion: 'Complete el registro de un nuevo inventario en tres sencillos pasos.', name: 'FormInventario', title: 'Registrar Inventario', href: '/Inventario/FormInventario', icon: Boxes },
     { descripcion: 'Busque el activo o los activos que desee dar de Alta.', name: 'RegistrarAltas', title: 'Registrar Altas', href: '/Altas/RegistrarAltas', icon: PlusCircle },
-    { descripcion: 'Registre el traslados de sus bienes.', name: 'RegistrarTraslados', title: 'Registrar Traslados', href: '/Traslados/RegistrarTraslados', icon: ArrowsMove },
+    { descripcion: 'Registre el traslados de sus bienes.', name: 'RegistrarTraslados', title: 'Registrar Traslados', href: '/Traslados/RegistrarTraslados', icon: ArrowLeftRight },
     { descripcion: 'Seleccione y complete registro del activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Registrar Bajas', href: '/Bajas/ListadoGeneral', icon: Boxes },
     { descripcion: 'Busque, exporte y traslade los bienes filtrados por Servicios Depenedencia.', name: 'FolioPorServicioDependencia', title: 'Folios por Servicio-Dependencia', href: '/Informes/FolioPorServicioDependencia', icon: FileText },
     { descripcion: 'Filtre por cuenta y luego calcule todos sus bienes para conocer su depreciación.', name: 'CalcularDepreciacion', title: 'Calcular Depreciación', href: '/Informes/CalcularDepreciacion', icon: FileText },

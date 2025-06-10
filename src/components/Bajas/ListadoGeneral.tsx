@@ -385,17 +385,20 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 onClick={() => setMostrarModal(true)} // Descomenta si ya tienes el estado y función
                 disabled={listadoGeneralBajas.length === 0}
                 variant={isDarkMode ? "secondary" : "primary"}
-                className="mx-1 mb-1"
+                className="m-1 p-2 d-flex align-items-center"
               >
-                Enviar
                 {/* <Plus
                   className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
                   aria-hidden="true"
                 /> */}
+                {"Enviar"}
+                <span className="badge bg-light text-dark mx-1 mt-1">
+                  {listadoGeneralBajas.length}
+                </span>
               </Button>
             </>
           ) : (
-            <strong className="alert alert-dark border m-1 p-2">
+            <strong className="alert alert-dark border m-1 p-2 mx-2">
               No hay filas seleccionadas
             </strong>
           )}

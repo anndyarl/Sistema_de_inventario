@@ -400,9 +400,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             <td className="text-center">{item.altaS_CORR}</td>
                                             <td className="text-center">{item.idcargo}</td>
                                             <td className="text-center">{item.firmante}</td>
-                                            <td className="text-center">{item.temails}</td>
+                                            <td className="text-center">
+                                                <a href={`mailto:${item.temails}`} className="text-blue-500 underline">
+                                                    {item.temails}
+                                                </a>
+                                            </td>
                                             <td className="text-center">{
-                                                item.firmado === 0 ? <p className="fw-bold text-warning">Pendiente</p> : item.firmado === 1 ? <p className="fw-bold text-success">Firmado</p> : item.firmado === 2 ? <p className="fw-bold text-danger">Rechazado</p> : <p className="fw-bold">-</p>
+                                                item.firmado === 0 ? <p className="fw-bold text-warning">Pendiente</p>
+                                                    : item.firmado === 1 ? <p className="fw-bold text-success">Firmado</p>
+                                                        : item.firmado === 2 ? <p className="fw-bold text-danger">Rechazado</p>
+                                                            : item.firmado === 3 ? <p className="fw-bold text-danger">Rechazado</p> : <p className="fw-bold">-</p>
                                             }</td>
                                         </tr>
                                     ))

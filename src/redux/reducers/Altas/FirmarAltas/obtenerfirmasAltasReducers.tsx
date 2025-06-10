@@ -1,4 +1,5 @@
 
+import { DatosFirmas } from '../../../../components/Altas/FirmarAltas/FirmarAltas';
 import {
     OBTENER_FIRMAS_ALTAS_REQUEST,
     OBTENER_FIRMAS_ALTAS_SUCCESS,
@@ -7,20 +8,7 @@ import {
 
 // Define el tipo para el estado inicial
 interface DatosState {
-    datosFirmas: Array<{
-        nombre: string,
-        rut: string,
-        estabL_CORR: string,
-        estado: string,
-        firma: boolean,
-        rol: string,
-        apellidO_MATERNO: string,
-        apellidO_PATERNO: string,
-        nombrE_USUARIO: string,
-        descripcion: string,
-        url: string,
-        iD_UNIDAD: number
-    }>;
+    datosFirmas: DatosFirmas[];
 }
 
 // Estado inicial tipado

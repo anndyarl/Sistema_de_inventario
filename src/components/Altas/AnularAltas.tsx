@@ -438,8 +438,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     <th style={{
                       position: 'sticky',
                       left: 0,
-                      zIndex: 2,
-
+                      zIndex: 2
                     }}>
                       <Form.Check
                         className="check-danger"
@@ -469,12 +468,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                     return (
                       <tr key={index}>
-                        <td style={{
-                          position: 'sticky',
-                          left: 0,
-                          zIndex: 2,
-
-                        }}>
+                        <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
                           <Form.Check
                             type="checkbox"
                             onChange={() => setSeleccionaFilas(indexReal)}
@@ -496,15 +490,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                           ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                         </td>
                         <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
-                        {/* <td>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleAnular(index, listaAltas.aF_CLAVE)}
-                          >
-                            Anular
-                          </Button>
-                        </td> */}
                       </tr>
                     );
                   })}
@@ -512,7 +497,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               </table>
             </div>
           )}
-
 
           {/* Paginador */}
           <div className="paginador-container">

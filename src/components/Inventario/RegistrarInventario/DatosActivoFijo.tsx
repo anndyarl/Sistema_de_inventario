@@ -98,6 +98,7 @@ interface DatosActivoFijoProps {
 const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   onBack,
   onReset,
+  registrarFormInventarioActions,
   montoRecepcion,
   nombreEspecie,
   nCuenta,
@@ -112,9 +113,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   observaciones,
   precio,
   comboEspecies,
-  utm,
-  // AF_CODIGO_GENERICO,
-  registrarFormInventarioActions
+  utm
 }) => {
 
   // Obtener fecha actual en horario de Chile
@@ -161,7 +160,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const [_, setEditingSerie] = useState<string | null>(null);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-
   const [erroresSerie, setErroresSerie] = useState<{ [key: number]: string }>({});
   const vPrecio = parseFloat(activoFormulario.precio) || 0;
   const vCantidad = parseInt(activoFormulario.cantidad, 10) || 0;
@@ -175,12 +173,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   //     ? datosTablaActivoFijo
   //     : activosFijos;
   // }, [datosTablaActivoFijo, activosFijos]);
-
-  const indiceUltimoElemento = paginaActual * elementosPorPagina;
-  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => datos.slice(indicePrimerElemento, indiceUltimoElemento),
-    [datos, indicePrimerElemento, indiceUltimoElemento]);
-  const totalPaginas = Math.ceil(datos.length / elementosPorPagina);
 
   // Calcula el total del precio de la tabla
   const totalSum = useMemo(() => {
@@ -315,13 +307,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       return actualizaActivos;
     });
   };
-
-  // const funcionObtieneMaxRegistro = () => {
-  //   if (AF_CODIGO_GENERICO === 0) {
-  //     obtenerMaxInventarioActions();
-  //   }
-  // };
-
   //Sincroniza los numero de serie de la tabla datosTablaActivoFijo con el estado global de redux
   useEffect(() => {
     if (datosTablaActivoFijo.length > 0) {
@@ -490,7 +475,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     dispatch(setPrecioActions(""));
     dispatch(setCantidadActions(""));
     dispatch(setObservacionesActions(""));
-  }
+  };
 
   const handleMantenerCuentaSeleccionados = () => {
     // 1) Convierte los índices seleccionados a números
@@ -796,6 +781,11 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     }
   };
 
+  const indiceUltimoElemento = paginaActual * elementosPorPagina;
+  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
+  const elementosActuales = useMemo(() => datos.slice(indicePrimerElemento, indiceUltimoElemento),
+    [datos, indicePrimerElemento, indiceUltimoElemento]);
+  const totalPaginas = Math.ceil(datos.length / elementosPorPagina);
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
   //Selecciona todas las cuentas checadas
@@ -918,8 +908,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           <div className='table-responsive'>
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
               <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                <tr >
-                  <th >
+                <tr>
+                  <th>
                     <Form.Check
                       type="checkbox"
                       className="text-center"
@@ -955,7 +945,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                         {comboEspecies.find((esp) => esp.esP_CODIGO === activo.especie)?.nombrE_ESP || activo.especie}
                       </td>
                       <td className="text-center">{activo.vidaUtil}</td>
-
                       <td className="text-center"> {activo.fechaIngreso
                         ? activo.fechaIngreso.split('-').reverse().join('/')
                         : 'N/A'
@@ -990,7 +979,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                           </div>
                         )}
                       </td>
-
                       <td className="text-center">${parseFloat(activo.precio).toLocaleString("es-ES", { minimumFractionDigits: 0, })}</td>
                       <td className="fw-bold text-center">
                         {activo.cuenta === "5320413" ? (

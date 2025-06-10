@@ -59,7 +59,7 @@ export interface DatosFirmas {
     url: string,
     iD_UNIDAD: number,
     idcargo: number;
-    cuerpo: string
+    correo: string
 }
 export interface Unidades {
     iD_UNIDAD: number,
@@ -157,9 +157,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
         visadoInventario: "",
         visadoFinanzas: "",
-        visadoAbastecimiento: "",
-
-        cuerpo: ""
+        visadoAbastecimiento: ""
     });
 
     const listaAuto = async () => {
@@ -618,8 +616,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         // Genera el PDF
         const base64 = await generarPDFBase64();
         // Obtiene firmas según jerarquía activada
-        const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number }[] => {
-            const firmasSeleccionadas: { jerarquia: number; idcargo: number }[] = [];
+        const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number; rut: string, correo: string }[] => {
+            const firmasSeleccionadas: { jerarquia: number; idcargo: number; rut: string, correo: string }[] = [];
             const establecimiento = objeto.Roles[0].codigoEstablecimiento.toString();
 
             // Jerarquía 1 → ajustarFirma
@@ -629,12 +627,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 if (AltaInventario.titularInventario) {
                     const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
                     if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: titular.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
                     }
                 } else if (AltaInventario.subroganteInventario) {
                     const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: subrogante.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
                     }
                 }
             }
@@ -646,68 +644,74 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 if (AltaInventario.titularFinanzas) {
                     const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
                     if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
                     }
                 } else if (AltaInventario.subroganteFinanzas) {
                     const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
                     }
                 }
             }
 
-            // Jerarquía 3 → chkAbastecimiento o chkUnidad
+            // Jerarquía 3 → chkAbastecimiento
             if (AltaInventario.chkAbastecimiento) {
                 const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 3);
 
                 if (AltaInventario.titularAbastecimiento) {
                     const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
                     if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
                     }
                 } else if (AltaInventario.subroganteAbastecimiento) {
                     const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
                     }
                 }
             }
 
+            // Jerarquía 3 extendida → chkUnidad (con combo)
             if (AltaInventario.chkUnidad) {
+                // Abastecimiento (Unidad 3)
                 const firmasUnidad1 = datosFirmas.filter(f => f.iD_UNIDAD === 3);
                 if (AltaInventario.titularAbastecimiento) {
                     const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
                     if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
                     }
                 } else if (AltaInventario.subroganteAbastecimiento) {
                     const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
                     }
                 }
+
+                // Informática (Unidad 4)
                 const firmasUnidad2 = datosFirmas.filter(f => f.iD_UNIDAD === 4);
                 if (AltaInventario.titularInformatica) {
                     const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
                     if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
                     }
                 } else if (AltaInventario.subroganteInformatica) {
                     const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
                     }
                 }
+
+                // Compras (Unidad 5)
                 const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 5);
                 if (AltaInventario.titularCompra) {
                     const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
                     if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
                     }
                 } else if (AltaInventario.subroganteCompra) {
                     const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
                     if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo });
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
                     }
                 }
             }
@@ -715,15 +719,19 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             return firmasSeleccionadas;
         };
 
+
+
         const selectedIndices = filasSeleccionadas.map(Number);
         const FirmaAlta = selectedIndices.flatMap(index => {
             const item = listaAltasRegistradas[index];
 
-            return obtenerFirmasJerarquia().map(({ jerarquia, idcargo }) => ({
+            return obtenerFirmasJerarquia().map(({ jerarquia, idcargo, rut, correo }) => ({
                 ALTAS_CORR: item.altaS_CORR,
                 JERARQUIA: jerarquia,
                 IDCARGO: idcargo,
-                FIRMADO: 0
+                FIRMADO: 0,
+                RUT: rut,
+                CORREO: correo
             }));
         });
 

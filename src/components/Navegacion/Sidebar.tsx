@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  Box, ArrowsMove, PlusCircle, DashCircle, FileText,
+  Box, PlusCircle, DashCircle, FileText,
   FileEarmarkSpreadsheet, ChevronDown,
+  ArrowLeftRight,
   // TruckFlatbed,
 } from 'react-bootstrap-icons';
 import "../../styles/Sidebar.css";
@@ -24,7 +25,7 @@ const Sidebar: React.FC = () => {
   const navigation: NavItem[] = [
     { name: 'Inventario', href: '/Inventario', icon: Box },
     { name: 'Altas', href: '/Altas', icon: PlusCircle },
-    { name: 'Traslados', href: '/Traslados', icon: ArrowsMove },
+    { name: 'Traslados', href: '/Traslados', icon: ArrowLeftRight },
     // { name: 'Traspasos', href: '/Traspasos', icon: TruckFlatbed },
     { name: 'Bajas', href: '/Bajas', icon: DashCircle },
     { name: 'Informes', href: '/Informes', icon: FileText },

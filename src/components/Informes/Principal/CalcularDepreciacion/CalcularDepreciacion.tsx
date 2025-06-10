@@ -826,6 +826,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             />
                         </div>
                     </Col>
+
                     <Col md={5}>
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
@@ -873,7 +874,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             ) : (
                                 <>
                                     <Calculator className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1")} aria-hidden="true" />
-                                    {"Calcular"} <b>{listaActivosFijos.length}</b>
+                                    {"Calcular"}
+                                    <span className="badge bg-light text-dark mx-1 mt-1">
+                                        {listaActivosFijos.length}
+                                    </span>
                                 </>
                             )}
                         </Button>
@@ -1159,7 +1163,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             variant="warning"
                                             className="mx-1 mb-1">
                                             <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1 text-danger")} aria-hidden="true" />
-                                            {"No Calculados"} <b>{listaActivosNoCalculados.length}</b>
+                                            {"No Calculados"}
+                                            <span className="badge bg-light text-dark mx-1 mt-1">
+                                                {listaActivosNoCalculados.length}
+                                            </span>
                                         </Button>
                                     )}
                                     <Button
@@ -1176,8 +1183,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         ) : (
                                             <>
                                                 <FiletypePdf className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1")} aria-hidden="true" />
-                                                {"Exportar"} <b>{listaActivosCalculados.length}</b>  {"Calculados"}
-
+                                                {"Exportar"}
+                                                <span className="badge bg-light text-dark mx-1 mt-1">
+                                                    {listaActivosCalculados.length}
+                                                </span>
+                                                {"Calculados"}
                                             </>
                                         )}
                                     </Button>
@@ -1445,8 +1455,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                     </Modal.Body>
                 </Modal>
 
-            )
-            }
+            )}
 
             {/* Modal Activos NO Calculados */}
             <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
@@ -1564,7 +1573,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         </Pagination>
                     </div>
                 </Modal.Body>
-            </Modal >
+            </Modal>
 
             {/* Modal PDF Excel Word */}
             < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl" >
@@ -1617,7 +1626,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         }
                     </BlobProvider>
                 </Modal.Body>
-            </Modal >
+            </Modal>
         </Layout >
     );
 };

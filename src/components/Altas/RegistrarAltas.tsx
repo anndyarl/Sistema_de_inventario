@@ -465,14 +465,14 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                       size="sm"
                       role="status"
                       aria-hidden="true"
-                      className="me-2"
+                      className="mx-1"
                     />
 
                   </>
                 ) : (
                   <>
                     Registrar
-                    <span className="badge bg-light text-dark mx-1">
+                    <span className="badge bg-light text-dark mx-1 mt-1">
                       {filasSeleccionadas.length}
                     </span>
                     {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}

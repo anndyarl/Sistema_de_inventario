@@ -585,8 +585,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                   ) : (
                     <>
                       Enviar a Remate
-                      <span className="badge bg-light text-dark mx-2">
-                        {/* {filasSeleccionadas.length} */}
+                      <span className="badge bg-light text-dark mx-1 mt-1">
+                        {filasSeleccionadas.length}
                       </span>
                     </>
                   )}
