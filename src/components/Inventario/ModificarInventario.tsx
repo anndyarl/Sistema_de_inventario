@@ -591,6 +591,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CODIGO_GENERICO ? "is-invalid" : ""}`}
                     maxLength={12}
                     name="aF_CODIGO_GENERICO"
+                    placeholder="Eje: 1000000008"
                     onChange={handleChange}
                     value={Inventario.aF_CODIGO_GENERICO}
                     disabled={isDisabledNRecepcion}
@@ -1261,7 +1262,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     <th>Modelo</th>
                     <th>Serie</th>
                     <th>Precio</th>
-
                   </tr>
                 </thead>
                 <tbody>

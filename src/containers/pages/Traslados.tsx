@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeftRight, ArrowsMove, Table } from "react-bootstrap-icons";
+import { ArrowLeftRight, Table } from "react-bootstrap-icons";
 
 interface NavItem {
   name: string;

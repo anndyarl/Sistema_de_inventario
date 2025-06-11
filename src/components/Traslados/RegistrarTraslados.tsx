@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form } from "react-bootstrap";
+import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form, CloseButton } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { ArrowLeftRight, CaretDown, CaretUpFill, Eraser, Plus, Search } from "react-bootstrap-icons";
+import { ArrowLeftRight, CaretDown, CaretUpFill, Eraser, Search } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -96,7 +96,7 @@ interface TrasladosProps {
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
   comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
   registroTrasladoActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
-  obtenerInventarioTrasladoActions: (af_codigo_generico: string, esP_CODIGO: string, deP_CORR: number) => Promise<boolean>
+  obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string) => Promise<boolean>
   listaTrasladoSeleccion: ListaTrasladoSeleccion[];
   comboEspecies: ListaEspecie[];
   comboServicioInformeActions: (establ_corr: number) => void;//En buscador  
@@ -128,7 +128,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   objeto,
   token,
   isDarkMode }) => {
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [loading, setLoadingBuscar] = useState(false); // Estado para controlar la carga
+  const [loadingBuscar, setLoading] = useState(false); // Estado para controlar la carga
   const [error, setError] = useState<Partial<FormularioTraslado> & {}>({});
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
@@ -152,7 +153,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     label: item.descripcion,
   }));
   const [Buscar, setBuscar] = useState({
-    af_codigo_generico: "",
+    aF_CODIGO_GENERICO: "",
     seR_CORR: "",
     deP_CORR_ORIGEN: 0,
     esP_CODIGO: "",
@@ -217,7 +218,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     const { name, value } = e.target;
 
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+    if (name === "aF_CODIGO_GENERICO" && !/^[0-9]*$/.test(value)) {
       return; // Salir si contiene caracteres no numéricos
     }
     // Convierte `value` a número
@@ -274,7 +275,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   const handleLimpiar = () => {
     setBuscar((prev) => ({
       ...prev,
-      af_codigo_generico: "",
+      aF_CODIGO_GENERICO: "",
       seR_CORR: "",
       deP_CORR_ORIGEN: 0,
       esP_CODIGO: "",
@@ -287,26 +288,33 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
-    setLoading(true); // Inicia el estado de carga
-    // if (!Traslados.af_codigo_generico || Traslados.af_codigo_generico === "") {
-    //   Swal.fire({
-    //     icon: "warning",
-    //     title: "Por favor, ingrese un número de inventario",
-    //     confirmButtonText: "Ok",
-    //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //     confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
-    //     customClass: {
-    //       popup: "custom-border", // Clase personalizada para el borde
-    //     }
-    //   });
-    //   setLoading(false); //Finaliza estado de carga
-    //   return;
-    // }
-    resultado = await obtenerInventarioTrasladoActions(Buscar.af_codigo_generico, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN);
-    console.log(Buscar);
-    if (!resultado) {
+    setLoadingBuscar(true); // Inicia el estado de carga
+    if (Buscar.aF_CODIGO_GENERICO.trim() === "" &&
+      Buscar.deP_CORR_ORIGEN === 0 &&
+      Buscar.esP_CODIGO.trim() === "" &&
+      Buscar.marca.trim() === "" &&
+      Buscar.modelo.trim() === "" &&
+      Buscar.serie.trim() === "") {
+      Swal.fire({
+        icon: "warning",
+        title: "Filtro requerido",
+        text: "Por favor, ingrese al menos un parámetro para realizar la búsqueda.",
+        confirmButtonText: "Ok",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        customClass: {
+          popup: "custom-border",
+        }
+      });
+      setLoadingBuscar(false);
+      return;
+    }
 
+
+    resultado = await obtenerInventarioTrasladoActions(Buscar.aF_CODIGO_GENERICO, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN, Buscar.marca, Buscar.modelo, Buscar.serie);
+
+    if (!resultado) {
       Swal.fire({
         icon: "warning",
         title: "Sin Resultados",
@@ -318,7 +326,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      setLoading(false);
+      setLoadingBuscar(false);
       // Swal.fire({
       //   icon: "warning",
       //   title: "Inventario sin alta",
@@ -345,8 +353,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       // });
       // return;
     } else {
+      paginar(1);
       setMostrarModal(true);
-      setLoading(false); //Finaliza estado de carga
+      setLoadingBuscar(false); //Finaliza estado de carga     
     }
   };
 
@@ -567,6 +576,41 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
   };
 
+  const handleCerrarModal = () => {
+    setMostrarModal(false);
+    if (mostrarModal) {
+      Swal.fire({
+        icon: "warning",
+        title: "Limpiar Filtros",
+        text: "Desea limpiar sus filtros?",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        customClass: { popup: "custom-border" },
+        allowOutsideClick: false,
+        confirmButtonText: "Limpiar",
+        showCancelButton: true, // Agrega un segundo botón
+        cancelButtonText: "Cerrar", // Texto del botón
+        willClose: () => {
+          document.body.style.overflow = "auto"; // Restaura el scroll
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setBuscar((prev) => ({
+            ...prev,
+            aF_CODIGO_GENERICO: "",
+            seR_CORR: "",
+            deP_CORR_ORIGEN: 0,
+            esP_CODIGO: "",
+            marca: "",
+            modelo: "",
+            serie: ""
+          }));
+        }
+      });
+    }
+  }
+
   /*-----------------------Tabla Resultado de busqueda----------------------*/
   // Lógica de Paginación actualizada 
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -623,13 +667,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   </label>
                   <div className="d-flex align-items-center">
                     <input
-                      aria-label="af_codigo_generico"
+                      aria-label="aF_CODIGO_GENERICO"
                       type="text"
                       className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       maxLength={12}
-                      name="af_codigo_generico"
+                      name="aF_CODIGO_GENERICO"
+                      placeholder="Eje: 1000000008"
                       onChange={handleChange}
-                      value={Buscar.af_codigo_generico}
+                      value={Buscar.aF_CODIGO_GENERICO}
                     />
                     <OverlayTrigger
                       placement="top"
@@ -640,7 +685,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         variant="primary"
                         className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                       >
-                        {loading ? (
+                        {loadingBuscar ? (
                           <>
                             <Spinner
                               as="span"
@@ -694,9 +739,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     ))}
                   </select>
                 </div>
-                {/* Servicio-Dependencia */}
+                {/* Dependencia */}
                 <div className="mb-1">
-                  <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Servicio-Dependencia</label>
+                  <label htmlFor="deP_CORR_ORIGEN" className="fw-semibold">Dependencia</label>
                   <select
                     aria-label="deP_CORR_ORIGEN"
                     className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
@@ -769,6 +814,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     maxLength={50}
                     name="marca"
+                    placeholder="Introduzca marca o parte de él"
                     onChange={handleChange}
                     value={Buscar.marca}
                   />
@@ -783,6 +829,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     maxLength={50}
                     name="modelo"
+                    placeholder="Introduzca modelo o parte de él"
                     onChange={handleChange}
                     value={Buscar.modelo}
                   />
@@ -797,6 +844,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     maxLength={50}
                     name="serie"
+                    placeholder="Ingrese serie o parte del número"
                     onChange={handleChange}
                     value={Buscar.serie}
                   />
@@ -943,12 +991,24 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         <Modal show={mostrarModal} onHide={() => setMostrarModal(false)}
           size="xl"
           dialogClassName="draggable-modal"
-        // scrollable={false}
-        // backdrop="static" // Evita que se cierre al hacer clic afuera
-        // keyboard={false}
+          // scrollable={false}
+          backdrop="static" // Evita que se cierre al hacer clic afuera
+          keyboard={false}
         >
-          <Modal.Header className={`modal-header`} closeButton>
-            <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
+          <Modal.Header className={`modal-header`}>
+            <div className="d-flex justify-content-between w-100">
+              <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
+              <Button
+                variant="transparent"
+                className="border-0"
+                onClick={handleCerrarModal}
+              >
+                <CloseButton
+                  aria-hidden="true"
+                  className={"flex-shrink-0 h-5 w-5"}
+                />
+              </Button>
+            </div>
           </Modal.Header>
           <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
             <div className="bg-white shadow-sm sticky-top p-3">
@@ -1088,14 +1148,20 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             </div>
           </Modal.Body>
         </Modal>
-      )}
+      )
+      }
 
       {/* Formulario de traslados */}
-      < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)} size="lg" dialogClassName="modal-right" backdrop="static"
+      < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)}
+        size="lg"
+        dialogClassName="modal-right"
+        backdrop="static"
       //  keyboard={false}  // Evita el cierre al presionar la tecla Esc
       >
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Inventarios a Trasladar: {activosFijos.length}</Modal.Title>
+          <Modal.Title className="fw-semibold">
+            Inventarios a Trasladar: {activosFijos.length}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <form onSubmit={handleSubmitTraslado}>

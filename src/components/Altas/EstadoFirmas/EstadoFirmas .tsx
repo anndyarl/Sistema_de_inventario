@@ -9,8 +9,8 @@ import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
 import { Eraser, Eye, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
-import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
+import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
 
 export interface ListaEstadoFirmas {
@@ -31,7 +31,7 @@ interface ListaEstadoVisadores {
 }
 interface DatosBajas {
     listaEstado: ListaEstadoFirmas[];
-    listaEstadoActions: (altasCorr: number, idDocumento: number) => Promise<boolean>;
+    listaEstadoActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     listaEstadoVisadoresActions: (altasCorr: number) => Promise<boolean>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     token: string | null;
@@ -42,7 +42,7 @@ interface DatosBajas {
     listaEstadoVisadores: ListaEstadoVisadores[];
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaEstadoVisadores, listaEstado, token, isDarkMode, nPaginacion, documentoByte64 }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaEstadoVisadores, listaEstado, token, isDarkMode, nPaginacion, documentoByte64, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -83,7 +83,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         let resultado = false;
         setLoading(true);
 
-        resultado = await listaEstadoActions(Buscar.altaS_CORR, Buscar.idDocumento);
+        resultado = await listaEstadoActions(Buscar.altaS_CORR, Buscar.idDocumento, objeto.Roles[0].codigoEstablecimiento);
         if (!resultado) {
             Swal.fire({
                 icon: "warning",
@@ -97,7 +97,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await listaEstadoActions(0, 0);
+            resultado = await listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
             setLoading(false); //Finaliza estado de carga
         } else {
             paginar(1);
@@ -110,7 +110,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         if (token) {
             if (listaEstado.length === 0) {
                 setLoading(true);
-                const resultado = await listaEstadoActions(0, 0);
+                const resultado = await listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
                 if (!resultado) {
                     Swal.fire({
                         icon: "warning",
@@ -385,7 +385,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead>
                                 <tr>
-                                    <th className="text-center">N" Alta</th>
+                                    <th className="text-center">Nº Alta</th>
                                     <th className="text-center">Cargo</th>
                                     <th className="text-center">Firmante</th>
                                     <th className="text-center">Correo</th>

@@ -5,7 +5,7 @@ import { RootState } from "../../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { ArrowLeft, ArrowLeftRight, ArrowsMove, Eraser, FileEarmarkExcel, FiletypePdf, Plus, Search } from "react-bootstrap-icons";
+import { ArrowLeftRight, Eraser, FileEarmarkExcel, FiletypePdf, Plus, Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import MenuInformes from "../../../Menus/MenuInformes";

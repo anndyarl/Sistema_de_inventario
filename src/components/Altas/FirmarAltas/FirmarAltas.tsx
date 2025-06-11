@@ -656,7 +656,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
             // Jerarquía 3 → chkAbastecimiento
             if (AltaInventario.chkAbastecimiento) {
-                const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 3);
+                const firmasUnidad3 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
 
                 if (AltaInventario.titularAbastecimiento) {
                     const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
@@ -674,7 +674,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             // Jerarquía 3 extendida → chkUnidad (con combo)
             if (AltaInventario.chkUnidad) {
                 // Abastecimiento (Unidad 3)
-                const firmasUnidad1 = datosFirmas.filter(f => f.iD_UNIDAD === 3);
+                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
                 if (AltaInventario.titularAbastecimiento) {
                     const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
                     if (titular) {

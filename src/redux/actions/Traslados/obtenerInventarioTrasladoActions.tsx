@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../auth/types";
 
 // Acción para obtener la recepción por número
-export const obtenerInventarioTrasladoActions = (af_codigo_generico: string, esP_CODIGO: string, deP_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerInventarioTrasladoActions = (aF_CODIGO_GENERICO: string, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; //token está en el estado de autenticación
 
     if (token) {
@@ -22,7 +22,7 @@ export const obtenerInventarioTrasladoActions = (af_codigo_generico: string, esP
         dispatch({ type: OBTIENE_INV_TRASLADOS_REQUEST });
 
         try {
-            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInvTraslado?af_codigo_generico=${af_codigo_generico}&esP_CODIGO=${esP_CODIGO}&deP_CORR=${deP_CORR}`, config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInvTraslado?aF_CODIGO_GENERICO=${aF_CODIGO_GENERICO}&esP_CODIGO=${esP_CODIGO}&deP_CORR=${deP_CORR}&deT_MARCA=${deT_MARCA}&deT_MODELO=${deT_MODELO}&deT_SERIE=${deT_SERIE}`, config);
 
             if (res.status === 200) {
                 const isEmpty = res.data && Object.values(res.data).every((value) => value === 0 || value === null || value === undefined);
