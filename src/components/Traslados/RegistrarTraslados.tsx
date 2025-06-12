@@ -17,13 +17,13 @@ import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combo
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
-import { registroTrasladoActions } from "../../redux/actions/Traslados/RegistroTrasladoActions";
 import Select from "react-select";
 import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { registroTrasladoMultipleActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
+import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
   codigo: number;
@@ -53,6 +53,7 @@ interface ListaATrasladar {
 export interface ListaTrasladoSeleccion {
   aF_CLAVE: string;
   aF_CODIGO_GENERICO: string;
+  altaS_CORR: number;
   deT_OBS: string;
   serviciO_DEPENDENCIA: string;
   esP_NOMBRE: string;
@@ -77,10 +78,14 @@ interface ListaEspecie {
   esP_CODIGO: string;
   nombrE_ESP: string;
 }
-
 interface SERVICIO {
   deP_CORR: number;
   descripcion: string;
+}
+
+export interface ListaSalidaTraslados {
+  aF_CODIGO_GENERICO: number;
+  n_TRASLADO: number;
 }
 
 interface TrasladosProps {
@@ -94,17 +99,18 @@ interface TrasladosProps {
   comboDependenciaOrigen: DEPENDENCIA[];
   comboDependenciaDestino: DEPENDENCIA[];
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
-  comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
-  registroTrasladoActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
-  obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string) => Promise<boolean>
+  comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado 
+  obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string) => Promise<boolean>
   listaTrasladoSeleccion: ListaTrasladoSeleccion[];
   comboEspecies: ListaEspecie[];
   comboServicioInformeActions: (establ_corr: number) => void;//En buscador  
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   comboServicioInforme: SERVICIO[];
+  listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
+  listaSalidaTraslados: ListaSalidaTraslados[];
 }
 
 
@@ -118,13 +124,15 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   comboDependenciaDestinoActions,
   obtenerInventarioTrasladoActions,
   comboEspeciesBienActions,
+  listadoTrasladosActions,
   comboTrasladoServicio,
   comboEstablecimiento,
   comboTrasladoEspecie,
   comboDependenciaOrigen,
   comboEspecies,
-  listaTrasladoSeleccion,
   comboServicioInforme,
+  listaTrasladoSeleccion,
+  listaSalidaTraslados,
   objeto,
   token,
   isDarkMode }) => {
@@ -133,6 +141,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   const [error, setError] = useState<Partial<FormularioTraslado> & {}>({});
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
+  const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [paginaActual1, setPaginaActual1] = useState(1);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -154,6 +163,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   }));
   const [Buscar, setBuscar] = useState({
     aF_CODIGO_GENERICO: "",
+    altaS_CORR: 0,
     seR_CORR: "",
     deP_CORR_ORIGEN: 0,
     esP_CODIGO: "",
@@ -276,6 +286,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     setBuscar((prev) => ({
       ...prev,
       aF_CODIGO_GENERICO: "",
+      altaS_CORR: 0,
       seR_CORR: "",
       deP_CORR_ORIGEN: 0,
       esP_CODIGO: "",
@@ -285,11 +296,26 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }));
   }
 
+  const handleLimpiarFormulario = () => {
+    setTraslados((prev) => ({
+      ...prev,
+      deP_CORR_DESTINO: 0,
+      traS_CO_REAL: 0,
+      traS_MEMO_REF: "",
+      traS_FECHA_MEMO: "",
+      traS_OBS: "",
+      traS_NOM_ENTREGA: "",
+      traS_NOM_RECIBE: "",
+      traS_NOM_AUTORIZA: ""
+    }));
+  }
+
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
     setLoadingBuscar(true); // Inicia el estado de carga
     if (Buscar.aF_CODIGO_GENERICO.trim() === "" &&
+      Buscar.altaS_CORR === 0 &&
       Buscar.deP_CORR_ORIGEN === 0 &&
       Buscar.esP_CODIGO.trim() === "" &&
       Buscar.marca.trim() === "" &&
@@ -312,7 +338,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
 
 
-    resultado = await obtenerInventarioTrasladoActions(Buscar.aF_CODIGO_GENERICO, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN, Buscar.marca, Buscar.modelo, Buscar.serie);
+    resultado = await obtenerInventarioTrasladoActions(Buscar.aF_CODIGO_GENERICO, Buscar.altaS_CORR, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN, Buscar.marca, Buscar.modelo, Buscar.serie);
 
     if (!resultado) {
       Swal.fire({
@@ -543,22 +569,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         }));
 
         const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
-
-        // console.log("datosTraslado", activosSeleccionados);
-
         if (resultado) {
-          Swal.fire({
-            icon: "success",
-            title: "Registro Exitoso",
-            text: `Su traslado ha sido registrado exitosamente`,
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
-            customClass: { popup: "custom-border" }
-          });
-
-          // Limpiar
+          mostrarAlerta();
+          listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+          handleLimpiar();
+          handleLimpiarFormulario();
           setFilasSeleccionadas([]);
+          setFilasSeleccionadasTraslados([]);
+          setActivosFijos([]);
           setMostrarModalTraslado(false);
         } else {
           Swal.fire({
@@ -567,7 +585,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             text: "Ocurrió un problema al intentar trasladar los activos.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
             customClass: { popup: "custom-border" }
           });
         }
@@ -576,13 +594,36 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
   };
 
+  const mostrarAlerta = () => {
+    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    Swal.fire({
+      icon: "success",
+      title: "Registro Exitoso",
+      text: `Se han registrado correctamente los traslados seleccionados, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      customClass: { popup: "custom-border" },
+      allowOutsideClick: false,
+      showCancelButton: false, // Agrega un segundo botón
+      cancelButtonText: "Cerrar", // Texto del botón
+      willClose: () => {
+        document.body.style.overflow = "auto"; // Restaura el scroll
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setMostrarModalResumen(true);
+      }
+    });
+  };
+
   const handleCerrarModal = () => {
     setMostrarModal(false);
     if (mostrarModal) {
       Swal.fire({
         icon: "warning",
         title: "Limpiar Filtros",
-        text: "Desea limpiar sus filtros?",
+        text: "¿Desea limpiar los filtros para iniciar una nueva búsqueda?",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
@@ -599,6 +640,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           setBuscar((prev) => ({
             ...prev,
             aF_CODIGO_GENERICO: "",
+            altaS_CORR: 0,
             seR_CORR: "",
             deP_CORR_ORIGEN: 0,
             esP_CODIGO: "",
@@ -716,7 +758,21 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       </Button>
                     </OverlayTrigger>
                   </div>
-
+                </div>
+                <div className="ms-1">
+                  <label className="fw-semibold">
+                    Nº Alta
+                  </label>
+                  <input
+                    aria-label="altaS_CORR"
+                    type="text"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    maxLength={10}
+                    name="altaS_CORR"
+                    placeholder="Introduzca marca o parte de él"
+                    onChange={handleChange}
+                    value={Buscar.altaS_CORR}
+                  />
                 </div>
                 {/* servicio Origen */}
                 <div className="mb-1">
@@ -762,6 +818,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   </select>
 
                 </div>
+              </Col>
+              <Col md={4}>
                 {/* Especie */}
                 <div className="d-flex">
                   <div className="mb-1 w-100">
@@ -777,6 +835,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       classNamePrefix="react-select"
                       isClearable
                       // isSearchable
+                      value={especieOptions.find(option => option.value === Buscar.esP_CODIGO) || null}
                       styles={{
                         control: (baseStyles) => ({
                           ...baseStyles,
@@ -802,8 +861,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     />
                   </div>
                 </div>
-              </Col>
-              <Col md={4}>
+                {/* Marca */}
                 <div className="ms-1">
                   <label className="fw-semibold">
                     Marca
@@ -819,6 +877,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     value={Buscar.marca}
                   />
                 </div>
+                {/* Modelo */}
                 <div className="ms-1">
                   <label className="fw-semibold">
                     Modelo
@@ -834,6 +893,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     value={Buscar.modelo}
                   />
                 </div>
+                {/* Serie */}
                 <div className="ms-1">
                   <label className="fw-semibold">
                     Serie
@@ -860,7 +920,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         </p>
       ) : (
         <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
-          <div className={`d-flex justify-content-between align-items-center m-1 p-3 rounded-4 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
+          <div className={`d-flex justify-content-between align-items-center m-1 border-bottom p-3 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
             <h5 className="fw-semibold">LISTADO A TRASLADAR</h5>
           </div>
           <Row className="p-1 row justify-content-center ">
@@ -885,30 +945,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   onClick={() => setMostrarModalTraslado(true)}
                   type="submit"
                   className="mb-1 p-2 mx-1"  // Alinea el spinner y el texto
-                  disabled={loading}  // Desactiva el botón mientras carga
                 >
-                  {loading ? (
-                    <>
-                      {" Trasladar "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="mb-1 p-2 mx-1"
-                      />
-
-                    </>
-                  ) : (
-                    <>
-                      <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
-                      {"Trasladar"}
-                      <span className="badge bg-light text-dark mx-1 mb-1">
-                        {activosFijos.length}
-                      </span>
-                    </>
-                  )}
+                  <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
+                  {"Trasladar"}
+                  <span className="badge bg-light text-dark mx-1 mb-1">
+                    {activosFijos.length}
+                  </span>
                 </Button>
               </div>
               <div className='table-responsive'>
@@ -1076,6 +1118,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           </th>
                           <th scope="col" className="text-nowrap text-center">Código</th>
                           <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                          <th scope="col" className="text-nowrap text-center">Nº Alta</th>
                           <th scope="col" className="text-nowrap text-center">Descripción</th>
                           <th scope="col" className="text-nowrap text-center">Dependencia	Serv/Depto</th>
                           <th scope="col" className="text-nowrap text-center">Especie</th>
@@ -1099,6 +1142,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                               </td>
                               <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
                               <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
+                              <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
                               <td className="text-nowrap text-center">{lista.deT_OBS}</td>
                               <td className="text-nowrap text-center">{lista.serviciO_DEPENDENCIA}</td>
                               <td className="text-nowrap text-center">{lista.esP_NOMBRE}</td>
@@ -1164,12 +1208,22 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <h5 className="fw-semibold">Seleccione Ubicación de Centro de Destino</h5>
+          <p>(Escoga su propio Centro para traslados internos)</p>
           <form onSubmit={handleSubmitTraslado}>
             <div className="d-flex justify-content-end">
               <Button
+                onClick={handleLimpiarFormulario}
                 variant="primary"
+                className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} mx-1 m-1 p-2`}
+              >
+                {" Limpiar "}
+                <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
+              </Button>
+              <Button
+                variant="warning"
                 type="submit"
-                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                className="mx-1 m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
                 disabled={loading}  // Desactiva el botón mientras carga
               >
                 {loading ? (
@@ -1187,8 +1241,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   </>
                 ) : (
                   <>
-                    <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
                     {"Trasladar"}
+                    <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                   </>
                 )}
               </Button>
@@ -1236,27 +1290,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     <div className="invalid-feedback">{error.deP_CORR_DESTINO}</div>
                   )}
                 </div>
-                {/* Observaciones */}
-                <div className="mb-1">
-                  <label className="fw-semibold">
-                    Observaciones
-                  </label>
-                  <textarea
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_OBS ? "is-invalid" : ""}`}
-                    aria-label="traS_OBS"
-                    name="traS_OBS"
-                    rows={6}
-                    maxLength={500}
-                    style={{ minHeight: "8px", resize: "none" }}
-                    onChange={handleChange}
-                    value={Traslados.traS_OBS}
-                  />
-                  {error.traS_OBS && (
-                    <div className="invalid-feedback">{error.traS_OBS}</div>
-                  )}
-                </div>
-              </Col>
-              <Col>
                 {/* N° Memo Ref */}
                 <div className="mb-1">
                   <label className="fw-semibold">
@@ -1293,67 +1326,128 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
                   )}
                 </div>
-                {/* Entregado Por */}
+                {/* Observaciones */}
                 <div className="mb-1">
                   <label className="fw-semibold">
-                    Entregado Por
+                    Observaciones
                   </label>
-                  <input
-                    aria-label="traS_NOM_ENTREGA"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                      } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
-                    maxLength={50}
-                    name="traS_NOM_ENTREGA"
+                  <textarea
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_OBS ? "is-invalid" : ""}`}
+                    aria-label="traS_OBS"
+                    name="traS_OBS"
+                    rows={6}
+                    maxLength={500}
+                    style={{ minHeight: "8px", resize: "none" }}
                     onChange={handleChange}
-                    value={Traslados.traS_NOM_ENTREGA}
+                    value={Traslados.traS_OBS}
                   />
-                  {error.traS_NOM_ENTREGA && (
-                    <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
+                  {error.traS_OBS && (
+                    <div className="invalid-feedback">{error.traS_OBS}</div>
                   )}
                 </div>
-                {/* Recibido Por */}
-                <div className="mb-1">
-                  <label className="fw-semibold">
-                    Recibido Por
-                  </label>
-                  <input
-                    aria-label="traS_NOM_RECIBE"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                      } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
-                    maxLength={50}
-                    name="traS_NOM_RECIBE"
-                    onChange={handleChange}
-                    value={Traslados.traS_NOM_RECIBE}
-                  />
-                  {error.traS_NOM_RECIBE && (
-                    <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
-                  )}
-                </div>
-                {/* Jefe que Autoriza */}
-                <div className="mb-1">
-                  <label className="fw-semibold">
-                    Jefe que Autoriza
-                  </label>
-                  <input
-                    aria-label="traS_NOM_AUTORIZA"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
-                    maxLength={50}
-                    name="traS_NOM_AUTORIZA"
-                    onChange={handleChange}
-                    value={Traslados.traS_NOM_AUTORIZA}
-                  />
-                  {error.traS_NOM_AUTORIZA && (
-                    <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
-                  )}
+              </Col>
+              <Col>
+                <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
+                  <h5 className="fw-semibold mb-4">Datos de Recepción</h5>
+                  {/* Entregado Por */}
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Entregado Por
+                    </label>
+                    <input
+                      aria-label="traS_NOM_ENTREGA"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
+                      maxLength={50}
+                      name="traS_NOM_ENTREGA"
+                      onChange={handleChange}
+                      value={Traslados.traS_NOM_ENTREGA}
+                    />
+                    {error.traS_NOM_ENTREGA && (
+                      <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
+                    )}
+                  </div>
+                  {/* Recibido Por */}
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Recibido Por
+                    </label>
+                    <input
+                      aria-label="traS_NOM_RECIBE"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
+                      maxLength={50}
+                      name="traS_NOM_RECIBE"
+                      onChange={handleChange}
+                      value={Traslados.traS_NOM_RECIBE}
+                    />
+                    {error.traS_NOM_RECIBE && (
+                      <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
+                    )}
+                  </div>
+                  {/* Jefe que Autoriza */}
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Jefe que Autoriza
+                    </label>
+                    <input
+                      aria-label="traS_NOM_AUTORIZA"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
+                      maxLength={50}
+                      name="traS_NOM_AUTORIZA"
+                      onChange={handleChange}
+                      value={Traslados.traS_NOM_AUTORIZA}
+                    />
+                    {error.traS_NOM_AUTORIZA && (
+                      <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
+                    )}
+                  </div>
                 </div>
               </Col>
             </Row>
           </form>
         </Modal.Body>
       </Modal >
+
+      <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="lg">
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+          <Modal.Title className="fw-semibold">Inventario asociado a Nº de Traslado</Modal.Title>
+        </Modal.Header>
+        {/* <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
+                  Exportar a PDF
+                </Button>
+              </div> */}
+        <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <div className="table-responsive">
+            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+              <thead>
+                <tr>
+                  <th>Nº Inventario</th>
+                  <th>N" Traslado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaSalidaTraslados.length > 0 ? (
+                  listaSalidaTraslados.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.aF_CODIGO_GENERICO || 'N/A'}</td>
+                      <td>{item.n_TRASLADO || 'N/A'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan='8' className="text-center">No hay registros</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Modal.Body>
+      </Modal>
     </Layout >
   );
 };
@@ -1370,6 +1464,7 @@ const mapStateToProps = (state: RootState) => ({
   isDarkMode: state.darkModeReducer.isDarkMode,
   comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
   comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
+  listaSalidaTraslados: state.datosTrasladoRegistradoReducers.listaSalidaTraslados
 });
 
 export default connect(mapStateToProps, {
@@ -1381,7 +1476,7 @@ export default connect(mapStateToProps, {
   comboDependenciaDestinoActions,
   comboServicioInformeActions,
   comboEspeciesBienActions,
-  registroTrasladoActions,
   obtenerInventarioTrasladoActions,
-  listadoDeEspeciesBienActions
+  listadoDeEspeciesBienActions,
+  listadoTrasladosActions
 })(RegistrarTraslados);

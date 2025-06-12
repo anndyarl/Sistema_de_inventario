@@ -1,4 +1,5 @@
 
+import { ListaSalidaAltas } from '../../../../components/Altas/RegistrarAltas';
 import {
   REGISTRAR_ALTAS_REQUEST,
   REGISTRAR_ALTAS_SUCCESS,
@@ -7,23 +8,15 @@ import {
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  listaSalidaAltas: Array<{
-    aF_CLAVE: number;
-    altaS_CORR: number;
-  }>;
-  altasRegistradas: number;
+  listaSalidaAltas: ListaSalidaAltas[];
 }// Estado inicial tipado
 const initialState: DatosInventarioState = {
-  listaSalidaAltas: [],
-  altasRegistradas: 0
+  listaSalidaAltas: []
 };
 
 // Reducer con tipos definidos
 const datosAltaRegistradaReducers = (state = initialState, action: any) => {
   switch (action.type) {
-    case 'SET_ALTAS_REGISTRADAS':
-      return { ...state, altasRegistradas: action.payload };
-
     case REGISTRAR_ALTAS_REQUEST:
       return { ...state, loading: true };
     case REGISTRAR_ALTAS_SUCCESS:

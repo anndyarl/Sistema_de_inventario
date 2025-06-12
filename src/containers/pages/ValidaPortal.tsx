@@ -7,6 +7,7 @@ import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginAc
 import { Helmet } from "react-helmet-async";
 import { Button } from "react-bootstrap";
 import Swal from "sweetalert2";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
   login: (usuario: string, password: string) => Promise<boolean>;
@@ -86,20 +87,42 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
       // console.error("No se encontraron datosPersona en la URL.");
     }
   };
+  const messages = [
+    "Validando credenciales...",
+    "Por favor, espere un momento...",
+    "Accediendo al sistema de inventario..."
+  ];
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % messages.length);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
 
   return (
     <>
       <Helmet>
-        <title>Redirigiendo...</title>
+        <title>Validando credenciales...</title>
       </Helmet>
       <div className={`d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? "bg-color-dark" : ""}`}>
         <div className="col-12 col-md-8 text-center">
-          <div className="d-flex justify-content-center align-items-center">
-            <div className="spinner-border text-primary me-2" role="status" />
-            <p className={`${isDarkMode ? "text-white" : "text-muted"}`}>
-              Redirigiendo, un momento
-              <span className="dots-animation">...</span>
-            </p>
+          <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: "200px" }}>
+            <div className="spinner-border text-primary mb-3" role="status" />
+
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={currentIndex}
+                className={`${isDarkMode ? "text-white" : "text-muted"} mb-1`}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 1 }}
+              >
+                {messages[currentIndex]}
+              </motion.p>
+            </AnimatePresence>
           </div>
           {showButton && (
             <div className="m-4 rounded d-inline-block">

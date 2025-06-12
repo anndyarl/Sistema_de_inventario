@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { Eraser, Eye, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, Eye, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
@@ -44,6 +44,7 @@ interface DatosBajas {
 
 const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaEstadoVisadores, listaEstado, token, isDarkMode, nPaginacion, documentoByte64, objeto }) => {
     const [loading, setLoading] = useState(false);
+    const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
@@ -104,6 +105,17 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             setLoading(false); //Finaliza estado de carga
         }
 
+    };
+
+    const handleRefrescar = async () => {
+        setLoadingRefresh(true); //Finaliza estado de carga
+        const resultado = await listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
+        if (!resultado) {
+            setLoadingRefresh(false);
+        } else {
+            paginar(1);
+            setLoadingRefresh(false);
+        }
     };
 
     const listaAuto = async () => {
@@ -245,6 +257,28 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                     </>
                                 )}
                             </Button>
+                            <Button onClick={handleRefrescar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                {loadingRefresh ? (
+                                    <>
+                                        {" Refrescar "}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-1"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        {" Refrescar "}
+                                        <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                    </>
+                                )}
+                            </Button>
                             <Button onClick={handleLimpiar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1">
@@ -255,7 +289,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     </Col>
                 </Row>
                 {/* Tabla*/}
-                {loading ? (
+                {loading || loadingRefresh ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className="w-full flex justify-center">

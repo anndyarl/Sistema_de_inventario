@@ -11,7 +11,7 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
-import { CircleFill, Eraser, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, CircleFill, Eraser, Search } from "react-bootstrap-icons";
 
 interface FechasProps {
   fDesde: string;
@@ -60,6 +60,7 @@ interface GeneralProps {
 
 const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   // const [_, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -185,6 +186,18 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
       setLoading(false); //Finaliza estado de carga
     }
 
+  };
+
+
+  const handleRefrescar = async () => {
+    setLoadingRefresh(true); //Finaliza estado de carga
+    const resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+    if (!resultado) {
+      setLoadingRefresh(false);
+    } else {
+      paginar(1);
+      setLoadingRefresh(false);
+    }
   };
   // const setSeleccionaFila = (index: number) => {
   //   setMostrarModal(index); //Abre modal del indice seleccionado
@@ -356,6 +369,28 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   </>
                 )}
               </Button>
+              <Button onClick={handleRefrescar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                {loadingRefresh ? (
+                  <>
+                    {" Refrescar "}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="ms-1"
+                    />
+                  </>
+                ) : (
+                  <>
+                    {" Refrescar "}
+                    <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  </>
+                )}
+              </Button>
               <Button onClick={handleLimpiar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                 className="mx-1 mb-1">
@@ -365,7 +400,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
             </div>
           </Col>
         </Row>
-        {loading ? (
+        {loading || loadingRefresh ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>

@@ -92,6 +92,7 @@ import obtieneVisadoCompletoReducers from "./Altas/EstadoFirmas/obtieneVisadoCom
 import listaEstadoFirmasReducers from "./Altas/FirmarAltas/listaEstadoFirmasReducers";
 import listaEstadoReducers from "./Altas/EstadoFirmas/listaEstadoReducers";
 import listaEstadoVisadoresReducers from "./Altas/EstadoFirmas/listaEstadoVisadoresReducers";
+import datosTrasladoRegistradoReducers from "./Traslados/datosTrasladoRegistradoReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -159,7 +160,7 @@ const appReducer = combineReducers({
   comboDependenciaDestinoReducer,
   listadoTrasladosReducers,
   obtenerInventarioTrasladoReducers,
-
+  datosTrasladoRegistradoReducers,
   //-------Otros/Preferenicas---------------//
   // Indicadores
   indicadoresReducers,

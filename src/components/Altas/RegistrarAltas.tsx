@@ -1,8 +1,8 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Button, Spinner, Form, Row, Col, Modal } from "react-bootstrap";
-import { AppDispatch, RootState } from "../../store";
-import { connect, useDispatch } from "react-redux";
+import { RootState } from "../../store";
+import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
 import { registrarAltasActions } from "../../redux/actions/Altas/RegistrarAltas/registrarAltasActions";
@@ -11,8 +11,7 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
-import { Eraser, Search } from "react-bootstrap-icons";
-import { setAltasRegistradas } from "../../redux/actions/Altas/RegistrarAltas/datosAltasRegistradasActions.tsx";
+import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { listaAltasRegistradasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions.tsx";
 
@@ -38,7 +37,7 @@ export interface ListaAltas {
   nrecep: string
 }
 
-interface ListaSalidaAltas {
+export interface ListaSalidaAltas {
   aF_CLAVE: number; //se devuelve el aF_CODIGO_GENERICO
   altaS_CORR: number;
 }
@@ -50,27 +49,22 @@ interface DatosAltas {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
-
   listaSalidaAltas: ListaSalidaAltas[];
-  altasRegistradas: number;
 }
 
-const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltasRegistradasActions, listaAltas, objeto, token, isDarkMode, listaSalidaAltas, altasRegistradas }) => {
+const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltasRegistradasActions, listaAltas, objeto, token, isDarkMode, listaSalidaAltas }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false);
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
-
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-
   const elementosPorPagina = Paginacion.nPaginacion;
   const afCodigoGenerico = location.state?.prop_codigo_origen ?? "";
-
   const [Inventario, setInventario] = useState({
     fDesde: "",
     fHasta: "",
@@ -78,38 +72,34 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   });
 
   useEffect(() => {
-    // dispatch(setAltasRegistradas(1));
-    // setModalMostrarResumen(true);
-    if (altasRegistradas === 1) {
-      mostrarAlerta();
-    }
-    listaAltasAuto();
+    listaAuto();
   }, [listaAltasActions, listaAltas.length]); // Asegúrate de incluir dependencias relevantes
 
-  const mostrarAlerta = () => {
-    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
-    Swal.fire({
-      icon: "success",
-      title: "Registro Exitoso",
-      text: `Se han registrado correctamente las Altas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
-      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-      color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-      customClass: { popup: "custom-border" },
-      allowOutsideClick: false,
-      showCancelButton: false, // Agrega un segundo botón
-      cancelButtonText: "Cerrar", // Texto del botón
-      willClose: () => {
-        document.body.style.overflow = "auto"; // Restaura el scroll
+  const listaAuto = async () => {
+    if (token) {
+      if (listaAltas.length === 0) {
+        setLoading(true);
+        const resultado = await listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+        if (!resultado) {
+          Swal.fire({
+            icon: "warning",
+            title: "Sin Resultados",
+            text: "No hay registros disponibles para mostrar.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+          setLoading(false);
+        }
+        else {
+          setLoading(false);
+        }
       }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setModalMostrarResumen(true);
-        dispatch(setAltasRegistradas(0));
-      }
-    });
+    }
   };
-
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
@@ -139,29 +129,14 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
   };
 
-  const listaAltasAuto = async () => {
-    if (token) {
-      if (listaAltas.length === 0) {
-        setLoading(true);
-        const resultado = await listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-        if (!resultado) {
-          Swal.fire({
-            icon: "warning",
-            title: "Sin Resultados",
-            text: "No hay registros disponibles para mostrar.",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
-          });
-          setLoading(false);
-        }
-        else {
-          setLoading(false);
-        }
-      }
+  const handleRefrescar = async () => {
+    setLoadingRefresh(true); //Finaliza estado de carga
+    const resultado = await listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+    if (!resultado) {
+      setLoadingRefresh(false);
+    } else {
+      paginar(1);
+      setLoadingRefresh(false);
     }
   };
 
@@ -265,7 +240,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       if (activosSeleccionados[0].aF_CODIGO_GENERICO.toString() != "1") {
         const resultado = await registrarAltasActions(activosSeleccionados);
         if (resultado) {
-          dispatch(setAltasRegistradas(1));//Guarda el estado para mostrar modal resumen(En use effect)
+          mostrarAlerta();
           listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
           setLoadingRegistro(false);//Detiene la carga
           setFilasSeleccionadas([]);//Limpia Formulario
@@ -276,7 +251,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
             text: `Hubo un problema al registrar las Altas.`,
             background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
             customClass: {
               popup: "custom-border"
             }
@@ -300,6 +275,29 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       }
     }
     // })
+  };
+
+  const mostrarAlerta = () => {
+    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    Swal.fire({
+      icon: "success",
+      title: "Registro Exitoso",
+      text: `Se han registrado correctamente las Altas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      customClass: { popup: "custom-border" },
+      allowOutsideClick: false,
+      showCancelButton: false, // Agrega un segundo botón
+      cancelButtonText: "Cerrar", // Texto del botón
+      willClose: () => {
+        document.body.style.overflow = "auto"; // Restaura el scroll
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setModalMostrarResumen(true);
+      }
+    });
   };
 
   const HandleFirmarAltas = () => {
@@ -422,6 +420,28 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                     </>
                   )}
                 </Button>
+                <Button onClick={handleRefrescar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  {loadingRefresh ? (
+                    <>
+                      {" Refrescar "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="ms-1"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {" Refrescar "}
+                      < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    </>
+                  )}
+                </Button>
                 <Button onClick={handleLimpiar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   className="mx-1 mb-1">
@@ -486,7 +506,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
             )}
           </div>
           {/* Tabla*/}
-          {loading ? (
+          {loading || loadingRefresh ? (
             <>
               <SkeletonLoader rowCount={elementosPorPagina} />
             </>
@@ -634,6 +654,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           </div>
         </Modal.Body>
       </Modal>
+
     </Layout >
 
   );
@@ -644,8 +665,7 @@ const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
-  listaSalidaAltas: state.datosAltaRegistradaReducers.listaSalidaAltas,
-  altasRegistradas: state.datosAltaRegistradaReducers.altasRegistradas
+  listaSalidaAltas: state.datosAltaRegistradaReducers.listaSalidaAltas
 });
 
 export default connect(mapStateToProps, {

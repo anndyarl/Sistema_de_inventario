@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, FiletypePdf, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -86,6 +86,7 @@ interface DatosBajas {
 
 const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
+    const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
     const [___, setIsDisabled] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -106,6 +107,30 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     );
     const location = useLocation();
     const afaltaS_CORR = location.state?.prop_altaS_CORR ?? 0;
+
+    // adjuntar archivos modal
+    const [anexos, setAnexos] = useState<File[]>([]);
+    const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
+        const resultado: { nombre: string, contenido: string }[] = [];
+
+        for (const archivo of archivos) {
+            const contenido = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve((reader.result as string).split(",")[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(archivo);
+            });
+
+            resultado.push({
+                nombre: archivo.name,
+                contenido
+            });
+        }
+
+        return resultado;
+    };
+
+
     // const sigCanvas = useRef<SignatureCanvas>(null);
 
     // const [isSigned, setIsSigned] = useState(false);
@@ -597,6 +622,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     };
 
+    const handleRefrescar = async () => {
+        setLoadingRefresh(true); //Finaliza estado de carga
+        const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+        if (!resultado) {
+            setLoadingRefresh(false);
+        } else {
+            paginar(1);
+            setLoadingRefresh(false);
+        }
+    };
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
 
@@ -724,7 +759,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         const selectedIndices = filasSeleccionadas.map(Number);
         const FirmaAlta = selectedIndices.flatMap(index => {
             const item = listaAltasRegistradas[index];
-
             return obtenerFirmasJerarquia().map(({ jerarquia, idcargo, rut, correo }) => ({
                 ALTAS_CORR: item.altaS_CORR,
                 JERARQUIA: jerarquia,
@@ -735,13 +769,23 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             }));
         });
 
+        // const documento = {
+        //     DescripcionDocumento: "Visado de altas de inventario",
+        //     CuerpoDocumento: base64,
+        //     UsuarioCreador: objeto.IdCredencial,
+        //     FirmaAlta: FirmaAlta,
+        //     ListaDistribucion: [],
+        //     ListaAnexos: []
+        // };
+        const anexosBase64 = await convertirArchivosABase64(anexos);
+
         const documento = {
             DescripcionDocumento: "Visado de altas de inventario",
             CuerpoDocumento: base64,
             UsuarioCreador: objeto.IdCredencial,
             FirmaAlta: FirmaAlta,
             ListaDistribucion: [],
-            ListaAnexos: []
+            ListaAnexos: anexosBase64
         };
         console.log("documento", documento);
         if (result.isConfirmed) {
@@ -773,6 +817,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 handleBuscar();
                 setMostrarModal(false);
                 setLoadingSolicitarVisado(false);
+                setAnexos([]);
             }
 
         }
@@ -989,12 +1034,35 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </>
                                 )}
                             </Button>
+                            <Button onClick={handleRefrescar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                {loadingRefresh ? (
+                                    <>
+                                        {" Refrescar "}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-1"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        {" Refrescar "}
+                                        <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                    </>
+                                )}
+                            </Button>
                             <Button onClick={handleLimpiar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1">
                                 Limpiar
                                 <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                             </Button>
+
                         </div>
                     </Col>
                 </Row>
@@ -1023,7 +1091,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     )}
                 </div>
                 {/* Tabla*/}
-                {loading ? (
+                {loading || loadingRefresh ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className='table-responsive'>
@@ -1170,7 +1238,18 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </>
                                 )}
                             </Button>
+                            <Button
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1"
+                                onClick={() => document.getElementById("inputAnexos")?.click()}
+                                disabled={!botonHabilitado}
+                            >
+                                {"Adjuntar Documento"}
+                                <FileSignatureIcon className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                            </Button>
+
                         </div>
+
                         <Collapse in={isExpanded} dimension="height">
                             <Row className="m-1 p-3 rounded rounded-4 border">
                                 <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
@@ -1385,6 +1464,50 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 </Col>
                             </Row>
                         </Collapse>
+                        {anexos.length > 0 && (
+                            <div className="mt-3">
+                                <h6>Documentos Adjuntos:</h6>
+                                <ul>
+                                    {anexos.map((file, index) => (
+                                        <li key={index}>
+                                            {file.name}
+                                            <Button
+                                                size="sm"
+                                                variant="danger"
+                                                className="p-1  mx-2 rounded"
+                                                onClick={() => {
+                                                    setAnexos(prev => prev.filter((_, i) => i !== index));
+                                                }}
+                                            >
+                                                {" Eliminar "}
+                                                <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
+                                            </Button>
+                                        </li>
+
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        <input
+                            aria-label="file"
+                            type="file"
+                            multiple
+                            accept=".pdf,.doc,.docx,.jpg,.png" // extensiones permitidas
+                            style={{ display: "none" }}
+                            id="inputAnexos"
+                            onChange={(e) => {
+                                if (e.target.files) {
+                                    const nuevosArchivos = Array.from(e.target.files);
+
+                                    setAnexos(prev => {
+                                        // Evitar duplicados (si quieres)
+                                        const nombresPrevios = new Set(prev.map(file => file.name));
+                                        const archivosFiltrados = nuevosArchivos.filter(file => !nombresPrevios.has(file.name));
+                                        return [...prev, ...archivosFiltrados];
+                                    });
+                                }
+                            }}
+                        />
 
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={
@@ -1478,6 +1601,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </button>
                                 </div> */}
                     </form>
+
                 </Modal.Body>
             </Modal >
         </Layout >
@@ -1504,4 +1628,3 @@ export default connect(mapStateToProps, {
     registrarDocumentoAltaActions,
     listaEstadoFirmasActions
 })(FirmarAltas);
-

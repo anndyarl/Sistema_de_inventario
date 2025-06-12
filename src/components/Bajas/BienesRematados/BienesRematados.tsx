@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
 import { rematarBajasActions } from "../../../redux/actions/Bajas/BienesRematados/rematarBajasActions.tsx";
 import { obtenerListaRematesActions } from "../../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
 import { Objeto } from "../../Navegacion/Profile.tsx";
@@ -57,6 +57,7 @@ interface DatosBajas {
 
 const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, listaRemates, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
   // const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaRemates> & Partial<FechasProps>>({});
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
@@ -209,6 +210,18 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
     }
 
   };
+
+  const handleRefrescar = async () => {
+    setLoadingRefresh(true); //Finaliza estado de carga
+    const resultado = await obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+    if (!resultado) {
+      setLoadingRefresh(false);
+    } else {
+      paginar(1);
+      setLoadingRefresh(false);
+    }
+  };
+
 
   const handleLimpiar = () => {
     setRematados((prevInventario) => ({
@@ -397,6 +410,28 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                   </>
                 )}
               </Button>
+              <Button onClick={handleRefrescar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                {loadingRefresh ? (
+                  <>
+                    {" Refrescar "}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="ms-1"
+                    />
+                  </>
+                ) : (
+                  <>
+                    {" Refrescar "}
+                    < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  </>
+                )}
+              </Button>
               <Button onClick={handleLimpiar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                 className="mx-1 mb-1">
@@ -434,7 +469,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
           )}
         </div>
         {/* Tabla*/}
-        {loading ? (
+        {loading || loadingRefresh ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>

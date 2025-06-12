@@ -11,18 +11,15 @@ interface DatosInventarioState {
     aF_CLAVE: number;
     nresolucion: number;
   }>;
-  bajasRegistradas: number;
+
 }// Estado inicial tipado
 const initialState: DatosInventarioState = {
-  listaSalidaBajas: [],
-  bajasRegistradas: 0
+  listaSalidaBajas: []
 };
 
 // Reducer con tipos definidos
 const datosBajasRegistradaReducers = (state = initialState, action: any) => {
   switch (action.type) {
-    case 'SET_BAJAS_REGISTRADAS':
-      return { ...state, bajasRegistradas: action.payload };
 
     case REGISTRAR_BIENES_BAJAS_REQUEST:
       return { ...state, loading: true };

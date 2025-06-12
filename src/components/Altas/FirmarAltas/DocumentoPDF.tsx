@@ -65,13 +65,29 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         padding: 2,
         border: '1px solid #b3b3b3',
-        backgroundColor: "rgb(0 68 133 / 80%)",
-        color: "#fff",
-        flex: 2,
+        backgroundColor: 'rgb(0 68 133 / 80%)',
+        color: '#fff',
+        flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: '2%', // más espacio base
         wordWrap: 'break-word',
         overflow: 'hidden',
         whiteSpace: 'wrap',
-        maxWidth: 120,
+    },
+
+    tableCellHeaderLongAlta: {
+        fontSize: 8,
+        fontWeight: 'bold',
+        padding: 1,
+        border: '1px solid #b3b3b3',
+        backgroundColor: 'rgb(0 68 133 / 80%)',
+        color: '#fff',
+        flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: '1%', // más espacio base
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        // whiteSpace: 'wrap',
     },
     tableCell: {
         fontSize: 8,
@@ -84,16 +100,32 @@ const styles = StyleSheet.create({
         whiteSpace: 'wrap',
         maxWidth: 80,
     },
+
+
     tableCellLong: {
         fontSize: 8,
         border: '1px solid #b3b3b3',
         padding: 2,
-        flex: 2,
+        flexGrow: 1,      // permite que esta columna crezca más que las demás
+        flexShrink: 1,
+        flexBasis: '2%', // punto de partida mayor
         wordWrap: 'break-word',
         overflow: 'hidden',
         whiteSpace: 'wrap',
-        maxWidth: 120,
     },
+
+    tableCellLongAlta: {
+        fontSize: 8,
+        border: '1px solid #b3b3b3',
+        padding: 1,
+        flexGrow: 1,      // permite que esta columna crezca más que las demás
+        flexShrink: 1,
+        flexBasis: '1%', // punto de partida mayor
+        wordWrap: 'break-word',
+        overflow: 'hidden',
+        // whiteSpace: 'wrap',
+    },
+
     firmaContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -156,11 +188,11 @@ const DocumentoPDF = ({ row, /*AltaInventario, objeto, UnidadNombre, Unidad*/ }:
                 {/* Cabecera de la tabla */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellHeaderLong}>N° Inventario</Text>
-                    <Text style={styles.tableCellHeaderLong}>N° Alta</Text>
+                    <Text style={styles.tableCellHeaderLongAlta}>N° Alta</Text>
                     <Text style={styles.tableCellHeaderLong}>Fecha Alta</Text>
                     <Text style={styles.tableCellHeader}>Servicio</Text>
-                    <Text style={styles.tableCellHeader}>Dependencia</Text>
-                    <Text style={styles.tableCellHeaderLong}>Especie</Text>
+                    <Text style={styles.tableCellHeaderLong}>Dependencia</Text>
+                    <Text style={styles.tableCellHeader}>Especie</Text>
                     <Text style={styles.tableCellHeader}>N° Cuenta</Text>
                     <Text style={styles.tableCellHeader}>Marca</Text>
                     <Text style={styles.tableCellHeader}>Modelo</Text>
@@ -173,11 +205,11 @@ const DocumentoPDF = ({ row, /*AltaInventario, objeto, UnidadNombre, Unidad*/ }:
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
                         <Text style={styles.tableCellLong}>{lista.ninv}</Text>
-                        <Text style={styles.tableCellLong}>{lista.altaS_CORR}</Text>
+                        <Text style={styles.tableCellLongAlta}>{lista.altaS_CORR}</Text>
                         <Text style={styles.tableCellLong}>{lista.fechA_ALTA}</Text>
                         <Text style={styles.tableCell}>{lista.serv}</Text>
-                        <Text style={styles.tableCell}>{lista.dep}</Text>
-                        <Text style={styles.tableCellLong}>{lista.esp}</Text>
+                        <Text style={styles.tableCellLong}>{lista.dep}</Text>
+                        <Text style={styles.tableCell}>{lista.esp}</Text>
                         <Text style={styles.tableCell}>{lista.ncuenta}</Text>
                         <Text style={styles.tableCell}>{lista.marca}</Text>
                         <Text style={styles.tableCell}>{lista.modelo}</Text>

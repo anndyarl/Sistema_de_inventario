@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
 import { anularAltasActions } from "../../redux/actions/Altas/AnularAltas/anularAltasActions";
 import MenuAltas from "../Menus/MenuAltas";
 import SkeletonLoader from "../Utils/SkeletonLoader";
@@ -47,6 +47,7 @@ interface DatosAltas {
 const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anularAltasActions, listaAltasRegistradas, token, objeto, isDarkMode, nPaginacion }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
   // const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaAltas[]>([]);
   const [loadingAnular, setLoadingAnular] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -151,6 +152,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
       setLoading(false); //Finaliza estado de carga
     }
 
+  };
+
+  const handleRefrescar = async () => {
+    setLoadingRefresh(true); //Finaliza estado de carga
+    const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+    if (!resultado) {
+      setLoadingRefresh(false);
+    } else {
+      paginar(1);
+      setLoadingRefresh(false);
+    }
   };
 
   const handleLimpiar = () => {
@@ -376,6 +388,28 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     </>
                   )}
                 </Button>
+                <Button onClick={handleRefrescar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  {loadingRefresh ? (
+                    <>
+                      {" Refrescar "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="ms-1"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {" Refrescar "}
+                      <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    </>
+                  )}
+                </Button>
                 <Button onClick={handleLimpiar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   className="mx-1 mb-1">
@@ -425,7 +459,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
           </div>
 
           {/* Tabla*/}
-          {loading ? (
+          {loading || loadingRefresh ? (
             <>
               {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
               <SkeletonLoader rowCount={10} columnCount={10} />

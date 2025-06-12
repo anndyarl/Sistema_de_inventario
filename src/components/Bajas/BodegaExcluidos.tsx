@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/ListadoGeneral/obtenerListaExcluidosActions.tsx";
 import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaExcluidos/quitarBodegaExcluidosActions.tsx";
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
@@ -54,6 +54,7 @@ interface DatosBajas {
 
 const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
@@ -401,6 +402,17 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
 
   };
 
+  const handleRefrescar = async () => {
+    setLoadingRefresh(true); //Finaliza estado de carga
+    const resultado = await obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+    if (!resultado) {
+      setLoadingRefresh(false);
+    } else {
+      paginar(1);
+      setLoadingRefresh(false);
+    }
+  };
+
   const handleLimpiar = () => {
     setExcluidos((prevInventario) => ({
       ...prevInventario,
@@ -525,6 +537,28 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                     </>
                   )}
                 </Button>
+                <Button onClick={handleRefrescar}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="mx-1 mb-1">
+                  {loadingRefresh ? (
+                    <>
+                      {" Refrescar "}
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="ms-1"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {" Refrescar "}
+                      < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    </>
+                  )}
+                </Button>
                 <Button onClick={handleLimpiar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   className="mx-1 mb-1">
@@ -604,7 +638,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           {/* </div> */}
 
           {/* Tabla*/}
-          {loading ? (
+          {loading || loadingRefresh ? (
             <>
               <SkeletonLoader rowCount={elementosPorPagina} />
             </>
@@ -737,76 +771,78 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         </div>
       </form>
       {/* Modal formulario*/}
-      {elementosActuales.map((lista, index) => (
-        <div key={index}>
-          <Modal
-            show={mostrarModal === index}
-            onHide={() => handleCerrarModal()}
-            dialogClassName="modal-right" // Clase personalizada
-          // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-          // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-          >
-            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-              <Modal.Title className="fw-semibold">Quitar registro: {lista.nresolucion}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-              <form>
-                {/* <div className="d-flex justify-content-end">
+      {
+        elementosActuales.map((lista, index) => (
+          <div key={index}>
+            <Modal
+              show={mostrarModal === index}
+              onHide={() => handleCerrarModal()}
+              dialogClassName="modal-right" // Clase personalizada
+            // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+            // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+            >
+              <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                <Modal.Title className="fw-semibold">Quitar registro: {lista.nresolucion}</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <form>
+                  {/* <div className="d-flex justify-content-end">
                   <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Enviar a Bodega
                   </Button>
                 </div> */}
-                {/* Boton anular filas seleccionadas */}
-                <div className="d-flex justify-content-end">
-                  <Button
-                    variant="danger"
-                    onClick={handleQuitar}
-                    className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                    disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                  >
-                    {loadingRegistro ? (
-                      <>
-                        {" Quitando... "}
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                          className="me-2"  // Espaciado entre el spinner y el texto
-                        />
+                  {/* Boton anular filas seleccionadas */}
+                  <div className="d-flex justify-content-end">
+                    <Button
+                      variant="danger"
+                      onClick={handleQuitar}
+                      className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                      disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                    >
+                      {loadingRegistro ? (
+                        <>
+                          {" Quitando... "}
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="me-2"  // Espaciado entre el spinner y el texto
+                          />
 
-                      </>
-                    ) : (
-                      <>
-                        Quitar
-                      </>
+                        </>
+                      ) : (
+                        <>
+                          Quitar
+                        </>
+                      )}
+                    </Button>
+
+                  </div>
+                  <div className="mb-1">
+                    <label htmlFor="nresolucion" className="fw-semibold">
+                      Ingrese número de resolución
+                    </label>
+                    <input
+                      aria-label="nresolucion"
+                      type="text"
+                      className={`form-control ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="nresolucion"
+                      maxLength={100}
+                      onChange={handleChange}
+                      value={Excluidos.nresolucion}
+                    />
+                    {error.nresolucion && (
+                      <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
                     )}
-                  </Button>
-
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="nresolucion" className="fw-semibold">
-                    Ingrese número de resolución
-                  </label>
-                  <input
-                    aria-label="nresolucion"
-                    type="text"
-                    className={`form-control ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nresolucion"
-                    maxLength={100}
-                    onChange={handleChange}
-                    value={Excluidos.nresolucion}
-                  />
-                  {error.nresolucion && (
-                    <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
-                  )}
-                </div>
-              </form>
-            </Modal.Body>
-          </Modal >
-        </div>
-      ))}
+                  </div>
+                </form>
+              </Modal.Body>
+            </Modal >
+          </div>
+        ))
+      }
     </Layout >
   );
 };

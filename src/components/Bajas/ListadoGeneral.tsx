@@ -1,20 +1,18 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Button, Spinner, Form, Modal, Row, Col } from "react-bootstrap";
-import { AppDispatch, RootState } from "../../store.ts";
-import { connect, useDispatch } from "react-redux";
+import { RootState } from "../../store.ts";
+import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
 import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 import { ListaAltas } from "../Altas/RegistrarAltas.tsx";
-import { setBajasRegistradas } from "../../redux/actions/Bajas/ListadoGeneral/datosBajasRegistradasActions.tsx";
-
 export interface ListaBajas {
   bajaS_CORR: string;
   aF_CLAVE: number;
@@ -40,18 +38,17 @@ interface DatosBajas {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
-  bajasRegistradas: number;
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, registrarBienesBajasActions, listadoGeneralBajas, listaSalidaBajas, token, isDarkMode, objeto, bajasRegistradas }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, registrarBienesBajasActions, listadoGeneralBajas, listaSalidaBajas, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [__, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const dispatch = useDispatch<AppDispatch>();
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
 
@@ -96,35 +93,9 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   };
 
   useEffect(() => {
-    if (bajasRegistradas === 1) {
-      mostrarAlerta();
-    }
     listadoGeneralBajasAuto();
   }, [listaAltasdesdeBajasActions, listadoGeneralBajas.length]); // Asegúrate de incluir dependencias relevantes
 
-  const mostrarAlerta = () => {
-    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
-    Swal.fire({
-      icon: "success",
-      title: "Registro Exitoso",
-      text: `Se han registrado correctamente las Bajas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
-      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-      color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-      customClass: { popup: "custom-border" },
-      allowOutsideClick: false,
-      showCancelButton: false, // Agrega un segundo botón
-      cancelButtonText: "Cerrar", // Texto del botón
-      willClose: () => {
-        document.body.style.overflow = "auto"; // Restaura el scroll
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setModalMostrarResumen(true);
-        dispatch(setBajasRegistradas(0));
-      }
-    });
-  };
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -221,7 +192,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         }));
         const resultado = await registrarBienesBajasActions(FormularioBajas);
         if (resultado) {
-          dispatch(setBajasRegistradas(1));//Guarda el estado para mostrar modal resumen(En use effect)
+          mostrarAlerta();
           listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento); //Carga la tabla nuevamente
           setLoadingRegistro(false);//Detiene la carga
           setFilasSeleccionadas([]);//Limpia Formulario
@@ -242,6 +213,29 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         }
       }
     }
+  };
+
+  const mostrarAlerta = () => {
+    document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    Swal.fire({
+      icon: "success",
+      title: "Registro Exitoso",
+      text: `Se han registrado correctamente las Bajas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      customClass: { popup: "custom-border" },
+      allowOutsideClick: false,
+      showCancelButton: false, // Agrega un segundo botón
+      cancelButtonText: "Cerrar", // Texto del botón
+      willClose: () => {
+        document.body.style.overflow = "auto"; // Restaura el scroll
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setModalMostrarResumen(true);
+      }
+    });
   };
 
   const handleBuscar = async () => {
@@ -272,10 +266,22 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
   };
 
+  const handleRefrescar = async () => {
+    setLoadingRefresh(true); //Finaliza estado de carga
+    const resultado = await listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+    if (!resultado) {
+      setLoadingRefresh(false);
+    } else {
+      paginar(1);
+      setLoadingRefresh(false);
+    }
+  };
+
   const handleLimpiar = () => {
     setBuscar((prevInventario) => ({
       ...prevInventario,
-      af_codigo_generico: ""
+      af_codigo_generico: "",
+      altaS_CORR: 0,
     }));
   };
 
@@ -353,6 +359,28 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                   </>
                 )}
               </Button>
+              <Button onClick={handleRefrescar}
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                className="mx-1 mb-1">
+                {loadingRefresh ? (
+                  <>
+                    {" Refrescar "}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="ms-1"
+                    />
+                  </>
+                ) : (
+                  <>
+                    {" Refrescar "}
+                    < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  </>
+                )}
+              </Button>
               <Button onClick={handleLimpiar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                 className="mx-1 mb-1">
@@ -393,7 +421,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 /> */}
                 {"Enviar"}
                 <span className="badge bg-light text-dark mx-1 mt-1">
-                  {listadoGeneralBajas.length}
+                  {filasSeleccionadas.length}
                 </span>
               </Button>
             </>
@@ -404,7 +432,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           )}
         </div>
         {/* Tabla*/}
-        {loading ? (
+        {loading || loadingRefresh ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>
@@ -580,6 +608,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 name="fechA_BAJA"
                 onChange={handleChange}
                 value={Bajas.fechA_BAJA}
+                max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
               />
               {error.fechA_BAJA && (
                 <div className="invalid-feedback fw-semibold">{error.fechA_BAJA}</div>
@@ -654,8 +683,7 @@ const mapStateToProps = (state: RootState) => ({
   listaSalidaBajas: state.datosBajasRegistradaReducers.listaSalidaBajas,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  objeto: state.validaApiLoginReducers,
-  bajasRegistradas: state.datosBajasRegistradaReducers.bajasRegistradas
+  objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

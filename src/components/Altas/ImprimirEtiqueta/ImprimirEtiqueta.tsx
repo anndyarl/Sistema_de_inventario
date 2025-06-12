@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
-import { Eraser, Printer, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, Printer, Search } from "react-bootstrap-icons";
 import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
 import { RootState } from "../../../store";
 import Layout from "../../../containers/hocs/layout/Layout";
@@ -60,6 +60,7 @@ export interface DatosBajas {
 
 const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, listaEtiquetas, token, isDarkMode, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
+    const [loadingRefresh, setLoadingRefresh] = useState(false);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState(false);
     //------------Fin Modal----------//
@@ -169,6 +170,17 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             setLoading(false); //Finaliza estado de carga
         }
 
+    };
+
+    const handleRefrescar = async () => {
+        setLoadingRefresh(true); //Finaliza estado de carga
+        const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+        if (!resultado) {
+            setLoadingRefresh(false);
+        } else {
+            paginar(1);
+            setLoadingRefresh(false);
+        }
     };
 
     const handleLimpiar = () => {
@@ -399,6 +411,28 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                     </>
                                 )}
                             </Button>
+                            <Button onClick={handleRefrescar}
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="mx-1 mb-1">
+                                {loadingRefresh ? (
+                                    <>
+                                        {" Refrescar "}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-1"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        {" Refrescar "}
+                                        <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                    </>
+                                )}
+                            </Button>
                             <Button onClick={handleLimpiar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1">
@@ -432,7 +466,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </strong>
                     )}
                 </div>
-                {loading ? (
+                {loading || loadingRefresh ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className='table-responsive'>

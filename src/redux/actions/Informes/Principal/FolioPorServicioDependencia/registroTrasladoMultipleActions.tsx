@@ -29,31 +29,34 @@ export const registroTrasladoMultipleActions = (FormularioTraslado: Record<strin
         try {
             const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/ReporteFSD_traslado`, body, config);
 
-            const traslado = response.data;
-
             if (response.status === 200) {
-                if (traslado.n_TRASLADO > 0) {
+                if (response.data?.length) {
                     dispatch({
                         type: POST_FORMULARIO_TRASLADO_SUCCESS,
-                        payload: traslado
+                        payload: response.data
                     });
                     return true;
                 }
                 else {
                     dispatch({
                         type: POST_FORMULARIO_TRASLADO_FAIL,
-                        error: "No se pudo obtener el n_traslado. Por favor, intente nuevamente.",
+                        error: "No se pudo obtener el listado. Por favor, intente nuevamente.",
                     });
                     return false;
                 }
             }
-            return false;
+            else {
+                dispatch({
+                    type: POST_FORMULARIO_TRASLADO_FAIL,
+                    error: "No se pudo obtener el listado del inventario. Por favor, intente nuevamente.",
+                });
+                return false;
+            }
         } catch (err: any) {
             dispatch({
                 type: POST_FORMULARIO_TRASLADO_FAIL,
                 error: "Error en la solicitud:", err,
             });
-            // dispatch({ type: LOGOUT });
             return false;
         }
     } else {
