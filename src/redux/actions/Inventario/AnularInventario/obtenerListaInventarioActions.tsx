@@ -7,59 +7,62 @@ import {
 } from "../types";
 import { LOGOUT } from "../../auth/types";
 
-export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const obtenerListaInventarioActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, deP_CORR: number,
+  esP_CODIGO: string, nrecepcion: string, marca: string, modelo: string,
+  serie: string, order_compra: string, estabL_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+    const token = getState().loginReducer.token; //token está en el estado de autenticación
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+    if (token) {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      };
 
-    dispatch({ type: LISTA_INVENTARIO_REQUEST });
+      dispatch({ type: LISTA_INVENTARIO_REQUEST });
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventario?af_codigo_generico=${af_codigo_generico}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}&estabL_CORR=${estabL_CORR}`, config);
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventario?af_codigo_generico=${af_codigo_generico}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}&deP_CORR=${deP_CORR}&esP_CODIGO=${esP_CODIGO}&nrecepcion=${nrecepcion}&marca=${marca}&modelo=${modelo}&serie=${serie}&order_compra=${order_compra}&estabL_CORR=${estabL_CORR}`, config
+        );
 
-      if (res.status === 200) {
-        if (res.data?.length) {
-          dispatch({
-            type: LISTA_INVENTARIO_SUCCESS,
-            payload: res.data,
-          });
-          return true;
+        if (res.status === 200) {
+          if (res.data?.length) {
+            dispatch({
+              type: LISTA_INVENTARIO_SUCCESS,
+              payload: res.data,
+            });
+            return true;
+          } else {
+            dispatch({
+              type: LISTA_INVENTARIO_FAIL,
+              error: "No se pudo obtener los datos. Por favor, intente nuevamente.",
+            });
+            return false;
+          }
         } else {
           dispatch({
             type: LISTA_INVENTARIO_FAIL,
-            error: "No se pudo obtener los datos. Por favor, intente nuevamente.",
+            error:
+              "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
           });
           return false;
         }
-      } else {
+      } catch (err: any) {
+        console.error("Error en la solicitud:", err);
         dispatch({
           type: LISTA_INVENTARIO_FAIL,
-          error:
-            "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
+          error: "Error en la solicitud:", err,
         });
+        // dispatch({ type: LOGOUT });
         return false;
       }
-    } catch (err: any) {
-      console.error("Error en la solicitud:", err);
+    } else {
       dispatch({
         type: LISTA_INVENTARIO_FAIL,
-        error: "Error en la solicitud:", err,
+        error: "No se encontró un token de autenticación válido.",
       });
-      // dispatch({ type: LOGOUT });
+      dispatch({ type: LOGOUT });
       return false;
     }
-  } else {
-    dispatch({
-      type: LISTA_INVENTARIO_FAIL,
-      error: "No se encontró un token de autenticación válido.",
-    });
-    dispatch({ type: LOGOUT });
-    return false;
-  }
-};
+  };

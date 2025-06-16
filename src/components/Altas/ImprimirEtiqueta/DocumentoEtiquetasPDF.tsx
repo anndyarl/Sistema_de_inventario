@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     qrImage: {
         width: 100, // ajusta según el tamaño real de tu etiqueta       
         marginRight: 4,
+        marginBottom: 1
     },
     labelText: {
         fontSize: 12,

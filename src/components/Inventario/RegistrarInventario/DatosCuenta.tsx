@@ -20,18 +20,19 @@ export interface SERVICIO {
   descripcion: string;
 }
 
-// Define el tipo de los elementos del combo `cuentas`
-export interface CUENTA {
-  codigo: number;
-  descripcion: string;
-}
-
 // Define el tipo de los elementos del combo `dependencia`
 export interface DEPENDENCIA {
   codigo: number;
   descripcion: string;
   nombrE_ORD: string;
 }
+
+// Define el tipo de los elementos del combo `cuentas`
+export interface CUENTA {
+  codigo: number;
+  descripcion: string;
+}
+
 
 // Define el tipo de los elementos del combo `bien`
 export interface BIEN {
@@ -65,8 +66,8 @@ interface DatosCuentaProps extends CuentaProps {
   onNext: (Cuenta: CuentaProps) => void;
   onBack: () => void;
   comboServicio: SERVICIO[];
-  comboCuenta: CUENTA[];
   comboDependencia: DEPENDENCIA[];
+  comboCuenta: CUENTA[];
   //Dentro del modal
   comboBien: BIEN[];
   comboDetalle: DETALLE[];

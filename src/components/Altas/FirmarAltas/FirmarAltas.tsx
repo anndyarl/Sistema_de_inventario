@@ -71,7 +71,7 @@ interface DatosBajas {
     comboUnidades: Unidades[];
     obtenerUnidadesActions: () => Promise<boolean>;
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
-    listaEstadoFirmasActions: (altasCorr: number) => Promise<boolean>;
+    listaEstadoFirmasActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
     datosFirmas: DatosFirmas[];
@@ -212,9 +212,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     };
 
     useEffect(() => {
-        if (listaEstadoFirmas.length === 0) {
-            listaEstadoFirmasActions(altaSeleccionada)
-        }
+        if (listaEstadoFirmas.length === 0) listaEstadoFirmasActions(altaSeleccionada, 0, objeto.Roles[0].codigoEstablecimiento);
         listaAuto();
         Unidad
     }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length]);
@@ -226,9 +224,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         setAltaSeleccionada(altaS_CORR);
 
         if (altaS_CORR === null || index === null) return;
-        const estado = listaEstadoFirmas.find((f) => f.altaS_CORR === altaS_CORR && f.estado === 0);
+        const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === altaS_CORR);
+        const estado = registro ? registro.estado : null; // Te devuelve el valor del estado si existe, o null si no existe.
 
-        if (estado) {
+
+        if (estado === 0) {
             Swal.fire({
                 icon: "warning",
                 title: "Solicitud en proceso",
@@ -247,7 +247,28 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             );
             setAltaSeleccionada(0);
 
-        } else {
+        }
+        else if (estado === 1) {
+            Swal.fire({
+                icon: "info",
+                title: "Solicitud firmada",
+                text: `Ya se ha firmado esta solicitud al número de alta seleccionado`,
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border",
+                },
+            });
+
+            // Deseleccionar si estaba seleccionada
+            setFilasSeleccionadas((prev) =>
+                prev.filter((rowIndex) => rowIndex !== index.toString())
+            );
+            setAltaSeleccionada(0);
+
+        }
+        else {
             // Selección normal si estado != 0
             setFilasSeleccionadas((prev) =>
                 prev.includes(index.toString())
@@ -632,6 +653,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             setLoadingRefresh(false);
         }
     };
+
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
 
@@ -812,7 +834,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     confirmButtonColor: isDarkMode ? "#007bff" : "#444",
                     customClass: { popup: "custom-border" }
                 });
-                listaEstadoFirmasActions(0);
+                listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
                 setFilasSeleccionadas([]);
                 handleBuscar();
                 setMostrarModal(false);
@@ -843,19 +865,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             elementosActuales.forEach((elemento, index) => {
                 const altaS_CORR = elemento.altaS_CORR;
 
-                const estado = listaEstadoFirmas.find(
-                    (f) => f.altaS_CORR === altaS_CORR && f.estado === 0
-                );
+                const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === altaS_CORR);
 
-                if (!estado) {
-                    // Si no está en proceso, se puede seleccionar
-                    filasValidas.push((indicePrimerElemento + index).toString());
-                } else {
-                    // Si está en proceso, opcionalmente muestra alerta (solo si quieres mostrar una por cada uno)
+                const estado = registro ? registro.estado : null; // Te devuelve el valor del estado si existe, o null si no existe.
+
+
+                if (estado === 0) {
                     Swal.fire({
                         icon: "warning",
                         title: "Solicitud en proceso",
-                        text: `Ya existen solicitudes en curso, por lo que serán omitida del proceso`,
+                        text: `Ya se ha enviado una solicitud al número de alta seleccionado`,
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
                         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -863,6 +882,36 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                             popup: "custom-border",
                         },
                     });
+
+                    // Deseleccionar si estaba seleccionada
+                    setFilasSeleccionadas((prev) =>
+                        prev.filter((rowIndex) => rowIndex !== index.toString())
+                    );
+                    setAltaSeleccionada(0);
+
+                }
+                else if (estado === 1) {
+                    Swal.fire({
+                        icon: "info",
+                        title: "Solicitud firmada",
+                        text: `Ya se ha firmado esta solicitud al número de alta seleccionado`,
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border",
+                        },
+                    });
+
+                    // Deseleccionar si estaba seleccionada
+                    setFilasSeleccionadas((prev) =>
+                        prev.filter((rowIndex) => rowIndex !== index.toString())
+                    );
+                    setAltaSeleccionada(0);
+
+                }
+                else {
+                    filasValidas.push((indicePrimerElemento + index).toString());
                 }
             });
 
@@ -1112,10 +1161,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                 elementosActuales.filter(
                                                     (elemento) =>
                                                         !listaEstadoFirmas.find(
-                                                            (f) => f.altaS_CORR === elemento.altaS_CORR && f.estado === 0
+                                                            (f) =>
+                                                                f.altaS_CORR === elemento.altaS_CORR && f.estado != 1
                                                         )
-                                                ).length === filasSeleccionadas.length &&
-                                                filasSeleccionadas.length > 0
+                                                ).length === filasSeleccionadas.length && filasSeleccionadas.length > 0
+
                                             }
                                         />
 
@@ -1139,8 +1189,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 {elementosActuales.map((Lista, index) => {
                                     const indexReal = indicePrimerElemento + index;
                                     const esEstado0 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 0);
+                                    const esEstado1 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 1);
+
                                     return (
-                                        <tr key={index} className={esEstado0 ? "table-warning" : ""}>
+                                        <tr key={index} className={esEstado0 ? "table-warning" :
+                                            esEstado1 ? "table-success" : ""}>
                                             <td style={{
                                                 position: 'sticky',
                                                 left: 0,
