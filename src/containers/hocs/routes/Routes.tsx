@@ -14,7 +14,7 @@ import SesionExpirada from '../../errors/SesionExpirada';
 // import { checkAuthStatus } from '../../../redux/actions/auth/auth';
 // import { AppDispatch } from '../../../store';
 import ModificarInventario from '../../../components/Inventario/ModificarInventario';
-import AnularInventario from '../../../components/Inventario/AnularInventario';
+import BuscarInventario from '../../../components/Inventario/BuscarInventario';
 import Inicio from '../../pages/Inicio';
 import FormInventario from '../../../components/Inventario/RegistrarInventario/FormInventario';
 // import CargaMasiva from '../../../components/Inventario/CargaMasiva';
@@ -55,6 +55,9 @@ import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/Imprimi
 // import Traspasos from '../../pages/Traspasos';
 import InfoActivo from '../../../components/Altas/ImprimirEtiqueta/InfoActivo';
 import EstadoFirmas from '../../../components/Altas/EstadoFirmas/EstadoFirmas ';
+import AnularInventario from '../../../components/Inventario/AnularInventario';
+
+
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -85,6 +88,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Inventario/FormInventario" element={<FormInventario />} />
                 <Route path="/Inventario/ModificarInventario" element={<ModificarInventario />} />
                 <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
+                <Route path="/Inventario/BuscarInventario" element={<BuscarInventario />} />
                 <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
                 {/* <Route path="/Inventario/CargaMasiva" element={<CargaMasiva />} /> */}
                 {/* Fin Menu Inventario */}

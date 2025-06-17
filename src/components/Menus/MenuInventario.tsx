@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, Trash, List, Arrows, PencilSquare } from "react-bootstrap-icons";
+import { Plus, List, Arrows, PencilSquare, Search, SlashCircle } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -36,7 +36,13 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Anular Inventario',
             description: 'Búsquelo previamente por fecha de inicio y término.',
             href: '/Inventario/AnularInventario',
-            icon: Trash
+            icon: SlashCircle
+        },
+        {
+            name: 'Buscar Inventario',
+            description: 'Filtre por distintos criterios para encontrar de manera fácil sus bienes',
+            href: '/Inventario/BuscarInventario',
+            icon: Search
         },
         {
             name: 'Bienes de Funcionarios',

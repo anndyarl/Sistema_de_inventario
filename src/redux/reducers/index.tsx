@@ -26,8 +26,7 @@ import datosActivoFijoReducers from "./Inventario/RegistrarInventario/datosActiv
 // import datosInventarioReducers from "./Inventario/ModificarInventario/datosInventarioReducer";
 import obtenerInventarioReducers from "./Inventario/ModificarInventario/obtenerInventarioReducers";
 //--------------------- Anular Inventario ---------------------//
-import datosListaInventarioReducers from "./Inventario/AnularInventario/datosListaInventarioReducers";
-
+import listaInventarioAnularReducers from "./Inventario/AnularInventario/listaInventarioAnularReducers";
 //--------------------- Registrar Altas ---------------------//
 import obtenerEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerEtiquetasAltasReducers";
 import obtenerfirmasAltasReducers from "./Altas/FirmarAltas/obtenerfirmasAltasReducers";
@@ -93,6 +92,7 @@ import listaEstadoFirmasReducers from "./Altas/FirmarAltas/listaEstadoFirmasRedu
 import listaEstadoReducers from "./Altas/EstadoFirmas/listaEstadoReducers";
 import listaEstadoVisadoresReducers from "./Altas/EstadoFirmas/listaEstadoVisadoresReducers";
 import datosTrasladoRegistradoReducers from "./Traslados/datosTrasladoRegistradoReducers";
+import listaInventarioBuscarReducers from "./Inventario/BuscarInventario/listaInventarioBuscarReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -129,7 +129,10 @@ const appReducer = combineReducers({
   comboCuentaModificarReducers,
 
   // Anular Inventario
-  datosListaInventarioReducers,
+  listaInventarioAnularReducers,
+
+  //Buscar Inventario
+  listaInventarioBuscarReducers,
 
   // Altas
   listaAltasReducers,
