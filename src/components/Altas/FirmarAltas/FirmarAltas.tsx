@@ -1300,6 +1300,26 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 {"Adjuntar Documento"}
                                 <FileSignatureIcon className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                             </Button>
+                            <input
+                                aria-label="file"
+                                type="file"
+                                multiple
+                                accept=".pdf,.doc,.docx,.jpg,.png" // extensiones permitidas
+                                style={{ display: "none" }}
+                                id="inputAnexos"
+                                onChange={(e) => {
+                                    if (e.target.files) {
+                                        const nuevosArchivos = Array.from(e.target.files);
+
+                                        setAnexos(prev => {
+                                            // Evitar duplicados 
+                                            const nombresPrevios = new Set(prev.map(file => file.name));
+                                            const archivosFiltrados = nuevosArchivos.filter(file => !nombresPrevios.has(file.name));
+                                            return [...prev, ...archivosFiltrados];
+                                        });
+                                    }
+                                }}
+                            />
 
                         </div>
 
@@ -1517,50 +1537,39 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 </Col>
                             </Row>
                         </Collapse>
-                        {anexos.length > 0 && (
-                            <div className="mt-3">
-                                <h6>Documentos Adjuntos:</h6>
-                                <ul>
-                                    {anexos.map((file, index) => (
-                                        <li key={index}>
-                                            {file.name}
-                                            <Button
-                                                size="sm"
-                                                variant="danger"
-                                                className="p-1  mx-2 rounded"
-                                                onClick={() => {
-                                                    setAnexos(prev => prev.filter((_, i) => i !== index));
-                                                }}
-                                            >
-                                                {" Eliminar "}
-                                                <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
-                                            </Button>
-                                        </li>
-
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                        <input
-                            aria-label="file"
-                            type="file"
-                            multiple
-                            accept=".pdf,.doc,.docx,.jpg,.png" // extensiones permitidas
-                            style={{ display: "none" }}
-                            id="inputAnexos"
-                            onChange={(e) => {
-                                if (e.target.files) {
-                                    const nuevosArchivos = Array.from(e.target.files);
-
-                                    setAnexos(prev => {
-                                        // Evitar duplicados (si quieres)
-                                        const nombresPrevios = new Set(prev.map(file => file.name));
-                                        const archivosFiltrados = nuevosArchivos.filter(file => !nombresPrevios.has(file.name));
-                                        return [...prev, ...archivosFiltrados];
-                                    });
-                                }
-                            }}
-                        />
+                        <h6>Documentos Adjuntos:</h6>
+                        <div className="d-flex  justify-content-center">
+                            {anexos.length > 0 && (
+                                <div className='table-responsive w-50 '>
+                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
+                                            <tr>
+                                                <th scope="col">Nombre Documento</th>
+                                                <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {anexos.map((file, index) => (
+                                                <tr key={index} >
+                                                    <td> {file.name}</td>
+                                                    <td>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="danger"
+                                                            className="p-1  mx-2 rounded"
+                                                            onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
+                                                        >
+                                                            {" Eliminar "}
+                                                            <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
 
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={
