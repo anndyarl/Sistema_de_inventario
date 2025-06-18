@@ -26,7 +26,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         { name: 'Lista Traslados', path: '/Traslados/ListadoTraslados' },
         { name: 'Altas', path: '/Altas' },
         { name: 'Registrar Altas', path: '/Altas/RegistrarAltas' },
-        { name: 'Anular Altas', path: '/Altas/AnularAltas' },
+        // { name: 'Anular Altas', path: '/Altas/AnularAltas' },
         { name: 'Imprimir Etiqueta', path: '/Altas/ImprimirEtiqueta', keywords: ['qr', 'Etiquetas', 'Imprimir', 'generar'] },
         { name: 'Firmar Altas', path: '/Altas/FirmarAltas' },
         { name: 'Estado Altas', path: '/Altas/EstadoFirmas' },

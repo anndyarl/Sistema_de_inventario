@@ -27,12 +27,12 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Altas/RegistrarAltas',
             icon: Plus
         },
-        {
-            name: 'Anular Altas',
-            description: 'Busque el activo o los activos de altas que desee anular.',
-            href: '/Altas/AnularAltas',
-            icon: SlashCircle
-        },
+        // {
+        //     name: 'Anular Altas',
+        //     description: 'Busque el activo o los activos de altas que desee anular.',
+        //     href: '/Altas/AnularAltas',
+        //     icon: SlashCircle
+        // },
         {
             name: 'Firmar Altas',
             description: ' Busque, verifique y autorice las altas mediante firmas.',

@@ -45,7 +45,8 @@ import {
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
 import { CUENTA, ListaEspecie } from "./DatosCuenta";
-import { IndicadoresProps } from "../../Navegacion/Profile";
+import { IndicadoresProps, Objeto } from "../../Navegacion/Profile";
+import { listaAltasActions } from "../../../redux/actions/Altas/RegistrarAltas/listaAltasActions";
 // Props del formulario
 export interface ActivoFijo {
   id: string;
@@ -72,6 +73,8 @@ interface DatosActivoFijoProps {
   onNext: (data: ActivoFijo[]) => void;
   onBack: () => void;
   onReset: () => void; // vuelve a al componente Datos_inventario
+  registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
+  listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
   nombreEspecie: string[]; //Para obtener del estado global de redux
   nCuenta: number[];
@@ -79,7 +82,6 @@ interface DatosActivoFijoProps {
   general?: string; // Campo para errores generales
   generalTabla?: string;
   formInventario: FormInventario;
-  registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   isDarkMode: boolean;
   vidaUtil: string;
   fechaIngreso: string;
@@ -91,6 +93,7 @@ interface DatosActivoFijoProps {
   comboEspecies: ListaEspecie[];
   comboCuenta: CUENTA[];
   utm: IndicadoresProps;
+  objeto: Objeto;
   // AF_CODIGO_GENERICO: number;//trae ultimo correlativo ingresado
 }
 
@@ -99,6 +102,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   onBack,
   onReset,
   registrarFormInventarioActions,
+  listaAltasActions,
   montoRecepcion,
   nombreEspecie,
   nCuenta,
@@ -113,7 +117,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   observaciones,
   precio,
   comboEspecies,
-  utm
+  utm,
+  objeto
 }) => {
 
   // Obtener fecha actual en horario de Chile
@@ -694,7 +699,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       activosFijos: activosFinales,
     };
 
-    console.log(FormulariosCombinados);
+    // console.log(FormulariosCombinados);
 
     if (handleValidar()) {
       const confirmResult = await Swal.fire({
@@ -715,7 +720,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         try {
           const resultado = await registrarFormInventarioActions(FormulariosCombinados);
           if (resultado) {
-            // Espera a obtener el nuevo código antes de continuar
+            //Va a la api ra obtener el ultimo registro recien ingrsado
+            listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
             // funcionObtieneMaxRegistro();
             dispatch(setNRecepcionActions(0));
             dispatch(setFechaRecepcionActions(""));
@@ -1329,9 +1335,10 @@ const mapStateToProps = (state: RootState) => ({
   comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
   comboCuenta: state.comboCuentaReducer.comboCuenta,
   utm: state.indicadoresReducers.utm,
+  objeto: state.validaApiLoginReducers
 
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,
-  // obtenerMaxInventarioActions
+  listaAltasActions
 })(DatosActivoFijo);

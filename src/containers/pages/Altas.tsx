@@ -36,7 +36,7 @@ const Altas: React.FC<Props> = ({ isDarkMode }) => {
   const navigation: NavItem[] = [
 
     { descripcion: 'Busque el activo o los activos que desee dar de Alta.', name: 'RegistrarAltas', title: 'Registrar Altas', href: '/Altas/RegistrarAltas', icon: PlusCircle },
-    { descripcion: 'Busque el activo o los activos de altas que desee anular.', name: 'AnularAltas', title: 'Anular Altas', href: '/Altas/AnularAltas', icon: SlashCircle },
+    // { descripcion: 'Busque el activo o los activos de altas que desee anular.', name: 'AnularAltas', title: 'Anular Altas', href: '/Altas/AnularAltas', icon: SlashCircle },
     { descripcion: 'Busque, verifique y autorice las altas mediante firmas.', name: 'FirmarAltas', title: 'Firmar Altas', href: '/Altas/FirmarAltas', icon: Signature },
     { descripcion: 'Verifique el estado de las firmas que han sido firmadas.', name: 'EstadoFirmas', title: 'Estado Firmas', href: '/Altas/EstadoFirmas', icon: CheckCircleFill },
     { descripcion: 'Busque y genere un codigo QR de los inventarios de altas.', name: 'ImprimirEtiqueta', title: 'Imprimir Etiquetas', href: '/Altas/ImprimirEtiqueta', icon: Printer },

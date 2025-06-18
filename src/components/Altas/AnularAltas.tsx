@@ -12,6 +12,7 @@ import SkeletonLoader from "../Utils/SkeletonLoader";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile";
 import { listaAltasRegistradasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
+import { ListaEstadoFirmas } from "./EstadoFirmas/EstadoFirmas ";
 
 interface FechasProps {
   fDesde: string;
@@ -42,9 +43,10 @@ interface DatosAltas {
   isDarkMode: boolean;
   objeto: Objeto;
   nPaginacion: number; //número de paginas establecido desde preferencias
+  listaEstadoFirmas: ListaEstadoFirmas[];
 }
 
-const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anularAltasActions, listaAltasRegistradas, token, objeto, isDarkMode, nPaginacion }) => {
+const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anularAltasActions, listaAltasRegistradas, listaEstadoFirmas, token, objeto, isDarkMode, nPaginacion, }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [loadingRefresh, setLoadingRefresh] = useState(false);
@@ -457,7 +459,6 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               </strong>
             )}
           </div>
-
           {/* Tabla*/}
           {loading || loadingRefresh ? (
             <>
@@ -500,8 +501,11 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                 <tbody>
                   {elementosActuales.map((Lista, index) => {
                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                    const esEstado0 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 0);
+                    const esEstado1 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 1);
                     return (
-                      <tr key={index}>
+                      <tr key={index} className={esEstado0 ? "table-warning" :
+                        esEstado1 ? "table-success" : ""}>
                         <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
                           <Form.Check
                             type="checkbox"
@@ -571,6 +575,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
 
 const mapStateToProps = (state: RootState) => ({
   listaAltasRegistradas: state.listaAltasRegistradasReducers.listaAltasRegistradas,
+  listaEstadoFirmas: state.listaEstadoFirmasReducers.listaEstadoFirmas,
   token: state.loginReducer.token,
   objeto: state.validaApiLoginReducers,
   isDarkMode: state.darkModeReducer.isDarkMode,
