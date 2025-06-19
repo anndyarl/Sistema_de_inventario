@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, List, Printer, SlashCircle } from "react-bootstrap-icons";
+import { Plus, List, Printer } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Signature } from "lucide-react";

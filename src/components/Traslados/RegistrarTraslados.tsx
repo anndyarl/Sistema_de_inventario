@@ -1213,7 +1213,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           <h5 className="fw-semibold">Seleccione Ubicación de Centro de Destino</h5>
           <p>(Escoga su propio Centro para traslados internos)</p>
           <form onSubmit={handleSubmitTraslado}>
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-end ">
               <Button
                 onClick={handleLimpiarFormulario}
                 variant="primary"
@@ -1250,7 +1250,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               </Button>
             </div>
             <Row>
-              <Col>
+              <Col md={6}>
                 <div className="mb-1 position-relative z-1">
                   <label className="fw-semibold">
                     Servicio / Dependencia Destino
@@ -1348,7 +1348,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   )}
                 </div>
               </Col>
-              <Col>
+              <Col md={6}>
                 <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
                   <h5 className="fw-semibold mb-4">Datos de Recepción</h5>
                   {/* Entregado Por */}

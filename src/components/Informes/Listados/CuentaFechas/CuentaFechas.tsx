@@ -68,7 +68,8 @@ interface DatosAltas {
 const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCuentasInformeActions, listaCuentaFechas, comboCuentasInforme, token, isDarkMode, nPaginacion }) => {
     const [error, setError] = useState<Partial<listaCuentaFechas> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [loading, setLoading] = useState(false); // Estado para controlar la carga 
+    const [loading, setLoading] = useState(false);
+    const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = nPaginacion;
@@ -185,6 +186,16 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
 
     };
 
+    const handleRefrescar = async () => {
+        setLoadingRefresh(true); //Finaliza estado de carga
+        const resultado = await listaCuentaFechasActions("", "", Inventario.cta_cod);
+        if (!resultado) {
+            setLoadingRefresh(false);
+        } else {
+            paginar(1);
+            setLoadingRefresh(false);
+        }
+    };
     const handleLimpiar = () => {
         setInventario((prevInventario) => ({
             ...prevInventario,
@@ -561,7 +572,8 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
+                                    className="mx-1 mb-1"
+                                    disabled={loading}>
                                     {loading ? (
                                         <>
                                             {" Buscar"}
@@ -570,6 +582,22 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                                     ) : (
                                         <>
                                             {"Buscar"}
+                                            <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </>
+                                    )}
+                                </Button>
+                                <Button onClick={handleRefrescar}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1"
+                                    disabled={loadingRefresh}>
+                                    {loading ? (
+                                        <>
+                                            {" Refrescar"}
+                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            {"Refrescar"}
                                             <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                         </>
                                     )}

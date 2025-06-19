@@ -391,7 +391,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+                                className="mx-1 mb-1"
+                                disabled={loading}>
                                 {loading ? (
                                     <>
                                         {" Buscar"}
@@ -413,7 +414,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                             </Button>
                             <Button onClick={handleRefrescar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+                                className="mx-1 mb-1"
+                                disabled={loadingRefresh}>
                                 {loadingRefresh ? (
                                     <>
                                         {" Refrescar "}
@@ -447,7 +449,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     {filasSeleccionadas.length > 0 ? (
                         <Button
                             onClick={handleGenerar} disabled={listaEtiquetas.length === 0}
-                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                        >
                             {loading ? (
                                 <>
                                     {" Generar"}

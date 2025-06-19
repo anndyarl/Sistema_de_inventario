@@ -114,7 +114,7 @@ interface TrasladosProps {
 }
 
 
-const RegistrarTraslados: React.FC<TrasladosProps> = ({
+const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     registroTrasladoMultipleActions,
     comboServicioInformeActions,
     comboTrasladoServicioActions,
@@ -157,10 +157,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     });
     const elementosPorPagina1 = Paginacion1.nPaginacion1;
 
-    const servicioFormOptions = comboServicioInforme.map((item) => ({
-        value: item.deP_CORR,
-        label: item.descripcion,
-    }));
     const [Buscar, setBuscar] = useState({
         aF_CODIGO_GENERICO: "",
         altaS_CORR: 0,
@@ -192,6 +188,16 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     const handleComboEspecieChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : "";
         setBuscar((prev) => ({ ...prev, esP_CODIGO: value }));
+    };
+
+    const servicioFormOptions = comboServicioInforme.map((item) => ({
+        value: item.deP_CORR,
+        label: item.descripcion,
+    }));
+
+    const handleServicioFormChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : 0;
+        setTraslados((prevInventario) => ({ ...prevInventario, deP_CORR_DESTINO: value }));
     };
 
     const validateForm = () => {
@@ -264,10 +270,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
 
     };
 
-    const handleServicioFormChange = (selectedOption: any) => {
-        const value = selectedOption ? selectedOption.value : 0;
-        setTraslados((prevInventario) => ({ ...prevInventario, deP_CORR_DESTINO: value }));
-    };
 
     const [isExpanded, setIsExpanded] = useState({
         fila1: true,
@@ -621,7 +623,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         setMostrarModal(false);
         if (mostrarModal) {
             Swal.fire({
-                icon: "warning",
+                icon: "info",
                 title: "Limpiar Filtros",
                 text: "¿Desea limpiar los filtros para iniciar una nueva búsqueda?",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
@@ -774,7 +776,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                                         value={Buscar.altaS_CORR}
                                     />
                                 </div>
-                                {/* servicio Origen */}
+                                {/* servicio */}
                                 <div className="mb-1">
                                     <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio</label>
                                     <select
@@ -1479,4 +1481,4 @@ export default connect(mapStateToProps, {
     obtenerInventarioTrasladoActions,
     listadoDeEspeciesBienActions,
     listadoTrasladosActions
-})(RegistrarTraslados);
+})(RegistrarTraspasos);

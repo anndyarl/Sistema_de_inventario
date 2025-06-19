@@ -67,7 +67,9 @@ interface InventarioCompleto {
   deT_PRECIO: number;
   deT_SERIE: string;
   proV_NOMBRE: string;
-  altaS_CORR: number
+  altaS_CORR: number;
+  altaS_ESTADO: string;
+  // aF_ESTADO_INV: number;
 }
 
 interface FechasProps {
@@ -225,7 +227,8 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
       marca: "",
       modelo: "",
       serie: "",
-      aF_OCO_NUMERO_REF: ""
+      aF_OCO_NUMERO_REF: "",
+      altaS_CORR: 0
     }));
   };
 
@@ -254,88 +257,88 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
             Buscar Inventario
           </h3>
           <Row className="border rounded p-2 m-2">
+            {/* Columna 1: Fechas y Especie */}
             <Col md={3}>
-              {/* Fechas */}
               <div className="mb-2">
-                <div className="flex-grow-1 mb-2">
-                  <label htmlFor="fechaInicio" className="form-label fw-semibold small">Desde</label>
-                  <div className="input-group">
-                    <input
-                      aria-label="Fecha Desde"
-                      type="date"
-                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
-                      name="fechaInicio"
-                      onChange={handleChange}
-                      value={Inventario.fechaInicio}
-                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                    />
-                  </div>
-                  {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
-                </div>
-                <div className="flex-grow-1">
-                  <label htmlFor="fechaTermino" className="form-label fw-semibold small">Hasta</label>
-                  <div className="input-group">
-                    <input
-                      aria-label="Fecha Hasta"
-                      type="date"
-                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
-                      name="fechaTermino"
-                      onChange={handleChange}
-                      value={Inventario.fechaTermino}
-                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                    />
-                  </div>
-                  {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
+                <label htmlFor="fechaInicio" className="form-label fw-semibold small">
+                  Desde
+                </label>
+                <input
+                  aria-label="Fecha Desde"
+                  type="date"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""
+                    }`}
+                  name="fechaInicio"
+                  onChange={handleChange}
+                  value={Inventario.fechaInicio}
+                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                />
+                {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
+              </div>
 
-                </div>
-                <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
+              <div className="mb-2">
+                <label htmlFor="fechaTermino" className="form-label fw-semibold small">
+                  Hasta
+                </label>
+                <input
+                  aria-label="Fecha Hasta"
+                  type="date"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""
+                    }`}
+                  name="fechaTermino"
+                  onChange={handleChange}
+                  value={Inventario.fechaTermino}
+                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                />
+                {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
               </div>
-              {/* Especie */}
-              <div className="d-flex">
-                <div className="mb-1 w-100">
-                  <label className="fw-semibold">
-                    Buscar Especie
-                  </label>
-                  <Select
-                    options={especieOptions}
-                    onChange={(selectedOption) => { handleComboEspecieChange(selectedOption) }}
-                    name="esP_CODIGO"
-                    placeholder="Buscar"
-                    className={`form-select-container`}
-                    classNamePrefix="react-select"
-                    isClearable
-                    // isSearchable
-                    value={especieOptions.find(option => option.value === Inventario.esP_CODIGO) || null}
-                    styles={{
-                      control: (baseStyles) => ({
-                        ...baseStyles,
-                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                        color: isDarkMode ? "white" : "#212529", // Texto blanco
-                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                      }),
-                      singleValue: (base) => ({
-                        ...base,
-                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                      }),
-                      menu: (base) => ({
-                        ...base,
-                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                        color: isDarkMode ? "white" : "#212529",
-                      }),
-                      option: (base, { isFocused, isSelected }) => ({
-                        ...base,
-                        backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                        color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                      }),
-                    }}
-                  />
-                </div>
+
+              <div className="mb-2">
+                <label className="form-label fw-semibold small">Buscar Especie</label>
+                <Select
+                  options={especieOptions}
+                  onChange={(selectedOption) => {
+                    handleComboEspecieChange(selectedOption)
+                  }}
+                  name="esP_CODIGO"
+                  placeholder="Buscar"
+                  className="form-select-container"
+                  classNamePrefix="react-select"
+                  isClearable
+                  value={especieOptions.find((option) => option.value === Inventario.esP_CODIGO) || null}
+                  styles={{
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      backgroundColor: isDarkMode ? "#212529" : "white",
+                      color: isDarkMode ? "white" : "#212529",
+                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: isDarkMode ? "white" : "#212529",
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      backgroundColor: isDarkMode ? "#212529" : "white",
+                      color: isDarkMode ? "white" : "#212529",
+                    }),
+                    option: (base, { isFocused, isSelected }) => ({
+                      ...base,
+                      backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                      color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                    }),
+                  }}
+                />
               </div>
+              <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
             </Col>
+
+            {/* Columna 2: Servicio, Dependencia y N° Inventario */}
             <Col md={3}>
-              {/* servicio */}
-              <div className="mb-1">
-                <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio</label>
+              <div className="mb-2">
+                <label htmlFor="seR_CORR" className="form-label fw-semibold small">
+                  Servicio
+                </label>
                 <select
                   aria-label="seR_CORR"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
@@ -345,18 +348,17 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                 >
                   <option value="">Seleccionar</option>
                   {comboServicio.map((traeServicio) => (
-                    <option
-                      key={traeServicio.codigo}
-                      value={traeServicio.codigo}
-                    >
+                    <option key={traeServicio.codigo} value={traeServicio.codigo}>
                       {traeServicio.descripcion}
                     </option>
                   ))}
                 </select>
               </div>
-              {/* Dependencia */}
-              <div className="mb-1">
-                <label htmlFor="deP_CORR" className="fw-semibold">Dependencia</label>
+
+              <div className="mb-2">
+                <label htmlFor="deP_CORR" className="form-label fw-semibold small">
+                  Dependencia
+                </label>
                 <select
                   aria-label="deP_CORR"
                   className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
@@ -367,18 +369,17 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                 >
                   <option value="">Seleccionar</option>
                   {comboDependencia.map((traeDependencia) => (
-                    <option
-                      key={traeDependencia.codigo}
-                      value={traeDependencia.codigo}
-                    >
+                    <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
                       {traeDependencia.descripcion}
                     </option>
                   ))}
                 </select>
               </div>
-              {/* N Inventario */}
+
               <div className="mb-2">
-                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">
+                  Nº Inventario
+                </label>
                 <input
                   aria-label="af_codigo_generico"
                   type="text"
@@ -391,10 +392,10 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
               </div>
             </Col>
 
-            <Col md={3}>
-              {/* Marca */}
-              <div className="ms-1">
-                <label className="fw-semibold">
+            {/* Columna 3: Marca, Modelo y Serie */}
+            <Col md={2}>
+              <div className="mb-2">
+                <label htmlFor="marca" className="form-label fw-semibold small">
                   Marca
                 </label>
                 <input
@@ -403,14 +404,14 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                   maxLength={50}
                   name="marca"
-                  placeholder="Introduzca marca o parte de él"
+                  placeholder="Introduzca marca"
                   onChange={handleChange}
                   value={Inventario.marca}
                 />
               </div>
-              {/* Modelo */}
-              <div className="ms-1">
-                <label className="fw-semibold">
+
+              <div className="mb-2">
+                <label htmlFor="modelo" className="form-label fw-semibold small">
                   Modelo
                 </label>
                 <input
@@ -419,14 +420,14 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                   maxLength={50}
                   name="modelo"
-                  placeholder="Introduzca modelo o parte de él"
+                  placeholder="Introduzca modelo"
                   onChange={handleChange}
                   value={Inventario.modelo}
                 />
               </div>
-              {/* Serie */}
-              <div className="ms-1">
-                <label className="fw-semibold">
+
+              <div className="mb-2">
+                <label htmlFor="serie" className="form-label fw-semibold small">
                   Serie
                 </label>
                 <input
@@ -435,17 +436,17 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                   className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                   maxLength={50}
                   name="serie"
-                  placeholder="Ingrese serie o parte del número"
+                  placeholder="Ingrese serie"
                   onChange={handleChange}
                   value={Inventario.serie}
                 />
               </div>
-
             </Col>
-            <Col md={3}>
-              {/* Nº Recepción */}
-              <div className="ms-1">
-                <label className="fw-semibold">
+
+            {/* Columna 4: Recepción, Orden de Compra y N° Alta */}
+            <Col md={2}>
+              <div className="mb-2">
+                <label htmlFor="nrecepcion" className="form-label fw-semibold small">
                   Nº Recepción
                 </label>
                 <input
@@ -459,9 +460,9 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                   value={Inventario.nrecepcion}
                 />
               </div>
-              {/* Orden de Compra */}
-              <div className="ms-1">
-                <label className="fw-semibold">
+
+              <div className="mb-2">
+                <label htmlFor="aF_OCO_NUMERO_REF" className="form-label fw-semibold small">
                   Orden de Compra
                 </label>
                 <input
@@ -475,36 +476,48 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                   value={Inventario.aF_OCO_NUMERO_REF}
                 />
               </div>
+
+              <div className="mb-2">
+                <label htmlFor="altaS_CORR" className="form-label fw-semibold small">
+                  Nº Alta
+                </label>
+                <input
+                  aria-label="altaS_CORR"
+                  type="text"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="altaS_CORR"
+                  placeholder="Ej: 0"
+                  onChange={handleChange}
+                  value={Inventario.altaS_CORR}
+                />
+              </div>
             </Col>
-            <Col md={5}>
-              <div className="mb-1 mt-4">
-                <Button onClick={handleBuscar}
+
+            {/* Columna 5: Botones de Acción */}
+            <Col md={1}>
+              <div className="d-flex flex-column gap-2 mt-4">
+                <Button
+                  onClick={handleBuscar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                  className="w-100"
+                // disabled={loading}
+                >
                   {loading ? (
                     <>
-                      {" Buscar"}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="ms-1"
-                      />
+                      Buscar
+                      <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                     </>
                   ) : (
                     <>
-                      {" Buscar"}
-                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      Buscar
+                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleLimpiar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+
+                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                   Limpiar
-                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
               </div>
             </Col>
@@ -540,6 +553,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       <th scope="col" className="text-nowrap">Marca</th>
                       <th scope="col" className="text-nowrap">Modelo</th>
                       <th scope="col" className="text-nowrap">Serie</th>
+                      {/* <th scope="col" className="text-nowrap">Estado Alta</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -559,13 +573,15 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                         <td className="text-start">.</td>
                         <td className="text-start">.</td> */}
                         <td className="text-start">{lista.altaS_CORR}</td>
-                        <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "S/N  "}</td>
-                        <td className="text-start">{lista.nrecepcion || "S/N"}</td>
+                        <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "-"}</td>
+                        <td className="text-start">{!lista.nrecepcion ? "-" : lista.nrecepcion}</td>
                         <td className="text-start">{lista.ctA_COD}</td>
                         <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
-                        <td className="text-start">{lista.deT_MARCA}</td>
-                        <td className="text-start">{lista.deT_MODELO}</td>
-                        <td className="text-start">{lista.deT_SERIE}</td>
+                        <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
+                        <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
+                        <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
+                        {/* <td className="text-start">{lista.altaS_ESTADO === "1" ? <p className="badge bg-success w-100">Disponible</p> : <p className="badge bg-danger w-100">Anulado</p>}</td> */}
+                        {/* <td className="text-start">{lista.aF_ESTADO_INV}</td> */}
                       </tr>
                     ))}
                   </tbody>

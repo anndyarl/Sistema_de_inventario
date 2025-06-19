@@ -2,7 +2,7 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { CheckCircleFill, PlusCircle, Printer, SlashCircle } from "react-bootstrap-icons";
+import { CheckCircleFill, PlusCircle, Printer } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { connect } from "react-redux";
 import { RootState } from "../../store";

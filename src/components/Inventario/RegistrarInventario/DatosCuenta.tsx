@@ -526,7 +526,8 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                   <div className="mb-1 mt-4">
                     <Button onClick={handleBuscar}
                       variant={`${isDarkMode ? "secondary" : "primary"}`}
-                      className="mx-1 mb-1">
+                      className="mx-1 mb-1"
+                      disabled={loading}>
                       {loading ? (
                         <>
                           {" Buscar"}

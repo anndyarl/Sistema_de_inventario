@@ -1125,7 +1125,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     >
                       <Button onClick={handleBuscar}
                         variant={`${isDarkMode ? "secondary" : "primary"}`}
-                        className="mx-1 mb-1">
+                        className="mx-1 mb-1"
+                        disabled={loading}>
                         {loading ? (
                           <>
                             {" Buscar"}

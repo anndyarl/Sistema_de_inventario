@@ -179,7 +179,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setMostrarModalEstado(true);
         setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
         listaEstadoVisadoresActions(altaS_CORR); // solo dispara la acción
-        console.log(listaEstadoVisadores);
+        // console.log(listaEstadoVisadores);
     }, []);
 
 
@@ -237,7 +237,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+                                className="mx-1 mb-1"
+                                disabled={loading}>
                                 {loading ? (
                                     <>
                                         {" Buscar"}

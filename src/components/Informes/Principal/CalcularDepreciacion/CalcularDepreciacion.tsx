@@ -831,7 +831,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+                                className="mx-1 mb-1"
+                                disabled={loadingBuscar}>
                                 {loadingBuscar ? (
                                     <>
                                         {" Buscar"}
@@ -865,7 +866,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                     {listaActivosFijos.length > 0 && (
                         <Button
                             onClick={handleCalcular} disabled={listaActivosFijos.length === 0}
-                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
+                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                        >
                             {loading ? (
                                 <>
                                     {" Calculando..."}

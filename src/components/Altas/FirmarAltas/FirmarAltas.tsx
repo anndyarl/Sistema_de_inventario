@@ -23,7 +23,7 @@ import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/Firm
 import { ListaEstadoFirmas } from "../EstadoFirmas/EstadoFirmas ";
 import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/listaEstadoFirmasActions";
 import { useLocation } from "react-router-dom";
-import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
+// import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
 
 
 interface FechasProps {
@@ -66,7 +66,6 @@ export interface Unidades {
     iD_UNIDAD: number,
     nombre: string
 }
-
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
     comboUnidades: Unidades[];
@@ -75,20 +74,18 @@ interface DatosBajas {
     listaEstadoFirmasActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
-    anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
+    // anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
     nPaginacion: number; //número de paginas establecido desde preferencias
     listaEstadoFirmas: ListaEstadoFirmas[];
-
 }
 
-
-const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, anularAltasActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
     const [loading, setLoading] = useState(false);
-    const [loadingAnular, setLoadingAnular] = useState(false);
+    // const [loadingAnular, setLoadingAnular] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
     const [___, setIsDisabled] = useState(true);
@@ -270,6 +267,44 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             );
             setAltaSeleccionada(0);
 
+        }
+        else if (estado === 2) {
+            Swal.fire({
+                icon: "error",
+                title: "Solicitud Rechazada",
+                text: `Esta solicitud ha sido rechazada`,
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border",
+                },
+            });
+
+            // Deseleccionar si estaba seleccionada
+            setFilasSeleccionadas((prev) =>
+                prev.filter((rowIndex) => rowIndex !== index.toString())
+            );
+            setAltaSeleccionada(0);
+        }
+        else if (estado === 3) {
+            Swal.fire({
+                icon: "error",
+                title: "Solicitud Rechazada",
+                text: `Esta solicitud ha sido rechazada`,
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                customClass: {
+                    popup: "custom-border",
+                },
+            });
+
+            // Deseleccionar si estaba seleccionada
+            setFilasSeleccionadas((prev) =>
+                prev.filter((rowIndex) => rowIndex !== index.toString())
+            );
+            setAltaSeleccionada(0);
         }
         else {
             // Selección normal si estado != 0
@@ -556,7 +591,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     updatedState.titularAbastecimiento = false;
                 }
             }
-
             if (AltaInventario.chkUnidad) {
                 //Unidad de Abastecimiento
                 if (firma.iD_UNIDAD === 3) {
@@ -659,17 +693,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
-
-        console.log("AltaInventario", AltaInventario);
         const result = await Swal.fire({
             icon: "info",
             title: "Solicitar Visado",
             text: `Confirme para enviar su solicitud`,
             showCancelButton: true,
-            confirmButtonText: "Confirmar y Registrar",
+            confirmButtonText: "Confirmar y Enviar",
             background: isDarkMode ? "#1e1e1e" : "#ffffff",
             color: isDarkMode ? "#ffffff" : "#000000",
-            confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+            confirmButtonColor: isDarkMode ? "#007bff" : "444",
             customClass: { popup: "custom-border" }
         });
 
@@ -779,17 +811,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             return firmasSeleccionadas;
         };
 
-
-
         const selectedIndices = filasSeleccionadas.map(Number);
         const FirmaAlta = selectedIndices.flatMap(index => {
             const item = listaAltasRegistradas[index];
-            return obtenerFirmasJerarquia().map(({ jerarquia, idcargo, rut, correo }) => ({
+            return obtenerFirmasJerarquia().map(({ jerarquia, idcargo, correo }) => ({
                 ALTAS_CORR: item.altaS_CORR,
                 JERARQUIA: jerarquia,
                 IDCARGO: idcargo,
                 FIRMADO: 0,
-                RUT: rut,
                 CORREO: correo
             }));
         });
@@ -808,6 +837,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             DescripcionDocumento: "Visado de altas de inventario",
             CuerpoDocumento: base64,
             UsuarioCreador: objeto.IdCredencial,
+            RUT: objeto.usr_run,
             FirmaAlta: FirmaAlta,
             ListaDistribucion: [],
             ListaAnexos: anexosBase64
@@ -818,12 +848,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
             if (!resultado) {
                 await Swal.fire({
-                    icon: "error",
-                    title: ":'(",
-                    text: "Hubo un problema al enviar las firmas.",
+                    icon: "warning",
+                    title: "No se pudo enviar la solicitud",
+                    text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
                     background: isDarkMode ? "#1e1e1e" : "#ffffff",
                     color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                    confirmButtonColor: isDarkMode ? "#007bff" : "444",
                     customClass: { popup: "custom-border" }
                 });
             }
@@ -834,7 +864,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     text: "Su solicitud de visado ha sido enviada con exito",
                     background: isDarkMode ? "#1e1e1e" : "#ffffff",
                     color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                    confirmButtonColor: isDarkMode ? "#007bff" : "444",
                     customClass: { popup: "custom-border" }
                 });
                 listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
@@ -924,81 +954,81 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         }
     };
 
-    const handleAnularSeleccionados = async () => {
-        const selectedIndices = filasSeleccionadas.map(Number);
-        const activosSeleccionados = selectedIndices.map((index) => {
-            return {
-                aF_CLAVE: listaAltasRegistradas[index].aF_CLAVE,
-                USUARIO_MOD: objeto.IdCredencial,
-                ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
-            };
+    // const handleAnularSeleccionados = async () => {
+    //     const selectedIndices = filasSeleccionadas.map(Number);
+    //     const activosSeleccionados = selectedIndices.map((index) => {
+    //         return {
+    //             aF_CLAVE: listaAltasRegistradas[index].aF_CLAVE,
+    //             USUARIO_MOD: objeto.IdCredencial,
+    //             ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
+    //         };
 
-        });
-        const result = await Swal.fire({
-            icon: "info",
-            title: "Anular Altas",
-            text: `Confirme para anular las altas seleccionadas`,
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Anular",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-            customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-            }
-        });
+    //     });
+    //     const result = await Swal.fire({
+    //         icon: "info",
+    //         title: "Anular Altas",
+    //         text: `Confirme para anular las altas seleccionadas`,
+    //         showDenyButton: false,
+    //         showCancelButton: true,
+    //         confirmButtonText: "Confirmar y Anular",
+    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //         customClass: {
+    //             popup: "custom-border", // Clase personalizada para el borde
+    //         }
+    //     });
 
-        // selectedIndices.map(async (index) => {
+    //     // selectedIndices.map(async (index) => {
 
-        if (result.isConfirmed) {
-            setLoadingAnular(true);
-            // const elemento = listaAltas[index].aF_CLAVE;
-            // console.log("despues del confirm elemento", elemento);
+    //     if (result.isConfirmed) {
+    //         setLoadingAnular(true);
+    //         // const elemento = listaAltas[index].aF_CLAVE;
+    //         // console.log("despues del confirm elemento", elemento);
 
-            // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);      
-            // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
-            // Crear un array de objetos con aF_CLAVE y nombre
+    //         // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);      
+    //         // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
+    //         // Crear un array de objetos con aF_CLAVE y nombre
 
 
-            // console.log("Activos seleccionados para registrar:", activosSeleccionados);
+    //         // console.log("Activos seleccionados para registrar:", activosSeleccionados);
 
-            const resultado = await anularAltasActions(activosSeleccionados);
-            if (resultado) {
-                document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
-                Swal.fire({
-                    icon: "success",
-                    title: "Altas anuladas",
-                    text: `Se han anulado correctamente las altas seleccionadas`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
+    //         const resultado = await anularAltasActions(activosSeleccionados);
+    //         if (resultado) {
+    //             document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    //             Swal.fire({
+    //                 icon: "success",
+    //                 title: "Altas anuladas",
+    //                 text: `Se han anulado correctamente las altas seleccionadas`,
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
 
-                setLoadingAnular(false);
-                listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
-                setFilasSeleccionadas([]);
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: ":'(",
-                    text: `Hubo un problema al anular las Altas.`,
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-                setLoadingAnular(false);
-            }
+    //             setLoadingAnular(false);
+    //             listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+    //             setFilasSeleccionadas([]);
+    //         } else {
+    //             Swal.fire({
+    //                 icon: "error",
+    //                 title: ":'(",
+    //                 text: `Hubo un problema al anular las Altas.`,
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
+    //             setLoadingAnular(false);
+    //         }
 
-        }
-        // })
-    };
+    //     }
+    //     // })
+    // };
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado
@@ -1142,7 +1172,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+                                className="mx-1 mb-1"
+                                disabled={loading}>
                                 {loading ? (
                                     <>
                                         {" Buscar"}
@@ -1197,7 +1228,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 <div className="d-flex justify-content-end">
                     {filasSeleccionadas.length > 0 ? (
                         <>
-                            <Button
+                            {/* <Button
                                 variant="danger"
                                 onClick={handleAnularSeleccionados}
                                 className="mx-1 mb-1 p-2"  // Alinea el spinner y el texto
@@ -1225,7 +1256,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
                                     </>
                                 )}
-                            </Button>
+                            </Button> */}
                             <Button
                                 onClick={() => setMostrarModal(true)}
                                 disabled={listaAltasRegistradas.length === 0}
@@ -1252,7 +1283,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className='table-responsive'>
-                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-light"}`}>
                             <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                 <tr>
                                     <th style={{
@@ -1298,10 +1329,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     const indexReal = indicePrimerElemento + index;
                                     const esEstado0 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 0);
                                     const esEstado1 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 1);
+                                    const esEstado2 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 2);
+                                    const esEstado3 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 3);
 
                                     return (
                                         <tr key={index} className={esEstado0 ? "table-warning" :
-                                            esEstado1 ? "table-success" : ""}>
+                                            esEstado0 ? "table-warning"
+                                                : esEstado1 ? "table-success"
+                                                    : esEstado2 ? "table-danger"
+                                                        : esEstado3 ? "table-danger" : ""}>
                                             <td style={{
                                                 position: 'sticky',
                                                 left: 0,
@@ -1399,15 +1435,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </>
                                 )}
                             </Button>
-                            <Button
+                            {/* <Button
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1"
                                 onClick={() => document.getElementById("inputAnexos")?.click()}
                                 disabled={!botonHabilitado}
                             >
                                 {"Adjuntar Documento"}
-                                <FileSignatureIcon className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                            </Button>
+                                <Paperclip className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                            </Button> */}
                             <input
                                 aria-label="file"
                                 type="file"
@@ -1796,6 +1832,6 @@ export default connect(mapStateToProps, {
     obtenerfirmasAltasActions,
     obtenerUnidadesActions,
     registrarDocumentoAltaActions,
-    anularAltasActions,
+    // anularAltasActions,
     listaEstadoFirmasActions
 })(FirmarAltas);

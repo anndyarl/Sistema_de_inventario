@@ -14,6 +14,7 @@ import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaEx
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
 // import { devolverBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/devolverBajasActions.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
+import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
 // import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 
 interface FechasProps {
@@ -42,6 +43,7 @@ export interface ListaExcluidos {
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
   obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
+  obtenerListaRematesActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   // listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
   quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
   excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
@@ -52,13 +54,13 @@ interface DatosBajas {
   objeto: Objeto;
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, obtenerListaRematesActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
-  const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
+  const [filaSeleccionada, _] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = nPaginacion;
@@ -204,6 +206,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
 
         setLoadingRegistro(false);
         obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+        obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -297,15 +300,15 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
   };
 
   //Abre modal quitar datos seleccionado
-  const handleAbrirModal = (index: number) => {
-    setMostrarModal(index); //Abre modal del indice seleccionado
-    setFilasSeleccionadas([]);
-    setFilaSeleccionada((prev) =>
-      prev.includes(index.toString())
-        ? prev.filter((rowIndex) => rowIndex !== index.toString())
-        : [...prev, index.toString()]
-    );
-  };
+  // const handleAbrirModal = (index: number) => {
+  //   setMostrarModal(index); //Abre modal del indice seleccionado
+  //   setFilasSeleccionadas([]);
+  //   setFilaSeleccionada((prev) =>
+  //     prev.includes(index.toString())
+  //       ? prev.filter((rowIndex) => rowIndex !== index.toString())
+  //       : [...prev, index.toString()]
+  //   );
+  // };
 
   const handleQuitar = async () => {
     if (validate()) {
@@ -347,6 +350,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
             }
           });
           obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+          obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
           setLoadingRegistro(false);//termina de cargar      
           setFilasSeleccionadas([]); //deselecciona las filas     
           setExcluidos((prevState) => ({
@@ -517,7 +521,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
               <div className="mb-1 mt-4">
                 <Button onClick={handleBuscar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                  className="mx-1 mb-1"
+                  disabled={loading}>
                   {loading ? (
                     <>
                       {" Buscar"}
@@ -539,7 +544,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                 </Button>
                 <Button onClick={handleRefrescar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                  className="mx-1 mb-1"
+                  disabled={loadingRefresh}>
                   {loadingRefresh ? (
                     <>
                       {" Refrescar "}
@@ -674,7 +680,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                     <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
                     <th scope="col" className="text-nowrap text-center">Saldo Valor</th>
                     <th scope="col" className="text-nowrap text-center">Estado</th>
-                    <th
+                    {/* <th
                       className="text-nowrap text-center"
                       style={{
                         position: 'sticky',
@@ -683,7 +689,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       }}
                     >
                       Acción
-                    </th>
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -717,7 +723,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                         <td className="text-nowrap">{Lista.iniciaL_VALOR}</td>
                         <td className="text-nowrap">{Lista.saldO_VALOR}</td>
                         <td className="text-nowrap">{Lista.estado}</td>
-                        <td style={{
+                        {/* <td style={{
                           position: 'sticky',
                           right: 0,
                           zIndex: 2,
@@ -728,7 +734,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                             onClick={() => handleAbrirModal(index)}>
                             Quitar
                           </Button>
-                        </td>
+                        </td> */}
                       </tr>
                     );
                   })}
@@ -858,6 +864,7 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   excluirBajasActions,
   obtenerListaExcluidosActions,
+  obtenerListaRematesActions,
   // listaAltasdesdeBajasActions,
   quitarBodegaExcluidosActions,
   // devolverBajasActions

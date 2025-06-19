@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
@@ -45,7 +45,8 @@ interface InventarioCompleto {
     deT_PRECIO: number;
     deT_SERIE: string;
     proV_NOMBRE: string;
-    altaS_CORR: number
+    altaS_CORR: number,
+    aF_ESTADO_INV: number
 }
 
 interface ListaInventarioProps {
@@ -64,7 +65,8 @@ interface FechasProps {
 
 const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaInventarioAnular, isDarkMode, nPaginacion, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
-    const [loading, setLoading] = useState(false); // Estado para controlar la carga
+    const [loading, setLoading] = useState(false);
+    const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
     // const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -159,6 +161,16 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             setLoading(false); //Finaliza estado de carga
         }
     };
+    const handleRefrescar = async () => {
+        setLoadingRefresh(true); //Finaliza estado de carga
+        const resultado = await listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
+        if (!resultado) {
+            setLoadingRefresh(false);
+        } else {
+            paginar(1);
+            setLoadingRefresh(false);
+        }
+    };
 
     const handleLimpiar = () => {
         setInventario((prevInventario) => ({
@@ -224,7 +236,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                     });
                 }
             }
-
         }
         else {
             Swal.fire({
@@ -349,7 +360,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
+                                    className="mx-1 mb-1"
+                                    disabled={loading}>
                                     {loading ? (
                                         <>
                                             {" Buscar"}
@@ -366,6 +378,29 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                         <>
                                             {" Buscar"}
                                             < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                        </>
+                                    )}
+                                </Button>
+                                <Button onClick={handleRefrescar}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="mx-1 mb-1"
+                                    disabled={loadingRefresh}>
+                                    {loadingRefresh ? (
+                                        <>
+                                            {" Refrescar "}
+                                            <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                                className="ms-1"
+                                            />
+                                        </>
+                                    ) : (
+                                        <>
+                                            {" Refrescar "}
+                                            <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                         </>
                                     )}
                                 </Button>
@@ -418,6 +453,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                             <th scope="col" className="text-nowrap">Marca</th>
                                             <th scope="col" className="text-nowrap">Modelo</th>
                                             <th scope="col" className="text-nowrap">Serie</th>
+                                            <th scope="col" className="text-nowrap">Estado Inventario</th>
                                             <th scope="col" className="text-nowrap" style={{
                                                 position: 'sticky',
                                                 right: 0,
@@ -451,22 +487,39 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     <td className="text-start">{lista.nrecepcion || "S/N"}</td>
                                                     <td className="text-start">{lista.ctA_COD}</td>
                                                     <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-start">{lista.deT_MARCA}</td>
-                                                    <td className="text-start">{lista.deT_MODELO}</td>
-                                                    <td className="text-start">{lista.deT_SERIE}</td>
-                                                    <td style={{
+                                                    <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
+                                                    <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
+                                                    <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
+                                                    <td className="text-nowrap">
+                                                        {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
+                                                            : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
+                                                                : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
+                                                    </td>
+
+                                                    < td style={{
                                                         position: 'sticky',
                                                         right: 0,
                                                         zIndex: 2,
                                                     }}>
-                                                        <Button
-                                                            variant="outline-danger"
-                                                            className="fw-semibold"
-                                                            size="sm"
-                                                            onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
-                                                        >
-                                                            Anular
-                                                        </Button>
+                                                        {lista.aF_ESTADO_INV != 1 ? (
+                                                            <Button
+                                                                variant="outline-danger"
+                                                                className="fw-semibold"
+                                                                size="sm"
+                                                                disabled
+                                                            >
+                                                                Anular
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                variant="outline-danger"
+                                                                className="fw-semibold"
+                                                                size="sm"
+                                                                onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
+                                                            >
+                                                                Anular
+                                                            </Button>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             );

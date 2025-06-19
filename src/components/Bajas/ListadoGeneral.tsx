@@ -339,7 +339,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
             <div className="mb-1 mt-4">
               <Button onClick={handleBuscar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1">
+                className="mx-1 mb-1"
+                disabled={loading}>
                 {loading ? (
                   <>
                     {" Buscar"}
@@ -361,7 +362,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
               </Button>
               <Button onClick={handleRefrescar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1">
+                className="mx-1 mb-1"
+                disabled={loadingRefresh}>
                 {loadingRefresh ? (
                   <>
                     {" Refrescar "}
@@ -553,8 +555,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
               <Button
                 variant="primary"
                 type="submit"
-                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loading}  // Desactiva el botón mientras carga
+                className="m-1 p-2 d-flex align-items-center"
+                disabled={loading}
               >
                 {loading ? (
                   <>

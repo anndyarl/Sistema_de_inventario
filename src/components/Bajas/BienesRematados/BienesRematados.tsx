@@ -390,7 +390,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
             <div className="mb-1 mt-4">
               <Button onClick={handleBuscar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1">
+                className="mx-1 mb-1"
+                disabled={loading}>
                 {loading ? (
                   <>
                     {" Buscar"}
@@ -412,7 +413,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
               </Button>
               <Button onClick={handleRefrescar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1">
+                className="mx-1 mb-1"
+                disabled={loadingRefresh}>
                 {loadingRefresh ? (
                   <>
                     {" Refrescar "}

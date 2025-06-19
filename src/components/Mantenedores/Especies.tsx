@@ -266,7 +266,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                             className="align-content-center"
                             variant={`${isDarkMode ? "secondary" : "primary"}`}
                             onClick={() => setMostrarModalRegistrar(true)}
-                        >
+                            disabled={loading}>
                             Nuevo
                             <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                         </Button>
