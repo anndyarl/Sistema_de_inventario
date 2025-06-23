@@ -48,8 +48,9 @@ const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[] }) => (
         {row.map((lista, index) => (
             <Page key={index} size={{ width: 300 }} style={styles.page}>
                 <View style={styles.fullPageContainer}>
-                    {lista.qrImage ? (
+                    {lista.qrImage ? (<>
                         <Image src={lista.qrImage} style={styles.qrImage} />
+                    </>
                     ) : (
                         <Text>Sin QR</Text>
                     )}

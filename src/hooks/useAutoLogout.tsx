@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store";
 import Swal from "sweetalert2";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { login, logout } from "../redux/actions/auth/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "../store"; // Ajusta la ruta a tu store de Redux
@@ -11,6 +11,7 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
     const warningTimeout = useRef<number | null>(null);
     const logoutTimeout = useRef<number | null>(null);
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
     // Accede al estado global de Redux para el modo nocturno
     const isDarkMode = useSelector((state: RootState) => state.darkModeReducer.isDarkMode);
 
@@ -81,13 +82,12 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 // Si se presiona No, cerramos la sesión
                 else if (result.dismiss === Swal.DismissReason.cancel) {
                     dispatch(logout()); // Cierra la sesión                  
-                    return <Navigate to="/" />;
+                    navigate("/");
                 }
             });
         }, warningTime);
 
         logoutTimeout.current = window.setTimeout(() => {
-            dispatch(logout());
             Swal.fire({
                 icon: "info",
                 title: "Su sesión expiró",
@@ -99,7 +99,8 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            return <Navigate to="/" />;
+            dispatch(logout()); // Cierra la sesión 
+            navigate("/");
         }, logoutTime);
     };
 

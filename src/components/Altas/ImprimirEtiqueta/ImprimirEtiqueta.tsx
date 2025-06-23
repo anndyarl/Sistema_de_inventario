@@ -213,6 +213,60 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         );
     };
 
+    const generateQRCodeBase64 = (value: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const container = document.createElement("div");
+            container.style.position = "fixed";
+            container.style.top = "-10000px"; // fuera de la pantalla
+
+            document.body.appendChild(container);
+
+            // Renderizamos el componente QR temporalmente
+            ReactDOM.render(<QRCodeSVG value={value} size={1000} />, container);
+
+            setTimeout(() => {
+                try {
+                    const svgElement = container.querySelector("svg");
+
+                    if (!svgElement) {
+                        throw new Error("No se encontró el SVG del QR.");
+                    }
+
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const img = new Image();
+
+                    img.onload = () => {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = img.width * 2;     // Duplicamos el tamaño físico
+                        canvas.height = img.height * 2;
+
+                        const ctx = canvas.getContext("2d");
+                        if (ctx) {
+                            ctx.scale(2, 2);              // Escala el contexto antes de dibujar
+                            ctx.drawImage(img, 0, 0);     // Dibujamos el QR una sola vez sobre el canvas escalado
+                            const pngData = canvas.toDataURL("image/png");
+                            document.body.removeChild(container);
+                            resolve(pngData);
+                        } else {
+                            document.body.removeChild(container);
+                            reject("Error al obtener el contexto del canvas.");
+                        }
+                    };
+
+                    img.onerror = () => {
+                        document.body.removeChild(container);
+                        reject("Error al cargar la imagen del QR.");
+                    };
+
+                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+                } catch (err) {
+                    document.body.removeChild(container);
+                    reject(err);
+                }
+            }, 100); // delay leve para asegurarse de que renderice
+        });
+    };
+
     const handleGenerar = async () => {
         setLoading(true);
 
@@ -248,58 +302,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         // Muestra modal y finaliza la carga
         setMostrarModal(true);
         setLoading(false);
-    };
-
-    const generateQRCodeBase64 = (value: string): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const container = document.createElement("div");
-            container.style.position = "fixed";
-            container.style.top = "-10000px"; // fuera de la pantalla
-
-            document.body.appendChild(container);
-
-            // Renderizamos el componente QR temporalmente
-            ReactDOM.render(<QRCodeSVG value={value} size={100} />, container);
-
-            setTimeout(() => {
-                try {
-                    const svgElement = container.querySelector("svg");
-
-                    if (!svgElement) {
-                        throw new Error("No se encontró el SVG del QR.");
-                    }
-
-                    const svgData = new XMLSerializer().serializeToString(svgElement);
-                    const img = new Image();
-
-                    img.onload = () => {
-                        const canvas = document.createElement("canvas");
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext("2d");
-                        if (ctx) {
-                            ctx.drawImage(img, 0, 0);
-                            const pngData = canvas.toDataURL("image/png");
-                            document.body.removeChild(container);
-                            resolve(pngData);
-                        } else {
-                            document.body.removeChild(container);
-                            reject("Error al obtener el contexto del canvas.");
-                        }
-                    };
-
-                    img.onerror = () => {
-                        document.body.removeChild(container);
-                        reject("Error al cargar la imagen del QR.");
-                    };
-
-                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-                } catch (err) {
-                    document.body.removeChild(container);
-                    reject(err);
-                }
-            }, 100); // delay leve para asegurarse de que renderice
-        });
     };
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -562,7 +564,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 onHide={() => setMostrarModal(false)}
                 dialogClassName="modal-right" size="lg">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Consulta Inventario Especies</Modal.Title>
+                    <Modal.Title className="fw-semibold">Etiquetas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form>

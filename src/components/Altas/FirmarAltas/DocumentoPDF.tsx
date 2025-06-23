@@ -199,7 +199,7 @@ const DocumentoPDF = ({ row, /*AltaInventario, objeto, UnidadNombre, Unidad*/ }:
                     <Text style={styles.tableCellHeader}>Serie</Text>
                     <Text style={styles.tableCellHeader}>Estado</Text>
                     <Text style={styles.tableCellHeader}>Precio</Text>
-                    <Text style={styles.tableCellHeader}>Nº REcepción</Text>
+                    <Text style={styles.tableCellHeader}>Nº Recepción</Text>
                 </View>
                 {/* Fila de datos */}
                 {row.map((lista) => (
@@ -215,7 +215,7 @@ const DocumentoPDF = ({ row, /*AltaInventario, objeto, UnidadNombre, Unidad*/ }:
                         <Text style={styles.tableCell}>{lista.modelo}</Text>
                         <Text style={styles.tableCell}>{lista.serie}</Text>
                         <Text style={styles.tableCell}>{lista.estado}</Text>
-                        <Text style={styles.tableCell}>{lista.precio}</Text>
+                        <Text style={styles.tableCell}>$ {(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                         <Text style={styles.tableCell}>{lista.nrecep}</Text>
                     </View>
                 ))}

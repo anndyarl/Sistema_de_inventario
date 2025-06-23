@@ -173,12 +173,18 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         subroganteInformatica: false,
         titularCompra: false,
         subroganteCompra: false,
+        titularConvenio: false,
+        subroganteConvenio: false,
+        titularRFisico: false,
+        subroganteRFisico: false,
 
         firmanteInventario: "",
         firmanteFinanzas: "",
         firmanteAbastecimiento: "",
         firmanteInformatica: "",
         firmanteCompra: "",
+        firmanteConvenio: "",
+        firmanteRFisico: "",
 
         visadoInventario: "",
         visadoFinanzas: "",
@@ -212,7 +218,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     };
 
     useEffect(() => {
-        if (listaEstadoFirmas.length === 0) listaEstadoFirmasActions(altaSeleccionada, 0, objeto.Roles[0].codigoEstablecimiento);
+        if (listaEstadoFirmas.length === 0) listaEstadoFirmasActions(altaSeleccionada, 0, objeto.Roles[0]?.codigoEstablecimiento);
         listaAuto();
         Unidad
     }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length]);
@@ -251,8 +257,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         else if (estado === 1) {
             Swal.fire({
                 icon: "info",
-                title: "Solicitud firmada",
-                text: `Ya se ha firmado esta solicitud al número de alta seleccionado`,
+                title: "Firma ya registrada",
+                text: "Esta solicitud ya cuenta con una firma registrada para el número de alta seleccionado.",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -271,8 +277,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         else if (estado === 2) {
             Swal.fire({
                 icon: "error",
-                title: "Solicitud Rechazada",
-                text: `Esta solicitud ha sido rechazada`,
+                title: "Solicitud rechazada",
+                text: "La solicitud ha sido rechazada por el departamento correspondiente.",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -290,8 +296,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         else if (estado === 3) {
             Swal.fire({
                 icon: "error",
-                title: "Solicitud Rechazada",
-                text: `Esta solicitud ha sido rechazada`,
+                title: "Solicitud rechazada",
+                text: "La solicitud ha sido rechazada por el departamento correspondiente.",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
                 confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
@@ -356,7 +362,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
             let nombreUnidad = "";
             let cleanedState = { ...updatedState };
-
+            //Limpia los check segun la unidad selecionada
             switch (unidadSeleccionada) {
                 case 3:
                     nombreUnidad = "Unidad de Abastecimiento";
@@ -366,6 +372,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         subroganteInformatica: false,
                         titularCompra: false,
                         subroganteCompra: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
                     };
                     break;
 
@@ -377,6 +387,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         subroganteAbastecimiento: false,
                         titularCompra: false,
                         subroganteCompra: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
                     };
                     break;
 
@@ -388,8 +402,42 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         subroganteAbastecimiento: false,
                         titularInformatica: false,
                         subroganteInformatica: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
                     };
                     break;
+                case 6:
+                    nombreUnidad = "Departamento de Convenio";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
+                    };
+                    break;
+
+                case 7:
+                    nombreUnidad = "Departamento de Recursos fisicos";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                    };
+                    break;
+
 
                 default:
                     nombreUnidad = "";
@@ -467,6 +515,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 subroganteInformatica: false,
                 titularCompra: false,
                 subroganteCompra: false,
+                titularConvenio: false,
+                subroganteConvenio: false,
+                titularRFisico: false,
+                subroganteRFisico: false,
 
 
                 //Nombres de los firmantes
@@ -475,6 +527,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 firmanteAbastecimiento: "",
                 firmanteInformatica: "",
                 firmanteCompra: "",
+                firmanteConvenio: "",
+                firmanteRFisico: "",
 
                 //Imagenes(esta integrado para su renderizaci+on pero no se usa) se deja de todas maneras
                 visadoInventario: "",
@@ -526,9 +580,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 subroganteInformatica: false,
                 titularCompra: false,
                 subroganteCompra: false,
+                titularConvenio: false,
+                subroganteConvenio: false,
+                titularRFisico: false,
+                subroganteRFisico: false,
                 firmanteAbastecimiento: "",
                 firmanteInformatica: "",
                 firmanteCompra: "",
+                firmanteConvenio: "",
+                firmanteRFisico: "",
             };
             setIsDisabled(false);
             setIsExpanded(true);
@@ -542,6 +602,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
         let firmanteInformatica = prev.firmanteInformatica || "";
         let firmanteCompra = prev.firmanteCompra || "";
+        let firmanteConvenio = prev.firmanteConvenio || "";
+        let firmanteRFisico = prev.firmanteRFisico || "";
 
         let visadoInventario = prev.visadoInventario || "";
         let visadoFinanzas = prev.visadoFinanzas || "";
@@ -615,7 +677,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         updatedState.titularInformatica = false;
                     }
                 }
-                //Departamento de compra
+                //Departamento de Compra
                 if (firma.iD_UNIDAD === 5) {
                     if (name === "titularCompra" && checked && firma.rol === "TITULAR") {
                         firmanteCompra = nombreCompleto;
@@ -624,6 +686,28 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE") {
                         firmanteCompra = nombreCompleto;
                         updatedState.titularCompra = false;
+                    }
+                }
+                //Departamento de Convenio
+                if (firma.iD_UNIDAD === 6) {
+                    if (name === "titularConvenio" && checked && firma.rol === "TITULAR") {
+                        firmanteConvenio = nombreCompleto;
+                        updatedState.subroganteConvenio = false;
+                    }
+                    if (name === "subroganteConvenio" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteConvenio = nombreCompleto;
+                        updatedState.titularConvenio = false;
+                    }
+                }
+                //Departamento de Recursos Fisicos
+                if (firma.iD_UNIDAD === 7) {
+                    if (name === "titularRFisico" && checked && firma.rol === "TITULAR") {
+                        firmanteRFisico = nombreCompleto;
+                        updatedState.subroganteRFisico = false;
+                    }
+                    if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteRFisico = nombreCompleto;
+                        updatedState.titularRFisico = false;
                     }
                 }
 
@@ -636,6 +720,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         updatedState.firmanteAbastecimiento = firmanteAbastecimiento;
         updatedState.firmanteInformatica = firmanteInformatica;
         updatedState.firmanteCompra = firmanteCompra;
+        updatedState.firmanteConvenio = firmanteConvenio;
+        updatedState.firmanteRFisico = firmanteRFisico;
 
         updatedState.visadoInventario = visadoInventario;
         updatedState.visadoFinanzas = visadoFinanzas;
@@ -806,6 +892,32 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
                     }
                 }
+                // Convenio (Unidad 6)
+                const firmasUnidad4 = datosFirmas.filter(f => f.iD_UNIDAD === 6);
+                if (AltaInventario.titularConvenio) {
+                    const titular = firmasUnidad4.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                    }
+                } else if (AltaInventario.subroganteConvenio) {
+                    const subrogante = firmasUnidad4.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                    }
+                }
+                // Recursos Fisicos (Unidad 7)
+                const firmasUnidad5 = datosFirmas.filter(f => f.iD_UNIDAD === 7);
+                if (AltaInventario.titularConvenio) {
+                    const titular = firmasUnidad5.find(f => f.rol === "TITULAR");
+                    if (titular) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                    }
+                } else if (AltaInventario.subroganteConvenio) {
+                    const subrogante = firmasUnidad5.find(f => f.rol === "SUBROGANTE");
+                    if (subrogante) {
+                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                    }
+                }
             }
 
             return firmasSeleccionadas;
@@ -924,18 +1036,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
                 }
                 else if (estado === 1) {
-                    Swal.fire({
-                        icon: "info",
-                        title: "Solicitud firmada",
-                        text: `Ya se ha firmado esta solicitud al número de alta seleccionado`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                        customClass: {
-                            popup: "custom-border",
-                        },
-                    });
-
                     // Deseleccionar si estaba seleccionada
                     setFilasSeleccionadas((prev) =>
                         prev.filter((rowIndex) => rowIndex !== index.toString())
@@ -1071,13 +1171,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     // };
 
     //Logica para habilitar Boton "Solicitar Visado" si los opcionales son habilitados se requerira algun titular o subrogante
-    const tieneFirmaInventario = AltaInventario.titularInventario || AltaInventario.subroganteInventario;
-    const requiereFirmaFinanzas = AltaInventario.chkFinanzas ? AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas : true;
-    const requiereFirmaAbastecimiento = AltaInventario.chkAbastecimiento ? AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento : true;
+    // const ajustarFirma = AltaInventario.ajustarFirma;
 
-    const requiereFirmaUnidad = (() => {
-        if (!AltaInventario.chkUnidad) return true;
+    const firmaFinanzasSeleccionada = (
+        AltaInventario.titularInventario ||
+        AltaInventario.subroganteInventario ||
+        AltaInventario.titularFinanzas ||
+        AltaInventario.subroganteFinanzas
+    );
 
+    const firmaUnidadSeleccionada = (() => {
         switch (Unidad) {
             case 3:
                 return AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento;
@@ -1085,12 +1188,19 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 return AltaInventario.titularInformatica || AltaInventario.subroganteInformatica;
             case 5:
                 return AltaInventario.titularCompra || AltaInventario.subroganteCompra;
+            case 6:
+                return AltaInventario.titularConvenio || AltaInventario.subroganteConvenio;
+            case 7:
+                return AltaInventario.titularRFisico || AltaInventario.subroganteRFisico;
             default:
                 return false;
         }
     })();
 
-    const botonHabilitado = tieneFirmaInventario && requiereFirmaFinanzas && requiereFirmaAbastecimiento && requiereFirmaUnidad;
+    const botonHabilitado = ((AltaInventario.chkFinanzas && firmaFinanzasSeleccionada) || (AltaInventario.chkUnidad && firmaUnidadSeleccionada));
+
+
+
     return (
         <Layout>
             <Helmet>
@@ -1113,7 +1223,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         name="fDesde"
                                         onChange={handleChange}
                                         value={Inventario.fDesde}
-                                        max={new Date().toISOString().split("T")[0]}
+                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                     />
                                 </div>
                                 {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
@@ -1129,7 +1239,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         name="fHasta"
                                         onChange={handleChange}
                                         value={Inventario.fHasta}
-                                        max={new Date().toISOString().split("T")[0]}
+                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                     />
                                 </div>
                                 {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
@@ -1534,7 +1644,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
                                 {/* Unidades específicas */}
                                 <Col md={4}>
-                                    {objeto.IdCredencial === 888 || objeto.IdCredencial === 62511 ? (
+                                    {objeto.IdCredencial === 888 || objeto.IdCredencial === 62511 || objeto.IdCredencial === 6405 ? (
                                         <>
                                             <p className="border-bottom fw-semibold text-center">Seleccione una Unidad</p>
 
@@ -1637,6 +1747,54 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             checked={AltaInventario.subroganteCompra}
                                                         />
                                                         <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                    </div>
+                                                </>
+                                            )}
+                                            {Unidad === 6 && (
+                                                <>
+                                                    <div className="d-flex mt-2">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="titularConvenio"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.titularConvenio}
+                                                        />
+                                                        <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                    </div>
+                                                    <div className="d-flex">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="subroganteConvenio"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.subroganteConvenio}
+                                                        />
+                                                        <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                    </div>
+                                                </>
+                                            )}
+                                            {Unidad === 7 && (
+                                                <>
+                                                    <div className="d-flex mt-2">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="titularRFisico"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.titularRFisico}
+                                                        />
+                                                        <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                    </div>
+                                                    <div className="d-flex">
+                                                        <Form.Check
+                                                            onChange={handleCheck}
+                                                            disabled={!AltaInventario.chkUnidad}
+                                                            name="subroganteRFisico"
+                                                            type="checkbox"
+                                                            checked={AltaInventario.subroganteRFisico}
+                                                        />
+                                                        <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
                                                     </div>
                                                 </>
                                             )}
