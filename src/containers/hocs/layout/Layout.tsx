@@ -1,70 +1,66 @@
-import React, { ReactNode, useState } from "react";
-import { connect } from "react-redux";
-import { RootState } from "../../../redux/reducers";
-import Sidebar from "../../../components/Navegacion/Sidebar";
-import Navbar from "../../../components/Navegacion/Navbar";
-import { List } from "react-bootstrap-icons";
-import { Navigate } from "react-router-dom";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css";
-import "../../../styles/Layout.css";
-import useAutoLogout from "../../../hooks/useAutoLogout";
-import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css";
-import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js";
-import { Container } from "react-bootstrap";
-import { AnimatePresence, motion } from "framer-motion";
-import Footer from "../../../components/Navegacion/Footer.js";
-import { listaVersionamientoActions } from "../../../redux/actions/Configuracion/listaVersionamientoActions.js";
+"use client"
+
+import type React from "react"
+import { type ReactNode, useState } from "react"
+import { connect, useDispatch } from "react-redux"
+import type { RootState } from "../../../redux/reducers"
+import Sidebar from "../../../components/Navegacion/Sidebar"
+import Navbar from "../../../components/Navegacion/Navbar"
+import { List } from "react-bootstrap-icons"
+import { Navigate } from "react-router-dom"
+import "bootstrap/dist/js/bootstrap.bundle.min.js"
+import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
+import "../../../styles/Layout.css"
+import useAutoLogout from "../../../hooks/useAutoLogout"
+import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.min.css"
+import "../../../styles/bootstrap-5.3.3/dist/js/bootstrap.bundle.min.js"
+import { Container } from "react-bootstrap"
+import { AnimatePresence, motion } from "framer-motion"
+import Footer from "../../../components/Navegacion/Footer.js"
+import { listaVersionamientoActions } from "../../../redux/actions/Configuracion/listaVersionamientoActions.js"
+import { setSidebarCollapsedActions } from "../../../redux/actions/Otros/setSidebarCollapsedActions.js"
+
 interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
-  // token: string | null;
+  isSidebarCollapsed: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, isSidebarCollapsed }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
+  const dispatch = useDispatch();
 
-  useAutoLogout(3.3e+6, 3.6e+6);
-  // useAutoLogout(600000, 660000); //en minutos cierra la sesion si no hay interacción
-  // useAutoLogout(10000, 20000);
-
-  // console.log("token", token);
-  // console.log("isAuthenticated", isAuthenticated);
-
-  if (isAuthenticated == false) {
-    return <Navigate to="/" />;
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed(!sidebarCollapsed)
+    dispatch(setSidebarCollapsedActions());
   }
 
-  // Efectos de transición para la apertura del sidebar en móviles
+  useAutoLogout(3.3e6, 3.6e6)
+
+  if (isAuthenticated == false) {
+    return <Navigate to="/" />
+  }
+
   const sidebarVariants = {
     hidden: { x: "-100%", opacity: 0 },
     visible: { x: 0, opacity: 1 },
     exit: { x: "-100%", opacity: 0 },
-  };
+  }
 
   const sidebarTransition = {
     type: "tween",
     ease: "easeInOut",
     duration: 0.01,
-  };
-
-  // useEffect(() => {
-  //   const [navEntry] = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
-
-  //   if (navEntry?.type === "reload") {
-
-  //     console.log("La página fue refrescada");
-  //   }
-  // }, []);
+  }
 
   return (
     <div className={`d-flex min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
-
       {/* Sidebar siempre visible en pantallas grandes */}
-      <div className={`d-none d-md-block min-vh-100  ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left`}>
-        <Sidebar />
+      <div className={`d-none d-md-block min-vh-100 z-1050 ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left`}>
+        <Sidebar isCollapsed={isSidebarCollapsed} onToggleCollapse={toggleSidebarCollapse} />
       </div>
 
       {/* Sidebar con animación en móviles */}
@@ -78,16 +74,20 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
             transition={sidebarTransition}
             className={`d-md-none min-vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"} sidebar-left`}
           >
-            <Sidebar />
+            <Sidebar
+              isCollapsed={false}
+              onToggleCollapse={() => { }} // En móvil no se usa
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Contenedor principal */}
       <div id="page-content-wrapper" className="d-flex flex-column justify-content-between w-100">
-
         {/* Navbar (móvil) */}
-        <div className={`d-flex justify-content-between shadow-sm sticky-top z-1050 ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
+        <div
+          className={`d-flex justify-content-between shadow-sm sticky-top z-1050 ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}
+        >
           <button className="navbar-toggler m-4" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             <List size={30} />
           </button>
@@ -100,28 +100,26 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated }
         </div>
 
         {/* Contenido (ocupa el espacio entre Navbar y Footer) */}
-        <div className="flex-grow-1 ">
-          <Container fluid>
-            {children}
-          </Container>
+        <div className="flex-grow-1">
+          <Container fluid>{children}</Container>
         </div>
 
         {/* Footer siempre al final */}
-        <div className="sticky-bottom z-1050">
+        <div className="sticky-bottom z-1">
           <Footer />
         </div>
       </div>
-    </div >
-  );
-
-};
+    </div>
+  )
+}
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  token: state.loginReducer.token
-});
+  isSidebarCollapsed: state.setSidebarCollapsedReducer.isSidebarCollapsed,
+  token: state.loginReducer.token,
+})
 
 export default connect(mapStateToProps, {
-  listaVersionamientoActions
-})(Layout);
+  listaVersionamientoActions,
+})(Layout)

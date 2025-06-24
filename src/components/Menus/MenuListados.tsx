@@ -64,8 +64,15 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
                                 <NavLink
                                     key={index}
                                     to={item.href}
-                                    className={classNames('btn btn-outline-secondary py-2 px-3 m-1 rounded-2 text-decoration-none', isDarkMode ? "text-light" : "")}
-                                    onClick={toggleSidebar}                                 >
+                                    onClick={toggleSidebar}
+                                    className={({ isActive }) =>
+                                        classNames(
+                                            'btn py-2 px-3 m-1 text-decoration-none border-0 fw-semibold ',
+                                            isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
+                                            isDarkMode ? 'text-light' : 'text-secondary'
+                                        )
+                                    }
+                                >
                                     <item.icon className="me-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
                                     {item.name}
                                 </NavLink>

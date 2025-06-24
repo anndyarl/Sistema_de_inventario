@@ -314,13 +314,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                 <td className="text-nowrap">
                                                     <Button
                                                         onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
-                                                        variant={Lista.estado === 0 ? "warning" : Lista.estado === 1 ? "success" : Lista.estado === 2 ? "danger" : "secondary"}
+                                                        variant={Lista.estado === 0 ? "warning text-muted" : Lista.estado === 1 ? "success" : Lista.estado === 2 ? "danger" : "secondary"}
                                                         size="sm"
-                                                        className="d-flex align-items-center  w-25 justify-content-center gap-2 px-3 py-1 fw-semibold text-nowrap"
+                                                        className="d-flex align-items-center rounded-3 w-25 justify-content-center gap-2 px-3 py-1 fw-semibold text-nowrap"
                                                     >
                                                         {Lista.estado === 0 ? "Enviada" : Lista.estado === 1 ? "Firmada" : Lista.estado === 2 ? "Rechazada" : "Desconocido"}
-                                                        <Eye className="h-4 w-4" />
+                                                        <Eye className="h-5 w-5 ms-4" />
                                                     </Button>
+
                                                 </td>
 
                                                 <td
@@ -328,7 +329,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     style={{
                                                         position: 'sticky',
                                                         left: 0,
-                                                        zIndex: 2
                                                     }}>
 
                                                     {Lista.estado === 1 ? (
@@ -422,11 +422,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead>
                                 <tr>
-                                    <th className="text-center">Nº Alta</th>
-                                    <th className="text-center">Cargo</th>
-                                    <th className="text-center">Firmante</th>
-                                    <th className="text-center">Correo</th>
-                                    <th className="text-center">Estado</th>
+                                    <th>Nº Alta</th>
+                                    <th>Cargo</th>
+                                    <th>Firmante</th>
+                                    <th>Correo</th>
+                                    <th>Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -434,19 +434,19 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                     listaEstadoVisadores.map((item, index) => (
                                         <tr key={index}>
 
-                                            <td className="text-center">{item.altaS_CORR}</td>
-                                            <td className="text-center">{item.idcargo}</td>
-                                            <td className="text-center">{item.firmante}</td>
-                                            <td className="text-center">
+                                            <td>{item.altaS_CORR}</td>
+                                            <td>{item.idcargo}</td>
+                                            <td>{item.firmante}</td>
+                                            <td>
                                                 <a href={`mailto:${item.temails}`} className="text-blue-500 underline">
                                                     {item.temails}
                                                 </a>
                                             </td>
                                             <td className="text-center">{
-                                                item.firmado === 0 ? <p className="fw-bold text-warning">Pendiente</p>
-                                                    : item.firmado === 1 ? <p className="fw-bold text-success">Firmado</p>
-                                                        : item.firmado === 2 ? <p className="fw-bold text-danger">Rechazado</p>
-                                                            : item.firmado === 3 ? <p className="fw-bold text-danger">Rechazado</p> : <p className="fw-bold">-</p>
+                                                item.firmado === 0 ? <p className="badge bg-warning w-100">Pendiente</p>
+                                                    : item.firmado === 1 ? <p className="badge bg-success w-100">Firmado</p>
+                                                        : item.firmado === 2 ? <p className="badge bg-danger w-100">Rechazado</p>
+                                                            : item.firmado === 3 ? <p className="badge bg-danger w-100">Rechazado</p> : <p className="fw-bold">-</p>
                                             }</td>
                                         </tr>
                                     ))

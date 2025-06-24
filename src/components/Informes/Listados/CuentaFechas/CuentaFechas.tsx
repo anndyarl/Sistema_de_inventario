@@ -641,8 +641,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                                     <tr>
                                         <th style={{
                                             position: 'sticky',
-                                            left: 0,
-                                            zIndex: 2
+                                            left: 0
                                         }}>
                                             <Form.Check
                                                 className="check-danger"
@@ -677,8 +676,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                                             <tr key={index}>
                                                 <td style={{
                                                     position: 'sticky',
-                                                    left: 0,
-                                                    zIndex: 2,
+                                                    left: 0
 
                                                 }}>
                                                     <Form.Check

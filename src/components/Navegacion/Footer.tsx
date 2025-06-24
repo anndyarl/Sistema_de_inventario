@@ -65,7 +65,7 @@ const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode }) => {
     const version = listaVersionamiento[0]?.numerO_VERSION || "";
     return (
         <>
-            <footer className={`p-3 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+            <footer className={`p-3  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
                 <div className="d-flex align-items-center">
                     <Info className="mx-1 h-4 w-4" aria-hidden="true" />
                     <p className='fs-09em'>

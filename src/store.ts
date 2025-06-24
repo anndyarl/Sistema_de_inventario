@@ -15,6 +15,7 @@ const persistConfig = {
     'loginReducer',
     'validaApiLoginReducers',
     'darkModeReducer',
+    'setSidebarCollapsedReducer',
     'obtenerRecepcionReducers',
     'datosCuentaReducers',
     'datosActivoFijoReducers',

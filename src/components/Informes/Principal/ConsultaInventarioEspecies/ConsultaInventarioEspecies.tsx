@@ -292,8 +292,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                     <tr key={indicePrimerElemento + index}>
                                         <td style={{
                                             position: 'sticky',
-                                            left: 0,
-                                            zIndex: 2,
+                                            left: 0
 
                                         }}>
                                             <Form.Check

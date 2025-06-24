@@ -518,8 +518,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                   <tr>
                     <th style={{
                       position: 'sticky',
-                      left: 0,
-                      zIndex: 2,
+                      left: 0
                     }}>
                       <Form.Check
                         type="checkbox"
@@ -549,8 +548,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                       <tr key={indexReal}>
                         <td style={{
                           position: 'sticky',
-                          left: 0,
-                          zIndex: 2,
+                          left: 0
                         }}>
                           <Form.Check
                             type="checkbox"

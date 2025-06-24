@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { Pagination, Form, Modal, Col, Row, Collapse, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 // import Swal from "sweetalert2";
@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, Eraser, FiletypePdf, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, FiletypePdf, Paperclip, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -1054,6 +1054,24 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         }
     };
 
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileInput = () => {
+        inputRef.current?.click();
+    };
+
+    const handleChangeFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const nuevosArchivos = Array.from(e.target.files);
+
+            setAnexos((prev) => {
+                const nombresPrevios = new Set(prev.map((file) => file.name));
+                const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
+                return [...prev, ...archivosFiltrados];
+            });
+        }
+    };
+
     // const handleAnularSeleccionados = async () => {
     //     const selectedIndices = filasSeleccionadas.map(Number);
     //     const activosSeleccionados = selectedIndices.map((index) => {
@@ -1173,14 +1191,18 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     //Logica para habilitar Boton "Solicitar Visado" si los opcionales son habilitados se requerira algun titular o subrogante
     // const ajustarFirma = AltaInventario.ajustarFirma;
 
-    const firmaFinanzasSeleccionada = (
-        AltaInventario.titularInventario ||
-        AltaInventario.subroganteInventario ||
-        AltaInventario.titularFinanzas ||
-        AltaInventario.subroganteFinanzas
-    );
+    const firmaFinanzasSeleccionada = (() => {
+        if (!AltaInventario.chkFinanzas) return true;
+
+        return (
+            (AltaInventario.titularInventario || AltaInventario.subroganteInventario) &&
+            (AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas)
+        );
+    })();
 
     const firmaUnidadSeleccionada = (() => {
+        if (!AltaInventario.chkUnidad) return true;
+
         switch (Unidad) {
             case 3:
                 return AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento;
@@ -1197,8 +1219,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         }
     })();
 
-    const botonHabilitado = ((AltaInventario.chkFinanzas && firmaFinanzasSeleccionada) || (AltaInventario.chkUnidad && firmaUnidadSeleccionada));
-
+    // ⚠️ BOTÓN SE HABILITA SOLO CUANDO TODOS LOS CHEQUEADOS SE CUMPLEN
+    const botonHabilitado = (AltaInventario.chkFinanzas || AltaInventario.chkUnidad) && firmaFinanzasSeleccionada && firmaUnidadSeleccionada;
 
 
     return (
@@ -1450,8 +1472,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                         : esEstado3 ? "table-danger" : ""}>
                                             <td style={{
                                                 position: 'sticky',
-                                                left: 0,
-                                                zIndex: 2,
+                                                left: 0
                                             }}>
                                                 <Form.Check
                                                     type="checkbox"
@@ -1545,34 +1566,26 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </>
                                 )}
                             </Button>
-                            {/* <Button
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
-                                onClick={() => document.getElementById("inputAnexos")?.click()}
-                                disabled={!botonHabilitado}
-                            >
-                                {"Adjuntar Documento"}
-                                <Paperclip className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                            </Button> */}
+                            {(objeto.IdCredencial === 18667 || objeto.IdCredencial === 66099 || objeto.IdCredencial === 66098 || objeto.IdCredencial === 62511) &&
+                                <Button
+                                    variant={isDarkMode ? "secondary" : "primary"}
+                                    className="mx-1 mb-1 d-flex align-items-center"
+                                    onClick={handleFileInput}
+                                    disabled={!botonHabilitado}
+                                >
+                                    Adjuntar Documento
+                                    <Paperclip className="ms-2" width={18} height={18} aria-hidden="true" />
+                                </Button>
+                            }
+
                             <input
                                 aria-label="file"
+                                ref={inputRef}
                                 type="file"
                                 multiple
-                                accept=".pdf,.doc,.docx,.jpg,.png" // extensiones permitidas
+                                accept=".pdf,.doc,.docx,.jpg,.png"
                                 style={{ display: "none" }}
-                                id="inputAnexos"
-                                onChange={(e) => {
-                                    if (e.target.files) {
-                                        const nuevosArchivos = Array.from(e.target.files);
-
-                                        setAnexos(prev => {
-                                            // Evitar duplicados 
-                                            const nombresPrevios = new Set(prev.map(file => file.name));
-                                            const archivosFiltrados = nuevosArchivos.filter(file => !nombresPrevios.has(file.name));
-                                            return [...prev, ...archivosFiltrados];
-                                        });
-                                    }
-                                }}
+                                onChange={handleChangeFiles}
                             />
 
                         </div>
@@ -1839,11 +1852,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 </Col>
                             </Row>
                         </Collapse>
-                        <h6>Documentos Adjuntos:</h6>
+                        <h6 className="fw-semibold p-2">Documentos Adjuntos:</h6>
                         <div className="d-flex  justify-content-center">
                             {anexos.length > 0 && (
-                                <div className='table-responsive w-50 '>
-                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                <div className='table-responsive w-75 '>
+                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover"}`}>
                                         <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
                                             <tr>
                                                 <th scope="col">Nombre Documento</th>
@@ -1854,11 +1867,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             {anexos.map((file, index) => (
                                                 <tr key={index} >
                                                     <td> {file.name}</td>
-                                                    <td>
+                                                    <td className="text-end">
                                                         <Button
                                                             size="sm"
                                                             variant="danger"
-                                                            className="p-1  mx-2 rounded"
+                                                            className="p-2  mx-2 rounded"
                                                             onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
                                                         >
                                                             {" Eliminar "}

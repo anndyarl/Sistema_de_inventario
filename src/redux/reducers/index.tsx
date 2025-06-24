@@ -93,6 +93,7 @@ import listaEstadoReducers from "./Altas/EstadoFirmas/listaEstadoReducers";
 import listaEstadoVisadoresReducers from "./Altas/EstadoFirmas/listaEstadoVisadoresReducers";
 import datosTrasladoRegistradoReducers from "./Traslados/datosTrasladoRegistradoReducers";
 import listaInventarioBuscarReducers from "./Inventario/BuscarInventario/listaInventarioBuscarReducers";
+import setSidebarCollapsedReducer from "./Otros/setSidebarCollapsedReducer";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -173,6 +174,8 @@ const appReducer = combineReducers({
   respuestaReducer,
   //guarda el numero de paginacion
   mostrarNPaginacionReducer,
+  //Menu Expandido
+  setSidebarCollapsedReducer,
 
   //Versionamiento
   listaVersionamientoReducers,
@@ -228,6 +231,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
+      setSidebarCollapsedReducer,
       mostrarNPaginacionReducer,
       listaFolioServicioDependenciaReducers,
       listaCuentaFechasReducers,
@@ -257,6 +261,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
+      setSidebarCollapsedReducer,
       mostrarNPaginacionReducer,
       listaFolioServicioDependenciaReducers,
       listaCuentaFechasReducers,

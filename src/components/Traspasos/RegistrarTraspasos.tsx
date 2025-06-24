@@ -1110,7 +1110,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                             <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                                 <tr>
-                                                    <th style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                                                    <th style={{ position: 'sticky', left: 0 }}>
                                                         <Form.Check
                                                             className="check-danger"
                                                             type="checkbox"
@@ -1135,7 +1135,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                     const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                                     return (
                                                         <tr key={index}>
-                                                            <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                                                            <td style={{ position: 'sticky', left: 0 }}>
                                                                 <Form.Check
                                                                     type="checkbox"
                                                                     onChange={() => setSeleccionaFilas(indexReal)}

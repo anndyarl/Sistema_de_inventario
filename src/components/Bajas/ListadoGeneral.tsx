@@ -446,8 +446,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 <tr>
                   <th style={{
                     position: 'sticky',
-                    left: 0,
-                    zIndex: 2,
+                    left: 0
                   }}>
                     <Form.Check
                       type="checkbox"
@@ -478,8 +477,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                     <tr key={indexReal}>
                       <td style={{
                         position: 'sticky',
-                        left: 0,
-                        zIndex: 2,
+                        left: 0
                       }}>
                         <Form.Check
                           type="checkbox"

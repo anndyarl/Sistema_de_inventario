@@ -472,8 +472,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   <tr>
                     <th style={{
                       position: 'sticky',
-                      left: 0,
-                      zIndex: 2
+                      left: 0
                     }}>
                       <Form.Check
                         className="check-danger"
@@ -506,7 +505,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     return (
                       <tr key={index} className={esEstado0 ? "table-warning" :
                         esEstado1 ? "table-success" : ""}>
-                        <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                        <td style={{ position: 'sticky', left: 0 }}>
                           <Form.Check
                             type="checkbox"
                             onChange={() => setSeleccionaFilas(indexReal)}

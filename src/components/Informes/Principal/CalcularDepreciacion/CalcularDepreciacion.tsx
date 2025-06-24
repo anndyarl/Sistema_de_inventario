@@ -899,8 +899,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <tr>
                                     {/* <th style={{
                                         position: 'sticky',
-                                        left: 0,
-                                        zIndex: 2,
+                                        left: 0,                                      
 
                                     }}>
                                         <Form.Check
@@ -977,8 +976,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         <tr key={index}>
                                             {/* <td style={{
                                                 position: 'sticky',
-                                                left: 0,
-                                                zIndex: 2,
+                                                left: 0                                            
                                             }}>
                                                 <Form.Check
                                                     type="checkbox"

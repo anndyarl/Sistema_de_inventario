@@ -12,6 +12,7 @@ import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaInventarioAnularActions } from "../../redux/actions/Inventario/AnularInventario/listaInventarioAnularActions.tsx";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
+import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
 interface InventarioCompleto {
     aF_CLAVE: string;
     aF_CODIGO_GENERICO: string;
@@ -53,6 +54,7 @@ interface ListaInventarioProps {
     listaInventarioAnular: InventarioCompleto[];
     listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
     anularInventarioActions: (aF_CLAVE: string) => Promise<boolean>;
+    listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
     isDarkMode: boolean;
     nPaginacion: number; //número de paginas establecido desde preferencias
     objeto: Objeto;
@@ -63,7 +65,7 @@ interface FechasProps {
     fechaTermino: string;
 }
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaInventarioAnular, isDarkMode, nPaginacion, objeto }) => {
+const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaAltasActions, listaInventarioAnular, isDarkMode, nPaginacion, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
@@ -161,6 +163,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             setLoading(false); //Finaliza estado de carga
         }
     };
+
     const handleRefrescar = async () => {
         setLoadingRefresh(true); //Finaliza estado de carga
         const resultado = await listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
@@ -221,6 +224,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                             popup: "custom-border", // Clase personalizada para el borde
                         }
                     });
+                    listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
                     handleBuscar();
                 } else {
                     Swal.fire({
@@ -579,4 +583,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
     listaInventarioAnularActions,
     anularInventarioActions,
+    listaAltasActions
 })(AnularInventario);

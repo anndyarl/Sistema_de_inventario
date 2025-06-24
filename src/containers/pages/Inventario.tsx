@@ -11,7 +11,7 @@ import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/c
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, easeInOut, easeIn } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { Objeto } from "../../components/Navegacion/Profile";
@@ -90,14 +90,14 @@ const Inventario: React.FC<FormInventarioProps> = ({
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
     // in: { opacity: 1, scale: 1 },
-    initial: { opacity: 0, x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
-    in: { opacity: 1, x: 0, }, // Llega a opacidad completa y posición natural
+    initial: { x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
+    in: { x: 0, }, // Llega a opacidad completa y posición natural
   };
 
   const pageTransition = {
     type: "tween",
     easeIn: "anticipate",
-    duration: 0.4,
+    duration: 0.3,
     // delay: 0.03,
   };
 

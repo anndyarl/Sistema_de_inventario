@@ -480,9 +480,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 <tr >
                                     <th style={{
                                         position: 'sticky',
-                                        left: 0,
-                                        zIndex: 2,
-
+                                        left: 0
                                     }}>
                                         <Form.Check
                                             className="check-danger"
@@ -509,8 +507,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         <tr key={index}>
                                             <td style={{
                                                 position: 'sticky',
-                                                left: 0,
-                                                zIndex: 2,
+                                                left: 0
 
                                             }}>
                                                 <Form.Check
