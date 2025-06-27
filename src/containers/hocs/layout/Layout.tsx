@@ -7,7 +7,7 @@ import type { RootState } from "../../../redux/reducers"
 import Sidebar from "../../../components/Navegacion/Sidebar"
 import Navbar from "../../../components/Navegacion/Navbar"
 import { List } from "react-bootstrap-icons"
-import { Navigate } from "react-router-dom"
+import { Navigate, useNavigate } from "react-router-dom"
 import "bootstrap/dist/js/bootstrap.bundle.min.js"
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
 import "../../../styles/Layout.css"
@@ -34,7 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed)
     dispatch(setSidebarCollapsedActions());
