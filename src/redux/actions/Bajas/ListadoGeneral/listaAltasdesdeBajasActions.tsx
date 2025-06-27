@@ -22,7 +22,7 @@ export const listaAltasdesdeBajasActions = (fDesde: string, fHasta: string, af_c
     dispatch({ type: LISTADO_GENERAL_BAJAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAltas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altasCorr=${altasCorr}&establ_corr=${establ_corr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBajas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altasCorr=${altasCorr}&establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

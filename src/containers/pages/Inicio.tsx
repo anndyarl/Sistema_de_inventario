@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import Layout from "../hocs/layout/Layout";
-import { motion, AnimatePresence, easeInOut, easeIn } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
 import { ArrowLeftRight, Boxes, FileText, PencilSquare, PlusCircle, Printer } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";

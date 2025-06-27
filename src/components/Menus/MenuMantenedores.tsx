@@ -17,7 +17,7 @@ interface NavItem {
 interface Props {
     isDarkMode: boolean;
 }
-const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
+const MenuMantenedores: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
         {
@@ -38,12 +38,12 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Mantenedores/Proveedores',
             icon: Collection
         },
-        {
-            name: 'Especies',
-            description: 'Listado de Especies',
-            href: '/Mantenedores/Especies',
-            icon: Collection
-        },
+        // {
+        //     name: 'Especies',
+        //     description: 'Listado de Especies',
+        //     href: '/Mantenedores/Especies',
+        //     icon: Collection
+        // },
         // {
         //     name: 'Componente',
         //     description: 'Listado de Componentes',
@@ -103,4 +103,4 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-})(MenuBajas);
+})(MenuMantenedores);

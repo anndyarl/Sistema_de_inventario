@@ -1051,7 +1051,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
         {/* Paginador*/}
         {elementosActuales.length > 0 && (
-          <div className="paginador-container">
+          <div className="paginador-container position-relative z-0">
             <Pagination className="paginador-scroll">
               <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
               <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />

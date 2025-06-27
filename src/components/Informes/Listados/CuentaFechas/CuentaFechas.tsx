@@ -719,7 +719,7 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
                     )}
 
                     {/* Paginador */}
-                    <div className="paginador-container">
+                    <div className="paginador-container position-relative z-0">
                         <Pagination className="paginador-scroll">
                             <Pagination.First
                                 onClick={() => paginar(1)}

@@ -8,8 +8,8 @@ import {
 import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
-export const listaEstadoActions = (altas_corr: number, idDocumento: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const listaEstadoActions = (altas_corr: number, idDocumento: number, establ_corr: number, showLoading: boolean = true) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+  const token = getState().loginReducer.token;
 
   if (token) {
     const config = {
@@ -19,10 +19,13 @@ export const listaEstadoActions = (altas_corr: number, idDocumento: number, esta
       },
     };
 
-    dispatch({ type: LISTA_ESTADO_REQUEST });
+    if (showLoading) {
+      dispatch({ type: LISTA_ESTADO_REQUEST });
+    }
 
     try {
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmaAltas?altas_corr=${altas_corr}&idDocumento=${idDocumento}&establ_corr=${establ_corr}`, config);
+
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({
@@ -33,23 +36,21 @@ export const listaEstadoActions = (altas_corr: number, idDocumento: number, esta
         } else {
           dispatch({
             type: LISTA_ESTADO_FAIL,
-            error:
-              "Status 200, pero con arreglo de datos vacío",
+            error: "Status 200, pero con arreglo de datos vacío",
           });
           return false;
         }
       } else {
         dispatch({
           type: LISTA_ESTADO_FAIL,
-          error:
-            "No se pudo obtener el listado. Por favor, intente nuevamente.",
+          error: "No se pudo obtener el listado. Por favor, intente nuevamente.",
         });
         return false;
       }
     } catch (err: any) {
       dispatch({
         type: LISTA_ESTADO_FAIL,
-        error: "Error en la solicitud:", err,
+        error: "Error en la solicitud:" + err,
       });
       return false;
     }

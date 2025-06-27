@@ -1,29 +1,22 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
 import { NavLink } from "react-router-dom"
 import {
   Box,
   PlusCircle,
   DashCircle,
   FileText,
-  FileEarmarkSpreadsheet,
-  ChevronDown,
   ArrowLeftRight,
-  Database,
-  ChevronLeft,
-  ChevronRight,
-  ArrowsCollapseVertical,
   LayoutSidebar,
   LayoutSidebarInset,
-  LayoutTextSidebarReverse,
-  LayoutTextSidebar,
+  Collection,
+  House,
 } from "react-bootstrap-icons"
 import "../../styles/Sidebar.css"
 import { connect } from "react-redux"
 import type { RootState } from "../../store"
-import type { Objeto } from "./Profile"
+
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
   return classes.filter(Boolean).join(" ")
@@ -36,19 +29,17 @@ export interface NavItem {
   isSubmenu?: boolean
 }
 
-interface StateProps {
-  objeto: Objeto
-}
+// interface StateProps {
+//   objeto: Objeto
+// }
 
-interface OwnProps {
+interface GeneralProps {
   isCollapsed?: boolean
   onToggleCollapse?: () => void
 }
 
-interface Props extends StateProps, OwnProps { }
-
-const Sidebar: React.FC<Props> = ({ objeto, isCollapsed = false, onToggleCollapse }) => {
-  const [openSubMenus, setOpenSubMenus] = useState<{ [key: string]: boolean }>({})
+const Sidebar: React.FC<GeneralProps> = ({ isCollapsed = false, onToggleCollapse }) => {
+  // const [openSubMenus, setOpenSubMenus] = useState<{ [key: string]: boolean }>({})
 
   const navigation: NavItem[] = [
     { name: "Inventario", href: "/Inventario", icon: Box },
@@ -56,24 +47,25 @@ const Sidebar: React.FC<Props> = ({ objeto, isCollapsed = false, onToggleCollaps
     { name: "Traslados", href: "/Traslados", icon: ArrowLeftRight },
     { name: "Bajas", href: "/Bajas", icon: DashCircle },
     { name: "Informes", href: "/Informes", icon: FileText },
+    { name: "Mantenedores", href: "/Mantenedores", icon: Collection },
   ]
 
-  if (objeto.IdCredencial === 62511) {
-    navigation.push({ name: "Mantenedores", href: "/Mantenedores", icon: Database })
-  }
+  // if (objeto.IdCredencial === 62511) {
+  //   navigation.push({ name: "Mantenedores", href: "/Mantenedores", icon: Database })
+  // }
 
-  const subMenus: { [key: string]: NavItem[] } = {
-    Informes: [{ name: "Listados", href: "/Informes/Listados", icon: FileEarmarkSpreadsheet }],
-  }
+  // const subMenus: { [key: string]: NavItem[] } = {
+  //   Informes: [{ name: "Listados", href: "/Informes/Listados", icon: FileEarmarkSpreadsheet }],
+  // }
 
-  const toggleSubMenu = (menuName: string) => {
-    if (!isCollapsed) {
-      setOpenSubMenus((prev) => ({
-        ...prev,
-        [menuName]: !prev[menuName],
-      }))
-    }
-  }
+  // const toggleSubMenu = (menuName: string) => {
+  //   if (!isCollapsed) {
+  //     setOpenSubMenus((prev) => ({
+  //       ...prev,
+  //       [menuName]: !prev[menuName],
+  //     }))
+  //   }
+  // }
 
   return (
     <div className={`sidebar-container sticky-top d-flex flex-column  ${isCollapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}>
@@ -84,9 +76,11 @@ const Sidebar: React.FC<Props> = ({ objeto, isCollapsed = false, onToggleCollaps
           <div className="text-bg-primary p-1 w-50"></div>
           <div className="text-bg-danger p-1 flex-grow-1 w-75"></div>
         </div>
-        <div className={`m-4 ${isCollapsed ? "sidebar-header-collapsed" : ""}`}>
-          <NavLink className="navbar-brand fw-semibold fs-5" to="/Inicio" title={isCollapsed ? "SSMSO" : ""}>
-            {isCollapsed ? "S" : "SSMSO"}
+        <div className={`d-flex justify-content-center mb-5 mt-5 fw-bolder ${isCollapsed ? "sidebar-header-collapsed" : ""}`}>
+          <NavLink
+            className="rounded-1 text-decoration-none  text-white"
+            to="/Inicio" title={isCollapsed ? "SSMSO" : ""}>
+            {isCollapsed ? <House width={30} height={30} className={`flex-shrink-0 ${isCollapsed ? "" : "me-3"}`} aria-hidden="true" /> : <p className="fs-5">SSMSO</p>}
           </NavLink>
         </div>
       </div>
@@ -116,7 +110,7 @@ const Sidebar: React.FC<Props> = ({ objeto, isCollapsed = false, onToggleCollaps
                 {!isCollapsed && <p className="w-100 mb-0">{item.name}</p>}
               </NavLink>
 
-              {subMenus[item.name] && !isCollapsed && (
+              {/* {subMenus[item.name] && !isCollapsed && (
                 <button
                   className="btn mb-2 text-white"
                   onClick={() => toggleSubMenu(item.name)}
@@ -128,10 +122,10 @@ const Sidebar: React.FC<Props> = ({ objeto, isCollapsed = false, onToggleCollaps
                     className={`ms-2 ${openSubMenus[item.name] ? "rotate-180" : ""}`}
                   />
                 </button>
-              )}
+              )} */}
             </div>
 
-            {subMenus[item.name] && openSubMenus[item.name] && !isCollapsed && (
+            {/* {subMenus[item.name] && openSubMenus[item.name] && !isCollapsed && (
               <div className="ms-4">
                 {subMenus[item.name].map((subItem) => (
                   <NavLink
@@ -149,15 +143,13 @@ const Sidebar: React.FC<Props> = ({ objeto, isCollapsed = false, onToggleCollaps
                   </NavLink>
                 ))}
               </div>
-            )}
+            )} */}
           </div>
         ))}
       </div>
 
       {/* Botón de colapsar/expandir abajo */}
-
       <div className="d-none d-md-flex justify-content-center align-items-end mb-4">
-
         <button
           type="button"
           className="btn btn-outline-light border-0"
@@ -170,12 +162,10 @@ const Sidebar: React.FC<Props> = ({ objeto, isCollapsed = false, onToggleCollaps
       </div>
     </div>
 
-
-
   )
 }
 
-const mapStateToProps = (state: RootState): StateProps => ({
+const mapStateToProps = (state: RootState) => ({
   objeto: state.validaApiLoginReducers,
 })
 

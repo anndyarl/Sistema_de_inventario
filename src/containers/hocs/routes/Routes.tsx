@@ -31,7 +31,7 @@ import Denegado from '../../errors/Denegado';
 import ListadoGeneral from '../../../components/Bajas/ListadoGeneral';
 import Servicios from '../../../components/Mantenedores/Servicios';
 import Dependencias from '../../../components/Mantenedores/Dependencias';
-import Especies from '../../../components/Mantenedores/Especies';
+// import Especies from '../../../components/Mantenedores/Especies';
 import Usuarios from '../../../components/Mantenedores/Usuarios';
 import Mantenedores from '../../pages/Mantenedores';
 import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
@@ -153,7 +153,7 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Módulo Mantenedores */}
                 <Route path="/Mantenedores" element={<Mantenedores />} />
                 <Route path="/Mantenedores/Dependencias" element={<Dependencias />} />
-                <Route path="/Mantenedores/Especies" element={<Especies />} />
+                {/* <Route path="/Mantenedores/Especies" element={<Especies />} /> */}
                 <Route path="/Mantenedores/Servicios" element={<Servicios />} />
                 <Route path="/Mantenedores/Usuarios" element={<Usuarios />} />
                 <Route path="/Mantenedores/Proveedores" element={<Proveedores />} />

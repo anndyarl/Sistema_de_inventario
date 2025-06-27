@@ -1016,6 +1016,10 @@
   width: 25% !important;
 }
 
+.w-30 {
+  width: 30% !important;
+}
+
 .w-50 {
   width: 50% !important;
 }
@@ -1048,6 +1052,10 @@
 
 .h-25 {
   height: 25% !important;
+}
+
+.h-30 {
+  width: 30% !important;
 }
 
 .h-50 {

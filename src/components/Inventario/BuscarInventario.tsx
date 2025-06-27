@@ -592,7 +592,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
 
           {/* Paginador */}
           {elementosActuales.length > 0 && (
-            < div className="paginador-container">
+            <div className="paginador-container position-relative z-0">
               <Pagination className="paginador-scroll">
                 <Pagination.First
                   onClick={() => paginar(1)}

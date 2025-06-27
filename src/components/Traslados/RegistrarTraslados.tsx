@@ -994,7 +994,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                 </table>
               </div>
               {/* Paginador */}
-              <div className="paginador-container">
+              <div className="paginador-container position-relative z-0">
                 <Pagination className="paginador-scroll ">
                   <Pagination.First
                     onClick={() => paginar1(1)}
@@ -1162,7 +1162,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               )}
             </div>
             {/* Paginador */}
-            <div className="paginador-container">
+            <div className="paginador-container position-relative z-0">
               <Pagination className="paginador-scroll">
                 <Pagination.First
                   onClick={() => paginar(1)}

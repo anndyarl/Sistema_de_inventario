@@ -1052,7 +1052,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 )}
 
                 {/* Paginador */}
-                <div className="paginador-container">
+                <div className="paginador-container position-relative z-0">
                     <Pagination className="paginador-scroll">
                         <Pagination.First
                             onClick={() => paginar(1)}
@@ -1098,7 +1098,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 >
                     <Modal.Header className={`modal-header text-white bg-success`} closeButton>
                         <Modal.Title className="fw-semibold">
-                            <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-1 "} aria-hidden="true" />Depreciación Calculada</Modal.Title>
+                            <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                         <div
@@ -1161,7 +1161,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             onClick={() => setMostrarModalNoCalculados(true)}
                                             disabled={listaActivosCalculados.length === 0}
                                             variant="warning"
-                                            className="mx-1 mb-1">
+                                            className="mx-1 mb-1 text-muted fw-semibold">
                                             <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1 text-danger")} aria-hidden="true" />
                                             {"No Calculados"}
                                             <span className="badge bg-light text-dark mx-1 mt-1">
@@ -1422,7 +1422,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             )}
                         </div>
                         {/* Paginador */}
-                        <div className="paginador-container">
+                        <div className="paginador-container position-relative z-0">
                             <Pagination className="paginador-scroll">
                                 <Pagination.First
                                     onClick={() => paginar2(1)}
@@ -1460,8 +1460,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             {/* Modal Activos NO Calculados */}
             <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
                 <Modal.Header className={`modal-header bg-warning`} closeButton>
-                    <Modal.Title className="fw-semibold">
-                        <ExclamationDiamond className={"flex-shrink-0 h-5 w-5 mx-1 mb-1 text-danger"} aria-hidden="true" />No Calculados</Modal.Title>
+                    <Modal.Title className="fw-semibold text-muted ">
+                        <ExclamationDiamond className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 text-danger"} aria-hidden="true" />No Calculados</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {/* Tabla*/}
@@ -1542,7 +1542,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         </div>
                     )}
                     {/* Paginador */}
-                    <div className="paginador-container">
+                    <div className="paginador-container position-relative z-0">
                         <Pagination className="paginador-scroll">
                             <Pagination.First
                                 onClick={() => paginar3(1)}

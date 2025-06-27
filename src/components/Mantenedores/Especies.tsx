@@ -280,7 +280,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
 
                     <div className='table-responsive'>
                         <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                 <tr>
                                     {/* <th scope="col"></th> */}
                                     <th scope="col" className="text-nowrap text-center">Código</th>
@@ -321,7 +321,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                     </div>
                 )}
                 {/* Paginador */}
-                <div className="paginador-container">
+                <div className="paginador-container position-relative z-0">
                     <Pagination className="paginador-scroll">
                         <Pagination.First
                             onClick={() => paginar(1)}

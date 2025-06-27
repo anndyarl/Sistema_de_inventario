@@ -1,5 +1,5 @@
 html {
-  /* overflow-y: scroll; Fuerza la barra de scroll  */
+  /* overflow-y: scroll; Fuerza la barra de scroll */
 }
 body{
   font-family: 'Roboto', sans-serif;
@@ -27,8 +27,9 @@ body::-webkit-scrollbar {
 
 .nav{
   border-color: #2b3035;
-}
-  
+  }
+ 
+
  /*Posicionamiento de imagenes decorativas*/
 .position-values-1{
   position:absolute;
@@ -232,5 +233,20 @@ padding: 2px;
 .custom-modal {
   width: 100vh; /* Ancho personalizado */
   margin: 0 auto; /* Centrado horizontal */
+}
+
+
+/*--------Boton Estado------------*/
+.estado-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.estado-btn:hover .estado-label {
+  display: none;
+}
+
+.estado-btn:hover .estado-hover {
+  display: inline-flex;
 }
 

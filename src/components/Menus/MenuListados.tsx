@@ -16,7 +16,7 @@ interface NavItem {
 interface Props {
     isDarkMode: boolean;
 }
-const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
+const MenuListado: React.FC<Props> = ({ isDarkMode }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigation: NavItem[] = [
         // {
@@ -93,4 +93,4 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-})(MenuBajas);
+})(MenuListado);

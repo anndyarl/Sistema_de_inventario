@@ -36,7 +36,7 @@ const navigation: NavItem[] = [
   { name: 'Servicios', title: 'Mantenedor de Servicios', href: '/Mantenedores/Servicios', icon: Collection },
   { name: 'Dependencias', title: 'Mantenedor de Dependencias', href: '/Mantenedores/Dependencias', icon: Collection },
   { name: 'Proveedores', title: 'Mantenedor de Proveedores', href: '/Mantenedores/Proveedores', icon: Collection },
-  { name: 'Especies', title: 'Mantenedor de Especies', href: '/Mantenedores/Especies', icon: Collection },
+  // { name: 'Especies', title: 'Mantenedor de Especies', href: '/Mantenedores/Especies', icon: Collection },
   // { name: 'Componentes', title: 'Mantenedor de Componentes', href: '/Mantenedores/Componentes', icon: Collection }
   // { name: 'Usuarios', title: 'Mantenedor de Usuarios', href: '/Mantenedores/Usuarios', icon: Collection }
 ];

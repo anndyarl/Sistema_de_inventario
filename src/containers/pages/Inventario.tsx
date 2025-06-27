@@ -11,7 +11,7 @@ import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/c
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos//comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
-import { motion, AnimatePresence, easeInOut, easeIn } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { Objeto } from "../../components/Navegacion/Profile";

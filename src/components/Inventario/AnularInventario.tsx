@@ -461,7 +461,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                             <th scope="col" className="text-nowrap" style={{
                                                 position: 'sticky',
                                                 right: 0,
-                                                zIndex: 2,
                                             }}>Acción</th>
                                         </tr>
                                     </thead>
@@ -502,8 +501,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
 
                                                     < td style={{
                                                         position: 'sticky',
-                                                        right: 0,
-                                                        zIndex: 2,
+                                                        right: 0
                                                     }}>
                                                         {lista.aF_ESTADO_INV != 1 ? (
                                                             <Button
@@ -536,7 +534,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
 
                     {/* Paginador */}
                     {elementosActuales.length > 0 && (
-                        < div className="paginador-container">
+                        <div className="paginador-container position-relative z-0">
                             <Pagination className="paginador-scroll">
                                 <Pagination.First
                                     onClick={() => paginar(1)}
