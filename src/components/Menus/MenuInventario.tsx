@@ -70,7 +70,7 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
                 </button>
                 <div className="container-fluid">
                     <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}>
-                        <div className="navbar-nav mb-2 mb-lg-0 me-3">
+                        <div className="navbar-nav mb-2 mb-lg-0 ">
                             {navigation.map((item, index) => (
                                 <NavLink
                                     key={index}

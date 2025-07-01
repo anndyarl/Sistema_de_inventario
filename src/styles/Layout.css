@@ -250,3 +250,13 @@ padding: 2px;
   display: inline-flex;
 }
 
+/*---------------Mobile------------*/
+ .mobile-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050; 
+  margin: 0;
+} 
+

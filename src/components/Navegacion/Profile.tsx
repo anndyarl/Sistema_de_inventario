@@ -112,14 +112,14 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
 
   return (
     <>
-      <div className="d-flex w-50 justify-content-end mx-2 align-items-center ">
-        <button type="button" onClick={togglePanel} className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link d-flex`}>
+      <div className="d-flex justify-content-end align-content-center p-3">
+        <button type="button" onClick={togglePanel} className={`d-flex justify-content-end align-items-center rounded p-1 ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link `}>
           <UserCircle
-            className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
-            aria-hidden="true"
+            className={`${isDarkMode ? "text-white" : ""}`}
+            size={40} aria-hidden="true"
           />
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
-            <p className="fs-09em"> {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
+            <p className="fs-09em ms-1" > {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
           </span>
         </button >
       </div>
@@ -137,7 +137,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
             <motion.div onClick={(e) => e.stopPropagation()}>
               <div className="d-flex justify-content-end ">
                 <button
-                  className={`btn fs-2 p-0 ${isDarkMode ? "text-light" : "text-dark"}`}
+                  className={`btn fs-1 ${isDarkMode ? "text-light" : "text-dark"}`}
                   onClick={togglePanel}
                   aria-label="Cerrar"
                 >

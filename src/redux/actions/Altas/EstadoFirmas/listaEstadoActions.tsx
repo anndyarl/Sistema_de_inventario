@@ -1,11 +1,11 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   LISTA_ESTADO_REQUEST,
   LISTA_ESTADO_SUCCESS,
   LISTA_ESTADO_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
+// import { LOGOUT } from "../../auth/types";
+import axiosInstance from "../../auth/axiosConfig";
 
 // Acción para obtener la recepción por número
 export const listaEstadoActions = (altas_corr: number, idDocumento: number, establ_corr: number, showLoading: boolean = true) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -24,7 +24,7 @@ export const listaEstadoActions = (altas_corr: number, idDocumento: number, esta
     }
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmaAltas?altas_corr=${altas_corr}&idDocumento=${idDocumento}&establ_corr=${establ_corr}`, config);
+      const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmaAltas?altas_corr=${altas_corr}&idDocumento=${idDocumento}&establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {
@@ -59,7 +59,7 @@ export const listaEstadoActions = (altas_corr: number, idDocumento: number, esta
       type: LISTA_ESTADO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
+    // dispatch({ type: LOGOUT });
     return false;
   }
 };

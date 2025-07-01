@@ -6,7 +6,7 @@ import { connect, useDispatch } from "react-redux"
 import type { RootState } from "../../../redux/reducers"
 import Sidebar from "../../../components/Navegacion/Sidebar"
 import Navbar from "../../../components/Navegacion/Navbar"
-import { List } from "react-bootstrap-icons"
+import { List, X } from "react-bootstrap-icons"
 import { Navigate, useNavigate } from "react-router-dom"
 import "bootstrap/dist/js/bootstrap.bundle.min.js"
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
@@ -19,8 +19,10 @@ import { AnimatePresence, motion } from "framer-motion"
 import Footer from "../../../components/Navegacion/Footer.js"
 import { listaVersionamientoActions } from "../../../redux/actions/Configuracion/listaVersionamientoActions.js"
 import { setSidebarCollapsedActions } from "../../../redux/actions/Otros/setSidebarCollapsedActions.js"
-import { toast, ToastContainer } from "react-toastify";
+// import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import MobileBar from "../../../components/Navegacion/MobileBar.js"
+import Profile from "../../../components/Navegacion/Profile.js"
 
 interface LayoutProps {
   children: ReactNode;
@@ -46,63 +48,63 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
     return <Navigate to="/" />
   }
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  // useEffect(() => {
+  //   if (!isAuthenticated) return;
 
-    const socket = new WebSocket("ws://localhost:5076/ws/notificaciones");
+  //   const socket = new WebSocket("ws://localhost:5076/ws/notificaciones");
 
-    socket.onopen = () => {
-      console.log("WebSocket conectado desde Layout");
-      socket.send("Alta"); // Solo si quieres
-    };
+  //   socket.onopen = () => {
+  //     console.log("WebSocket conectado desde Layout");
+  //     socket.send("Alta"); // Solo si quieres
+  //   };
 
-    socket.onmessage = (event) => {
-      console.log("WebSocket mensaje recibido:", event.data);
+  //   socket.onmessage = (event) => {
+  //     console.log("WebSocket mensaje recibido:", event.data);
 
-      if (event.data.includes("alta_creada")) {
-        toast(
-          <div>
-            <p>🔔 Se ha creado una nueva alta</p>
-            <button
-              onClick={() => {                // Acción que quieras ejecutar
-                console.log("Botón clickeado");
-                toast.dismiss(); // Cierra el toast
-                navigate("/Altas/EstadoFirmas");
-              }}
-              style={{
-                marginTop: "5px",
-                background: "#007bff",
-                color: "white",
-                border: "none",
-                padding: "5px 10px",
-                borderRadius: "4px",
-                cursor: "pointer"
-              }}
-            >
-              Ver detalles
-            </button>
-          </div>,
-          {
-            autoClose: false, // No se cierra automáticamente
-            position: "bottom-right"
-          }
-        );
-      }
+  //     if (event.data.includes("alta_creada")) {
+  //       toast(
+  //         <div>
+  //           <p>🔔 Se ha creado una nueva alta</p>
+  //           <button
+  //             onClick={() => {                // Acción que quieras ejecutar
+  //               console.log("Botón clickeado");
+  //               toast.dismiss(); // Cierra el toast
+  //               navigate("/Altas/FirmarAltas");
+  //             }}
+  //             style={{
+  //               marginTop: "5px",
+  //               background: "#007bff",
+  //               color: "white",
+  //               border: "none",
+  //               padding: "5px 10px",
+  //               borderRadius: "4px",
+  //               cursor: "pointer"
+  //             }}
+  //           >
+  //             Ver detalles
+  //           </button>
+  //         </div>,
+  //         {
+  //           autoClose: false, // No se cierra automáticamente
+  //           position: "bottom-right"
+  //         }
+  //       );
+  //     }
 
-    };
+  //   };
 
-    socket.onclose = () => {
-      console.log("🔌 WebSocket cerrado");
-    };
+  //   socket.onclose = () => {
+  //     console.log("🔌 WebSocket cerrado");
+  //   };
 
-    socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
+  //   socket.onerror = (error) => {
+  //     console.error("WebSocket error:", error);
+  //   };
 
-    return () => {
-      socket.close();
-    };
-  }, [isAuthenticated]);
+  //   return () => {
+  //     socket.close();
+  //   };
+  // }, [isAuthenticated]);
 
 
   const sidebarVariants = {
@@ -144,18 +146,42 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
       </AnimatePresence>
 
       {/* Contenedor principal */}
-      <div id="page-content-wrapper" className="d-flex flex-column justify-content-between w-100">
+      <div id="page-content-wrapper" className="d-flex flex-column ">
         {/* Navbar (móvil) */}
-        <div className={`d-flex justify-content-between shadow-sm sticky-top z-1050 ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
-          <button className={`navbar-toggler m-4`} aria-label="button-mobile" type="button" onClick={toggleSidebar}>
-            <List size={30} />
+        <div className={`d-flex justify-content-around align-content-center shadow-sm sticky-top z-1050  ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
+          <button className="p-3 navbar-toggler" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
+            <AnimatePresence mode="wait">
+              {sidebarOpen ? (
+                <motion.div
+                  key="close-icon"
+                  initial={{ scale: 0.8, rotate: -90 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0.1, rotate: 90 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  <X size={40} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu-icon"
+                  initial={{ scale: 0.8, rotate: 90 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0.1, rotate: -90 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  <List size={40} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
           <Navbar />
+          <Profile />
         </div>
 
         {/* Navbar (escritorio) */}
-        <div className={`d-none d-md-block mx-1 sticky-top z-1050 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+        <div className={`d-none d-md-flex justify-content-end align-content-center sticky-top z-1050  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
           <Navbar />
+          <Profile />
         </div>
 
         {/* Contenido (ocupa el espacio entre Navbar y Footer) */}
@@ -164,12 +190,13 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
         </div>
 
         {/* Footer siempre al final */}
-        <div className="sticky-bottom z-1">
+        <div className="d-none d-md-block sticky-bottom z-1 d-none w-100">
           <Footer />
         </div>
+        {/* MobileBar solo visible en móviles */}
+        <MobileBar />
       </div>
-      <ToastContainer position="bottom-right" autoClose={60000} />
-
+      {/* <ToastContainer position="bottom-right" autoClose={60000} /> */}
     </div>
   )
 }

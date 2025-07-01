@@ -1481,7 +1481,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         return;
                                     }
 
-
                                     return (
                                         <tr key={index}>
                                             <td style={{

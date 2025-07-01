@@ -366,11 +366,14 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               </div>
             </Col>
 
-            <Col md={5}>
-              <div className="mb-1 mt-4">
-                <Button onClick={handleBuscar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+            <Col md={3}>
+              <div className="d-md-flex justify-content-md-start alig-items-center mt-4">
+                <Button
+                  onClick={handleBuscar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100"
+                  disabled={loading}
+                >
                   {loading ? (
                     <>
                       {" Buscar"}
@@ -386,13 +389,15 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   ) : (
                     <>
                       {" Buscar"}
-                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleRefrescar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                <Button
+                  onClick={handleRefrescar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100 "
+                >
                   {loadingRefresh ? (
                     <>
                       {" Refrescar "}
@@ -408,15 +413,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   ) : (
                     <>
                       {" Refrescar "}
-                      <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      <ArrowClockwise className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleLimpiar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                <Button
+                  onClick={handleLimpiar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100"
+                >
                   Limpiar
-                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
               </div>
             </Col>

@@ -341,18 +341,18 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       </Helmet>
       <MenuAltas />
       <form>
-        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+        <div className={`border border-botom p-4 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
           <Row className="border rounded p-2 m-2">
-            <Col md={3}>
-              <div className="mb-2">
+            <Col md={3} sm={12}>
+              <div className="mb-2 ">
                 <div className="flex-grow-1 mb-2">
-                  <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
+                  <label htmlFor="fDesde" className="form-label fw-semibold small ">Desde</label>
                   <div className="input-group">
                     <input
                       aria-label="Fecha Desde"
                       type="date"
-                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                      className={`form-control  ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                       name="fDesde"
                       onChange={handleChange}
                       value={Inventario.fDesde}
@@ -381,7 +381,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                 <small className="fw-semibold">Filtre los resultados por fecha de ingreso.</small>
               </div>
             </Col>
-            <Col md={2}>
+            <Col md={2} sm={12}>
               <div className="mb-1">
                 <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
                 <input
@@ -396,12 +396,14 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                 />
               </div>
             </Col>
-            <Col md={5}>
-              <div className="mb-1 mt-4">
-                <Button onClick={handleBuscar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1"
-                  disabled={loading}>
+            <Col md={4}>
+              <div className="d-flex justify-content-center mt-4">
+                <Button
+                  onClick={handleBuscar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100"
+                  disabled={loading}
+                >
                   {loading ? (
                     <>
                       {" Buscar"}
@@ -417,13 +419,15 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                   ) : (
                     <>
                       {" Buscar"}
-                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleRefrescar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                <Button
+                  onClick={handleRefrescar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100 "
+                >
                   {loadingRefresh ? (
                     <>
                       {" Refrescar "}
@@ -439,15 +443,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                   ) : (
                     <>
                       {" Refrescar "}
-                      < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      <ArrowClockwise className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleLimpiar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                <Button
+                  onClick={handleLimpiar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100"
+                >
                   Limpiar
-                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
               </div>
             </Col>
