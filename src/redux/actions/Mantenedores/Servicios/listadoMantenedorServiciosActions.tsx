@@ -9,7 +9,7 @@ import { LOGOUT } from '../../auth/types';
 
 
 // Acción para obtener servicio
-export const listadoMantenedorServiciosActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoMantenedorServiciosActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; //token está en el estado de autenticación
     if (token) {
         const config = {
@@ -22,7 +22,7 @@ export const listadoMantenedorServiciosActions = () => async (dispatch: Dispatch
         dispatch({ type: LISTA_MANTENEDOR_SERVICIO_REQUEST });
 
         try {
-            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeMantenedorServicios`, config);
+            const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeMantenedorServicios?establ_corr=${establ_corr}`, config);
 
             if (res.status === 200) {
                 dispatch({

@@ -33,7 +33,7 @@ interface ESTABLECIMIENTO {
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
     obtenerMaxServicioActions: () => void;
-    listadoMantenedorServiciosActions: () => Promise<boolean>;
+    listadoMantenedorServiciosActions: (establ_corr: number) => Promise<boolean>;
     registrarMantenedorServiciosActions: (formModal: Record<string, any>) => Promise<boolean>;
     // registrarMantenedorServiciosActions: (registro: { formModal: Record<string, any> }[]) => Promise<boolean>;
     comboServicioActions: (establ_corr: number) => void;
@@ -71,7 +71,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
         if (token) {
             if (listadoMantenedor.length === 0) {
                 setLoading(true);
-                const resultado = await listadoMantenedorServiciosActions();
+                const resultado = await listadoMantenedorServiciosActions(objeto.Roles[0].codigoEstablecimiento);
                 if (resultado) {
                     setLoading(false);
                 }
@@ -212,7 +212,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                     setLoadingRegistro(false);
                     obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
                     comboServicioActions(objeto.Roles[0].codigoEstablecimiento);//llama al nuevo servicio
-                    listadoMantenedorServiciosActions();//llama al nuevo listado de servicios
+                    listadoMantenedorServiciosActions(objeto.Roles[0].codigoEstablecimiento);//llama al nuevo listado de servicios
                     // setFilaSeleccionada([]);
                     setMostrarModalRegistrar(false);
 

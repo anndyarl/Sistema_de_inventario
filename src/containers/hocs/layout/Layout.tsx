@@ -1,13 +1,13 @@
 "use client"
 
 import type React from "react"
-import { type ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useState } from "react"
 import { connect, useDispatch } from "react-redux"
 import type { RootState } from "../../../redux/reducers"
 import Sidebar from "../../../components/Navegacion/Sidebar"
 import Navbar from "../../../components/Navegacion/Navbar"
 import { List, X } from "react-bootstrap-icons"
-import { Navigate, useNavigate } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 import "bootstrap/dist/js/bootstrap.bundle.min.js"
 import "../../../styles/bootstrap-5.3.3/dist/css/bootstrap.css"
 import "../../../styles/Layout.css"
@@ -21,7 +21,7 @@ import { listaVersionamientoActions } from "../../../redux/actions/Configuracion
 import { setSidebarCollapsedActions } from "../../../redux/actions/Otros/setSidebarCollapsedActions.js"
 // import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import MobileBar from "../../../components/Navegacion/MobileBar.js"
+// import MobileBar from "../../../components/Navegacion/MobileBar.js"
 import Profile from "../../../components/Navegacion/Profile.js"
 
 interface LayoutProps {
@@ -36,13 +36,14 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed)
     dispatch(setSidebarCollapsedActions());
   }
 
-  useAutoLogout(3.3e6, 3.6e6)
+  useAutoLogout(3.3e6, 3.6e6);
+  // useAutoLogout(5000, 10000);
 
   if (isAuthenticated == false) {
     return <Navigate to="/" />
@@ -64,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
   //     if (event.data.includes("alta_creada")) {
   //       toast(
   //         <div>
-  //           <p>🔔 Se ha creado una nueva alta</p>
+  //           <p>Se ha creado una nueva alta</p>
   //           <button
   //             onClick={() => {                // Acción que quieras ejecutar
   //               console.log("Botón clickeado");
@@ -194,7 +195,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
           <Footer />
         </div>
         {/* MobileBar solo visible en móviles */}
-        <MobileBar />
+        {/* <MobileBar /> */}
       </div>
       {/* <ToastContainer position="bottom-right" autoClose={60000} /> */}
     </div>

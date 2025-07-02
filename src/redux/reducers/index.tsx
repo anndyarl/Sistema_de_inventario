@@ -100,7 +100,6 @@ const appReducer = combineReducers({
   // Autenticación
   loginReducer,
   validaApiLoginReducers,
-
   //-------------- Registro de Inventario----------------//
   // Formulario 1
   obtenerRecepcionReducers,

@@ -3,17 +3,16 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
-import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
-import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
-
-import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { listadoMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/listadoMantenedorDependenciasActions.tsx";
-import { SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
-import { Plus } from "react-bootstrap-icons";
-import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
+import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
+import { Plus } from "react-bootstrap-icons";
+import { SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
+import Layout from "../../containers/hocs/layout/Layout.tsx";
+import { Objeto } from "../Navegacion/Profile.tsx";
+import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
+import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
+import { listadoMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/listadoMantenedorDependenciasActions.tsx";
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
 
 export interface ListadoMantenedor {
@@ -30,7 +29,7 @@ export interface ListadoMantenedor {
 
 interface GeneralProps {
   listadoMantenedor: ListadoMantenedor[];
-  listadoMantenedorDependenciasActions: () => Promise<boolean>;
+  listadoMantenedorDependenciasActions: (establ_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
 
   comboServicio: SERVICIO[];
@@ -85,7 +84,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
     if (token) {
       if (listadoMantenedor.length === 0) {
         setLoading(true);
-        const resultado = await listadoMantenedorDependenciasActions();
+        const resultado = await listadoMantenedorDependenciasActions(objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -178,7 +177,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
           });
 
           setLoadingRegistro(false);
-          listadoMantenedorDependenciasActions();
+          listadoMantenedorDependenciasActions(objeto.Roles[0].codigoEstablecimiento);
           setFilaSeleccionada([]);
           setMostrarModalRegistrar(false);
 

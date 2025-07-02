@@ -87,7 +87,7 @@ const TomaInventarioQR: React.FC<TrasladosProps> = ({
     token,
     isDarkMode }) => {
     const [loading, setLoadingScan] = useState(false);
-    const [loadingBuscar, setLoading] = useState(false);
+    const [loadingBuscar, _] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalLevantamiento, setMostrarModalLevantamiento] = useState(false);
 

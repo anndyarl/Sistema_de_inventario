@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import Profile from './Profile';
+// import Profile from './Profile';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect } from 'react-redux';
 import { darkModeActions } from '../../redux/actions/Otros/darkModeActions';
-import { Col, Row } from 'react-bootstrap';
+// import { Col, Row } from 'react-bootstrap';
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };

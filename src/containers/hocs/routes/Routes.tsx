@@ -56,8 +56,7 @@ import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/Imprimi
 import InfoActivo from '../../../components/Altas/ImprimirEtiqueta/InfoActivo';
 import EstadoFirmas from '../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 import AnularInventario from '../../../components/Inventario/AnularInventario';
-import Comparar from '../../../components/Inventario/TomaInventarioQR';
-import TomaInventarioQR from '../../../components/Inventario/TomaInventarioQR';
+// import TomaInventarioQR from '../../../components/Inventario/TomaInventarioQR';
 
 
 
@@ -92,7 +91,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
                 <Route path="/Inventario/BuscarInventario" element={<BuscarInventario />} />
                 <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
-                <Route path="/Inventario/TomaInventarioQR" element={<TomaInventarioQR />} />
+                {/* <Route path="/Inventario/TomaInventarioQR" element={<TomaInventarioQR />} /> */}
                 {/* <Route path="/Inventario/CargaMasiva" element={<CargaMasiva />} /> */}
                 {/* Fin Menu Inventario */}
 

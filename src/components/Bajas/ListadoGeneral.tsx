@@ -665,7 +665,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                   ))
                 ) : (
                   <tr>
-                    <td colSpan='8' className="text-center">No hay registros</td>
+                    <td className="text-center">No hay registros</td>
                   </tr>
                 )}
               </tbody>

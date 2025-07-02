@@ -213,6 +213,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         );
     };
 
+
     const generateQRCodeBase64 = (value: string): Promise<string> => {
         return new Promise((resolve, reject) => {
             const container = document.createElement("div");
@@ -222,7 +223,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             document.body.appendChild(container);
 
             // Renderizamos el componente QR temporalmente
-            ReactDOM.render(<QRCodeSVG value={value} size={1000} />, container);
+            ReactDOM.render(<QRCodeSVG value={value} size={100} />, container);
 
             setTimeout(() => {
                 try {
@@ -237,13 +238,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
                     img.onload = () => {
                         const canvas = document.createElement("canvas");
-                        canvas.width = img.width * 2;     // Duplicamos el tamaño físico
-                        canvas.height = img.height * 2;
-
+                        canvas.width = img.width;
+                        canvas.height = img.height;
                         const ctx = canvas.getContext("2d");
                         if (ctx) {
-                            ctx.scale(2, 2);              // Escala el contexto antes de dibujar
-                            ctx.drawImage(img, 0, 0);     // Dibujamos el QR una sola vez sobre el canvas escalado
+                            ctx.drawImage(img, 0, 0);
                             const pngData = canvas.toDataURL("image/png");
                             document.body.removeChild(container);
                             resolve(pngData);
@@ -389,11 +388,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </div>
                     </Col>
 
-                    <Col md={5}>
+                    <Col lg={3} md={5} sm={12}>
                         <div className="mb-1 mt-4">
                             <Button onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
+                                className="mx-1 mb-1 "
                                 disabled={loading}>
                                 {loading ? (
                                     <>
@@ -416,7 +415,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                             </Button>
                             <Button onClick={handleRefrescar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
+                                className="mx-1 mb-1 "
                                 disabled={loadingRefresh}>
                                 {loadingRefresh ? (
                                     <>

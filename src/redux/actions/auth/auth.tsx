@@ -57,3 +57,4 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
 export const logout = () => ({
   type: LOGOUT
 });
+

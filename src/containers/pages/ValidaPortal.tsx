@@ -8,6 +8,7 @@ import { Helmet } from "react-helmet-async";
 import { Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { AnimatePresence, motion } from "framer-motion";
+import { setOrigenLoginActions } from "../../redux/actions/auth/setOrigenLoginActions";
 
 interface Props {
   login: (usuario: string, password: string) => Promise<boolean>;
@@ -47,6 +48,9 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
   const capturarDatosPersona = async () => {
     const params = new URLSearchParams(window.location.search);
     const datosPersona = params.get("datosPersona");
+
+
+
     if (datosPersona) {
       try {
         const datos = JSON.parse(decodeURIComponent(datosPersona));
@@ -85,6 +89,15 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
       }
     } else {
       // console.error("No se encontraron datosPersona en la URL.");
+    }
+
+    if (datosPersona?.length === 18) {
+      //Asigna valor 0 Acceso desde Gestor Documental
+      dispatch(setOrigenLoginActions(0));
+    }
+    else {
+      //Asigna valor 1 Acceso desde login Original
+      dispatch(setOrigenLoginActions(1));
     }
   };
   const messages = [
@@ -147,5 +160,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   login,
   logout,
-  validaApiloginActions,
+  validaApiloginActions
 })(ValidaPortal);

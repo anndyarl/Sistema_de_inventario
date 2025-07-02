@@ -62,9 +62,10 @@ interface ProfileProps {
   ipc: IndicadoresProps;
   isDarkMode: boolean;
   token: string | null;
+  origenLogin: number;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, utm, uf, dolar, ipc, isDarkMode, token }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, utm, uf, dolar, ipc, isDarkMode, token, origenLogin }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
@@ -88,8 +89,18 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
   }, [indicadoresActions]);
 
   const handleLogout = () => {
-    dispatch(logout());
-    return <Navigate to="/" />;
+    if (origenLogin === 0) {
+      // console.log("Valor 0 regresa a Gestor Documental");
+      dispatch(logout());
+      const redirectUrl = import.meta.env.VITE_ORIGEN_LOGIN
+      window.location.href = redirectUrl
+      return;
+    }
+    else {
+      // console.log("Valor 1 regresa a login Original");
+      dispatch(logout());
+      return <Navigate to="/" />;
+    }
   };
 
   //Efectos de transicion apertura profile
@@ -115,8 +126,8 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
       <div className="d-flex justify-content-end align-content-center p-3">
         <button type="button" onClick={togglePanel} className={`d-flex justify-content-end align-items-center rounded p-1 ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link `}>
           <UserCircle
-            className={`${isDarkMode ? "text-white" : ""}`}
-            size={40} aria-hidden="true"
+            className={`${isDarkMode ? "text-white" : "text-muted"}`}
+            size={35} aria-hidden="true"
           />
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
             <p className="fs-09em ms-1" > {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
@@ -273,6 +284,8 @@ const mapStateToProps = (state: RootState) => ({
   ipc: state.indicadoresReducers.ipc,
   isDarkMode: state.darkModeReducer.isDarkMode,
   token: state.loginReducer.token,
+  origenLogin: state.loginReducer.origenLogin,
+
 });
 
 export default connect(mapStateToProps, {

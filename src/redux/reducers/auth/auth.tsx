@@ -3,6 +3,7 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT,
+  ORIGEN_LOGIN,
 } from "../../actions/auth/types";
 
 // Define la estructura del estado
@@ -12,6 +13,7 @@ interface AuthState {
   token: string | null;
   logout: any;
   isAuthenticated: boolean;
+  origenLogin: number;
 }
 
 // Estado inicial
@@ -20,7 +22,8 @@ const initialState: AuthState = {
   error: null,
   token: null,
   logout: null,
-  isAuthenticated: false
+  isAuthenticated: false,
+  origenLogin: 0,
 };
 
 function loginReducer(state = initialState, action: any): AuthState {
@@ -33,6 +36,8 @@ function loginReducer(state = initialState, action: any): AuthState {
       return { ...state, loading: false, error: action.payload, token: null };
     case LOGOUT:
       return { ...initialState, loading: false, isAuthenticated: false, token: null };
+    case ORIGEN_LOGIN:
+      return { ...state, origenLogin: action.payload };
     default:
       return state;
   }
