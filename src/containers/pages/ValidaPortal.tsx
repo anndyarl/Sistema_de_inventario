@@ -49,8 +49,6 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
     const params = new URLSearchParams(window.location.search);
     const datosPersona = params.get("datosPersona");
 
-
-
     if (datosPersona) {
       try {
         const datos = JSON.parse(decodeURIComponent(datosPersona));

@@ -127,7 +127,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
         <button type="button" onClick={togglePanel} className={`d-flex justify-content-end align-items-center rounded p-1 ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link `}>
           <UserCircle
             className={`${isDarkMode ? "text-white" : "text-muted"}`}
-            size={35} aria-hidden="true"
+            size={30} aria-hidden="true"
           />
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
             <p className="fs-09em ms-1" > {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>

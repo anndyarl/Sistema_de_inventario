@@ -1,4 +1,4 @@
-import { BrowserRouter as _, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as _, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Login from '../../pages/Login';
 import Traslados from '../../pages/Traslados';
@@ -56,19 +56,10 @@ import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/Imprimi
 import InfoActivo from '../../../components/Altas/ImprimirEtiqueta/InfoActivo';
 import EstadoFirmas from '../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 import AnularInventario from '../../../components/Inventario/AnularInventario';
-// import TomaInventarioQR from '../../../components/Inventario/TomaInventarioQR';
-
-
+import LevantamientoFisico from '../../../components/Inventario/LevantamientoFisico';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
-    // const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch
-
-
-    // useEffect(() => {
-    //     dispatch(checkAuthStatus()); // Verifica el estado de autenticación al inicio
-    // }, [dispatch]);
-
     return (
         <AnimatePresence>
             <Routes location={location} key={location.pathname}>
@@ -91,7 +82,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
                 <Route path="/Inventario/BuscarInventario" element={<BuscarInventario />} />
                 <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
-                {/* <Route path="/Inventario/TomaInventarioQR" element={<TomaInventarioQR />} /> */}
+                <Route path="/Inventario/LevantamientoFisico" element={<LevantamientoFisico />} />
                 {/* <Route path="/Inventario/CargaMasiva" element={<CargaMasiva />} /> */}
                 {/* Fin Menu Inventario */}
 

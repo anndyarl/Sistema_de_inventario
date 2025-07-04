@@ -96,7 +96,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
                     className={`form-select rounded-4 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     placeholder="Buscar"
                     value={search}
-                    size={40}
+                    size={35}
                     onChange={(e) => setSearch(e.target.value)}
                 />
 

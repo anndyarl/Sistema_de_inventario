@@ -804,38 +804,39 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         <h3 className="form-title fw-semibold border-bottom">
           Detalles activo
         </h3>
-        <Row>
-          <Col>
-            <div className="d-flex">
-              {/*Indicadores */}
-              <div className="bg-light border-start border-4 border-primary shadow-sm p-3 mx-2 rounded">
-                <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
-                  Monto Recepción
-                </p>
-                <h4 className="fw-bold text-primary text-center m-0">
-                  $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                </h4>
-              </div>
-
-              <div className="bg-light border-start border-4 border-warning shadow-sm p-3 mx-2 rounded">
-                <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
-                  Monto Pendiente
-                </p>
-                <h4 className="fw-bold text-warning text-center m-0">
-                  $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
-                    minimumFractionDigits: 0,
-                  })}
-                </h4>
-              </div>
-
+        <Row className="g-2">
+          <Col lg={2} sm={2}  >
+            {/*Indicadores */}
+            <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2">
+              <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                Monto Recepción
+              </p>
+              <h4 className="fw-bold text-primary text-center m-0">
+                $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+              </h4>
             </div>
           </Col>
-          <Col>
-            <div className="d-flex justify-content-end">
+          <Col lg={2} sm={2} >
+            <div className="bg-light border-start border-4 border-warning shadow-sm p-3 rounded mb-2">
+              <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
+                Monto Pendiente
+              </p>
+              <h4 className="fw-bold text-warning text-center m-0">
+                $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                  minimumFractionDigits: 0,
+                })}
+              </h4>
+            </div>
+          </Col>
+        </Row>
+        <Row className="g-2">
+          <div className="d-flex justify-content-end mb-4">
+            <Col lg={2} xs={12}>
               {/* habilita Boton Modal formulario si solo monto recepcion y total coinciden y si la especie tiene datos */}
+
               {totalSum != montoRecepcion && nombreEspecie.length > 0 && (
                 <Button
-                  className="mx-1 align-content-center"
+                  className="mx-1 w-100"
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
                   onClick={() => setMostrarModal(true)}
                 >
@@ -843,60 +844,66 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   <Plus className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
               )}
-            </div>
-          </Col>
+            </Col>
+          </div>
         </Row>
-
-        {/*Agregar */}
-        <Row>
-          <Col>
-            {/* TAmaño de pagina*/}
+        <Row className="g-2">
+          {/* Columna 1: Tamaño de página */}
+          <Col lg={8} md={6} sm={12}>
             {datos.length > 0 && (
-              <div className="d-flex align-items-center mx-2 mb-1 p-2 mt-4">
+              <div className="d-flex align-items-center justify-content-lg-start justify-content-center">
                 <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                   Tamaño de página:
                 </label>
                 <select
                   aria-label="Seleccionar tamaño de página"
-                  className={`form-select form-select-sm w-auto  rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                    }`}
                   name="nPaginacion"
                   onChange={handleChange}
                   value={Paginacion.nPaginacion}
                 >
                   {[10, 20, 30, datos.length].map((val) => (
-                    <option key={val} value={val}>{val}</option>
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
                   ))}
                 </select>
               </div>
             )}
           </Col>
-          <Col>
-            <div className="d-flex justify-content-end">
-              {/* Boton Mantener Cuenta multiple */}
-              {filasSeleccionadas.length > 0 && (
+
+          {/* Columna 2: Botón Mantener Cuenta */}
+          <Col lg={2} md={6} sm={12}>
+            {filasSeleccionadas.length > 0 && (
+              <div className="d-flex justify-content-lg-center justify-content-center ">
                 <Button
                   variant={mantenerTodo ? "secondary" : "primary"}
                   onClick={handleMantenerCuentaSeleccionados}
-                  className="mb-1 p-2 mx-1"
+                  className="w-100 w-lg-auto"
                 >
                   {mantenerTodo ? "Descartar Cuentas" : "Mantener Cuentas"}
                 </Button>
-              )}
+              </div>
+            )}
+          </Col>
 
-              {/* Boton elimina filas seleccionadas */}
-              {filasSeleccionadas.length > 0 && (
+          {/* Columna 3: Botón Quitar */}
+          <Col lg={2} md={12} sm={12}>
+            {filasSeleccionadas.length > 0 && (
+              <div className="d-flex justify-content-lg-end justify-content-center ">
                 <Button
                   variant="danger"
                   onClick={handleQuitarSeleccionados}
-                  className="mb-1 p-2 mx-1"  // Alinea el spinner y el texto
+                  className="w-100 w-lg-auto d-flex align-items-center justify-content-center"
                 >
                   Quitar
-                  <span className="badge bg-light text-dark mx-1 mt-1">
+                  <span className="badge bg-light text-dark ms-2">
                     {filasSeleccionadas.length}
                   </span>
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </Col>
         </Row>
         {/* Mostrar errores generales */}
@@ -907,9 +914,11 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         )}
         {/* Tabla */}
         {datos.length === 0 ? (
-          <p className="d-flex justify-content-center m-1 p-1 ">
-            Haz clic en (Agregar +) para listar aquí los detalles de cada activo.
-          </p>
+          <div className="d-flex justify-content-center">
+            <p className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+              Haz clic en (Agregar +) para listar aquí los detalles de cada activo.
+            </p>
+          </div>
         ) : (
           <div className='table-responsive'>
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
@@ -1076,7 +1085,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           )}
         </div>
         {/* Modal formulario Activos Fijo*/}
-        < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
+        <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
           <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
             <Modal.Title className="fw-semibold">Agregar</Modal.Title>
           </Modal.Header>
@@ -1090,76 +1099,84 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             )}
 
             <form onSubmit={handleAgregar}>
+              {/* Contenedor para Indicadores y Botones */}
+              <Row className="mb-3">
+                {/* Indicadores - Lado Izquierdo */}
+                <Col lg={6} md={6} sm={12}>
+                  <Row>
+                    <Col lg={6} md={6} sm={6}>
+                      <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2">
+                        <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                          Monto Recepción
+                        </p>
+                        <h4 className="fw-bold text-primary text-center m-0">
+                          $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </h4>
+                      </div>
+                    </Col>
+                    <Col lg={6} md={6} sm={6}>
+                      <div className="bg-light border-start border-4 border-warning shadow-sm p-3 rounded mb-2">
+                        <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
+                          Monto Pendiente
+                        </p>
+                        <h4 className="fw-bold text-warning text-center m-0">
+                          $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
+                            minimumFractionDigits: 0,
+                          })}
+                        </h4>
+                      </div>
+                    </Col>
+                  </Row>
+                </Col>
+
+                {/* Botones - Lado Derecho */}
+                <Col lg={6} md={6} sm={12}>
+                  <Row className="h-100 align-items-center">
+                    <Col lg={6} md={6} sm={6}>
+                      <div className="d-grid mb-2">
+                        <Button
+                          type="submit"
+                          variant={`${isDarkMode ? "secondary" : "primary"}`}
+                          className="d-flex align-items-center justify-content-center"
+                        >
+                          <Floppy
+                            className="flex-shrink-0 h-5 w-5 me-2"
+                            aria-hidden="true"
+                          />
+                          Guardar
+                        </Button>
+                      </div>
+                    </Col>
+                    <Col lg={6} md={6} sm={6}>
+                      <div className="d-grid mb-2">
+                        <Button
+                          onClick={handleLimpiar}
+                          variant={`${isDarkMode ? "secondary" : "primary"}`}
+                          className="d-flex align-items-center justify-content-center"
+                        >
+                          <Eraser
+                            className="flex-shrink-0 h-5 w-5 me-2"
+                            aria-hidden="true"
+                          />
+                          Limpiar
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+
+              {/* Formulario Principal */}
               <Row>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  {/* Contenedor para Monto Recepción y Monto Pendiente */}
-                  <div className="d-flex p-1">
-                    {/*Indicadores */}
-                    <div className="bg-light border-start border-4 border-primary shadow-sm p-3 mx-2 rounded">
-                      <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
-                        Monto Recepción
-                      </p>
-                      <h4 className="fw-bold text-primary text-center m-0">
-                        $ {montoRecepcion.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                      </h4>
-                    </div>
-
-                    <div className="bg-light border-start border-4 border-warning shadow-sm p-3 mx-2 rounded">
-                      <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
-                        Monto Pendiente
-                      </p>
-                      <h4 className="fw-bold text-warning text-center m-0">
-                        $ {(montoRecepcion - totalSum).toLocaleString("es-ES", {
-                          minimumFractionDigits: 0,
-                        })}
-                      </h4>
-                    </div>
-                  </div>
-
-                  {/* Contenedor para los Botones */}
-                  <div className="d-flex">
-                    <div className="mb-1 mx-2">
-                      <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "} `}>
-                        Guardar
-                        <Floppy
-                          className="flex-shrink-0 h-5 w-5 ms-1"
-                          aria-hidden="true"
-                        />
-                      </Button>
-                    </div>
-                    <div className="mb-1">
-                      <Button
-                        onClick={handleLimpiar}
-                        variant="primary"
-                        className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
-                      >
-                        Limpiar
-                        <Eraser
-                          className="flex-shrink-0 h-5 w-5 ms-1"
-                          aria-hidden="true"
-                        />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
                 <Col md={6}>
-                  {/* <div className="mb-1">
-                    <label htmlFor="cuenta" className="fw-semibold">
-                      Cuenta
-                    </label>
-                    <p className="border p-2 bg-light rounded">
-                      {activoFormulario.chkMantener !== false
-                        ? nCuenta
-                        : "5320413"}
-                    </p>
-                  </div> */}
-                  <div className="mb-1">
+                  <div className="mb-3">
                     <label htmlFor="vidaUtil" className="fw-semibold">
                       Vida Útil
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${error.vidaUtil ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${error.vidaUtil ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        }`}
                       id="vidaUtil"
                       name="vidaUtil"
                       maxLength={10}
@@ -1171,27 +1188,33 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                     )}
                   </div>
 
-                  <div className="mb-1">
+                  <div className="mb-3">
                     <label htmlFor="fechaIngreso" className="fw-semibold">
                       Fecha Ingreso
                     </label>
                     <input
                       type="date"
-                      className={`form-control ${error.fechaIngreso ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${error.fechaIngreso ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        }`}
                       name="fechaIngreso"
                       id="fechaIngreso"
                       onChange={handleChange}
                       disabled
                       value={activoFormulario.fechaIngreso}
                     />
+                    {error.fechaIngreso && (
+                      <div className="invalid-feedback fw-semibold">{error.fechaIngreso}</div>
+                    )}
                   </div>
-                  <div className="mb-1">
+
+                  <div className="mb-3">
                     <label htmlFor="marca" className="fw-semibold">
                       Marca
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${error.marca ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${error.marca ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        }`}
                       id="marca"
                       name="marca"
                       maxLength={20}
@@ -1203,13 +1226,14 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                     )}
                   </div>
 
-                  <div className="mb-1">
+                  <div className="mb-3">
                     <label htmlFor="modelo" className="fw-semibold">
                       Modelo
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${error.modelo ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${error.modelo ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        }`}
                       id="modelo"
                       name="modelo"
                       maxLength={20}
@@ -1220,29 +1244,17 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       <div className="invalid-feedback fw-semibold">{error.modelo}</div>
                     )}
                   </div>
-
                 </Col>
-                <Col md={6}>
-                  {/* <div className="mb-1">
-                    <label htmlFor="cantidad" className="fw-semibold">
-                      Mantener Cuenta
-                    </label>
-                    <Form.Check
-                      onChange={handleChange}
-                      name="chkMantenerForm"
-                      type="checkbox"
-                      className="form-switch"
-                      checked={activoFormulario.chkMantenerForm}
-                    />
-                  </div> */}
 
-                  <div className="mb-1">
+                <Col md={6}>
+                  <div className="mb-3">
                     <label htmlFor="precio" className="fw-semibold">
                       Precio
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${error.precio ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${error.precio ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        }`}
                       id="precio"
                       name="precio"
                       maxLength={12}
@@ -1254,13 +1266,14 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                     )}
                   </div>
 
-                  <div className="mb-1">
+                  <div className="mb-3">
                     <label htmlFor="cantidad" className="fw-semibold">
                       Cantidad
                     </label>
                     <input
                       type="text"
-                      className={`form-control ${error.cantidad ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${error.cantidad ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        }`}
                       id="cantidad"
                       name="cantidad"
                       maxLength={6}
@@ -1270,19 +1283,18 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                     {error.cantidad && (
                       <div className="invalid-feedback fw-semibold">{error.cantidad}</div>
                     )}
-
                   </div>
 
-                  <div className="mb-1">
+                  <div className="mb-3">
                     <label htmlFor="observaciones" className="fw-semibold">
                       Observaciones
                     </label>
                     <textarea
-                      className={`form-control ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${error.observaciones ? "is-invalid" : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        }`}
                       aria-label="observaciones"
                       name="observaciones"
                       rows={4}
-                      // maxLength={500}
                       style={{ minHeight: "8px", resize: "none" }}
                       onChange={handleChange}
                       value={activoFormulario.observaciones}
@@ -1296,8 +1308,8 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                 </Col>
               </Row>
             </form>
-          </Modal.Body >
-        </Modal >
+          </Modal.Body>
+        </Modal>
 
         {loadingEnvio && (
           <div

@@ -21,7 +21,7 @@ import { listaVersionamientoActions } from "../../../redux/actions/Configuracion
 import { setSidebarCollapsedActions } from "../../../redux/actions/Otros/setSidebarCollapsedActions.js"
 // import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import MobileBar from "../../../components/Navegacion/MobileBar.js"
+import MobileBar from "../../../components/Navegacion/MobileBar.js"
 import Profile from "../../../components/Navegacion/Profile.js"
 
 interface LayoutProps {
@@ -147,7 +147,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
       </AnimatePresence>
 
       {/* Contenedor principal */}
-      <div id="page-content-wrapper" className="d-flex flex-column ">
+      <div id="page-content-wrapper" className="d-flex flex-column">
         {/* Navbar (móvil) */}
         <div className={`d-flex justify-content-around align-content-center shadow-sm sticky-top z-1050  ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
           <button className="p-3 navbar-toggler" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
@@ -170,7 +170,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
                   exit={{ scale: 0.1, rotate: -90 }}
                   transition={{ duration: 0.1 }}
                 >
-                  <List size={40} />
+                  <List size={35} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -187,7 +187,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
 
         {/* Contenido (ocupa el espacio entre Navbar y Footer) */}
         <div className="flex-grow-1">
-          <Container fluid>{children}</Container>
+          <Container fluid>
+            {children}
+          </Container>
         </div>
 
         {/* Footer siempre al final */}
@@ -195,7 +197,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
           <Footer />
         </div>
         {/* MobileBar solo visible en móviles */}
-        {/* <MobileBar /> */}
+        <MobileBar />
       </div>
       {/* <ToastContainer position="bottom-right" autoClose={60000} /> */}
     </div>

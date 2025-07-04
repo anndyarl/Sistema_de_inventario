@@ -94,6 +94,7 @@ import listaEstadoVisadoresReducers from "./Altas/EstadoFirmas/listaEstadoVisado
 import datosTrasladoRegistradoReducers from "./Traslados/datosTrasladoRegistradoReducers";
 import listaInventarioBuscarReducers from "./Inventario/BuscarInventario/listaInventarioBuscarReducers";
 import setSidebarCollapsedReducer from "./Otros/setSidebarCollapsedReducer";
+import obtenerInventarioQRReducers from "./Inventario/obtenerInventarioQRReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -133,6 +134,9 @@ const appReducer = combineReducers({
 
   //Buscar Inventario
   listaInventarioBuscarReducers,
+
+  //QR
+  obtenerInventarioQRReducers,
 
   // Altas
   listaAltasReducers,

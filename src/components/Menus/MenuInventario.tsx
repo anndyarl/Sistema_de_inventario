@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, List, Arrows, PencilSquare, Search, SlashCircle } from "react-bootstrap-icons";
+import { Plus, List, Arrows, PencilSquare, Search, SlashCircle, X } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -66,7 +66,7 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
             {/* Mobile Navbar y Desktop*/}
             <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0">
                 <button className="navbar-toggler m-1 border-top" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
-                    <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />
+                    {sidebarOpen ? <X size={30} className={`${isDarkMode ? "text-white" : ""}`} /> : <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />}
                 </button>
                 <div className="container-fluid">
                     <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}>
@@ -89,7 +89,6 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
                                 </NavLink>
                             ))}
                         </div>
-
                     </div>
                 </div>
             </nav>
