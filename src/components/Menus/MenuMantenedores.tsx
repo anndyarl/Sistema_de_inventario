@@ -38,12 +38,12 @@ const MenuMantenedores: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Mantenedores/Proveedores',
             icon: Collection
         },
-        // {
-        //     name: 'Especies',
-        //     description: 'Listado de Especies',
-        //     href: '/Mantenedores/Especies',
-        //     icon: Collection
-        // },
+        {
+            name: 'Especies',
+            description: 'Listado de Especies',
+            href: '/Mantenedores/Especies',
+            icon: Collection
+        },
         // {
         //     name: 'Componente',
         //     description: 'Listado de Componentes',

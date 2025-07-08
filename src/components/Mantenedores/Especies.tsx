@@ -49,7 +49,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, __] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
-    const [_, setFilaSeleccionada] = useState<any[]>([]);
+    const [filasSeleccionada, setFilaSeleccionada] = useState<any[]>([]);
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -191,7 +191,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
 
         if (validate()) {
 
-            // const selectedIndices = filasSeleccionada.map(Number);
+            const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
                 title: "Registrar",
@@ -208,10 +208,10 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             });
             if (result.isConfirmed) {
                 // setLoadingRegistro(true);
-                // // const formMantenedor = selectedIndices.map((activo) => ({
-                // //     seR_COD: listadoMantenedor[activo].seR_COD,
-                // //     ...Mantenedor,
-                // // }));
+                const formMantenedor = selectedIndices.map((activo) => ({
+                    esP_CODIGO: listadoMantenedor[activo].esP_CODIGO,
+                    ...Mantenedor,
+                }));
                 // const resultado = await registrarMantenedorEspeciesActions(Mantenedor);
                 // console.log(Mantenedor);
                 // if (resultado) {
