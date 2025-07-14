@@ -121,6 +121,13 @@ const styles = StyleSheet.create({
         fontSize: 10,
         textAlign: 'right'
     },
+    firmaLabel3: {
+        marginTop: 5,
+        marginBottom: 5,
+        marginRight: 10,
+        fontSize: 12,
+        textAlign: 'left'
+    },
     firmaImagen: {
         bottom: 40,
         width: "30%",
@@ -185,6 +192,7 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                     {/* </View> */}
                     {/* </Container> */}
                     {/* Encabezado */}
+
                     {(() => {
                         const altasUnicas = [...new Set(row.map(item => item.altaS_CORR))];
                         if (altasUnicas.length === 1) {
@@ -200,6 +208,11 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                         return null; // no mostrar nada si hay más de una alta
                     })()}
 
+                    {/* {indicePagina === 0 && ( */}
+                    <View style={styles.firmaBox}>
+                        <Text style={styles.firmaLabel3}>Cantidad: {row.length}</Text>
+                    </View>
+                    {/* )} */}
                     {/* Tabla */}
                     <View style={styles.table}>
                         {/* Cabecera de la tabla */}
@@ -326,7 +339,6 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                             </View>
                         </>
                     )}
-
 
                     <Container style={styles.containerFooter}>
                         <Text style={styles.fechaHoy}>{fechaHoy}</Text>
