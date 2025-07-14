@@ -61,7 +61,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   obtenerInventarioActions: (af_codigo_generico: string) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
-  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
   comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
   comboProveedorActions: (rutProveedor: string) => void;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
@@ -330,7 +330,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       comboDetalleActions(value);
     }
     if (name === "detalles") {
-      listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, newValue as number, "");
+      listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, newValue as number, "", "");
     }
     if (name === "PROV_RUN") { //rutProveedor
       comboProveedorActions(value);
@@ -531,7 +531,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleBuscar = async () => {
     setLoading(true);
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO);
+    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
 
     if (!resultado) {
       Swal.fire({

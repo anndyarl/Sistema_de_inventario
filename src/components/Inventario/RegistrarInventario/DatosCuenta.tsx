@@ -82,7 +82,7 @@ interface DatosCuentaProps extends CuentaProps {
   especieSeleccionado: string | null | undefined;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie  
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
-  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>; //Lista Especies en tabla
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>; //Lista Especies en tabla
   comboEspecies: ListaEspecie[];
   isDarkMode: boolean;
   objeto: Objeto;
@@ -140,6 +140,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const elementosPorPagina = 20;
   const [error, setError] = useState<Partial<CuentaProps>>({});
   const [loading, setLoading] = useState(false);
+  const [detalleSeleccionado, setDetalleSeleccionado] = useState<number | null>(null);
 
   const especieOptions = comboEspecies.map((item) => ({
     value: item.esP_CODIGO,
@@ -147,12 +148,22 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   }));
 
   const [Buscar, setBuscar] = useState({
-    esP_CODIGO: ""
+    esP_CODIGO: "",
+    esp_NOMBRE: ""
   });
 
+  // Si selecciona desde el combo
   const handleComboEspecieChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setBuscar((prev) => ({ ...prev, esP_CODIGO: value }));
+    console.log("select:", value);
+  };
+
+  // Si escribe a mano
+  const handleInputEspecieChange = (input: string) => {
+    setBuscar((prev) => ({ ...prev, esp_NOMBRE: input }));
+    console.log("texto:", input);
+    handleBuscar();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -188,7 +199,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     if (name === "detalles") {
       paginar(1);
       onDetalleSeleccionado(newValue as number);
-
+      setDetalleSeleccionado(newValue as number);
     }
 
   };
@@ -256,8 +267,18 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
 
   const handleBuscar = async () => {
     setLoading(true);
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO);
-
+    let resultado = false;
+    if (Buscar.esP_CODIGO && Buscar.esP_CODIGO.includes("-")) {
+      // Seleccionó del combo: usar código
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
+    } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
+      // Escribió manualmente: usar nombre   
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
+    } else {
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, detalleSeleccionado ?? 0, "", "");
+      setLoading(false);
+      return;
+    }
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -271,6 +292,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
+    setLoading(false);
   };
 
   //Selecciona fila del listado de especies
@@ -490,6 +512,13 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                     <Select
                       options={especieOptions}
                       onChange={(selectedOption) => handleComboEspecieChange(selectedOption)}
+                      onInputChange={(inputValue) => handleInputEspecieChange(inputValue)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleBuscar();
+                        }
+                      }}
                       name="esP_CODIGO"
                       placeholder="Buscar"
                       isClearable
@@ -654,7 +683,7 @@ const mapStateToProps = (state: RootState) => ({
   descripcionEspecie: state.datosCuentaReducers.descripcionEspecie,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
-  comboEspecies: state.comboEspeciesBienReducers.comboEspecies
+  comboEspecies: state.listadoDeEspeciesBienReducers.comboEspecies,
 });
 
 export default connect(mapStateToProps, {

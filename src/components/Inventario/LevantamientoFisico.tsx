@@ -4,7 +4,7 @@ import { Row, Col, Button, Spinner, Pagination, Modal, Form, CloseButton } from 
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { ArrowLeftRight, Eraser, EraserFill, EyeFill, QrCodeScan } from "react-bootstrap-icons";
+import { ArrowLeftRight, EraserFill, EyeFill, QrCodeScan } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";

@@ -1,4 +1,4 @@
-import { BrowserRouter as _, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as _, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Login from '../../pages/Login';
 import Traslados from '../../pages/Traslados';

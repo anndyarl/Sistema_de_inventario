@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
-export const listaEstadoFirmasActions = (altas_corr: number, idDocumento: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaEstadoFirmasActions = (altas_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -22,7 +22,7 @@ export const listaEstadoFirmasActions = (altas_corr: number, idDocumento: number
     dispatch({ type: LISTA_ESTADO_FIRMAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmaAltas?altas_corr=${altas_corr}&idDocumento=${idDocumento}&establ_corr=${establ_corr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEstadoFirmaAltas?altas_corr=${altas_corr}`, config);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({

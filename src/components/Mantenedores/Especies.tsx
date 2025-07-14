@@ -9,12 +9,12 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
 import { Plus } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
+import { Objeto } from "../Navegacion/Profile.tsx";
+import Select from "react-select";
 import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
 import { listadoMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/listadoMantenedorEspeciesActions.tsx";
 import { comboCuentaMantenedorActions } from "../../redux/actions/Mantenedores/Especies/comboCuentaMantenedorActions.tsx";
 import { registrarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/registrarMantenedorEspeciesActions.tsx";
-import { Objeto } from "../Navegacion/Profile.tsx";
-import Select from "react-select";
 
 export interface ListadoMantenedor {
     esP_CODIGO: string;
@@ -45,11 +45,11 @@ interface GeneralProps {
     nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, seR_CORR, listadoMantenedor, comboCuentas, objeto, token, isDarkMode, nPaginacion }) => {
+const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, registrarMantenedorEspeciesActions, seR_CORR, listadoMantenedor, comboCuentas, objeto, token, isDarkMode, nPaginacion }) => {
     const [loading, setLoading] = useState(false);
-    const [loadingRegistro, __] = useState(false);
+    const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
-    const [filasSeleccionada, setFilaSeleccionada] = useState<any[]>([]);
+    const [_, setFilaSeleccionada] = useState<any[]>([]);
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -190,8 +190,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         e.preventDefault();
 
         if (validate()) {
-
-            const selectedIndices = filasSeleccionada.map(Number);
+            // const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
                 title: "Registrar",
@@ -207,47 +206,47 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 }
             });
             if (result.isConfirmed) {
-                // setLoadingRegistro(true);
-                const formMantenedor = selectedIndices.map((activo) => ({
-                    esP_CODIGO: listadoMantenedor[activo].esP_CODIGO,
-                    ...Mantenedor,
-                }));
-                // const resultado = await registrarMantenedorEspeciesActions(Mantenedor);
+                // // setLoadingRegistro(true);
+                // const formMantenedor = selectedIndices.map((activo) => ({
+                //     esP_CODIGO: listadoMantenedor[activo].esP_CODIGO,
+                //     ...Mantenedor,
+                // }));
+                const resultado = await registrarMantenedorEspeciesActions(Mantenedor);
+                // console.log(formMantenedor);
+                if (resultado) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Registro Exitoso",
+                        text: "Se ha agregado una nueva especie.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoadingRegistro(false);
+                    // obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
+                    listadoMantenedorEspeciesActions();//llama al nuevo listado de servicios
+                    // setFilaSeleccionada([]);
+                    setMostrarModalRegistrar(false);
+
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: ":'(",
+                        text: "Hubo un problema al registrar",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    setLoadingRegistro(false);
+                }
+
                 // console.log(Mantenedor);
-                // if (resultado) {
-                //     Swal.fire({
-                //         icon: "success",
-                //         title: "Registro Exitoso",
-                //         text: "Se ha agregado un nuevo proveedor",
-                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                //         customClass: {
-                //             popup: "custom-border", // Clase personalizada para el borde
-                //         }
-                //     });
-                //     setLoadingRegistro(false);
-                //     // obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
-                //     listadoMantenedorEspeciesActions();//llama al nuevo listado de servicios
-                //     // setFilaSeleccionada([]);
-                //     setMostrarModalRegistrar(false);
-
-                // } else {
-                //     Swal.fire({
-                //         icon: "error",
-                //         title: ":'(",
-                //         text: "Hubo un problema al registrar",
-                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                //         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                //         customClass: {
-                //             popup: "custom-border", // Clase personalizada para el borde
-                //         }
-                //     });
-                //     setLoadingRegistro(false);
-                // }
-
-                console.log(Mantenedor);
             }
         }
     };
@@ -286,11 +285,11 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                     <th scope="col" className="text-nowrap text-center">Código</th>
                                     <th scope="col" className="text-nowrap text-center">Nombre</th>
                                     <th scope="col" className="text-nowrap text-center">Descripcion Cuenta</th>
-                                    <th scope="col" className="text-nowrap text-center">Vigencia</th>
-                                    <th scope="col" className="text-nowrap text-center">Usuario</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
+                                    {/* <th scope="col" className="text-nowrap text-center">Usuario</th> */}
                                     <th scope="col" className="text-nowrap text-center">Establecimiento</th>
-                                    <th scope="col" className="text-nowrap text-center">Dirección Ip</th>
-                                    <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Dirección Ip</th> */}
+                                    {/* <th scope="col" className="text-nowrap text-center">Vida Útil</th> */}
                                 </tr>
                             </thead>
                             <tbody>
@@ -308,11 +307,11 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                             <td scope="col" className="text-nowrap">{Lista.esP_CODIGO}</td>
                                             <td scope="col" className="text-nowrap">{Lista.esP_NOMBRE}</td>
                                             <td scope="col" className="text-nowrap">{Lista.ctA_NOMBRE}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.esP_VIGENTE}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.esP_USER_CREA}</td>
+                                            {/* <td scope="col" className="text-nowrap">{Lista.esP_VIGENTE}</td> */}
+                                            {/* <td scope="col" className="text-nowrap">{Lista.esP_USER_CREA}</td> */}
                                             <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.esP_IP_CREA}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.esP_VIDAUTIL}</td>
+                                            {/* <td scope="col" className="text-nowrap">{Lista.esP_IP_CREA}</td> */}
+                                            {/* <td scope="col" className="text-nowrap">{Lista.esP_VIDAUTIL}</td> */}
                                         </tr>
                                     );
                                 })}

@@ -27,7 +27,7 @@ export const registrarMantenedorEspeciesActions = (formModal: Record<string, any
     dispatch({ type: REGISTRAR_ESPECIE_REQUEST });
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeAllCuenta`, body, config);
+      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearEspecies`, body, config);
 
       if (res.status === 200) {
         dispatch({
@@ -43,11 +43,11 @@ export const registrarMantenedorEspeciesActions = (formModal: Record<string, any
         return false;
       }
     } catch (err: any) {
+      console.error("Error en registrarMantenedorEspeciesActions:", err);
       dispatch({
         type: REGISTRAR_ESPECIE_FAIL,
-        error: "Error en la solicitud:", err,
+        error: err?.message || "Error desconocido",
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {

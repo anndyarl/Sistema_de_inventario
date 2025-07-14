@@ -442,6 +442,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                 />
                                             </th> */}
+                                            <th scope="col" className="text-nowrap">Estado</th>
                                             <th scope="col" className="text-nowrap">Nº Inventario</th>
                                             <th scope="col" className="text-nowrap">Descripción</th>
                                             <th scope="col" className="text-nowrap">Fecha</th>
@@ -457,7 +458,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                             <th scope="col" className="text-nowrap">Marca</th>
                                             <th scope="col" className="text-nowrap">Modelo</th>
                                             <th scope="col" className="text-nowrap">Serie</th>
-                                            <th scope="col" className="text-nowrap">Estado Inventario</th>
                                             <th scope="col" className="text-nowrap" style={{
                                                 position: 'sticky',
                                                 right: 0,
@@ -476,6 +476,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                             checked={filasSeleccionadas.includes(indexReal.toString())}
                                                         />
                                                     </td> */}
+                                                    <td className="text-nowrap">
+                                                        {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
+                                                            : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
+                                                                : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
+                                                    </td>
                                                     <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
                                                     <td className="text-start">{lista.aF_DESCRIPCION}</td>
                                                     <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
@@ -493,12 +498,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
                                                     <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
                                                     <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                                                    <td className="text-nowrap">
-                                                        {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
-                                                            : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
-                                                                : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
-                                                    </td>
-
                                                     < td style={{
                                                         position: 'sticky',
                                                         right: 0

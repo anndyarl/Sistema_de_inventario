@@ -268,9 +268,9 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                                     <th scope="col" className="text-nowrap text-center">Código</th>
                                     <th scope="col" className="text-nowrap text-center">Código Servicio</th>
                                     <th scope="col" className="text-nowrap text-center">Nombre</th>
-                                    <th scope="col" className="text-nowrap text-center">Vigencia</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
                                     <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
-                                    <th scope="col" className="text-nowrap text-center">IP</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
                                     <th scope="col" className="text-nowrap text-center">Establecimiento</th>
                                 </tr>
                             </thead>
@@ -289,9 +289,9 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                                             <td scope="col" className="text-nowrap">{Lista.seR_CORR}</td>
                                             <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
                                             <td scope="col" className="text-nowrap">{Lista.seR_NOMBRE}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td>
+                                            {/* <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td> */}
                                             <td scope="col" className="text-nowrap">{Lista.seR_F_CREA}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td>
+                                            {/* <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td> */}
                                             <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
                                         </tr>
                                     );

@@ -135,7 +135,6 @@ const styles = StyleSheet.create({
     firmaBox: {
         flex: 1,
         alignItems: 'center',
-
     },
     firmaLabel: {
         marginTop: 5,
@@ -151,6 +150,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         position: 'absolute',
+        fontSize: 9,
         bottom: 20,
         left: 20,
         right: 20,

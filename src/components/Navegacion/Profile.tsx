@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
 import { RootState } from "../../redux/reducers";
 import { Navigate } from 'react-router-dom';
-import { Building, Database, Gear, Geo, Git } from "react-bootstrap-icons";
+import { Building, Database, Download, Gear, Geo, Git } from "react-bootstrap-icons";
 import { Col, Modal, Row, Spinner } from "react-bootstrap";
 import General from "../Configuracion/General";
 import Datos from "../Configuracion/Datos";
@@ -179,6 +179,19 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
                     aria-hidden="true"
                   />Configuración</strong>
                 </button>
+                {/* Enlace de descarga del manual de usuario */}
+                <a
+                  href="/manual_usuario.pdf"
+                  download="manual_usuario.pdf"
+                  className={`fw-fw-normal p-1 border-bottom  ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link mb-4 fs-6 fs-md-5 fs-lg-4 w-100 text-start p-0`}
+                >
+                  <strong>
+                    <Download
+                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    /> Manual de usuario
+                  </strong>
+                </a>
 
 
                 <Row className="g-2 mb-5">

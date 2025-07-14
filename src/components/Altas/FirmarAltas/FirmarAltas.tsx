@@ -20,11 +20,9 @@ import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/Anula
 import { registrarBienesBajasActions } from "../../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions";
 import { FileSignatureIcon } from "lucide-react";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
-import { ListaEstadoFirmas } from "../EstadoFirmas/EstadoFirmas ";
 import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/listaEstadoFirmasActions";
 import { useLocation } from "react-router-dom";
 // import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
-
 
 interface FechasProps {
     fDesde: string;
@@ -65,6 +63,11 @@ export interface DatosFirmas {
 export interface Unidades {
     iD_UNIDAD: number,
     nombre: string
+}
+
+export interface ListaEstadoFirmas {
+    altaS_CORR: number;
+    estado: number;
 }
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
@@ -476,6 +479,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         const blob = await pdf(
             <DocumentoPDF
                 row={filasSeleccionadasPDF}
+                totalSum={totalSum}
             // AltaInventario={AltaInventario}
             // objeto={objeto}
             // UnidadNombre={UnidadNombre}
@@ -1241,6 +1245,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     // BOTÓN SE HABILITA SOLO CUANDO TODOS LOS CHEQUEADOS SE CUMPLEN
     const botonHabilitado = (AltaInventario.chkFinanzas || AltaInventario.chkUnidad) && firmaFinanzasSeleccionada && firmaUnidadSeleccionada;
 
+    const totalSum = useMemo(() => {
+        return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.precio.toString()), 0);
+    }, [filasSeleccionadasPDF]);
 
     return (
         <Layout>
@@ -1918,6 +1925,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         <BlobProvider document={
                             <DocumentoPDF
                                 row={filasSeleccionadasPDF}
+                                totalSum={totalSum}
                             // AltaInventario={AltaInventario}
                             // objeto={objeto}
                             // UnidadNombre={UnidadNombre}

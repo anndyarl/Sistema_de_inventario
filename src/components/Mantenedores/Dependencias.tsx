@@ -234,8 +234,8 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
                   <th scope="col" className="text-nowrap text-center">Código Dependencia</th>
                   <th scope="col" className="text-nowrap text-center">Código Servicio</th>
                   <th scope="col" className="text-nowrap text-center">Nombre</th>
-                  <th scope="col" className="text-nowrap text-center">Vigencia</th>
-                  <th scope="col" className="text-nowrap text-center">IP</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
+                  {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
                 </tr>
               </thead>
@@ -255,8 +255,8 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
                       <td scope="col" className="text-nowrap">{Lista.deP_COD}</td>
                       <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
                       <td scope="col" className="text-nowrap">{Lista.nombre}</td>
-                      <td scope="col" className="text-nowrap">{Lista.vig}</td>
-                      <td scope="col" className="text-nowrap">{Lista.ip}</td>
+                      {/* <td scope="col" className="text-nowrap">{Lista.vig}</td> */}
+                      {/* <td scope="col" className="text-nowrap">{Lista.ip}</td> */}
                       <td scope="col" className="text-nowrap">{Lista.fechA_CREA}</td>
                     </tr>
                   );
