@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, List, Printer } from "react-bootstrap-icons";
+import { Plus, List, Printer, CheckCircleFill } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Signature } from "lucide-react";
@@ -43,7 +43,7 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Estado Firmas',
             description: ' Verifique el estado de las firmas que han sido firmadas.',
             href: '/Altas/EstadoFirmas',
-            icon: Signature
+            icon: CheckCircleFill
         },
         {
             name: 'Imprimir Etiquetas',
@@ -71,8 +71,15 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
                                 <NavLink
                                     key={index}
                                     to={item.href}
-                                    className={classNames('btn btn-outline-secondary py-2 px-3 m-1 rounded-2 text-decoration-none', isDarkMode ? "text-light" : "")}
-                                    onClick={toggleSidebar}                                 >
+                                    onClick={toggleSidebar}
+                                    className={({ isActive }) =>
+                                        classNames(
+                                            'btn py-2 px-3 m-1 text-decoration-none border-0 fw-semibold ',
+                                            isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
+                                            isDarkMode ? 'text-light' : 'text-secondary'
+                                        )
+                                    }
+                                >
                                     <item.icon className="me-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
                                     {item.name}
                                 </NavLink>

@@ -6,23 +6,35 @@ import { Moon, Sun } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { logout } from "../../redux/actions/auth/auth";
 import { setMostrarNPaginacionActions } from "../../redux/actions/Otros/mostrarNPaginacionActions";
+import { Navigate } from "react-router-dom";
 
 interface Props {
     isDarkMode: boolean;
-    logout: () => void;
+
     nPaginacion: number; //número de paginas establecido desde preferencias
+    origenLogin: number;
 }
-const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
+const General: React.FC<Props> = ({ isDarkMode, nPaginacion, origenLogin }) => {
     const dispatch = useDispatch();
 
     const onToggleDarkMode = (e: React.FormEvent<HTMLButtonElement>) => {
         e.preventDefault();
         dispatch(darkModeActions());
     };
-    const handleLogout = async () => {
-        logout();
+    const handleLogout = () => {
+        if (origenLogin === 0) {
+            // console.log("Valor 0 regresa a Gestor Documental");
+            dispatch(logout());
+            const redirectUrl = import.meta.env.VITE_ORIGEN_LOGIN
+            window.location.href = redirectUrl
+            return;
+        }
+        else {
+            // console.log("Valor 1 regresa a login Original");
+            dispatch(logout());
+            return <Navigate to="/" />;
+        }
     };
-
     const [_, setPaginacion] = useState({
         paginacion: ""
     });
@@ -105,10 +117,10 @@ const General: React.FC<Props> = ({ logout, isDarkMode, nPaginacion }) => {
 
 const mapStateToProps = (state: RootState) => ({
     isDarkMode: state.darkModeReducer.isDarkMode,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+    origenLogin: state.loginReducer.origenLogin
 });
 
 export default connect(mapStateToProps, {
-    logout,
 })(General);
 

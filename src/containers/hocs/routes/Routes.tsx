@@ -31,7 +31,6 @@ import Denegado from '../../errors/Denegado';
 import ListadoGeneral from '../../../components/Bajas/ListadoGeneral';
 import Servicios from '../../../components/Mantenedores/Servicios';
 import Dependencias from '../../../components/Mantenedores/Dependencias';
-import Especies from '../../../components/Mantenedores/Especies';
 import Usuarios from '../../../components/Mantenedores/Usuarios';
 import Mantenedores from '../../pages/Mantenedores';
 import ListadoTraslados from '../../../components/Traslados/ListadoTraslados';
@@ -56,18 +55,11 @@ import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/Imprimi
 import InfoActivo from '../../../components/Altas/ImprimirEtiqueta/InfoActivo';
 import EstadoFirmas from '../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 import AnularInventario from '../../../components/Inventario/AnularInventario';
-
-
+import LevantamientoFisico from '../../../components/Inventario/LevantamientoFisico';
+import Especies from '../../../components/Mantenedores/Especies';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
-    // const dispatch: AppDispatch = useDispatch(); // Usa el tipo AppDispatch para dispatch
-
-
-    // useEffect(() => {
-    //     dispatch(checkAuthStatus()); // Verifica el estado de autenticación al inicio
-    // }, [dispatch]);
-
     return (
         <AnimatePresence>
             <Routes location={location} key={location.pathname}>
@@ -90,6 +82,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
                 <Route path="/Inventario/BuscarInventario" element={<BuscarInventario />} />
                 <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+                <Route path="/Inventario/LevantamientoFisico" element={<LevantamientoFisico />} />
                 {/* <Route path="/Inventario/CargaMasiva" element={<CargaMasiva />} /> */}
                 {/* Fin Menu Inventario */}
 

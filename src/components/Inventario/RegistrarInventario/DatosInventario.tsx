@@ -514,7 +514,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           <h3 className="form-title fw-semibold border-bottom p-1">
             Registrar Inventario
           </h3>
-          <p className="p-1  fw-semibold">* Campos obligatorios</p>
+          <p className="p-1 fw-semibold">* Campos obligatorios</p>
           <Row>
             <Col md={4}>
               {/* Nº Recepción */}
@@ -966,7 +966,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan='8' className="text-center">No hay registros</td>
+                    <td className="text-center">No hay registros</td>
                   </tr>
                 )}
               </tbody>

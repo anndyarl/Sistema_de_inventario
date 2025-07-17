@@ -292,8 +292,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                     <tr key={indicePrimerElemento + index}>
                                         <td style={{
                                             position: 'sticky',
-                                            left: 0,
-                                            zIndex: 2,
+                                            left: 0
 
                                         }}>
                                             <Form.Check
@@ -330,7 +329,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                         </table>
                     </div>
                 )}
-                <div className="paginador-container">
+                <div className="paginador-container position-relative z-0">
                     <Pagination className="paginador-scroll">
                         <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
                         <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />

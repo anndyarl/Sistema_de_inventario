@@ -4,8 +4,7 @@ import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
-import { ArrowClockwise, Eraser, Printer, Search } from "react-bootstrap-icons";
-import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
+import { Eraser, Printer, Search } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
 import Layout from "../../../containers/hocs/layout/Layout";
 import MenuAltas from "../../Menus/MenuAltas";
@@ -14,17 +13,15 @@ import DocumentoEtiquetasPDF from "./DocumentoEtiquetasPDF";
 import ReactDOM from 'react-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { Objeto } from "../../Navegacion/Profile";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(" ");
-};
-
+import { quitarEtiquetasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/quitarEtiquetasActions";
+import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
 interface FechasProps {
     fDesde: string;
     fHasta: string;
 }
 export interface ListaEtiquetas {
     aF_CODIGO_GENERICO: string;
-    aF_CLAVE?: string;
+    aF_CLAVE?: number;
     nrecepcion?: string;
     fechA_RECEPCION?: string;
     altaS_CORR?: number;
@@ -51,23 +48,25 @@ export interface ListaEtiquetas {
 
 export interface DatosBajas {
     obtenerEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
+    quitarEtiquetasActions: (etiquetas: Record<number, any>[]) => Promise<boolean>;
     listaEtiquetas: ListaEtiquetas[];
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
-    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, listaEtiquetas, token, isDarkMode, nPaginacion, objeto }) => {
+const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, quitarEtiquetasActions, listaEtiquetas, token, isDarkMode, objeto }) => {
     const [loading, setLoading] = useState(false);
-    const [loadingRefresh, setLoadingRefresh] = useState(false);
+    const [loadingQuitar, setLoadingQuitar] = useState(false);
     //-------------Modal-------------//
     const [mostrarModal, setMostrarModal] = useState(false);
     //------------Fin Modal----------//
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
-    const elementosPorPagina = nPaginacion;
+    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+    const elementosPorPagina = Paginacion.nPaginacion;
+
     const [Inventario, setInventario] = useState({
         fDesde: "",
         fHasta: "",
@@ -120,7 +119,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+        if (name === "aF_CLAVE" && !/^[0-9]*$/.test(value)) {
             return; // Salir si contiene caracteres no numéricos
         }
 
@@ -132,6 +131,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
         // Actualizar estado
         setInventario((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
+
+        setPaginacion((prevState) => ({
             ...prevState,
             [name]: newValue,
         }));
@@ -170,17 +174,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             setLoading(false); //Finaliza estado de carga
         }
 
-    };
-
-    const handleRefrescar = async () => {
-        setLoadingRefresh(true); //Finaliza estado de carga
-        const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
-        if (!resultado) {
-            setLoadingRefresh(false);
-        } else {
-            paginar(1);
-            setLoadingRefresh(false);
-        }
     };
 
     const handleLimpiar = () => {
@@ -222,7 +215,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             document.body.appendChild(container);
 
             // Renderizamos el componente QR temporalmente
-            ReactDOM.render(<QRCodeSVG value={value} size={1000} />, container);
+            ReactDOM.render(<QRCodeSVG value={value} size={100} />, container);
 
             setTimeout(() => {
                 try {
@@ -237,13 +230,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
                     img.onload = () => {
                         const canvas = document.createElement("canvas");
-                        canvas.width = img.width * 2;     // Duplicamos el tamaño físico
-                        canvas.height = img.height * 2;
-
+                        canvas.width = img.width;
+                        canvas.height = img.height;
                         const ctx = canvas.getContext("2d");
                         if (ctx) {
-                            ctx.scale(2, 2);              // Escala el contexto antes de dibujar
-                            ctx.drawImage(img, 0, 0);     // Dibujamos el QR una sola vez sobre el canvas escalado
+                            ctx.drawImage(img, 0, 0);
                             const pngData = canvas.toDataURL("image/png");
                             document.body.removeChild(container);
                             resolve(pngData);
@@ -302,6 +293,67 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         // Muestra modal y finaliza la carga
         setMostrarModal(true);
         setLoading(false);
+    };
+
+    const handleQuitar = async () => {
+        const selectedIndices = filasSeleccionadas.map(Number);
+        const result = await Swal.fire({
+            icon: "warning",
+            title: "Quitar",
+            text: "Confirme para quitar las etiquetas seleccionadas",
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Confirmar y Quitar",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+            }
+        });
+
+        if (result.isConfirmed) {
+            setLoadingQuitar(true);
+            // Crear un array de objetos con aF_CLAVE y nombre
+            const Formulario = selectedIndices.map((activo) => ({
+                aF_CLAVE: Number(listaEtiquetas[activo].aF_CLAVE),
+            }));
+
+            const resultado = await quitarEtiquetasActions(Formulario);
+            if (resultado) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Quitadas del listado",
+                    text: "Se han quitado de la lista correctamente.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+
+                setLoadingQuitar(false);
+                handleBuscar();
+                setFilasSeleccionadas([]);
+                obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: ":'(",
+                    text: "Hubo un problema al quitar la etiquetas",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+                setLoadingQuitar(false);
+            }
+
+        }
+
     };
 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -389,89 +441,129 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </div>
                     </Col>
 
-                    <Col md={5}>
-                        <div className="mb-1 mt-4">
-                            <Button onClick={handleBuscar}
+                    {/* Columna 5: Botones de Acción */}
+                    <Col md={1}>
+                        <div className="d-flex flex-column gap-2 mt-4">
+                            <Button
+                                onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
-                                disabled={loading}>
+                                className="w-100"
+                            // disabled={loading}
+                            >
                                 {loading ? (
                                     <>
-                                        {" Buscar"}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="ms-1"
-                                        />
+                                        Buscar
+                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                                     </>
                                 ) : (
                                     <>
-                                        {" Buscar"}
-                                        < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                        Buscar
+                                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                     </>
                                 )}
                             </Button>
-                            <Button onClick={handleRefrescar}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
-                                disabled={loadingRefresh}>
-                                {loadingRefresh ? (
-                                    <>
-                                        {" Refrescar "}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="ms-1"
-                                        />
-                                    </>
-                                ) : (
-                                    <>
-                                        {" Refrescar "}
-                                        <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                    </>
-                                )}
-                            </Button>
-                            <Button onClick={handleLimpiar}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+
+                            <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                                 Limpiar
-                                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                             </Button>
                         </div>
                     </Col>
                 </Row>
 
-                <div className="d-flex justify-content-end">
+                <Row className="g-2">
+                    {/* Columna 1: Tamaño de página */}
+                    <Col lg={8} md={6} sm={12}>
+                        {listaEtiquetas.length > 10 && (
+                            <div className="d-flex align-items-center justify-content-lg-start justify-content-center">
+                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                    Tamaño de página:
+                                </label>
+                                <select
+                                    aria-label="Seleccionar tamaño de página"
+                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="nPaginacion"
+                                    onChange={handleChange}
+                                    value={Paginacion.nPaginacion}
+                                >
+                                    {[10, 20, 30, listaEtiquetas.length].map((val) => (
+                                        <option key={val} value={val}>
+                                            {val}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </Col>
+
                     {filasSeleccionadas.length > 0 ? (
-                        <Button
-                            onClick={handleGenerar} disabled={listaEtiquetas.length === 0}
-                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
-                        >
-                            {loading ? (
-                                <>
-                                    {" Generar"}
-                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                </>
-                            ) : (
-                                <>
-                                    {"Generar"}
-                                    <Printer className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                </>
-                            )}
-                        </Button>
+                        <>
+                            {/* Botón quitar del Listado */}
+                            <Col lg={2} md={6} sm={12}>
+                                <div className="d-flex justify-content-lg-end justify-content-end">
+                                    <Button
+                                        variant="danger"
+                                        onClick={handleQuitar}
+                                        disabled={loadingQuitar}
+                                        className="w-100 w-lg-auto d-flex align-items-center justify-content-center"
+                                    >
+                                        {loadingQuitar ? (
+                                            <>
+                                                {" Quitar"}
+                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {"Quitar"}
+                                                <span className="badge bg-light text-dark mx-2">
+                                                    {filasSeleccionadas.length}
+                                                </span>
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </Col>
+
+                            {/* Botón Generar Etiqueta */}
+                            <Col lg={2} md={12} sm={12}>
+                                <div className="d-flex justify-content-lg-end justify-content-end">
+                                    <Button
+                                        variant={isDarkMode ? "secondary" : "primary"}
+                                        onClick={handleGenerar}
+                                        disabled={listaEtiquetas.length === 0}
+                                        className="w-100 w-lg-auto d-flex align-items-center justify-content-center"
+                                    >
+                                        {loading ? (
+                                            <>
+                                                {" Generar"}
+                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {"Generar"}
+                                                <Printer className="flex-shrink-0 h-5 w-5 mx-2" aria-hidden="true" />
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </Col>
+                        </>
                     ) : (
-                        <strong className="alert alert-dark border m-1 p-2">
-                            No hay filas seleccionadas
-                        </strong>
+                        <>
+                            {/* Mensaje */}
+                            <Col>
+                                <div className="d-flex justify-content-lg-end justify-content-end">
+                                    <strong className="alert alert-dark border p-2 mb-1 ">
+                                        No hay filas seleccionadas
+                                    </strong>
+                                </div>
+                            </Col>
+                        </>
                     )}
-                </div>
-                {loading || loadingRefresh ? (
+                </Row>
+
+                {/* Tabla */}
+                {loading ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className='table-responsive'>
@@ -480,9 +572,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 <tr >
                                     <th style={{
                                         position: 'sticky',
-                                        left: 0,
-                                        zIndex: 2,
-
+                                        left: 0
                                     }}>
                                         <Form.Check
                                             className="check-danger"
@@ -492,6 +582,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         />
                                     </th>
 
+                                    {/* <th scope="col" className="text-nowrap">Estado</th> */}
                                     <th scope="col" className="text-nowrap">Nº Inventario</th>
                                     <th scope="col" className="text-nowrap">N° Alta</th>
                                     <th scope="col" className="text-nowrap">Descripción</th>
@@ -509,8 +600,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         <tr key={index}>
                                             <td style={{
                                                 position: 'sticky',
-                                                left: 0,
-                                                zIndex: 2,
+                                                left: 0
 
                                             }}>
                                                 <Form.Check
@@ -519,6 +609,9 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                 />
                                             </td>
+                                            {/* <td className="text-nowrap">
+                                                <span className="badge bg-primary  w-100">Impreso</span>
+                                            </td> */}
                                             <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
                                             <td className="text-nowrap">{fila.altaS_CORR}</td>
                                             <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
@@ -540,7 +633,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </table>
                     </div>
                 )}
-                <div className="paginador-container">
+                <div className="paginador-container position-relative z-0">
                     <Pagination className="paginador-scroll">
                         <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
                         <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
@@ -609,5 +702,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
     obtenerEtiquetasAltasActions,
+    quitarEtiquetasActions
 })(ImprimirEtiqueta);
 

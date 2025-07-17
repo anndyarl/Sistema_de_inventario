@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ListaAltas } from './FirmarAltas';
+import { Container } from 'react-bootstrap';
 const styles = StyleSheet.create({
     page: {
         padding: 20,
@@ -47,229 +48,260 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
 
     },
+    tableHeader: {
+        fontSize: 8,
+        flexDirection: "row",
+        fontWeight: 'bold',
+        backgroundColor: 'rgb(0 68 133 / 80%)',
+        color: '#fff',
+        borderBottom: "1px solid #000",
+    },
     tableRow: {
-        flexDirection: 'row',
-    },
-    tableCellHeader: {
-        fontSize: 8,
-        fontWeight: 'bold',
-        padding: "0.5px",
-        border: '1px solid #b3b3b3',
-        backgroundColor: "rgb(0 68 133 / 80%)",
-        color: "#fff",
-        flex: 1,
-        // textAlign: 'center',
-    },
-    tableCellHeaderLong: {
-        fontSize: 8,
-        fontWeight: 'bold',
-        padding: 2,
-        border: '1px solid #b3b3b3',
-        backgroundColor: 'rgb(0 68 133 / 80%)',
-        color: '#fff',
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: '2%', // más espacio base
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
-    },
-
-    tableCellHeaderLongAlta: {
-        fontSize: 8,
-        fontWeight: 'bold',
-        padding: 1,
-        border: '1px solid #b3b3b3',
-        backgroundColor: 'rgb(0 68 133 / 80%)',
-        color: '#fff',
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: '1%', // más espacio base
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        // whiteSpace: 'wrap',
+        flexDirection: "row",
+        borderBottom: "1px solid #ccc",
+        alignItems: "center",
     },
     tableCell: {
+        padding: 3,
         fontSize: 8,
-        border: '1px solid #b3b3b3',
-        padding: 2,
-        flex: 1,
+        borderRight: "1px solid #ccc",
+        textAlign: "center",
+        overflow: "hidden",
+    },
+    colCodigo: {
+        width: "45%", // o fixed in pt: 60
         wordWrap: 'break-word',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'wrap',
-        maxWidth: 80,
+    },
+    colNAlta: {
+        width: "20%",
+    },
+    colFechaAlta: {
+        width: "40%",
+    },
+    colServicio: {
+        width: "50%",
+    },
+    colDependencia: {
+        width: "50%",
+    },
+    colEspecie: {
+        width: "40%",
+    },
+    colCuenta: {
+        width: "40%",
+    },
+    colMarca: {
+        width: "30%",
+    },
+    colModelo: {
+        width: "35%",
+    },
+    colSerie: {
+        width: "30%",
+    },
+    colPrecio: {
+        width: "50%",
+    },
+    colRecepcion: {
+        width: "35%",
     },
 
-
-    tableCellLong: {
-        fontSize: 8,
-        border: '1px solid #b3b3b3',
-        padding: 2,
-        flexGrow: 1,      // permite que esta columna crezca más que las demás
-        flexShrink: 1,
-        flexBasis: '2%', // punto de partida mayor
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
-    },
-
-    tableCellLongAlta: {
-        fontSize: 8,
-        border: '1px solid #b3b3b3',
-        padding: 1,
-        flexGrow: 1,      // permite que esta columna crezca más que las demás
-        flexShrink: 1,
-        flexBasis: '1%', // punto de partida mayor
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        // whiteSpace: 'wrap',
-    },
-
-    firmaContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 250,
-        paddingHorizontal: 20,
-    },
     firmaBox: {
-        flex: 1,
-        alignItems: 'center',
-
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
     },
-    firmaLabel: {
+    firmaLabel1: {
+        marginTop: 5,
+        marginRight: 50,
+        fontSize: 10,
+        textAlign: 'left'
+    },
+    firmaLabel2: {
         marginTop: 5,
         fontSize: 10,
-        textAlign: 'center',
+        textAlign: 'right'
+    },
+    firmaLabel3: {
+        marginTop: 5,
+        marginBottom: 5,
+        marginRight: 10,
+        fontSize: 12,
+        textAlign: 'left'
     },
     firmaImagen: {
         bottom: 40,
         width: "30%",
         position: 'absolute'
     },
+    containerFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        position: 'absolute',
+        fontSize: 9,
+        bottom: 20,
+        left: 20,
+        right: 20,
+        borderTop: '1px black solid'
+    },
+    fechaHoy: {
+        padding: 2,
+    },
 
 });
-const DocumentoPDF = ({ row, /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: ListaAltas[]; /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => (
-    <Document>
-        <Page style={styles.page}>
-            {/* Logo */}
-            {/* <Container style={styles.containerHeader}> */}
-            {/* <View style={styles.headerContainer}> */}
-            {/* Logo a la izquierda */}
-            {/* <Image src={ssmso_logo} style={styles.logo} /> */}
 
-            {/* Textos a la derecha */}
-            {/* <View style={styles.textContainer}>
+// Formatear la fecha actual en español (Chile)
+const fechaHoy = new Date()
+    .toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    })
+    .replace(/-/g, '/');
+
+const arreglo = (array: any[], size: number) => {
+    const result = [];
+    for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+    }
+    return result;
+};
+
+const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: ListaAltas[]; totalSum: number /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => {
+    const filasPorPagina = 12;
+    const paginas = arreglo(row, filasPorPagina);
+
+    // const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: ListaAltas[]; totalSum: number /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => (
+
+    return (
+        <Document>
+            {paginas.map((rows, indicePagina) => (
+                <Page style={styles.page}>
+                    {/* Logo */}
+                    {/* <Container style={styles.containerHeader}> */}
+                    {/* <View style={styles.headerContainer}> */}
+                    {/* Logo a la izquierda */}
+                    {/* <Image src={ssmso_logo} style={styles.logo} /> */}
+
+                    {/* Textos a la derecha */}
+                    {/* <View style={styles.textContainer}>
                         <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
                         <Text style={styles.p}>Subdirección Administrativa</Text>
                         <Text style={styles.p}>Departamento de Finanzas</Text>
                         <Text style={styles.p}>Unidad de Inventarios</Text>
                     </View> */}
-            {/* </View> */}
-            {/* </Container> */}
-            {/* Encabezado */}
-            {(() => {
-                const altasUnicas = [...new Set(row.map(item => item.altaS_CORR))];
-                if (altasUnicas.length === 1) {
-                    const unicaAlta = row[0]; // todos tienen la misma altaS_CORR, así que usamos el primero
-                    return (
-                        <View style={styles.headerContent}>
-                            <Text style={styles.header}>Alta Nº: {unicaAlta.altaS_CORR}</Text>
-                            <Text style={styles.header}>Fecha de Alta: {unicaAlta.fechA_ALTA}</Text>
-                        </View>
-                    );
-                }
+                    {/* </View> */}
+                    {/* </Container> */}
+                    {/* Encabezado */}
 
-                return null; // no mostrar nada si hay más de una alta
-            })()}
+                    {(() => {
+                        const altasUnicas = [...new Set(row.map(item => item.altaS_CORR))];
+                        if (altasUnicas.length === 1) {
+                            const unicaAlta = row[0]; // todos tienen la misma altaS_CORR, así que usamos el primero
+                            return (
+                                <View style={styles.headerContent}>
+                                    <Text style={styles.header}>Alta Nº: {unicaAlta.altaS_CORR}</Text>
+                                    <Text style={styles.header}>Fecha de Alta: {unicaAlta.fechA_ALTA}</Text>
+                                </View>
+                            );
+                        }
 
-            {/* Tabla */}
-            <View style={styles.table}>
-                {/* Cabecera de la tabla */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellHeaderLong}>N° Inventario</Text>
-                    <Text style={styles.tableCellHeaderLongAlta}>N° Alta</Text>
-                    <Text style={styles.tableCellHeaderLong}>Fecha Alta</Text>
-                    <Text style={styles.tableCellHeader}>Servicio</Text>
-                    <Text style={styles.tableCellHeaderLong}>Dependencia</Text>
-                    <Text style={styles.tableCellHeader}>Especie</Text>
-                    <Text style={styles.tableCellHeader}>N° Cuenta</Text>
-                    <Text style={styles.tableCellHeader}>Marca</Text>
-                    <Text style={styles.tableCellHeader}>Modelo</Text>
-                    <Text style={styles.tableCellHeader}>Serie</Text>
-                    <Text style={styles.tableCellHeader}>Estado</Text>
-                    <Text style={styles.tableCellHeader}>Precio</Text>
-                    <Text style={styles.tableCellHeader}>Nº Recepción</Text>
-                </View>
-                {/* Fila de datos */}
-                {row.map((lista) => (
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellLong}>{lista.ninv}</Text>
-                        <Text style={styles.tableCellLongAlta}>{lista.altaS_CORR}</Text>
-                        <Text style={styles.tableCellLong}>{lista.fechA_ALTA}</Text>
-                        <Text style={styles.tableCell}>{lista.serv}</Text>
-                        <Text style={styles.tableCellLong}>{lista.dep}</Text>
-                        <Text style={styles.tableCell}>{lista.esp}</Text>
-                        <Text style={styles.tableCell}>{lista.ncuenta}</Text>
-                        <Text style={styles.tableCell}>{lista.marca}</Text>
-                        <Text style={styles.tableCell}>{lista.modelo}</Text>
-                        <Text style={styles.tableCell}>{lista.serie}</Text>
-                        <Text style={styles.tableCell}>{lista.estado}</Text>
-                        <Text style={styles.tableCell}>$ {(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={styles.tableCell}>{lista.nrecep}</Text>
+                        return null; // no mostrar nada si hay más de una alta
+                    })()}
+
+                    {/* {indicePagina === 0 && ( */}
+                    <View style={styles.firmaBox}>
+                        <Text style={styles.firmaLabel3}>Cantidad: {row.length}</Text>
                     </View>
-                ))}
-            </View>
-            {/* Área de firmas */}
-            {/* <View style={styles.firmaContainer}> */}
-            {/* Firma Unidad Inventario */}
-            {/* {AltaInventario.ajustarFirma && ( */}
-            {/* <View style={styles.firmaBox}> */}
-            {/* {AltaInventario.visadoInventario ? (
+                    {/* )} */}
+                    {/* Tabla */}
+                    <View style={styles.table}>
+                        {/* Cabecera de la tabla */}
+                        <View style={styles.tableHeader}>
+                            <Text style={[styles.tableCell, styles.colCodigo]}>N° Inventario</Text>
+                            <Text style={[styles.tableCell, styles.colNAlta]}>N° Alta</Text>
+                            <Text style={[styles.tableCell, styles.colFechaAlta]}>Fecha Alta</Text>
+                            <Text style={[styles.tableCell, styles.colServicio]}>Servicio</Text>
+                            <Text style={[styles.tableCell, styles.colDependencia]}>Dependencia</Text>
+                            <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
+                            <Text style={[styles.tableCell, styles.colCuenta]}>N° Cuenta</Text>
+                            <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
+                            <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
+                            <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
+                            {/* <Text style={[styles.tableCell, styles.colObs]}>Estado</Text> */}
+                            <Text style={[styles.tableCell, styles.colPrecio]}>Precio</Text>
+                            <Text style={[styles.tableCell, styles.colRecepcion]}>Nº Recepción</Text>
+                        </View>
+                        {/* Fila de datos */}
+                        {rows.map((lista) => (
+
+                            <View style={styles.tableRow} key={lista}>
+                                <Text style={[styles.tableCell, styles.colCodigo]}>{lista.ninv}</Text>
+                                <Text style={[styles.tableCell, styles.colNAlta]}>{lista.altaS_CORR}</Text>
+                                <Text style={[styles.tableCell, styles.colFechaAlta]}>{lista.fechA_ALTA}</Text>
+                                <Text style={[styles.tableCell, styles.colServicio]}>{lista.serv}</Text>
+                                <Text style={[styles.tableCell, styles.colDependencia]}>{lista.dep}</Text>
+                                <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esp}</Text>
+                                <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ncuenta}</Text>
+                                <Text style={[styles.tableCell, styles.colMarca]}>{lista.marca}</Text>
+                                <Text style={[styles.tableCell, styles.colModelo]}>{lista.modelo}</Text>
+                                <Text style={[styles.tableCell, styles.colSerie]}>{lista.serie}</Text>
+                                {/* <Text style={[styles.tableCell, styles.colObs]}>{lista.estado}</Text> */}
+                                <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colRecepcion]}>{lista.nrecep}</Text>
+                            </View>
+                        ))}
+
+                    </View>
+                    {/* Área de firmas */}
+                    {/* <View style={styles.firmaContainer}> */}
+                    {/* Firma Unidad Inventario */}
+                    {/* {AltaInventario.ajustarFirma && ( */}
+                    {/* <View style={styles.firmaBox}> */}
+                    {/* {AltaInventario.visadoInventario ? (
                             <Image src={AltaInventario.visadoInventario} style={{ ...styles.firmaImagen }} />
                         ) : (
                             <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
                         )} */}
-            {/* <Text>_______________________</Text>
+                    {/* <Text>_______________________</Text>
                 <Text style={styles.firmaLabel}>{AltaInventario.firmanteInventario}</Text>
                 <Text style={styles.firmaLabel}>Unidad Inventario</Text>
             </View> */}
-            {/* )} */}
+                    {/* )} */}
 
-            {/* Firma Unidad Finanzas */}
-            {/* {AltaInventario.chkFinanzas && ( */}
-            {/* <View style={styles.firmaBox}> */}
-            {/* {AltaInventario.visadoFinanzas ? (
+                    {/* Firma Unidad Finanzas */}
+                    {/* {AltaInventario.chkFinanzas && ( */}
+                    {/* <View style={styles.firmaBox}> */}
+                    {/* {AltaInventario.visadoFinanzas ? (
                             <Image src={AltaInventario.visadoFinanzas} style={{ ...styles.firmaImagen }} />
                         ) : (
                             <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
                         )} */}
-            {/* <Text>_______________________</Text>
+                    {/* <Text>_______________________</Text>
                         <Text style={styles.firmaLabel}>{AltaInventario.firmanteFinanzas}</Text>
                         <Text style={styles.firmaLabel}>Departamento de Finanzas</Text>
                     </View> */}
-            {/* )} */}
-            {/* id usuario Gabriela 888 */}
-            {/* {objeto.IdCredencial == 888 || objeto.IdCredencial === 62511 ? ( */}
-            {/* <> */}
-            {/* Firma Abastecimiento */}
-            {/* {Unidad === 3 && (
+                    {/* )} */}
+                    {/* id usuario Gabriela 888 */}
+                    {/* {objeto.IdCredencial == 888 || objeto.IdCredencial === 62511 ? ( */}
+                    {/* <> */}
+                    {/* Firma Abastecimiento */}
+                    {/* {Unidad === 3 && (
                                 <View style={styles.firmaBox}>
                                     <Text>_______________________</Text>
                                     <Text style={styles.firmaLabel}>{AltaInventario.firmanteAbastecimiento}</Text>
                                     <Text style={styles.firmaLabel}>{UnidadNombre}</Text>
                                 </View>
                             )} */}
-            {/* Firma Informatica */}
-            {/* {Unidad === 4 && (
+                    {/* Firma Informatica */}
+                    {/* {Unidad === 4 && (
                                 <View style={styles.firmaBox}>
                                     <Text>_______________________</Text>
                                     <Text style={styles.firmaLabel}>{AltaInventario.firmanteInformatica}</Text>
                                     <Text style={styles.firmaLabel}>{UnidadNombre}</Text>
                                 </View>
                             )} */}
-            {/* Firma Compra */}
-            {/* {Unidad === 5 && (
+                    {/* Firma Compra */}
+                    {/* {Unidad === 5 && (
                                 <View style={styles.firmaBox}>
                                     <Text>_______________________</Text>
                                     <Text style={styles.firmaLabel}>{AltaInventario.firmanteCompra}</Text>
@@ -277,28 +309,57 @@ const DocumentoPDF = ({ row, /*AltaInventario, objeto, UnidadNombre, Unidad*/ }:
                                 </View>
                             )} */}
 
-            {/* </>
+                    {/* </>
                      ) : (
                          <> */}
-            {/* Firma Unidad Abastecimiento */}
-            {/* {AltaInventario.chkAbastecimiento && (
+                    {/* Firma Unidad Abastecimiento */}
+                    {/* {AltaInventario.chkAbastecimiento && (
                                 <View style={styles.firmaBox}> */}
-            {/* {AltaInventario.visadoAbastecimiento ? (
+                    {/* {AltaInventario.visadoAbastecimiento ? (
                             <Image src={AltaInventario.visadoAbastecimiento} style={{ ...styles.firmaImagen }} />
                         ) : (
                             <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
                         )} */}
-            {/* <Text>_______________________</Text>
+                    {/* <Text>_______________________</Text>
                                     <Text style={styles.firmaLabel}>{AltaInventario.firmanteAbastecimiento}</Text>
                                     <Text style={styles.firmaLabel}>Unidad de Abastecimiento</Text>
                                 </View>
                             )} */}
-            {/* </> */}
-            {/* )} */}
-            {/* </View> */}
-        </Page>
-    </Document >
+                    {/* </> */}
+                    {/* )} */}
+                    {/* </View> */}
+                    {indicePagina === paginas.length - 1 && (
+                        <>
+                            <Text style={styles.firmaLabel2}>_________________________</Text>
+                            <View style={styles.firmaBox}>
+                                <Text style={styles.firmaLabel1}>Total</Text>
+                                <Text style={styles.firmaLabel2}>
+                                    $ {(totalSum ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                </Text>
+                            </View>
+                        </>
+                    )}
 
-);
+                    <Container style={styles.containerFooter}>
+                        <Text style={styles.fechaHoy}>{fechaHoy}</Text>
+                        <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
+                    </Container>
 
+
+                    {/* Pie de página para otras páginas */}
+                    {indicePagina !== paginas.length - 1 && (
+                        <Container style={styles.containerFooter}>
+                            {/* <View style={styles.flex}> */}
+                            <Text style={styles.fechaHoy}>{fechaHoy}</Text>
+                            <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
+                            {/* </View> */}
+                        </Container>
+                    )}
+                </Page>
+            ))
+            }
+        </Document >
+
+    );
+};
 export default DocumentoPDF;

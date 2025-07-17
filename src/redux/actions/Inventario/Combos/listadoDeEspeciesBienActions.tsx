@@ -2,12 +2,13 @@ import axios from "axios";
 import {
   LISTADO_ESPECIES_BIEN_REQUEST,
   LISTADO_ESPECIES_BIEN_SUCCESS,
+  COMBO_ESPECIES_BIEN_SUCCESS,
   LISTADO_ESPECIES_BIEN_FAIL,
 } from "../types";
 import { Dispatch } from "redux";
 
 // Acción para obtener servicio
-export const listadoDeEspeciesBienActions = (EST: number, IDBIEN: number, esP_CODIGO: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoDeEspeciesBienActions = (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -20,14 +21,21 @@ export const listadoDeEspeciesBienActions = (EST: number, IDBIEN: number, esP_CO
     dispatch({ type: LISTADO_ESPECIES_BIEN_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}&esP_CODIGO=${esP_CODIGO}`, config);
-
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboListadoDeEspeciesBienPar?EST=${EST}&IDBIEN=${IDBIEN}&esP_CODIGO=${esP_CODIGO}&esP_NOMBRE=${esP_NOMBRE}`, config);
+      const { comboEspecies } = getState().listadoDeEspeciesBienReducers;
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({
             type: LISTADO_ESPECIES_BIEN_SUCCESS,
             payload: res.data,
           });
+
+          if (!comboEspecies || comboEspecies.length !== res.data.length) {
+            dispatch({
+              type: COMBO_ESPECIES_BIEN_SUCCESS,
+              payload: res.data,
+            });
+          }
           return true;
         }
         else {

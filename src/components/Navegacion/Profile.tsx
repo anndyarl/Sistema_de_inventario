@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
 import { RootState } from "../../redux/reducers";
 import { Navigate } from 'react-router-dom';
-import { Building, Database, Gear, Geo, Git } from "react-bootstrap-icons";
+import { Building, Database, Download, Gear, Geo, Git } from "react-bootstrap-icons";
 import { Col, Modal, Row, Spinner } from "react-bootstrap";
 import General from "../Configuracion/General";
 import Datos from "../Configuracion/Datos";
@@ -62,9 +62,10 @@ interface ProfileProps {
   ipc: IndicadoresProps;
   isDarkMode: boolean;
   token: string | null;
+  origenLogin: number;
 }
 
-const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, utm, uf, dolar, ipc, isDarkMode, token }) => {
+const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, utm, uf, dolar, ipc, isDarkMode, token, origenLogin }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const togglePanel = () => { setIsOpen((prev) => !prev); };
@@ -88,8 +89,18 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
   }, [indicadoresActions]);
 
   const handleLogout = () => {
-    dispatch(logout());
-    return <Navigate to="/" />;
+    if (origenLogin === 0) {
+      // console.log("Valor 0 regresa a Gestor Documental");
+      dispatch(logout());
+      const redirectUrl = import.meta.env.VITE_ORIGEN_LOGIN
+      window.location.href = redirectUrl
+      return;
+    }
+    else {
+      // console.log("Valor 1 regresa a login Original");
+      dispatch(logout());
+      return <Navigate to="/" />;
+    }
   };
 
   //Efectos de transicion apertura profile
@@ -112,14 +123,14 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
 
   return (
     <>
-      <div className="d-flex w-50 justify-content-end mx-2 align-items-center ">
-        <button type="button" onClick={togglePanel} className={`p-2 rounded ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link d-flex`}>
+      <div className="d-flex justify-content-end align-content-center p-3">
+        <button type="button" onClick={togglePanel} className={`d-flex justify-content-end align-items-center rounded p-1 ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link `}>
           <UserCircle
-            className={classNames("mx-1", `${isDarkMode ? "text-white" : ""}`, "flex-shrink-0", "h-5 w-5")}
-            aria-hidden="true"
+            className={`${isDarkMode ? "text-white" : "text-muted"}`}
+            size={30} aria-hidden="true"
           />
           <span className={`d-none d-md-inline ${isDarkMode ? "text-white" : ""}`}>
-            <p className="fs-09em"> {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
+            <p className="fs-09em ms-1" > {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
           </span>
         </button >
       </div>
@@ -137,7 +148,7 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
             <motion.div onClick={(e) => e.stopPropagation()}>
               <div className="d-flex justify-content-end ">
                 <button
-                  className={`btn fs-2 p-0 ${isDarkMode ? "text-light" : "text-dark"}`}
+                  className={`btn fs-1 ${isDarkMode ? "text-light" : "text-dark"}`}
                   onClick={togglePanel}
                   aria-label="Cerrar"
                 >
@@ -168,6 +179,19 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
                     aria-hidden="true"
                   />Configuración</strong>
                 </button>
+                {/* Enlace de descarga del manual de usuario */}
+                <a
+                  href="/manual_usuario.pdf"
+                  download="manual_usuario.pdf"
+                  className={`fw-fw-normal p-1 border-bottom  ${isDarkMode ? "text-light" : "text-dark"} nav-item nav-link mb-4 fs-6 fs-md-5 fs-lg-4 w-100 text-start p-0`}
+                >
+                  <strong>
+                    <Download
+                      className={classNames("m-1 flex-shrink-0", "h-5 w-5")}
+                      aria-hidden="true"
+                    /> Manual de usuario
+                  </strong>
+                </a>
 
 
                 <Row className="g-2 mb-5">
@@ -273,6 +297,8 @@ const mapStateToProps = (state: RootState) => ({
   ipc: state.indicadoresReducers.ipc,
   isDarkMode: state.darkModeReducer.isDarkMode,
   token: state.loginReducer.token,
+  origenLogin: state.loginReducer.origenLogin,
+
 });
 
 export default connect(mapStateToProps, {

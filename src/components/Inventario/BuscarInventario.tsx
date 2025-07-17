@@ -533,6 +533,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                   <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
+                      {/* <th scope="col" className="text-nowrap">Estado Alta</th> */}
                       <th scope="col" className="text-nowrap">Nº Inventario</th>
                       <th scope="col" className="text-nowrap">Descripción</th>
                       <th scope="col" className="text-nowrap">Fecha</th>
@@ -553,12 +554,12 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       <th scope="col" className="text-nowrap">Marca</th>
                       <th scope="col" className="text-nowrap">Modelo</th>
                       <th scope="col" className="text-nowrap">Serie</th>
-                      {/* <th scope="col" className="text-nowrap">Estado Alta</th> */}
                     </tr>
                   </thead>
                   <tbody>
                     {elementosActuales.map((lista, index) => (
                       <tr key={index}>
+                        {/* <td className="text-start">{lista.altaS_ESTADO === "1" ? <p className="badge bg-success w-100">Disponible</p> : <p className="badge bg-danger w-100">Anulado</p>}</td> */}
                         <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
                         <td className="text-start">{lista.aF_DESCRIPCION}</td>
                         <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
@@ -580,7 +581,6 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                         <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
                         <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
                         <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                        {/* <td className="text-start">{lista.altaS_ESTADO === "1" ? <p className="badge bg-success w-100">Disponible</p> : <p className="badge bg-danger w-100">Anulado</p>}</td> */}
                         {/* <td className="text-start">{lista.aF_ESTADO_INV}</td> */}
                       </tr>
                     ))}
@@ -592,7 +592,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
 
           {/* Paginador */}
           {elementosActuales.length > 0 && (
-            < div className="paginador-container">
+            <div className="paginador-container position-relative z-0">
               <Pagination className="paginador-scroll">
                 <Pagination.First
                   onClick={() => paginar(1)}

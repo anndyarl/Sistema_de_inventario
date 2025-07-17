@@ -1,5 +1,5 @@
 html {
-  /* overflow-y: scroll; Fuerza la barra de scroll  */
+  /* overflow-y: scroll; Fuerza la barra de scroll */
 }
 body{
   font-family: 'Roboto', sans-serif;
@@ -27,8 +27,9 @@ body::-webkit-scrollbar {
 
 .nav{
   border-color: #2b3035;
-}
-  
+  }
+ 
+
  /*Posicionamiento de imagenes decorativas*/
 .position-values-1{
   position:absolute;
@@ -234,3 +235,28 @@ padding: 2px;
   margin: 0 auto; /* Centrado horizontal */
 }
 
+
+/*--------Boton Estado------------*/
+.estado-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.estado-btn:hover .estado-label {
+  display: none;
+}
+
+.estado-btn:hover .estado-hover {
+  display: inline-flex;
+}
+
+/*---------------Mobile------------*/
+.mobile-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background-color: #f8f9fa;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}

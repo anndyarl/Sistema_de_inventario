@@ -463,7 +463,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
           </div>
         )}
         {/* Paginador */}
-        <div className="paginador-container">
+        <div className="paginador-container position-relative z-0">
           <Pagination className="paginador-scroll ">
             <Pagination.First
               onClick={() => paginar(1)}

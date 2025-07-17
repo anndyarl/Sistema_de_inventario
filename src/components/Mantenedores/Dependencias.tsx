@@ -3,18 +3,18 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
-import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
-import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
-
-import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { listadoMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/listadoMantenedorDependenciasActions.tsx";
-import { SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
-import { Plus } from "react-bootstrap-icons";
-import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
+import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
+import { Plus } from "react-bootstrap-icons";
+import { SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
+import Layout from "../../containers/hocs/layout/Layout.tsx";
+import { Objeto } from "../Navegacion/Profile.tsx";
+import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
+import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
+import { listadoMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/listadoMantenedorDependenciasActions.tsx";
+import { comboServicioActions } from "../../redux/actions/Mantenedores/Servicios/comboServicioMantenedorActions.tsx";
+
 
 export interface ListadoMantenedor {
   deP_CORR: number;
@@ -30,7 +30,7 @@ export interface ListadoMantenedor {
 
 interface GeneralProps {
   listadoMantenedor: ListadoMantenedor[];
-  listadoMantenedorDependenciasActions: () => Promise<boolean>;
+  listadoMantenedorDependenciasActions: (establ_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
 
   comboServicio: SERVICIO[];
@@ -85,7 +85,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
     if (token) {
       if (listadoMantenedor.length === 0) {
         setLoading(true);
-        const resultado = await listadoMantenedorDependenciasActions();
+        const resultado = await listadoMantenedorDependenciasActions(objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -124,6 +124,10 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
       ...preBajas,
       [name]: newValue,
     }));
+
+    if (name === "seR_COD") {
+      console.log('value', value);
+    }
   };
 
   // const setSeleccionaFila = (index: number) => {
@@ -178,7 +182,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
           });
 
           setLoadingRegistro(false);
-          listadoMantenedorDependenciasActions();
+          listadoMantenedorDependenciasActions(objeto.Roles[0].codigoEstablecimiento);
           setFilaSeleccionada([]);
           setMostrarModalRegistrar(false);
 
@@ -228,15 +232,15 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
         ) : (
           <div className='table-responsive'>
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+              <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   {/* <th scope="col"></th> */}
                   <th scope="col" className="text-nowrap text-center">Codigo</th>
                   <th scope="col" className="text-nowrap text-center">Código Dependencia</th>
                   <th scope="col" className="text-nowrap text-center">Código Servicio</th>
                   <th scope="col" className="text-nowrap text-center">Nombre</th>
-                  <th scope="col" className="text-nowrap text-center">Vigencia</th>
-                  <th scope="col" className="text-nowrap text-center">IP</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
+                  {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
                   <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
                 </tr>
               </thead>
@@ -256,8 +260,8 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
                       <td scope="col" className="text-nowrap">{Lista.deP_COD}</td>
                       <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
                       <td scope="col" className="text-nowrap">{Lista.nombre}</td>
-                      <td scope="col" className="text-nowrap">{Lista.vig}</td>
-                      <td scope="col" className="text-nowrap">{Lista.ip}</td>
+                      {/* <td scope="col" className="text-nowrap">{Lista.vig}</td> */}
+                      {/* <td scope="col" className="text-nowrap">{Lista.ip}</td> */}
                       <td scope="col" className="text-nowrap">{Lista.fechA_CREA}</td>
                     </tr>
                   );
@@ -267,8 +271,8 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
           </div>
         )}
         {/* Paginador */}
-        <div className="paginador-container">
-          <Pagination className="paginador-scroll ">
+        <div className="paginador-container position-relative z-0">
+          <Pagination className="paginador-scroll">
             <Pagination.First
               onClick={() => paginar(1)}
               disabled={paginaActual === 1}
@@ -480,7 +484,7 @@ const mapStateToProps = (state: RootState) => ({
   listadoMantenedor: state.listadoMantenedorDependenciasReducers.listadoMantenedor,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  comboServicio: state.comboServicioReducer.comboServicio,
+  comboServicio: state.comboServicioMantenedorReducers.comboServicio,
   objeto: state.validaApiLoginReducers,
   nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 

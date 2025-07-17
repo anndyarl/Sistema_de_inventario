@@ -33,7 +33,7 @@ interface ESTABLECIMIENTO {
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
     obtenerMaxServicioActions: () => void;
-    listadoMantenedorServiciosActions: () => Promise<boolean>;
+    listadoMantenedorServiciosActions: (establ_corr: number) => Promise<boolean>;
     registrarMantenedorServiciosActions: (formModal: Record<string, any>) => Promise<boolean>;
     // registrarMantenedorServiciosActions: (registro: { formModal: Record<string, any> }[]) => Promise<boolean>;
     comboServicioActions: (establ_corr: number) => void;
@@ -71,7 +71,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
         if (token) {
             if (listadoMantenedor.length === 0) {
                 setLoading(true);
-                const resultado = await listadoMantenedorServiciosActions();
+                const resultado = await listadoMantenedorServiciosActions(objeto.Roles[0].codigoEstablecimiento);
                 if (resultado) {
                     setLoading(false);
                 }
@@ -212,7 +212,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                     setLoadingRegistro(false);
                     obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
                     comboServicioActions(objeto.Roles[0].codigoEstablecimiento);//llama al nuevo servicio
-                    listadoMantenedorServiciosActions();//llama al nuevo listado de servicios
+                    listadoMantenedorServiciosActions(objeto.Roles[0].codigoEstablecimiento);//llama al nuevo listado de servicios
                     // setFilaSeleccionada([]);
                     setMostrarModalRegistrar(false);
 
@@ -262,15 +262,15 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
 
                     <div className='table-responsive'>
                         <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                 <tr>
                                     {/* <th scope="col"></th> */}
                                     <th scope="col" className="text-nowrap text-center">Código</th>
                                     <th scope="col" className="text-nowrap text-center">Código Servicio</th>
                                     <th scope="col" className="text-nowrap text-center">Nombre</th>
-                                    <th scope="col" className="text-nowrap text-center">Vigencia</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
                                     <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
-                                    <th scope="col" className="text-nowrap text-center">IP</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
                                     <th scope="col" className="text-nowrap text-center">Establecimiento</th>
                                 </tr>
                             </thead>
@@ -289,9 +289,9 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                                             <td scope="col" className="text-nowrap">{Lista.seR_CORR}</td>
                                             <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
                                             <td scope="col" className="text-nowrap">{Lista.seR_NOMBRE}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td>
+                                            {/* <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td> */}
                                             <td scope="col" className="text-nowrap">{Lista.seR_F_CREA}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td>
+                                            {/* <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td> */}
                                             <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
                                         </tr>
                                     );
@@ -301,7 +301,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                     </div>
                 )}
                 {/* Paginador */}
-                <div className="paginador-container">
+                <div className="paginador-container position-relative z-0">
                     <Pagination className="paginador-scroll">
                         <Pagination.First
                             onClick={() => paginar(1)}

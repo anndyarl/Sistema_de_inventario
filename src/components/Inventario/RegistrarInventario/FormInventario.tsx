@@ -55,7 +55,7 @@ interface FormInventarioProps {
   comboDetalleActions: (bienSeleccionado: string) => void;
 
   listaEspecie: ListaEspecie[];
-  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
 
 
   comboCuentaInicialActions: () => void;
@@ -133,13 +133,14 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   const handleBienSeleccionado = (codigoBien: string) => {
     setBienSeleccionado(codigoBien);
     comboDetalleActions(codigoBien); // aqui le paso codigo de bien
+
   };
 
   // Función para manejar la selección de detalles en el componente `DatosCuenta`
   const handleDetalleSeleccionado = async (codigoDetalle: number) => {
     setDetalleSeleccionado(codigoDetalle);
-
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, codigoDetalle, ""); // aqui le paso codigo de detalle
+    console.log(codigoDetalle);
+    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, codigoDetalle, "", ""); // aqui le paso codigo de detalle
 
     if (!resultado) {
       Swal.fire({

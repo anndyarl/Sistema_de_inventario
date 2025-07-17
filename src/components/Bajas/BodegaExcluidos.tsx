@@ -655,8 +655,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                   <tr>
                     <th style={{
                       position: 'sticky',
-                      left: 0,
-                      zIndex: 2,
+                      left: 0
 
                     }}>
                       <Form.Check
@@ -684,8 +683,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       className="text-nowrap text-center"
                       style={{
                         position: 'sticky',
-                        right: 0,
-                        zIndex: 2,
+                        right: 0                     
                       }}
                     >
                       Acción
@@ -699,8 +697,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       <tr key={indexReal}>
                         <td style={{
                           position: 'sticky',
-                          left: 0,
-                          zIndex: 2,
+                          left: 0
 
                         }}>
                           <Form.Check
@@ -725,8 +722,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                         <td className="text-nowrap">{Lista.estado}</td>
                         {/* <td style={{
                           position: 'sticky',
-                          right: 0,
-                          zIndex: 2,
+                          right: 0                   
 
                         }}>
                           <Button variant="outline-danger" className="fw-semibold" size="sm"
@@ -744,7 +740,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           )}
 
           {/* Paginador */}
-          <div className="paginador-container">
+          <div className="paginador-container position-relative z-0">
             <Pagination className="paginador-scroll">
               <Pagination.First
                 onClick={() => paginar(1)}

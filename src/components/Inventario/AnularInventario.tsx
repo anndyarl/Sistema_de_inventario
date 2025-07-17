@@ -12,6 +12,7 @@ import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaInventarioAnularActions } from "../../redux/actions/Inventario/AnularInventario/listaInventarioAnularActions.tsx";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
+import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
 interface InventarioCompleto {
     aF_CLAVE: string;
     aF_CODIGO_GENERICO: string;
@@ -53,6 +54,7 @@ interface ListaInventarioProps {
     listaInventarioAnular: InventarioCompleto[];
     listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
     anularInventarioActions: (aF_CLAVE: string) => Promise<boolean>;
+    listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
     isDarkMode: boolean;
     nPaginacion: number; //número de paginas establecido desde preferencias
     objeto: Objeto;
@@ -63,7 +65,7 @@ interface FechasProps {
     fechaTermino: string;
 }
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaInventarioAnular, isDarkMode, nPaginacion, objeto }) => {
+const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaAltasActions, listaInventarioAnular, isDarkMode, nPaginacion, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
@@ -161,6 +163,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             setLoading(false); //Finaliza estado de carga
         }
     };
+
     const handleRefrescar = async () => {
         setLoadingRefresh(true); //Finaliza estado de carga
         const resultado = await listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
@@ -221,6 +224,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                             popup: "custom-border", // Clase personalizada para el borde
                         }
                     });
+                    listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
                     handleBuscar();
                 } else {
                     Swal.fire({
@@ -438,6 +442,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                 />
                                             </th> */}
+                                            <th scope="col" className="text-nowrap">Estado</th>
                                             <th scope="col" className="text-nowrap">Nº Inventario</th>
                                             <th scope="col" className="text-nowrap">Descripción</th>
                                             <th scope="col" className="text-nowrap">Fecha</th>
@@ -453,11 +458,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                             <th scope="col" className="text-nowrap">Marca</th>
                                             <th scope="col" className="text-nowrap">Modelo</th>
                                             <th scope="col" className="text-nowrap">Serie</th>
-                                            <th scope="col" className="text-nowrap">Estado Inventario</th>
                                             <th scope="col" className="text-nowrap" style={{
                                                 position: 'sticky',
                                                 right: 0,
-                                                zIndex: 2,
                                             }}>Acción</th>
                                         </tr>
                                     </thead>
@@ -473,6 +476,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                             checked={filasSeleccionadas.includes(indexReal.toString())}
                                                         />
                                                     </td> */}
+                                                    <td className="text-nowrap">
+                                                        {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
+                                                            : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
+                                                                : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
+                                                    </td>
                                                     <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
                                                     <td className="text-start">{lista.aF_DESCRIPCION}</td>
                                                     <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
@@ -490,16 +498,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
                                                     <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
                                                     <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                                                    <td className="text-nowrap">
-                                                        {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
-                                                            : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
-                                                                : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
-                                                    </td>
-
                                                     < td style={{
                                                         position: 'sticky',
-                                                        right: 0,
-                                                        zIndex: 2,
+                                                        right: 0
                                                     }}>
                                                         {lista.aF_ESTADO_INV != 1 ? (
                                                             <Button
@@ -532,7 +533,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
 
                     {/* Paginador */}
                     {elementosActuales.length > 0 && (
-                        < div className="paginador-container">
+                        <div className="paginador-container position-relative z-0">
                             <Pagination className="paginador-scroll">
                                 <Pagination.First
                                     onClick={() => paginar(1)}
@@ -579,4 +580,5 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
     listaInventarioAnularActions,
     anularInventarioActions,
+    listaAltasActions
 })(AnularInventario);

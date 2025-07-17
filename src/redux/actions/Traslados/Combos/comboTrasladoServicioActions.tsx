@@ -8,8 +8,8 @@ export const comboTrasladoServicioActions = (establ_corr: number) => async (disp
   if (token) {
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
       },
     };
 

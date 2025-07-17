@@ -10,6 +10,8 @@ import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginAc
 interface NavItem {
   rut: string;
   nombre: string;
+  id: number;
+  establecimiento: number;
 }
 
 interface Props {
@@ -28,11 +30,13 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
   const navigate = useNavigate();
 
   const Usuarios: NavItem[] = [
-    { rut: '18250588', nombre: 'Andy Riquelme' },
-    { rut: '15533835', nombre: 'Jaime Castillo' },
-    { rut: '16739610', nombre: 'Jhonatan Vargas' },
-    { rut: '10399886', nombre: 'Gabriela Farias' },
-    { rut: '15693379', nombre: 'Felipe Almonte' }
+    { rut: '18250588', nombre: 'Andy Riquelme', id: 62511, establecimiento: 2 },
+    { rut: '15533835', nombre: 'Jaime Castillo', id: 1770, establecimiento: 3 },
+    { rut: '16739610', nombre: 'Jhonatan Vargas', id: 6405, establecimiento: 1 },
+    { rut: '10399886', nombre: 'Gabriela Farias', id: 888, establecimiento: 1 },
+    { rut: '15693379', nombre: 'Felipe Almonte', id: 18667, establecimiento: 2 },
+    { rut: '17849831', nombre: 'Katherine Reyes', id: 66099, establecimiento: 2 },
+    { rut: '19704000', nombre: 'Daniel Rojas', id: 66098, establecimiento: 2 }
   ];
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -121,7 +125,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
 
       <Modal show={mostrarListado} onHide={() => setMostrarListado(false)} size="lg">
         <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-          <Modal.Title className="fw-semibold">Seleccionar Usuario</Modal.Title>
+          <Modal.Title className="fw-semibold">Seleccione un usuario</Modal.Title>
         </Modal.Header>
         <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
           <div className="table-responsive">
@@ -130,7 +134,9 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
                 <tr>
                   <th>RUT</th>
                   <th>Nombre</th>
-                  <th>Acción</th>
+                  <th>Id Credencial</th>
+                  <th>Establecimiento</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -139,6 +145,10 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
                     <tr key={index}>
                       <td>{item.rut || 'N/A'}</td>
                       <td>{item.nombre || 'N/A'}</td>
+                      <td>{item.id || 'N/A'}</td>
+                      <td>{item.establecimiento === 1 ? "SSMSO"
+                        : item.establecimiento === 2 ? "CASR"
+                          : item.establecimiento === 3 ? "SJM" : "Sin Información"}</td>
                       <td>
                         <Button
                           variant="outline-primary"

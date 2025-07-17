@@ -93,13 +93,15 @@ import listaEstadoReducers from "./Altas/EstadoFirmas/listaEstadoReducers";
 import listaEstadoVisadoresReducers from "./Altas/EstadoFirmas/listaEstadoVisadoresReducers";
 import datosTrasladoRegistradoReducers from "./Traslados/datosTrasladoRegistradoReducers";
 import listaInventarioBuscarReducers from "./Inventario/BuscarInventario/listaInventarioBuscarReducers";
+import setSidebarCollapsedReducer from "./Otros/setSidebarCollapsedReducer";
+import obtenerInventarioQRReducers from "./Inventario/obtenerInventarioQRReducers";
+import comboServicioMantenedorReducers from "./Mantenedores/Servicios/comboServicioMantenedorReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
   // Autenticación
   loginReducer,
   validaApiLoginReducers,
-
   //-------------- Registro de Inventario----------------//
   // Formulario 1
   obtenerRecepcionReducers,
@@ -133,6 +135,9 @@ const appReducer = combineReducers({
 
   //Buscar Inventario
   listaInventarioBuscarReducers,
+
+  //QR
+  obtenerInventarioQRReducers,
 
   // Altas
   listaAltasReducers,
@@ -173,6 +178,8 @@ const appReducer = combineReducers({
   respuestaReducer,
   //guarda el numero de paginacion
   mostrarNPaginacionReducer,
+  //Menu Expandido
+  setSidebarCollapsedReducer,
 
   //Versionamiento
   listaVersionamientoReducers,
@@ -195,7 +202,8 @@ const appReducer = combineReducers({
   listadoMantenedorComponentesReducers,
   comboEstablecimientosProfileReducers,
   obtenerMaxServicioReducers,
-  comboCuentaMantenedorReducers
+  comboCuentaMantenedorReducers,
+  comboServicioMantenedorReducers
 });
 
 //--------------------- Root Reducer ---------------------//
@@ -228,6 +236,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
+      setSidebarCollapsedReducer,
       mostrarNPaginacionReducer,
       listaFolioServicioDependenciaReducers,
       listaCuentaFechasReducers,
@@ -257,6 +266,7 @@ const rootReducer = (state: any, action: any) => {
       comboServicioInformeReducers,
       indicadoresReducers,
       darkModeReducer,
+      setSidebarCollapsedReducer,
       mostrarNPaginacionReducer,
       listaFolioServicioDependenciaReducers,
       listaCuentaFechasReducers,

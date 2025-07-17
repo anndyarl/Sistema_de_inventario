@@ -6,7 +6,7 @@
     right: 0;
     bottom: 0;
     /* background-color: rgba(0; 0; 0; 0.5); Fondo oscuro semi-transparente */
-    z-index: 1040; /* Debajo del panel pero encima del contenido */
+    z-index: 1050; /* Debajo del panel pero encima del contenido */
     display: flex;
     justify-content: flex-end; /* Alinear el panel a la derecha */
     /* align-items: stretch; */

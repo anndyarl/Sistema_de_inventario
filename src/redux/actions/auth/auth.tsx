@@ -26,7 +26,7 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
   try {
     const res = await axios.post(`${import.meta.env.VITE_CSRF_API_LOGIN}`, body, config);
     if (res.status === 200) {
-      const token = res.data.access_token;
+      const token = res.data.accessToken;
       if (token) {
         dispatch({ type: LOGIN_SUCCESS, payload: token });
         return true;
@@ -57,3 +57,4 @@ export const login = (usuario: string, password: string) => async (dispatch: Dis
 export const logout = () => ({
   type: LOGOUT
 });
+

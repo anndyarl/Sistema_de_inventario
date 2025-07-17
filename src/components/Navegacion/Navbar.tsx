@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import Profile from './Profile';
+import React, { useState } from 'react';
+// import Profile from './Profile';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'react-bootstrap-icons';
 import { RootState } from '../../store';
 import { connect } from 'react-redux';
 import { darkModeActions } from '../../redux/actions/Otros/darkModeActions';
+// import { Col, Row } from 'react-bootstrap';
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -15,6 +16,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
     const [search, setSearch] = useState('');
     const navigate = useNavigate();
     const routes = [
+        { name: 'Inicio', path: '/Inicio' },
         { name: 'Inventario', path: '/Inventario' },
         { name: 'Registrar Inventario', path: '/Inventario/FormInventario', keywords: ['crear', 'registrar'] },
         { name: 'Modificar Inventario', path: '/Inventario/ModificarInventario' },
@@ -39,7 +41,10 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         { name: 'Cuentas Fechas', path: '/Informes/Listados/CuentaFechas' },
         { name: 'Folio Por Servicio Dependencia', path: '/Informes/FolioPorServicioDependencia' },
         { name: 'Consulta Inventario Especies', path: '/Informes/ConsultaInventarioEspecies' },
-        { name: 'Calcular Depreciación', path: '/Informes/CalcularDepreciacion' }
+        { name: 'Calcular Depreciación', path: '/Informes/CalcularDepreciacion' },
+        { name: 'Mantenedor de Servicios', path: '/Mantenedores/Servicios' },
+        { name: 'Mantenedor de Dependencias', path: '/Mantenedores/Dependencias' },
+        { name: 'Mantenedor de Proveedores', path: '/Mantenedores/Proveedores' },
     ];
 
     // Filtra las rutas basadas en la búsqueda
@@ -53,21 +58,21 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
         navigate(path); // Navega a la ruta seleccionada
     };
 
-    useEffect(() => {
-        const handleScroll = () => {
-            const navbar = document.getElementById('navbar');
-            if (navbar) {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('shadow-navbar', 'bg-white');
-                } else {
-                    navbar.classList.remove('shadow-navbar', 'bg-white');
-                }
-            }
-        };
+    // useEffect(() => {
+    //     const handleScroll = () => {
+    //         const navbar = document.getElementById('navbar');
+    //         if (navbar) {
+    //             if (window.scrollY > 50) {
+    //                 navbar.classList.add('shadow-navbar');
+    //             } else {
+    //                 navbar.classList.remove('shadow-navbar');
+    //             }
+    //         }
+    //     };
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    //     window.addEventListener('scroll', handleScroll);
+    //     return () => window.removeEventListener('scroll', handleScroll);
+    // }, []);
 
     // const searchRoutes = (query: string) => {
     //     return routes.filter(route =>
@@ -83,21 +88,21 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-        <nav id="navbar" className={`navbar justify-content-end rounded-3 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
-            <div className="d-flex align-items-center">
+        <nav id="navbar" className={`d-flex p-3 justify-content-end  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+            <div className="d-flex align-items-center ">
                 <Search className={classNames("mx-2 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                 <input
                     type="text"
                     className={`form-select rounded-4 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     placeholder="Buscar"
                     value={search}
-                    size={40}
+                    size={35}
                     onChange={(e) => setSearch(e.target.value)}
                 />
 
                 {search && (
                     <ul
-                        className="position-absolute  mx-5 mt-4 top-50 z-3 bg-white rounded shadow list-group list-group-flush overflow-auto"
+                        className="position-absolute  mx-5 mt-4 top-50 z-3  rounded shadow list-group list-group-flush overflow-auto"
                         style={{ maxHeight: '250px', width: "290px" }}>
                         {filteredRoutes.map((route) => (
                             <li
@@ -110,9 +115,8 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
                         ))}
                     </ul>
                 )}
-                <Profile />
-            </div>
 
+            </div>
         </nav >
     );
 }

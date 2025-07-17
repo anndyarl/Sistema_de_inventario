@@ -14,6 +14,7 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
     const navigate = useNavigate();
     // Accede al estado global de Redux para el modo nocturno
     const isDarkMode = useSelector((state: RootState) => state.darkModeReducer.isDarkMode);
+    const origenLogin = useSelector((state: RootState) => state.loginReducer.origenLogin);
 
     useEffect(() => {
         //Inicializando auto logout
@@ -81,8 +82,19 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 }
                 // Si se presiona No, cerramos la sesión
                 else if (result.dismiss === Swal.DismissReason.cancel) {
-                    dispatch(logout()); // Cierra la sesión                  
-                    navigate("/");
+
+                    if (origenLogin === 0) {
+                        console.log("Valor 0 regresa a Gestor Documental");
+                        dispatch(logout());
+                        const redirectUrl = import.meta.env.VITE_ORIGEN_LOGIN
+                        window.location.href = redirectUrl
+                        return;
+                    }
+                    else {
+                        console.log("Valor 1 regresa a login Original");
+                        dispatch(logout());
+                        navigate("/");;
+                    }
                 }
             });
         }, warningTime);
@@ -99,8 +111,18 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            dispatch(logout()); // Cierra la sesión 
-            navigate("/");
+            if (origenLogin === 0) {
+                // console.log("Valor 0 regresa a Gestor Documental");
+                dispatch(logout());
+                const redirectUrl = import.meta.env.VITE_ORIGEN_LOGIN
+                window.location.href = redirectUrl
+                return;
+            }
+            else {
+                // console.log("Valor 1 regresa a login Original");
+                dispatch(logout());
+                navigate("/");;
+            }
         }, logoutTime);
     };
 

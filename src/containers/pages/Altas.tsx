@@ -22,14 +22,16 @@ interface NavItem {
 const Altas: React.FC<Props> = ({ isDarkMode }) => {
 
   const pageVariants = {
-    initial: { opacity: 0, x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
-    in: { opacity: 1, x: 0, }, // Llega a opacidad completa y posición natural
+    // initial: { opacity: 0, scale: 0.98 },
+    // in: { opacity: 1, scale: 1 },
+    initial: { x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
+    in: { x: 0, }, // Llega a opacidad completa y posición natural
   };
 
   const pageTransition = {
     type: "tween",
     easeIn: "anticipate",
-    duration: 0.4,
+    duration: 0.3,
     // delay: 0.05,
   };
 

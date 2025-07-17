@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Form, Pagination, Row, Col, Spinner, } from "react-bootstrap";
+import { Modal, Button, Form, Pagination, Row, Col, Spinner, OverlayTrigger, Tooltip, } from "react-bootstrap";
 import React, { useState, useMemo, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store.ts";
@@ -82,7 +82,7 @@ interface DatosCuentaProps extends CuentaProps {
   especieSeleccionado: string | null | undefined;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie  
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
-  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>; //Lista Especies en tabla
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>; //Lista Especies en tabla
   comboEspecies: ListaEspecie[];
   isDarkMode: boolean;
   objeto: Objeto;
@@ -140,6 +140,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const elementosPorPagina = 20;
   const [error, setError] = useState<Partial<CuentaProps>>({});
   const [loading, setLoading] = useState(false);
+  const [detalleSeleccionado, setDetalleSeleccionado] = useState<number | null>(null);
 
   const especieOptions = comboEspecies.map((item) => ({
     value: item.esP_CODIGO,
@@ -147,12 +148,22 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   }));
 
   const [Buscar, setBuscar] = useState({
-    esP_CODIGO: ""
+    esP_CODIGO: "",
+    esp_NOMBRE: ""
   });
 
+  // Si selecciona desde el combo
   const handleComboEspecieChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setBuscar((prev) => ({ ...prev, esP_CODIGO: value }));
+    console.log("select:", value);
+  };
+
+  // Si escribe a mano
+  const handleInputEspecieChange = (input: string) => {
+    setBuscar((prev) => ({ ...prev, esp_NOMBRE: input }));
+    console.log("texto:", input);
+    handleBuscar();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -188,7 +199,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     if (name === "detalles") {
       paginar(1);
       onDetalleSeleccionado(newValue as number);
-
+      setDetalleSeleccionado(newValue as number);
     }
 
   };
@@ -256,8 +267,18 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
 
   const handleBuscar = async () => {
     setLoading(true);
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO);
-
+    let resultado = false;
+    if (Buscar.esP_CODIGO && Buscar.esP_CODIGO.includes("-")) {
+      // Seleccionó del combo: usar código
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
+    } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
+      // Escribió manualmente: usar nombre   
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
+    } else {
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, detalleSeleccionado ?? 0, "", "");
+      setLoading(false);
+      return;
+    }
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -271,6 +292,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
+    setLoading(false);
   };
 
   //Selecciona fila del listado de especies
@@ -430,197 +452,224 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
         </div>
       </form>
       {/* Modal formulario Activos Fijo*/}
-      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg" >
+      <Modal
+        show={mostrarModal}
+        onHide={() => setMostrarModal(false)}
+        size="lg"
+        className="modal-fullscreen-sm-down"
+      >
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title>Listado de Especies</Modal.Title>
         </Modal.Header>
+
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <form onSubmit={handleSubmitSeleccionado}>
-            <Row>
-              <Col md={12}>
-                <div className="d-flex justify-content-between">
-                  <div className="mb-1 w-50">
-                    <label className="fw-semibold">Bien</label>
-                    <dd className="d-flex align-items-center">
-                      <select
-                        aria-label="bien"
-                        name="bien"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                        onChange={handleChange}
-                      >
-                        <option value="">Seleccionar</option>
-                        {comboBien.map((traeBien) => (
-                          <option key={traeBien.codigo} value={traeBien.codigo}>
-                            {traeBien.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                    </dd>
-                  </div>
-                  <div className="d-flex justify-content-end p-4">
-                    <Button variant={`${isDarkMode ? "secondary" : "primary"}`} type="submit"> Seleccionar{" "}
-                      <Check2Circle className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-                    </Button>
-                  </div>
+            <Row className="mb-2">
+              {/* Bien / Detalles */}
+              <Col xs={12} md={6}>
+                <div className="mb-1">
+                  <label aria-label="bien" className="fw-semibold">Bien</label>
+                  <select
+                    aria-label="bien"
+                    name="bien"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    onChange={handleChange}
+                  >
+                    <option value="">Seleccionar</option>
+                    {comboBien.map((traeBien) => (
+                      <option key={traeBien.codigo} value={traeBien.codigo}>
+                        {traeBien.descripcion}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div className="mb-1 w-50">
+                <div className="mb-1">
                   <label className="fw-semibold">Detalles</label>
-                  <dd className="d-flex align-items-center">
-                    <select
-                      aria-label="detalles"
-                      name="detalles"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      onChange={handleChange}
-                      disabled={!(Cuenta.bien)}
-                    >
-                      <option value="">Seleccionar</option>
-                      {comboDetalle.map((traeDetalles) => (
-                        <option
-                          key={traeDetalles.codigo}
-                          value={traeDetalles.codigo}
-                        >
-                          {traeDetalles.descripcion}
-                        </option>
-                      ))}
-                    </select>
-                  </dd>
+                  <select
+                    aria-label="detalles"
+                    name="detalles"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    onChange={handleChange}
+                    disabled={!Cuenta.bien}
+                  >
+                    <option value="">Seleccionar</option>
+                    {comboDetalle.map((traeDetalles) => (
+                      <option key={traeDetalles.codigo} value={traeDetalles.codigo}>
+                        {traeDetalles.descripcion}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div className="d-flex">
-                  <div className="mb-1 w-50">
-                    <label className="fw-semibold">
-                      Buscar Especie
-                    </label>
+              </Col>
+
+              <Col xs={12} md={6}>
+                {/* Especie */}
+                <div className="mb-1">
+                  <label className="fw-semibold">
+                    Buscar Especie
+                  </label>
+                  <div className="d-flex align-items-center">
                     <Select
                       options={especieOptions}
-                      onChange={(selectedOption) => { handleComboEspecieChange(selectedOption) }}
+                      onChange={(selectedOption) => handleComboEspecieChange(selectedOption)}
+                      onInputChange={(inputValue) => handleInputEspecieChange(inputValue)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleBuscar();
+                        }
+                      }}
                       name="esP_CODIGO"
                       placeholder="Buscar"
-                      className={`form-select-container `}
-                      classNamePrefix="react-select"
                       isClearable
-                      // isSearchable
+                      classNamePrefix="react-select"
+                      className="w-100 mx-1"
                       styles={{
-                        control: (baseStyles) => ({
-                          ...baseStyles,
-                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                          color: isDarkMode ? "white" : "#212529", // Texto blanco
-                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                        control: (base) => ({
+                          ...base,
+                          backgroundColor: isDarkMode ? "#212529" : "white",
+                          color: isDarkMode ? "white" : "#212529",
+                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
+
                         }),
                         singleValue: (base) => ({
                           ...base,
-                          color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                          color: isDarkMode ? "white" : "#212529",
                         }),
                         menu: (base) => ({
                           ...base,
-                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                          backgroundColor: isDarkMode ? "#212529" : "white",
                           color: isDarkMode ? "white" : "#212529",
+
                         }),
                         option: (base, { isFocused, isSelected }) => ({
                           ...base,
-                          backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                          color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                          backgroundColor:
+                            isSelected || isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                          color:
+                            isSelected || isFocused ? "white" : isDarkMode ? "white" : "#212529",
                         }),
                       }}
                     />
-                  </div>
-                  <div className="mb-1 mt-4">
-                    <Button onClick={handleBuscar}
-                      variant={`${isDarkMode ? "secondary" : "primary"}`}
-                      className="mx-1 mb-1"
-                      disabled={loading}>
-                      {loading ? (
-                        <>
-                          {" Buscar"}
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="ms-1"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          {" Buscar"}
-                          < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                        </>
-                      )}
-                    </Button>
-                    {/* <Button onClick={handleLimpiar}
-                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                    className="mx-1 mb-1">
-                    Limpiar
-                    <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                  </Button> */}
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-limpiar">Buscar</Tooltip>}
+                    >
+                      <Button
+                        onClick={handleBuscar}
+                        variant={isDarkMode ? "secondary" : "primary"}
+                        className="w-md-auto"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="ms-1"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Search className="ms-1" />
+                          </>
+                        )}
+                      </Button>
+                    </OverlayTrigger>
                   </div>
                 </div>
               </Col>
             </Row>
-          </form>
-          {/* Tabla*/}
-          <div className='table-responsive position-relative z-0'>
-            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top  ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                <tr>
-                  <th></th>
-                  {/* <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Establecimiento</th> */}
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Código</th>
-                  <th className={`${isDarkMode ? "text-light" : "text-dark"}`}>Especie</th>
-                </tr>
-              </thead>
-              <tbody>
-                {elementosActuales.map((listadoEspecies, index) => (
-                  <tr key={index}>
-                    <td>
-                      <Form.Check
-                        type="checkbox"
-                        onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
-                        checked={filasSeleccionadas.includes((indicePrimerElemento + index).toString())}
-                      />
-                    </td>
-                    {/* <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.estabL_CORR}</td> */}
-                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.esP_CODIGO}</td>
-                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>{listadoEspecies.nombrE_ESP}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
 
-          </div>
-          {/* Paginador */}
-          <div className="paginador-container position-relative z-0">
-            <Pagination className="paginador-scroll">
-              <Pagination.First
-                onClick={() => paginar(1)}
-                disabled={paginaActual === 1}
-              />
-              <Pagination.Prev
-                onClick={() => paginar(paginaActual - 1)}
-                disabled={paginaActual === 1}
-              />
-
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === paginaActual}
-                  onClick={() => paginar(i + 1)}
+            {listaEspecie.length > 0 && (
+              <Col xs={12} className="d-flex justify-content-end ">
+                <Button
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  type="submit"
+                  className="mb-1"
+                  disabled={!filasSeleccionadas.length}
                 >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => paginar(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-              />
-              <Pagination.Last
-                onClick={() => paginar(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
-              />
-            </Pagination>
-          </div>
+                  Seleccionar <Check2Circle className="ms-1" />
+                </Button>
+              </Col>
+            )}
+
+          </form>
+          {/* Tabla responsive */}
+          {listaEspecie.length != 0 ? (
+            <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+              <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "table-light"}`}>
+                  <tr>
+                    <th></th>
+                    <th className={isDarkMode ? "text-light" : "text-dark"}>Código</th>
+                    <th className={isDarkMode ? "text-light" : "text-dark"}>Especie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {elementosActuales.map((listadoEspecies, index) => (
+                    <tr key={index}>
+                      <td>
+                        <Form.Check
+                          type="checkbox"
+                          onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
+                          checked={filasSeleccionadas.includes(
+                            (indicePrimerElemento + index).toString()
+                          )}
+                        />
+                      </td>
+                      <td className={isDarkMode ? "text-light" : "text-dark"}>
+                        {listadoEspecies.esP_CODIGO}
+                      </td>
+                      <td className={isDarkMode ? "text-light" : "text-dark"}>
+                        {listadoEspecies.nombrE_ESP}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className={`text-center m-2 p-2 rounded fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+              Aplique un filtro para visualizar los detalles de cada especie aquí.
+            </p>
+
+          )}
+          {/* Paginador */}
+          {listaEspecie.length > 10 && (
+            <div className="paginador-container mt-3">
+              <Pagination className="paginador-scroll justify-content-center">
+                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                <Pagination.Prev
+                  onClick={() => paginar(paginaActual - 1)}
+                  disabled={paginaActual === 1}
+                />
+                {Array.from({ length: totalPaginas }, (_, i) => (
+                  <Pagination.Item
+                    key={i + 1}
+                    active={i + 1 === paginaActual}
+                    onClick={() => paginar(i + 1)}
+                  >
+                    {i + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next
+                  onClick={() => paginar(paginaActual + 1)}
+                  disabled={paginaActual === totalPaginas}
+                />
+                <Pagination.Last
+                  onClick={() => paginar(totalPaginas)}
+                  disabled={paginaActual === totalPaginas}
+                />
+              </Pagination>
+            </div>
+          )}
         </Modal.Body>
       </Modal >
+
     </>
   );
 };
@@ -634,7 +683,7 @@ const mapStateToProps = (state: RootState) => ({
   descripcionEspecie: state.datosCuentaReducers.descripcionEspecie,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
-  comboEspecies: state.comboEspeciesBienReducers.comboEspecies
+  comboEspecies: state.listadoDeEspeciesBienReducers.comboEspecies,
 });
 
 export default connect(mapStateToProps, {

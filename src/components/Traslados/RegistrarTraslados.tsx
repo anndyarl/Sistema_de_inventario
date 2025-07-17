@@ -10,20 +10,20 @@ import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados";
-import { DEPENDENCIA } from "../Inventario/RegistrarInventario/DatosCuenta";
-import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
-import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
-import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
-import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
-import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
-import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import Select from "react-select";
-import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { registroTrasladoMultipleActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
+import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
+import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
+import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
+
+import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
+import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
+import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions";
+import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
   codigo: number;
@@ -86,6 +86,12 @@ interface SERVICIO {
 export interface ListaSalidaTraslados {
   aF_CODIGO_GENERICO: number;
   n_TRASLADO: number;
+}
+
+interface DEPENDENCIA {
+  codigo: number;
+  descripcion: string;
+  nombrE_ORD: string;
 }
 
 interface TrasladosProps {
@@ -219,7 +225,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
       if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablecimiento);
-      if (comboDependenciaOrigen.length === 0) comboDependenciaOrigenActions("");
       if (comboServicioInforme.length === 0) comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboEspecies.length === 0) comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
     }
@@ -814,7 +819,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         key={traeDependencia.codigo}
                         value={traeDependencia.codigo}
                       >
-                        {traeDependencia.descripcion}
+                        {traeDependencia.nombrE_ORD}
                       </option>
                     ))}
                   </select>
@@ -994,7 +999,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                 </table>
               </div>
               {/* Paginador */}
-              <div className="paginador-container">
+              <div className="paginador-container position-relative z-0">
                 <Pagination className="paginador-scroll ">
                   <Pagination.First
                     onClick={() => paginar1(1)}
@@ -1110,7 +1115,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                       <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                         <tr>
-                          <th style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                          <th style={{ position: 'sticky', left: 0 }}>
                             <Form.Check
                               className="check-danger"
                               type="checkbox"
@@ -1135,7 +1140,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                           return (
                             <tr key={index}>
-                              <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                              <td style={{ position: 'sticky', left: 0 }}>
                                 <Form.Check
                                   type="checkbox"
                                   onChange={() => setSeleccionaFilas(indexReal)}
@@ -1162,7 +1167,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               )}
             </div>
             {/* Paginador */}
-            <div className="paginador-container">
+            <div className="paginador-container position-relative z-0">
               <Pagination className="paginador-scroll">
                 <Pagination.First
                   onClick={() => paginar(1)}
@@ -1442,7 +1447,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan='8' className="text-center">No hay registros</td>
+                    <td className="text-center">No hay registros</td>
                   </tr>
                 )}
               </tbody>

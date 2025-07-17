@@ -366,11 +366,14 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               </div>
             </Col>
 
-            <Col md={5}>
-              <div className="mb-1 mt-4">
-                <Button onClick={handleBuscar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+            <Col md={3}>
+              <div className="d-md-flex justify-content-md-start alig-items-center mt-4">
+                <Button
+                  onClick={handleBuscar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100"
+                  disabled={loading}
+                >
                   {loading ? (
                     <>
                       {" Buscar"}
@@ -386,13 +389,15 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   ) : (
                     <>
                       {" Buscar"}
-                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleRefrescar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                <Button
+                  onClick={handleRefrescar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100 "
+                >
                   {loadingRefresh ? (
                     <>
                       {" Refrescar "}
@@ -408,15 +413,17 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   ) : (
                     <>
                       {" Refrescar "}
-                      <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      <ArrowClockwise className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleLimpiar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+                <Button
+                  onClick={handleLimpiar}
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  className="mx-1 mb-1 w-100"
+                >
                   Limpiar
-                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
               </div>
             </Col>
@@ -472,8 +479,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                   <tr>
                     <th style={{
                       position: 'sticky',
-                      left: 0,
-                      zIndex: 2
+                      left: 0
                     }}>
                       <Form.Check
                         className="check-danger"
@@ -506,7 +512,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
                     return (
                       <tr key={index} className={esEstado0 ? "table-warning" :
                         esEstado1 ? "table-success" : ""}>
-                        <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                        <td style={{ position: 'sticky', left: 0 }}>
                           <Form.Check
                             type="checkbox"
                             onChange={() => setSeleccionaFilas(indexReal)}
@@ -537,7 +543,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
           )}
 
           {/* Paginador */}
-          <div className="paginador-container">
+          <div className="paginador-container position-relative z-0">
             <Pagination className="paginador-scroll">
               <Pagination.First
                 onClick={() => paginar(1)}

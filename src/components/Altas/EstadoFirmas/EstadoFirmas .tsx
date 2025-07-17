@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Pagination, Modal, Col, Row, Button, Spinner } from "react-bootstrap";
+import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { connect } from "react-redux";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
@@ -13,15 +13,18 @@ import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/li
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
 
+
 export interface ListaEstadoFirmas {
     idocumento: number;
     altaS_CORR: number;
     estado: number;
+    fecha: string;
 }
 
 interface ListaEstadoVisadores {
     id: number;
     idcargo: number;
+    nombrecargo: string;
     jerarquia: number;
     firmado: number;
     altaS_CORR: number;
@@ -152,6 +155,39 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         const visadoBase64 = `data:application/${tipo};base64,${documentoByte64}`;
         setCuerpoDocumentoPDF(visadoBase64);
     }, [documentoByte64, listaEstado.length, listaEstadoVisadores.length]);
+
+
+
+    // useEffect(() => {
+    //     const socket = new WebSocket("ws://localhost:5076/ws/notificaciones");
+
+    //     socket.onopen = () => {
+    //         console.log("✅ Conectado al WebSocket");
+
+    //         // Enviar el mensaje que tu backend espera
+    //         socket.send("solicitar_estado");
+    //     };
+
+    //     socket.onmessage = async (event) => {
+    //         console.log("Mensaje recibido del WebSocket:", event.data);
+
+    //         if (event.data === "Nueva alta creada...") {
+    //             await listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
+    //         }
+    //     };
+
+    //     socket.onclose = () => {
+    //         console.log("🔌 Conexión WebSocket cerrada");
+    //     };
+
+    //     socket.onerror = (err) => {
+    //         console.error("❌ Error en WebSocket:", err);
+    //     };
+
+    //     return () => {
+    //         socket.close();
+    //     };
+    // }, [documentoByte64, objeto.Roles]);
 
 
     const handleLimpiar = () => {
@@ -298,10 +334,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                                 <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                                     <tr>
-                                        <th scope="col" className="text-nowrap">N° DOCUMENTO</th>
-                                        <th scope="col" className="text-nowrap">Nº Alta</th>
-                                        <th scope="col" className="text-nowrap">Estado Solicitud</th>
-                                        <th scope="col" className="text-nowrap">Acción</th>
+                                        <th scope="col" className="text-center">N° DOCUMENTO</th>
+                                        <th scope="col" className="text-center">Nº Alta</th>
+                                        <th scope="col" className="text-center">Estado Solicitud</th>
+                                        <th scope="col" className="text-center">Última Actualización</th>
+                                        <th scope="col" className="text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -309,37 +346,44 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                         return (
                                             <tr key={index}>
-                                                <td className="text-nowrap">{Lista.idocumento}</td>
-                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                <td className="text-nowrap">
+                                                <td className="text-nowrap text-center">{Lista.idocumento}</td>
+                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
+                                                <td className="text-center">
                                                     <Button
                                                         onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
-                                                        variant={Lista.estado === 0 ? "warning" : Lista.estado === 1 ? "success" : Lista.estado === 2 ? "danger" : "secondary"}
+                                                        variant="light"
                                                         size="sm"
-                                                        className="d-flex align-items-center  w-25 justify-content-center gap-2 px-3 py-1 fw-semibold text-nowrap"
+                                                        className={`rounded border-0 fw-semibold  w-30
+                                                                  ${Lista.estado === 0 ? "bg-warning text-white" :
+                                                                Lista.estado === 1 ? "bg-success text-white" :
+                                                                    Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
                                                     >
-                                                        {Lista.estado === 0 ? "Enviada" : Lista.estado === 1 ? "Firmada" : Lista.estado === 2 ? "Rechazada" : "Desconocido"}
-                                                        <Eye className="h-4 w-4" />
+                                                        {Lista.estado === 0 && "Enviada"}
+                                                        {Lista.estado === 1 && "Firmada"}
+                                                        {Lista.estado === 2 && "Rechazada"}
+                                                        <Eye className="mx-2" width={18} height={18} />
                                                     </Button>
                                                 </td>
-
+                                                <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
                                                 <td
                                                     className="text-nowrap"
                                                     style={{
                                                         position: 'sticky',
                                                         left: 0,
-                                                        zIndex: 2
                                                     }}>
 
                                                     {Lista.estado === 1 ? (
-
-                                                        <Button type="button" className="fw-semibold"
-                                                            onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
                                                         >
-                                                            Ver
-                                                            < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                        </Button>
-
+                                                            <Button type="button" className="fw-semibold"
+                                                                onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                            >
+                                                                Ver
+                                                                < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                            </Button>
+                                                        </OverlayTrigger>
                                                     ) : (
                                                         <Button type="button" disabled>
                                                             Ver
@@ -356,7 +400,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         </div>
                     </div>
                 )}
-                <div className="paginador-container">
+                <div className="paginador-container position-relative z-0">
                     <Pagination className="paginador-scroll">
                         <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
                         <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
@@ -378,7 +422,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={`modal-header text-white bg-success`} closeButton>
                     <Modal.Title className="fw-semibold">
-                        <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-1 "} aria-hidden="true" />Documento firmado
+                        <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Documento firmado
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -422,11 +466,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead>
                                 <tr>
-                                    <th className="text-center">Nº Alta</th>
-                                    <th className="text-center">Cargo</th>
-                                    <th className="text-center">Firmante</th>
-                                    <th className="text-center">Correo</th>
-                                    <th className="text-center">Estado</th>
+                                    <th className="text-nowrap">Nº Alta</th>
+                                    <th className="text-nowrap">Firmante</th>
+                                    <th className="text-nowrap">Cargo</th>
+                                    <th className="text-nowrap">Correo</th>
+                                    <th className="text-nowrap">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -434,19 +478,19 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                     listaEstadoVisadores.map((item, index) => (
                                         <tr key={index}>
 
-                                            <td className="text-center">{item.altaS_CORR}</td>
-                                            <td className="text-center">{item.idcargo}</td>
-                                            <td className="text-center">{item.firmante}</td>
-                                            <td className="text-center">
+                                            <td>{item.altaS_CORR}</td>
+                                            <td>{item.firmante}</td>
+                                            <td>{item.nombrecargo}</td>
+                                            <td>
                                                 <a href={`mailto:${item.temails}`} className="text-blue-500 underline">
                                                     {item.temails}
                                                 </a>
                                             </td>
-                                            <td className="text-center">{
-                                                item.firmado === 0 ? <p className="fw-bold text-warning">Pendiente</p>
-                                                    : item.firmado === 1 ? <p className="fw-bold text-success">Firmado</p>
-                                                        : item.firmado === 2 ? <p className="fw-bold text-danger">Rechazado</p>
-                                                            : item.firmado === 3 ? <p className="fw-bold text-danger">Rechazado</p> : <p className="fw-bold">-</p>
+                                            <td>{
+                                                item.firmado === 0 ? <p className="badge bg-warning w-100">Pendiente</p>
+                                                    : item.firmado === 1 ? <p className="badge bg-success w-100">Firmado</p>
+                                                        : item.firmado === 2 ? <p className="badge bg-danger w-100">Rechazado</p>
+                                                            : item.firmado === 3 ? <p className="badge bg-danger w-100">Rechazado</p> : <p className="fw-bold">-</p>
                                             }</td>
                                         </tr>
                                     ))

@@ -540,7 +540,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
         )}
 
         {/* Paginador */}
-        <div className="paginador-container">
+        <div className="paginador-container position-relative z-0">
           <Pagination className="paginador-scroll">
             <Pagination.First
               onClick={() => paginar(1)}

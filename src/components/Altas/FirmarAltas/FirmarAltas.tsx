@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { Pagination, Form, Modal, Col, Row, Collapse, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 // import Swal from "sweetalert2";
@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, Eraser, FiletypePdf, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, FiletypePdf, Paperclip, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -20,11 +20,9 @@ import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/Anula
 import { registrarBienesBajasActions } from "../../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions";
 import { FileSignatureIcon } from "lucide-react";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
-import { ListaEstadoFirmas } from "../EstadoFirmas/EstadoFirmas ";
 import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/listaEstadoFirmasActions";
 import { useLocation } from "react-router-dom";
 // import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
-
 
 interface FechasProps {
     fDesde: string;
@@ -45,6 +43,7 @@ export interface ListaAltas {
     precio: number,
     fechA_ALTA: string,
     nrecep: string,
+    estadO_FIRMA: number;
 }
 export interface DatosFirmas {
     nombre: string,
@@ -65,6 +64,12 @@ export interface DatosFirmas {
 export interface Unidades {
     iD_UNIDAD: number,
     nombre: string
+}
+
+export interface ListaEstadoFirmas {
+    idocumento: number;
+    altaS_CORR: number;
+    estado: number;
 }
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
@@ -107,7 +112,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     );
     const location = useLocation();
     const afaltaS_CORR = location.state?.prop_altaS_CORR ?? 0;
-
+    const [loadingEnvio, setLoadingEnvio] = useState(false);
     // adjuntar archivos modal
     const [anexos, setAnexos] = useState<File[]>([]);
 
@@ -221,7 +226,21 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         if (listaEstadoFirmas.length === 0) listaEstadoFirmasActions(altaSeleccionada, 0, objeto.Roles[0]?.codigoEstablecimiento);
         listaAuto();
         Unidad
-    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length]);
+        if (anexos.length > 2) {
+            Swal.fire({
+                icon: "warning",
+                title: "Demasiados archivos adjuntos",
+                text: "Solo se permite adjuntar un máximo de 2 archivos.",
+                showCancelButton: true,
+                showConfirmButton: false,
+                cancelButtonText: "Cerrar",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                customClass: { popup: "custom-border" }
+            });
+        }
+    }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length, anexos.length]);
 
     // Función al seleccionar una fila
     const setSeleccionaFilas = (index: number, altaS_CORR: number) => {
@@ -462,6 +481,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         const blob = await pdf(
             <DocumentoPDF
                 row={filasSeleccionadasPDF}
+                totalSum={totalSum}
             // AltaInventario={AltaInventario}
             // objeto={objeto}
             // UnidadNombre={UnidadNombre}
@@ -956,6 +976,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         };
         console.log("documento", documento);
         if (result.isConfirmed) {
+            setLoadingEnvio(true);
+            setMostrarModal(false);
             const resultado = await registrarDocumentoAltaActions(documento);
 
             if (!resultado) {
@@ -968,6 +990,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     confirmButtonColor: isDarkMode ? "#007bff" : "444",
                     customClass: { popup: "custom-border" }
                 });
+                setLoadingEnvio(false);
             }
             else {
                 await Swal.fire({
@@ -979,6 +1002,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     confirmButtonColor: isDarkMode ? "#007bff" : "444",
                     customClass: { popup: "custom-border" }
                 });
+                setLoadingEnvio(false);
                 listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
                 setFilasSeleccionadas([]);
                 handleBuscar();
@@ -1009,48 +1033,66 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
             elementosActuales.forEach((elemento, index) => {
                 const altaS_CORR = elemento.altaS_CORR;
-
                 const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === altaS_CORR);
+                const estado = registro?.estado;
 
-                const estado = registro ? registro.estado : null; // Te devuelve el valor del estado si existe, o null si no existe.
-
+                if (estado === 2 || estado === 3) {
+                    // Omitir estas filas completamente
+                    return;
+                }
 
                 if (estado === 0) {
                     Swal.fire({
-                        icon: "warning",
-                        title: "Solicitud en proceso",
-                        text: `Ya se ha enviado una solicitud al número de alta seleccionado`,
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        icon: "info",
+                        title: "Ya existen solicitudes previas",
+                        text: "No se pudieron seleccionar todos los bienes, ya que algunos tienen solicitudes pendientes y/u otros ya han sido firmados.",
+                        background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "#000000"}`,
                         confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
                         customClass: {
                             popup: "custom-border",
                         },
                     });
 
-                    // Deseleccionar si estaba seleccionada
                     setFilasSeleccionadas((prev) =>
                         prev.filter((rowIndex) => rowIndex !== index.toString())
                     );
                     setAltaSeleccionada(0);
-
+                    return;
                 }
-                else if (estado === 1) {
-                    // Deseleccionar si estaba seleccionada
+
+                if (estado === 1) {
                     setFilasSeleccionadas((prev) =>
                         prev.filter((rowIndex) => rowIndex !== index.toString())
                     );
                     setAltaSeleccionada(0);
+                    return;
+                }
 
-                }
-                else {
-                    filasValidas.push((indicePrimerElemento + index).toString());
-                }
+                filasValidas.push((indicePrimerElemento + index).toString());
             });
 
             setFilasSeleccionadas(filasValidas);
         } else {
             setFilasSeleccionadas([]);
+        }
+    };
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileInput = () => {
+        inputRef.current?.click();
+    };
+
+    const handleChangeFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const nuevosArchivos = Array.from(e.target.files);
+
+            setAnexos((prev) => {
+                const nombresPrevios = new Set(prev.map((file) => file.name));
+                const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
+                return [...prev, ...archivosFiltrados];
+            });
         }
     };
 
@@ -1173,14 +1215,19 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     //Logica para habilitar Boton "Solicitar Visado" si los opcionales son habilitados se requerira algun titular o subrogante
     // const ajustarFirma = AltaInventario.ajustarFirma;
 
-    const firmaFinanzasSeleccionada = (
-        AltaInventario.titularInventario ||
-        AltaInventario.subroganteInventario ||
-        AltaInventario.titularFinanzas ||
-        AltaInventario.subroganteFinanzas
-    );
+    const firmaFinanzasSeleccionada = (() => {
+        if (!AltaInventario.chkFinanzas) return true;
+        if (!AltaInventario.chkAbastecimiento) return true;
+        return (
+            (AltaInventario.titularInventario || AltaInventario.subroganteInventario) &&
+            (AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas) &&
+            (AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento)
+        );
+    })();
 
     const firmaUnidadSeleccionada = (() => {
+        if (!AltaInventario.chkUnidad) return true;
+
         switch (Unidad) {
             case 3:
                 return AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento;
@@ -1197,9 +1244,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         }
     })();
 
-    const botonHabilitado = ((AltaInventario.chkFinanzas && firmaFinanzasSeleccionada) || (AltaInventario.chkUnidad && firmaUnidadSeleccionada));
+    // BOTÓN SE HABILITA SOLO CUANDO TODOS LOS CHEQUEADOS SE CUMPLEN
+    const botonHabilitado = (AltaInventario.chkFinanzas || AltaInventario.chkUnidad) && firmaFinanzasSeleccionada && firmaUnidadSeleccionada;
 
-
+    const totalSum = useMemo(() => {
+        return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.precio.toString()), 0);
+    }, [filasSeleccionadasPDF]);
 
     return (
         <Layout>
@@ -1407,18 +1457,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             type="checkbox"
                                             onChange={handleSeleccionaTodos}
                                             checked={
-                                                elementosActuales.filter(
-                                                    (elemento) =>
-                                                        !listaEstadoFirmas.find(
-                                                            (f) =>
-                                                                f.altaS_CORR === elemento.altaS_CORR && f.estado != 1
-                                                        )
-                                                ).length === filasSeleccionadas.length && filasSeleccionadas.length > 0
-
+                                                elementosActuales.filter((elemento) => !listaEstadoFirmas.find(
+                                                    (f) => f.altaS_CORR === elemento.altaS_CORR && f.estado != 1)).length === filasSeleccionadas.length && filasSeleccionadas.length > 0
                                             }
                                         />
 
                                     </th>
+                                    <th scope="col" className="text-nowrap text-center">Estado</th>
                                     <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                                     <th scope="col" className="text-nowrap text-center">N° Alta</th>
                                     <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
@@ -1429,7 +1474,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     <th scope="col" className="text-nowrap text-center">Marca</th>
                                     <th scope="col" className="text-nowrap text-center">Modelo</th>
                                     <th scope="col" className="text-nowrap text-center">Serie</th>
-                                    <th scope="col" className="text-nowrap text-center">Estado</th>
+                                    {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                                     <th scope="col" className="text-nowrap text-center">Precio</th>
                                     <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
                                 </tr>
@@ -1437,21 +1482,26 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                             <tbody>
                                 {elementosActuales.map((Lista, index) => {
                                     const indexReal = indicePrimerElemento + index;
-                                    const esEstado0 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 0);
-                                    const esEstado1 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 1);
-                                    const esEstado2 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 2);
-                                    const esEstado3 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 3);
+                                    const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === Lista.altaS_CORR);
+                                    const estado = registro?.estado;
+                                    const iDocumento = registro?.idocumento;
+
+                                    if (estado === 1 || iDocumento === 441154) {
+                                        console.log("antigua firmada", estado, iDocumento);
+                                    }
+                                    else {
+                                        console.log("nueva", estado, iDocumento);
+                                    }
+                                    if (estado === 2 || estado === 3) {
+                                        // Omitir estas filas completamente
+                                        return;
+                                    }
 
                                     return (
-                                        <tr key={index} className={esEstado0 ? "table-warning" :
-                                            esEstado0 ? "table-warning"
-                                                : esEstado1 ? "table-success"
-                                                    : esEstado2 ? "table-danger"
-                                                        : esEstado3 ? "table-danger" : ""}>
+                                        <tr key={index}>
                                             <td style={{
                                                 position: 'sticky',
-                                                left: 0,
-                                                zIndex: 2,
+                                                left: 0
                                             }}>
                                                 <Form.Check
                                                     type="checkbox"
@@ -1459,6 +1509,21 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                 />
                                             </td>
+
+                                            {/* <td className="text-nowrap">{
+                                                estado === 0 ? <p className="badge bg-warning w-100">Pendiente</p>
+                                                    : estado === 1 ? <p className="badge bg-success w-100">Firmada</p> : <p className="badge bg-primary w-100">Sin Firma</p>}
+                                            </td> */}
+                                            <td className="text-nowrap">
+                                                {Lista.estadO_FIRMA === 0 ? (
+                                                    <p className="badge bg-warning w-100">Pendiente</p>
+                                                ) : Lista.estadO_FIRMA === 1 ? (
+                                                    <p className="badge bg-success w-100">Firmada</p>
+                                                ) : (
+                                                    <p className="badge bg-primary w-100">Sin Firma</p>
+                                                )}
+                                            </td>
+
                                             <td className="text-nowrap">{Lista.ninv}</td>
                                             <td className="text-nowrap">{Lista.altaS_CORR}</td>
                                             <td className="text-nowrap">{Lista.fechA_ALTA}</td>
@@ -1469,7 +1534,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             <td className="text-nowrap">{Lista.marca}</td>
                                             <td className="text-nowrap">{Lista.modelo}</td>
                                             <td className="text-nowrap">{Lista.serie}</td>
-                                            <td className="text-nowrap">{Lista.estado}</td>
+                                            {/* <td className="text-nowrap">{Lista.estado}</td> */}
                                             <td className="text-nowrap">
                                                 ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                             </td>
@@ -1482,7 +1547,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         </table>
                     </div>
                 )}
-                <div className="paginador-container">
+                <div className="paginador-container position-relative z-0">
                     <Pagination className="paginador-scroll">
                         <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
                         <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
@@ -1524,7 +1589,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                             <Button onClick={handleSolicitarVisado}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
                                 className="mx-1 mb-1"
-                                disabled={!botonHabilitado}
+                                disabled={!botonHabilitado || anexos.length > 2}
                             >
                                 {loading ? (
                                     <>
@@ -1545,34 +1610,28 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </>
                                 )}
                             </Button>
-                            {/* <Button
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
-                                onClick={() => document.getElementById("inputAnexos")?.click()}
-                                disabled={!botonHabilitado}
-                            >
-                                {"Adjuntar Documento"}
-                                <Paperclip className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                            </Button> */}
+                            {(objeto.IdCredencial === 18667 || objeto.IdCredencial === 66099 || objeto.IdCredencial === 66098 || objeto.IdCredencial === 62511) &&
+                                <Button
+                                    variant={isDarkMode ? "secondary" : "primary"}
+                                    className="mx-1 mb-1 d-flex align-items-center"
+                                    onClick={handleFileInput}
+                                    disabled={anexos.length === 2}
+                                >
+                                    Adjuntar Documento
+                                    <Paperclip className="ms-2" width={18} height={18} aria-hidden="true" />
+                                </Button>
+
+                            }
                             <input
                                 aria-label="file"
+                                ref={inputRef}
                                 type="file"
                                 multiple
-                                accept=".pdf,.doc,.docx,.jpg,.png" // extensiones permitidas
+                                accept=".pdf,.doc,.docx,.jpg,.png"
                                 style={{ display: "none" }}
-                                id="inputAnexos"
-                                onChange={(e) => {
-                                    if (e.target.files) {
-                                        const nuevosArchivos = Array.from(e.target.files);
-
-                                        setAnexos(prev => {
-                                            // Evitar duplicados 
-                                            const nombresPrevios = new Set(prev.map(file => file.name));
-                                            const archivosFiltrados = nuevosArchivos.filter(file => !nombresPrevios.has(file.name));
-                                            return [...prev, ...archivosFiltrados];
-                                        });
-                                    }
-                                }}
+                                className={anexos.length > 2 ? "disabled" : ""}
+                                disabled={anexos.length > 2}
+                                onChange={handleChangeFiles}
                             />
 
                         </div>
@@ -1839,44 +1898,54 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 </Col>
                             </Row>
                         </Collapse>
-                        <h6>Documentos Adjuntos:</h6>
-                        <div className="d-flex  justify-content-center">
-                            {anexos.length > 0 && (
-                                <div className='table-responsive w-50 '>
-                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
-                                            <tr>
-                                                <th scope="col">Nombre Documento</th>
-                                                <th scope="col"></th>
+                        <h6 className="fw-semibold p-2">Documentos Adjuntos:</h6>
+
+
+                        {anexos.length > 2 && (
+                            <div className="w-100 text-end">
+                                <span className="badge bg-danger p-2">
+                                    Elimine algunos archivos.
+                                </span>
+                            </div>
+                        )}
+
+                        {anexos.length > 0 && (
+                            <div className='table-responsive'>
+                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
+                                        <tr>
+                                            <th scope="col">Documento</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {anexos.map((file, index) => (
+                                            <tr key={index} >
+                                                <td> {file.name}</td>
+                                                <td className="text-end">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="danger"
+                                                        className="p-2  mx-2 rounded"
+                                                        onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
+                                                    >
+                                                        {" Eliminar "}
+                                                        <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
+                                                    </Button>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {anexos.map((file, index) => (
-                                                <tr key={index} >
-                                                    <td> {file.name}</td>
-                                                    <td>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="danger"
-                                                            className="p-1  mx-2 rounded"
-                                                            onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
-                                                        >
-                                                            {" Eliminar "}
-                                                            <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+
 
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={
                             <DocumentoPDF
                                 row={filasSeleccionadasPDF}
+                                totalSum={totalSum}
                             // AltaInventario={AltaInventario}
                             // objeto={objeto}
                             // UnidadNombre={UnidadNombre}
@@ -1968,6 +2037,22 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
                 </Modal.Body>
             </Modal >
+            {
+                loadingEnvio && (
+                    <div
+                        className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+                        style={{
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 1050,
+                        }}
+                    >
+                        <div className="text-center">
+                            <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                            <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+                        </div>
+                    </div>
+                )
+            }
         </Layout >
     );
 };

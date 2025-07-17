@@ -30,9 +30,10 @@ const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamien
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
     // in: { opacity: 1, scale: 1 },
-    initial: { opacity: 0, x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
-    in: { opacity: 1, x: 0, }, // Llega a opacidad completa y posición natural
+    initial: { x: -100, }, // Comienza con transparencia y desplazamiento desde la izquierda
+    in: { x: 0, }, // Llega a opacidad completa y posición natural
   };
+
 
   useEffect(() => {
     if (listaVersionamiento.length === 0) { listaVersionamientoActions() }
@@ -43,7 +44,7 @@ const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamien
   const pageTransition = {
     type: "tween",
     easeIn: "anticipate",
-    duration: 0.4,
+    duration: 0.3,
     // delay: 0.05,
   };
   const navigation: NavItem[] = [
