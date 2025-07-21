@@ -44,7 +44,7 @@ import {
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import Swal from "sweetalert2";
 import { FormInventario } from "./FormInventario";
-import { CUENTA, ListaEspecie } from "./DatosCuenta";
+import { CUENTA, DEPENDENCIA } from "./DatosCuenta";
 import { IndicadoresProps, Objeto } from "../../Navegacion/Profile";
 import { listaAltasActions } from "../../../redux/actions/Altas/RegistrarAltas/listaAltasActions";
 // Props del formulario
@@ -58,12 +58,18 @@ export interface ActivoFijo {
   observaciones: string;
   serie: string;
   precio: string;
+  dependencia: number;
   especie: string;
   cuenta: string;
   cuentaOriginal: string;
   color?: string;
   chkMantener?: boolean;
   chkMantenerForm?: boolean;
+}
+interface ListaEspecie {
+  estabL_CORR: number;
+  esP_CODIGO: string;
+  nombrE_ESP: string;
 }
 
 export interface Form {
@@ -76,14 +82,13 @@ interface DatosActivoFijoProps {
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
-  nombreEspecie: string[]; //Para obtener del estado global de redux
-  nCuenta: number[];
+
   datosTablaActivoFijo: ActivoFijo[];
   general?: string; // Campo para errores generales
   generalTabla?: string;
   formInventario: FormInventario;
   isDarkMode: boolean;
-  vidaUtil: string;
+
   fechaIngreso: string;
   marca: string;
   cantidad: string;
@@ -94,6 +99,14 @@ interface DatosActivoFijoProps {
   comboCuenta: CUENTA[];
   utm: IndicadoresProps;
   objeto: Objeto;
+  //Estados que se pasan desde paso 2 (DatosCuenta)
+  vidaUtil: string;
+  nombreEspecie: string[]; //Para obtener del estado global de redux
+  nCuenta: number[];
+  // nServicio: string[];
+  nDependencia: number[];
+  comboDependencia: DEPENDENCIA[];
+
   // AF_CODIGO_GENERICO: number;//trae ultimo correlativo ingresado
 }
 
@@ -104,12 +117,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   registrarFormInventarioActions,
   listaAltasActions,
   montoRecepcion,
-  nombreEspecie,
-  nCuenta,
   datosTablaActivoFijo,
   formInventario,
   isDarkMode,
-  vidaUtil,
   fechaIngreso,
   marca,
   cantidad,
@@ -118,7 +128,13 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   precio,
   comboEspecies,
   utm,
-  objeto
+  objeto,
+  //Estados que se pasan desde paso 2 (DatosCuenta)
+  vidaUtil,
+  nombreEspecie,
+  nCuenta,
+  // nServicio,
+  nDependencia,
 }) => {
 
   // Obtener fecha actual en horario de Chile
@@ -148,6 +164,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     serie: "",
     precio: "",
     especie: "",
+    dependencia: 0,
     cuenta: "",
     cuentaOriginal: "",
     chkMantenerForm: true
@@ -334,6 +351,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       serie: "",
       precio,
       especie: "",
+      dependencia: 0,
       cuenta: "",
       cuentaOriginal: "",
       chkMantenerForm: true
@@ -345,7 +363,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     cantidad,
     modelo,
     observaciones,
-    precio
+    precio,
   ]);
 
   //-------------Funciones de la tabla --------------------//
@@ -401,6 +419,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     if (validate()) {
       const cantidad = parseInt(activoFormulario.cantidad, 10);
       const ultimaEspecie = nombreEspecie[nombreEspecie.length - 1] || "";
+
       // console.log("ultimaEspecie", ultimaEspecie);
       // Funcion para generar colores aleatorios con el fin para distinguir las filas de ultimas especies
       const getRandomPastelColor = () => {
@@ -422,8 +441,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         cuenta: Utmxtres > parseInt(activoFormulario.precio) ? "5320413" : nCuenta.toString(),
         cuentaOriginal: nCuenta.toString(),
         color: colorUltimaEspecie, // Asigna el color correspondiente a la ultima especie
-        chkMantener: Utmxtres > parseInt(activoFormulario.precio) ? false : true
+        chkMantener: Utmxtres > parseInt(activoFormulario.precio) ? false : true,
+        dependencia: Array.isArray(nDependencia) ? nDependencia[0] : nDependencia,
       }));
+
       setActivosFijos((prev) => [...prev, ...newActivos]);
 
       // Despacha el array de nuevos activos a Redux
@@ -698,7 +719,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       activosFijos: activosFinales,
     };
 
-    // console.log(FormulariosCombinados);
 
     if (handleValidar()) {
       const confirmResult = await Swal.fire({
@@ -715,6 +735,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       });
 
       if (confirmResult.isConfirmed) {
+        // console.log(FormulariosCombinados);
         setLoadingEnvio(true);
         try {
           const resultado = await registrarFormInventarioActions(FormulariosCombinados);
@@ -938,6 +959,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                   <th className="text-center">Modelo</th>
                   <th className="text-center">Serie</th>
                   <th className="text-center">Precio</th>
+                  <th className="text-center">Servicio/Dependencia</th>
                   <th className="text-center">Cuenta</th>
                   <th className="text-center" >Mantener Cuenta</th>
                   <th>Acción</th>
@@ -994,6 +1016,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                         )}
                       </td>
                       <td className="text-center">${parseFloat(activo.precio).toLocaleString("es-ES", { minimumFractionDigits: 0, })}</td>
+                      {/* <td className="fw-bold text-center">
+                        {comboDependencia.find((dep) => dep.codigo.toString() === activo.dependencia)?.nombrE_ORD || activo.dependencia}
+                      </td> */}
+                      <td className="text-center">{activo.dependencia}</td>
                       <td className="fw-bold text-center">
                         {activo.cuenta === "5320413" ? (
                           <OverlayTrigger placement="top" overlay={<Tooltip>Equipos Menores</Tooltip>}>
@@ -1331,25 +1357,32 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
 const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.obtenerRecepcionReducers.montoRecepcion,
-  nombreEspecie: state.datosActivoFijoReducers.nombreEspecie,
+
   resetFormulario: state.datosActivoFijoReducers.resetFormulario,
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  vidaUtil: state.datosActivoFijoReducers.vidaUtil,
   fechaIngreso: state.datosActivoFijoReducers.fechaIngreso,
   marca: state.datosActivoFijoReducers.marca,
   cantidad: state.datosActivoFijoReducers.cantidad,
   modelo: state.datosActivoFijoReducers.modelo,
   observaciones: state.datosActivoFijoReducers.observaciones,
   precio: state.datosActivoFijoReducers.precio,
-  nCuenta: state.datosActivoFijoReducers.nCuenta,
   comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
   comboCuenta: state.comboCuentaReducer.comboCuenta,
   utm: state.indicadoresReducers.utm,
-  objeto: state.validaApiLoginReducers
+  objeto: state.validaApiLoginReducers,
 
+  //Estados que se pasan desde paso 2 (DatosCuenta)
+  // comboServicio: state.comboServicioReducer.comboServicio,
+  comboDependencia: state.comboDependenciaReducer.comboDependencia,
+  vidaUtil: state.datosActivoFijoReducers.vidaUtil,
+  nombreEspecie: state.datosActivoFijoReducers.nombreEspecie,
+  nCuenta: state.datosActivoFijoReducers.nCuenta,
+  // nServicio: state.datosActivoFijoReducers.nServicio,
+  nDependencia: state.datosActivoFijoReducers.nDependencia
 });
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,
-  listaAltasActions
+  listaAltasActions,
+  // setServicioDependencias
 })(DatosActivoFijo);

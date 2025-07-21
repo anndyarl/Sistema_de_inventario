@@ -34,7 +34,7 @@ import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/Regis
 import { ActivoFijo } from "./DatosActivoFijo";
 import { Eraser, EraserFill, FiletypePdf } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
-import { DEPENDENCIA, ListaEspecie } from "./DatosCuenta";
+import { DEPENDENCIA } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
@@ -100,6 +100,7 @@ interface ActijosFijos {
   observaciones: string;
   serie: string;
   precio: string;
+  dependencia: number;
   especie: string;
   color: string;
 }
@@ -107,6 +108,12 @@ interface ActijosFijos {
 interface ServicioNomnbre {
   seR_COD: string;
   nombre: string;
+}
+
+interface ListaEspecie {
+  estabL_CORR: number;
+  esP_CODIGO: string;
+  nombrE_ESP: string;
 }
 
 // Define el tipo de props para el componente, extendiendo InventarioProps
@@ -429,6 +436,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   //     setLoading(false); //Finaliza estado de carga
   //   }
   // };
+
   const handleLimpiar = () => {
     const { usuarioCrea, ...restoTraslados } = Inventario;
     const tieneDatos = Object.values(restoTraslados).some(
@@ -885,7 +893,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </Col>
           </Row>
           <Row>
-            <Col md={4}>
+            {/* <Col md={4}>
               <p><strong>Servicio:</strong></p>
               {(() => {
                 let nombreServicio = "N/A"; // Valor por defecto
@@ -908,7 +916,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 }
                 return <p>{nombreDependencia}</p>;
               })()}
-            </Col>
+            </Col> */}
             <Col>
               <p><strong>Fecha Ingreso:</strong></p>
               {activosFijos.length > 0 && activosFijos[0]?.fechaIngreso ? (
@@ -931,6 +939,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   <th className="text-center">Modelo</th>
                   <th className="text-center">Precio</th>
                   <th className="text-center">Serie</th>
+                  <th className="text-center">Servicio/Dependencia</th>
                   <th className="text-center">Cuenta</th>
                   {/* <th>Observaciones</th> */}
                 </tr>
@@ -960,6 +969,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                         })}
                       </td>
                       <td className="text-center">{item.serie || '-'}</td>
+                      <td className="text-center">{item.dependencia}</td>
                       <td className="text-center">{item.cuenta || 'N/A'}</td>
                       {/* <td>{item.observaciones || 'N/A'}</td> */}
                     </tr>

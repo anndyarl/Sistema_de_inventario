@@ -2,22 +2,19 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../../../containers/hocs/layout/Layout";
 import DatosInventario, { ORIGEN, MODALIDAD, PROVEEDOR } from "./DatosInventario";
-import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, ListaEspecie, BIEN, DETALLE, } from "./DatosCuenta";
+import DatosCuenta, { SERVICIO, CUENTA, DEPENDENCIA, BIEN, DETALLE, ListaEspecie, } from "./DatosCuenta";
 import Timeline from "./Timeline";
 import Swal from "sweetalert2";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
 import DatosActivoFijo from "./DatosActivoFijo";
 import MenuInventario from "../../Menus/MenuInventario";
-
 // Redux global
 import { RootState } from "../../../redux/reducers";
 import { connect } from "react-redux";
-
 import { comboServicioActions } from "../../../redux/actions/Inventario/Combos/comboServicioActions";
 import { comboDependenciaActions } from "../../../redux/actions/Inventario/Combos/comboDependenciaActions";
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
-
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboProveedorActions } from "../../../redux/actions/Inventario/Combos/comboProveedorActions";
 import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
@@ -56,15 +53,12 @@ interface FormInventarioProps {
 
   listaEspecie: ListaEspecie[];
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
-
-
   comboCuentaInicialActions: () => void;
   comboCuentaxEspecieActions: (esp_codigo: string) => void;
   comboSoloxCuentaActions: (cta_tipo: number) => void;
 
   token: string | null;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
-
 }
 
 const FormInventario: React.FC<FormInventarioProps> = ({

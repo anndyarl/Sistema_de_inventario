@@ -3,7 +3,7 @@ import { Modal, Button, Form, Pagination, Row, Col, Spinner, OverlayTrigger, Too
 import React, { useState, useMemo, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store.ts";
-import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
+import { setDependenciaActions, setServicioActions, setCuentaActions, setEspecieActions, setDescripcionEspecieActions, setNombreEspecieActions, setVidaUtilActions, } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions.tsx";
 import { Check2Circle, Plus, Search } from "react-bootstrap-icons";
 import Select from "react-select";
 import { Objeto } from "../../Navegacion/Profile.tsx";
@@ -51,6 +51,7 @@ export interface ListaEspecie {
   estabL_CORR: number;
   esP_CODIGO: string;
   nombrE_ESP: string;
+  vidA_UTIL?: string;
 }
 //Props del formulario
 export interface CuentaProps {
@@ -82,7 +83,8 @@ interface DatosCuentaProps extends CuentaProps {
   especieSeleccionado: string | null | undefined;
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie  
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
-  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>; //Lista Especies en tabla
+  setVidaUtilActions: (vidaUtil: string) => void;
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string /* esP_NOMBRE: string*/) => Promise<boolean>; //Lista Especies en tabla
   comboEspecies: ListaEspecie[];
   isDarkMode: boolean;
   objeto: Objeto;
@@ -97,6 +99,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   onEspecieSeleccionado,
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,
+  setVidaUtilActions,
   //Combos
   comboServicio,
   comboCuenta,
@@ -120,7 +123,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const [Cuenta, setCuenta] = useState({
     servicio: 0,
     cuenta: 0,
-    mantenerCuenta: true,
     dependencia: 0,
     especie: "",
     bien: 0
@@ -195,11 +197,13 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     }
     if (name === "bien") {
       onBienSeleccionado(value);
+      setFilasSeleccionadas([]);
     }
     if (name === "detalles") {
       paginar(1);
       onDetalleSeleccionado(newValue as number);
       setDetalleSeleccionado(newValue as number);
+      setFilasSeleccionadas([]);
     }
 
   };
@@ -218,17 +222,16 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
-  const { mantenerCuenta } = Cuenta;
+
   useEffect(() => {
     setCuenta({
       servicio,
       cuenta,
-      mantenerCuenta,
       dependencia,
       especie,
       bien: bien ?? 0
     });
-  }, [servicio, cuenta, mantenerCuenta, dependencia, especie, bien]);
+  }, [servicio, cuenta, dependencia, especie, bien]);
 
   //Se usa useEffect en este caso de Especie ya que por handleChange no detecta el cambio
   // debido que este se pasa por una seleccion desde el modal en la selccion que se hace desde el listado
@@ -270,12 +273,12 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     let resultado = false;
     if (Buscar.esP_CODIGO && Buscar.esP_CODIGO.includes("-")) {
       // Seleccionó del combo: usar código
-      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
-    } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
-      // Escribió manualmente: usar nombre   
-      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO);
+      // } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
+      //   // Escribió manualmente: usar nombre   
+      //   resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
     } else {
-      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, detalleSeleccionado ?? 0, "", "");
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, detalleSeleccionado ?? 0, "",);
       setLoading(false);
       return;
     }
@@ -300,6 +303,9 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     const item = listaEspecie[index];
     setFilasSeleccionadas([index.toString()]);
     setElementoSeleccionado(item);
+
+    const vidA_UTIL = listaEspecie[index].vidA_UTIL || "";
+    setVidaUtilActions(vidA_UTIL);
   };
 
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
@@ -607,6 +613,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                     <th></th>
                     <th className={isDarkMode ? "text-light" : "text-dark"}>Código</th>
                     <th className={isDarkMode ? "text-light" : "text-dark"}>Especie</th>
+                    {/* <th className={isDarkMode ? "text-light" : "text-dark"}>Vida Útil</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -627,6 +634,9 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                       <td className={isDarkMode ? "text-light" : "text-dark"}>
                         {listadoEspecies.nombrE_ESP}
                       </td>
+                      {/* <td className={isDarkMode ? "text-light" : "text-dark"}>
+                        {listadoEspecies.vidA_UTIL}
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
@@ -688,7 +698,8 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   comboEspeciesBienActions,
-  listadoDeEspeciesBienActions
+  listadoDeEspeciesBienActions,
+  setVidaUtilActions
 })(DatosCuenta);
 
 

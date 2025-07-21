@@ -16,6 +16,8 @@ interface DatosRecepcionState {
     modelo: string;
     observaciones: string;
     precio: string;
+    nServicio: string;
+    nDependencia: number;
     resultadoRegistro: number;
 }
 
@@ -34,6 +36,8 @@ const initialState: DatosRecepcionState = {
     modelo: "",
     observaciones: "",
     precio: "",
+    nServicio: "",
+    nDependencia: 0,
     resultadoRegistro: 0
 };
 
@@ -113,6 +117,10 @@ const datosActivoFijoReducers = (state = initialState, action: any) => {
             return { ...state, nCuenta: action.payload };
         case 'SET_CANTIDAD':
             return { ...state, cantidad: action.payload };
+        case 'SET_SERVICIO':
+            return { ...state, nServicio: action.payload };
+        case 'SET_DEPENDENCIA':
+            return { ...state, nDependencia: action.payload };
         case 'SET_OBSERVACIONES':
             return { ...state, observaciones: action.payload };
         case 'SET_INVENTARIO_REGISTRADO':

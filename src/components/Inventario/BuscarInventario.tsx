@@ -5,7 +5,7 @@ import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, FileExcel, Search } from "react-bootstrap-icons";
 import Select from "react-select";
 import MenuInventario from "../Menus/MenuInventario.tsx";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
@@ -15,7 +15,7 @@ import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/
 import { comboServicioActions } from "../../redux/actions/Inventario/Combos/comboServicioActions.tsx";
 import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions.tsx";
 import { listaInventarioBuscarActions } from "../../redux/actions/Inventario/BuscarInventario/listaInventarioBuscarActions.tsx";
-
+import * as XLSX from "xlsx";
 // Define el tipo de los elementos del combo `servicio`
 interface SERVICIO {
   codigo: number;
@@ -231,6 +231,47 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
       altaS_CORR: 0
     }));
   };
+
+  const handleExportarExcel = () => {
+    if (!listaInventarioBuscar || listaInventarioBuscar.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "Sin datos",
+        text: "No hay datos para exportar.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      });
+      return;
+    }
+
+    const datosExportar = listaInventarioBuscar.map(item => ({
+      "Nº Inventario": item.aF_CODIGO_GENERICO,
+      "Descripción": item.aF_DESCRIPCION,
+      "Fecha Ingreso": item.aF_FINGRESO || "Sin fecha",
+      "Servicio": item.seR_NOMBRE,
+      "Dependencia": item.deP_NOMBRE,
+      "Especie": item.esP_NOMBRE,
+      "Precio": item.deT_PRECIO,
+      "Vida Útil": item.aF_VIDAUTIL,
+      "Nº Alta": item.altaS_CORR,
+      "Origen": item.origen,
+      "Nº Recepción": item.nrecepcion || "-",
+      "Cuenta": item.ctA_COD,
+      "Orden Compra": item.aF_OCO_NUMERO_REF,
+      "Marca": item.deT_MARCA || "-",
+      "Modelo": item.deT_MODELO || "-",
+      "Serie": item.deT_SERIE || "-",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(datosExportar);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario");
+
+    // Exporta directamente
+    XLSX.writeFile(workbook, "Inventario.xlsx");
+  };
+
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -519,6 +560,12 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                   Limpiar
                   <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
+
+                <Button variant={`${isDarkMode ? "secondary" : "success"}`} onClick={handleExportarExcel}>
+                  Exportar
+                  <FileExcel className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                </Button>
+
               </div>
             </Col>
           </Row>

@@ -44,6 +44,7 @@ export interface ListaAltas {
     fechA_ALTA: string,
     nrecep: string,
     estadO_FIRMA: number;
+    idocumento: number;
 }
 export interface DatosFirmas {
     nombre: string,
@@ -249,8 +250,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         setAltaSeleccionada(altaS_CORR);
 
         if (altaS_CORR === null || index === null) return;
-        const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === altaS_CORR);
-        const estado = registro ? registro.estado : null; // Te devuelve el valor del estado si existe, o null si no existe.
+        const registro = listaAltasRegistradas.find((f) => f.altaS_CORR === altaS_CORR);
+        const estado = registro ? registro.estadO_FIRMA : null; // Te devuelve el valor del estado si existe, o null si no existe.
 
 
         if (estado === 0) {
@@ -293,45 +294,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             setAltaSeleccionada(0);
 
         }
-        else if (estado === 2) {
-            Swal.fire({
-                icon: "error",
-                title: "Solicitud rechazada",
-                text: "La solicitud ha sido rechazada por el departamento correspondiente.",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                customClass: {
-                    popup: "custom-border",
-                },
-            });
 
-            // Deseleccionar si estaba seleccionada
-            setFilasSeleccionadas((prev) =>
-                prev.filter((rowIndex) => rowIndex !== index.toString())
-            );
-            setAltaSeleccionada(0);
-        }
-        else if (estado === 3) {
-            Swal.fire({
-                icon: "error",
-                title: "Solicitud rechazada",
-                text: "La solicitud ha sido rechazada por el departamento correspondiente.",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-                customClass: {
-                    popup: "custom-border",
-                },
-            });
-
-            // Deseleccionar si estaba seleccionada
-            setFilasSeleccionadas((prev) =>
-                prev.filter((rowIndex) => rowIndex !== index.toString())
-            );
-            setAltaSeleccionada(0);
-        }
-        else {
+        else if (estado === -1) {
             // Selección normal si estado != 0
             setFilasSeleccionadas((prev) =>
                 prev.includes(index.toString())
@@ -339,6 +303,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     : [...prev, index.toString()]
             );
         }
+
         // Guarda la selección temporal para que el efecto reaccione
         setAltaSeleccionada(altaS_CORR);
 
@@ -1033,8 +998,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
             elementosActuales.forEach((elemento, index) => {
                 const altaS_CORR = elemento.altaS_CORR;
-                const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === altaS_CORR);
-                const estado = registro?.estado;
+                const registro = listaAltasRegistradas.find((f) => f.altaS_CORR === altaS_CORR);
+                const estado = registro?.estadO_FIRMA;
 
                 if (estado === 2 || estado === 3) {
                     // Omitir estas filas completamente
@@ -1077,6 +1042,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             setFilasSeleccionadas([]);
         }
     };
+
+
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -1199,6 +1166,19 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     );
     const totalPaginas = Math.ceil(listaAltasRegistradas.length / elementosPorPagina);
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+
+
+    const filasSeleccionables = elementosActuales
+        .map((elemento, index) => {
+            const altaS_CORR = elemento.altaS_CORR;
+            const registro = listaAltasRegistradas.find((f) => f.altaS_CORR === altaS_CORR);
+            const estado = registro?.estadO_FIRMA;
+            if (estado === 0 || estado === 1 || estado === 2 || estado === 3) return null;
+            return (indicePrimerElemento + index).toString();
+        })
+        .filter((x): x is string => x !== null);
+
+
 
     // const handleDescargarPDF = async (fila: any) => {
     //     const fecha = Date.now();
@@ -1457,8 +1437,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             type="checkbox"
                                             onChange={handleSeleccionaTodos}
                                             checked={
-                                                elementosActuales.filter((elemento) => !listaEstadoFirmas.find(
-                                                    (f) => f.altaS_CORR === elemento.altaS_CORR && f.estado != 1)).length === filasSeleccionadas.length && filasSeleccionadas.length > 0
+                                                filasSeleccionadas.length > 0 &&
+                                                filasSeleccionadas.length === filasSeleccionables.length &&
+                                                filasSeleccionables.every((f) => filasSeleccionadas.includes(f))
                                             }
                                         />
 
@@ -1484,14 +1465,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     const indexReal = indicePrimerElemento + index;
                                     const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === Lista.altaS_CORR);
                                     const estado = registro?.estado;
-                                    const iDocumento = registro?.idocumento;
 
-                                    if (estado === 1 || iDocumento === 441154) {
-                                        console.log("antigua firmada", estado, iDocumento);
-                                    }
-                                    else {
-                                        console.log("nueva", estado, iDocumento);
-                                    }
                                     if (estado === 2 || estado === 3) {
                                         // Omitir estas filas completamente
                                         return;

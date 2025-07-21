@@ -1,4 +1,5 @@
 // reducers/origenPresupuestoReducer.ts
+import { ListaEspecie } from '../../../../components/Inventario/RegistrarInventario/DatosCuenta';
 import {
     LISTADO_ESPECIES_BIEN_REQUEST,
     LISTADO_ESPECIES_BIEN_SUCCESS,
@@ -9,8 +10,8 @@ import {
 
 interface ListadoDeEspeciesBienState {
     loading: boolean;
-    listadoDeEspecies: Array<{ estabL_CORR: number; esP_CODIGO: string; nombrE_ESP: string }>;
-    comboEspecies: Array<{ estabL_CORR: number; esP_CODIGO: string; nombrE_ESP: string }>;
+    listadoDeEspecies: ListaEspecie[];
+    comboEspecies: ListaEspecie[];
     error: string | null;
 }
 

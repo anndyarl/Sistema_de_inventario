@@ -1,4 +1,5 @@
 import { ActivoFijo } from "../../../../components/Inventario/RegistrarInventario/DatosActivoFijo";
+import { DEPENDENCIA } from "../../../../components/Inventario/RegistrarInventario/DatosCuenta";
 
 export const setNRecepcionActions = (nRecepcion: number) => ({
   type: 'SET_N_RECEPCION',
@@ -124,7 +125,6 @@ export const setVidaUtilActions = (vidaUtil: string) => ({
   type: 'SET_VIDA_UTIL',
   payload: vidaUtil,
 });
-
 export const setFechaIngresoActions = (fechaIngreso: string) => ({
   type: 'SET_FECHA_INGRESO',
   payload: fechaIngreso,
@@ -163,5 +163,9 @@ export const setActualizaMantenerCuenta = (index: number, chkMantener: boolean, 
   payload: { index, chkMantener, nCuenta }
 });
 
+export const setServicioDependencias = (datosServicioDependencia: DEPENDENCIA[]) => ({
+  type: 'SET_SERVICIO_DEPENDENCIA',
+  payload: datosServicioDependencia,
+});
 
 

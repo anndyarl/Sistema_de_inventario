@@ -72,59 +72,39 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
 
     },
+    tableHeader: {
+        fontSize: 8,
+        flexDirection: "row",
+        fontWeight: 'bold',
+        backgroundColor: 'rgb(0 68 133 / 80%)',
+        color: '#fff',
+        borderBottom: "1px solid #000",
+    },
     tableRow: {
-        flexDirection: 'row',
+        flexDirection: "row",
+        borderBottom: "1px solid #ccc",
+        alignItems: "center",
     },
-    tableCellHeader: {
-        fontSize: 8,
-        fontWeight: 'bold',
-        padding: 2,
-        border: '1px solid #b3b3b3',
-        backgroundColor: 'rgb(0 68 133 / 80%)',
-        color: '#fff',
-        flexGrow: 1,
-        flexShrink: 1,
-        flexBasis: '8%', // proporción base para columnas pequeñas
-    },
-
-    tableCellHeaderLong: {
-        fontSize: 8,
-        fontWeight: 'bold',
-        padding: 2,
-        border: '1px solid #b3b3b3',
-        backgroundColor: 'rgb(0 68 133 / 80%)',
-        color: '#fff',
-        flexGrow: 4,
-        flexShrink: 1,
-        flexBasis: '20%', // más espacio base
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
-    },
-
     tableCell: {
+        padding: 3,
         fontSize: 8,
-        border: '1px solid #b3b3b3',
-        padding: 2,
-        flexGrow: 1,      // usar flexGrow en vez de flex fijo
-        flexShrink: 1,
-        flexBasis: '8%',  // proporción base para columnas pequeñas
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
+        borderRight: "1px solid #ccc",
+        textAlign: "center",
+        overflow: "hidden",
+        flexGrow: 1,
     },
-
-    tableCellLong: {
-        fontSize: 8,
-        border: '1px solid #b3b3b3',
-        padding: 2,
-        flexGrow: 4,      // permite que esta columna crezca más que las demás
-        flexShrink: 1,
-        flexBasis: '20%', // punto de partida mayor
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
-    },
+    colCodigo: { width: "13%" },
+    colEspecie: { width: "13%" },
+    colMarca: { width: "10%" },
+    colModelo: { width: "10%" },
+    colSerie: { width: "10%" },
+    colObs: { width: "20%" },
+    colFIngreso: { width: "12%" },
+    colAlta: { width: "8%" },
+    colEstado: { width: "5%" },
+    colTraslado: { width: "10%" },
+    colPrecio: { width: "10%" },
+    colCuenta: { width: "15%" },
 
     firmaContainer: {
         flexDirection: 'row',
@@ -215,34 +195,35 @@ const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDepen
 
                     {/* Tabla */}
                     <View style={styles.table}>
-                        <View style={styles.tableRow}>
-                            <Text style={styles.tableCellHeader}>N° Inventario</Text>
-                            <Text style={styles.tableCellHeader}>Especie</Text>
-                            <Text style={styles.tableCellHeader}>Marca</Text>
-                            <Text style={styles.tableCellHeader}>Modelo</Text>
-                            <Text style={styles.tableCellHeader}>Serie</Text>
-                            <Text style={styles.tableCellHeaderLong}>Observación</Text>
-                            <Text style={styles.tableCellHeader}>Fecha Ingreso</Text>
-                            <Text style={styles.tableCellHeader}>Nº Alta</Text>
-                            <Text style={styles.tableCellHeader}>Estado</Text>
-                            <Text style={styles.tableCellHeader}>Nº Traslado</Text>
-                            <Text style={styles.tableCellHeader}>Valor Inicial</Text>
-                            <Text style={styles.tableCellHeader}>Cuenta Contable</Text>
+                        <View style={styles.tableHeader}>
+                            <Text style={[styles.tableCell, styles.colCodigo]}>N° Inventario</Text>
+                            <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
+                            <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
+                            <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
+                            <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
+                            <Text style={[styles.tableCell, styles.colObs]}>Observación</Text>
+                            <Text style={[styles.tableCell, styles.colFIngreso]}>Fecha Ingreso</Text>
+                            <Text style={[styles.tableCell, styles.colAlta]}>N° Alta</Text>
+                            <Text style={[styles.tableCell, styles.colEstado]}>Estado</Text>
+                            <Text style={[styles.tableCell, styles.colTraslado]}>N° Traslado</Text>
+                            <Text style={[styles.tableCell, styles.colPrecio]}>Valor Inicial</Text>
+                            <Text style={[styles.tableCell, styles.colCuenta]}>Cuenta Contable</Text>
                         </View>
+
                         {rows.map((lista, idx) => (
                             <View style={styles.tableRow} key={idx}>
-                                <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
-                                <Text style={styles.tableCell}>{lista.aF_ESPECIE}</Text>
-                                <Text style={styles.tableCell}>{lista.aF_MARCA}</Text>
-                                <Text style={styles.tableCell}>{lista.aF_MODELO}</Text>
-                                <Text style={styles.tableCell}>{lista.aF_SERIE}</Text>
-                                <Text style={styles.tableCellLong}>{lista.aF_OBS}</Text>
-                                <Text style={styles.tableCell}>{lista.aF_FINGRESO}</Text>
-                                <Text style={styles.tableCell}>{lista.altaS_CORR}</Text>
-                                <Text style={styles.tableCell}>{lista.traS_ESTADO_AF}</Text>
-                                <Text style={styles.tableCell}>{lista.ntraslado === 0 ? "" : lista.ntraslado}</Text>
-                                <Text style={styles.tableCell}>$ {(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                <Text style={styles.tableCell}>{lista.ctA_COD}</Text>
+                                <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
+                                <Text style={[styles.tableCell, styles.colEspecie]}>{lista.aF_ESPECIE}</Text>
+                                <Text style={[styles.tableCell, styles.colMarca]}>{lista.aF_MARCA}</Text>
+                                <Text style={[styles.tableCell, styles.colModelo]}>{lista.aF_MODELO}</Text>
+                                <Text style={[styles.tableCell, styles.colSerie]}>{lista.aF_SERIE}</Text>
+                                <Text style={[styles.tableCell, styles.colObs]}>{lista.aF_OBS}</Text>
+                                <Text style={[styles.tableCell, styles.colFIngreso]}>{lista.aF_FINGRESO}</Text>
+                                <Text style={[styles.tableCell, styles.colAlta]}>{lista.altaS_CORR}</Text>
+                                <Text style={[styles.tableCell, styles.colEstado]}>{lista.traS_ESTADO_AF}</Text>
+                                <Text style={[styles.tableCell, styles.colTraslado]}>{lista.ntraslado === 0 ? "" : lista.ntraslado}</Text>
+                                <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ctA_COD}</Text>
                             </View>
                         ))}
                     </View>
