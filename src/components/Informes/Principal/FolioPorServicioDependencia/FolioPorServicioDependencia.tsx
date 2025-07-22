@@ -588,7 +588,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
                     <Row className="border rounded p-2 m-2">
                         <Col sm={12} md={12} lg={4}>
-                            {/* Servicio */}
+                            {/* Servicio/Dependencia */}
                             <div className="mb-1 position-relative z-1">
                                 <label className="fw-semibold">
                                     Servicio / Dependencia

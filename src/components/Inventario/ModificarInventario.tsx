@@ -6,12 +6,12 @@ import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
-import { BIEN, CUENTA, DEPENDENCIA, DETALLE, ListaEspecie, SERVICIO, } from "./RegistrarInventario/DatosCuenta";
+import { BIEN, CUENTA, DETALLE, ListaEspecie } from "./RegistrarInventario/DatosCuenta";
 import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
+import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import Select from "react-select";
-import { Objeto } from "../Navegacion/Profile";
 import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
 import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
@@ -21,6 +21,12 @@ import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Com
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { comboDependenciaModificarActions } from "../../redux/actions/Inventario/Combos/comboDependenciaModificarActions ";
 import { comboCuentaModificarActions } from "../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
+import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
+
+export interface SERVICIO_DEPENDENCIA {
+  deP_CORR: number;
+  descripcion: string
+}
 export interface InventarioCompleto {
   aF_CLAVE: number;
   aF_CODIGO_GENERICO: string;
@@ -48,16 +54,18 @@ export interface InventarioCompleto {
 interface InventarioCompletoProps extends InventarioCompleto {
   comboOrigen: ORIGEN[];
   comboModalidad: MODALIDAD[];
-  comboServicio: SERVICIO[];
-  comboDependencia: DEPENDENCIA[];
+  // comboServicio: SERVICIO[];
+  // comboDependencia: DEPENDENCIA[];
   comboCuenta: CUENTA[];
   comboBien: BIEN[];
   comboDetalle: DETALLE[];
   listaEspecie: ListaEspecie[];
   comboEspecies: ListaEspecie[];
   comboProveedor: PROVEEDOR[];
+  comboServicioInforme: SERVICIO_DEPENDENCIA[];
 
-  comboDependenciaModificarActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+  comboServicioInformeActions: (establ_corr: number) => void;//En buscador   
+  // comboDependenciaModificarActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   obtenerInventarioActions: (af_codigo_generico: string) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
@@ -66,6 +74,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboProveedorActions: (rutProveedor: string) => void;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
+
   isDarkMode: boolean;
   objeto: Objeto;
 
@@ -75,8 +84,9 @@ interface InventarioCompletoProps extends InventarioCompleto {
 const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboOrigen,
   comboModalidad,
-  comboServicio,
-  comboDependencia,
+  // comboServicio,
+  // comboDependencia,
+  comboServicioInforme,
   comboCuenta,
   comboBien,
   comboDetalle,
@@ -108,7 +118,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   DET_OBS,
   isDarkMode,
   objeto,
-  comboDependenciaModificarActions,
+  comboServicioInformeActions,
   obtenerInventarioActions,
   comboDetalleActions,
   comboEspeciesBienActions,
@@ -210,6 +220,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
+
+  const servicioOptions = comboServicioInforme.map((item) => ({
+    value: item.deP_CORR,
+    label: item.descripcion,
+  }));
+
+  const handleServicioChange = (selectedOption: any) => {
+    const value = selectedOption ? selectedOption.value : 0;
+    setBuscar((prevInventario) => ({ ...prevInventario, deP_CORR: value }));
+    console.log(value);
+  };
   const validateDetalles = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)  
@@ -228,8 +249,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (comboEspecies.length === 0) {
       comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
     }
-    if (comboDependencia.length === 0) { comboDependenciaModificarActions(""); }
-
+    if (comboServicioInforme.length === 0) { comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento) }
 
     setInventario({
       aF_CLAVE,
@@ -268,7 +288,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       // console.log("Código de especie seleccionado:", Especies.codigoEspecie);
     }
   }, [
-    comboDependencia.length,
+    // comboDependencia.length,
+    comboServicioInforme,
     aF_CODIGO_GENERICO, // nRecepcion
     AF_FECHA_SOLICITUD,//fechaRecepcion 
     AF_OCO_NUMERO_REF, //nOrdenCompra
@@ -782,7 +803,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </div>
             </Col>
             <Col md={3}>
-              <div className="mb-1">
+              {/* <div className="mb-1">
                 <label className="fw-semibold">
                   Servicio
                 </label>
@@ -833,6 +854,46 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 {error.DEP_CORR && (
                   <div className="invalid-feedback fw-semibold">{error.DEP_CORR}</div>
                 )}
+              </div> */}
+
+              {/* Servicio/Dependencia */}
+              <div className="mb-1 position-relative z-1">
+                <label className="fw-semibold">
+                  Servicio / Dependencia
+                </label>
+                <Select
+                  options={servicioOptions}
+                  onChange={handleServicioChange}
+                  name="DEP_CORR"
+                  value={servicioOptions.find((option) => option.value === Inventario.DEP_CORR) || null}
+                  placeholder="Buscar"
+                  className={`form-select-container`}
+                  classNamePrefix="react-select"
+                  isClearable
+                  isSearchable
+                  styles={{
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                      color: isDarkMode ? "white" : "#212529", // Texto blanco
+                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                      color: isDarkMode ? "white" : "#212529",
+                    }),
+                    option: (base, { isFocused, isSelected }) => ({
+                      ...base,
+                      backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                      color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                    }),
+                  }}
+                />
               </div>
               <div className="mb-1">
                 <label className="fw-semibold">
@@ -884,8 +945,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   )}
                 </div>
               )}
-            </Col>
-            <Col md={3}>
               <div className="mb-1">
                 <label className="fw-semibold">
                   Especie
@@ -919,6 +978,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                 )}
               </div>
+            </Col>
+            <Col md={3}>
               <div className="mb-1">
                 <label className="fw-semibold">
                   Cuenta</label>
@@ -1373,10 +1434,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
 const mapStateToProps = (state: RootState) => ({
   comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
-  comboServicio: state.comboServicioReducer.comboServicio,
+  // comboServicio: state.comboServicioReducer.comboServicio,
   comboModalidad: state.comboModalidadCompraReducer.comboModalidad,
   comboCuenta: state.comboCuentaModificarReducers.comboCuenta,
-  comboDependencia: state.comboDependenciaModificarReducers.comboDependencia,
+  // comboDependencia: state.comboDependenciaModificarReducers.comboDependencia,
+  comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
   comboDetalle: state.detallesReducer.comboDetalle,
   comboBien: state.detallesReducer.comboBien,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
@@ -1412,7 +1474,8 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   obtenerInventarioActions,
-  comboDependenciaModificarActions,
+  comboServicioInformeActions,
+  // comboDependenciaModificarActions,
   comboDetalleActions,
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,

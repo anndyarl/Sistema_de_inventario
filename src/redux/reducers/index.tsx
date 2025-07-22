@@ -96,6 +96,7 @@ import listaInventarioBuscarReducers from "./Inventario/BuscarInventario/listaIn
 import setSidebarCollapsedReducer from "./Otros/setSidebarCollapsedReducer";
 import obtenerInventarioQRReducers from "./Inventario/obtenerInventarioQRReducers";
 import comboServicioMantenedorReducers from "./Mantenedores/Servicios/comboServicioMantenedorReducers";
+import obtenerReimpresionEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerReimpresionEtiquetasAltasReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -143,6 +144,7 @@ const appReducer = combineReducers({
   listaAltasReducers,
   listaAltasRegistradasReducers,
   obtenerEtiquetasAltasReducers,
+  obtenerReimpresionEtiquetasAltasReducers,
   obtenerfirmasAltasReducers,
   obtenerUnidadesReducers,
   datosAltaRegistradaReducers,

@@ -1,4 +1,5 @@
 // reducers/origenPresupuestoReducer.ts
+import { SERVICIO_DEPENDENCIA } from '../../../../../components/Inventario/ModificarInventario';
 import {
   COMBO_SERVICIO_INFORME_REQUEST,
   COMBO_SERVICIO_INFORME_SUCCESS,
@@ -8,7 +9,7 @@ import {
 
 interface PropsState {
   loading: boolean;
-  comboServicioInforme: Array<{ deP_CORR: number; descripcion: string }>;
+  comboServicioInforme: SERVICIO_DEPENDENCIA[];
   error: string | null;
 }
 

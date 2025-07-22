@@ -17,7 +17,6 @@ import { comboServicioInformeActions } from "../../redux/actions/Informes/Princi
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
-
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
@@ -1199,8 +1198,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             </div>
           </Modal.Body>
         </Modal>
-      )
-      }
+      )}
 
       {/* Formulario de traslados */}
       < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)}
