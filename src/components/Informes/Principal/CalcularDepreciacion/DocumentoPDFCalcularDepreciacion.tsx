@@ -58,28 +58,46 @@ const styles = StyleSheet.create({
     table: {
         display: 'flex',
         flexDirection: 'column',
-
+    },
+    tableHeader: {
+        fontSize: 6,
+        flexDirection: "row",
+        alignContent: "center",
+        fontWeight: 'bold',
+        backgroundColor: 'rgb(0 68 133 / 80%)',
+        color: '#fff',
+        borderBottom: "1px solid #000",
     },
     tableRow: {
-        flexDirection: 'row',
-    },
-    tableCellHeader: {
-        fontSize: 5,
-        fontWeight: 'bold',
-        padding: "0.5px",
-        border: '1px solid #b3b3b3',
-        backgroundColor: "rgb(0 68 133 / 80%)",
-        color: "#fff",
-        flex: 1,
-        // textAlign: 'center',
+        flexDirection: "row",
+        borderBottom: "1px solid #ccc",
+        alignItems: "center",
     },
     tableCell: {
-        fontSize: 5,
-        border: '1px solid #b3b3b3',
-        padding: "0.5px",
-        flex: 1,
-        // textAlign: 'center',
+        padding: 3,
+        fontSize: 6,
+        borderRight: "1px solid #ccc",
+        textAlign: "center",
+        overflow: "hidden",
+        flexGrow: 1,
     },
+    colCodigo: { width: "10%" },
+    colEspecie: { width: "10%" },
+    colMarca: { width: "12%" },
+    colModelo: { width: "10%" },
+    colSerie: { width: "10%" },
+    colPrecio: { width: "10%" },
+    colDescripcion: { width: "10%" },
+    colMesesTranscurridos: { width: "7%" },
+    colVidaUtil: { width: "6%" },
+    colMesVidaUtil: { width: "6%" },
+    colMesesRestantes: { width: "7%" },
+    colMontoInicial: { width: "10%" },
+    colDepreciacionAnual: { width: "10%" },
+    colDepreciacionMensual: { width: "8%" },
+    colDepAcumulada: { width: "10%" },
+    colValorResidual: { width: "10%" },
+
 });
 const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number }) => (
     <Document>
@@ -127,14 +145,14 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
             {/* Tabla */}
             <View style={styles.table}>
                 {/* Cabecera de la tabla */}
-                <View style={styles.tableRow}>
+                <View style={styles.tableHeader}>
                     {/* <Text style={styles.tableCellHeader}>Código</Text> */}
-                    <Text style={styles.tableCellHeader}>Nº Inventario</Text>
-                    <Text style={styles.tableCellHeader}>Especie</Text>
-                    <Text style={styles.tableCellHeader}>Marca</Text>
-                    <Text style={styles.tableCellHeader}>Modelo</Text>
-                    <Text style={styles.tableCellHeader}>Serie</Text>
-                    <Text style={styles.tableCellHeader}>Precio</Text>
+                    <Text style={[styles.tableCell, styles.colCodigo]}>Nº Inventario</Text>
+                    <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
+                    <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
+                    <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
+                    <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
+                    <Text style={[styles.tableCell, styles.colPrecio]}>Precio</Text>
                     {/* <Text style={styles.tableCellHeader}>Código Largo</Text>
                     <Text style={styles.tableCellHeader}>Departamento Corr</Text>
                     <Text style={styles.tableCellHeader}>Código Específico</Text>
@@ -175,27 +193,27 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                     <Text style={styles.tableCellHeader}>ID Programa</Text>
                     <Text style={styles.tableCellHeader}>ID Modalidad Compra</Text>
                     <Text style={styles.tableCellHeader}>ID Propiedad</Text>*/}
-                    <Text style={styles.tableCellHeader}>Descripción</Text>
-                    <Text style={styles.tableCellHeader}>Meses Transcurridos</Text>
-                    <Text style={styles.tableCellHeader}>Vida Útil</Text>
-                    <Text style={styles.tableCellHeader}>Mes Vida Útil</Text>
-                    <Text style={styles.tableCellHeader}>Meses Restantes</Text>
-                    <Text style={styles.tableCellHeader}>Monto Inicial</Text>
-                    <Text style={styles.tableCellHeader}>Depreciación por Año</Text>
-                    <Text style={styles.tableCellHeader}>Depreciación por Mes</Text>
-                    <Text style={styles.tableCellHeader}>Depreciación Acumulada Actualizada</Text>
-                    <Text style={styles.tableCellHeader}>Valor Residual</Text>
+                    <Text style={[styles.tableCell, styles.colDescripcion]}>Descripción</Text>
+                    <Text style={[styles.tableCell, styles.colMesesTranscurridos]}>Meses Transcurridos</Text>
+                    <Text style={[styles.tableCell, styles.colVidaUtil]}>Vida Útil</Text>
+                    <Text style={[styles.tableCell, styles.colMesVidaUtil]}>Mes Vida Útil</Text>
+                    <Text style={[styles.tableCell, styles.colMesesRestantes]}>Meses Restantes</Text>
+                    <Text style={[styles.tableCell, styles.colMontoInicial]}>Monto Inicial</Text>
+                    <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
+                    <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>Depreciación por Mes</Text>
+                    <Text style={[styles.tableCell, styles.colDepAcumulada]}>Depreciación Acumulada Actualizada</Text>
+                    <Text style={[styles.tableCell, styles.colValorResidual]}>Valor Residual</Text>
                 </View>
                 {/* Fila de datos */}
                 {row.map((lista) => (
                     <View style={styles.tableRow}>
                         {/* <Text style={styles.tableCell}>{lista.aF_CLAVE}</Text> */}
-                        <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
-                        <Text style={styles.tableCell}>{lista.especie}</Text>
-                        <Text style={styles.tableCell}>{lista.marca}</Text>
-                        <Text style={styles.tableCell}>{lista.modelo}</Text>
-                        <Text style={styles.tableCell}>{lista.serie}</Text>
-                        <Text style={styles.tableCell}>{lista.precio}</Text>
+                        <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
+                        <Text style={[styles.tableCell, styles.colEspecie]}>{lista.especie}</Text>
+                        <Text style={[styles.tableCell, styles.colEspecie]}>{lista.marca}</Text>
+                        <Text style={[styles.tableCell, styles.colMarca]}>{lista.modelo}</Text>
+                        <Text style={[styles.tableCell, styles.colSerie]}>{lista.serie}</Text>
+                        <Text style={[styles.tableCell, styles.colPrecio]}>{(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                         {/* <Text style={styles.tableCell}>{lista.aF_CODIGO_LARGO}</Text>
                         <Text style={styles.tableCell}>{lista.deP_CORR}</Text>
                         <Text style={styles.tableCell}>{lista.esP_CODIGO}</Text>
@@ -236,16 +254,16 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                         <Text style={styles.tableCell}>{lista.idprograma}</Text>
                         <Text style={styles.tableCell}>{lista.idmodalidadcompra}</Text>
                         <Text style={styles.tableCell}>{lista.idpropiedad}</Text>*/}
-                        <Text style={styles.tableCell}>{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</Text>
-                        <Text style={styles.tableCell}>{lista.mesesTranscurridos}</Text>
-                        <Text style={styles.tableCell}>{lista.vidaUtil}</Text>
-                        <Text style={styles.tableCell}>{lista.mesVidaUtil}</Text>
-                        <Text style={styles.tableCell}>{lista.mesesRestantes}</Text>
-                        <Text style={styles.tableCell}>$ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={styles.tableCell}>$ {(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={styles.tableCell}>$ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={styles.tableCell}>$ {(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={styles.tableCell}>$ {(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        < Text style={[styles.tableCell, styles.colDescripcion]} > {lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</Text>
+                        <Text style={[styles.tableCell, styles.colMesesTranscurridos]}>{lista.mesesTranscurridos}</Text>
+                        <Text style={[styles.tableCell, styles.colVidaUtil]}>{lista.vidaUtil}</Text>
+                        <Text style={[styles.tableCell, styles.colMesVidaUtil]}>{lista.mesVidaUtil}</Text>
+                        <Text style={[styles.tableCell, styles.colMesesRestantes]}>{lista.mesesRestantes}</Text>
+                        <Text style={[styles.tableCell, styles.colMontoInicial]}>{(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>{(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                     </View>
                 ))}
             </View>

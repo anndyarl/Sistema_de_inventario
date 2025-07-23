@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     colAlta: { width: "8%" },
     colEstado: { width: "5%" },
     colTraslado: { width: "10%" },
-    colPrecio: { width: "10%" },
+    colPrecio: { width: "13%" },
     colCuenta: { width: "15%" },
 
     firmaContainer: {

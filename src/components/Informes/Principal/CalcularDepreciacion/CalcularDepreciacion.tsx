@@ -1126,7 +1126,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     </div>
                                 </Col>
 
-                                <Col sm={6} md={6} lg={3}>
+                                <Col sm={8} md={6} lg={3}>
                                     <div className="bg-light border-start border-4 border-warning shadow-sm p-3 rounded m-2">
                                         <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
                                             Total Depreciación Anual
@@ -1136,63 +1136,81 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         </h4>
                                     </div>
                                 </Col>
+                            </Row>
 
-                                <div className="d-flex justify-content-end">
+                            <Row className="g-2">
+                                {/* Columna 1: Tamaño de página */}
+                                <Col lg={8} md={6} sm={12}>
                                     {listaActivosFijos.length > 10 && (
-                                        <div className="d-flex align-items-center me-2">
-                                            <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                                        <div className="d-flex align-items-center justify-content-lg-start justify-content-center">
+                                            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                                                 Tamaño de página:
                                             </label>
                                             <select
                                                 aria-label="Seleccionar tamaño de página"
-                                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                name="nPaginacion2"
+                                                className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="nPaginacion"
                                                 onChange={handleChange}
                                                 value={Paginacion.nPaginacion2}
                                             >
-                                                {[10, 25, 50, 75, 100, listaActivosCalculados.length].map((val) => (
-                                                    <option key={val} value={val}>{val}</option>
+                                                {[10, 20, 30, listaActivosFijos.length].map((val) => (
+                                                    <option key={val} value={val}>
+                                                        {val}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </div>
                                     )}
-                                    {listaActivosNoCalculados.length > 0 && (
+                                </Col>
+                                <Col>
+                                    {/* {listaActivosNoCalculados.length > 0 && ( */}
+                                    <div className="d-flex justify-content-lg-end justify-content-center">
                                         <Button
                                             onClick={() => setMostrarModalNoCalculados(true)}
                                             disabled={listaActivosCalculados.length === 0}
                                             variant="warning"
-                                            className="mx-1 mb-1 text-muted fw-semibold">
-                                            <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1 text-danger")} aria-hidden="true" />
+                                            className="p-2 mb-1 mx-2">
+                                            <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1  text-danger")} aria-hidden="true" />
                                             {"No Calculados"}
                                             <span className="badge bg-light text-dark mx-1 mt-1">
                                                 {listaActivosNoCalculados.length}
                                             </span>
                                         </Button>
-                                    )}
-                                    <Button
-                                        onClick={() => setMostrarModal(true)}
-                                        disabled={listaActivosCalculados.length === 0}
-                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                        className="mx-1 mb-1" >
+                                    </div>
+                                    {/* )} */}
+                                </Col>
 
-                                        {mostrarModal ? (
-                                            <>
-                                                {" Un Momento..."}
-                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FiletypePdf className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1")} aria-hidden="true" />
-                                                {"Exportar"}
-                                                <span className="badge bg-light text-dark mx-1 mt-1">
-                                                    {listaActivosCalculados.length}
-                                                </span>
-                                                {"Calculados"}
-                                            </>
-                                        )}
-                                    </Button>
-
-                                </div>
+                                {listaActivosCalculados.length && (
+                                    <>
+                                        {/* Botón activos calculados */}
+                                        <Col >
+                                            <div className="d-flex justify-content-lg-end justify-content-end">
+                                                <Button
+                                                    variant={isDarkMode ? "secondary" : "primary"}
+                                                    onClick={() => setMostrarModal(true)}
+                                                    disabled={listaActivosCalculados.length === 0}
+                                                    className="p-2 mb-1 mx-2"
+                                                >
+                                                    {loading ? (
+                                                        <>
+                                                            {" Un Momento..."}
+                                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FiletypePdf className={classNames("flex-shrink-0", "h-5 w-5 mx-1")} aria-hidden="true" />
+                                                            {"Exportar"}
+                                                            <span className="badge bg-light text-dark mx-1 mt-1">
+                                                                {listaActivosCalculados.length}
+                                                            </span>
+                                                            {"Calculados"}
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </Col>
+                                    </>
+                                )}
                             </Row>
                         </div>
                         {/* Tabla activos calculados*/}
@@ -1211,13 +1229,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
                                                     <th
                                                         scope="col"
-                                                        className="text-nowrap text-center"
-                                                        style={{
-                                                            position: 'sticky',
-                                                            left: 0,
-                                                            zIndex: 0,
-
-                                                        }}>
+                                                        className="text-nowrap text-center sticky-col-left">
                                                         Nº Inventario
                                                     </th>
                                                     {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
@@ -1265,7 +1277,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <th scope="col" className="text-nowrap text-center">Modalidad Compra</th>
                                                     {/* <th scope="col" className="text-nowrap text-center">ID Propiedad</th> */}
                                                     {/* <th scope="col" className="text-nowrap text-center">Especie</th> */}
-                                                    <th scope="col" className="text-nowrap text-center">Meses transcurrido</th>
+                                                    <th scope="col" className="text-nowrap text-center">Meses Transcurrido</th>
                                                     <th scope="col" className="text-nowrap text-center">Vida Útil</th>
                                                     <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
                                                     <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
@@ -1273,33 +1285,18 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <th scope="col" className="text-nowrap text-center">Depreciación Mensual</th>
                                                     <td
                                                         scope="col"
-                                                        className="text-nowrap text-center bg-warning text-white rounded-top"
-                                                        style={{
-                                                            position: 'sticky',
-                                                            right: 325,
-                                                            zIndex: 0
-                                                        }}>
-                                                        <b> Depreciación Anual </b>
+                                                        className="text-nowrap text-center bg-primary text-white sticky-col-right-2 rounded-top">
+                                                        <b>Depreciación Acumulada</b>
                                                     </td>
                                                     <td
                                                         scope="col"
-                                                        className="text-nowrap text-center bg-primary text-white rounded-top"
-                                                        style={{
-                                                            position: 'sticky',
-                                                            right: 122,
-                                                            zIndex: 0
-                                                        }}>
-                                                        <b> Depreciación Acumulada </b>
+                                                        className="text-nowrap text-center bg-success text-white sticky-col-right-1 rounded-top">
+                                                        <b>Valor Residual</b>
                                                     </td>
                                                     <td
                                                         scope="col"
-                                                        className="text-nowrap text-center bg-success text-white rounded-top"
-                                                        style={{
-                                                            position: 'sticky',
-                                                            right: 0,
-                                                            zIndex: 0
-                                                        }}>
-                                                        <b> Valor Residual</b>
+                                                        className="text-nowrap text-center bg-warning text-white sticky-col-right-0 rounded-top">
+                                                        <b> Depreciación Anual</b>
                                                     </td>
                                                 </tr>
                                             </thead>
@@ -1309,13 +1306,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <tr key={index}>
                                                         {/* <td className="text-nowrap text-center">{lista.aF_CLAVE}</td> */}
                                                         <td
-                                                            className="text-nowrap text-center"
-                                                            style={{
-                                                                position: 'sticky',
-                                                                left: 0,
-                                                                zIndex: 0,
-
-                                                            }}>
+                                                            className="text-nowrap text-center sticky-col-left">
                                                             {lista.aF_CODIGO_GENERICO}
                                                         </td>
                                                         {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
@@ -1373,46 +1364,34 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
                                                         <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
                                                         <td className="text-nowrap text-center">
-                                                            $ {(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                            ${(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>
+
                                                         <td className="text-nowrap text-center">
-                                                            $ {(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                            ${(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>
-                                                        <td
-                                                            className="text-nowrap text-center fw-bold"
-                                                            style={{
-                                                                position: 'sticky',
-                                                                right: 325,
-                                                                zIndex: 0,
-                                                                color: '#2f3e78',
-                                                                background: '#a4d1ff'
-                                                                // background: '#a4d1ff'
-                                                            }}>
-                                                            ${lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                        </td>
-                                                        <td
-                                                            className="text-nowrap text-center fw-bold"
-                                                            style={{
-                                                                position: 'sticky',
-                                                                right: 122,
-                                                                zIndex: 0,
-                                                                color: '#2f3e78',
-                                                                background: '#a4d1ff'
-                                                            }}>
+
+                                                        <td className="text-nowrap text-center fw-bold sticky-col-right-2" style={{
+                                                            color: '#2f3e78',
+                                                            background: '#a4d1ff'
+                                                        }}>
                                                             ${lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>
-                                                        <td
-                                                            className="text-nowrap text-center fw-bold"
-                                                            style={{
-                                                                position: 'sticky',
-                                                                right: 0,
-                                                                zIndex: 0,
-                                                                color: '#2f3e78',
-                                                                background: '#a4d1ff'
-                                                                // background: '#baecbf'
-                                                            }}>
-                                                            ${lista.valorResidual === 0 ? 1 : lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+
+                                                        <td className="text-nowrap text-center fw-bold sticky-col-right-1" style={{
+                                                            color: '#2f3e78',
+                                                            background: '#a4d1ff'
+                                                        }}>
+                                                            ${lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                         </td>
+
+                                                        <td className="text-nowrap text-center fw-bold sticky-col-right-0" style={{
+                                                            color: '#2f3e78',
+                                                            background: '#a4d1ff'
+                                                        }}>
+                                                            ${lista.depreciacionPorAno === 0 ? 1 : lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+
                                                     </tr>
                                                 )}
                                             </tbody>

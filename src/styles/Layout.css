@@ -260,3 +260,44 @@ padding: 2px;
   background-color: #f8f9fa;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
+
+/* Sticky activo solo desde pantallas medianas (>=768px) */
+@media (min-width: 768px) {
+
+  .sticky-col-left {
+      position: sticky;
+    left: 0;
+    z-index: 1; 
+  }
+  .sticky-col-right-2 {
+    position: sticky;
+    right: 284px;
+    z-index: 1; 
+  }
+
+  .sticky-col-right-1 {
+    position: sticky;
+    right: 162px;
+    z-index: 1;    
+  }
+
+  .sticky-col-right-0 {
+    position: sticky;
+    right: 0;
+    z-index: 1;  
+  }
+}
+
+/* En pantallas menores a 768px (mobile): no sticky */
+@media (max-width: 767.98px) {
+  
+  .sticky-col-right-2,
+  .sticky-col-right-1,
+  .sticky-col-right-0 {
+    position: static !important;
+    right: auto !important;
+  }
+}
+
+
+
