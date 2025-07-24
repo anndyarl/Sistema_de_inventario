@@ -10,20 +10,19 @@ import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados";
-import { DEPENDENCIA } from "../Inventario/RegistrarInventario/DatosCuenta";
-import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
-import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
-import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
-import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
-import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
-import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import Select from "react-select";
-import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { registroTrasladoMultipleActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
+import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
+import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
+import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
+import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
+import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
+import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions";
+import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
     codigo: number;
@@ -86,6 +85,12 @@ interface SERVICIO {
 export interface ListaSalidaTraslados {
     aF_CODIGO_GENERICO: number;
     n_TRASLADO: number;
+}
+
+interface DEPENDENCIA {
+    codigo: number;
+    descripcion: string;
+    nombrE_ORD: string;
 }
 
 interface TrasladosProps {
@@ -219,7 +224,6 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablecimiento);
             if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
             if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablecimiento);
-            if (comboDependenciaOrigen.length === 0) comboDependenciaOrigenActions("");
             if (comboServicioInforme.length === 0) comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
             if (comboEspecies.length === 0) comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
         }
@@ -330,7 +334,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border",
                 }
@@ -349,7 +353,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 text: "No hay registros disponibles para mostrar.",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -430,7 +434,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             confirmButtonText: "Confirmar y Agregar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
                 popup: "custom-border", // Clase personalizada para el borde
             }
@@ -471,7 +475,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     confirmButtonText: "Entendido",
                     background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     width: '600px',
                     customClass: {
                         popup: "custom-border",
@@ -487,7 +491,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     confirmButtonText: "Cerrar",
                     background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     width: '600px',
                     customClass: {
                         popup: "custom-border",
@@ -546,7 +550,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 confirmButtonText: "Confirmar y Trasladar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -587,7 +591,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                         text: "Ocurrió un problema al intentar trasladar los activos.",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: { popup: "custom-border" }
                     });
                 }
@@ -604,7 +608,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             text: `Se han registrado correctamente los traslados seleccionados, Presione "OK" para visualizar un resumen de los datos ingresados.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: { popup: "custom-border" },
             allowOutsideClick: false,
             showCancelButton: false, // Agrega un segundo botón
@@ -628,7 +632,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 text: "¿Desea limpiar los filtros para iniciar una nueva búsqueda?",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: { popup: "custom-border" },
                 allowOutsideClick: false,
                 confirmButtonText: "Limpiar",
@@ -814,7 +818,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                 key={traeDependencia.codigo}
                                                 value={traeDependencia.codigo}
                                             >
-                                                {traeDependencia.descripcion}
+                                                {traeDependencia.nombrE_ORD}
                                             </option>
                                         ))}
                                     </select>
@@ -1194,8 +1198,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                         </div>
                     </Modal.Body>
                 </Modal>
-            )
-            }
+            )}
 
             {/* Formulario de traslados */}
             < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)}
@@ -1213,7 +1216,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     <h5 className="fw-semibold">Seleccione Ubicación de Centro de Destino</h5>
                     <p>(Escoga su propio Centro para traslados internos)</p>
                     <form onSubmit={handleSubmitTraslado}>
-                        <div className="d-flex justify-content-end">
+                        <div className="d-flex justify-content-end ">
                             <Button
                                 onClick={handleLimpiarFormulario}
                                 variant="primary"
@@ -1250,7 +1253,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                             </Button>
                         </div>
                         <Row>
-                            <Col>
+                            <Col md={6}>
                                 <div className="mb-1 position-relative z-1">
                                     <label className="fw-semibold">
                                         Servicio / Dependencia Destino
@@ -1348,7 +1351,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                     )}
                                 </div>
                             </Col>
-                            <Col>
+                            <Col md={6}>
                                 <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
                                     <h5 className="fw-semibold mb-4">Datos de Recepción</h5>
                                     {/* Entregado Por */}

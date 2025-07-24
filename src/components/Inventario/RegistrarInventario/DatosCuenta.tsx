@@ -350,7 +350,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   return (
     <>
       <form onSubmit={handleSubmit} className={isDarkMode ? "bg-dark text-light" : ""}>
-        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+        <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Detalles de Inventario
           </h3>

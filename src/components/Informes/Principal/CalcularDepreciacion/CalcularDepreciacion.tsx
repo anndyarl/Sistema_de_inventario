@@ -99,27 +99,33 @@ interface DatosAltas {
     isDarkMode: boolean;
     comboCuentasInformeActions: () => void;
     comboCuentasInforme: ComboCuentas[];
-    nPaginacion: number; //número de paginas establecido desde preferencias
+
 }
 
-const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, listaActivosCalculadosActions, comboCuentasInformeActions, listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, comboCuentasInforme, token, isDarkMode, nPaginacion }) => {
+const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, listaActivosCalculadosActions, comboCuentasInformeActions, listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, comboCuentasInforme, token, isDarkMode }) => {
     const [error, setError] = useState<Partial<ListaActivosFijos> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalNoCalculados, setMostrarModalNoCalculados] = useState(false);
     const [mostrarModalCalcular, setMostrarModalCalcular] = useState(false);
     const [loadingBuscar, setLoadingBuscar] = useState(false); // Estado para controlar la carga 
-    const [loading, setLoading] = useState(false); // Estado para controlar la carga 
+    const [loading, setLoading] = useState(false);
+    const [loadingExportar, setLoadingExportar] = useState(false);
     const [_, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const [paginaActual2, setPaginaActual2] = useState(1);
     const [paginaActual3, setPaginaActual3] = useState(1);
 
-    const [Paginacion, setPaginacion] = useState({
-        nPaginacion2: 10
-    });
-    const elementosPorPagina = nPaginacion;
-    const elementosPorPagina2 = Paginacion.nPaginacion2;
-    const elementosPorPagina3 = nPaginacion;
+    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+    const elementosPorPagina = Paginacion.nPaginacion;
+
+    const [Paginacion2, setPaginacion2] = useState({ nPaginacion2: 10 });
+    const elementosPorPagina2 = Paginacion2.nPaginacion2;
+
+    const [Paginacion3, setPaginacion3] = useState({ nPaginacion3: 10 });
+    const elementosPorPagina3 = Paginacion3.nPaginacion3;
+
+
+
     const [__, setlistaActivosCalculados] = useState<ListaActivosFijos[]>(listaActivosCalculados);
 
     const cuentasOptions = comboCuentasInforme.map((item) => ({
@@ -169,7 +175,18 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             [name]: value,
         }));
 
+        setPaginacion2((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+
+        setPaginacion3((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+
         if (name === "nPaginacion2") {
+            console.log(value);
             paginar2(1);
         }
     };
@@ -183,7 +200,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         setLoadingBuscar(true);
         // Limpiar los activos seleccionados antes de enviar los nuevos datos
 
-
         const tieneFechas = Inventario.fDesde !== "" && Inventario.fHasta !== "";
         const tieneCuenta = Inventario.cta_cod && Inventario.cta_cod !== "";
         const tieneCodigoGenerico = Inventario.af_codigo_generico && Inventario.af_codigo_generico !== "";
@@ -196,7 +212,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border",
                 }
@@ -229,7 +245,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border",
                 }
@@ -319,7 +335,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: { popup: "custom-border" }
             });
             setLoading(false);
@@ -331,6 +347,15 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         setMostrarModalCalcular(true);
         setLoading(false);
     };
+
+    const handleAbrirModalCalcular = () => {
+        setLoadingExportar(true);
+        // Espera un ciclo de evento para mostrar el modal
+        setTimeout(() => {
+            setMostrarModal(true);
+        }, 50); //se ajusta este tiempo para que cargue de inmediato
+    };
+
 
     // const setSeleccionaFilas = (index: number) => {
     //     setFilasSeleccionadas((prev) =>
@@ -725,7 +750,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     //     });
     // };
 
-
+    //Este ancho de la columna se aplica para que los botones no se expandan en su totalidad segun el ancho
+    const lgSize = listaActivosNoCalculados.length > 0 ? 4 : 2;
     return (
         <Layout>
             <Helmet>
@@ -733,7 +759,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             </Helmet>
             <MenuInformes />
 
-            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Calcular Depreciación</h3>
                 <Row className="border rounded p-2 m-2">
                     <Col md={3}>
@@ -862,30 +888,68 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                     </Col>
                 </Row>
 
-                <div className="d-flex justify-content-end">
-                    {listaActivosFijos.length > 0 && (
-                        <Button
-                            onClick={handleCalcular} disabled={listaActivosFijos.length === 0}
-                            className={`btn m-1 p-2 ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
-                        >
-                            {loading ? (
-                                <>
-                                    {" Calculando..."}
-                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                </>
-                            ) : (
-                                <>
-                                    <Calculator className={classNames("flex-shrink-0", "h-5 w-5 mx-1 mb-1")} aria-hidden="true" />
-                                    {"Calcular"}
-                                    <span className="badge bg-light text-dark mx-1 mt-1">
-                                        {listaActivosFijos.length}
-                                    </span>
-                                </>
-                            )}
-                        </Button>
+                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                    {/* Tamaño Paginación */}
+                    <Col xs={12} lg="auto">
+                        {listaActivosFijos.length > 10 && (
+                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                    Tamaño de página:
+                                </label>
+                                <select
+                                    aria-label="Seleccionar tamaño de página"
+                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="nPaginacion"
+                                    onChange={handleChange}
+                                    value={Paginacion.nPaginacion}
+                                >
+                                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                                        <option key={val} value={val}>
+                                            {val}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </Col>
+                    {/* Botón Calcular */}
+                    <Col xs={12} lg={2}>
+                        <div className="d-flex justify-content-center justify-content-lg-end">
+                            {listaActivosFijos.length > 0 && (
+                                <Button
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    onClick={handleCalcular}
+                                    className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            Calculando...
+                                            <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                                className="ms-2"
+                                            />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Calculator className={classNames("flex-shrink-0", "h-5 w-5 mx-1")} aria-hidden="true" />
+                                            Calcular
+                                            <span className="badge bg-light text-dark mx-1 mt-1">
+                                                {listaActivosFijos.length}
+                                            </span>
+                                        </>
+                                    )}
+                                </Button>
 
-                    )}
-                </div>
+                            )}
+                        </div>
+                    </Col>
+                </Row>
+
                 {/* Tabla principal activos fijos*/}
                 {loading ? (
                     <>
@@ -1100,7 +1164,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         <Modal.Title className="fw-semibold">
                             <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <Modal.Body className={`p-0 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                         <div
                             className="bg-white shadow-sm sticky-top p-3">
                             <Row >
@@ -1138,22 +1202,22 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 </Col>
                             </Row>
 
-                            <Row className="g-2">
-                                {/* Columna 1: Tamaño de página */}
-                                <Col lg={8} md={6} sm={12}>
+                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                                {/* Tamaño de página */}
+                                <Col xs={12} lg="auto">
                                     {listaActivosFijos.length > 10 && (
-                                        <div className="d-flex align-items-center justify-content-lg-start justify-content-center">
-                                            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                            <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
                                                 Tamaño de página:
                                             </label>
                                             <select
                                                 aria-label="Seleccionar tamaño de página"
                                                 className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                name="nPaginacion"
+                                                name="nPaginacion2"
                                                 onChange={handleChange}
-                                                value={Paginacion.nPaginacion2}
+                                                value={Paginacion2.nPaginacion2}
                                             >
-                                                {[10, 20, 30, listaActivosFijos.length].map((val) => (
+                                                {[10, 15, 20, 25, 50, 100].map((val) => (
                                                     <option key={val} value={val}>
                                                         {val}
                                                     </option>
@@ -1162,56 +1226,63 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         </div>
                                     )}
                                 </Col>
-                                <Col>
-                                    {/* {listaActivosNoCalculados.length > 0 && ( */}
-                                    <div className="d-flex justify-content-lg-end justify-content-center">
-                                        <Button
-                                            onClick={() => setMostrarModalNoCalculados(true)}
-                                            disabled={listaActivosCalculados.length === 0}
-                                            variant="warning"
-                                            className="p-2 mb-1 mx-2">
-                                            <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1  text-danger")} aria-hidden="true" />
-                                            {"No Calculados"}
-                                            <span className="badge bg-light text-dark mx-1 mt-1">
-                                                {listaActivosNoCalculados.length}
-                                            </span>
-                                        </Button>
-                                    </div>
-                                    {/* )} */}
-                                </Col>
 
-                                {listaActivosCalculados.length && (
-                                    <>
-                                        {/* Botón activos calculados */}
-                                        <Col >
-                                            <div className="d-flex justify-content-lg-end justify-content-end">
+                                {/* Botones y mensajes */}
+                                <Col xs={12} lg={lgSize}>
+                                    <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                        {listaActivosNoCalculados.length > 0 && (
+                                            <>
+                                                {/* Botón No calculados */}
                                                 <Button
-                                                    variant={isDarkMode ? "secondary" : "primary"}
-                                                    onClick={() => setMostrarModal(true)}
-                                                    disabled={listaActivosCalculados.length === 0}
-                                                    className="p-2 mb-1 mx-2"
+                                                    variant='warning'
+                                                    onClick={() => setMostrarModalNoCalculados(true)}
+                                                    disabled={listaActivosNoCalculados.length === 0}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                                                 >
-                                                    {loading ? (
+                                                    <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1  text-danger")} aria-hidden="true" />
+                                                    No Calculados
+                                                    <span className="badge bg-light text-dark mx-1 mt-1">
+                                                        {listaActivosNoCalculados.length}
+                                                    </span>
+
+                                                </Button>
+                                            </>
+                                        )}
+                                        {listaActivosFijos.length > 0 && (
+                                            <>
+                                                {/* Botón Calculados */}
+                                                <Button
+                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                    onClick={handleAbrirModalCalcular}
+                                                    disabled={listaActivosFijos.length === 0 || loadingExportar}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                                >
+                                                    {loadingExportar ? (
                                                         <>
-                                                            {" Un Momento..."}
+                                                            Un Momento...
                                                             <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <FiletypePdf className={classNames("flex-shrink-0", "h-5 w-5 mx-1")} aria-hidden="true" />
-                                                            {"Exportar"}
+                                                            <FiletypePdf
+                                                                className="flex-shrink-0 h-5 w-5 mx-2"
+                                                                aria-hidden="true"
+                                                            />
+                                                            Exportar
                                                             <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                {listaActivosCalculados.length}
+                                                                {listaActivosFijos.length}
                                                             </span>
-                                                            {"Calculados"}
                                                         </>
                                                     )}
                                                 </Button>
-                                            </div>
-                                        </Col>
-                                    </>
-                                )}
+                                            </>
+                                        )}
+
+
+                                    </div>
+                                </Col>
                             </Row>
+
                         </div>
                         {/* Tabla activos calculados*/}
                         <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
@@ -1432,9 +1503,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </Pagination>
                         </div>
                     </Modal.Body>
-                </Modal>
+                </Modal >
 
-            )}
+            )
+            }
 
             {/* Modal Activos NO Calculados */}
             <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
@@ -1443,6 +1515,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         <ExclamationDiamond className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 text-danger"} aria-hidden="true" />No Calculados</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <p className="alert alert-warning border-start border-1 border-warning-subtle text-dark fw-semibold">
+                        Algunos inventarios no fueron calculados porque su vida útil está registrada como <strong>cero</strong>.
+                    </p>
+
                     {/* Tabla*/}
                     {loading ? (
                         <>
@@ -1561,37 +1637,38 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-                    <BlobProvider document={
-                        <DocumentoPDF
-                            row={listaActivosCalculados}
-                            totalRes={totalRes}
-                            totalDep={totalDep}
-                        />
-                    }>
-                        {({ url, loading }) =>
-                            loading ? (
+                    <BlobProvider
+                        document={
+                            <DocumentoPDF
+                                row={listaActivosCalculados}
+                                totalRes={totalRes}
+                                totalDep={totalDep}
+                            />
+                        }
+                    >
+                        {({ url, loading }) => {
+                            // Cuando el PDF termina de cargarse, apagamos el spinner
+                            useEffect(() => {
+                                if (!loading) {
+                                    setLoadingExportar(false);
+                                }
+                            }, [loading]);
+
+                            return loading ? (
                                 <p>Generando vista previa...</p>
                             ) : (
-
                                 <>
-                                    {/* Botones para exportar a Excel y Word */}
                                     <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
                                             onClick={() => exportarExcel(listaActivosCalculados)}
-                                            variant="success">
+                                            variant="success"
+                                        >
                                             Descargar Excel
-                                            <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                            <FileEarmarkExcel className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                         </Button>
-                                        {/* <Button
-                                            onClick={() => exportarWord()}
-                                            variant="primary">
-                                            Descargar Word
-                                            <FileEarmarkWord className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </Button> */}
                                     </div>
-                                    {/* Frame para vista previa del PDF */}
                                     <iframe
-                                        src={url ? `${url}` : ""}
+                                        src={url ?? ""}
                                         title="Vista Previa del PDF"
                                         style={{
                                             width: "100%",
@@ -1600,10 +1677,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         }}
                                     ></iframe>
                                 </>
-
-                            )
-                        }
+                            );
+                        }}
                     </BlobProvider>
+
                 </Modal.Body>
             </Modal>
         </Layout >

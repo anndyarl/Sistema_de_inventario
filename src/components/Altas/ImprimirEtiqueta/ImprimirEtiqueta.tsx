@@ -100,7 +100,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         confirmButtonText: "Ok",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: {
                             popup: "custom-border", // Clase personalizada para el borde
                         }
@@ -179,7 +179,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -445,7 +445,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             text: "Para ver todas las etiquetas que ya han sido generadas, haga clic en el botón 'Reimprimir'.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: { popup: "custom-border" },
             allowOutsideClick: false,
             confirmButtonText: "Reimprimir",
@@ -489,7 +489,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 <title>Imprimir Etiquetas</title>
             </Helmet>
             <MenuAltas />
-            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Imprimir Etiquetas</h3>
                 <Row className="border rounded p-2 m-2">
                     <Col md={3}>
@@ -589,11 +589,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     </Col>
                 </Row>
 
-                <Row className="g-2">
-                    {/* Columna 1: Tamaño de página */}
-                    <Col lg={8} md={6} sm={12}>
+                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                    {/* Tamaño de página */}
+                    <Col xs={12} lg="auto">
                         {listaEtiquetas.length > 10 && (
-                            <div className="d-flex align-items-center justify-content-lg-start justify-content-center">
+                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                                 <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                                     Tamaño de página:
                                 </label>
@@ -604,7 +604,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                     onChange={handleChange}
                                     value={Paginacion.nPaginacion}
                                 >
-                                    {[10, 20, 30, listaEtiquetas.length].map((val) => (
+                                    {[10, 15, 20, 25, 50, 100].map((val) => (
                                         <option key={val} value={val}>
                                             {val}
                                         </option>
@@ -614,95 +614,60 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         )}
                     </Col>
 
-                    {filasSeleccionadas.length > 0 ? (
-                        <>
-                            {/* Botón quitar del Listado */}
-                            {/* <Col lg={2} md={6} sm={12}>
-                                <div className="d-flex justify-content-lg-end justify-content-end">
+                    {/* Botones y mensajes */}
+                    <Col xs={12} lg={4}>
+                        <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                            {filasSeleccionadas.length > 0 ? (
+                                <>
+                                    {/* Botón Generar */}
                                     <Button
-                                        variant="danger"
-                                        onClick={handleQuitar}
-                                        disabled={loadingQuitar}
-                                        className="w-100 w-lg-auto d-flex align-items-center justify-content-center"
-                                    >
-                                        {loadingQuitar ? (
-                                            <>
-                                                {" Quitar"}
-                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                {"Quitar"}
-                                                <span className="badge bg-light text-dark mx-2">
-                                                    {filasSeleccionadas.length}
-                                                </span>
-                                            </>
-                                        )}
-                                    </Button>
-                                </div>
-                            </Col> */}
-
-                            {/* Botón Generar Etiqueta */}
-                            <Col lg={2} md={12} sm={12}>
-                                <div className="d-flex justify-content-lg-end justify-content-end">
-                                    <Button
-                                        variant={isDarkMode ? "secondary" : "primary"}
+                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
                                         onClick={handleGenerar}
                                         disabled={listaEtiquetas.length === 0}
-                                        className="w-100 w-lg-auto d-flex align-items-center justify-content-center p-2 mb-1"
+                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                                     >
                                         {loading ? (
                                             <>
-                                                {" Generar "}
+                                                Generar
                                                 <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                             </>
                                         ) : (
                                             <>
-                                                {" Generar "}
-                                                <Printer className="flex-shrink-0 h-5 w-5 mx-2" aria-hidden="true" />
+                                                Generar
+                                                <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                                             </>
                                         )}
                                     </Button>
-                                </div>
-                            </Col>
-                        </>
-                    ) : (
-                        <>
-                            {/* Mensaje */}
-                            <Col>
-                                <div className="d-flex justify-content-lg-end justify-content-end">
-                                    <strong className="alert alert-dark border pb-2 pt-2 ps-3 pe-3 mb-1  ">
+                                </>
+                            ) : (
+                                <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
                                         No hay filas seleccionadas
                                     </strong>
                                 </div>
-                            </Col>
-                        </>
-                    )}
+                            )}
 
-                    {/* Botón Reimprimir*/}
-                    <Col lg={2} md={6} sm={12}>
-                        <div className="d-flex justify-content-lg-end justify-content-end">
+                            {/* Botón Reimprimir */}
                             <Button
                                 variant="warning"
                                 onClick={() => setMostrarModalLista(true)}
                                 disabled={loadingReimprimir}
-                                className="w-100 w-lg-auto d-flex align-items-center justify-content-center p-2 mb-1 c"
+                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
                             >
                                 {loadingReimprimir ? (
                                     <>
-                                        {" Reimprimir "}
-                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                        Reimprimir
+                                        <Spinner as="span" className="flex-shrink-0 h-5 w-5" animation="border" size="sm" role="status" aria-hidden="true" />
                                     </>
                                 ) : (
                                     <>
-                                        {" Reimprimir "}
-                                        <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-2" aria-hidden="true" />
+                                        Reimprimir
+                                        <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                                     </>
                                 )}
                             </Button>
                         </div>
                     </Col>
-
                 </Row>
 
                 {/* Listado Principal */}
@@ -846,18 +811,18 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 dialogClassName="draggable-modal"
                 fullscreen
             >
-                <Modal.Header className={`modal-header`} closeButton>
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <div className="d-flex justify-content-between w-100">
                         <Modal.Title className="fw-semibold">Reimprimir Etiquetas</Modal.Title>
                     </div>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
 
-                    <Row className="g-2">
-                        {/* Columna 1: Tamaño de página */}
-                        <Col lg={8} md={6} sm={12}>
+                    <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                        {/* Tamaño de página */}
+                        <Col xs={12} lg="auto">
                             {listaReimpresionEtiquetas.length > 10 && (
-                                <div className="d-flex align-items-center justify-content-lg-start justify-content-center">
+                                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                                     <label htmlFor="nPaginacion1" className="form-label fw-semibold mb-0 me-2">
                                         Tamaño de página:
                                     </label>
@@ -868,7 +833,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         onChange={handleChange}
                                         value={Paginacion1.nPaginacion1}
                                     >
-                                        {[10, 20, 30, listaReimpresionEtiquetas.length].map((val) => (
+                                        {[10, 15, 20, 25, 50, 100].map((val) => (
                                             <option key={val} value={val}>
                                                 {val}
                                             </option>
@@ -878,45 +843,39 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                             )}
                         </Col>
 
-                        {filasSeleccionadasReimprimir.length > 0 ? (
-                            <>
-                                {/* Botón Generar Etiqueta */}
-                                <Col >
-                                    <div className="d-flex justify-content-lg-end justify-content-end">
-                                        <Button
-                                            variant={isDarkMode ? "secondary" : "primary"}
-                                            onClick={handleGenerarReimpresion}
-                                            disabled={listaReimpresionEtiquetas.length === 0}
-                                            className="w-lg-auto d-flex align-items-center justify-content-center p-2 mb-1 mx-2"
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    {" Generar "}
-                                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {" Generar "}
-                                                    <Printer className="flex-shrink-0 h-5 w-5 mx-2" aria-hidden="true" />
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
-                                </Col>
-                            </>
-                        ) : (
-                            <>
-                                {/* Mensaje */}
-                                <Col>
-                                    <div className="d-flex justify-content-lg-end justify-content-end">
-                                        <strong className="alert alert-dark border pb-2 pt-2 ps-3 pe-3 mb-1  ">
-                                            No hay filas seleccionadas
-                                        </strong>
-                                    </div>
-                                </Col>
-                            </>
-                        )}
+                        {/* Botones o mensaje */}
+                        <Col xs={12} lg={2}>
+                            {filasSeleccionadasReimprimir.length > 0 ? (
+                                <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end">
+                                    <Button
+                                        variant={isDarkMode ? "secondary" : "primary"}
+                                        onClick={handleGenerarReimpresion}
+                                        disabled={loadingReimprimir}
+                                        className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100"
+                                    >
+                                        {loadingReimprimir ? (
+                                            <>
+                                                Generar
+                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                Generar
+                                                <Printer className="flex-shrink-0 h-5 w-5 mx-2" aria-hidden="true" />
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="d-flex justify-content-center justify-content-lg-end">
+                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
+                                        No hay filas seleccionadas
+                                    </strong>
+                                </div>
+                            )}
+                        </Col>
                     </Row>
+
                     {/* Tabla Reimprimir */}
                     <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
                         {loadingReimprimir ? (

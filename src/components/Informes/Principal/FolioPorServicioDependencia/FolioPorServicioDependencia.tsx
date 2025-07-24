@@ -228,7 +228,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -247,7 +247,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -301,7 +301,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 confirmButtonText: "Confirmar y Trasladar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -336,7 +336,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                         text: `Su traslado ha sido registrado exitosamente`,
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: { popup: "custom-border" }
                     });
 
@@ -350,7 +350,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                         text: "Ocurrió un problema al intentar trasladar los activos.",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: { popup: "custom-border" }
                     });
                 }
@@ -584,7 +584,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             </Helmet>
             <MenuInformes />
             <form>
-                <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
                     <Row className="border rounded p-2 m-2">
                         <Col sm={12} md={12} lg={4}>
@@ -663,60 +663,93 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                             </div>
                         </Col>
                     </Row>
-                    <div className="d-flex justify-content-end">
-                        <div className="d-flex align-items-center me-2">
-                            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                Tamaño de página:
-                            </label>
-                            <select
-                                aria-label="Seleccionar tamaño de página"
-                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                name="nPaginacion"
-                                onChange={handleChange}
-                                value={Paginacion.nPaginacion}
-                            >
-                                {[10, 15, 20, 25, listaFolioServicioDependencia.length].map((val) => (
-                                    <option key={val} value={val}>{val}</option>
-                                ))}
-                            </select>
-                        </div>
+                    <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                        {/* Tamaño de página */}
+                        <Col xs={12} lg="auto">
+                            {listaFolioServicioDependencia.length > 10 && (
+                                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                        Tamaño de página:
+                                    </label>
+                                    <select
+                                        aria-label="Seleccionar tamaño de página"
+                                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        name="nPaginacion"
+                                        onChange={handleChange}
+                                        value={Paginacion.nPaginacion}
+                                    >
+                                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                                            <option key={val} value={val}>{val}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </Col>
 
-                        {filasSeleccionadas.length > 0 ? (
-                            <>
-                                <Button
-                                    onClick={() => setMostrarModal(true)}
-                                    disabled={listaFolioServicioDependencia.length === 0}
-                                    variant={isDarkMode ? "secondary" : "primary"}
-                                    className="mx-1 mb-1"
-                                >
+                        {/* Botón o mensaje */}
+                        <Col xs={12} lg={2}>
+                            <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                {filasSeleccionadas.length > 0 ? (
+                                    <>
+                                        <Button
+                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                            onClick={() => setMostrarModal(true)}
+                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <FiletypePdf
+                                                        className="flex-shrink-0 h-5 w-5 mx-2"
+                                                        aria-hidden="true"
+                                                    />
+                                                    Exportar
+                                                    <Spinner
+                                                        as="span"
+                                                        animation="border"
+                                                        size="sm"
+                                                        role="status"
+                                                        aria-hidden="true"
+                                                        className="mx-2"
+                                                    />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FiletypePdf
+                                                        className="flex-shrink-0 h-5 w-5 mx-1"
+                                                        aria-hidden="true"
+                                                    />
+                                                    Exportar
+                                                    <span className="badge bg-light text-dark mx-2 mt-1">
+                                                        {filasSeleccionadas.length}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </Button>
+                                        {/* Botón Trasladar */}
+                                        <Button
+                                            variant="warning"
+                                            onClick={() => setMostrarModalTraslado(true)}
+                                            disabled={listaFolioServicioDependencia.length === 0}
+                                            className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
+                                        >
+                                            Trasladar
+                                            <span className="badge bg-light text-dark mx-1 mt-1">
+                                                {filasSeleccionadas.length}
+                                            </span>
+                                        </Button>
 
-                                    Exportar
-                                    <FiletypePdf
-                                        className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
-                                        aria-hidden="true"
-                                    />
-
-                                </Button>
-
-                                <Button
-                                    onClick={() => setMostrarModalTraslado(true)} // Descomenta si ya tienes el estado y función
-                                    disabled={listaFolioServicioDependencia.length === 0}
-                                    variant={isDarkMode ? "secondary" : "warning"}
-                                    className="mx-1 mb-1"
-                                >
-                                    <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
-                                    {"Trasladar"}
-                                    <span className="badge bg-light text-dark mx-1 mt-1">
-                                        {filasSeleccionadas.length}
-                                    </span>
-                                </Button>
-                            </>
-                        ) : (
-                            <strong className="alert alert-dark border mb-1 p-2">
-                                No hay filas seleccionadas
-                            </strong>
-                        )}
-                    </div>
+                                    </>
+                                ) : (
+                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
+                                            No hay filas seleccionadas
+                                        </strong>
+                                    </div>
+                                )}
+                            </div>
+                        </Col>
+                    </Row>
 
                     {/* Tabla*/}
                     {loading ? (

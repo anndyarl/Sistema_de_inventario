@@ -293,7 +293,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           cancelButtonText: "Cancelar",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
           customClass: {
             popup: "custom-border", // Clase personalizada para el borde
           }
@@ -327,7 +327,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       text: `Su formulario ha sido registrado exitosamente. Presione "OK" para visualizar un resumen de los datos ingresados.`,
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       customClass: {
         popup: "custom-border", // Clase personalizada para el borde
       },
@@ -452,7 +452,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         cancelButtonText: "Cancelar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -518,7 +518,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+        <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Registrar Inventario
           </h3>

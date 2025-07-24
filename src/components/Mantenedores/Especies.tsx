@@ -200,7 +200,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 confirmButtonText: "Confirmar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -220,7 +220,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                         text: "Se ha agregado una nueva especie.",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: {
                             popup: "custom-border", // Clase personalizada para el borde
                         }
@@ -238,7 +238,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                         text: "Hubo un problema al registrar",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: {
                             popup: "custom-border", // Clase personalizada para el borde
                         }

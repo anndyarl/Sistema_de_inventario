@@ -30,13 +30,15 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
   const navigate = useNavigate();
 
   const Usuarios: NavItem[] = [
-    { rut: '18250588', nombre: 'Andy Riquelme', id: 62511, establecimiento: 2 },
-    { rut: '15533835', nombre: 'Jaime Castillo', id: 1770, establecimiento: 3 },
     { rut: '16739610', nombre: 'Jhonatan Vargas', id: 6405, establecimiento: 1 },
     { rut: '10399886', nombre: 'Gabriela Farias', id: 888, establecimiento: 1 },
+    { rut: '11149879', nombre: 'Nelson Quiroz', id: 21479, establecimiento: 1 },
+    { rut: '18250588', nombre: 'Andy Riquelme', id: 62511, establecimiento: 2 },
     { rut: '15693379', nombre: 'Felipe Almonte', id: 18667, establecimiento: 2 },
     { rut: '17849831', nombre: 'Katherine Reyes', id: 66099, establecimiento: 2 },
-    { rut: '19704000', nombre: 'Daniel Rojas', id: 66098, establecimiento: 2 }
+    { rut: '19704000', nombre: 'Daniel Rojas', id: 66098, establecimiento: 2 },
+    { rut: '15533835', nombre: 'Jaime Castillo', id: 1770, establecimiento: 3 }
+
   ];
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>

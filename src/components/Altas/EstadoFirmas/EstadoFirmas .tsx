@@ -40,20 +40,21 @@ interface DatosBajas {
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
-    nPaginacion: number; //número de paginas establecido desde preferencias
     documentoByte64: string;
     listaEstadoVisadores: ListaEstadoVisadores[];
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaEstadoVisadores, listaEstado, token, isDarkMode, nPaginacion, documentoByte64, objeto }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaEstadoVisadores, listaEstado, token, isDarkMode, documentoByte64, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = nPaginacion;
+
     // const filasSeleccionadasPDF = listaEstadoFirmas.filter((_, index) =>
     //     filasSeleccionadas.includes(index.toString())
     // );
+    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+    const elementosPorPagina = Paginacion.nPaginacion;
     const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
     const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
@@ -81,6 +82,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             ...prevState,
             [name]: newValue,
         }));
+
+        setPaginacion((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
     };
 
     const handleBuscar = async () => {
@@ -96,7 +102,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -133,7 +139,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         text: "No hay registros disponibles para mostrar.",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: {
                             popup: "custom-border", // Clase personalizada para el borde
                         }
@@ -162,7 +168,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     //     const socket = new WebSocket("ws://localhost:5076/ws/notificaciones");
 
     //     socket.onopen = () => {
-    //         console.log("✅ Conectado al WebSocket");
+    //         console.log("Conectado al WebSocket");
 
     //         // Enviar el mensaje que tu backend espera
     //         socket.send("solicitar_estado");
@@ -234,10 +240,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 <title>Estado Firmas</title>
             </Helmet>
             <MenuAltas />
-            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Estado Firmas</h3>
                 <Row className="border rounded p-2 m-2">
-
                     <Col md={2}>
                         <div className="mb-2">
                             <div className="mb-2">
@@ -324,6 +329,32 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             </Button>
                         </div>
                     </Col>
+                </Row>
+                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
+                    {/* Tamaño de página */}
+                    <Col xs={12} lg="auto">
+                        {listaEstado.length > 10 && (
+                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                    Tamaño de página:
+                                </label>
+                                <select
+                                    aria-label="Seleccionar tamaño de página"
+                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="nPaginacion"
+                                    onChange={handleChange}
+                                    value={Paginacion.nPaginacion}
+                                >
+                                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                                        <option key={val} value={val}>
+                                            {val}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </Col>
+
                 </Row>
                 {/* Tabla*/}
                 {loading || loadingRefresh ? (
@@ -515,8 +546,7 @@ const mapStateToProps = (state: RootState) => ({
     documentoByte64: state.obtieneVisadoCompletoReducers.documentoByte64,
     objeto: state.validaApiLoginReducers,
     token: state.loginReducer.token,
-    isDarkMode: state.darkModeReducer.isDarkMode,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    isDarkMode: state.darkModeReducer.isDarkMode
 });
 
 

@@ -271,13 +271,13 @@ padding: 2px;
   }
   .sticky-col-right-2 {
     position: sticky;
-    right: 284px;
+    right: 283px;
     z-index: 1; 
   }
 
   .sticky-col-right-1 {
     position: sticky;
-    right: 162px;
+    right: 161px;
     z-index: 1;    
   }
 

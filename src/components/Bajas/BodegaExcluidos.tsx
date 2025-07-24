@@ -15,6 +15,7 @@ import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/e
 // import { devolverBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/devolverBajasActions.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
+import { Gavel } from "lucide-react";
 // import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 
 interface FechasProps {
@@ -50,11 +51,10 @@ interface DatosBajas {
   // devolverBajasActions: (devolverBaja: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
-  nPaginacion: number; //número de paginas establecido desde preferencias
   objeto: Objeto;
 }
 
-const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, obtenerListaRematesActions, listaExcluidos, token, isDarkMode, nPaginacion, objeto }) => {
+const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, obtenerListaRematesActions, listaExcluidos, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
@@ -63,7 +63,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
   const [filaSeleccionada, _] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = nPaginacion;
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+  const elementosPorPagina = Paginacion.nPaginacion;
 
   const [Excluidos, setExcluidos] = useState({
     fDesde: "",
@@ -103,7 +104,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
             text: "No hay registros disponibles para mostrar.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -126,6 +127,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     }
     // Actualizar estado
     setExcluidos((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    setPaginacion((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -166,7 +172,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       confirmButtonText: "Confirmar y Enviar",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       customClass: {
         popup: "custom-border", // Clase personalizada para el borde
       }
@@ -198,7 +204,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           text: "Se ha enviado correctamente",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
           customClass: {
             popup: "custom-border", // Clase personalizada para el borde
           }
@@ -215,7 +221,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           text: "Hubo un problema al registrar",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
           customClass: {
             popup: "custom-border", // Clase personalizada para el borde
           }
@@ -322,7 +328,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         confirmButtonText: "Confirmar y Quitar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -344,7 +350,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
             text: "Se han quitado correctamente de Bodega de excluidos",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -365,7 +371,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
             text: "Hubo un problema al registrar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -448,7 +454,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       </Helmet>
       <MenuBajas />
       <form>
-        <div className="border-bottom shadow-sm p-4 rounded">
+        <div className="border-bottom shadow-sm p-2 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
           <Row className="border rounded p-2 m-2">
             <Col md={3}>
@@ -574,73 +580,70 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
               </div>
             </Col>
           </Row>
-          <div className="d-flex justify-content-end">
-            {filasSeleccionadas.length > 0 ? (
-              <>
-                {/* Botón Devolver a Listado General*/}
-                {/* <Button
-                  variant="warning"
-                  onClick={handleDevolverSeleccionados}
-                  className="m-1 p-2 d-flex align-items-center"
-                  disabled={loadingRegistro}
-                >
-                  {loadingRegistro ? (
-                    <>
-                      {" Enviando.. "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="me-2"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      Devolver
-                      <Arrow90degLeft className={"flex-shrink-0 h-5 w-5 mx-1 mb-1 text-danger"} aria-hidden="true" />
-                    </>
-                  )}
-                </Button> */}
-                {/* Botón Enviar a Remate */}
-                <Button
-                  variant="primary"
-                  onClick={handleRematarSeleccionados}
-                  className="m-1 p-2 d-flex align-items-center"
-                  disabled={loadingRegistro}
-                >
-                  {loadingRegistro ? (
-                    <>
-                      {" Enviando a Remate... "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="me-2"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      Enviar a Remate
-                      <span className="badge bg-light text-dark mx-1 mt-1">
-                        {filasSeleccionadas.length}
-                      </span>
-                    </>
-                  )}
-                </Button>
+          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+            {/* Tamaño de página */}
+            <Col xs={12} lg="auto">
+              {listaExcluidos.length > 10 && (
+                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                    Tamaño de página:
+                  </label>
+                  <select
+                    aria-label="Seleccionar tamaño de página"
+                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nPaginacion"
+                    onChange={handleChange}
+                    value={Paginacion.nPaginacion}
+                  >
+                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                      <option key={val} value={val}>{val}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </Col>
 
-              </>
-            ) : (
-              <strong className="alert alert-dark border m-1 p-2 mx-2">
-                No hay filas seleccionadas
-              </strong>
-            )}
-
-          </div>
-
+            {/* Botón o mensaje */}
+            <Col xs={12} lg={2}>
+              <div className="d-flex justify-content-center justify-content-lg-end">
+                {filasSeleccionadas.length > 0 ? (
+                  <Button
+                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                    onClick={handleRematarSeleccionados}
+                    className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                    disabled={loadingRegistro}
+                  >
+                    {loadingRegistro ? (
+                      <>
+                        Enviar a Remate
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="mx-1"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        Enviar a Remate
+                        <span className="badge bg-light text-dark mx-1 mt-1">
+                          {filasSeleccionadas.length}
+                        </span>
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                      No hay filas seleccionadas
+                    </strong>
+                  </div>
+                )}
+              </div>
+            </Col>
+          </Row>
           {/* </div> */}
 
           {/* Tabla*/}

@@ -201,7 +201,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -240,7 +240,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
         text: "No hay datos para exportar.",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       });
       return;
     }

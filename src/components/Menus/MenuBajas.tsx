@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import { List, Exclude, BoxSeamFill, Boxes } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
+import { Gavel } from "lucide-react";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -42,7 +43,7 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Bienes Rematados',
             description: 'Listado de todos los activos excluidos',
             href: '/Bajas/BienesRematados',
-            icon: BoxSeamFill
+            icon: Gavel
         },
 
     ];

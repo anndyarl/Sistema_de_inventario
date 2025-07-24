@@ -85,11 +85,10 @@ interface DatosBajas {
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
-    nPaginacion: number; //número de paginas establecido desde preferencias
     listaEstadoFirmas: ListaEstadoFirmas[];
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, nPaginacion, objeto }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, objeto }) => {
     const [loading, setLoading] = useState(false);
     // const [loadingAnular, setLoadingAnular] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
@@ -104,7 +103,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = nPaginacion;
+    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+    const elementosPorPagina = Paginacion.nPaginacion;
     const [Unidad, setUnidad] = useState<number>(0);
     const [__, setUnidadNombre] = useState<string>("");
     const [altaSeleccionada, setAltaSeleccionada] = useState(0);
@@ -209,7 +209,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         text: "No hay registros disponibles para mostrar.",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: {
                             popup: "custom-border", // Clase personalizada para el borde
                         }
@@ -237,7 +237,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 cancelButtonText: "Cerrar",
                 background: isDarkMode ? "#1e1e1e" : "#ffffff",
                 color: isDarkMode ? "#ffffff" : "#000000",
-                confirmButtonColor: isDarkMode ? "#007bff" : "#444",
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: { popup: "custom-border" }
             });
         }
@@ -261,7 +261,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 text: `Ya se ha enviado una solicitud al número de alta seleccionado`,
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border",
                 },
@@ -281,7 +281,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 text: "Esta solicitud ya cuenta con una firma registrada para el número de alta seleccionado.",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border",
                 },
@@ -333,6 +333,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
         // Actualizar estado
         setInventario((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
+
+        setPaginacion((prevState) => ({
             ...prevState,
             [name]: newValue,
         }));
@@ -736,7 +741,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                 customClass: {
                     popup: "custom-border", // Clase personalizada para el borde
                 }
@@ -772,7 +777,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             confirmButtonText: "Confirmar y Enviar",
             background: isDarkMode ? "#1e1e1e" : "#ffffff",
             color: isDarkMode ? "#ffffff" : "#000000",
-            confirmButtonColor: isDarkMode ? "#007bff" : "444",
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: { popup: "custom-border" }
         });
 
@@ -952,7 +957,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
                     background: isDarkMode ? "#1e1e1e" : "#ffffff",
                     color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: isDarkMode ? "#007bff" : "444",
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     customClass: { popup: "custom-border" }
                 });
                 setLoadingEnvio(false);
@@ -964,7 +969,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     text: "Su solicitud de visado ha sido enviada con exito",
                     background: isDarkMode ? "#1e1e1e" : "#ffffff",
                     color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: isDarkMode ? "#007bff" : "444",
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     customClass: { popup: "custom-border" }
                 });
                 setLoadingEnvio(false);
@@ -1013,7 +1018,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         text: "No se pudieron seleccionar todos los bienes, ya que algunos tienen solicitudes pendientes y/u otros ya han sido firmados.",
                         background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: {
                             popup: "custom-border",
                         },
@@ -1237,11 +1242,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 <title>Firmar Altas</title>
             </Helmet>
             <MenuAltas />
-            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>
                 <Row className="border rounded p-2 m-2">
                     <Col md={3}>
-
                         <div className="mb-2">
                             <div className="flex-grow-1 mb-2">
                                 <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
@@ -1365,66 +1369,68 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         </div>
                     </Col>
                 </Row>
-                <div className="d-flex justify-content-end">
-                    {filasSeleccionadas.length > 0 ? (
-                        <>
-                            {/* <Button
-                                variant="danger"
-                                onClick={handleAnularSeleccionados}
-                                className="mx-1 mb-1 p-2"  // Alinea el spinner y el texto
-                                disabled={loadingAnular}  // Desactiva el botón mientras carga
-                            >
-                                {loadingAnular ? (
-                                    <>
-                                        {" Anulando... "}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="mx-1 mb-1 p-2"  // Espaciado entre el spinner y el texto
-                                        />
+                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                    {/* Tamaño de página */}
+                    <Col xs={12} lg="auto">
+                        {listaAltasRegistradas.length > 10 && (
+                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                    Tamaño de página:
+                                </label>
+                                <select
+                                    aria-label="Seleccionar tamaño de página"
+                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="nPaginacion"
+                                    onChange={handleChange}
+                                    value={Paginacion.nPaginacion}
+                                >
+                                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                                        <option key={val} value={val}>
+                                            {val}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </Col>
 
-                                    </>
-                                ) : (
-                                    <>
-                                        Anular
-                                        <span className="badge bg-light text-dark mx-1">
-                                            {filasSeleccionadas.length}
-                                        </span>
-                                        {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
-                                    </>
-                                )}
-                            </Button> */}
-                            <Button
-                                onClick={() => setMostrarModal(true)}
-                                disabled={listaAltasRegistradas.length === 0}
-                                variant={isDarkMode ? "secondary" : "primary"}
-                                className="mx-1 mb-1 p-2"
-                            >
-                                Exportar
-                                <FiletypePdf
-                                    className="flex-shrink-0 h-5 w-5 ms-1"
-                                    aria-hidden="true"
-                                />
+                    {/* Exportar o mensaje */}
+                    <Col xs={12} lg={2}>
+                        <div className="d-flex justify-content-center justify-content-lg-end">
+                            {filasSeleccionadas.length > 0 ? (
+                                <Button
+                                    onClick={() => setMostrarModal(true)}
+                                    disabled={listaAltasRegistradas.length === 0}
+                                    variant={isDarkMode ? "secondary" : "primary"}
+                                    className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto"
+                                >
+                                    <FiletypePdf
+                                        className="flex-shrink-0 h-5 w-5 mx-1"
+                                        aria-hidden="true"
+                                    />
+                                    Exportar
+                                    <span className="badge bg-light text-dark mx-2">
+                                        {filasSeleccionadas.length}
+                                    </span>
+                                </Button>
+                            ) : (
+                                <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                                        No hay filas seleccionadas
+                                    </strong>
+                                </div>
+                            )}
+                        </div>
+                    </Col>
+                </Row>
 
-                            </Button>
-
-                        </>
-                    ) : (
-                        <strong className="alert alert-dark border mb-1 p-2">
-                            No hay filas seleccionadas
-                        </strong>
-                    )}
-                </div>
                 {/* Tabla*/}
                 {loading || loadingRefresh ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className='table-responsive'>
-                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-light"}`}>
-                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                 <tr>
                                     <th style={{
                                         position: 'sticky',
@@ -2038,8 +2044,7 @@ const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboUnidades: state.obtenerUnidadesReducers.comboUnidades,
-    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas
 });
 
 

@@ -200,7 +200,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
             confirmButtonText: "Confirmar y Agregar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
                 popup: "custom-border", // Clase personalizada para el borde
             }
@@ -241,7 +241,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                     confirmButtonText: "Entendido",
                     background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     width: '600px',
                     customClass: {
                         popup: "custom-border",
@@ -257,7 +257,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                     confirmButtonText: "Cerrar",
                     background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     width: '600px',
                     customClass: {
                         popup: "custom-border",
@@ -350,7 +350,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                     text: "No hay registros disponibles para mostrar.",
                     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     customClass: {
                         popup: "custom-border", // Clase personalizada para el borde
                     }
@@ -383,7 +383,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
             confirmButtonText: "Confirmar y Limpiar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
                 popup: "custom-border", // Clase personalizada para el borde
             }
@@ -444,7 +444,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
             </Helmet>
             {isMobile ? (
                 <>
-                    <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
+                    <div className={`border p-2 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
                         <h3 className="form-title fw-semibold border-bottom p-1 mb-3 text-center">
                             Levantamiento Físico
                         </h3>
@@ -577,15 +577,16 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                         backdrop="static" // Evita que se cierre al hacer clic afuera
                         keyboard={false}
                     >
-                        <Modal.Header className={`modal-header`} closeButton>
+                        <Modal.Header className={`${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`} closeButton>
                             <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                            <div className="bg-white shadow-sm sticky-top p-3">
-                                <Row>
-                                    <Col md={6}>
+                            <div className={` border-botom p-2 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                                    {/* Tamaño de página */}
+                                    <Col xs={12} lg="auto">
                                         {listaSeleccion.length > 10 && (
-                                            <div className="d-flex align-items-center me-2">
+                                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                                                 <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                                                     Tamaño de página:
                                                 </label>
@@ -596,29 +597,53 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                                     onChange={handleChange}
                                                     value={Paginacion.nPaginacion}
                                                 >
-                                                    {[10, 25, 50, 75, 100, listaSeleccion.length].map((val) => (
+                                                    {[10, 15, 20, 25, 50, 100].map((val) => (
                                                         <option key={val} value={val}>{val}</option>
                                                     ))}
                                                 </select>
                                             </div>
                                         )}
                                     </Col>
-                                    <Col md={6} className="d-flex justify-content-end">
-                                        {filasSeleccionadas.length > 0 ? (
-                                            <Button
-                                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                onClick={handleAgregarSeleccionados}
-                                                className="m-1 p-2 d-flex align-items-center">
-                                                Agregar
-                                                <span className="badge bg-light text-dark mx-1 mt-1">
-                                                    {filasSeleccionadas.length}
-                                                </span>
-                                            </Button>
-                                        ) : (
-                                            <strong className="alert alert-dark border m-1 p-2 mx-2">
-                                                No hay filas seleccionadas
-                                            </strong>
-                                        )}
+
+                                    {/* Botón o mensaje */}
+                                    <Col xs={12} lg={2}>
+                                        <div className="d-flex justify-content-center justify-content-lg-end">
+                                            {filasSeleccionadas.length > 0 ? (
+                                                <Button
+                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                    onClick={handleAgregarSeleccionados}
+                                                    className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? (
+                                                        <>
+                                                            Agregar
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                aria-hidden="true"
+                                                                className="ms-2"
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            Agregar
+                                                            <span className="badge bg-light text-dark mx-1 mt-1">
+                                                                {filasSeleccionadas.length}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            ) : (
+                                                <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                                                        No hay filas seleccionadas
+                                                    </strong>
+                                                </div>
+                                            )}
+                                        </div>
                                     </Col>
                                 </Row>
                             </div>

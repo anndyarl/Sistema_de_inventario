@@ -240,7 +240,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
         cancelButtonText: "Cancelar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -262,7 +262,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
               text: "¡Se ha registrado con éxito!",
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+              confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
               customClass: {
                 popup: "custom-border", // Clase personalizada para el borde
               }
@@ -275,7 +275,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
               text: "Hubo un problema al enviar el registro.",
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+              confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
               customClass: {
                 popup: "custom-border", // Clase personalizada para el borde
               }
@@ -312,7 +312,7 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
       </Helmet>
       <MenuInventario />
       <form onSubmit={handleFormSubmit}>
-        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+        <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">
             Registro Bienes de Funcionarios
           </h3>

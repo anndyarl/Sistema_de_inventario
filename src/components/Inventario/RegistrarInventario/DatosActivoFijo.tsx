@@ -618,7 +618,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
     //     text: "Por favor, verifique que todos los registros contengan su número de serie.",
     //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
     //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //     confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+    //      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
     //     customClass: {
     //       popup: "custom-border", // Clase personalizada para el borde
     //     }
@@ -659,7 +659,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         text: "Por favor, verifique que no existan series duplicadas en el registro.",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         },
@@ -699,7 +699,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         text: `Tiene un monto pendiente de $${pendiente.toLocaleString("es-CL")}.-`,
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -730,7 +730,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         cancelButtonText: "Cancelar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: { popup: "custom-border" }
       });
 
@@ -772,7 +772,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             //   text: `Se ha registrado con éxito su formulario`,
             //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            //   confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            //    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             //   customClass: { popup: "custom-border" }
             // });
             setLoadingEnvio(false);
@@ -784,7 +784,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               text: "Ocurrió un error al registrar el formulario. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
               background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
               color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+              confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
               customClass: { popup: "custom-border" }
             });
             setLoadingEnvio(false);
@@ -797,7 +797,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             text: "Ocurrió un error inesperado. Por favor, inténtelo nuevamente.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: { popup: "custom-border" }
           });
           setLoadingEnvio(false);
@@ -820,7 +820,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
   return (
     <>
-      <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+      <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
         <h3 className="form-title fw-semibold border-bottom">
           Detalles activo
         </h3>

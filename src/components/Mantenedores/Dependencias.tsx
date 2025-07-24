@@ -159,7 +159,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
         confirmButtonText: "Confirmar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -175,7 +175,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
             text: "Se ha agregado una nueva dependencia",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -193,7 +193,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
             text: "Hubo un problema al registrar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }

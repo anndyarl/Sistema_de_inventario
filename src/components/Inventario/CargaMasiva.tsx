@@ -125,7 +125,7 @@ const CargaMasiva: React.FC<AdjuntoProps> = ({ isDarkMode }) => {
         <title>Carga Masiva</title>
       </Helmet>
       <MenuInventario />
-      <div className="border-bottom shadow-sm p-4 rounded">
+      <div className="border-bottom shadow-sm p-2 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">
           Registro de cargas masivas
         </h3>

@@ -334,7 +334,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border",
         }
@@ -353,7 +353,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         text: "No hay registros disponibles para mostrar.",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -434,7 +434,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       confirmButtonText: "Confirmar y Agregar",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       customClass: {
         popup: "custom-border", // Clase personalizada para el borde
       }
@@ -475,7 +475,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           confirmButtonText: "Entendido",
           background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
           width: '600px',
           customClass: {
             popup: "custom-border",
@@ -491,7 +491,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           confirmButtonText: "Cerrar",
           background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
           width: '600px',
           customClass: {
             popup: "custom-border",
@@ -550,7 +550,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         confirmButtonText: "Confirmar y Trasladar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -591,7 +591,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             text: "Ocurrió un problema al intentar trasladar los activos.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: { popup: "custom-border" }
           });
         }
@@ -608,7 +608,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       text: `Se han registrado correctamente los traslados seleccionados, Presione "OK" para visualizar un resumen de los datos ingresados.`,
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       customClass: { popup: "custom-border" },
       allowOutsideClick: false,
       showCancelButton: false, // Agrega un segundo botón
@@ -632,7 +632,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         text: "¿Desea limpiar los filtros para iniciar una nueva búsqueda?",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: { popup: "custom-border" },
         allowOutsideClick: false,
         confirmButtonText: "Limpiar",

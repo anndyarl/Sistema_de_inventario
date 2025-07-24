@@ -2,11 +2,12 @@ import React from "react"
 import Layout from "../hocs/layout/Layout";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { Boxes, BoxSeamFill, Exclude } from "react-bootstrap-icons";
+import { Boxes, Exclude } from "react-bootstrap-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Helmet } from "react-helmet-async";
+import { Gavel } from "lucide-react";
 
 interface Props {
   isDarkMode: boolean;
@@ -39,7 +40,7 @@ const Bajas: React.FC<Props> = ({ isDarkMode }) => {
     { descripcion: 'Seleccione y complete registro del activo que desee dar de baja.', name: 'ListadoGeneral', title: 'Listado General', href: '/Bajas/ListadoGeneral', icon: Boxes },
     // { descripcion: 'Seleccione el activo o los activos que desee excluir.', name: 'RegistrarBajas', title: 'Bienes de Bajas', href: '/Bajas/RegistrarBajas', icon: DashCircle },
     { descripcion: 'Seleccione el activo o los activos de baja que desee enviar a remate.', name: 'BodegaExcluidos', title: 'Bodeja de excluidos', href: '/Bajas/BodegaExcluidos', icon: Exclude },
-    { descripcion: 'Listado de todos los activos excluidos.', name: 'BienesRematados', title: 'Bienes Rematados', href: '/Bajas/BienesRematados', icon: BoxSeamFill },
+    { descripcion: 'Listado de todos los activos excluidos.', name: 'BienesRematados', title: 'Bienes Rematados', href: '/Bajas/BienesRematados', icon: (props) => <Gavel {...props} size={36} /> },
 
   ];
 

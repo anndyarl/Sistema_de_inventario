@@ -51,11 +51,10 @@ interface DatosBajas {
   rematarBajasActions: (listaRemates: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
-  nPaginacion: number; //número de paginas establecido desde preferencias
   objeto: Objeto;
 }
 
-const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, listaRemates, token, isDarkMode, nPaginacion, objeto }) => {
+const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, listaRemates, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
   // const [loadingRegistro, setLoadingRegistro] = useState(false);
@@ -63,7 +62,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = nPaginacion;
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+  const elementosPorPagina = Paginacion.nPaginacion;
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -117,7 +117,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
             text: "No hay registros disponibles para mostrar.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -144,6 +144,10 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
       [name]: value,
     }));
 
+    setPaginacion((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
 
@@ -197,7 +201,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -317,7 +321,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
       </Helmet>
       <MenuBajas />
 
-      <div className="border-bottom shadow-sm p-4 rounded">
+      <div className="border-bottom shadow-sm p-2 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
         <Row className="border rounded p-2 m-2">
           <Col md={3}>
@@ -443,33 +447,78 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
             </div>
           </Col>
         </Row>
-        <div className="d-flex justify-content-end">
-          {filaSeleccionada.length > 0 ? (
-            <>
-              <Button
-                onClick={() => setMostrarModal(true)}
-                disabled={listaRemates.length === 0}
-                variant={isDarkMode ? "secondary" : "primary"}
-                className="m-1 p-2 d-flex align-items-center"
-              >
-                <FiletypePdf
-                  className="flex-shrink-0 h-5 w-5 ms-1"
-                  aria-hidden="true"
-                />
-                {"Exportar"}
-                <span className="badge bg-light text-dark mx-1 mt-1">
-                  {filaSeleccionada.length}
-                </span>
+        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+          {/* Tamaño de página */}
+          <Col xs={12} lg="auto">
+            {listaRemates.length > 10 && (
+              <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                  Tamaño de página:
+                </label>
+                <select
+                  aria-label="Seleccionar tamaño de página"
+                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="nPaginacion"
+                  onChange={handleChange}
+                  value={Paginacion.nPaginacion}
+                >
+                  {[10, 15, 20, 25, 50, 100].map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </Col>
 
-              </Button>
-
-            </>
-          ) : (
-            <strong className="alert alert-dark border m-1 p-2 mx-2">
-              No hay filas seleccionadas
-            </strong>
-          )}
-        </div>
+          {/* Botón o mensaje */}
+          <Col xs={12} lg={2}>
+            <div className="d-flex justify-content-center justify-content-lg-end">
+              {filaSeleccionada.length > 0 ? (
+                <Button
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  onClick={() => setMostrarModal(true)}
+                  className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <FiletypePdf
+                        className="flex-shrink-0 h-5 w-5 mx-2"
+                        aria-hidden="true"
+                      />
+                      Exportar
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="mx-2"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <FiletypePdf
+                        className="flex-shrink-0 h-5 w-5 mx-1"
+                        aria-hidden="true"
+                      />
+                      Exportar
+                      <span className="badge bg-light text-dark mx-2 mt-1">
+                        {filaSeleccionada.length}
+                      </span>
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                  <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                    No hay filas seleccionadas
+                  </strong>
+                </div>
+              )}
+            </div>
+          </Col>
+        </Row>
         {/* Tabla*/}
         {loading || loadingRefresh ? (
           <>
@@ -630,7 +679,6 @@ const mapStateToProps = (state: RootState) => ({
   listaRemates: state.obtenerListaRematesReducers.listaRemates,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
   objeto: state.validaApiLoginReducers
 });
 

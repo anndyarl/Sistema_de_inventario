@@ -9,7 +9,7 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Eraser, Exclude, Search } from "react-bootstrap-icons";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
 import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 import { ListaAltas } from "../Altas/RegistrarAltas.tsx";
@@ -81,7 +81,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
             text: "No hay registros disponibles para mostrar.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -174,7 +174,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         confirmButtonText: "Confirmar y Enviar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: {
           popup: "custom-border", // Clase personalizada para el borde
         }
@@ -204,7 +204,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
             text: "Hubo un problema al registrar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -223,7 +223,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       text: `Se han registrado correctamente las Bajas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       customClass: { popup: "custom-border" },
       allowOutsideClick: false,
       showCancelButton: false, // Agrega un segundo botón
@@ -305,7 +305,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         <title>Listado General</title>
       </Helmet>
       <MenuBajas />
-      <div className="border-bottom shadow-sm p-4 rounded">
+      <div className="border-bottom shadow-sm p-2 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
         <Row className="border rounded p-2 m-2">
           <Col md={2}>
@@ -392,47 +392,72 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
             </div>
           </Col>
         </Row>
-        <div className="d-flex justify-content-end">
-          <div className="d-flex align-items-center me-2">
-            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-              Tamaño de página:
-            </label>
-            <select
-              aria-label="Seleccionar tamaño de página"
-              className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-              name="nPaginacion"
-              onChange={handleChange}
-              value={Paginacion.nPaginacion}
-            >
-              {[10, 15, 20, 25, 50].map((val) => (
-                <option key={val} value={val}>{val}</option>
-              ))}
-            </select>
-          </div>
-          {filasSeleccionadas.length > 0 ? (
-            <>
-              <Button
-                onClick={() => setMostrarModal(true)} // Descomenta si ya tienes el estado y función
-                disabled={listadoGeneralBajas.length === 0}
-                variant={isDarkMode ? "secondary" : "primary"}
-                className="m-1 p-2 d-flex align-items-center"
-              >
-                {/* <Plus
-                  className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
-                  aria-hidden="true"
-                /> */}
-                {"Enviar"}
-                <span className="badge bg-light text-dark mx-1 mt-1">
-                  {filasSeleccionadas.length}
-                </span>
-              </Button>
-            </>
-          ) : (
-            <strong className="alert alert-dark border m-1 p-2 mx-2">
-              No hay filas seleccionadas
-            </strong>
-          )}
-        </div>
+
+        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+          {/* Tamaño de página */}
+          <Col xs={12} lg="auto">
+            {listadoGeneralBajas.length > 10 && (
+              <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                  Tamaño de página:
+                </label>
+                <select
+                  aria-label="Seleccionar tamaño de página"
+                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="nPaginacion"
+                  onChange={handleChange}
+                  value={Paginacion.nPaginacion}
+                >
+                  {[10, 15, 20, 25, 50, 100].map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </Col>
+
+          {/* Botón o mensaje */}
+          <Col xs={12} lg={2}>
+            <div className="d-flex justify-content-center justify-content-lg-end">
+              {filasSeleccionadas.length > 0 ? (
+                <Button
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  onClick={() => setMostrarModal(true)}
+                  className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      Enviar a Bodega
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="mx-2"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      Enviar a Bodega
+                      <span className="badge bg-light text-dark mx-1 mt-1">
+                        {filasSeleccionadas.length}
+                      </span>
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                  <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
+                    No hay filas seleccionadas
+                  </strong>
+                </div>
+              )}
+            </div>
+          </Col>
+        </Row>
+
         {/* Tabla*/}
         {loading || loadingRefresh ? (
           <>

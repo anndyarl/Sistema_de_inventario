@@ -87,7 +87,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
             text: "No hay registros disponibles para mostrar.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border", // Clase personalizada para el borde
             }
@@ -220,7 +220,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       confirmButtonText: "Confirmar y Registrar",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       customClass: {
         popup: "custom-border", // Clase personalizada para el borde
       }
@@ -251,7 +251,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
             text: `Hubo un problema al registrar las Altas.`,
             background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
             customClass: {
               popup: "custom-border"
             }
@@ -266,7 +266,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           text: `Este Nº de inventario no puede ser dado de alta, ya que ha sido previamente anulado.`,
           background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-          confirmButtonColor: `${isDarkMode ? "#007bff" : "#444"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
           customClass: {
             popup: "custom-border"
           }
@@ -285,7 +285,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       text: `Se han registrado correctamente las Altas seleccionadas, Presione "OK" para visualizar un resumen de los datos ingresados.`,
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-      confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
       customClass: { popup: "custom-border" },
       allowOutsideClick: false,
       showCancelButton: false, // Agrega un segundo botón
@@ -341,7 +341,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       </Helmet>
       <MenuAltas />
       <form>
-        <div className={`border border-botom p-4 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+        <div className={`border border-botom p-2 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
           <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
           <Row className="border rounded p-2 m-2">
             <Col md={3} sm={12}>
@@ -458,60 +458,74 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
               </div>
             </Col>
           </Row>
-          {/* Boton registrar filas seleccionadas */}
-          <div className="d-flex justify-content-end">
-            <div className="d-flex align-items-center me-2">
-              <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                Tamaño de página:
-              </label>
-              <select
-                aria-label="Seleccionar tamaño de página"
-                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="nPaginacion"
-                onChange={handleChange}
-                value={Paginacion.nPaginacion}
-              >
-                {[10, 15, 20, 25, 50].map((val) => (
-                  <option key={val} value={val}>{val}</option>
-                ))}
-              </select>
-            </div>
-            {filasSeleccionadas.length > 0 ? (
-              <Button
-                variant="primary"
-                onClick={handleAgrearSeleccionados}
-                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loadingRegistro}  // Desactiva el botón mientras carga
-              >
-                {loadingRegistro ? (
-                  <>
-                    {" Registrando... "}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="mx-1"
-                    />
 
-                  </>
+          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+            {/* Tamaño de página */}
+            <Col xs={12} lg="auto">
+              {listaAltas.length > 10 && (
+                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                    Tamaño de página:
+                  </label>
+                  <select
+                    aria-label="Seleccionar tamaño de página"
+                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nPaginacion"
+                    onChange={handleChange}
+                    value={Paginacion.nPaginacion}
+                  >
+                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                      <option key={val} value={val}>{val}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </Col>
+
+            {/* Botón o mensaje */}
+            <Col xs={12} lg={2}>
+              <div className="d-flex justify-content-center justify-content-lg-end">
+                {filasSeleccionadas.length > 0 ? (
+                  <Button
+                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                    onClick={handleAgrearSeleccionados}
+                    className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                    disabled={loadingRegistro}
+                  >
+                    {loadingRegistro ? (
+                      <>
+                        Registrando...
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="ms-2"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        Registrar
+                        <span className="badge bg-light text-dark mx-1 mt-1">
+                          {filasSeleccionadas.length}
+
+                        </span>
+                        {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
+                      </>
+                    )}
+                  </Button>
                 ) : (
-                  <>
-                    Registrar
-                    <span className="badge bg-light text-dark mx-1 mt-1">
-                      {filasSeleccionadas.length}
-                    </span>
-                    {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
-                  </>
+                  <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                      No hay filas seleccionadas
+                    </strong>
+                  </div>
                 )}
-              </Button>
-            ) : (
-              <strong className="alert alert-dark border m-1 p-2 mx-2">
-                No hay filas seleccionadas
-              </strong>
-            )}
-          </div>
+              </div>
+            </Col>
+          </Row>
+
           {/* Tabla*/}
           {loading || loadingRefresh ? (
             <>
