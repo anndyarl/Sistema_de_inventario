@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
@@ -56,7 +56,6 @@ interface ListaInventarioProps {
     anularInventarioActions: (aF_CLAVE: string) => Promise<boolean>;
     listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
     isDarkMode: boolean;
-    nPaginacion: number; //número de paginas establecido desde preferencias
     objeto: Objeto;
 }
 
@@ -65,15 +64,15 @@ interface FechasProps {
     fechaTermino: string;
 }
 
-const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaAltasActions, listaInventarioAnular, isDarkMode, nPaginacion, objeto }) => {
+const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaAltasActions, listaInventarioAnular, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [loading, setLoading] = useState(false);
-    const [loadingRefresh, setLoadingRefresh] = useState(false);
+
     const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
     // const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = nPaginacion;
-
+    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+    const elementosPorPagina = Paginacion.nPaginacion;
     const [Inventario, setInventario] = useState({
         af_codigo_generico: "",
         fechaInicio: "",
@@ -128,6 +127,12 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             ...prevState,
             [name]: value,
         }));
+
+        setPaginacion((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+
     };
 
     const handleBuscar = async () => {
@@ -161,17 +166,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
         } else {
             paginar(1);
             setLoading(false); //Finaliza estado de carga
-        }
-    };
-
-    const handleRefrescar = async () => {
-        setLoadingRefresh(true); //Finaliza estado de carga
-        const resultado = await listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
-        if (!resultado) {
-            setLoadingRefresh(false);
-        } else {
-            paginar(1);
-            setLoadingRefresh(false);
         }
     };
 
@@ -305,7 +299,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                         Anular Inventario
                     </h3>
                     <Row className="border rounded p-2 m-2">
-                        <Col md={3}>
+                        <Col lg={3} md={4}>
                             <div className="mb-2">
                                 <div className="flex-grow-1 mb-2">
                                     <label htmlFor="fechaInicio" className="form-label fw-semibold small">Desde</label>
@@ -343,7 +337,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                             </div>
                         </Col>
 
-                        <Col md={3}>
+                        <Col lg={3} md={4}>
                             <div className="mb-2">
                                 <div className="mb-2">
                                     <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
@@ -360,64 +354,58 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                             </div>
                         </Col>
 
-                        <Col md={5}>
-                            <div className="mb-1 mt-4">
-                                <Button onClick={handleBuscar}
+                        <Col lg={1} md={4}>
+                            <div className="d-flex flex-column gap-2 mt-4">
+                                <Button
+                                    onClick={handleBuscar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1"
-                                    disabled={loading}>
+                                    className="w-100"
+                                // disabled={loading}
+                                >
                                     {loading ? (
                                         <>
-                                            {" Buscar"}
-                                            <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                role="status"
-                                                aria-hidden="true"
-                                                className="ms-1"
-                                            />
+                                            Buscar
+                                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                                         </>
                                     ) : (
                                         <>
-                                            {" Buscar"}
-                                            < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                            Buscar
+                                            <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                         </>
                                     )}
                                 </Button>
-                                <Button onClick={handleRefrescar}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1"
-                                    disabled={loadingRefresh}>
-                                    {loadingRefresh ? (
-                                        <>
-                                            {" Refrescar "}
-                                            <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                role="status"
-                                                aria-hidden="true"
-                                                className="ms-1"
-                                            />
-                                        </>
-                                    ) : (
-                                        <>
-                                            {" Refrescar "}
-                                            <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                        </>
-                                    )}
-                                </Button>
-                                <Button onClick={handleLimpiar}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
+
+                                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                                     Limpiar
-                                    <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                    <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                 </Button>
                             </div>
                         </Col>
                     </Row>
-
+                    {/* Tamaño de página */}
+                    <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
+                        {/* Tamaño de página */}
+                        <Col xs={12} lg="auto">
+                            {listaInventarioAnular.length > 10 && (
+                                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                        Tamaño de página:
+                                    </label>
+                                    <select
+                                        aria-label="Seleccionar tamaño de página"
+                                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        name="nPaginacion"
+                                        onChange={handleChange}
+                                        value={Paginacion.nPaginacion}
+                                    >
+                                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                                            <option key={val} value={val}>{val}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </Col>
+                    </Row>
                     {/* Tabla*/}
 
                     {loading ? (

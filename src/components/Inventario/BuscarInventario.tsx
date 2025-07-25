@@ -89,16 +89,16 @@ interface ListaInventarioProps {
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   comboEspecies: ListaEspecie[],
   isDarkMode: boolean;
-  nPaginacion: number; //número de paginas establecido desde preferencias
   objeto: Objeto;
 }
 
 
-const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBuscarActions, comboServicioActions, comboDependenciaActions, comboEspeciesBienActions, listaInventarioBuscar, comboServicio, comboDependencia, comboEspecies, isDarkMode, nPaginacion, objeto }) => {
+const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBuscarActions, comboServicioActions, comboDependenciaActions, comboEspeciesBienActions, listaInventarioBuscar, comboServicio, comboDependencia, comboEspecies, isDarkMode, objeto }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = nPaginacion;
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+  const elementosPorPagina = Paginacion.nPaginacion;
   const [Inventario, setInventario] = useState({
     af_codigo_generico: "",
     fechaInicio: "",
@@ -170,6 +170,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
       return; // Salir si contiene caracteres no numéricos
     }
     setInventario((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    setPaginacion((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -535,7 +540,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
             </Col>
 
             {/* Columna 5: Botones de Acción */}
-            <Col md={1}>
+            <Col lg={1} md={2}>
               <div className="d-flex flex-column gap-2 mt-4">
                 <Button
                   onClick={handleBuscar}
@@ -569,7 +574,32 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
               </div>
             </Col>
           </Row>
-          {/* Tabla*/}
+          {/* Tamaño de página */}
+          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
+            {/* Tamaño de página */}
+            <Col xs={12} lg="auto">
+              {listaInventarioBuscar.length > 10 && (
+                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                    Tamaño de página:
+                  </label>
+                  <select
+                    aria-label="Seleccionar tamaño de página"
+                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nPaginacion"
+                    onChange={handleChange}
+                    value={Paginacion.nPaginacion}
+                  >
+                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                      <option key={val} value={val}>{val}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </Col>
+          </Row>
+
+          {/* Tabla */}
           {loading ? (
             <>
               <SkeletonLoader rowCount={elementosPorPagina} />

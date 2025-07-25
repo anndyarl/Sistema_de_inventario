@@ -587,7 +587,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                     <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
                     <Row className="border rounded p-2 m-2">
-                        <Col sm={12} md={12} lg={4}>
+                        <Col sm={12} md={12} lg={3}>
                             {/* Servicio/Dependencia */}
                             <div className="mb-1 position-relative z-1">
                                 <label className="fw-semibold">
@@ -628,11 +628,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                 />
                             </div>
                         </Col>
-                        <Col>
+                        <Col lg={2} md={4}>
                             <div className="mb-1 mt-4">
                                 <Button onClick={handleBuscar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1"
+                                    className="mx-1 mb-1 w-100"
                                     disabled={loading}>
                                     {loading ? (
                                         <>
@@ -648,20 +648,14 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                 </Button>
                                 <Button onClick={handleLimpiar}
                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
+                                    className="mx-1 mb-1 w-100">
                                     Limpiar
                                     <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                 </Button>
-                                <Button
-                                    onClick={handleAgregar}
-                                    disabled={loading}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1">
-                                    Agregar
-                                    <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                </Button>
+
                             </div>
                         </Col>
+
                     </Row>
                     <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                         {/* Tamaño de página */}
@@ -687,7 +681,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                         </Col>
 
                         {/* Botón o mensaje */}
-                        <Col xs={12} lg={2}>
+                        <Col xs={12} lg={4}>
                             <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
                                 {filasSeleccionadas.length > 0 ? (
                                     <>
@@ -747,6 +741,14 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         </strong>
                                     </div>
                                 )}
+                                <Button
+                                    onClick={handleAgregar}
+                                    disabled={loading}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center">
+                                    Agregar
+                                    <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                </Button>
                             </div>
                         </Col>
                     </Row>

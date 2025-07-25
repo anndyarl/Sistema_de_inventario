@@ -492,7 +492,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Imprimir Etiquetas</h3>
                 <Row className="border rounded p-2 m-2">
-                    <Col md={3}>
+                    <Col lg={3} md={4}>
                         <div className="mb-2">
                             <div className="flex-grow-1 mb-2">
                                 <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
@@ -560,7 +560,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     </Col>
 
                     {/* Columna 5: Botones de Acción */}
-                    <Col md={1}>
+                    <Col lg={1} md={4}>
                         <div className="d-flex flex-column gap-2 mt-4">
                             <Button
                                 onClick={handleBuscar}

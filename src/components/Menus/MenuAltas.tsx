@@ -19,7 +19,7 @@ interface Props {
     isDarkMode: boolean;
 }
 const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarOpenSubMenu, setsidebarOpenSubMenu] = useState(false);
     const navigation: NavItem[] = [
         {
             name: 'Registrar Altas',
@@ -54,24 +54,24 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
 
     ];
 
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+    const toggleSidebarMenu = () => setsidebarOpenSubMenu(!sidebarOpenSubMenu);
 
     return (
         <>
             {/* Mobile Navbar y Desktop*/}
 
             <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0">
-                <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
-                    <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />
+                <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebarMenu}>
+                    <List key="main-toggle-icon" size={30} className={`${isDarkMode ? "text-white" : ""}`} />
                 </button>
                 <div className="container-fluid">
-                    <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}>
+                    <div className={`w-100 ${sidebarOpenSubMenu ? "d-block" : "d-none"} d-lg-block`}>
                         <div className="navbar-nav mb-2 mb-lg-0 me-3">
                             {navigation.map((item, index) => (
                                 <NavLink
                                     key={index}
                                     to={item.href}
-                                    onClick={toggleSidebar}
+                                    onClick={toggleSidebarMenu}
                                     className={({ isActive }) =>
                                         classNames(
                                             'btn py-2 px-3 m-1 text-decoration-none border-0 fw-semibold ',

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { List, Exclude, BoxSeamFill, Boxes } from "react-bootstrap-icons";
+import { List, Exclude, Boxes } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Gavel } from "lucide-react";

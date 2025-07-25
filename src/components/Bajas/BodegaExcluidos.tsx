@@ -8,14 +8,14 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/ListadoGeneral/obtenerListaExcluidosActions.tsx";
 import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaExcluidos/quitarBodegaExcluidosActions.tsx";
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
 // import { devolverBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/devolverBajasActions.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { obtenerListaRematesActions } from "../../redux/actions/Bajas/obtenerListaRematesActions.tsx";
-import { Gavel } from "lucide-react";
+
 // import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 
 interface FechasProps {
@@ -56,7 +56,6 @@ interface DatosBajas {
 
 const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, quitarBodegaExcluidosActions, excluirBajasActions, obtenerListaRematesActions, listaExcluidos, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaExcluidos> & Partial<FechasProps>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
@@ -412,16 +411,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
 
   };
 
-  const handleRefrescar = async () => {
-    setLoadingRefresh(true); //Finaliza estado de carga
-    const resultado = await obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
-    if (!resultado) {
-      setLoadingRefresh(false);
-    } else {
-      paginar(1);
-      setLoadingRefresh(false);
-    }
-  };
 
   const handleLimpiar = () => {
     setExcluidos((prevInventario) => ({
@@ -457,7 +446,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         <div className="border-bottom shadow-sm p-2 rounded">
           <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
           <Row className="border rounded p-2 m-2">
-            <Col md={3}>
+            <Col lg={3} md={4}>
               <div className="mb-2">
                 <div className="mb-1">
                   <label htmlFor="fDesde" className="fw-semibold">Desde</label>
@@ -495,7 +484,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
               </div>
             </Col>
 
-            <Col md={2}>
+            <Col lg={2} md={4}>
               <div className="mb-1">
                 <label htmlFor="nresolucion" className="fw-semibold">Nº Certificado</label>
                 <input
@@ -523,59 +512,31 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
               </div>
             </Col>
 
-            <Col md={5}>
-              <div className="mb-1 mt-4">
-                <Button onClick={handleBuscar}
+            {/* Columna 5: Botones de Acción */}
+            <Col lg={1} md={4}>
+              <div className="d-flex flex-column gap-2 mt-4">
+                <Button
+                  onClick={handleBuscar}
                   variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1"
-                  disabled={loading}>
+                  className="w-100"
+                // disabled={loading}
+                >
                   {loading ? (
                     <>
-                      {" Buscar"}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="ms-1"
-                      />
+                      Buscar
+                      <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                     </>
                   ) : (
                     <>
-                      {" Buscar"}
-                      < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                      Buscar
+                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button onClick={handleRefrescar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1"
-                  disabled={loadingRefresh}>
-                  {loadingRefresh ? (
-                    <>
-                      {" Refrescar "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="ms-1"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      {" Refrescar "}
-                      < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                    </>
-                  )}
-                </Button>
-                <Button onClick={handleLimpiar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="mx-1 mb-1">
+
+                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                   Limpiar
-                  <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
               </div>
             </Col>
@@ -647,7 +608,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           {/* </div> */}
 
           {/* Tabla*/}
-          {loading || loadingRefresh ? (
+          {loading ? (
             <>
               <SkeletonLoader rowCount={elementosPorPagina} />
             </>
@@ -668,7 +629,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">Codigo Baja</th>
+                    <th scope="col" className="text-nowrap text-center">Nº Baja</th>
                     <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                     <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                     <th scope="col" className="text-nowrap text-center">Observaciones</th>

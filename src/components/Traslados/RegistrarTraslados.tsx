@@ -260,14 +260,24 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       ...prevState,
       [name]: value,
     }));
+
     setPaginacion1((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
+    if (name === "nPaginacion") {
+      paginar1(1);
+    }
+
+    if (name === "nPaginacion1") {
+      paginar1(1);
+    }
+
     if (name === "seR_CORR") {
       comboDependenciaOrigenActions(value);
     }
+
     if (name === "traS_DET_CORR") {
       comboDependenciaDestinoActions(value);
     }
@@ -539,8 +549,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     paginar1(1);
   };
 
-  const handleSubmitTraslado = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmitTraslado = async () => {
     if (validateForm()) {
       const result = await Swal.fire({
         icon: "info",
@@ -926,44 +935,71 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         </p>
       ) : (
         <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
-          <div className={`d-flex justify-content-between align-items-center m-1 border-bottom p-3 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
+          <div className={`d-flex justify-content-between align-items-center  border-bottom  ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
             <h5 className="fw-semibold">LISTADO A TRASLADAR</h5>
           </div>
           <Row className="p-1 row justify-content-center ">
             <Col md={8}>
-              <div className="d-flex justify-content-end">
-                {/* Boton elimina filas seleccionadas */}
-                {filasSeleccionadasTraslados.length > 0 && (
-                  <Button
-                    variant="danger"
-                    onClick={handleQuitarSeleccionados}
-                    className="mb-1 p-2 mx-1"  // Alinea el spinner y el texto
-                  >
-                    <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
-                    {" Quitar "}
-                    <span className="badge bg-light text-dark mx-1 mb-1">
-                      {filasSeleccionadasTraslados.length}
-                    </span>
-                  </Button>
-                )}
-                <Button
-                  variant="warning"
-                  onClick={() => setMostrarModalTraslado(true)}
-                  type="submit"
-                  className="mb-1 p-2 mx-1"  // Alinea el spinner y el texto
-                >
-                  <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
-                  {"Trasladar"}
-                  <span className="badge bg-light text-dark mx-1 mb-1">
-                    {activosFijos.length}
-                  </span>
-                </Button>
-              </div>
+              <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                {/* Tamaño de página */}
+                <Col xs={12} lg="auto">
+                  {listaTrasladoSeleccion.length > 10 && (
+                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                      <label htmlFor="nPaginacion1" className="form-label fw-semibold mb-0 me-2">
+                        Tamaño de página:
+                      </label>
+                      <select
+                        aria-label="Seleccionar tamaño de página"
+                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        name="nPaginacion1"
+                        onChange={handleChange}
+                        value={Paginacion1.nPaginacion1}
+                      >
+                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                          <option key={val} value={val}>{val}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </Col>
+
+                {/* Botón o mensaje */}
+                <Col xs={12} lg={3}>
+                  <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                    {filasSeleccionadasTraslados.length > 0 && (
+                      <Button
+                        variant="danger"
+                        onClick={handleQuitarSeleccionados}
+                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                      >
+                        Quitar
+                        <span className="badge bg-light text-dark mx-1 mt-1">
+                          {filasSeleccionadasTraslados.length}
+                        </span>
+                      </Button>
+                    )}
+
+                    {/* Botón Trasladar */}
+                    <Button
+                      variant="warning"
+                      onClick={() => setMostrarModalTraslado(true)}
+                      className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                    >
+                      Trasladar
+                      <span className="badge bg-light text-dark mx-1 mt-1">
+                        {activosFijos.length}
+                      </span>
+
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
+
               <div className='table-responsive'>
                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                   <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
-                      <th>
+                      <th style={{ position: 'sticky', left: 0 }}>
                         <Form.Check
                           type="checkbox"
                           className="text-center"
@@ -981,7 +1017,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       let indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
                       return (
                         <tr key={indexReal}>
-                          <td className="text-center">
+                          <td className="text-center" style={{ position: 'sticky', left: 0 }}>
                             <Form.Check
                               type="checkbox"
                               onChange={() => setSeleccionaFilasTraslados(indexReal)}
@@ -1059,7 +1095,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             </div>
           </Modal.Header>
           <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-            <div className="bg-white shadow-sm sticky-top p-3">
+            <div className="bg-white shadow-sm sticky-top">
               <Row>
                 <Col md={6}>
                   {listaTrasladoSeleccion.length > 10 && (
@@ -1074,7 +1110,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         onChange={handleChange}
                         value={Paginacion.nPaginacion}
                       >
-                        {[10, 25, 50, 75, 100, listaTrasladoSeleccion.length].map((val) => (
+                        {[10, 15, 20, 25, 50, 100].map((val) => (
                           <option key={val} value={val}>{val}</option>
                         ))}
                       </select>
@@ -1209,49 +1245,56 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       >
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">
-            Inventarios a Trasladar: {activosFijos.length}
+            Bienes a Trasladar: {activosFijos.length}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <h5 className="fw-semibold">Seleccione Ubicación de Centro de Destino</h5>
-          <p>(Escoga su propio Centro para traslados internos)</p>
-          <form onSubmit={handleSubmitTraslado}>
-            <div className="d-flex justify-content-end ">
-              <Button
-                onClick={handleLimpiarFormulario}
-                variant="primary"
-                className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} mx-1 m-1 p-2`}
-              >
-                {" Limpiar "}
-                <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
-              </Button>
-              <Button
-                variant="warning"
-                type="submit"
-                className="mx-1 m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                disabled={loading}  // Desactiva el botón mientras carga
-              >
-                {loading ? (
-                  <>
-                    {" Trasladar "}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"
-                    />
+          <h5 className="fw-semibold">Ubicación del centro de destino</h5>
+          <p className="alert alert-info border-start border-1 border-info-subtle text-info-subtle fw-semibold p-1">
+            (En traslados internos, selecciona tu centro de origen como destino)
+          </p>
 
-                  </>
-                ) : (
-                  <>
-                    {"Trasladar"}
-                    <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                  </>
-                )}
-              </Button>
-            </div>
+
+          <form onSubmit={handleSubmitTraslado}>
+            <Col >
+              <div className="d-flex flex-column flex-sm-row justify-content-end align-items-stretch">
+                {/* Botón Trasladar */}
+                <Button
+                  variant="warning"
+                  onClick={handleSubmitTraslado}
+                  className="p-2 mb-2 mb-sm-0 mx-sm-1"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      Trasladar
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+
+                    </>
+                  ) : (
+                    <>
+                      Trasladar
+                      <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={handleLimpiarFormulario}
+                  className="p-2 mb-2 mb-sm-0 mx-sm-1"
+                >
+                  Limpiar
+                  <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
+                </Button>
+              </div>
+            </Col>
             <Row>
               <Col md={6}>
                 <div className="mb-1 position-relative z-1">

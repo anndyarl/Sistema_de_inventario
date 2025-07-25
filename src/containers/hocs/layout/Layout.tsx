@@ -140,7 +140,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
           >
             <Sidebar
               isCollapsed={false}
-              onToggleCollapse={() => { }} // En móvil no se usa
+              onToggleCollapse={() => { }}
             />
           </motion.div>
         )}
@@ -151,29 +151,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
         {/* Navbar (móvil) */}
         <div className={`d-flex justify-content-around align-content-center shadow-sm sticky-top z-1050  ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
           <button className="p-3 navbar-toggler" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
-            <AnimatePresence mode="wait">
-              {sidebarOpen ? (
-                <motion.div
-                  key="close-icon"
-                  initial={{ scale: 0.8, rotate: -90 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0.1, rotate: 90 }}
-                  transition={{ duration: 0.1 }}
-                >
-                  <X size={40} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="menu-icon"
-                  initial={{ scale: 0.8, rotate: 90 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0.1, rotate: -90 }}
-                  transition={{ duration: 0.1 }}
-                >
-                  <List size={35} />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {sidebarOpen ? <X size={35} className={`${isDarkMode ? "text-white" : ""}`} /> : <List size={35} className={`${isDarkMode ? "text-white" : ""}`} />}
           </button>
           <Navbar />
           <Profile />

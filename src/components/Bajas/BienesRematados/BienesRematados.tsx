@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { ArrowClockwise, Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
 import { rematarBajasActions } from "../../../redux/actions/Bajas/BienesRematados/rematarBajasActions.tsx";
 import { obtenerListaRematesActions } from "../../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
 import { Objeto } from "../../Navegacion/Profile.tsx";
@@ -56,7 +56,6 @@ interface DatosBajas {
 
 const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, listaRemates, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRefresh, setLoadingRefresh] = useState(false);
   // const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaRemates> & Partial<FechasProps>>({});
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
@@ -215,17 +214,6 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
 
   };
 
-  const handleRefrescar = async () => {
-    setLoadingRefresh(true); //Finaliza estado de carga
-    const resultado = await obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
-    if (!resultado) {
-      setLoadingRefresh(false);
-    } else {
-      paginar(1);
-      setLoadingRefresh(false);
-    }
-  };
-
 
   const handleLimpiar = () => {
     setRematados((prevInventario) => ({
@@ -324,7 +312,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
       <div className="border-bottom shadow-sm p-2 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
         <Row className="border rounded p-2 m-2">
-          <Col md={3}>
+          <Col lg={3} md={4}>
             <div className="mb-2">
               <div className="mb-1">
                 <label htmlFor="fDesde" className="fw-semibold">Desde</label>
@@ -362,7 +350,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
             </div>
           </Col>
 
-          <Col md={2}>
+          <Col lg={2} md={4}>
             <div className="mb-1">
               <label htmlFor="nresolucion" className="fw-semibold">Nº Resolución</label>
               <input
@@ -390,59 +378,31 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
             </div>
           </Col>
 
-          <Col md={5}>
-            <div className="mb-1 mt-4">
-              <Button onClick={handleBuscar}
+          {/* Columna 5: Botones de Acción */}
+          <Col lg={1} md={4}>
+            <div className="d-flex flex-column gap-2 mt-4">
+              <Button
+                onClick={handleBuscar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1"
-                disabled={loading}>
+                className="w-100"
+              // disabled={loading}
+              >
                 {loading ? (
                   <>
-                    {" Buscar"}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="ms-1"
-                    />
+                    Buscar
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                   </>
                 ) : (
                   <>
-                    {" Buscar"}
-                    < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    Buscar
+                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                   </>
                 )}
               </Button>
-              <Button onClick={handleRefrescar}
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1"
-                disabled={loadingRefresh}>
-                {loadingRefresh ? (
-                  <>
-                    {" Refrescar "}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="ms-1"
-                    />
-                  </>
-                ) : (
-                  <>
-                    {" Refrescar "}
-                    < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                  </>
-                )}
-              </Button>
-              <Button onClick={handleLimpiar}
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1">
+
+              <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                 Limpiar
-                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
               </Button>
             </div>
           </Col>
@@ -520,7 +480,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
           </Col>
         </Row>
         {/* Tabla*/}
-        {loading || loadingRefresh ? (
+        {loading ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>
@@ -544,7 +504,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                   </th>
                   <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                   <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
-                  <th scope="col" className="text-nowrap text-center">Código Baja</th>
+                  <th scope="col" className="text-nowrap text-center">Nº Baja</th>
                   <th scope="col" className="text-nowrap text-center">Especie</th>
                   <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
                   <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>

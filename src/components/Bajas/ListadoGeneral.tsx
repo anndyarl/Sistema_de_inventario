@@ -9,7 +9,7 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { ArrowClockwise, Eraser, Exclude, Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
 import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 import { ListaAltas } from "../Altas/RegistrarAltas.tsx";
@@ -42,7 +42,6 @@ interface DatosBajas {
 
 const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, registrarBienesBajasActions, listadoGeneralBajas, listaSalidaBajas, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [__, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -266,17 +265,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
   };
 
-  const handleRefrescar = async () => {
-    setLoadingRefresh(true); //Finaliza estado de carga
-    const resultado = await listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-    if (!resultado) {
-      setLoadingRefresh(false);
-    } else {
-      paginar(1);
-      setLoadingRefresh(false);
-    }
-  };
-
   const handleLimpiar = () => {
     setBuscar((prevInventario) => ({
       ...prevInventario,
@@ -308,7 +296,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       <div className="border-bottom shadow-sm p-2 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
         <Row className="border rounded p-2 m-2">
-          <Col md={2}>
+          <Col lg={2} md={4}>
             <div className="mb-1">
               <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
               <input
@@ -335,59 +323,31 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
               />
             </div>
           </Col>
-          <Col md={5}>
-            <div className="mb-1 mt-4">
-              <Button onClick={handleBuscar}
+          {/* Columna 5: Botones de Acción */}
+          <Col lg={1} md={4}>
+            <div className="d-flex flex-column gap-2 mt-4">
+              <Button
+                onClick={handleBuscar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1"
-                disabled={loading}>
+                className="w-100"
+              // disabled={loading}
+              >
                 {loading ? (
                   <>
-                    {" Buscar"}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="ms-1"
-                    />
+                    Buscar
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                   </>
                 ) : (
                   <>
-                    {" Buscar"}
-                    < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    Buscar
+                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                   </>
                 )}
               </Button>
-              <Button onClick={handleRefrescar}
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1"
-                disabled={loadingRefresh}>
-                {loadingRefresh ? (
-                  <>
-                    {" Refrescar "}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="ms-1"
-                    />
-                  </>
-                ) : (
-                  <>
-                    {" Refrescar "}
-                    < ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                  </>
-                )}
-              </Button>
-              <Button onClick={handleLimpiar}
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1">
+
+              <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                 Limpiar
-                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
               </Button>
             </div>
           </Col>
@@ -459,7 +419,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         </Row>
 
         {/* Tabla*/}
-        {loading || loadingRefresh ? (
+        {loading ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>

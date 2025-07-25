@@ -11,9 +11,6 @@ import { Eraser, Search } from "react-bootstrap-icons";
 import DocumentoPDF from "./DocumentoPDFConsultaInventarioEspecie";
 import MenuInformes from "../../../Menus/MenuInformes";
 import { listaConsultaInventarioEspecieActions } from "../../../../redux/actions/Informes/Principal/ConsultaInventarioEspecies/listaConsultaInventarioEspecieActions";
-const classNames = (...classes: (string | boolean | undefined)[]): string => {
-    return classes.filter(Boolean).join(" ");
-};
 
 export interface ListaInvenarioEspecies {
     aF_CLAVE: number;
@@ -209,7 +206,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
             <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Consulta Inventario para Especie</h3>
                 <Row className="border rounded p-2 m-2">
-                    <Col md={2}>
+                    <Col lg={2} md={4}>
                         <div className="mb-1">
                             <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
                             <input
@@ -224,36 +221,31 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                             />
                         </div>
                     </Col>
-                    <Col md={5}>
-                        <div className="mb-1 mt-4">
-                            <Button onClick={handleBuscar}
+                    {/* Columna 5: Botones de Acción */}
+                    <Col lg={1} md={4}>
+                        <div className="d-flex flex-column gap-2 mt-4">
+                            <Button
+                                onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
-                                disabled={loading}>
+                                className="w-100"
+                            // disabled={loading}
+                            >
                                 {loading ? (
                                     <>
-                                        {" Buscar"}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="ms-1"
-                                        />
+                                        Buscar
+                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                                     </>
                                 ) : (
                                     <>
-                                        {" Buscar"}
-                                        < Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        Buscar
+                                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                     </>
                                 )}
                             </Button>
-                            <Button onClick={handleLimpiar}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+
+                            <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                                 Limpiar
-                                <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                             </Button>
                         </div>
                     </Col>

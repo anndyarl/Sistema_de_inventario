@@ -89,20 +89,19 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
 
     return (
         <nav id="navbar" className={`d-flex p-3 justify-content-end  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
-            <div className="d-flex align-items-center ">
-                <Search className={classNames("mx-2 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
+            <div className={`d-flex align-items-center border  ${isDarkMode ? "bg-dark" : "bg-light"} rounded-3 w-100 `}>
                 <input
                     type="text"
-                    className={`form-select rounded-4 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-select  border-0 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     placeholder="Buscar"
                     value={search}
                     size={35}
                     onChange={(e) => setSearch(e.target.value)}
                 />
-
+                <Search className={classNames("mx-2 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                 {search && (
                     <ul
-                        className="position-absolute  mx-5 mt-4 top-50 z-3  rounded shadow list-group list-group-flush overflow-auto"
+                        className="position-absolute  mx-5 mt-4 top-50 z-3 rounded shadow list-group list-group-flush overflow-auto"
                         style={{ maxHeight: '250px', width: "290px" }}>
                         {filteredRoutes.map((route) => (
                             <li

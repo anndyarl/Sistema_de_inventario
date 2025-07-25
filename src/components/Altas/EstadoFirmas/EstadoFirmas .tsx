@@ -243,7 +243,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                 <h3 className="form-title fw-semibold border-bottom p-1">Estado Firmas</h3>
                 <Row className="border rounded p-2 m-2">
-                    <Col md={2}>
+                    <Col lg={2} md={4}>
                         <div className="mb-2">
                             <div className="mb-2">
                                 <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
@@ -274,34 +274,30 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         </div>
                     </Col>
 
-                    <Col md={5}>
-                        <div className="mb-1 mt-4">
-                            <Button onClick={handleBuscar}
+                    {/* Columna 5: Botones de Acción */}
+                    <Col lg={2} md={4}>
+                        <div className="d-flex flex-column gap-2 mt-4">
+                            <Button
+                                onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
-                                disabled={loading}>
+                                className="w-100"
+                            // disabled={loading}
+                            >
                                 {loading ? (
                                     <>
-                                        {" Buscar"}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="ms-1"
-                                        />
+                                        Buscar
+                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                                     </>
                                 ) : (
                                     <>
-                                        {" Buscar"}
-                                        < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                        Buscar
+                                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                     </>
                                 )}
                             </Button>
                             <Button onClick={handleRefrescar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+                                className="w-100">
                                 {loadingRefresh ? (
                                     <>
                                         {" Refrescar "}
@@ -321,11 +317,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                     </>
                                 )}
                             </Button>
-                            <Button onClick={handleLimpiar}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
+
+                            <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                                 Limpiar
-                                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                             </Button>
                         </div>
                     </Col>
@@ -360,75 +355,73 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 {loading || loadingRefresh ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
-                    <div className="w-full flex justify-center">
-                        <div className="table-responsive w-fit max-w-full">
-                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                    <tr>
-                                        <th scope="col" className="text-center">N° DOCUMENTO</th>
-                                        <th scope="col" className="text-center">Nº Alta</th>
-                                        <th scope="col" className="text-center">Estado Solicitud</th>
-                                        <th scope="col" className="text-center">Última Actualización</th>
-                                        <th scope="col" className="text-center">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {elementosActuales.map((Lista, index) => {
-                                        // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                        return (
-                                            <tr key={index}>
-                                                <td className="text-nowrap text-center">{Lista.idocumento}</td>
-                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                                                <td className="text-center">
-                                                    <Button
-                                                        onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
-                                                        variant="light"
-                                                        size="sm"
-                                                        className={`rounded border-0 fw-semibold  w-30
+                    <div className="table-responsive">
+                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                <tr>
+                                    <th scope="col" className="text-center">N° DOCUMENTO</th>
+                                    <th scope="col" className="text-center">Nº Alta</th>
+                                    <th scope="col" className="text-center">Estado Solicitud</th>
+                                    <th scope="col" className="text-center">Última Actualización</th>
+                                    <th scope="col" className="text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {elementosActuales.map((Lista, index) => {
+                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                    return (
+                                        <tr key={index}>
+                                            <td className="text-nowrap text-center">{Lista.idocumento}</td>
+                                            <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
+                                            <td className="text-center w-30">
+                                                <Button
+                                                    onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
+                                                    variant="light"
+                                                    size="sm"
+                                                    className={`rounded border-0 fw-semibold  
                                                                   ${Lista.estado === 0 ? "bg-warning text-white" :
-                                                                Lista.estado === 1 ? "bg-success text-white" :
-                                                                    Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
-                                                    >
-                                                        {Lista.estado === 0 && "Enviada"}
-                                                        {Lista.estado === 1 && "Firmada"}
-                                                        {Lista.estado === 2 && "Rechazada"}
-                                                        <Eye className="mx-2" width={18} height={18} />
-                                                    </Button>
-                                                </td>
-                                                <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
-                                                <td
-                                                    className="text-nowrap"
-                                                    style={{
-                                                        position: 'sticky',
-                                                        left: 0,
-                                                    }}>
+                                                            Lista.estado === 1 ? "bg-success text-white" :
+                                                                Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
+                                                >
+                                                    {Lista.estado === 0 && "Enviada"}
+                                                    {Lista.estado === 1 && "Firmada"}
+                                                    {Lista.estado === 2 && "Rechazada"}
+                                                    <Eye className="mx-2" width={18} height={18} />
+                                                </Button>
+                                            </td>
+                                            <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
+                                            <td
+                                                className="text-nowrap"
+                                                style={{
+                                                    position: 'sticky',
+                                                    left: 0,
+                                                }}>
 
-                                                    {Lista.estado === 1 ? (
-                                                        <OverlayTrigger
-                                                            placement="right"
-                                                            overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
+                                                {Lista.estado === 1 ? (
+                                                    <OverlayTrigger
+                                                        placement="right"
+                                                        overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
+                                                    >
+                                                        <Button type="button" className="fw-semibold"
+                                                            onClick={() => handleObtenerVisado(index, Lista.idocumento)}
                                                         >
-                                                            <Button type="button" className="fw-semibold"
-                                                                onClick={() => handleObtenerVisado(index, Lista.idocumento)}
-                                                            >
-                                                                Ver
-                                                                < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                            </Button>
-                                                        </OverlayTrigger>
-                                                    ) : (
-                                                        <Button type="button" disabled>
                                                             Ver
                                                             < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                         </Button>
-                                                    )}
+                                                    </OverlayTrigger>
+                                                ) : (
+                                                    <Button type="button" disabled>
+                                                        Ver
+                                                        < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                    </Button>
+                                                )}
 
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
                 )}
                 <div className="paginador-container position-relative z-0">

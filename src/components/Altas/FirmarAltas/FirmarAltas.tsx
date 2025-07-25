@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, Eraser, FiletypePdf, Paperclip, Search, Trash } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, Paperclip, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -91,7 +91,6 @@ interface DatosBajas {
 const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, objeto }) => {
     const [loading, setLoading] = useState(false);
     // const [loadingAnular, setLoadingAnular] = useState(false);
-    const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
     const [___, setIsDisabled] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -756,17 +755,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     };
 
-    const handleRefrescar = async () => {
-        setLoadingRefresh(true); //Finaliza estado de carga
-        const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
-        if (!resultado) {
-            setLoadingRefresh(false);
-        } else {
-            paginar(1);
-            setLoadingRefresh(false);
-        }
-    };
-
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
         const result = await Swal.fire({
@@ -1048,8 +1036,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         }
     };
 
-
-
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleFileInput = () => {
@@ -1312,60 +1298,32 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         </div>
                     </Col>
 
-                    <Col md={5}>
-                        <div className="mb-1 mt-4">
-                            <Button onClick={handleBuscar}
+                    {/* Columna 5: Botones de Acción */}
+                    <Col md={1}>
+                        <div className="d-flex flex-column gap-2 mt-4">
+                            <Button
+                                onClick={handleBuscar}
                                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
-                                disabled={loading}>
+                                className="w-100"
+                            // disabled={loading}
+                            >
                                 {loading ? (
                                     <>
-                                        {" Buscar"}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="ms-1"
-                                        />
+                                        Buscar
+                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                                     </>
                                 ) : (
                                     <>
-                                        {" Buscar"}
-                                        < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                        Buscar
+                                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                     </>
                                 )}
-                            </Button>
-                            <Button onClick={handleRefrescar}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
-                                {loadingRefresh ? (
-                                    <>
-                                        {" Refrescar "}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="ms-1"
-                                        />
-                                    </>
-                                ) : (
-                                    <>
-                                        {" Refrescar "}
-                                        <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                    </>
-                                )}
-                            </Button>
-                            <Button onClick={handleLimpiar}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1">
-                                Limpiar
-                                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                             </Button>
 
+                            <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                                Limpiar
+                                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                            </Button>
                         </div>
                     </Col>
                 </Row>
@@ -1394,7 +1352,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         )}
                     </Col>
 
-                    {/* Exportar o mensaje */}
+                    {/* Exportar*/}
                     <Col xs={12} lg={2}>
                         <div className="d-flex justify-content-center justify-content-lg-end">
                             {filasSeleccionadas.length > 0 ? (
@@ -1425,7 +1383,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 </Row>
 
                 {/* Tabla*/}
-                {loading || loadingRefresh ? (
+                {loading ? (
                     <SkeletonLoader rowCount={elementosPorPagina} />
                 ) : (
                     <div className='table-responsive'>

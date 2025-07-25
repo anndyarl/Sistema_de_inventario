@@ -11,7 +11,7 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
-import { ArrowClockwise, CircleFill, Eraser, Search } from "react-bootstrap-icons";
+import { CircleFill, Eraser, Search } from "react-bootstrap-icons";
 
 interface FechasProps {
   fDesde: string;
@@ -55,16 +55,15 @@ interface GeneralProps {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
-  nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, nPaginacion, objeto }) => {
+const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
-  const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   // const [_, setFilaSeleccionada] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = nPaginacion;
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+  const elementosPorPagina = Paginacion.nPaginacion;
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -150,6 +149,10 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
       [name]: newValue,
     }));
 
+    setPaginacion((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
   };
 
   const handleBuscar = async () => {
@@ -189,16 +192,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   };
 
 
-  const handleRefrescar = async () => {
-    setLoadingRefresh(true); //Finaliza estado de carga
-    const resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-    if (!resultado) {
-      setLoadingRefresh(false);
-    } else {
-      paginar(1);
-      setLoadingRefresh(false);
-    }
-  };
+
   // const setSeleccionaFila = (index: number) => {
   //   setMostrarModal(index); //Abre modal del indice seleccionado
   //   setFilaSeleccionada((prev) =>
@@ -274,11 +268,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
         <title>Listado de Traslados</title>
       </Helmet>
       <MenuTraslados />
-      <div className="border-bottom shadow-sm p-4 rounded">
+      <div className="border-bottom shadow-sm p-2 rounded">
         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traslados</h3>
         <Row className="border rounded p-2 m-2">
-          <Col md={3}>
-            <div className="mb-2">
+          <Col md={3} sm={12}>
+            <div className="mb-2 ">
               <div className="flex-grow-1 mb-2">
                 <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
                 <div className="input-group">
@@ -315,94 +309,88 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
             </div>
           </Col>
 
-          <Col md={2}>
-            <div className="mb-2">
-              <div className="mb-2">
-                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
-                <input
-                  aria-label="af_codigo_generico"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="af_codigo_generico"
-                  placeholder="Ej: 1000000008"
-                  onChange={handleChange}
-                  value={ListadoTraslado.af_codigo_generico}
-                />
-              </div>
-              <div className="mb-1">
-                <label htmlFor="tras_corr" className="fw-semibold">Nº Traslado</label>
-                <input
-                  aria-label="tras_corr"
-                  type="text"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="tras_corr"
-                  size={10}
-                  placeholder="Eje: 1000000008"
-                  onChange={handleChange}
-                  value={ListadoTraslado.tras_corr}
-                />
-              </div>
+          <Col md={2} sm={12}>
+            <div className="mb-1">
+              <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+              <input
+                aria-label="af_codigo_generico"
+                type="text"
+                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="af_codigo_generico"
+                placeholder="Ej: 1000000008"
+                onChange={handleChange}
+                value={ListadoTraslado.af_codigo_generico}
+              />
+            </div>
+            <div className="mb-1">
+              <label htmlFor="tras_corr" className="fw-semibold">Nº Traslado</label>
+              <input
+                aria-label="tras_corr"
+                type="text"
+                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                name="tras_corr"
+                size={10}
+                placeholder="Eje: 1000000008"
+                onChange={handleChange}
+                value={ListadoTraslado.tras_corr}
+              />
             </div>
           </Col>
 
-          <Col md={5}>
-            <div className="mb-1 mt-4">
-              <Button onClick={handleBuscar}
+          {/* Columna 5: Botones de Acción */}
+          <Col md={1}>
+            <div className="d-flex flex-column gap-2 mt-4">
+              <Button
+                onClick={handleBuscar}
                 variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1"
-                disabled={loading}>
+                className="w-100"
+              // disabled={loading}
+              >
                 {loading ? (
                   <>
-                    {" Buscar"}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="ms-1"
-                    />
+                    Buscar
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                   </>
                 ) : (
                   <>
-                    {" Buscar"}
-                    < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                    Buscar
+                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                   </>
                 )}
               </Button>
-              <Button onClick={handleRefrescar}
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1"
-                disabled={loadingRefresh}>
-                {loadingRefresh ? (
-                  <>
-                    {" Refrescar "}
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="ms-1"
-                    />
-                  </>
-                ) : (
-                  <>
-                    {" Refrescar "}
-                    <ArrowClockwise className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                  </>
-                )}
-              </Button>
-              <Button onClick={handleLimpiar}
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="mx-1 mb-1">
+
+              <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                 Limpiar
-                <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
               </Button>
             </div>
           </Col>
         </Row>
-        {loading || loadingRefresh ? (
+
+        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+          {/* Tamaño de página */}
+          <Col xs={12} lg="auto">
+            {listadoTraslados.length > 10 && (
+              <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                  Tamaño de página:
+                </label>
+                <select
+                  aria-label="Seleccionar tamaño de página"
+                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  name="nPaginacion"
+                  onChange={handleChange}
+                  value={Paginacion.nPaginacion}
+                >
+                  {[10, 15, 20, 25, 50, 100].map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </Col>
+        </Row>
+        {loading ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>
@@ -508,7 +496,6 @@ const mapStateToProps = (state: RootState) => ({
   isDarkMode: state.darkModeReducer.isDarkMode,
   comboServicio: state.comboServicioReducer.comboServicio,
   objeto: state.validaApiLoginReducers,
-  nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
 });
 
 export default connect(mapStateToProps, {

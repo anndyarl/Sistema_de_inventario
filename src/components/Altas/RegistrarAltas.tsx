@@ -11,7 +11,7 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
-import { ArrowClockwise, Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, Search } from "react-bootstrap-icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { listaAltasRegistradasActions } from "../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions.tsx";
 
@@ -55,7 +55,7 @@ interface DatosAltas {
 const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAltasActions, listaAltasRegistradasActions, listaAltas, objeto, token, isDarkMode, listaSalidaAltas }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [loading, setLoading] = useState(false);
-  const [loadingRefresh, setLoadingRefresh] = useState(false);
+
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -129,16 +129,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
   };
 
-  const handleRefrescar = async () => {
-    setLoadingRefresh(true); //Finaliza estado de carga
-    const resultado = await listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-    if (!resultado) {
-      setLoadingRefresh(false);
-    } else {
-      paginar(1);
-      setLoadingRefresh(false);
-    }
-  };
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -396,62 +386,29 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                 />
               </div>
             </Col>
-            <Col md={4}>
-              <div className="d-flex justify-content-center mt-4">
+            {/* Columna 5: Botones de Acción */}
+            <Col lg={1} md={4}>
+              <div className="d-flex flex-column gap-2 mt-4">
                 <Button
                   onClick={handleBuscar}
-                  variant={isDarkMode ? "secondary" : "primary"}
-                  className="mx-1 mb-1 w-100"
-                  disabled={loading}
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  className="w-100"
+                // disabled={loading}
                 >
                   {loading ? (
                     <>
-                      {" Buscar"}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="ms-1"
-                      />
+                      Buscar
+                      <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                     </>
                   ) : (
                     <>
-                      {" Buscar"}
+                      Buscar
                       <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </>
                   )}
                 </Button>
-                <Button
-                  onClick={handleRefrescar}
-                  variant={isDarkMode ? "secondary" : "primary"}
-                  className="mx-1 mb-1 w-100 "
-                >
-                  {loadingRefresh ? (
-                    <>
-                      {" Refrescar "}
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="ms-1"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      {" Refrescar "}
-                      <ArrowClockwise className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                    </>
-                  )}
-                </Button>
-                <Button
-                  onClick={handleLimpiar}
-                  variant={isDarkMode ? "secondary" : "primary"}
-                  className="mx-1 mb-1 w-100"
-                >
+
+                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                   Limpiar
                   <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                 </Button>
@@ -527,7 +484,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
           </Row>
 
           {/* Tabla*/}
-          {loading || loadingRefresh ? (
+          {loading ? (
             <>
               <SkeletonLoader rowCount={elementosPorPagina} />
             </>

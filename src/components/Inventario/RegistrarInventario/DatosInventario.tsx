@@ -209,12 +209,12 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)
-    if (!Inventario.nRecepcion) tempErrors.nRecepcion = "Campo obligatorio";
+    if (!Inventario.nRecepcion && Inventario.nRecepcion === 0) tempErrors.nRecepcion = "Campo obligatorio";
     if (!Inventario.fechaRecepcion) tempErrors.fechaRecepcion = "Campo obligatorio";
     if (!Inventario.nOrdenCompra) tempErrors.nOrdenCompra = "Campo obligatorio";
     if (!Inventario.nFactura) tempErrors.nFactura = "Campo obligatorio";
     if (!Inventario.origenPresupuesto) tempErrors.origenPresupuesto = "Campo obligatorio";
-    if (!Inventario.montoRecepcion) tempErrors.montoRecepcion = "Campo obligatorio";
+    if (!Inventario.montoRecepcion && Inventario.montoRecepcion === 0) tempErrors.montoRecepcion = "Campo obligatorio";
     else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion))) tempErrors.montoRecepcion = "El Monto debe ser un número válido con hasta dos decimales.";
     if (!Inventario.fechaFactura) tempErrors.fechaFactura = "Campo obligatorio";
     if (!Inventario.rutProveedor) tempErrors.rutProveedor = "Campo obligatorio";
@@ -440,8 +440,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const handleLimpiar = () => {
     const { usuarioCrea, ...restoTraslados } = Inventario;
     const tieneDatos = Object.values(restoTraslados).some(
-      (valor) => valor !== "" && valor !== 0
-    );
+      (valor) => valor !== "" && valor !== 0);
     if (tieneDatos) {
       Swal.fire({
         icon: "warning",

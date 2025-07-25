@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal } from "react-bootstrap";
+import { Pagination, Button, Spinner, Modal, Row, Col } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -41,10 +41,9 @@ interface GeneralProps {
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario  
     seR_CORR: number;
-    nPaginacion: number; //número de paginas establecido desde preferencias
 }
 
-const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, seR_CORR, listadoMantenedor, token, isDarkMode, objeto, nPaginacion }) => {
+const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxServicioActions, listadoMantenedorServiciosActions, registrarMantenedorServiciosActions, seR_CORR, listadoMantenedor, token, isDarkMode, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & Partial<ESTABLECIMIENTO> & {}>({});
@@ -52,7 +51,8 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
     const [mostrarModal, setMostrarModal] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-    const elementosPorPagina = nPaginacion;
+    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+    const elementosPorPagina = Paginacion.nPaginacion;
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -131,6 +131,11 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
             : value;
 
         setMantenedor((prevPrev) => ({
+            ...prevPrev,
+            [name]: newValue,
+        }));
+
+        setPaginacion((prevPrev) => ({
             ...prevPrev,
             [name]: newValue,
         }));
@@ -242,18 +247,44 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
             <MenuMantenedores />
             <div className="border-bottom shadow-sm p-4 rounded">
                 <h3 className="form-title fw-semibold border-bottom p-1">Listado de Servicios</h3>
-                <div className="d-flex">
-                    <div className="mb-1 mx-1">
-                        <Button
-                            variant={`${isDarkMode ? "secondary" : "primary"}`}
-                            className="align-content-center"
-                            onClick={() => setMostrarModalRegistrar(true)}
-                        >
-                            Nuevo
-                            <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                        </Button>
-                    </div>
-                </div>
+
+                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
+                    {/* Tamaño de página */}
+                    <Col xs={12} lg="auto">
+                        {listadoMantenedor.length > 10 && (
+                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                    Tamaño de página:
+                                </label>
+                                <select
+                                    aria-label="Seleccionar tamaño de página"
+                                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="nPaginacion"
+                                    onChange={handleChange}
+                                    value={Paginacion.nPaginacion}
+                                >
+                                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                                        <option key={val} value={val}>{val}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </Col>
+                    {/* Boton Agregar */}
+                    <Col xs={12} lg={1}>
+                        <div className="d-flex justify-content-center justify-content-lg-end">
+                            <Button
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto"
+                                onClick={() => setMostrarModalRegistrar(true)}
+                            >
+                                Nuevo
+                                <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+                {/* Tabla */}
                 {loading ? (
                     <>
                         <SkeletonLoader rowCount={elementosPorPagina} />
@@ -372,7 +403,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                                 ) : (
                                     <>
                                         Agregar
-                                        <Plus className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" />
+                                        {/* <Plus className={("flex-shrink-0 h-5 w-5 ms-1")} aria-hidden="true" /> */}
                                     </>
                                 )}
                             </Button>
