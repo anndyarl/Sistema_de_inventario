@@ -4,15 +4,14 @@ import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Paginatio
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { ArrowLeftRight, CaretDown, CaretUpFill, Eraser, Search } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Eraser, Search, Send } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
-import MenuTraslados from "../Menus/MenuTraslados";
 import Select from "react-select";
 import SkeletonLoader from "../Utils/SkeletonLoader";
-import { registroTrasladoMultipleActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
+
 import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
@@ -23,6 +22,8 @@ import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Com
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
+import MenuTraspasos from "../Menus/MenuTraspasos";
+import { registroTraspasoMultipleActions } from "../../redux/actions/Trapasos/registroTrasladoMultipleActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
     codigo: number;
@@ -40,7 +41,7 @@ interface TRASLADOESPECIE {
 }
 
 /*-----Tabla principal------*/
-interface ListaATrasladar {
+interface ListaATraspasar {
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
     deT_OBS: string;
@@ -64,12 +65,13 @@ export interface ListaTrasladoSeleccion {
 /*------Formulario Modal--------*/
 interface FormularioTraslado {
     deP_CORR_DESTINO: number;
-    traS_MEMO_REF: string;
-    traS_FECHA_MEMO: string;
-    traS_OBS: string;
-    traS_NOM_ENTREGA: string;
-    traS_NOM_RECIBE: string;
-    traS_NOM_AUTORIZA: string;
+    paS_MEMO_REF: string;
+    paS_FECHA_MEMO: string;
+    paS_OBS: string;
+    paS_NOM_ENTREGA: string;
+    paS_NOM_RECIBE: string;
+    paS_NOM_AUTORIZA: string;
+    estabL_CORR_D: number;
 }
 
 interface ListaEspecie {
@@ -94,11 +96,11 @@ interface DEPENDENCIA {
 }
 
 interface TrasladosProps {
-    registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
+    registroTraspasoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
     comboTrasladoServicio: TRASLADOSERVICIO[];
     comboTrasladoServicioActions: (establ_corr: number) => void;
     comboEstablecimiento: ESTABLECIMIENTO[];
-    comboEstablecimientoActions: () => void;
+    comboEstablecimientoActions: (establ_corr: number) => void;
     comboTrasladoEspecie: TRASLADOESPECIE[];
     comboTrasladoEspecieActions: (establ_corr: number) => void;
     comboDependenciaOrigen: DEPENDENCIA[];
@@ -111,7 +113,7 @@ interface TrasladosProps {
     comboServicioInformeActions: (establ_corr: number) => void;//En buscador  
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
     comboServicioInforme: SERVICIO[];
-    listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
+    listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -120,7 +122,7 @@ interface TrasladosProps {
 
 
 const RegistrarTraspasos: React.FC<TrasladosProps> = ({
-    registroTrasladoMultipleActions,
+    registroTraspasoMultipleActions,
     comboServicioInformeActions,
     comboTrasladoServicioActions,
     comboEstablecimientoActions,
@@ -151,7 +153,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     const [paginaActual1, setPaginaActual1] = useState(1);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [filasSeleccionadasTraslados, setFilasSeleccionadasTraslados] = useState<string[]>([]);
-    const [activosFijos, setActivosFijos] = useState<ListaATrasladar[]>([]);
+    const [activosFijos, setActivosFijos] = useState<ListaATraspasar[]>([]);
     const [Paginacion, setPaginacion] = useState({
         nPaginacion: 10
     });
@@ -177,12 +179,13 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         usuario_crea: objeto.IdCredencial.toString(),
         deP_CORR_DESTINO: 0,
         traS_CO_REAL: 0,
-        traS_MEMO_REF: "",
-        traS_FECHA_MEMO: "",
-        traS_OBS: "",
-        traS_NOM_ENTREGA: "",
-        traS_NOM_RECIBE: "",
-        traS_NOM_AUTORIZA: ""
+        paS_MEMO_REF: "",
+        paS_FECHA_MEMO: "",
+        paS_OBS: "",
+        paS_NOM_ENTREGA: "",
+        paS_NOM_RECIBE: "",
+        paS_NOM_AUTORIZA: "",
+        estabL_CORR_D: 0
     });
 
     const especieOptions = comboEspecies.map((item) => ({
@@ -208,12 +211,13 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     const validateForm = () => {
         let tempErrors: Partial<any> & {} = {};
         if (!Traslados.deP_CORR_DESTINO) tempErrors.deP_CORR_DESTINO = "Campo obligatorio.";
-        if (!Traslados.traS_OBS) tempErrors.traS_OBS = "Campo obligatorio.";
-        if (!Traslados.traS_MEMO_REF) tempErrors.traS_MEMO_REF = "Campo obligatorio.";
-        if (!Traslados.traS_FECHA_MEMO) tempErrors.traS_FECHA_MEMO = "Campo obligatorio.";
-        if (!Traslados.traS_NOM_ENTREGA) tempErrors.traS_NOM_ENTREGA = "Campo obligatorio.";
-        if (!Traslados.traS_NOM_RECIBE) tempErrors.traS_NOM_RECIBE = "Campo obligatorio.";
-        if (!Traslados.traS_NOM_AUTORIZA) tempErrors.traS_NOM_AUTORIZA = "Campo obligatorio.";
+        if (!Traslados.paS_OBS) tempErrors.paS_OBS = "Campo obligatorio.";
+        if (!Traslados.paS_MEMO_REF) tempErrors.paS_MEMO_REF = "Campo obligatorio.";
+        if (!Traslados.paS_FECHA_MEMO) tempErrors.paS_FECHA_MEMO = "Campo obligatorio.";
+        if (!Traslados.paS_NOM_ENTREGA) tempErrors.paS_NOM_ENTREGA = "Campo obligatorio.";
+        if (!Traslados.paS_NOM_RECIBE) tempErrors.paS_NOM_RECIBE = "Campo obligatorio.";
+        if (!Traslados.paS_NOM_AUTORIZA) tempErrors.paS_NOM_AUTORIZA = "Campo obligatorio.";
+        if (!Traslados.estabL_CORR_D) tempErrors.estabL_CORR_D = "Campo obligatorio.";
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -222,7 +226,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         if (token) {
             // Verifica si las acciones ya fueron disparadas
             if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablecimiento);
-            if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
+            if (comboEstablecimiento.length === 0) comboEstablecimientoActions(objeto.Roles[0].codigoEstablecimiento);
             if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablecimiento);
             if (comboServicioInforme.length === 0) comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
             if (comboEspecies.length === 0) comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
@@ -242,7 +246,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             return; // Salir si contiene caracteres no numéricos
         }
         // Convierte `value` a número
-        let newValue: string | number = ["deP_CORR_ORIGEN", "deP_CORR", "n_TRASLADO", "seR_CORR"].includes(name)
+        let newValue: string | number = ["deP_CORR_ORIGEN", "deP_CORR", "n_TRASLADO", "seR_CORR", "estabL_CORR_D"].includes(name)
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
@@ -260,15 +264,25 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             ...prevState,
             [name]: value,
         }));
+
         setPaginacion1((prevState) => ({
             ...prevState,
             [name]: value,
         }));
 
+        if (name === "nPaginacion") {
+            paginar1(1);
+        }
+
+        if (name === "nPaginacion1") {
+            paginar1(1);
+        }
+
         if (name === "seR_CORR") {
             comboDependenciaOrigenActions(value);
         }
-        if (name === "traS_DET_CORR") {
+
+        if (name === "paS_DET_CORR") {
             comboDependenciaDestinoActions(value);
         }
 
@@ -307,12 +321,13 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             ...prev,
             deP_CORR_DESTINO: 0,
             traS_CO_REAL: 0,
-            traS_MEMO_REF: "",
-            traS_FECHA_MEMO: "",
-            traS_OBS: "",
-            traS_NOM_ENTREGA: "",
-            traS_NOM_RECIBE: "",
-            traS_NOM_AUTORIZA: ""
+            paS_MEMO_REF: "",
+            paS_FECHA_MEMO: "",
+            paS_OBS: "",
+            paS_NOM_ENTREGA: "",
+            paS_NOM_RECIBE: "",
+            paS_NOM_AUTORIZA: "",
+            estabL_CORR_D: 0
         }));
     }
 
@@ -539,15 +554,14 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         paginar1(1);
     };
 
-    const handleSubmitTraslado = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSubmitTraslado = async () => {
         if (validateForm()) {
             const result = await Swal.fire({
                 icon: "info",
                 title: "Confirmar Traslado",
-                text: "¿Confirma que desea trasladar los artículos seleccionados con los datos proporcionados?",
+                text: "¿Confirma que desea Traspasar los artículos seleccionados con los datos proporcionados?",
                 showCancelButton: true,
-                confirmButtonText: "Confirmar y Trasladar",
+                confirmButtonText: "Confirmar y Traspasar",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -564,64 +578,66 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     deP_CORR: item.deP_CORR_ORIGEN,//Dependencia Origen
                     usuariO_CREA: objeto.IdCredencial.toString(),
                     estabL_CORR: objeto.Roles[0].codigoEstablecimiento,
+                    estabL_CORR_D: Traslados.estabL_CORR_D,
                     deP_CORR_DESTINO: Traslados.deP_CORR_DESTINO, //dependencia Destino 
                     traS_CO_REAL: Traslados.traS_CO_REAL,
-                    traS_MEMO_REF: Traslados.traS_MEMO_REF,
-                    traS_FECHA_MEMO: Traslados.traS_FECHA_MEMO,
-                    traS_OBS: Traslados.traS_OBS,
-                    traS_NOM_ENTREGA: Traslados.traS_NOM_ENTREGA,
-                    traS_NOM_RECIBE: Traslados.traS_NOM_RECIBE,
-                    traS_NOM_AUTORIZA: Traslados.traS_NOM_AUTORIZA
+                    paS_MEMO_REF: Traslados.paS_MEMO_REF,
+                    paS_FECHA_MEMO: Traslados.paS_FECHA_MEMO,
+                    paS_OBS: Traslados.paS_OBS,
+                    paS_NOM_ENTREGA: Traslados.paS_NOM_ENTREGA,
+                    paS_NOM_RECIBE: Traslados.paS_NOM_RECIBE,
+                    paS_NOM_AUTORIZA: Traslados.paS_NOM_AUTORIZA
                 }));
 
-                const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
-                if (resultado) {
-                    mostrarAlerta();
-                    listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-                    handleLimpiar();
-                    handleLimpiarFormulario();
-                    setFilasSeleccionadas([]);
-                    setFilasSeleccionadasTraslados([]);
-                    setActivosFijos([]);
-                    setMostrarModalTraslado(false);
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: "Ocurrió un problema al intentar trasladar los activos.",
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                        customClass: { popup: "custom-border" }
-                    });
-                }
+                // const resultado = await registroTraspasoMultipleActions(activosSeleccionados);
+                console.log(activosSeleccionados);
+                // if (resultado) {
+                //     mostrarAlerta();
+                //     listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+                //     handleLimpiar();
+                //     handleLimpiarFormulario();
+                //     setFilasSeleccionadas([]);
+                //     setFilasSeleccionadasTraslados([]);
+                //     setActivosFijos([]);
+                //     setMostrarModalTraslado(false);
+                // } else {
+                //     Swal.fire({
+                //         icon: "error",
+                //         title: "Error",
+                //         text: "Ocurrió un problema al intentar Traspasar los activos.",
+                //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                //         customClass: { popup: "custom-border" }
+                //     });
+                // }
                 setLoading(false);
             }
         }
     };
 
-    const mostrarAlerta = () => {
-        document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
-        Swal.fire({
-            icon: "success",
-            title: "Registro Exitoso",
-            text: `Se han registrado correctamente los traslados seleccionados, Presione "OK" para visualizar un resumen de los datos ingresados.`,
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: { popup: "custom-border" },
-            allowOutsideClick: false,
-            showCancelButton: false, // Agrega un segundo botón
-            cancelButtonText: "Cerrar", // Texto del botón
-            willClose: () => {
-                document.body.style.overflow = "auto"; // Restaura el scroll
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                setMostrarModalResumen(true);
-            }
-        });
-    };
+    // const mostrarAlerta = () => {
+    //     document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+    //     Swal.fire({
+    //         icon: "success",
+    //         title: "Registro Exitoso",
+    //         text: `Se han registrado correctamente los traslados seleccionados, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+    //         customClass: { popup: "custom-border" },
+    //         allowOutsideClick: false,
+    //         showCancelButton: false, // Agrega un segundo botón
+    //         cancelButtonText: "Cerrar", // Texto del botón
+    //         willClose: () => {
+    //             document.body.style.overflow = "auto"; // Restaura el scroll
+    //         }
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             setMostrarModalResumen(true);
+    //         }
+    //     });
+    // };
 
     const handleCerrarModal = () => {
         setMostrarModal(false);
@@ -671,7 +687,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         ? Math.ceil(listaTrasladoSeleccion.length / elementosPorPagina) : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
-    /*-----------------------Tabla Selecciones a Trasladar----------------------*/
+    /*-----------------------Tabla Selecciones a Traspasar----------------------*/
 
     // Lógica de Paginación actualizada 
     const indiceUltimoElemento1 = paginaActual1 * elementosPorPagina1;
@@ -688,12 +704,12 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     return (
         <Layout>
             <Helmet>
-                <title>Registrar Traslados</title>
+                <title>Registrar Traspasos</title>
             </Helmet>
-            <MenuTraslados />
+            <MenuTraspasos />
 
             <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
-                <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traslados</h3>
+                <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traspasos</h3>
                 {/* Fila 1 */}
                 {/* <div className={`mb-3 border p-1 rounded-4 ${tieneErroresBusqueda ? "border-danger" : ""}`}> */}
                 <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
@@ -921,49 +937,82 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 </Collapse>
             </div>
             {activosFijos.length === 0 ? (
-                <p className="d-flex justify-content-center m-1 p-1 ">
-                    Seleccione artículos de la búsqueda para incluirlos aquí
-                </p>
+                <Row className="p-1 row justify-content-center ">
+                    <Col md={8}>
+                        <p className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                            Seleccione artículos de la búsqueda para incluirlos aquí
+                        </p>
+                    </Col>
+                </Row>
             ) : (
                 <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
-                    <div className={`d-flex justify-content-between align-items-center m-1 border-bottom p-3 ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
-                        <h5 className="fw-semibold">LISTADO A TRASLADAR</h5>
+                    <div className={`d-flex justify-content-between align-items-center  border-bottom  ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
+                        <h5 className="fw-semibold">LISTADO A TRASPASAR</h5>
                     </div>
                     <Row className="p-1 row justify-content-center ">
                         <Col md={8}>
-                            <div className="d-flex justify-content-end">
-                                {/* Boton elimina filas seleccionadas */}
-                                {filasSeleccionadasTraslados.length > 0 && (
-                                    <Button
-                                        variant="danger"
-                                        onClick={handleQuitarSeleccionados}
-                                        className="mb-1 p-2 mx-1"  // Alinea el spinner y el texto
-                                    >
-                                        <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
-                                        {" Quitar "}
-                                        <span className="badge bg-light text-dark mx-1 mb-1">
-                                            {filasSeleccionadasTraslados.length}
-                                        </span>
-                                    </Button>
-                                )}
-                                <Button
-                                    variant="warning"
-                                    onClick={() => setMostrarModalTraslado(true)}
-                                    type="submit"
-                                    className="mb-1 p-2 mx-1"  // Alinea el spinner y el texto
-                                >
-                                    <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1 mb-1" aria-hidden="true" />
-                                    {"Trasladar"}
-                                    <span className="badge bg-light text-dark mx-1 mb-1">
-                                        {activosFijos.length}
-                                    </span>
-                                </Button>
-                            </div>
+                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                                {/* Tamaño de página */}
+                                <Col xs={12} lg="auto">
+                                    {listaTrasladoSeleccion.length > 10 && (
+                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                            <label htmlFor="nPaginacion1" className="form-label fw-semibold mb-0 me-2">
+                                                Tamaño de página:
+                                            </label>
+                                            <select
+                                                aria-label="Seleccionar tamaño de página"
+                                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="nPaginacion1"
+                                                onChange={handleChange}
+                                                value={Paginacion1.nPaginacion1}
+                                            >
+                                                {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                    <option key={val} value={val}>{val}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                </Col>
+
+                                {/* Botón o mensaje */}
+                                <Col xs={12} lg={3}>
+                                    <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                        {filasSeleccionadasTraslados.length > 0 && (
+                                            <Button
+                                                variant="danger"
+                                                onClick={handleQuitarSeleccionados}
+                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                            >
+                                                Quitar
+                                                <span className="badge bg-light text-dark mx-1 mt-1">
+                                                    {filasSeleccionadasTraslados.length}
+                                                </span>
+                                            </Button>
+                                        )}
+
+                                        {/* Botón Traspasar */}
+
+                                        <Button
+                                            variant="warning"
+                                            onClick={() => setMostrarModalTraslado(true)}
+                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                        >
+                                            <Send className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                            Traspasar
+                                            <span className="badge bg-light text-dark mx-1 mt-1">
+                                                {activosFijos.length}
+                                            </span>
+
+                                        </Button>
+                                    </div>
+                                </Col>
+                            </Row>
+
                             <div className='table-responsive'>
                                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                     <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                         <tr>
-                                            <th>
+                                            <th style={{ position: 'sticky', left: 0 }}>
                                                 <Form.Check
                                                     type="checkbox"
                                                     className="text-center"
@@ -981,7 +1030,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                             let indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
                                             return (
                                                 <tr key={indexReal}>
-                                                    <td className="text-center">
+                                                    <td className="text-center" style={{ position: 'sticky', left: 0 }}>
                                                         <Form.Check
                                                             type="checkbox"
                                                             onChange={() => setSeleccionaFilasTraslados(indexReal)}
@@ -1059,7 +1108,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                         </div>
                     </Modal.Header>
                     <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                        <div className="bg-white shadow-sm sticky-top p-3">
+                        <div className="bg-white shadow-sm sticky-top">
                             <Row>
                                 <Col md={6}>
                                     {listaTrasladoSeleccion.length > 10 && (
@@ -1074,7 +1123,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                 onChange={handleChange}
                                                 value={Paginacion.nPaginacion}
                                             >
-                                                {[10, 25, 50, 75, 100, listaTrasladoSeleccion.length].map((val) => (
+                                                {[10, 15, 20, 25, 50, 100].map((val) => (
                                                     <option key={val} value={val}>{val}</option>
                                                 ))}
                                             </select>
@@ -1209,49 +1258,54 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                     <Modal.Title className="fw-semibold">
-                        Inventarios a Trasladar: {activosFijos.length}
+                        Bienes a Traspasar: {activosFijos.length}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <h5 className="fw-semibold">Seleccione Ubicación de Centro de Destino</h5>
-                    <p>(Escoga su propio Centro para traslados internos)</p>
+                    <h5 className="fw-semibold">Ubicación del centro de destino</h5>
+                    <p className={`text-start  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        (Escoga su propio centro para traslados externos)
+                    </p>
                     <form onSubmit={handleSubmitTraslado}>
-                        <div className="d-flex justify-content-end ">
-                            <Button
-                                onClick={handleLimpiarFormulario}
-                                variant="primary"
-                                className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} mx-1 m-1 p-2`}
-                            >
-                                {" Limpiar "}
-                                <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
-                            </Button>
-                            <Button
-                                variant="warning"
-                                type="submit"
-                                className="mx-1 m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                                disabled={loading}  // Desactiva el botón mientras carga
-                            >
-                                {loading ? (
-                                    <>
-                                        {" Trasladar "}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="me-2"
-                                        />
+                        <Col >
+                            <div className="d-flex flex-column flex-sm-row justify-content-end align-items-stretch">
+                                {/* Botón Traspasar */}
+                                <Button
+                                    variant="warning"
+                                    onClick={handleSubmitTraslado}
+                                    className="p-2 mb-2 mb-sm-0 mx-sm-1"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            Traspasar
+                                            <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                                className="me-2"
+                                            />
 
-                                    </>
-                                ) : (
-                                    <>
-                                        {"Trasladar"}
-                                        <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                                    </>
-                                )}
-                            </Button>
-                        </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            Traspasar
+                                            <Send className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                        </>
+                                    )}
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    onClick={handleLimpiarFormulario}
+                                    className="p-2 mb-2 mb-sm-0 mx-sm-1"
+                                >
+                                    Limpiar
+                                    <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
+                                </Button>
+                            </div>
+                        </Col>
                         <Row>
                             <Col md={6}>
                                 <div className="mb-1 position-relative z-1">
@@ -1264,7 +1318,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         name="servicio"
                                         value={servicioFormOptions.find((option) => option.value === Traslados.deP_CORR_DESTINO) || null}
                                         placeholder="Buscar"
-                                        className={`form-select-container ${error.traS_OBS ? "is-invalid" : ""}`}
+                                        className={`form-select-container ${error.paS_OBS ? "is-invalid" : ""}`}
                                         classNamePrefix="react-select"
                                         isClearable
                                         isSearchable
@@ -1295,22 +1349,42 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         <div className="invalid-feedback">{error.deP_CORR_DESTINO}</div>
                                     )}
                                 </div>
+                                <div className="mt-1">
+                                    <label className="fw-semibold">Establecimiento</label>
+                                    <select
+                                        aria-label="dependencia"
+                                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.estabL_CORR_D ? "is-invalid" : ""}`}
+                                        name="estabL_CORR_D"
+                                        onChange={handleChange}
+                                        value={Traslados.estabL_CORR_D}
+                                    >
+                                        <option value="">Seleccionar</option>
+                                        {comboEstablecimiento.map((traeDependencia) => (
+                                            <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
+                                                {traeDependencia.descripcion}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {error.estabL_CORR_D && (
+                                        <div className="invalid-feedback fw-semibold">{error.estabL_CORR_D}</div>
+                                    )}
+                                </div>
                                 {/* N° Memo Ref */}
                                 <div className="mb-1">
                                     <label className="fw-semibold">
                                         N° Memo Ref
                                     </label>
                                     <input
-                                        aria-label="traS_MEMO_REF"
+                                        aria-label="paS_MEMO_REF"
                                         type="text"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_MEMO_REF ? "is-invalid" : ""}`}
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_MEMO_REF ? "is-invalid" : ""}`}
                                         maxLength={50}
-                                        name="traS_MEMO_REF"
+                                        name="paS_MEMO_REF"
                                         onChange={handleChange}
-                                        value={Traslados.traS_MEMO_REF}
+                                        value={Traslados.paS_MEMO_REF}
                                     />
-                                    {error.traS_MEMO_REF && (
-                                        <div className="invalid-feedback">{error.traS_MEMO_REF}</div>
+                                    {error.paS_MEMO_REF && (
+                                        <div className="invalid-feedback">{error.paS_MEMO_REF}</div>
                                     )}
                                 </div>
                                 {/* Fecha Memo */}
@@ -1319,16 +1393,16 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         Fecha Memo
                                     </label>
                                     <input
-                                        aria-label="traS_FECHA_MEMO"
+                                        aria-label="paS_FECHA_MEMO"
                                         type="date"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_FECHA_MEMO ? "is-invalid" : ""}`}
-                                        name="traS_FECHA_MEMO"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_FECHA_MEMO ? "is-invalid" : ""}`}
+                                        name="paS_FECHA_MEMO"
                                         onChange={handleChange}
-                                        value={Traslados.traS_FECHA_MEMO}
+                                        value={Traslados.paS_FECHA_MEMO}
                                         max={new Date().toISOString().split("T")[0]}
                                     />
-                                    {error.traS_FECHA_MEMO && (
-                                        <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
+                                    {error.paS_FECHA_MEMO && (
+                                        <div className="invalid-feedback">{error.paS_FECHA_MEMO}</div>
                                     )}
                                 </div>
                                 {/* Observaciones */}
@@ -1337,17 +1411,17 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         Observaciones
                                     </label>
                                     <textarea
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_OBS ? "is-invalid" : ""}`}
-                                        aria-label="traS_OBS"
-                                        name="traS_OBS"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_OBS ? "is-invalid" : ""}`}
+                                        aria-label="paS_OBS"
+                                        name="paS_OBS"
                                         rows={6}
                                         maxLength={500}
                                         style={{ minHeight: "8px", resize: "none" }}
                                         onChange={handleChange}
-                                        value={Traslados.traS_OBS}
+                                        value={Traslados.paS_OBS}
                                     />
-                                    {error.traS_OBS && (
-                                        <div className="invalid-feedback">{error.traS_OBS}</div>
+                                    {error.paS_OBS && (
+                                        <div className="invalid-feedback">{error.paS_OBS}</div>
                                     )}
                                 </div>
                             </Col>
@@ -1360,17 +1434,17 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                             Entregado Por
                                         </label>
                                         <input
-                                            aria-label="traS_NOM_ENTREGA"
+                                            aria-label="paS_NOM_ENTREGA"
                                             type="text"
                                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                                                } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
+                                                } ${error.paS_NOM_ENTREGA ? "is-invalid" : ""}`}
                                             maxLength={50}
-                                            name="traS_NOM_ENTREGA"
+                                            name="paS_NOM_ENTREGA"
                                             onChange={handleChange}
-                                            value={Traslados.traS_NOM_ENTREGA}
+                                            value={Traslados.paS_NOM_ENTREGA}
                                         />
-                                        {error.traS_NOM_ENTREGA && (
-                                            <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
+                                        {error.paS_NOM_ENTREGA && (
+                                            <div className="invalid-feedback">{error.paS_NOM_ENTREGA}</div>
                                         )}
                                     </div>
                                     {/* Recibido Por */}
@@ -1379,17 +1453,17 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                             Recibido Por
                                         </label>
                                         <input
-                                            aria-label="traS_NOM_RECIBE"
+                                            aria-label="paS_NOM_RECIBE"
                                             type="text"
                                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                                                } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
+                                                } ${error.paS_NOM_RECIBE ? "is-invalid" : ""}`}
                                             maxLength={50}
-                                            name="traS_NOM_RECIBE"
+                                            name="paS_NOM_RECIBE"
                                             onChange={handleChange}
-                                            value={Traslados.traS_NOM_RECIBE}
+                                            value={Traslados.paS_NOM_RECIBE}
                                         />
-                                        {error.traS_NOM_RECIBE && (
-                                            <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
+                                        {error.paS_NOM_RECIBE && (
+                                            <div className="invalid-feedback">{error.paS_NOM_RECIBE}</div>
                                         )}
                                     </div>
                                     {/* Jefe que Autoriza */}
@@ -1398,16 +1472,16 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                             Jefe que Autoriza
                                         </label>
                                         <input
-                                            aria-label="traS_NOM_AUTORIZA"
+                                            aria-label="paS_NOM_AUTORIZA"
                                             type="text"
-                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_NOM_AUTORIZA ? "is-invalid" : ""}`}
                                             maxLength={50}
-                                            name="traS_NOM_AUTORIZA"
+                                            name="paS_NOM_AUTORIZA"
                                             onChange={handleChange}
-                                            value={Traslados.traS_NOM_AUTORIZA}
+                                            value={Traslados.paS_NOM_AUTORIZA}
                                         />
-                                        {error.traS_NOM_AUTORIZA && (
-                                            <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
+                                        {error.paS_NOM_AUTORIZA && (
+                                            <div className="invalid-feedback">{error.paS_NOM_AUTORIZA}</div>
                                         )}
                                     </div>
                                 </div>
@@ -1473,7 +1547,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-    registroTrasladoMultipleActions,
+    registroTraspasoMultipleActions,
     comboTrasladoServicioActions,
     comboEstablecimientoActions,
     comboTrasladoEspecieActions,

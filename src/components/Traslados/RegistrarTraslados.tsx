@@ -930,9 +930,13 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         </Collapse>
       </div>
       {activosFijos.length === 0 ? (
-        <p className="d-flex justify-content-center m-1 p-1 ">
-          Seleccione artículos de la búsqueda para incluirlos aquí
-        </p>
+        <Row className="p-1 row justify-content-center ">
+          <Col md={8}>
+            <p className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+              Seleccione artículos de la búsqueda para incluirlos aquí
+            </p>
+          </Col>
+        </Row>
       ) : (
         <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
           <div className={`d-flex justify-content-between align-items-center  border-bottom  ${isDarkMode ? "bg-transparent text-light" : ""}`} onClick={() => toggleRow("fila2")}>
@@ -985,6 +989,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       onClick={() => setMostrarModalTraslado(true)}
                       className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                     >
+                      <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                       Trasladar
                       <span className="badge bg-light text-dark mx-1 mt-1">
                         {activosFijos.length}
@@ -1250,11 +1255,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <h5 className="fw-semibold">Ubicación del centro de destino</h5>
-          <p className="alert alert-info border-start border-1 border-info-subtle text-info-subtle fw-semibold p-1">
-            (En traslados internos, selecciona tu centro de origen como destino)
+          <p className={`text-start  pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+            (Escoga su propio centro para traslados internos)
           </p>
-
-
           <form onSubmit={handleSubmitTraslado}>
             <Col >
               <div className="d-flex flex-column flex-sm-row justify-content-end align-items-stretch">

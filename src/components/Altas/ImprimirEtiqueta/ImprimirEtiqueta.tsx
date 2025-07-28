@@ -633,8 +633,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             </>
                                         ) : (
                                             <>
-                                                Generar
                                                 <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                                Generar
+                                                <span className="badge bg-light text-dark mx-1 mt-1">
+                                                    {filasSeleccionadas.length}
+                                                </span>
                                             </>
                                         )}
                                     </Button>
@@ -860,8 +863,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             </>
                                         ) : (
                                             <>
+                                                <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                                                 Generar
-                                                <Printer className="flex-shrink-0 h-5 w-5 mx-2" aria-hidden="true" />
+                                                <span className="badge bg-light text-dark mx-1 mt-1">
+                                                    {filasSeleccionadasReimprimir.length}
+                                                </span>
                                             </>
                                         )}
                                     </Button>

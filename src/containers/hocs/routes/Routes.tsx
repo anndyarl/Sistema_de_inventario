@@ -50,8 +50,8 @@ import BajasMensuales from '../../../components/Informes/Principal/BajasMensuale
 import ConsultaInventarioEspecies from '../../../components/Informes/Principal/ConsultaInventarioEspecies/ConsultaInventarioEspecies';
 import ExcelFolioPorServicios from '../../../components/Informes/Principal/ExcelFolioPorServicios';
 import ImprimirEtiqueta from '../../../components/Altas/ImprimirEtiqueta/ImprimirEtiqueta';
-// import RegistrarTraspasos from '../../../components/Traspasos/RegistrarTraspasos';
-// import Traspasos from '../../pages/Traspasos';
+import RegistrarTraspasos from '../../../components/Traspasos/RegistrarTraspasos';
+import Traspasos from '../../pages/Traspasos';
 import InfoActivo from '../../../components/Altas/ImprimirEtiqueta/InfoActivo';
 import EstadoFirmas from '../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 import AnularInventario from '../../../components/Inventario/AnularInventario';
@@ -93,8 +93,8 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Fin Módulo Traslados */}
 
                 {/* Módulo Traspasos */}
-                {/* <Route path="/Traspasos" element={<Traspasos />} /> */}
-                {/* <Route path="/Traspasos/RegistrarTraspasos" element={<RegistrarTraspasos />} /> */}
+                <Route path="/Traspasos" element={<Traspasos />} />
+                <Route path="/Traspasos/RegistrarTraspasos" element={<RegistrarTraspasos />} />
                 {/* <Route path="/Traspasos/ListadoTraspasos" element={<ListadoTraspasos />} /> */}
                 {/* Fin Módulo Traslados */}
 

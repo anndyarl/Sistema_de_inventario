@@ -12,6 +12,7 @@ import {
   LayoutSidebarInset,
   Collection,
   House,
+  Send,
 } from "react-bootstrap-icons"
 import "../../styles/Sidebar.css"
 import { connect } from "react-redux"
@@ -45,6 +46,7 @@ const Sidebar: React.FC<GeneralProps> = ({ isCollapsed = false, onToggleCollapse
     { name: "Inventario", href: "/Inventario", icon: Box },
     { name: "Altas", href: "/Altas", icon: PlusCircle },
     { name: "Traslados", href: "/Traslados", icon: ArrowLeftRight },
+    { name: "Traspasos", href: "/Traspasos", icon: Send },
     { name: "Bajas", href: "/Bajas", icon: DashCircle },
     { name: "Informes", href: "/Informes", icon: FileText },
     { name: "Mantenedores", href: "/Mantenedores", icon: Collection },

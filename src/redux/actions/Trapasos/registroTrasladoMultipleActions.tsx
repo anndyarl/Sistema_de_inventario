@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../auth/types";
 
 // Acción para enviar el formulario
-export const registroTraspasosActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registroTraspasoMultipleActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; // Token está en el estado de autenticación
     if (token) {
         const config = {

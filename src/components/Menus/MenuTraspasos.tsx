@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { List, TruckFlatbed } from "react-bootstrap-icons";
+import { List, Send, TruckFlatbed } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -24,7 +24,7 @@ const MenuTraspasos: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Registrar Traspasos',
             description: 'Registre el traspasos de sus bienes.',
             href: '/Traspasos/RegistrarTraspasos',
-            icon: TruckFlatbed
+            icon: Send
         },
         // {
         //     name: 'Listado de Traspasos',
