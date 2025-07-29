@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { List, Send, TruckFlatbed } from "react-bootstrap-icons";
+import { List, Send, Table } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -26,12 +26,12 @@ const MenuTraspasos: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Traspasos/RegistrarTraspasos',
             icon: Send
         },
-        // {
-        //     name: 'Listado de Traspasos',
-        //     description: 'Lista de traspasos registrados.',
-        //     href: '/Traspasos/ListadoTraspasos',
-        //     icon: Table
-        // },
+        {
+            name: 'Listado de Traspasos',
+            description: 'Lista de traspasos registrados.',
+            href: '/Traspasos/ListadoTraspasos',
+            icon: Table
+        },
     ];
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);

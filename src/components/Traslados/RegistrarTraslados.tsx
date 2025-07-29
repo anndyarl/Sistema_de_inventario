@@ -14,7 +14,6 @@ import Select from "react-select";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import { registroTrasladoMultipleActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
-import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
@@ -97,15 +96,13 @@ interface TrasladosProps {
   registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
   comboTrasladoServicio: TRASLADOSERVICIO[];
   comboTrasladoServicioActions: (establ_corr: number) => void;
-  comboEstablecimiento: ESTABLECIMIENTO[];
-  comboEstablecimientoActions: () => void;
   comboTrasladoEspecie: TRASLADOESPECIE[];
   comboTrasladoEspecieActions: (establ_corr: number) => void;
   comboDependenciaOrigen: DEPENDENCIA[];
   comboDependenciaDestino: DEPENDENCIA[];
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
   comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado 
-  obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string) => Promise<boolean>
+  obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string, estabL_CORR: number) => Promise<boolean>
   listaTrasladoSeleccion: ListaTrasladoSeleccion[];
   comboEspecies: ListaEspecie[];
   comboServicioInformeActions: (establ_corr: number) => void;//En buscador  
@@ -123,7 +120,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   registroTrasladoMultipleActions,
   comboServicioInformeActions,
   comboTrasladoServicioActions,
-  comboEstablecimientoActions,
   comboTrasladoEspecieActions,
   comboDependenciaOrigenActions,
   comboDependenciaDestinoActions,
@@ -131,7 +127,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   comboEspeciesBienActions,
   listadoTrasladosActions,
   comboTrasladoServicio,
-  comboEstablecimiento,
   comboTrasladoEspecie,
   comboDependenciaOrigen,
   comboEspecies,
@@ -222,13 +217,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     if (token) {
       // Verifica si las acciones ya fueron disparadas
       if (comboTrasladoServicio.length === 0) comboTrasladoServicioActions(objeto.Roles[0].codigoEstablecimiento);
-      if (comboEstablecimiento.length === 0) comboEstablecimientoActions();
       if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboServicioInforme.length === 0) comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboEspecies.length === 0) comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
     }
   }, [comboTrasladoServicioActions,
-    comboEstablecimientoActions,
     comboTrasladoEspecieActions,
     listaTrasladoSeleccion,
     comboServicioInforme,
@@ -354,7 +347,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
 
 
-    resultado = await obtenerInventarioTrasladoActions(Buscar.aF_CODIGO_GENERICO, Buscar.altaS_CORR, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN, Buscar.marca, Buscar.modelo, Buscar.serie);
+    resultado = await obtenerInventarioTrasladoActions(Buscar.aF_CODIGO_GENERICO, Buscar.altaS_CORR, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN, Buscar.marca, Buscar.modelo, Buscar.serie, objeto.Roles[0].codigoEstablecimiento);
 
     if (!resultado) {
       Swal.fire({
@@ -701,7 +694,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       </Helmet>
       <MenuTraslados />
 
-      <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
+      <div className={`border p-2 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
         <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traslados</h3>
         {/* Fila 1 */}
         {/* <div className={`mb-3 border p-1 rounded-4 ${tieneErroresBusqueda ? "border-danger" : ""}`}> */}
@@ -1521,7 +1514,6 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   registroTrasladoMultipleActions,
   comboTrasladoServicioActions,
-  comboEstablecimientoActions,
   comboTrasladoEspecieActions,
   comboDependenciaOrigenActions,
   comboDependenciaDestinoActions,

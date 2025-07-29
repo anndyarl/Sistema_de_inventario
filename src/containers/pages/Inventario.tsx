@@ -16,6 +16,7 @@ import { Helmet } from "react-helmet-async";
 import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 import { Objeto } from "../../components/Navegacion/Profile";
 import { comboDependenciaActions } from "../../redux/actions/Inventario/Combos/comboDependenciaActions";
+import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
 
 
 interface FormInventarioProps {
@@ -34,6 +35,7 @@ interface FormInventarioProps {
   comboDependenciaActions: (serCorr: string) => void;
   comboBien: BIEN[];
   comboDetalleActions: (bienSeleccionado: string) => void;
+  comboServicioInformeActions: (establ_corr: number) => void;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
@@ -61,7 +63,8 @@ const Inventario: React.FC<FormInventarioProps> = ({
   comboServicioActions,
   comboDependenciaActions,
   comboDetalleActions,
-  comboProveedorActions
+  comboProveedorActions,
+  comboServicioInformeActions
 }) => {
 
   useEffect(() => {
@@ -76,6 +79,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
       if (comboProveedor.length === 0) comboProveedorActions();
     }
 
+    comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
     //Carga combo bien con valor 0
     comboDetalleActions("0");
   }, [
@@ -167,5 +171,6 @@ export default connect(mapStateToProps, {
   comboServicioActions,
   comboDependenciaActions,
   comboDetalleActions,
-  comboProveedorActions
+  comboProveedorActions,
+  comboServicioInformeActions
 })(Inventario);

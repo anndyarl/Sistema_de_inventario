@@ -57,6 +57,7 @@ import EstadoFirmas from '../../../components/Altas/EstadoFirmas/EstadoFirmas ';
 import AnularInventario from '../../../components/Inventario/AnularInventario';
 import LevantamientoFisico from '../../../components/Inventario/LevantamientoFisico';
 import Especies from '../../../components/Mantenedores/Especies';
+import ListadoTraspasos from '../../../components/Traspasos/ListadoTraspasos';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -95,7 +96,7 @@ const AnimatedRoutes: React.FC = () => {
                 {/* Módulo Traspasos */}
                 <Route path="/Traspasos" element={<Traspasos />} />
                 <Route path="/Traspasos/RegistrarTraspasos" element={<RegistrarTraspasos />} />
-                {/* <Route path="/Traspasos/ListadoTraspasos" element={<ListadoTraspasos />} /> */}
+                <Route path="/Traspasos/ListadoTraspasos" element={<ListadoTraspasos />} />
                 {/* Fin Módulo Traslados */}
 
                 {/* Módulo Altas */}

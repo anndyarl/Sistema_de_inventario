@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { Helmet } from "react-helmet-async";
-import { Send, TruckFlatbed } from "react-bootstrap-icons";
+import { Send, Table, TruckFlatbed } from "react-bootstrap-icons";
 
 interface NavItem {
   name: string;
@@ -36,8 +36,7 @@ interface Props {
 const navigation: NavItem[] = [
 
   { descripcion: 'Registre el traspasos de sus bienes.', name: 'registrarTraspasos', title: 'Registrar Traspasos', href: '/Traspasos/RegistrarTraspasos/', icon: Send },
-  // { descripcion: 'Lista de traspasos registrados.', name: 'listarTraspasos', title: 'Listado de traspasos', href: '/Traspasos/ListadoTraspasos', icon: Table },
-
+  { descripcion: 'Lista de traspasos registrados.', name: 'listarTraspasos', title: 'Listado de traspasos', href: '/Traspasos/ListadoTraspasos', icon: Table },
 ];
 
 const Traspasos: React.FC<Props> = ({ isDarkMode }) => {
