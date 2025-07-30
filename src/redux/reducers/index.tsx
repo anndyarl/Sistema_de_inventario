@@ -97,6 +97,7 @@ import setSidebarCollapsedReducer from "./Otros/setSidebarCollapsedReducer";
 import obtenerInventarioQRReducers from "./Inventario/obtenerInventarioQRReducers";
 import comboServicioMantenedorReducers from "./Mantenedores/Servicios/comboServicioMantenedorReducers";
 import obtenerReimpresionEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerReimpresionEtiquetasAltasReducers";
+import listadoTraspasosReducers from "./Traspasos/listadoTraspasosReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -171,6 +172,9 @@ const appReducer = combineReducers({
   listadoTrasladosReducers,
   obtenerInventarioTrasladoReducers,
   datosTrasladoRegistradoReducers,
+
+  //Traspasos
+  listadoTraspasosReducers,
   //-------Otros/Preferenicas---------------//
   // Indicadores
   indicadoresReducers,
@@ -178,11 +182,10 @@ const appReducer = combineReducers({
   darkModeReducer,
   //Pregunta/Respuesta IA
   respuestaReducer,
-  //guarda el numero de paginacion
+  //guarda el numero de paginación
   mostrarNPaginacionReducer,
   //Menu Expandido
   setSidebarCollapsedReducer,
-
   //Versionamiento
   listaVersionamientoReducers,
 

@@ -40,7 +40,7 @@ export const registroTrasladoMultipleActions = (FormularioTraslado: Record<strin
                 else {
                     dispatch({
                         type: POST_FORMULARIO_TRASLADO_FAIL,
-                        error: "No se pudo obtener el listado. Por favor, intente nuevamente.",
+                        error: "No se pudo registrar. Por favor, intente nuevamente.",
                     });
                     return false;
                 }
@@ -48,7 +48,7 @@ export const registroTrasladoMultipleActions = (FormularioTraslado: Record<strin
             else {
                 dispatch({
                     type: POST_FORMULARIO_TRASLADO_FAIL,
-                    error: "No se pudo obtener el listado del inventario. Por favor, intente nuevamente.",
+                    error: "No se pudo obtener registrar. Por favor, intente nuevamente.",
                 });
                 return false;
             }

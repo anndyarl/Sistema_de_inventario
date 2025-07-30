@@ -29,38 +29,34 @@ export const registroTraspasoMultipleActions = (FormularioTraslado: Record<strin
         try {
             const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearTraspasos`, body, config);
 
-            // Si el POST es exitoso
             if (response.status === 200) {
-                if (response.data === 1) {
+                if (response.data?.length) {
                     dispatch({
                         type: POST_FORMULARIO_TRASPASOS_SUCCESS,
                         payload: response.data
                     });
-                    console.log("response.data", response.data);
                     return true;
                 }
                 else {
                     dispatch({
                         type: POST_FORMULARIO_TRASPASOS_FAIL,
-                        payload: response.data
+                        error: "No se pudo registrar. Por favor, intente nuevamente.",
                     });
-                    console.log("response.data fail", response.data);
                     return false;
                 }
             }
             else {
                 dispatch({
                     type: POST_FORMULARIO_TRASPASOS_FAIL,
-                    error: "No se pudo obtener el listado del inventario. Por favor, intente nuevamente.",
+                    error: "No se pudo obtener registrar. Por favor, intente nuevamente.",
                 });
                 return false;
             }
         } catch (err: any) {
             dispatch({
                 type: POST_FORMULARIO_TRASPASOS_FAIL,
-                error: "El token ha expirado.",
+                error: "Error en la solicitud:", err,
             });
-            // dispatch({ type: LOGOUT });
             return false;
         }
     } else {
@@ -72,5 +68,6 @@ export const registroTraspasoMultipleActions = (FormularioTraslado: Record<strin
         return false;
     }
 };
+
 
 

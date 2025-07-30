@@ -6,59 +6,56 @@ import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import MenuTraslados from "../Menus/MenuTraslados.tsx";
-import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
 import { CircleFill, Eraser, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
+import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
+import { listadoTraspasosActions } from "../../redux/actions/Trapasos/listadoTraspasosActions.tsx";
 
 interface FechasProps {
   fDesde: string;
   fHasta: string;
 }
-export interface listadoTraslados {
-  aF_CODIGO_GENERICO: string,
-  usuariO_MOD: string,
-  usuariO_CREA: string,
-  traS_OBS: string,
-  traS_NOM_RECIBE: string,
-  traS_NOM_ENTREGA: string,
-  traS_NOM_AUTORIZA: string,
-  traS_MEMO_REF: string,
-  traS_FECHA_MEMO: number,
-  traS_FECHA: string,
-  traS_ESTADO_AF: string,
-  traS_DET_CORR: number,
-  traS_CORR: number,
-  traS_CO_REAL: number,
-  n_TRASLADO: number,
-  iP_MOD: string,
-  iP_CREA: string,
-  f_MOD: number,
-  f_CREA: number,
-  estabL_D: number,
-  deP_CORR_ORIGEN: number,
-  deP_CORR: number,
-  aF_CLAVE: number,
-  seR_NOMBRE_ORIGEN: string,
+export interface listadoTraspasos {
+  aF_CODIGO_GENERICO: string;
+  n_TRASPASO: number;
+  aF_CLAVE: number;
+  paS_FECHA: string;
+  esP_CODIGO: string;
+  esP_NOMBRE: string;
+  seR_NOMBRE_ORIGEN: string;
   deP_NOMBRE_ORIGEN: string;
-  seR_NOMBRE_DESTINO: string,
+  seR_NOMBRE_DESTINO: string;
   deP_NOMBRE_DESTINO: string;
-  traS_ACTIVO: number;
+  paS_MEMO_REF: string;
+  paS_FECHA_MEMO: string;
+  paS_OBS: string;
+  paS_NOM_ENTREGA: string;
+  paS_NOM_RECIBE: string;
+  paS_NOM_AUTORIZA: string;
+  paS_ESTADO_AF: string;
+  establecimientO_ORIGEN: string;
+  establecimientO_DESTINO: string;
+  usuariO_CREA: number;
+  estabL_CORR_ORIGEN: number;
+  estabL_CORR: number;
+  deP_CORR_ORIGEN: number;
+  deP_CORR: number;
+  traS_CO_REAL: number;
+  paS_DET_CORR: number;
 }
 
 interface GeneralProps {
-  listadoTraslados: listadoTraslados[];
-  listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
+  listadoTraspasos: listadoTraspasos[];
+  listadoTraspasosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, objeto }) => {
+const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, listadoTraspasos, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   // const [_, setFilaSeleccionada] = useState<string[]>([]);
@@ -68,12 +65,12 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => listadoTraslados.slice(indicePrimerElemento, indiceUltimoElemento),
-    [listadoTraslados, indicePrimerElemento, indiceUltimoElemento]
+  const elementosActuales = useMemo(() => listadoTraspasos.slice(indicePrimerElemento, indiceUltimoElemento),
+    [listadoTraspasos, indicePrimerElemento, indiceUltimoElemento]
   );
   // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(listadoTraslados)
-    ? Math.ceil(listadoTraslados.length / elementosPorPagina)
+  const totalPaginas = Array.isArray(listadoTraspasos)
+    ? Math.ceil(listadoTraspasos.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -94,9 +91,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
 
   const listaAuto = async () => {
     if (token) {
-      if (listadoTraslados.length === 0) {
+      if (listadoTraspasos.length === 0) {
         setLoading(true);
-        const resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+        const resultado = await listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
         if (!resultado) {
           Swal.fire({
             icon: "warning",
@@ -120,7 +117,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
 
   useEffect(() => {
     listaAuto()
-  }, [listadoTrasladosActions, token, listadoTraslados.length]); // Asegúrate de incluir dependencias relevantes
+  }, [listadoTraspasosActions, token, listadoTraspasos.length]); // Asegúrate de incluir dependencias relevantes
 
   const handleLimpiar = () => {
     setListadoTraslado((prevListadoTraslado) => ({
@@ -159,14 +156,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
-    resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
+    resultado = await listadoTraspasosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
     if (ListadoTraslado.fDesde != "" || ListadoTraslado.fHasta != "") {
       if (validate()) {
-        resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
+        resultado = await listadoTraspasosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await listadoTrasladosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
+      resultado = await listadoTraspasosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
     }
 
     if (!resultado) {
@@ -182,7 +179,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      resultado = await listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+      resultado = await listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -243,7 +240,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
   //             popup: "custom-border", // Clase personalizada para el borde
   //           }
   //         });
-  //         listadoTrasladosActions();
+  //         listadoTraspasosActions();
   //         setFilaSeleccionada([]);
 
   //       } else {
@@ -371,7 +368,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
         <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
           {/* Tamaño de página */}
           <Col xs={12} lg="auto">
-            {listadoTraslados.length > 10 && (
+            {listadoTraspasos.length > 10 && (
               <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                 <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                   Tamaño de página:
@@ -403,18 +400,21 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   {/* <th scope="col"></th> */}
                   <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                   <th scope="col" className="text-nowrap text-center">N° Traspaso</th>
+                  <th scope="col" className="text-nowrap text-center">Clave Activo</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
+                  <th scope="col" className="text-nowrap text-center">Código Especie</th>
+                  <th scope="col" className="text-nowrap text-center">Nombre Especie</th>
+                  <th scope="col" className="text-nowrap text-center">Establecimiento Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
                   <th scope="col" className="text-nowrap text-center">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
+                  <th scope="col" className="text-nowrap text-center">Establecimiento Destino</th>
+                  <th scope="col" className="text-nowrap text-center">Ubicación Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
+                  <th scope="col" className="text-nowrap text-center">Memo de Referencia<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
                   <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
                   <th scope="col" className="text-nowrap text-center">Observaciones</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Entrega</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
-                  <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Tipo Traslado</th> */}
 
                 </tr>
               </thead>
@@ -431,19 +431,22 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                         />
                         </td> */}
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                      <td className="text-nowrap">{Lista.n_TRASLADO}</td>
-                      <td className="text-nowrap">{Lista.traS_FECHA}</td>
-                      <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
-                      <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
-                      <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
-                      <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
-                      <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "Sin observaciones" : Lista.traS_OBS}</td>
-                      <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
-                      <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
-                      <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
-                      <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                      <td className="text-nowrap">{Lista.usuariO_CREA}</td>
-                      {/* <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td> */}
+                      <td className="text-nowrap">{Lista.n_TRASPASO}</td>
+                      <td className="text-nowrap">{Lista.aF_CLAVE}</td>
+                      <td className="text-nowrap">{Lista.paS_FECHA}</td>
+                      <td className="text-nowrap">{Lista.esP_CODIGO}</td>
+                      <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                      <td className="text-nowrap">{Lista.establecimientO_ORIGEN}</td>
+                      <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + ' ' + Lista.deP_NOMBRE_ORIGEN}</td>
+                      <td className="text-nowrap">{Lista.establecimientO_DESTINO}</td>
+                      <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + ' ' + Lista.deP_NOMBRE_DESTINO}</td>
+                      <td className="text-nowrap">{Lista.paS_MEMO_REF}</td>
+                      <td className="text-nowrap">{Lista.paS_FECHA_MEMO}</td>
+                      <td className="text-nowrap">{Lista.paS_OBS === '0' ? 'Sin observaciones' : Lista.paS_OBS}</td>
+                      <td className="text-nowrap">{Lista.paS_NOM_ENTREGA}</td>
+                      <td className="text-nowrap">{Lista.paS_NOM_RECIBE}</td>
+                      <td className="text-nowrap">{Lista.paS_NOM_AUTORIZA}</td>
+                      <td className="text-nowrap">{Lista.paS_ESTADO_AF}</td>
                     </tr>
                   );
                 })}
@@ -492,7 +495,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listadoTraslados: state.listadoTrasladosReducers.listadoTraslados,
+  listadoTraspasos: state.listadoTraspasosReducers.listadoTraspasos,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   comboServicio: state.comboServicioReducer.comboServicio,
@@ -500,7 +503,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-  listadoTrasladosActions,
+  listadoTraspasosActions,
   registrarMantenedorDependenciasActions,
 })(ListadoTraspasos);
 

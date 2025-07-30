@@ -26,7 +26,7 @@ export interface listadoTraslados {
   traS_NOM_ENTREGA: string,
   traS_NOM_AUTORIZA: string,
   traS_MEMO_REF: string,
-  traS_FECHA_MEMO: number,
+  traS_FECHA_MEMO: string,
   traS_FECHA: string,
   traS_ESTADO_AF: string,
   traS_DET_CORR: number,
@@ -46,6 +46,7 @@ export interface listadoTraslados {
   seR_NOMBRE_DESTINO: string,
   deP_NOMBRE_DESTINO: string;
   traS_ACTIVO: number;
+  esP_NOMBRE: string;
 }
 
 interface GeneralProps {
@@ -403,6 +404,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                   <th scope="col" className="text-nowrap text-center">N° Traslado</th>
                   <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
+                  <th scope="col" className="text-nowrap text-center">Especie</th>
                   <th scope="col" className="text-nowrap text-center">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
                   <th scope="col" className="text-nowrap text-center">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
                   <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
@@ -412,7 +414,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                   <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
                   <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
                   <th scope="col" className="text-nowrap text-center">Estado</th>
-                  <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
+                  {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">Tipo Traslado</th> */}
 
                 </tr>
@@ -432,6 +434,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                       <td className="text-nowrap">{Lista.n_TRASLADO}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA}</td>
+                      <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
                       <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
                       <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
                       <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
@@ -441,7 +444,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
                       <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                      <td className="text-nowrap">{Lista.usuariO_CREA}</td>
+                      {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
                       {/* <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td> */}
                     </tr>
                   );
