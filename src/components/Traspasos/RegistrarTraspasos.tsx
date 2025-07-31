@@ -11,7 +11,7 @@ import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import Select from "react-select";
 import SkeletonLoader from "../Utils/SkeletonLoader";
-
+import MenuTraspasos from "../Menus/MenuTraspasos";
 import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
@@ -20,10 +20,9 @@ import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Co
 import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
-import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
-import MenuTraspasos from "../Menus/MenuTraspasos";
 import { registroTraspasoMultipleActions } from "../../redux/actions/Trapasos/registroTrasladoMultipleActions";
+import { listadoTraspasosActions } from "../../redux/actions/Trapasos/listadoTraspasosActions";
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
     codigo: number;
@@ -113,7 +112,7 @@ interface TrasladosProps {
     comboServicioInformeActions: (establ_corr: number) => void;//En buscador  
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
     comboServicioInforme: SERVICIO[];
-    listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number) => Promise<boolean>;
+    listadoTraspasosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -131,7 +130,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     comboDependenciaDestinoActions,
     obtenerInventarioTrasladoActions,
     comboEspeciesBienActions,
-    listadoTrasladosActions,
+    listadoTraspasosActions,
     comboTrasladoServicio,
     comboEstablecimiento,
     comboTrasladoEspecie,
@@ -596,13 +595,14 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 console.log(activosSeleccionados);
                 if (resultado) {
                     mostrarAlerta();
-                    listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+                    listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
                     handleLimpiar();
                     handleLimpiarFormulario();
                     setFilasSeleccionadas([]);
                     setFilasSeleccionadasTraslados([]);
                     setActivosFijos([]);
                     setMostrarModalTraslado(false);
+
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -624,7 +624,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         Swal.fire({
             icon: "success",
             title: "Registro Exitoso",
-            text: `Se han registrado correctamente los traslados seleccionados, Presione "OK" para visualizar un resumen de los datos ingresados.`,
+            text: `Se han registrado correctamente los trapasos seleccionados, Presione "OK" para visualizar un resumen de los datos ingresados.`,
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -1174,16 +1174,16 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                             checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                         />
                                                     </th>
-                                                    <th scope="col" className="text-nowrap text-center">Código</th>
-                                                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                                                    <th scope="col" className="text-nowrap text-center">Nº Alta</th>
-                                                    <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                                    <th scope="col" className="text-nowrap text-center">Dependencia	Serv/Depto</th>
-                                                    <th scope="col" className="text-nowrap text-center">Especie</th>
-                                                    <th scope="col" className="text-nowrap text-center">Marca</th>
-                                                    <th scope="col" className="text-nowrap text-center">Modelo</th>
-                                                    <th scope="col" className="text-nowrap text-center">Serie</th>
-                                                    <th scope="col" className="text-nowrap text-center">Código Dependencia</th>
+                                                    <th scope="col" className="text-nowrap">Código</th>
+                                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                    <th scope="col" className="text-nowrap">Nº Alta</th>
+                                                    <th scope="col" className="text-nowrap">Descripción</th>
+                                                    <th scope="col" className="text-nowrap">Dependencia	Serv/Depto</th>
+                                                    <th scope="col" className="text-nowrap">Especie</th>
+                                                    <th scope="col" className="text-nowrap">Marca</th>
+                                                    <th scope="col" className="text-nowrap">Modelo</th>
+                                                    <th scope="col" className="text-nowrap">Serie</th>
+                                                    <th scope="col" className="text-nowrap">Código Dependencia</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1198,16 +1198,16 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                                 />
                                                             </td>
-                                                            <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
-                                                            <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
-                                                            <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
-                                                            <td className="text-nowrap text-center">{lista.deT_OBS}</td>
-                                                            <td className="text-nowrap text-center">{lista.serviciO_DEPENDENCIA}</td>
-                                                            <td className="text-nowrap text-center">{lista.esP_NOMBRE}</td>
-                                                            <td className="text-nowrap text-center">{lista.deT_MARCA}</td>
-                                                            <td className="text-nowrap text-center">{lista.deT_MODELO}</td>
-                                                            <td className="text-nowrap text-center">{lista.deT_SERIE}</td>
-                                                            <td className="text-nowrap text-center">{lista.deP_CORR_ORIGEN}</td>
+                                                            <td className="text-nowrap">{lista.aF_CLAVE}</td>
+                                                            <td className="text-nowrap">{lista.aF_CODIGO_GENERICO}</td>
+                                                            <td className="text-nowrap">{lista.altaS_CORR}</td>
+                                                            <td className="text-nowrap">{lista.deT_OBS}</td>
+                                                            <td className="text-nowrap">{lista.serviciO_DEPENDENCIA}</td>
+                                                            <td className="text-nowrap">{lista.esP_NOMBRE}</td>
+                                                            <td className="text-nowrap">{lista.deT_MARCA}</td>
+                                                            <td className="text-nowrap">{lista.deT_MODELO}</td>
+                                                            <td className="text-nowrap">{lista.deT_SERIE}</td>
+                                                            <td className="text-nowrap">{lista.deP_CORR_ORIGEN}</td>
                                                         </tr>
                                                     );
                                                 })}
@@ -1252,7 +1252,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 </Modal>
             )}
 
-            {/* Formulario de traslados */}
+            {/* Formulario de traspasar */}
             < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)}
                 size="lg"
                 dialogClassName="modal-right"
@@ -1494,8 +1494,8 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                         </Row>
                     </form>
                 </Modal.Body>
-            </Modal >
-
+            </Modal>
+            {/* Lista de traspasar */}
             <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="lg">
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                     <Modal.Title className="fw-semibold">Inventario asociado a Nº de Traslado</Modal.Title>
@@ -1562,5 +1562,5 @@ export default connect(mapStateToProps, {
     comboEspeciesBienActions,
     obtenerInventarioTrasladoActions,
     listadoDeEspeciesBienActions,
-    listadoTrasladosActions
+    listadoTraspasosActions
 })(RegistrarTraspasos);

@@ -251,7 +251,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                 }
             });
         }
-
     };
 
     // const setSeleccionaFilas = (index: number) => {
@@ -486,7 +485,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
                                                     <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
                                                     <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                                                    < td style={{
+                                                    <td style={{
                                                         position: 'sticky',
                                                         right: 0
                                                     }}>

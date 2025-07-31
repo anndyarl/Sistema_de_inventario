@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Col, Pagination, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Modal, Pagination, Row, Spinner } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import { CircleFill, Eraser, Search } from "react-bootstrap-icons";
+import { CircleFill, Eraser, Eye, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { listadoTraspasosActions } from "../../redux/actions/Trapasos/listadoTraspasosActions.tsx";
@@ -37,7 +37,7 @@ export interface listadoTraspasos {
   paS_ESTADO_AF: string;
   establecimientO_ORIGEN: string;
   establecimientO_DESTINO: string;
-  usuariO_CREA: number;
+  usuariO_CREA: string | number;
   estabL_CORR_ORIGEN: number;
   estabL_CORR: number;
   deP_CORR_ORIGEN: number;
@@ -58,8 +58,9 @@ interface GeneralProps {
 const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, listadoTraspasos, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
-  // const [_, setFilaSeleccionada] = useState<string[]>([]);
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
+  const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
   // Lógica de Paginación actualizada
@@ -190,15 +191,26 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
   };
 
 
+  const handleVer = async (index: number, aF_CLAVE: number, aF_CODIGO_GENERICO: string) => {
+    setMostrarModal(index);
+    setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+    const item = listadoTraspasos.find((i) => i.aF_CLAVE === aF_CLAVE);
+    // const selectedIndices = filasSeleccionadas.map(Number);
+    // const activosSeleccionados = selectedIndices.map((index) => {
+    //     return {
+    //         aF_CLAVE: listaInventarioAnular[index].aF_CLAVE,
+    //     };
+    // });
 
-  // const setSeleccionaFila = (index: number) => {
-  //   setMostrarModal(index); //Abre modal del indice seleccionado
-  //   setFilaSeleccionada((prev) =>
-  //     prev.includes(index.toString())
-  //       ? prev.filter((rowIndex) => rowIndex !== index.toString())
-  //       : [...prev, index.toString()]
-  //   );
-  // };
+  };
+
+  const handleCerrarModal = (index: number) => {
+    setElementoSeleccionado((prevSeleccionadas) =>
+      prevSeleccionadas.filter((fila) => fila !== index.toString())
+    );
+    setMostrarModal(null); //Cierra modal del indice seleccionado       
+  };
+
 
   // const handleCerrarModal = (index: number) => {
   //   setFilaSeleccionada((prevSeleccionadas) =>
@@ -398,24 +410,17 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
               <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   {/* <th scope="col"></th> */}
-                  <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                  <th scope="col" className="text-nowrap text-center">N° Traspaso</th>
-                  <th scope="col" className="text-nowrap text-center">Clave Activo</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Código Especie</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Especie</th>
-                  <th scope="col" className="text-nowrap text-center">Establecimiento Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Establecimiento Destino</th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Memo de Referencia<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
-                  <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Entrega</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
-                  <th scope="col" className="text-nowrap text-center">Estado</th>
-
+                  <th scope="col" className="text-nowrap">N° Inventario</th>
+                  <th scope="col" className="text-nowrap">N° Traspaso</th>
+                  <th scope="col" className="text-nowrap">Fecha Traslado</th>
+                  <th scope="col" className="text-nowrap">Nombre Especie</th>
+                  <th scope="col" className="text-nowrap">Fecha Memo</th>
+                  <th scope="col" className="text-nowrap">N° Memo de Referencia</th>
+                  <th scope="col" className="text-nowrap">Usuario Crea</th>
+                  <th scope="col"
+                    className="text-nowrap text-center bg-primary text-white sticky-col-right-0 rounded-top">
+                    <b>Ver</b>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -432,21 +437,33 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                         </td> */}
                       <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                       <td className="text-nowrap">{Lista.n_TRASPASO}</td>
-                      <td className="text-nowrap">{Lista.aF_CLAVE}</td>
                       <td className="text-nowrap">{Lista.paS_FECHA}</td>
-                      <td className="text-nowrap">{Lista.esP_CODIGO}</td>
                       <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                      <td className="text-nowrap">{Lista.establecimientO_ORIGEN}</td>
-                      <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + ' ' + Lista.deP_NOMBRE_ORIGEN}</td>
-                      <td className="text-nowrap">{Lista.establecimientO_DESTINO}</td>
-                      <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + ' ' + Lista.deP_NOMBRE_DESTINO}</td>
                       <td className="text-nowrap">{Lista.paS_MEMO_REF}</td>
                       <td className="text-nowrap">{Lista.paS_FECHA_MEMO}</td>
-                      <td className="text-nowrap">{Lista.paS_OBS === '0' ? 'Sin observaciones' : Lista.paS_OBS}</td>
-                      <td className="text-nowrap">{Lista.paS_NOM_ENTREGA}</td>
-                      <td className="text-nowrap">{Lista.paS_NOM_RECIBE}</td>
-                      <td className="text-nowrap">{Lista.paS_NOM_AUTORIZA}</td>
-                      <td className="text-nowrap">{Lista.paS_ESTADO_AF}</td>
+                      <td className="text-nowrap">{
+                        Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                          Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                            Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
+                              Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
+                                Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                  Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jhonatan Vargas' :
+                                    Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '6405' ? 'Gabriela Farias' :
+                                      Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+
+                      }
+                      </td>
+                      <td className="text-nowrap text-center bg-primary text-white sticky-col-right-0 rounded">
+                        <Button
+                          variant=""
+                          className="fw-semibold text-white"
+
+                          onClick={() => handleVer(index, Lista.aF_CLAVE, Lista.aF_CODIGO_GENERICO)}
+                        >
+
+                          <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                        </Button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -490,6 +507,128 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
           </Pagination>
         </div>
       </div>
+
+      {/* Formularios de detalle de traspaso */}
+      {elementosActuales.map((fila, index) => (
+        <Modal
+          key={index}
+          show={mostrarModal === index}
+          onHide={() => handleCerrarModal(index)}
+          size="xl"
+          centered
+        >
+          <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
+            <Modal.Title className="fw-semibold">Detalle del Traspaso</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+            <Row className="g-3">
+              {/* Columna izquierda */}
+              <Col md={4}>
+                <div className="mb-3">
+                  <label className="fw-semibold">
+                    Nº Inventario
+                  </label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.aF_CODIGO_GENERICO || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold ">
+                    Establecimiento Origen
+                    <CircleFill className="ms-1 text-warning" width={12} height={12} aria-hidden="true" />
+                  </label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.establecimientO_ORIGEN || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">
+                    Servicio/Dependencia Origen
+                    <CircleFill className="ms-1 text-warning" width={12} height={12} aria-hidden="true" />
+                  </label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{(fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN) || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">N° Memo de Referencia</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_MEMO_REF || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">Especie</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.esP_NOMBRE || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">Observaciones</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`} style={{ whiteSpace: "pre-wrap" }}>{fila.paS_OBS || "Sin observaciones"}</div>
+                </div>
+
+              </Col>
+              <Col md={4}>
+                <div className="mb-3">
+                  <label className="fw-semibold">
+                    Nº Traspaso
+                  </label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.n_TRASPASO || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">
+                    Establecimiento Destino
+                    <CircleFill className="ms-1 text-success" width={12} height={12} aria-hidden="true" />
+                  </label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.establecimientO_DESTINO || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">
+                    Servicio/Dependencia Destino
+                    <CircleFill className="ms-1 text-success" width={12} height={12} aria-hidden="true" />
+                  </label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{(fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO) || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">Fecha del Memo</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_FECHA_MEMO || "No definida"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">Codigo Especie</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.esP_CODIGO || "Sin Información"}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="fw-semibold">Estado</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_ESTADO_AF || "No definida"}</div>
+                </div>
+              </Col>
+              {/* Columna derecha */}
+              <Col md={4}>
+                <div className="border rounded-3 p-4 mt-4 ">
+                  <h5 className="fw-semibold mb-4">Datos de Recepción</h5>
+
+                  <div className="mb-3">
+                    <label className="fw-semibold">Entregado Por</label>
+                    <p>{fila.paS_NOM_ENTREGA || "Sin Información"}</p>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="fw-semibold">Recibido Por</label>
+                    <p>{fila.paS_NOM_RECIBE || "Sin Información"}</p>
+                  </div>
+
+                  <div className="mb-1">
+                    <label className="fw-semibold">Jefe que Autoriza</label>
+                    <p>{fila.paS_NOM_AUTORIZA || "Sin Información"}</p>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Modal.Body>
+        </Modal>
+      ))}
+
     </Layout >
   );
 };

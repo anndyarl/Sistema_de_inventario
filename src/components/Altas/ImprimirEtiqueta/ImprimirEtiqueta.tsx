@@ -77,7 +77,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const elementosPorPagina1 = Paginacion1.nPaginacion1;
     const [mostrarModalLista, setMostrarModalLista] = useState(false);
     const [mostrarModalReimprimir, setMostrarModalReimprimir] = useState(false);
-
     const [listaQRInicial, setListaQRInicial] = useState<ListaEtiquetas[]>([]);
     const [listaQRReimpresion, setListaQRReimpresion] = useState<ListaEtiquetas[]>([]);
     const [Inventario, setInventario] = useState({
@@ -85,6 +84,13 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         fHasta: "",
         altaS_CORR: 0,
         af_codigo_generico: ""
+    });
+
+    const [Reimprimir, setReimprimir] = useState({
+        fDesdeR: "",
+        fHastaR: "",
+        altaS_CORRr: 0,
+        af_codigo_genericoR: ""
     });
 
     const listaAuto = async () => {
@@ -147,6 +153,10 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             ...prevState,
             [name]: newValue,
         }));
+        setReimprimir((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
 
         setPaginacion((prevState) => ({
             ...prevState,
@@ -186,10 +196,47 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             });
             resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
             setLoading(false); //Finaliza estado de carga
+            paginar(1);
             return;
         } else {
             paginar(1);
             setLoading(false); //Finaliza estado de carga
+        }
+
+    };
+
+    const handleBuscarReimprimir = async () => {
+        let resultado = false;
+        setLoadingReimprimir(true);
+
+        if (Reimprimir.fDesdeR != "" || Reimprimir.fHastaR != "") {
+            if (validate()) {
+                resultado = await obtenerReimpresionEtiquetasAltasActions(Reimprimir.fDesdeR, Reimprimir.fHastaR, objeto.Roles[0].codigoEstablecimiento, Reimprimir.altaS_CORRr, Inventario.af_codigo_generico);
+            }
+        }
+        else {
+            resultado = await obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, Reimprimir.altaS_CORRr, Reimprimir.af_codigo_genericoR);
+        }
+        if (!resultado) {
+            Swal.fire({
+                icon: "warning",
+                title: "Sin Resultados",
+                text: "No se encontraron resultados para la consulta realizada.",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            resultado = await obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+            setLoadingReimprimir(false); //Finaliza estado de carga
+            paginar1(1);
+            return;
+        } else {
+            paginar1(1);
+            setLoadingReimprimir(false); //Finaliza estado de carga
         }
 
     };
@@ -203,6 +250,17 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             fHasta: ""
         }));
     };
+
+    const handleLimpiarReimprimir = () => {
+        setInventario((prevInventario) => ({
+            ...prevInventario,
+            af_codigo_genericoR: "",
+            altaS_CORRr: 0,
+            fDesdeR: "",
+            fHastaR: ""
+        }));
+    };
+
 
     //----------------Lista con Estado Etiqueta N(Lista General) --------------------//
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -463,6 +521,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         setMostrarModal(false);
         setFilasSeleccionadas([]);
     };
+
     //----------------Lista con Estado Etiqueta N(Lista General) --------------------//
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -815,12 +874,106 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 fullscreen
             >
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <div className="d-flex justify-content-between w-100">
-                        <Modal.Title className="fw-semibold">Reimprimir Etiquetas</Modal.Title>
-                    </div>
+                    <Modal.Title className="fw-semibold">Reimprimir Etiquetas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <Row className="border rounded p-2 m-2">
+                        <Col lg={3} md={4}>
+                            <div className="mb-2">
+                                <div className="flex-grow-1 mb-2">
+                                    <label htmlFor="fDesdeR" className="form-label fw-semibold small">Desde</label>
+                                    <div className="input-group">
+                                        <input
+                                            aria-label="Fecha Desde"
+                                            type="date"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                                            name="fDesdeR"
+                                            onChange={handleChange}
+                                            value={Reimprimir.fDesdeR}
+                                            max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                        />
+                                    </div>
+                                    {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                                </div>
 
+                                <div className="flex-grow-1">
+                                    <label htmlFor="fHastaR" className="form-label fw-semibold small">Hasta</label>
+                                    <div className="input-group">
+                                        <input
+                                            aria-label="Fecha Hasta"
+                                            type="date"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                            name="fHastaR"
+                                            onChange={handleChange}
+                                            value={Reimprimir.fHastaR}
+                                            max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                        />
+                                    </div>
+                                    {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                                </div>
+                                <small className="fw-semibold">Filtre los resultados por fecha de alta.</small>
+                            </div>
+                        </Col>
+
+                        <Col md={2}>
+                            <div className="mb-2">
+                                <div className="mb-2">
+                                    <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                                    <input
+                                        aria-label="af_codigo_generico"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        name="af_codigo_genericoR"
+                                        placeholder="Ej: 1000000008"
+                                        onChange={handleChange}
+                                        value={Reimprimir.af_codigo_genericoR}
+                                    />
+                                </div>
+                                <div className="mb-2">
+                                    <label htmlFor="altaS_CORRr" className="form-label fw-semibold small">Nº Alta</label>
+                                    <input
+                                        aria-label="altaS_CORRr"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        name="altaS_CORRr"
+                                        placeholder="Ej: 0"
+                                        onChange={handleChange}
+                                        value={Reimprimir.altaS_CORRr}
+                                    />
+                                </div>
+                            </div>
+                        </Col>
+
+                        {/* Columna 5: Botones de Acción */}
+                        <Col lg={1} md={4}>
+                            <div className="d-flex flex-column gap-2 mt-4">
+                                <Button
+                                    onClick={handleBuscarReimprimir}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="w-100"
+                                // disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            Buscar
+                                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            Buscar
+                                            <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                        </>
+                                    )}
+                                </Button>
+
+                                <Button onClick={handleLimpiarReimprimir} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                                    Limpiar
+                                    <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                </Button>
+                            </div>
+                        </Col>
+                    </Row>
                     <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                         {/* Tamaño de página */}
                         <Col xs={12} lg="auto">

@@ -1156,16 +1156,16 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                               checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                             />
                           </th>
-                          <th scope="col" className="text-nowrap text-center">Código</th>
-                          <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                          <th scope="col" className="text-nowrap text-center">Nº Alta</th>
-                          <th scope="col" className="text-nowrap text-center">Descripción</th>
-                          <th scope="col" className="text-nowrap text-center">Dependencia	Serv/Depto</th>
-                          <th scope="col" className="text-nowrap text-center">Especie</th>
-                          <th scope="col" className="text-nowrap text-center">Marca</th>
-                          <th scope="col" className="text-nowrap text-center">Modelo</th>
-                          <th scope="col" className="text-nowrap text-center">Serie</th>
-                          <th scope="col" className="text-nowrap text-center">Código Dependencia</th>
+                          <th scope="col" className="text-nowrap">Código</th>
+                          <th scope="col" className="text-nowrap">Nº Inventario</th>
+                          <th scope="col" className="text-nowrap">Nº Alta</th>
+                          <th scope="col" className="text-nowrap">Descripción</th>
+                          <th scope="col" className="text-nowrap">Dependencia	Serv/Depto</th>
+                          <th scope="col" className="text-nowrap">Especie</th>
+                          <th scope="col" className="text-nowrap">Marca</th>
+                          <th scope="col" className="text-nowrap">Modelo</th>
+                          <th scope="col" className="text-nowrap">Serie</th>
+                          <th scope="col" className="text-nowrap">Código Dependencia</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1180,16 +1180,16 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                                   checked={filasSeleccionadas.includes(indexReal.toString())}
                                 />
                               </td>
-                              <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
-                              <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
-                              <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
-                              <td className="text-nowrap text-center">{lista.deT_OBS}</td>
-                              <td className="text-nowrap text-center">{lista.serviciO_DEPENDENCIA}</td>
-                              <td className="text-nowrap text-center">{lista.esP_NOMBRE}</td>
-                              <td className="text-nowrap text-center">{lista.deT_MARCA}</td>
-                              <td className="text-nowrap text-center">{lista.deT_MODELO}</td>
-                              <td className="text-nowrap text-center">{lista.deT_SERIE}</td>
-                              <td className="text-nowrap text-center">{lista.deP_CORR_ORIGEN}</td>
+                              <td className="text-nowrap">{lista.aF_CLAVE}</td>
+                              <td className="text-nowrap">{lista.aF_CODIGO_GENERICO}</td>
+                              <td className="text-nowrap">{lista.altaS_CORR}</td>
+                              <td className="text-nowrap">{lista.deT_OBS}</td>
+                              <td className="text-nowrap">{lista.serviciO_DEPENDENCIA}</td>
+                              <td className="text-nowrap">{lista.esP_NOMBRE}</td>
+                              <td className="text-nowrap">{lista.deT_MARCA}</td>
+                              <td className="text-nowrap">{lista.deT_MODELO}</td>
+                              <td className="text-nowrap">{lista.deT_SERIE}</td>
+                              <td className="text-nowrap">{lista.deP_CORR_ORIGEN}</td>
                             </tr>
                           );
                         })}

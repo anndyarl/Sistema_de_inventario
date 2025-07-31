@@ -45,6 +45,7 @@ export interface ListaAltas {
     nrecep: string,
     estadO_FIRMA: number;
     idocumento: number;
+    usuariO_CREA: string | number;
 }
 export interface DatosFirmas {
     nombre: string,
@@ -1408,20 +1409,21 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                         />
 
                                     </th>
-                                    <th scope="col" className="text-nowrap text-center">Estado</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Alta</th>
-                                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
-                                    <th scope="col" className="text-nowrap text-center">Servicio</th>
-                                    <th scope="col" className="text-nowrap text-center">Dependencia</th>
-                                    <th scope="col" className="text-nowrap text-center">Especie</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
-                                    <th scope="col" className="text-nowrap text-center">Marca</th>
-                                    <th scope="col" className="text-nowrap text-center">Modelo</th>
-                                    <th scope="col" className="text-nowrap text-center">Serie</th>
+                                    <th scope="col" className="text-nowrap">Estado</th>
+                                    <th scope="col" className="text-nowrap">N° Inventario</th>
+                                    <th scope="col" className="text-nowrap">N° Alta</th>
+                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                    <th scope="col" className="text-nowrap">Servicio</th>
+                                    <th scope="col" className="text-nowrap">Dependencia</th>
+                                    <th scope="col" className="text-nowrap">Especie</th>
+                                    <th scope="col" className="text-nowrap">N° Cuenta</th>
+                                    <th scope="col" className="text-nowrap">Usuario Crea</th>
+                                    <th scope="col" className="text-nowrap">Marca</th>
+                                    <th scope="col" className="text-nowrap">Modelo</th>
+                                    <th scope="col" className="text-nowrap">Serie</th>
                                     {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                                    <th scope="col" className="text-nowrap text-center">Precio</th>
-                                    <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
+                                    <th scope="col" className="text-nowrap">Precio</th>
+                                    <th scope="col" className="text-nowrap">N° Recepcion</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1469,6 +1471,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             <td className="text-nowrap">{Lista.dep}</td>
                                             <td className="text-nowrap">{Lista.esp}</td>
                                             <td className="text-nowrap">{Lista.ncuenta}</td>
+                                            <td className="text-nowrap">{
+                                                Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                                                    Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                                        Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
+                                                            Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
+                                                                Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                                                    Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jhonatan Vargas' :
+                                                                        Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '6405' ? 'Gabriela Farias' :
+                                                                            Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+
+                                            }</td>
                                             <td className="text-nowrap">{Lista.marca}</td>
                                             <td className="text-nowrap">{Lista.modelo}</td>
                                             <td className="text-nowrap">{Lista.serie}</td>

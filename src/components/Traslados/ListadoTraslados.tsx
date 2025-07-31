@@ -401,19 +401,20 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
               <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                 <tr>
                   {/* <th scope="col"></th> */}
-                  <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                  <th scope="col" className="text-nowrap text-center">N° Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap text-center">Especie</th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap text-center">Memo de Referencia</th>
-                  <th scope="col" className="text-nowrap text-center">Fecha Memo</th>
-                  <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Entrega</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Recibe</th>
-                  <th scope="col" className="text-nowrap text-center">Nombre Autoriza</th>
-                  <th scope="col" className="text-nowrap text-center">Estado</th>
+                  <th scope="col" className="text-nowrap">N° Inventario</th>
+                  <th scope="col" className="text-nowrap">N° Traslado</th>
+                  <th scope="col" className="text-nowrap">Fecha Traslado</th>
+                  <th scope="col" className="text-nowrap">Especie</th>
+                  <th scope="col" className="text-nowrap">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
+                  <th scope="col" className="text-nowrap">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
+                  <th scope="col" className="text-nowrap">Memo de Referencia</th>
+                  <th scope="col" className="text-nowrap">Fecha Memo</th>
+                  <th scope="col" className="text-nowrap">Usuario Crea</th>
+                  <th scope="col" className="text-nowrap">Observaciones</th>
+                  <th scope="col" className="text-nowrap">Nombre Entrega</th>
+                  <th scope="col" className="text-nowrap">Nombre Recibe</th>
+                  <th scope="col" className="text-nowrap">Nombre Autoriza</th>
+                  <th scope="col" className="text-nowrap">Estado</th>
                   {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
                   {/* <th scope="col" className="text-nowrap text-center">Tipo Traslado</th> */}
 
@@ -439,6 +440,17 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                       <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
                       <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
                       <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
+                      <td className="text-nowrap">{
+                        Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                          Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                            Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
+                              Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
+                                Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                  Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jhonatan Vargas' :
+                                    Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '6405' ? 'Gabriela Farias' :
+                                      Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+
+                      }</td>
                       <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "Sin observaciones" : Lista.traS_OBS}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
                       <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>

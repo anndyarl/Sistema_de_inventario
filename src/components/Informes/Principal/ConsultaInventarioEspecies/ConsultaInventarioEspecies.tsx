@@ -380,8 +380,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                         </Modal.Body>
                     </Modal>
                 </div>
-            ))
-            }
+            ))}
         </Layout >
     );
 };

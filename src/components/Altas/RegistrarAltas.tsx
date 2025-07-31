@@ -34,7 +34,8 @@ export interface ListaAltas {
   estado: string,
   precio: number,
   aF_ESTADO_INV: number;
-  nrecep: string
+  nrecep: string;
+  usuariO_CREA: string;
 }
 
 export interface ListaSalidaAltas {
@@ -502,18 +503,18 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                         checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                       />
                     </th>
-                    <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                    <th scope="col" className="text-nowrap text-center">Servicio</th>
-                    <th scope="col" className="text-nowrap text-center">Dependencia</th>
-                    <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                    <th scope="col" className="text-nowrap text-center">Especie</th>
-                    <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
-                    <th scope="col" className="text-nowrap text-center">Marca</th>
-                    <th scope="col" className="text-nowrap text-center">Modelo</th>
-                    <th scope="col" className="text-nowrap text-center">Serie</th>
-                    <th scope="col" className="text-nowrap text-center">Estado</th>
-                    <th scope="col" className="text-nowrap text-center">Precio</th>
-                    <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
+                    <th scope="col" className="text-nowrap">N° Inventario</th>
+                    <th scope="col" className="text-nowrap">Servicio</th>
+                    <th scope="col" className="text-nowrap">Dependencia</th>
+                    <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                    <th scope="col" className="text-nowrap">Especie</th>
+                    <th scope="col" className="text-nowrap">N° Cuenta</th>
+                    <th scope="col" className="text-nowrap">Marca</th>
+                    <th scope="col" className="text-nowrap">Modelo</th>
+                    <th scope="col" className="text-nowrap">Serie</th>
+                    <th scope="col" className="text-nowrap">Estado</th>
+                    <th scope="col" className="text-nowrap">Precio</th>
+                    <th scope="col" className="text-nowrap">N° Recepcion</th>
                     {/* <th scope="col">Acción</th> */}
                   </tr>
                 </thead>
