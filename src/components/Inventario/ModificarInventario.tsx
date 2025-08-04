@@ -66,7 +66,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
 
   comboServicioInformeActions: (establ_corr: number) => void;//En buscador   
   // comboDependenciaModificarActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
-  obtenerInventarioActions: (af_codigo_generico: string) => Promise<boolean>;
+  obtenerInventarioActions: (af_codigo_generico: string, estabL_CORR: number) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
@@ -74,11 +74,8 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboProveedorActions: (rutProveedor: string) => void;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
-
   isDarkMode: boolean;
   objeto: Objeto;
-
-
 }
 
 const ModificarInventario: React.FC<InventarioCompletoProps> = ({
@@ -228,9 +225,10 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleServicioChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : 0;
-    setBuscar((prevInventario) => ({ ...prevInventario, deP_CORR: value }));
+    setInventario((prevInventario) => ({ ...prevInventario, DEP_CORR: value }));
     console.log(value);
   };
+
   const validateDetalles = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)  
@@ -331,7 +329,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       "idprograma", //servicio     
       "AF_VIDAUTIL", //vidaUtil
       "DET_PRECIO",
-      "USUARIO_MOD" //precio
+      "USUARIO_MOD", //precio
+      "AF_FINGRESO"
 
     ].includes(name)
 
@@ -366,9 +365,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         dispatch(setModalidadCompraActions(newValue as number));
         setShowInput(false);
       }
-    }
-    if (name === "SER_CORR") {
-      comboDependenciaModificarActions(value);
     }
 
     if (name === "aF_CODIGO_GENERICO") {
@@ -468,7 +464,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setLoading(false); //Finaliza estado de carga
       return;
     }
-    resultado = await obtenerInventarioActions(Inventario.aF_CODIGO_GENERICO);
+    resultado = await obtenerInventarioActions(Inventario.aF_CODIGO_GENERICO, objeto.Roles[0].codigoEstablecimiento);
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -664,6 +660,21 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 </div>
                 )}
               </div>
+              {/* <div className="ms-1">
+                <label className="fw-semibold">
+                  Nº Alta
+                </label>
+                <input
+                  aria-label="altaS_CORR"
+                  type="text"
+                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                  maxLength={10}
+                  name="altaS_CORR"
+                  placeholder="0"
+                  onChange={handleChange}
+                // value={Buscar.altaS_CORR}
+                />
+              </div> */}
               <div className="mb-1">
                 <label className="fw-semibold">
                   Fecha Recepción
@@ -864,7 +875,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <Select
                   options={servicioOptions}
                   onChange={handleServicioChange}
-                  name="DEP_CORR"
+                  name="deP_CORR"
                   value={servicioOptions.find((option) => option.value === Inventario.DEP_CORR) || null}
                   placeholder="Buscar"
                   className={`form-select-container`}
@@ -1456,7 +1467,7 @@ const mapStateToProps = (state: RootState) => ({
   AF_MONTOFACTURA: state.obtenerInventarioReducers.aF_MONTOFACTURA, //montoRecepcion
   AF_FECHAFAC: state.obtenerInventarioReducers.aF_FECHAFAC, //fechaFactura
   PROV_RUN: state.obtenerInventarioReducers.proV_RUN, // rutProveedor
-  SER_CORR: state.obtenerInventarioReducers.seR_CORR, //servicio
+  // SER_CORR: state.obtenerInventarioReducers.seR_CORR, //servicio
   DEP_CORR: state.obtenerInventarioReducers.deP_CORR, //dependencia
   IDMODALIDADCOMPRA: state.obtenerInventarioReducers.idmodalidadcompra, // modalidadDeCompra
   ESP_CODIGO: state.obtenerInventarioReducers.esP_CODIGO,//ESP_CODIGO

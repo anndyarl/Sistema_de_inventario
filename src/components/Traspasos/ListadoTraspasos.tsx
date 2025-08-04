@@ -58,7 +58,7 @@ interface GeneralProps {
 const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, listadoTraspasos, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<string[]>([]);
+  const [_, setElementoSeleccionado] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
@@ -191,17 +191,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
   };
 
 
-  const handleVer = async (index: number, aF_CLAVE: number, aF_CODIGO_GENERICO: string) => {
+  const handleVer = async (index: number) => {
     setMostrarModal(index);
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
-    const item = listadoTraspasos.find((i) => i.aF_CLAVE === aF_CLAVE);
-    // const selectedIndices = filasSeleccionadas.map(Number);
-    // const activosSeleccionados = selectedIndices.map((index) => {
-    //     return {
-    //         aF_CLAVE: listaInventarioAnular[index].aF_CLAVE,
-    //     };
-    // });
-
   };
 
   const handleCerrarModal = (index: number) => {
@@ -418,7 +410,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                   <th scope="col" className="text-nowrap">N° Memo de Referencia</th>
                   <th scope="col" className="text-nowrap">Usuario Crea</th>
                   <th scope="col"
-                    className="text-nowrap text-center bg-primary text-white sticky-col-right-0 rounded-top">
+                    className="text-nowrap text-center sticky-col-right-0 rounded-top">
                     <b>Ver</b>
                   </th>
                 </tr>
@@ -453,12 +445,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
 
                       }
                       </td>
-                      <td className="text-nowrap text-center bg-primary text-white sticky-col-right-0 rounded">
+                      <td className="text-nowrap text-center sticky-col-right-0 rounded">
                         <Button
-                          variant=""
-                          className="fw-semibold text-white"
-
-                          onClick={() => handleVer(index, Lista.aF_CLAVE, Lista.aF_CODIGO_GENERICO)}
+                          variant="outline-primary"
+                          className="fw-semibold  ps-3 pe-3"
+                          onClick={() => handleVer(index)}
                         >
 
                           <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />

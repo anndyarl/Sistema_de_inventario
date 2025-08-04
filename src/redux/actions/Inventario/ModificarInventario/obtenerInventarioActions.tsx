@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por af_clave
-export const obtenerInventarioActions = (af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerInventarioActions = (af_codigo_generico: string, estabL_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token;
   if (token) {
     const config = {
@@ -21,7 +21,7 @@ export const obtenerInventarioActions = (af_codigo_generico: string) => async (d
     dispatch({ type: OBTENER_INVENTARIO_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInvxID?af_codigo_generico=${af_codigo_generico}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInvxID?af_codigo_generico=${af_codigo_generico}&estabL_CORR=${estabL_CORR}`, config);
 
       if (res.status === 200) {
         const isEmpty = res.data && Object.values(res.data).every((value) => value === 0 || value === null || value === undefined);

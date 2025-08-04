@@ -18,6 +18,7 @@ import DocumentoPDF from "./DocumentoPDFCalcularDepreciacion";
 import { listaActivosCalculadosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosActions";
 import { listaActivosFijosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosActions";
 import { comboCuentasInformeActions } from "../../../../redux/actions/Informes/Listados/CuentasFechas/comboCuentasInformeActions";
+import { Objeto } from "../../../Navegacion/Profile";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -93,16 +94,17 @@ interface DatosAltas {
     listaActivosFijos: ListaActivosFijos[];
     listaActivosCalculados: ListaActivosFijos[];
     listaActivosNoCalculados: ListaActivosFijos[];
-    listaActivosFijosActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string) => Promise<boolean>;
+    listaActivosFijosActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
     listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     comboCuentasInformeActions: () => void;
     comboCuentasInforme: ComboCuentas[];
+    objeto: Objeto;
 
 }
 
-const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, listaActivosCalculadosActions, comboCuentasInformeActions, listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, comboCuentasInforme, token, isDarkMode }) => {
+const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, listaActivosCalculadosActions, comboCuentasInformeActions, listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, comboCuentasInforme, token, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<ListaActivosFijos> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalNoCalculados, setMostrarModalNoCalculados] = useState(false);
@@ -234,7 +236,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             Inventario.cta_cod,
             Inventario.fDesde,
             Inventario.fHasta,
-            Inventario.af_codigo_generico
+            Inventario.af_codigo_generico,
+            objeto.Roles[0].codigoEstablecimiento
         );
 
         if (!resultado) {
@@ -458,7 +461,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 "Valor Inicial",
                 "Origen",
                 "Resolución",
-                "Fecha de ingreso",
                 "Usuario Crea",
                 "Fecha Creación",
                 "Tipo Documento",
@@ -497,7 +499,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             item.aF_PRECIO_REF?.toString() ?? "",
             item.origen ?? "",
             item.aF_RESOLUCION ?? "",
-            item.aF_FECHA_SOLICITUD ?? "",
             item.usuariO_CREA ?? "",
             item.f_CREA ?? "",
             item.aF_TIPO_DOC?.toString() ?? "",
@@ -1689,7 +1690,8 @@ const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboCuentasInforme: state.comboCuentasInformeReducers.comboCuentasInforme,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+    objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {

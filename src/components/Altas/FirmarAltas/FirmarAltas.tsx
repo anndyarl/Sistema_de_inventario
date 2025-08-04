@@ -483,7 +483,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         // Copia del estado actual
         const prev = structuredClone(AltaInventario);
         const updatedState = { ...prev, [name]: checked };
-        console.log("updatedState", updatedState);
         //Limpia Todo al deshabilitar check
         if (name === "ajustarFirma" && !checked) {
             const cleanedState = {
@@ -929,6 +928,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             CuerpoDocumento: base64,
             UsuarioCreador: objeto.IdCredencial,
             RUT: objeto.usr_run,
+            ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
             FirmaAlta: FirmaAlta,
             ListaDistribucion: [],
             ListaAnexos: anexosBase64

@@ -7,7 +7,7 @@ import {
 import { Dispatch } from 'redux';
 import { LOGOUT } from '../../../auth/types';
 
-export const listaActivosFijosActions = (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaActivosFijosActions = (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -20,7 +20,7 @@ export const listaActivosFijosActions = (cta_cod: string, fDesde: string, fHasta
     dispatch({ type: LISTA_ACTIVOS_FIJOS_INFORME_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInventario?cta_cod=${cta_cod}&fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInventario?cta_cod=${cta_cod}&fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&establ_corr=${establ_corr}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

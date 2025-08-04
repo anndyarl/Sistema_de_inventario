@@ -401,13 +401,15 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 "Fecha Ingreso",
                 "Nº Alta",
                 "Estado",
-                "Nº Traslado"]
+                "Nº Traslado",
+                "Valor Inicial",
+                "Cta Contable"]
         ];
 
         // Convertir datos a array de arrays
         const datos = listaFolioServicioDependencia.map((item) => [
-            item.aF_CLAVE ?? "",
-            item.especie ?? "",
+            item.aF_CODIGO_GENERICO ?? "",
+            item.aF_ESPECIE ?? "",
             item.aF_MARCA ?? "",
             item.aF_MODELO ?? "",
             item.aF_SERIE ?? "",
@@ -415,7 +417,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             item.aF_FINGRESO ?? "",
             item.altaS_CORR ?? "",
             item.traS_ESTADO_AF ?? "",
-            item.ntraslado ?? ""
+            item.ntraslado ?? "",
+            item.aF_PRECIO_REF ?? "",
+            item.ctA_COD ?? ""
         ]);
 
         // Crear hoja de cálculo
@@ -424,7 +428,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         // Aplicar anchos de columna
         worksheet["!cols"] = [
             { wch: 12 }, // N° Inventario
-            { wch: 150 }, // Especie
+            { wch: 12 }, // Especie
             { wch: 12 }, // Marca
             { wch: 12 }, // Modelo
             { wch: 12 }, // Serie
@@ -433,6 +437,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             { wch: 12 }, // Nº Alta 
             { wch: 12 }, // Estado
             { wch: 12 },  // Nº Traslado
+            { wch: 12 },  // Valor Inicial
+            { wch: 12 },  // Cta Contable
         ];
 
         // Aplicar color de fondo a los encabezados
@@ -442,8 +448,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             if (!worksheet[cellRef]) continue;
 
             worksheet[cellRef].s = {
-                fill: { fgColor: { rgb: "000000" } }, // Fondo amarillo
-                font: { bold: true, color: { rgb: "FFFFFF" } } // Texto blanco en negrita
+                fill: { fgColor: { rgb: "#0d6efd" } },
+                font: { bold: true, color: { rgb: "#0d6efd" } }
             };
         }
 
@@ -788,7 +794,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         <th scope="col" className="text-nowrap">Estado</th>
                                         <th scope="col" className="text-nowrap">Nº Traslado</th>
                                         <th scope="col" className="text-nowrap">Valor Inicial</th>
-                                        <th scope="col" className="text-nowrap">Cuenta Contable</th>
+                                        <th scope="col" className="text-nowrap">Cta Contable</th>
 
                                     </tr>
                                 </thead>

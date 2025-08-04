@@ -777,7 +777,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     maxLength={10}
                     name="altaS_CORR"
-                    placeholder="Introduzca marca o parte de él"
+                    placeholder="0"
                     onChange={handleChange}
                     value={Buscar.altaS_CORR}
                   />
