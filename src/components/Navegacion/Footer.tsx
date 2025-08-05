@@ -18,9 +18,7 @@ interface Props {
 }
 const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode }) => {
     const Ambiente = import.meta.env.VITE_AMBIENTE;
-
     const [mostrarModal, setMostrarModal] = useState(false);
-
     const ModalContent: React.FC = () => {
         const [activeTab, setActiveTab] = useState('Versionamiento');
         const navigation: NavItem[] = [

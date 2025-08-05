@@ -136,8 +136,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   objeto,
   token,
   isDarkMode }) => {
-  const [loading, setLoadingBuscar] = useState(false); // Estado para controlar la carga
-  const [loadingBuscar, setLoading] = useState(false); // Estado para controlar la carga
+  const [loading, setLoading] = useState(false);
+  const [loadingBuscar, setLoadingBuscar] = useState(false);
   const [error, setError] = useState<Partial<FormularioTraslado> & {}>({});
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
@@ -322,7 +322,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
-    setLoadingBuscar(true); // Inicia el estado de carga
+    setLoadingBuscar(true);
     if (Buscar.aF_CODIGO_GENERICO.trim() === "" &&
       Buscar.altaS_CORR === 0 &&
       Buscar.deP_CORR_ORIGEN === 0 &&

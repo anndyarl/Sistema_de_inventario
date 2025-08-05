@@ -70,35 +70,37 @@ const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMod
             </div>
             {/* Tabla*/}
             <div className='table-responsive'>
-                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                    <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                        <tr>
-                            <th scope="col" className="text-nowrap text-center">Versión</th>
-                            <th scope="col" className="text-nowrap text-center">Cambios</th>
-                            <th scope="col" className="text-nowrap text-center">Fecha</th>
-                            <th scope="col" className="text-nowrap text-center">Descripción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {elementosActuales.map((Lista, index) => {
-                            let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                            return (
-                                <tr key={indexReal}>
-                                    <td className="text-nowrap">{Lista.numerO_VERSION}</td>
-                                    <td className="text-nowrap">{Lista.cambios}</td>
-                                    <td className="text-nowrap">{Lista.fecha}</td>
-                                    <td>
-                                        {Lista.descripcion.split(/(?=(REQ_S\d+_\d+|FIX\d+|INC\d+))/).map((linea, index) => (
-                                            <div key={index}>
-                                                {linea.trim()}
-                                            </div>
-                                        ))}
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <div style={{ maxHeight: "50vh" }}>
+                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                        <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                            <tr>
+                                <th scope="col" className="text-nowrap text-center">Versión</th>
+                                <th scope="col" className="text-nowrap text-center">Cambios</th>
+                                <th scope="col" className="text-nowrap text-center">Fecha</th>
+                                <th scope="col" className="text-nowrap text-center">Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {elementosActuales.map((Lista, index) => {
+                                let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                return (
+                                    <tr key={indexReal}>
+                                        <td className="text-nowrap">{Lista.numerO_VERSION}</td>
+                                        <td className="text-nowrap">{Lista.cambios}</td>
+                                        <td className="text-nowrap">{Lista.fecha}</td>
+                                        <td>
+                                            {Lista.descripcion.split(/(?=(REQ_S\d+_\d+|FIX\d+|INC\d+))/).map((linea, index) => (
+                                                <div key={index}>
+                                                    {linea.trim()}
+                                                </div>
+                                            ))}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div >
             {/* Paginador */}
             <div className="paginador-container position-relative z-0">

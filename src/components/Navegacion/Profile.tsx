@@ -193,7 +193,6 @@ const Profile: React.FC<ProfileProps> = ({ logout, indicadoresActions, objeto, u
                   </strong>
                 </a>
 
-
                 <Row className="g-2 mb-5">
                   {[
                     { title: "UTM", value: `$${utm.valor.toLocaleString("es-ES", { minimumFractionDigits: 0 })}` },
@@ -263,7 +262,7 @@ const ModalContent: React.FC = () => {
 
   return (
     <Row>
-      <Col md={4}>
+      <Col md={3}>
         {navigation.map((item) => (
           <button
             key={item.name}
@@ -276,7 +275,7 @@ const ModalContent: React.FC = () => {
           </button>
         ))}
       </Col>
-      <Col md={8}>
+      <Col md={9}>
         {activeTab === 'General' && <General />}
         {activeTab === 'Datos' && <Datos />}
         {activeTab === 'Firma' && <Firma />}
