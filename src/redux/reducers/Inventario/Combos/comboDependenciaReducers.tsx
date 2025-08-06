@@ -1,4 +1,5 @@
 // reducers/origenPresupuestoReducer.ts
+import { DEPENDENCIA } from '../../../../components/Inventario/RegistrarInventario/DatosCuenta';
 import {
   DEPENDENCIA_REQUEST,
   DEPENDENCIA_SUCCESS,
@@ -8,7 +9,7 @@ import {
 
 interface DependenciaState {
   loading: boolean;
-  comboDependencia: Array<{ codigo: number; descripcion: string; nombrE_ORD: string; }>;
+  comboDependencia: DEPENDENCIA[];
   error: string | null;
 }
 

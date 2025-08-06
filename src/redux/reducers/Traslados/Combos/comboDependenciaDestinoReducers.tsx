@@ -1,4 +1,6 @@
 // reducers/DESTINOPresupuestoReducer.ts
+
+import { SERVICIO_DEPENDENCIA } from '../../../../components/Inventario/ModificarInventario';
 import {
   COMBO_DEPENDENCIA_DESTINO_REQUEST,
   COMBO_DEPENDENCIA_DESTINO_SUCCESS,
@@ -8,7 +10,7 @@ import {
 
 interface DependenciaState {
   loading: boolean;
-  comboDependenciaDestino: Array<{ codigo: number; descripcion: string; nombrE_ORD: string; }>;
+  comboDependenciaDestino: SERVICIO_DEPENDENCIA[];
   error: string | null;
 }
 

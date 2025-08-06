@@ -213,48 +213,52 @@ const FormInventario: React.FC<FormInventarioProps> = ({
         <title>Registrar Inventario</title>
       </Helmet>
       <MenuInventario />
-      <Timeline Formulario_actual={step} />
-      {step === 0 && (
-        <DatosInventario
-          onNext={handleNext}
-          comboOrigen={comboOrigen}
-          comboModalidad={comboModalidad}
-          comboProveedor={comboProveedor}
-          onOrigenSeleccionado={handleOrigenSeleccionado}
-        />
-      )}
+      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+        <div style={{ maxHeight: "80vh" }}>
+          <Timeline Formulario_actual={step} />
+          {step === 0 && (
+            <DatosInventario
+              onNext={handleNext}
+              comboOrigen={comboOrigen}
+              comboModalidad={comboModalidad}
+              comboProveedor={comboProveedor}
+              onOrigenSeleccionado={handleOrigenSeleccionado}
+            />
+          )}
 
-      {step === 1 && (
-        <DatosCuenta
-          onBack={handleBack}
-          onNext={handleNext}
-          comboServicio={comboServicio}
-          comboCuenta={comboCuenta}
-          listaEspecie={listaEspecie}
-          comboBien={comboBien}
-          comboDependencia={comboDependencia}
-          comboDetalle={comboDetalle}
-          onServicioSeleccionado={handleServicioSeleccionado}
-          onBienSeleccionado={handleBienSeleccionado}
-          onDetalleSeleccionado={handleDetalleSeleccionado}
-          onEspecieSeleccionado={handleEspecieSeleccionado}
-          servicioSeleccionado={servicioSeleccionado}
-          bienSeleccionado={bienSeleccionado}
-          detalleSeleccionado={detalleSeleccionado}
-          especieSeleccionado={especieSeleccionado}
+          {step === 1 && (
+            <DatosCuenta
+              onBack={handleBack}
+              onNext={handleNext}
+              comboServicio={comboServicio}
+              comboCuenta={comboCuenta}
+              listaEspecie={listaEspecie}
+              comboBien={comboBien}
+              comboDependencia={comboDependencia}
+              comboDetalle={comboDetalle}
+              onServicioSeleccionado={handleServicioSeleccionado}
+              onBienSeleccionado={handleBienSeleccionado}
+              onDetalleSeleccionado={handleDetalleSeleccionado}
+              onEspecieSeleccionado={handleEspecieSeleccionado}
+              servicioSeleccionado={servicioSeleccionado}
+              bienSeleccionado={bienSeleccionado}
+              detalleSeleccionado={detalleSeleccionado}
+              especieSeleccionado={especieSeleccionado}
 
-        />
-      )}
+            />
+          )}
 
-      {step === 2 && (
-        <DatosActivoFijo
-          onBack={handleBack}
-          onNext={handleNext}
-          onReset={handleReset}
-          formInventario={formularios}
+          {step === 2 && (
+            <DatosActivoFijo
+              onBack={handleBack}
+              onNext={handleNext}
+              onReset={handleReset}
+              formInventario={formularios}
 
-        />
-      )}
+            />
+          )}
+        </div>
+      </div>
     </Layout>
   );
 };

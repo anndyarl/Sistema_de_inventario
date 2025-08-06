@@ -292,132 +292,134 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                 <title>Anular Inventario</title>
             </Helmet>
             <MenuInventario />
-            <form>
-                <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                    <h3 className="form-title fw-semibold border-bottom p-1">
-                        Anular Inventario
-                    </h3>
-                    <Row className="border rounded p-2 m-2">
-                        <Col lg={3} md={4}>
-                            <div className="mb-2">
-                                <div className="flex-grow-1 mb-2">
-                                    <label htmlFor="fechaInicio" className="form-label fw-semibold small">Desde</label>
-                                    <div className="input-group">
-                                        <input
-                                            aria-label="Fecha Desde"
-                                            type="date"
-                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
-                                            name="fechaInicio"
-                                            onChange={handleChange}
-                                            value={Inventario.fechaInicio}
-                                            max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                                        />
+            <div className="table-responsive position-relative z-0 hide-scrollbar" >
+                <div style={{ maxHeight: "80vh" }}>
+                    <form>
+                        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                            <h3 className="form-title fw-semibold border-bottom p-1">
+                                Anular Inventario
+                            </h3>
+                            <Row className="border rounded p-2 m-2">
+                                <Col lg={3} md={4}>
+                                    <div className="mb-2">
+                                        <div className="flex-grow-1 mb-2">
+                                            <label htmlFor="fechaInicio" className="form-label fw-semibold small">Desde</label>
+                                            <div className="input-group">
+                                                <input
+                                                    aria-label="Fecha Desde"
+                                                    type="date"
+                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
+                                                    name="fechaInicio"
+                                                    onChange={handleChange}
+                                                    value={Inventario.fechaInicio}
+                                                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                                />
+                                            </div>
+                                            {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
+                                        </div>
+
+                                        <div className="flex-grow-1">
+                                            <label htmlFor="fechaTermino" className="form-label fw-semibold small">Hasta</label>
+                                            <div className="input-group">
+                                                <input
+                                                    aria-label="Fecha Hasta"
+                                                    type="date"
+                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
+                                                    name="fechaTermino"
+                                                    onChange={handleChange}
+                                                    value={Inventario.fechaTermino}
+                                                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                                />
+                                            </div>
+                                            {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
+
+                                        </div>
+                                        <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
                                     </div>
-                                    {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
-                                </div>
+                                </Col>
 
-                                <div className="flex-grow-1">
-                                    <label htmlFor="fechaTermino" className="form-label fw-semibold small">Hasta</label>
-                                    <div className="input-group">
-                                        <input
-                                            aria-label="Fecha Hasta"
-                                            type="date"
-                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
-                                            name="fechaTermino"
-                                            onChange={handleChange}
-                                            value={Inventario.fechaTermino}
-                                            max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                                        />
+                                <Col lg={3} md={4}>
+                                    <div className="mb-2">
+                                        <div className="mb-2">
+                                            <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                                            <input
+                                                aria-label="af_codigo_generico"
+                                                type="text"
+                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="af_codigo_generico"
+                                                placeholder="Ej: 1000000008"
+                                                onChange={handleChange}
+                                                value={Inventario.af_codigo_generico}
+                                            />
+                                        </div>
                                     </div>
-                                    {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
+                                </Col>
 
-                                </div>
-                                <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
-                            </div>
-                        </Col>
+                                <Col lg={1} md={4}>
+                                    <div className="d-flex flex-column gap-2 mt-4">
+                                        <Button
+                                            onClick={handleBuscar}
+                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                            className="w-100"
+                                        // disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    Buscar
+                                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Buscar
+                                                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                                </>
+                                            )}
+                                        </Button>
 
-                        <Col lg={3} md={4}>
-                            <div className="mb-2">
-                                <div className="mb-2">
-                                    <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
-                                    <input
-                                        aria-label="af_codigo_generico"
-                                        type="text"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                        name="af_codigo_generico"
-                                        placeholder="Ej: 1000000008"
-                                        onChange={handleChange}
-                                        value={Inventario.af_codigo_generico}
-                                    />
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={1} md={4}>
-                            <div className="d-flex flex-column gap-2 mt-4">
-                                <Button
-                                    onClick={handleBuscar}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="w-100"
-                                // disabled={loading}
-                                >
-                                    {loading ? (
-                                        <>
-                                            Buscar
-                                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            Buscar
-                                            <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                        </>
+                                        <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                                            Limpiar
+                                            <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                        </Button>
+                                    </div>
+                                </Col>
+                            </Row>
+                            {/* Tamaño de página */}
+                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
+                                {/* Tamaño de página */}
+                                <Col xs={12} lg="auto">
+                                    {listaInventarioAnular.length > 10 && (
+                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                                Tamaño de página:
+                                            </label>
+                                            <select
+                                                aria-label="Seleccionar tamaño de página"
+                                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="nPaginacion"
+                                                onChange={handleChange}
+                                                value={Paginacion.nPaginacion}
+                                            >
+                                                {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                    <option key={val} value={val}>{val}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     )}
-                                </Button>
+                                </Col>
+                            </Row>
+                            {/* Tabla*/}
 
-                                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                                    Limpiar
-                                    <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
-                    {/* Tamaño de página */}
-                    <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
-                        {/* Tamaño de página */}
-                        <Col xs={12} lg="auto">
-                            {listaInventarioAnular.length > 10 && (
-                                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                        Tamaño de página:
-                                    </label>
-                                    <select
-                                        aria-label="Seleccionar tamaño de página"
-                                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                        name="nPaginacion"
-                                        onChange={handleChange}
-                                        value={Paginacion.nPaginacion}
-                                    >
-                                        {[10, 15, 20, 25, 50, 100].map((val) => (
-                                            <option key={val} value={val}>{val}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
-                        </Col>
-                    </Row>
-                    {/* Tabla*/}
-
-                    {loading ? (
-                        <>
-                            <SkeletonLoader rowCount={elementosPorPagina} />
-                        </>
-                    ) : (
-                        <div className='skeleton-table table-responsive'>
-                            {elementosActuales.length > 0 && (
-                                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                        <tr>
-                                            {/* <th style={{
+                            {loading ? (
+                                <>
+                                    <SkeletonLoader rowCount={elementosPorPagina} />
+                                </>
+                            ) : (
+                                <div className='skeleton-table table-responsive'>
+                                    {elementosActuales.length > 0 && (
+                                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                <tr>
+                                                    {/* <th style={{
                                                 position: 'sticky',
                                                 left: 0,
                                                 zIndex: 2
@@ -429,130 +431,132 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                 />
                                             </th> */}
-                                            <th scope="col" className="text-nowrap">Estado</th>
-                                            <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                            <th scope="col" className="text-nowrap">Descripción</th>
-                                            <th scope="col" className="text-nowrap">Fecha</th>
-                                            <th scope="col" className="text-nowrap">Servicio</th>
-                                            <th scope="col" className="text-nowrap">Dependencia</th>
-                                            <th scope="col" className="text-nowrap">Especie</th>
-                                            <th scope="col" className="text-nowrap">Precio</th>
-                                            <th scope="col" className="text-nowrap">Vida Útil</th>
-                                            <th scope="col" className="text-nowrap">Origen</th>
-                                            <th scope="col" className="text-nowrap">Nº Recepción</th>
-                                            <th scope="col" className="text-nowrap">Nº Cta</th>
-                                            <th scope="col" className="text-nowrap">Orden de Compra</th>
-                                            <th scope="col" className="text-nowrap">Marca</th>
-                                            <th scope="col" className="text-nowrap">Modelo</th>
-                                            <th scope="col" className="text-nowrap">Serie</th>
-                                            <th scope="col" className="text-nowrap" style={{
-                                                position: 'sticky',
-                                                right: 0,
-                                            }}>Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((lista, index) => {
-                                            // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                            return (
-                                                <tr key={index}>
-                                                    {/* <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                                                    <th scope="col" className="text-nowrap">Estado</th>
+                                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                    <th scope="col" className="text-nowrap">Descripción</th>
+                                                    <th scope="col" className="text-nowrap">Fecha</th>
+                                                    <th scope="col" className="text-nowrap">Servicio</th>
+                                                    <th scope="col" className="text-nowrap">Dependencia</th>
+                                                    <th scope="col" className="text-nowrap">Especie</th>
+                                                    <th scope="col" className="text-nowrap">Precio</th>
+                                                    <th scope="col" className="text-nowrap">Vida Útil</th>
+                                                    <th scope="col" className="text-nowrap">Origen</th>
+                                                    <th scope="col" className="text-nowrap">Nº Recepción</th>
+                                                    <th scope="col" className="text-nowrap">Nº Cta</th>
+                                                    <th scope="col" className="text-nowrap">Orden de Compra</th>
+                                                    <th scope="col" className="text-nowrap">Marca</th>
+                                                    <th scope="col" className="text-nowrap">Modelo</th>
+                                                    <th scope="col" className="text-nowrap">Serie</th>
+                                                    <th scope="col" className="text-nowrap" style={{
+                                                        position: 'sticky',
+                                                        right: 0,
+                                                    }}>Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {elementosActuales.map((lista, index) => {
+                                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                    return (
+                                                        <tr key={index}>
+                                                            {/* <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
                                                         <Form.Check
                                                             type="checkbox"
                                                             onChange={() => setSeleccionaFilas(indexReal)}
                                                             checked={filasSeleccionadas.includes(indexReal.toString())}
                                                         />
                                                     </td> */}
-                                                    <td className="text-nowrap">
-                                                        {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
-                                                            : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
-                                                                : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
-                                                    </td>
-                                                    <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
-                                                    <td className="text-start">{lista.aF_DESCRIPCION}</td>
-                                                    <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
-                                                    <td className="text-start">{lista.seR_NOMBRE}</td>
-                                                    <td className="text-start">{lista.deP_NOMBRE}</td>
-                                                    <td className="text-start">{lista.esP_NOMBRE}</td>
-                                                    <td className="text-start">
-                                                        ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
-                                                    <td className="text-start">{lista.aF_VIDAUTIL}</td>
+                                                            <td className="text-nowrap">
+                                                                {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
+                                                                    : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
+                                                                        : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
+                                                            </td>
+                                                            <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
+                                                            <td className="text-start">{lista.aF_DESCRIPCION}</td>
+                                                            <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
+                                                            <td className="text-start">{lista.seR_NOMBRE}</td>
+                                                            <td className="text-start">{lista.deP_NOMBRE}</td>
+                                                            <td className="text-start">{lista.esP_NOMBRE}</td>
+                                                            <td className="text-start">
+                                                                ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                                                            <td className="text-start">{lista.aF_VIDAUTIL}</td>
 
-                                                    <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "S/N  "}</td>
-                                                    <td className="text-start">{lista.nrecepcion || "S/N"}</td>
-                                                    <td className="text-start">{lista.ctA_COD}</td>
-                                                    <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
-                                                    <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
-                                                    <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                                                    <td style={{
-                                                        position: 'sticky',
-                                                        right: 0
-                                                    }}>
-                                                        {lista.aF_ESTADO_INV != 1 ? (
-                                                            <Button
-                                                                variant="outline-danger"
-                                                                className="fw-semibold"
-                                                                size="sm"
-                                                                disabled
-                                                            >
-                                                                Anular
-                                                            </Button>
-                                                        ) : (
-                                                            <Button
-                                                                variant="outline-danger"
-                                                                className="fw-semibold"
-                                                                size="sm"
-                                                                onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
-                                                            >
-                                                                Anular
-                                                            </Button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                                                            <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "S/N  "}</td>
+                                                            <td className="text-start">{lista.nrecepcion || "S/N"}</td>
+                                                            <td className="text-start">{lista.ctA_COD}</td>
+                                                            <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
+                                                            <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
+                                                            <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
+                                                            <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
+                                                            <td style={{
+                                                                position: 'sticky',
+                                                                right: 0
+                                                            }}>
+                                                                {lista.aF_ESTADO_INV != 1 ? (
+                                                                    <Button
+                                                                        variant="outline-danger"
+                                                                        className="fw-semibold"
+                                                                        size="sm"
+                                                                        disabled
+                                                                    >
+                                                                        Anular
+                                                                    </Button>
+                                                                ) : (
+                                                                    <Button
+                                                                        variant="outline-danger"
+                                                                        className="fw-semibold"
+                                                                        size="sm"
+                                                                        onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
+                                                                    >
+                                                                        Anular
+                                                                    </Button>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Paginador */}
+                            {elementosActuales.length > 0 && (
+                                <div className="paginador-container position-relative z-0">
+                                    <Pagination className="paginador-scroll">
+                                        <Pagination.First
+                                            onClick={() => paginar(1)}
+                                            disabled={paginaActual === 1}
+                                        />
+                                        <Pagination.Prev
+                                            onClick={() => paginar(paginaActual - 1)}
+                                            disabled={paginaActual === 1}
+                                        />
+
+                                        {Array.from({ length: totalPaginas }, (_, i) => (
+                                            <Pagination.Item
+                                                key={i + 1}
+                                                active={i + 1 === paginaActual}
+                                                onClick={() => paginar(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Pagination.Item>
+                                        ))}
+                                        <Pagination.Next
+                                            onClick={() => paginar(paginaActual + 1)}
+                                            disabled={paginaActual === totalPaginas}
+                                        />
+                                        <Pagination.Last
+                                            onClick={() => paginar(totalPaginas)}
+                                            disabled={paginaActual === totalPaginas}
+                                        />
+                                    </Pagination>
+                                </div>
                             )}
                         </div>
-                    )}
-
-                    {/* Paginador */}
-                    {elementosActuales.length > 0 && (
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First
-                                    onClick={() => paginar(1)}
-                                    disabled={paginaActual === 1}
-                                />
-                                <Pagination.Prev
-                                    onClick={() => paginar(paginaActual - 1)}
-                                    disabled={paginaActual === 1}
-                                />
-
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next
-                                    onClick={() => paginar(paginaActual + 1)}
-                                    disabled={paginaActual === totalPaginas}
-                                />
-                                <Pagination.Last
-                                    onClick={() => paginar(totalPaginas)}
-                                    disabled={paginaActual === totalPaginas}
-                                />
-                            </Pagination>
-                        </div>
-                    )}
+                    </form>
                 </div>
-            </form>
+            </div>
         </Layout >
     );
 };

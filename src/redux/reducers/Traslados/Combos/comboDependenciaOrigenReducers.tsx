@@ -1,4 +1,5 @@
-// reducers/origenPresupuestoReducer.ts
+
+import { SERVICIO_DEPENDENCIA } from '../../../../components/Inventario/ModificarInventario';
 import {
   COMBO_DEPENDENCIA_T_ORIGEN_REQUEST,
   COMBO_DEPENDENCIA_T_ORIGEN_SUCCESS,
@@ -8,7 +9,7 @@ import {
 
 interface DependenciaState {
   loading: boolean;
-  comboDependenciaOrigen: Array<{ codigo: number; descripcion: string; nombrE_ORD: string; }>;
+  comboDependenciaOrigen: SERVICIO_DEPENDENCIA[];
   error: string | null;
 }
 

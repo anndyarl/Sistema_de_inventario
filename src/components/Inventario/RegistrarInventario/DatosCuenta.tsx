@@ -22,9 +22,8 @@ export interface SERVICIO {
 
 // Define el tipo de los elementos del combo `dependencia`
 export interface DEPENDENCIA {
-  codigo: number;
+  deP_CORR: number;
   descripcion: string;
-  nombrE_ORD: string;
 }
 
 // Define el tipo de los elementos del combo `cuentas`
@@ -389,8 +388,8 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                 >
                   <option value="">Seleccionar</option>
                   {comboDependencia.map((traeDependencia) => (
-                    <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
-                      {traeDependencia.nombrE_ORD}
+                    <option key={traeDependencia.deP_CORR} value={traeDependencia.deP_CORR}>
+                      {traeDependencia.descripcion}
                     </option>
                   ))}
                 </select>

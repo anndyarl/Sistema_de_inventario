@@ -1,5 +1,7 @@
 html {
-  /* overflow-y: scroll; Fuerza la barra de scroll */
+  /* overflow-y: scroll;    */
+  /* Fuerza la barra de scroll */
+
 }
 body{
   font-family: 'Roboto', sans-serif;
@@ -300,3 +302,11 @@ padding: 2px;
 }
 
 
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}

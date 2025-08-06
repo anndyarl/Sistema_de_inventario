@@ -1,9 +1,9 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-    POST_FORMULARIO_TRASPASOS_REQUEST,
-    POST_FORMULARIO_TRASPASOS_SUCCESS,
-    POST_FORMULARIO_TRASPASOS_FAIL,
+    POST_FORMULARIO_TRASPASO_REQUEST,
+    POST_FORMULARIO_TRASPASO_SUCCESS,
+    POST_FORMULARIO_TRASPASO_FAIL,
 } from "./types";
 import { LOGOUT } from "../auth/types";
 
@@ -24,7 +24,7 @@ export const registroTraspasoMultipleActions = (FormularioTraslado: Record<strin
         }
         const body = JSON.stringify(FormularioTraslado);
 
-        dispatch({ type: POST_FORMULARIO_TRASPASOS_REQUEST });
+        dispatch({ type: POST_FORMULARIO_TRASPASO_REQUEST });
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearTraspasos`, body, config);
@@ -32,14 +32,14 @@ export const registroTraspasoMultipleActions = (FormularioTraslado: Record<strin
             if (response.status === 200) {
                 if (response.data?.length) {
                     dispatch({
-                        type: POST_FORMULARIO_TRASPASOS_SUCCESS,
+                        type: POST_FORMULARIO_TRASPASO_SUCCESS,
                         payload: response.data
                     });
                     return true;
                 }
                 else {
                     dispatch({
-                        type: POST_FORMULARIO_TRASPASOS_FAIL,
+                        type: POST_FORMULARIO_TRASPASO_FAIL,
                         error: "No se pudo registrar. Por favor, intente nuevamente.",
                     });
                     return false;
@@ -47,21 +47,21 @@ export const registroTraspasoMultipleActions = (FormularioTraslado: Record<strin
             }
             else {
                 dispatch({
-                    type: POST_FORMULARIO_TRASPASOS_FAIL,
+                    type: POST_FORMULARIO_TRASPASO_FAIL,
                     error: "No se pudo obtener registrar. Por favor, intente nuevamente.",
                 });
                 return false;
             }
         } catch (err: any) {
             dispatch({
-                type: POST_FORMULARIO_TRASPASOS_FAIL,
+                type: POST_FORMULARIO_TRASPASO_FAIL,
                 error: "Error en la solicitud:", err,
             });
             return false;
         }
     } else {
         dispatch({
-            type: POST_FORMULARIO_TRASPASOS_FAIL,
+            type: POST_FORMULARIO_TRASPASO_FAIL,
             error: "No se encontró un token de autenticación válido.",
         });
         dispatch({ type: LOGOUT });

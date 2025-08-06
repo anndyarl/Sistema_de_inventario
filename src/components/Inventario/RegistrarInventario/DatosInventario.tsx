@@ -354,7 +354,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     // setModalMostrarResumen(true);
     if (resultadoRegistro === 1) {
       for (let i = 0; i < comboDependencia.length; i++) {
-        const dep_corr_n = comboDependencia[i].codigo;
+        const dep_corr_n = comboDependencia[i].deP_CORR;
         if (listaServicioNombre.length === 0) {
           obtenerServicioNombreActions(dep_corr_n); //consulta nombre servicio por dep_corr
           // console.log(dep_corr_n);

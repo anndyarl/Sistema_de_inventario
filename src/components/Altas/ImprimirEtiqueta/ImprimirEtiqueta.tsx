@@ -548,274 +548,278 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 <title>Imprimir Etiquetas</title>
             </Helmet>
             <MenuAltas />
-            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                <h3 className="form-title fw-semibold border-bottom p-1">Imprimir Etiquetas</h3>
-                <Row className="border rounded p-2 m-2">
-                    <Col lg={3} md={4}>
-                        <div className="mb-2">
-                            <div className="flex-grow-1 mb-2">
-                                <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
-                                <div className="input-group">
-                                    <input
-                                        aria-label="Fecha Desde"
-                                        type="date"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                                        name="fDesde"
-                                        onChange={handleChange}
-                                        value={Inventario.fDesde}
-                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                                    />
+            <div className="table-responsive position-relative z-0 hide-scrollbar" >
+                <div style={{ maxHeight: "80vh" }}>
+                    <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                        <h3 className="form-title fw-semibold border-bottom p-1">Imprimir Etiquetas</h3>
+                        <Row className="border rounded p-2 m-2">
+                            <Col lg={3} md={4}>
+                                <div className="mb-2">
+                                    <div className="flex-grow-1 mb-2">
+                                        <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
+                                        <div className="input-group">
+                                            <input
+                                                aria-label="Fecha Desde"
+                                                type="date"
+                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                                                name="fDesde"
+                                                onChange={handleChange}
+                                                value={Inventario.fDesde}
+                                                max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                            />
+                                        </div>
+                                        {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                                    </div>
+
+                                    <div className="flex-grow-1">
+                                        <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                                        <div className="input-group">
+                                            <input
+                                                aria-label="Fecha Hasta"
+                                                type="date"
+                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                                                name="fHasta"
+                                                onChange={handleChange}
+                                                value={Inventario.fHasta}
+                                                max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                            />
+                                        </div>
+                                        {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                                    </div>
+                                    <small className="fw-semibold">Filtre los resultados por fecha de alta.</small>
                                 </div>
-                                {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
-                            </div>
+                            </Col>
 
-                            <div className="flex-grow-1">
-                                <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
-                                <div className="input-group">
-                                    <input
-                                        aria-label="Fecha Hasta"
-                                        type="date"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                                        name="fHasta"
-                                        onChange={handleChange}
-                                        value={Inventario.fHasta}
-                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                                    />
+                            <Col md={2}>
+                                <div className="mb-2">
+                                    <div className="mb-2">
+                                        <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                                        <input
+                                            aria-label="af_codigo_generico"
+                                            type="text"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="af_codigo_generico"
+                                            placeholder="Ej: 1000000008"
+                                            onChange={handleChange}
+                                            value={Inventario.af_codigo_generico}
+                                        />
+                                    </div>
+                                    <div className="mb-2">
+                                        <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
+                                        <input
+                                            aria-label="altaS_CORR"
+                                            type="text"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="altaS_CORR"
+                                            placeholder="Ej: 0"
+                                            onChange={handleChange}
+                                            value={Inventario.altaS_CORR}
+                                        />
+                                    </div>
                                 </div>
-                                {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+                            </Col>
 
-                            </div>
-                            <small className="fw-semibold">Filtre los resultados por fecha de alta.</small>
-                        </div>
-                    </Col>
-
-                    <Col md={2}>
-                        <div className="mb-2">
-                            <div className="mb-2">
-                                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
-                                <input
-                                    aria-label="af_codigo_generico"
-                                    type="text"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="af_codigo_generico"
-                                    placeholder="Ej: 1000000008"
-                                    onChange={handleChange}
-                                    value={Inventario.af_codigo_generico}
-                                />
-                            </div>
-                            <div className="mb-2">
-                                <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
-                                <input
-                                    aria-label="altaS_CORR"
-                                    type="text"
-                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="altaS_CORR"
-                                    placeholder="Ej: 0"
-                                    onChange={handleChange}
-                                    value={Inventario.altaS_CORR}
-                                />
-                            </div>
-                        </div>
-                    </Col>
-
-                    {/* Columna 5: Botones de Acción */}
-                    <Col lg={1} md={4}>
-                        <div className="d-flex flex-column gap-2 mt-4">
-                            <Button
-                                onClick={handleBuscar}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="w-100"
-                            // disabled={loading}
-                            >
-                                {loading ? (
-                                    <>
-                                        Buscar
-                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                                    </>
-                                ) : (
-                                    <>
-                                        Buscar
-                                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                    </>
-                                )}
-                            </Button>
-
-                            <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                                Limpiar
-                                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
-
-                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-                    {/* Tamaño de página */}
-                    <Col xs={12} lg="auto">
-                        {listaEtiquetas.length > 10 && (
-                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                    Tamaño de página:
-                                </label>
-                                <select
-                                    aria-label="Seleccionar tamaño de página"
-                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="nPaginacion"
-                                    onChange={handleChange}
-                                    value={Paginacion.nPaginacion}
-                                >
-                                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                                        <option key={val} value={val}>
-                                            {val}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-                    </Col>
-
-                    {/* Botones y mensajes */}
-                    <Col xs={12} lg={4}>
-                        <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                            {filasSeleccionadas.length > 0 ? (
-                                <>
-                                    {/* Botón Generar */}
+                            {/* Columna 5: Botones de Acción */}
+                            <Col lg={1} md={4}>
+                                <div className="d-flex flex-column gap-2 mt-4">
                                     <Button
+                                        onClick={handleBuscar}
                                         variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                        onClick={handleGenerar}
-                                        disabled={listaEtiquetas.length === 0}
-                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                        className="w-100"
+                                    // disabled={loading}
                                     >
                                         {loading ? (
                                             <>
-                                                Generar
-                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                Buscar
+                                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
                                             </>
                                         ) : (
                                             <>
-                                                <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                                                Generar
-                                                <span className="badge bg-light text-dark mx-1 mt-1">
-                                                    {filasSeleccionadas.length}
-                                                </span>
+                                                Buscar
+                                                <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                             </>
                                         )}
                                     </Button>
-                                </>
-                            ) : (
-                                <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
-                                        No hay filas seleccionadas
-                                    </strong>
+
+                                    <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                                        Limpiar
+                                        <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                    </Button>
                                 </div>
-                            )}
+                            </Col>
+                        </Row>
 
-                            {/* Botón Reimprimir */}
-                            <Button
-                                variant="warning"
-                                onClick={() => setMostrarModalLista(true)}
-                                disabled={loadingReimprimir}
-                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
-                            >
-                                {loadingReimprimir ? (
-                                    <>
-                                        Reimprimir
-                                        <Spinner as="span" className="flex-shrink-0 h-5 w-5" animation="border" size="sm" role="status" aria-hidden="true" />
-                                    </>
-                                ) : (
-                                    <>
-                                        Reimprimir
-                                        <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                                    </>
+                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                            {/* Tamaño de página */}
+                            <Col xs={12} lg="auto">
+                                {listaEtiquetas.length > 10 && (
+                                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                        <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                            Tamaño de página:
+                                        </label>
+                                        <select
+                                            aria-label="Seleccionar tamaño de página"
+                                            className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="nPaginacion"
+                                            onChange={handleChange}
+                                            value={Paginacion.nPaginacion}
+                                        >
+                                            {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                <option key={val} value={val}>
+                                                    {val}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 )}
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
+                            </Col>
 
-                {/* Listado Principal */}
-                {loading ? (
-                    <SkeletonLoader rowCount={elementosPorPagina} />
-                ) : (
-                    <div className='table-responsive'>
-                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                            <thead className={` sticky-top z-0  ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                <tr >
-                                    <th style={{
-                                        position: 'sticky',
-                                        left: 0
-                                    }}>
-                                        <Form.Check
-                                            className="check-danger"
-                                            type="checkbox"
-                                            onChange={handleSeleccionaTodos}
-                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                        />
-                                    </th>
+                            {/* Botones y mensajes */}
+                            <Col xs={12} lg={4}>
+                                <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                    {filasSeleccionadas.length > 0 ? (
+                                        <>
+                                            {/* Botón Generar */}
+                                            <Button
+                                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                onClick={handleGenerar}
+                                                disabled={listaEtiquetas.length === 0}
+                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        Generar
+                                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                                        Generar
+                                                        <span className="badge bg-light text-dark mx-1 mt-1">
+                                                            {filasSeleccionadas.length}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                            <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
+                                                No hay filas seleccionadas
+                                            </strong>
+                                        </div>
+                                    )}
 
-                                    {/* <th scope="col" className="text-nowrap">Estado</th> */}
-                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                    <th scope="col" className="text-nowrap">N° Alta</th>
-                                    <th scope="col" className="text-nowrap">Descripción</th>
-                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                    <th scope="col" className="text-nowrap">Nº Cuenta</th>
-                                    <th scope="col" className="text-nowrap">Ubicación</th>
-                                    <th scope="col" className="text-nowrap">Origen</th>
-                                    <th scope="col" className="text-nowrap">QR</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {elementosActuales.map((fila, index) => {
-                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                    return (
-                                        <tr key={index}>
-                                            <td style={{
+                                    {/* Botón Reimprimir */}
+                                    <Button
+                                        variant="warning"
+                                        onClick={() => setMostrarModalLista(true)}
+                                        disabled={loadingReimprimir}
+                                        className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
+                                    >
+                                        {loadingReimprimir ? (
+                                            <>
+                                                Reimprimir
+                                                <Spinner as="span" className="flex-shrink-0 h-5 w-5" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                Reimprimir
+                                                <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        {/* Listado Principal */}
+                        {loading ? (
+                            <SkeletonLoader rowCount={elementosPorPagina} />
+                        ) : (
+                            <div className='table-responsive'>
+                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                    <thead className={` sticky-top z-0  ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                        <tr >
+                                            <th style={{
                                                 position: 'sticky',
                                                 left: 0
-
                                             }}>
                                                 <Form.Check
+                                                    className="check-danger"
                                                     type="checkbox"
-                                                    onChange={() => setSeleccionaFilas(indexReal)}
-                                                    checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                    onChange={handleSeleccionaTodos}
+                                                    checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                 />
-                                            </td>
-                                            <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                            <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                            <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
-                                            <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
-                                            <td className="text-nowrap">{fila.aF_NCUENTA}</td>
-                                            <td className="text-nowrap">{fila.aF_UBICACION}</td>
-                                            <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
-                                            <td className="text-nowrap">
-                                                <QRCodeSVG
-                                                    value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
-                                                    size={50}
-                                                    level="H"
-                                                />
-                                            </td>
+                                            </th>
+
+                                            {/* <th scope="col" className="text-nowrap">Estado</th> */}
+                                            <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                            <th scope="col" className="text-nowrap">N° Alta</th>
+                                            <th scope="col" className="text-nowrap">Descripción</th>
+                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                            <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                                            <th scope="col" className="text-nowrap">Ubicación</th>
+                                            <th scope="col" className="text-nowrap">Origen</th>
+                                            <th scope="col" className="text-nowrap">QR</th>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                    </thead>
+                                    <tbody>
+                                        {elementosActuales.map((fila, index) => {
+                                            const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                            return (
+                                                <tr key={index}>
+                                                    <td style={{
+                                                        position: 'sticky',
+                                                        left: 0
+
+                                                    }}>
+                                                        <Form.Check
+                                                            type="checkbox"
+                                                            onChange={() => setSeleccionaFilas(indexReal)}
+                                                            checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                        />
+                                                    </td>
+                                                    <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
+                                                    <td className="text-nowrap">{fila.altaS_CORR}</td>
+                                                    <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
+                                                    <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
+                                                    <td className="text-nowrap">{fila.aF_NCUENTA}</td>
+                                                    <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                                    <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
+                                                    <td className="text-nowrap">
+                                                        <QRCodeSVG
+                                                            value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
+                                                            size={50}
+                                                            level="H"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                        <div className="paginador-container position-relative z-0">
+                            <Pagination className="paginador-scroll">
+                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                    <Pagination.Item
+                                        key={i + 1}
+                                        active={i + 1 === paginaActual}
+                                        onClick={() => paginar(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                            </Pagination>
+                        </div>
                     </div>
-                )}
-                <div className="paginador-container position-relative z-0">
-                    <Pagination className="paginador-scroll">
-                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                        {Array.from({ length: totalPaginas }, (_, i) => (
-                            <Pagination.Item
-                                key={i + 1}
-                                active={i + 1 === paginaActual}
-                                onClick={() => paginar(i + 1)}
-                            >
-                                {i + 1}
-                            </Pagination.Item>
-                        ))}
-                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                    </Pagination>
                 </div>
             </div>
             {/*Modal Imprimir Etiquetas */}
@@ -866,7 +870,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     </form>
                 </Modal.Body>
             </Modal>
-
 
             {/*Modal listado ReImprimir */}
             <Modal show={mostrarModalLista} onHide={() => setMostrarModalLista(false)}

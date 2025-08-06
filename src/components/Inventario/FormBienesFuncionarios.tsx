@@ -311,171 +311,175 @@ const FormInventarioFuncionario: React.FC<FormFuncionarioProps> = ({
         <title>Bienes de Funcionarios</title>
       </Helmet>
       <MenuInventario />
-      <form onSubmit={handleFormSubmit}>
-        <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-          <h3 className="form-title fw-semibold border-bottom p-1">
-            Registro Bienes de Funcionarios
-          </h3>
-          <Row className="d-flex align-items-center">
-            <Col md={4}>
-              <div className="mb-1">
-                <label htmlFor="rutFuncionario" className="fw-semibold">Rut Funcionario</label>
-                <input
-                  aria-label="rutFuncionario"  // Asociado al label
-                  type="text"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                    } ${error.rutFuncionario ? "is-invalid" : ""} w-100`}
-                  maxLength={12}
-                  size={10}
-                  name="rutFuncionario"
-                  onChange={handleChange}
-                  value={Funcionario.rutFuncionario || ""}
-                  placeholder="12.345.678-9"
-                />
-                {error.rutFuncionario && (
-                  <div className="invalid-feedback fw-semibold d-block">
-                    {error.rutFuncionario}
+      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+        <div style={{ maxHeight: "80vh" }}>
+          <form onSubmit={handleFormSubmit}>
+            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+              <h3 className="form-title fw-semibold border-bottom p-1">
+                Registro Bienes de Funcionarios
+              </h3>
+              <Row className="d-flex align-items-center">
+                <Col md={4}>
+                  <div className="mb-1">
+                    <label htmlFor="rutFuncionario" className="fw-semibold">Rut Funcionario</label>
+                    <input
+                      aria-label="rutFuncionario"  // Asociado al label
+                      type="text"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        } ${error.rutFuncionario ? "is-invalid" : ""} w-100`}
+                      maxLength={12}
+                      size={10}
+                      name="rutFuncionario"
+                      onChange={handleChange}
+                      value={Funcionario.rutFuncionario || ""}
+                      placeholder="12.345.678-9"
+                    />
+                    {error.rutFuncionario && (
+                      <div className="invalid-feedback fw-semibold d-block">
+                        {error.rutFuncionario}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className={`border p-2 ${isDarkMode ? "border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`} >
-                <h6 className="text-center fw-semibold">Destino</h6>
-                <div className="mb-1">
-                  <label htmlFor="servicio" className="fw-semibold fw-semibold">Servicio</label>
-                  <select
-                    aria-label="servicio"
-                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
-                    name="servicio"
-                    onChange={handleChange}
-                    value={Funcionario.servicio || 0}
-                  >
-                    <option value="">Seleccione</option>
-                    {comboServicio.map((traeServicio) => (
-                      <option
-                        key={traeServicio.codigo}
-                        value={traeServicio.codigo}
+                  <div className={`border p-2 ${isDarkMode ? "border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`} >
+                    <h6 className="text-center fw-semibold">Destino</h6>
+                    <div className="mb-1">
+                      <label htmlFor="servicio" className="fw-semibold fw-semibold">Servicio</label>
+                      <select
+                        aria-label="servicio"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
+                        name="servicio"
+                        onChange={handleChange}
+                        value={Funcionario.servicio || 0}
                       >
-                        {traeServicio.nombrE_ORD}
-                      </option>
-                    ))}
-                  </select>
-                  {error.servicio && (
-                    <div className="invalid-feedback fw-semibold d-block">
-                      {error.servicio}
+                        <option value="">Seleccione</option>
+                        {comboServicio.map((traeServicio) => (
+                          <option
+                            key={traeServicio.codigo}
+                            value={traeServicio.codigo}
+                          >
+                            {traeServicio.nombrE_ORD}
+                          </option>
+                        ))}
+                      </select>
+                      {error.servicio && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.servicio}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="mb-1">
-                  <label htmlFor="dependencia" className="fw-semibold">Dependencia</label>
-                  <select
-                    aria-label="dependencia"
-                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                      } ${error.dependencia ? "is-invalid" : ""}`}
-                    name="dependencia"
-                    disabled={!Funcionario.servicio}
-                    onChange={handleChange}
-                    value={Funcionario.dependencia || 0}
-                  >
-                    <option value="">Selecciona una opción</option>
-                    {comboDependencia.map((traeDependencia) => (
-                      <option
-                        key={traeDependencia.codigo}
-                        value={traeDependencia.codigo}
+                    <div className="mb-1">
+                      <label htmlFor="dependencia" className="fw-semibold">Dependencia</label>
+                      <select
+                        aria-label="dependencia"
+                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                          } ${error.dependencia ? "is-invalid" : ""}`}
+                        name="dependencia"
+                        disabled={!Funcionario.servicio}
+                        onChange={handleChange}
+                        value={Funcionario.dependencia || 0}
                       >
-                        {traeDependencia.nombrE_ORD}
-                      </option>
-                    ))}
-                  </select>
-                  {error.dependencia && (
-                    <div className="invalid-feedback fw-semibold d-block">
-                      {error.dependencia}
+                        <option value="">Selecciona una opción</option>
+                        {comboDependencia.map((traeDependencia) => (
+                          <option
+                            key={traeDependencia.deP_CORR}
+                            value={traeDependencia.deP_CORR}
+                          >
+                            {traeDependencia.descripcion}
+                          </option>
+                        ))}
+                      </select>
+                      {error.dependencia && (
+                        <div className="invalid-feedback fw-semibold d-block">
+                          {error.dependencia}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-            </Col>
-            <Col md={4} className="d-flex align-items-center">
-              <div className="mb-1 w-100">
-                <label htmlFor="comprobanteDePago" className="fw-semibold ">Comprobante de Pago</label>
-                <div
-                  className={`dropzone p-1 ${isDraggingComprobante ? "dragging" : ""
-                    }`}
-                  onDrop={handleDropComprobante}
-                  onDragOver={handleDragOverComprobante}
-                  onClick={handleFileSelectComprobante}
-                >
-                  {selectedFileComprobante ? (
-                    <p className="file-name fw-semibold">{selectedFileComprobante.name}</p>
-                  ) : (
-                    <p className="file-name fw-semibold">
-                      Arrastra y suelta el archivo aquí, o haz clic para
-                      seleccionar
-                    </p>
-                  )}
-                </div>
-                <input
-                  aria-label="comprobanteDePago"
-                  type="file"
-                  ref={fileInputRef1} // Asigna la referencia al input
-                  className={`file-input ${error.comprobanteDePago ? "is-invalid" : ""
-                    } w-100`}
-                  name="comprobanteDePago"
-                  onChange={handleChange}
-                  accept=".pdf, .docx, .jpg" // Solo permite los tipos de archivos especificados
-                  value=""
-                />
-                {error.comprobanteDePago && (
-                  <div className="invalid-feedback fw-semibold d-block">
-                    {error.comprobanteDePago}
                   </div>
-                )}
-              </div>
-            </Col>
-            <Col md={4} className="d-flex align-items-center">
-              <div className="mb-1 w-100">
-                <label htmlFor="autorizacion" className="fw-semibold">Autorización</label>
-                <div
-                  className={`dropzone p-1 ${isDraggingAutorizacion ? "dragging" : ""
-                    }`}
-                  onDrop={handleDropAutorizacion}
-                  onDragOver={handleDragOverAutorizacion}
-                  onClick={handleFileSelectAutorizacion}
-                >
-                  {selectedFileAutorizacion ? (
-                    <p className="file-name fw-semibold">{selectedFileAutorizacion.name}</p>
-                  ) : (
-                    <p className="file-name fw-semibold">
-                      Arrastra y suelta el archivo aquí, o haz clic para
-                      seleccionar
-                    </p>
-                  )}
-                </div>
-                <input
-                  aria-label="autorizacion"
-                  type="file"
-                  ref={fileInputRef2} // Asigna la referencia al input
-                  className={`file-input ${error.autorizacion ? "is-invalid" : ""
-                    } w-100`}
-                  name="autorizacion"
-                  onChange={handleChange}
-                  accept=".pdf, .docx, .jpg" // Solo permite los tipos de archivos especificados
-                  value=""
-                />
-                {error.autorizacion && (
-                  <div className="invalid-feedback fw-semibold d-block">
-                    {error.autorizacion}
+                </Col>
+                <Col md={4} className="d-flex align-items-center">
+                  <div className="mb-1 w-100">
+                    <label htmlFor="comprobanteDePago" className="fw-semibold ">Comprobante de Pago</label>
+                    <div
+                      className={`dropzone p-1 ${isDraggingComprobante ? "dragging" : ""
+                        }`}
+                      onDrop={handleDropComprobante}
+                      onDragOver={handleDragOverComprobante}
+                      onClick={handleFileSelectComprobante}
+                    >
+                      {selectedFileComprobante ? (
+                        <p className="file-name fw-semibold">{selectedFileComprobante.name}</p>
+                      ) : (
+                        <p className="file-name fw-semibold">
+                          Arrastra y suelta el archivo aquí, o haz clic para
+                          seleccionar
+                        </p>
+                      )}
+                    </div>
+                    <input
+                      aria-label="comprobanteDePago"
+                      type="file"
+                      ref={fileInputRef1} // Asigna la referencia al input
+                      className={`file-input ${error.comprobanteDePago ? "is-invalid" : ""
+                        } w-100`}
+                      name="comprobanteDePago"
+                      onChange={handleChange}
+                      accept=".pdf, .docx, .jpg" // Solo permite los tipos de archivos especificados
+                      value=""
+                    />
+                    {error.comprobanteDePago && (
+                      <div className="invalid-feedback fw-semibold d-block">
+                        {error.comprobanteDePago}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </Col>
-          </Row>
+                </Col>
+                <Col md={4} className="d-flex align-items-center">
+                  <div className="mb-1 w-100">
+                    <label htmlFor="autorizacion" className="fw-semibold">Autorización</label>
+                    <div
+                      className={`dropzone p-1 ${isDraggingAutorizacion ? "dragging" : ""
+                        }`}
+                      onDrop={handleDropAutorizacion}
+                      onDragOver={handleDragOverAutorizacion}
+                      onClick={handleFileSelectAutorizacion}
+                    >
+                      {selectedFileAutorizacion ? (
+                        <p className="file-name fw-semibold">{selectedFileAutorizacion.name}</p>
+                      ) : (
+                        <p className="file-name fw-semibold">
+                          Arrastra y suelta el archivo aquí, o haz clic para
+                          seleccionar
+                        </p>
+                      )}
+                    </div>
+                    <input
+                      aria-label="autorizacion"
+                      type="file"
+                      ref={fileInputRef2} // Asigna la referencia al input
+                      className={`file-input ${error.autorizacion ? "is-invalid" : ""
+                        } w-100`}
+                      name="autorizacion"
+                      onChange={handleChange}
+                      accept=".pdf, .docx, .jpg" // Solo permite los tipos de archivos especificados
+                      value=""
+                    />
+                    {error.autorizacion && (
+                      <div className="invalid-feedback fw-semibold d-block">
+                        {error.autorizacion}
+                      </div>
+                    )}
+                  </div>
+                </Col>
+              </Row>
 
-          <div className="d-flex justify-content-end p-1">
-            <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>Validar</Button>
-          </div>
+              <div className="d-flex justify-content-end p-1">
+                <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>Validar</Button>
+              </div>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </Layout>
   );
 };

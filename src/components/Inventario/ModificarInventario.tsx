@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Form, Row, Col, Modal, Pagination, Spinner, OverlayTrigger, Tooltip, CloseButton, Collapse, } from "react-bootstrap";
+import { Button, Form, Row, Col, Modal, Pagination, Spinner, OverlayTrigger, Tooltip, CloseButton } from "react-bootstrap";
 import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -22,6 +22,7 @@ import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/
 import { comboDependenciaModificarActions } from "../../redux/actions/Inventario/Combos/comboDependenciaModificarActions ";
 import { comboCuentaModificarActions } from "../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+import { obtenerInventarioxAltasActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioxAltasActions";
 
 export interface SERVICIO_DEPENDENCIA {
   deP_CORR: number;
@@ -63,10 +64,10 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboEspecies: ListaEspecie[];
   comboProveedor: PROVEEDOR[];
   comboSerDep: SERVICIO_DEPENDENCIA[];
-
   comboSerDepActions: (establ_corr: number) => void;//En buscador   
   // comboDependenciaModificarActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
-  obtenerInventarioActions: (af_codigo_generico: string, altaS_corr: number, estabL_CORR: number) => Promise<boolean>;
+  obtenerInventarioActions: (af_codigo_generico: string, estabL_CORR: number) => Promise<boolean>;
+  obtenerInventarioxAltasActions: (altas_corr: number, estabL_CORR: number) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
@@ -117,6 +118,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   objeto,
   comboSerDepActions,
   obtenerInventarioActions,
+  obtenerInventarioxAltasActions,
   comboDetalleActions,
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,
@@ -126,13 +128,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [mostrarModalLista, setMostrarModalLista] = useState(false);
+  const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
+  const [mostrarModalAltas, setMostrarModalAltas] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = 50;
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isDisabledNRecepcion, setIsDisabledNRecepcion] = useState(false);
   const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -141,8 +143,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const [showInput, setShowInput] = useState(false);
   const [loadingBuscarInventario, setLoadingBuscarInventario] = useState(false);
   const [loadingBuscarAlta, setLoadingBuscarAlta] = useState(false);
-  const [key, setKey] = useState(0);
-
 
   const [Especies, setEspecies] = useState({
     estableEspecie: 0,
@@ -227,16 +227,15 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
-
   const servicioOptions = comboSerDep.map((item) => ({
     value: item.deP_CORR,
     label: item.descripcion,
   }));
 
+
   const handleServicioChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : 0;
     setInventario((prevInventario) => ({ ...prevInventario, DEP_CORR: value }));
-    console.log(value);
   };
 
   const validateDetalles = () => {
@@ -390,7 +389,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   };
 
-  const handleEdit = () => {
+  const handleLimpiarTodo = () => {
     setInventario((prevInventario) => ({
       ...prevInventario,
       aF_CODIGO_GENERICO: "",
@@ -416,9 +415,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       DET_PRECIO: 0,
       DET_OBS: ""
     }));
-    setKey(prev => prev + 1);
+    window.location.href = window.location.pathname;
     setIsDisabled(true);
-    setIsDisabledNRecepcion(false);
   };
 
   //Selecciona fila del listado de Especies
@@ -487,34 +485,33 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
 
   const handleSubmit = async () => {
-    console.log(Inventario);
-    // const resultado = await modificarFormInventarioActions(Inventario);
-    // if (resultado) {
-    //   Swal.fire({
-    //     icon: "success",
-    //     title: "Actualización exitosa",
-    //     text: "Se ha actualizado el registro con éxito!",
-    //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //     confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-    //     customClass: {
-    //       popup: "custom-border", // Clase personalizada para el borde
-    //     }
-    //   });
-    //   // handleEdit();
-    // } else {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Error",
-    //     text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
-    //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //     confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-    //     customClass: {
-    //       popup: "custom-border", // Clase personalizada para el borde
-    //     }
-    //   });
-    // }
+    const resultado = await modificarFormInventarioActions(Inventario);
+    if (resultado) {
+      Swal.fire({
+        icon: "success",
+        title: "Actualización exitosa",
+        text: "Se ha actualizado el registro con éxito!",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      // handleLimpiarTodo();
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+    }
   };
 
   const handleBuscarInventario = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -537,7 +534,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setLoading(false);
       return;
     }
-    resultado = await obtenerInventarioActions(BuscarInventario.aF_CODIGO_GENERICO_B, 0, objeto.Roles[0].codigoEstablecimiento);
+    resultado = await obtenerInventarioActions(BuscarInventario.aF_CODIGO_GENERICO_B, objeto.Roles[0].codigoEstablecimiento);
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -552,13 +549,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         }
       });
       setIsDisabled(true);
-      setIsDisabledNRecepcion(false);
       setLoadingBuscarInventario(false);
 
       // return;
     } else {
       setIsDisabled(false);
-      setIsDisabledNRecepcion(true);
       setLoadingBuscarInventario(false);
     }
 
@@ -584,7 +579,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setLoading(false);
       return;
     }
-    resultado = await obtenerInventarioActions("", BuscarInventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
+    resultado = await obtenerInventarioxAltasActions(BuscarInventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -603,12 +598,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
       // return;
     } else {
-      setMostrarModal(true);
+      setMostrarModalAltas(true);
       setIsDisabled(false);
       setLoadingBuscarAlta(false);
     }
-
   };
+  //Busca Especies
   const handleBuscar = async () => {
     setLoading(true);
     let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
@@ -632,7 +627,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleCerrarModal = () => {
     if (validateDetalles()) {
-      setMostrarModalLista(false);
+      setMostrarModalDetalles(false);
     }
   }
 
@@ -654,144 +649,145 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         <title>Modificar Inventario</title>
       </Helmet>
       <MenuInventario />
-      <form onSubmit={handleSubmit}>
-        <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-          <h3 className="form-title fw-semibold border-bottom p-1">
-            Modificar Inventario
-          </h3>
-          <div className={`d-flex justify-content-between`}>
-            <h5 className="fw-semibold">PARÁMETROS DE BÚSQUEDA</h5>
-          </div>
-          <Row className="p-1">
-            <Col md={3}>
-              {/* N° Inventario */}
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Nº Inventario
-                </label>
-                <div className="d-flex align-items-center">
-                  <input
-                    aria-label="aF_CODIGO_GENERICO_B"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    maxLength={12}
-                    name="aF_CODIGO_GENERICO_B"
-                    placeholder="Eje: 1000000008"
-                    onChange={handleChange}
-                    value={BuscarInventario.aF_CODIGO_GENERICO_B}
-                  />
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={<Tooltip id="tooltip-limpiar">Buscar Inventario</Tooltip>}
-                  >
-                    <Button
-                      onClick={handleBuscarInventario}
-                      variant="primary"
-                      className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
-                    >
-                      {loadingBuscarInventario ? (
-                        <>
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                        </>
-                      ) : (
-                        <Search
-                          className={classNames("flex-shrink-0", "h-5 w-5")}
-                          aria-hidden="true"
-                        />
-                      )}
-                    </Button>
-                  </OverlayTrigger>
-                </div>
-                {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
-                </div>
-                )}
+      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+        <div style={{ maxHeight: "80vh" }}>
+          <form onSubmit={handleSubmit}>
+            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+              <h3 className="form-title fw-semibold border-bottom p-1">
+                Modificar Inventario
+              </h3>
+              <div className={`d-flex justify-content-between`}>
+                <h5 className="fw-semibold">PARÁMETROS DE BÚSQUEDA</h5>
               </div>
+              <Row className="p-1">
+                <Col md={3}>
+                  {/* N° Inventario */}
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Nº Inventario
+                    </label>
+                    <div className="d-flex align-items-center">
+                      <input
+                        aria-label="aF_CODIGO_GENERICO_B"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        maxLength={12}
+                        name="aF_CODIGO_GENERICO_B"
+                        placeholder="Eje: 1000000008"
+                        onChange={handleChange}
+                        value={BuscarInventario.aF_CODIGO_GENERICO_B}
+                      />
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-limpiar">Buscar Inventario</Tooltip>}
+                      >
+                        <Button
+                          onClick={handleBuscarInventario}
+                          variant="primary"
+                          className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
+                        >
+                          {loadingBuscarInventario ? (
+                            <>
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                            </>
+                          ) : (
+                            <Search
+                              className={classNames("flex-shrink-0", "h-5 w-5")}
+                              aria-hidden="true"
+                            />
+                          )}
+                        </Button>
+                      </OverlayTrigger>
+                    </div>
+                    {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
+                    </div>
+                    )}
+                  </div>
 
-            </Col>
-            <Col md={3}>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Nº Alta
-                </label>
-                <div className="d-flex align-items-center">
-                  <input
-                    aria-label="altaS_CORR"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    maxLength={12}
-                    name="altaS_CORR"
-                    placeholder="Eje: 1000000008"
-                    onChange={handleChange}
-                    value={BuscarInventario.altaS_CORR}
-                    disabled={isDisabledNRecepcion}
-                  />
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={<Tooltip id="tooltip-limpiar">Buscar Alta</Tooltip>}
-                  >
-                    <Button
-                      onClick={handleBuscarAlta}
-                      variant="primary"
-                      className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
-                    >
-                      {loadingBuscarAlta ? (
-                        <>
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                        </>
-                      ) : (
-                        <Search
-                          className={classNames("flex-shrink-0", "h-5 w-5")}
-                          aria-hidden="true"
-                        />
-                      )}
-                    </Button>
-                  </OverlayTrigger>
-                </div>
-                {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
-                </div>
-                )}
+                </Col>
+                <Col md={3}>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Nº Alta
+                    </label>
+                    <div className="d-flex align-items-center">
+                      <input
+                        aria-label="altaS_CORR"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        maxLength={12}
+                        name="altaS_CORR"
+                        placeholder="Eje: 1000000008"
+                        onChange={handleChange}
+                        value={BuscarInventario.altaS_CORR}
+                      />
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-limpiar">Buscar Alta</Tooltip>}
+                      >
+                        <Button
+                          onClick={handleBuscarAlta}
+                          variant="primary"
+                          className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
+                        >
+                          {loadingBuscarAlta ? (
+                            <>
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                            </>
+                          ) : (
+                            <Search
+                              className={classNames("flex-shrink-0", "h-5 w-5")}
+                              aria-hidden="true"
+                            />
+                          )}
+                        </Button>
+                      </OverlayTrigger>
+                    </div>
+                    {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
+                    </div>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+              <div className={`border-bottom mt-4 mb-2`}>
+                <h5 className="fw-semibold">MODIFICAR</h5>
               </div>
-            </Col>
-          </Row>
-          <div className={`border-bottom mt-4 mb-2`}>
-            <h5 className="fw-semibold">MODIFICAR</h5>
-          </div>
-          <Row>
-            <Col md={3}>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Nº Inventario
-                </label>
-                <div className="d-flex align-items-center">
-                  <input
-                    aria-label="aF_CODIGO_GENERICO"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CODIGO_GENERICO ? "is-invalid" : ""}`}
-                    maxLength={12}
-                    name="aF_CODIGO_GENERICO"
-                    placeholder="Eje: 1000000008"
-                    onChange={handleChange}
-                    value={Inventario.aF_CODIGO_GENERICO}
-                    disabled
-                  />
-                </div>
-                {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
-                </div>
-                )}
-              </div>
-              {/* <div className="ms-1">
+              <Row>
+                <Col md={3}>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Nº Inventario
+                    </label>
+                    <div className="d-flex align-items-center">
+                      <input
+                        aria-label="aF_CODIGO_GENERICO"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CODIGO_GENERICO ? "is-invalid" : ""}`}
+                        maxLength={12}
+                        name="aF_CODIGO_GENERICO"
+                        placeholder="Eje: 1000000008"
+                        onChange={handleChange}
+                        value={Inventario.aF_CODIGO_GENERICO}
+                        disabled
+                      />
+                    </div>
+                    {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
+                    </div>
+                    )}
+                  </div>
+                  {/* <div className="ms-1">
                 <label className="fw-semibold">
                   Nº Alta
                 </label>
@@ -806,148 +802,148 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 // value={Buscar.altaS_CORR}
                 />
               </div> */}
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Fecha Recepción
-                </label>
-                <input
-                  aria-label="AF_FECHA_SOLICITUD"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_FECHA_SOLICITUD ? "is-invalid" : ""}`}
-                  name="AF_FECHA_SOLICITUD"
-                  maxLength={10}
-                  onChange={handleChange}
-                  value={Inventario.AF_FECHA_SOLICITUD}
-                  disabled={isDisabled}
-                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                />
-                {error.AF_FECHA_SOLICITUD && (
-                  <div className="invalid-feedback fw-semibold">{error.AF_FECHA_SOLICITUD}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  N° Orden de compra
-                </label>
-                <input
-                  aria-label="AF_OCO_NUMERO_REF"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_OCO_NUMERO_REF ? "is-invalid" : ""}`}
-                  maxLength={12}
-                  name="AF_OCO_NUMERO_REF"
-                  onChange={handleChange}
-                  value={Inventario.AF_OCO_NUMERO_REF}
-                  disabled={isDisabled}
-                />
-                {error.AF_OCO_NUMERO_REF && (
-                  <div className="invalid-feedback fw-semibold">{error.AF_OCO_NUMERO_REF}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Nº factura
-                </label>
-                <input
-                  aria-label="AF_NUM_FAC"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_NUM_FAC ? "is-invalid" : ""}`}
-                  maxLength={12}
-                  name="AF_NUM_FAC"
-                  onChange={handleChange}
-                  value={Inventario.AF_NUM_FAC}
-                  disabled={isDisabled}
-                />
-                {error.AF_NUM_FAC && (
-                  <div className="invalid-feedback fw-semibold">{error.AF_NUM_FAC}</div>
-                )}
-              </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Fecha Recepción
+                    </label>
+                    <input
+                      aria-label="AF_FECHA_SOLICITUD"
+                      type="date"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_FECHA_SOLICITUD ? "is-invalid" : ""}`}
+                      name="AF_FECHA_SOLICITUD"
+                      maxLength={10}
+                      onChange={handleChange}
+                      value={Inventario.AF_FECHA_SOLICITUD}
+                      disabled={isDisabled}
+                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                    />
+                    {error.AF_FECHA_SOLICITUD && (
+                      <div className="invalid-feedback fw-semibold">{error.AF_FECHA_SOLICITUD}</div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      N° Orden de compra
+                    </label>
+                    <input
+                      aria-label="AF_OCO_NUMERO_REF"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_OCO_NUMERO_REF ? "is-invalid" : ""}`}
+                      maxLength={12}
+                      name="AF_OCO_NUMERO_REF"
+                      onChange={handleChange}
+                      value={Inventario.AF_OCO_NUMERO_REF}
+                      disabled={isDisabled}
+                    />
+                    {error.AF_OCO_NUMERO_REF && (
+                      <div className="invalid-feedback fw-semibold">{error.AF_OCO_NUMERO_REF}</div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Nº factura
+                    </label>
+                    <input
+                      aria-label="AF_NUM_FAC"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_NUM_FAC ? "is-invalid" : ""}`}
+                      maxLength={12}
+                      name="AF_NUM_FAC"
+                      onChange={handleChange}
+                      value={Inventario.AF_NUM_FAC}
+                      disabled={isDisabled}
+                    />
+                    {error.AF_NUM_FAC && (
+                      <div className="invalid-feedback fw-semibold">{error.AF_NUM_FAC}</div>
+                    )}
+                  </div>
 
-            </Col>
-            <Col md={3}>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Origen Presupuesto</label>
-                <select
-                  aria-label="AF_ORIGEN"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_ORIGEN ? "is-invalid" : ""}`}
-                  name="AF_ORIGEN"
-                  onChange={handleChange}
-                  value={Inventario.AF_ORIGEN}
-                  disabled={isDisabled}
-                >
-                  <option value="">Seleccione un origen</option>
-                  {comboOrigen.map((traeOrigen) => (
-                    <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
-                      {traeOrigen.descripcion}
-                    </option>
-                  ))}
-                </select>
-                {error.AF_ORIGEN && (<div className="invalid-feedback fw-semibold">{error.AF_ORIGEN}
-                </div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Monto Recepción
-                </label>
-                <input
-                  aria-label="AF_MONTOFACTURA"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_MONTOFACTURA ? "is-invalid" : ""}`}
-                  maxLength={12}
-                  name="AF_MONTOFACTURA"
-                  onChange={handleChange}
-                  value={Inventario.AF_MONTOFACTURA.toLocaleString("es-ES", {
-                    minimumFractionDigits: 0,
-                  })}
-                  disabled
-                />
-                {error.AF_MONTOFACTURA && (
-                  <div className="invalid-feedback fw-semibold">{error.AF_MONTOFACTURA}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Fecha Factura</label>
-                <input
-                  aria-label="AF_FECHAFAC"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_FECHAFAC ? "is-invalid" : ""}`}
-                  name="AF_FECHAFAC"
-                  onChange={handleChange}
-                  value={Inventario.AF_FECHAFAC}
-                  disabled={isDisabled}
-                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                />
-                {error.AF_FECHAFAC && (
-                  <div className="invalid-feedback fw-semibold">{error.AF_FECHAFAC}</div>
-                )}
-              </div>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Proveedor</label>
-                <select
-                  aria-label="PROV_RUN"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.PROV_RUN ? "is-invalid" : ""}`}
-                  name="PROV_RUN"
-                  onChange={handleChange}
-                  value={Inventario.PROV_RUN}
-                  disabled={isDisabled}
-                >
-                  <option value="0">Seleccione un Proveedor</option>
-                  {comboProveedor.map((traeProveedor) => (
-                    <option key={traeProveedor.proV_RUN} value={traeProveedor.proV_RUN}>
-                      {traeProveedor.proV_NOMBRE}
-                    </option>
-                  ))}
-                </select>
-                {error.PROV_RUN && (<div className="invalid-feedback fw-semibold d-block">{error.PROV_RUN}
-                </div>
-                )}
-              </div>
-            </Col>
-            <Col md={3}>
-              {/* <div className="mb-1">
+                </Col>
+                <Col md={3}>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Origen Presupuesto</label>
+                    <select
+                      aria-label="AF_ORIGEN"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_ORIGEN ? "is-invalid" : ""}`}
+                      name="AF_ORIGEN"
+                      onChange={handleChange}
+                      value={Inventario.AF_ORIGEN}
+                      disabled={isDisabled}
+                    >
+                      <option value="">Seleccione un origen</option>
+                      {comboOrigen.map((traeOrigen) => (
+                        <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
+                          {traeOrigen.descripcion}
+                        </option>
+                      ))}
+                    </select>
+                    {error.AF_ORIGEN && (<div className="invalid-feedback fw-semibold">{error.AF_ORIGEN}
+                    </div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Monto Recepción
+                    </label>
+                    <input
+                      aria-label="AF_MONTOFACTURA"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_MONTOFACTURA ? "is-invalid" : ""}`}
+                      maxLength={12}
+                      name="AF_MONTOFACTURA"
+                      onChange={handleChange}
+                      value={Inventario.AF_MONTOFACTURA.toLocaleString("es-ES", {
+                        minimumFractionDigits: 0,
+                      })}
+                      disabled
+                    />
+                    {error.AF_MONTOFACTURA && (
+                      <div className="invalid-feedback fw-semibold">{error.AF_MONTOFACTURA}</div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Fecha Factura</label>
+                    <input
+                      aria-label="AF_FECHAFAC"
+                      type="date"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_FECHAFAC ? "is-invalid" : ""}`}
+                      name="AF_FECHAFAC"
+                      onChange={handleChange}
+                      value={Inventario.AF_FECHAFAC}
+                      disabled={isDisabled}
+                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                    />
+                    {error.AF_FECHAFAC && (
+                      <div className="invalid-feedback fw-semibold">{error.AF_FECHAFAC}</div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Proveedor</label>
+                    <select
+                      aria-label="PROV_RUN"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.PROV_RUN ? "is-invalid" : ""}`}
+                      name="PROV_RUN"
+                      onChange={handleChange}
+                      value={Inventario.PROV_RUN}
+                      disabled={isDisabled}
+                    >
+                      <option value="0">Seleccione un Proveedor</option>
+                      {comboProveedor.map((traeProveedor) => (
+                        <option key={traeProveedor.proV_RUN} value={traeProveedor.proV_RUN}>
+                          {traeProveedor.proV_NOMBRE}
+                        </option>
+                      ))}
+                    </select>
+                    {error.PROV_RUN && (<div className="invalid-feedback fw-semibold d-block">{error.PROV_RUN}
+                    </div>
+                    )}
+                  </div>
+                </Col>
+                <Col md={3}>
+                  {/* <div className="mb-1">
                 <label className="fw-semibold">
                   Servicio
                 </label>
@@ -1000,153 +996,162 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 )}
               </div> */}
 
-              {/* Servicio/Dependencia */}
-              <div className="mb-1 position-relative z-1">
-                <label className="fw-semibold">
-                  Servicio / Dependencia
-                </label>
-                <Select
-                  options={servicioOptions}
-                  onChange={handleServicioChange}
-                  name="deP_CORR"
-                  value={servicioOptions.find((option) => option.value === Inventario.DEP_CORR) || null}
-                  placeholder="Buscar"
-                  className={`form-select-container`}
-                  classNamePrefix="react-select"
-                  isClearable
-                  isSearchable
-                  styles={{
-                    control: (baseStyles) => ({
-                      ...baseStyles,
-                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                      color: isDarkMode ? "white" : "#212529", // Texto blanco
-                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                    }),
-                    singleValue: (base) => ({
-                      ...base,
-                      color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                    }),
-                    menu: (base) => ({
-                      ...base,
-                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                      color: isDarkMode ? "white" : "#212529",
-                    }),
-                    option: (base, { isFocused, isSelected }) => ({
-                      ...base,
-                      backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                      color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                    }),
-                  }}
-                />
-              </div>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Modalidad de Compra
-                </label>
-                <select
-                  aria-label="IDMODALIDADCOMPRA"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
-                  name="IDMODALIDADCOMPRA"
-                  onChange={handleChange}
-                  value={Inventario.IDMODALIDADCOMPRA}
-                >
-                  <option value="">Seleccione una modalidad</option>
-                  {comboModalidad.map((traeModalidad) => (
-                    <option
-                      key={traeModalidad.codigo}
-                      value={traeModalidad.codigo}
+                  {/* Servicio/Dependencia */}
+                  <div className="mb-1 position-relative z-1">
+                    <label className="fw-semibold">
+                      Servicio / Dependencia
+                    </label>
+                    <Select
+                      options={servicioOptions}
+                      onChange={handleServicioChange}
+                      name="DEP_CORR"
+                      value={servicioOptions.find((option) => option.value === Inventario.DEP_CORR) || null}
+                      placeholder="Buscar"
+                      className={`form-select-container ${error.DEP_CORR ? "is-invalid border border-danger rounded" : ""}`}
+                      classNamePrefix={`react-select `}
+                      isDisabled={isDisabled}
+                      isClearable
+                      isSearchable
+                      styles={{
+                        control: (baseStyles) => ({
+                          ...baseStyles,
+                          background: isDisabled && !isDarkMode ? "#e9ecef" : "",//Color que indica deshabilitado
+                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                          color: isDarkMode ? "white" : "#dc3545", // Texto blanco
+                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                          color: isDarkMode ? "white" : "#212529",
+                        }),
+                        option: (base, { isFocused, isSelected }) => ({
+                          ...base,
+                          backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                          color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                        }),
+                      }}
+                    />
+                    {error.DEP_CORR && (
+                      <div className="invalid-feedback fw-semibold d-block">
+                        {error.DEP_CORR}
+                      </div>
+                    )}
+                  </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Modalidad de Compra
+                    </label>
+                    <select
+                      aria-label="IDMODALIDADCOMPRA"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
+                      name="IDMODALIDADCOMPRA"
+                      onChange={handleChange}
+                      value={Inventario.IDMODALIDADCOMPRA}
+                      disabled={isDisabled}
                     >
-                      {traeModalidad.descripcion}
-                    </option>
-                  ))}
-                </select>
-                {error.IDMODALIDADCOMPRA && (<div className="invalid-feedback fw-semibold">{error.IDMODALIDADCOMPRA}
-                </div>
-                )}
-              </div>
-              {showInput && (
-                <div className="mb-1">
-                  {/* <label className="fw-semibold">
+                      <option value="">Seleccione una modalidad</option>
+                      {comboModalidad.map((traeModalidad) => (
+                        <option
+                          key={traeModalidad.codigo}
+                          value={traeModalidad.codigo}
+                        >
+                          {traeModalidad.descripcion}
+                        </option>
+                      ))}
+                    </select>
+                    {error.IDMODALIDADCOMPRA && (<div className="invalid-feedback fw-semibold">{error.IDMODALIDADCOMPRA}
+                    </div>
+                    )}
+                  </div>
+                  {showInput && (
+                    <div className="mb-1">
+                      {/* <label className="fw-semibold">
                     Modalidad de Compra
                   </label> */}
-                  <input
-                    aria-label="IDMODALIDADCOMPRA"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
-                    name="IDMODALIDADCOMPRA"
-                    placeholder="Especifique otro"
-                    onChange={(e) =>
-                      setInventario({
-                        ...Inventario,
-                        IDMODALIDADCOMPRA: parseInt(e.target.value),
-                      })
-                    }
-                  />
-                  {error.IDMODALIDADCOMPRA && (
-                    <div className="invalid-feedback fw-semibold">
-                      {error.IDMODALIDADCOMPRA}
+                      <input
+                        aria-label="IDMODALIDADCOMPRA"
+                        type="text"
+                        className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
+                        name="IDMODALIDADCOMPRA"
+                        placeholder="Especifique otro"
+                        onChange={(e) =>
+                          setInventario({
+                            ...Inventario,
+                            IDMODALIDADCOMPRA: parseInt(e.target.value),
+                          })
+                        }
+                      />
+                      {error.IDMODALIDADCOMPRA && (
+                        <div className="invalid-feedback fw-semibold">
+                          {error.IDMODALIDADCOMPRA}
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
-              )}
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Especie
-                </label>
-                <div className="d-flex align-items-center">
-                  <input
-                    aria-label="codigo"
-                    type="text"
-                    name="codigo"
-                    value={Inventario.ESP_CODIGO || "Haz clic en más para seleccionar una especie"}
-                    onChange={handleChange}
-                    disabled
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.ESP_CODIGO ? "is-invalid" : ""}`}
-                  />
-                  {/* Botón para abrir el modal y seleccionar una Especie */}
-                  <Button
-                    variant="primary"
-                    onClick={() => setMostrarModal(true)}
-                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
-                    disabled={isDisabled}
-                  >
-                    <Pencil
-                      className={classNames("flex-shrink-0", "h-5 w-5")}
-                      aria-hidden="true"
-                    />
-                  </Button>
-                </div>
-                {error.ESP_CODIGO && (
-                  <div className="invalid-feedback fw-semibold d-block">
-                    {error.ESP_CODIGO}
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Especie
+                    </label>
+                    <div className="d-flex align-items-center">
+                      <input
+                        aria-label="codigo"
+                        type="text"
+                        name="codigo"
+                        value={Inventario.ESP_CODIGO || "Haz clic en más para seleccionar una especie"}
+                        onChange={handleChange}
+                        disabled
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.ESP_CODIGO ? "is-invalid" : ""}`}
+                      />
+                      {/* Botón para abrir el modal y seleccionar una Especie */}
+                      <Button
+                        variant="primary"
+                        onClick={() => setMostrarModal(true)}
+                        className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
+                        disabled={isDisabled}
+                      >
+                        <Pencil
+                          className={classNames("flex-shrink-0", "h-5 w-5")}
+                          aria-hidden="true"
+                        />
+                      </Button>
+                    </div>
+                    {error.ESP_CODIGO && (
+                      <div className="invalid-feedback fw-semibold d-block">
+                        {error.ESP_CODIGO}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </Col>
-            <Col md={3}>
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Cuenta</label>
-                <select
-                  aria-label="CTA_COD"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.CTA_COD ? "is-invalid" : ""}`}
-                  name="CTA_COD"
-                  onChange={handleChange}
-                  value={Inventario.CTA_COD}
-                // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {comboCuenta.map((traeCuentas) => (
-                    <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                      {traeCuentas.descripcion}
-                    </option>
-                  ))}
-                </select>
-                {error.CTA_COD && (
-                  <div className="invalid-feedback fw-semibold">{error.CTA_COD}</div>
-                )}
-              </div>
-              {/* <div className="mb-1">
+                </Col>
+                <Col md={3}>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Cuenta</label>
+                    <select
+                      aria-label="CTA_COD"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.CTA_COD ? "is-invalid" : ""}`}
+                      name="CTA_COD"
+                      onChange={handleChange}
+                      value={Inventario.CTA_COD}
+                      disabled={isDisabled}
+                    // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                    >
+                      <option value="">Selecciona una opción</option>
+                      {comboCuenta.map((traeCuentas) => (
+                        <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                          {traeCuentas.descripcion}
+                        </option>
+                      ))}
+                    </select>
+                    {error.CTA_COD && (
+                      <div className="invalid-feedback fw-semibold">{error.CTA_COD}</div>
+                    )}
+                  </div>
+                  {/* <div className="mb-1">
                 <label className="fw-semibold">
                   Cuenta
                 </label>
@@ -1188,50 +1193,53 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                 )}
               </div> */}
-              <div className="mb-1">
-                <label className="fw-semibold">
-                  Activos fijos</label>
-                <div className="d-flex align-items-center">
-                  <p className="text-right w-100 border p-2 m-0 rounded">
-                    Detalles activos fijos
-                  </p>
-                  {/* Botón para abrir el modal y seleccionar una ESP_CODIGO */}
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={<Tooltip id="tooltip-limpiar">Ver Detalles</Tooltip>}
-                  >
-                    <Button
-                      onClick={() => setMostrarModalLista(true)}
-                      className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
-                      disabled={isDisabled}
-                    >
-                      <Eye
-                        className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />
-                    </Button>
-                  </OverlayTrigger>
-                </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold">
+                      Activos fijos</label>
+                    <div className="d-flex align-items-center">
+                      <p className="text-right w-100 border p-2 m-0 rounded">
+                        Detalles activos fijos
+                      </p>
+                      {/* Botón para abrir el modal y seleccionar una ESP_CODIGO */}
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-limpiar">Ver Detalles</Tooltip>}
+                      >
+                        <Button
+                          onClick={() => setMostrarModalDetalles(true)}
+                          className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
+                          disabled={isDisabled}
+                        >
+                          <Eye
+                            className={classNames("flex-shrink-0", "h-5 w-5")}
+                            aria-hidden="true"
+                          />
+                        </Button>
+                      </OverlayTrigger>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+              <div className="rounded d-flex justify-content-end m-2">
+                <Button
+                  disabled={isDisabled}
+                  onClick={handleLimpiarTodo}
+                  className="btn btn-danger m-1">
+                  Limpiar todo
+                </Button>
 
+                <Button disabled={isDisabled}
+                  onClick={handleValidar}
+                  className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
+                  Validar
+                </Button>
               </div>
-            </Col>
-          </Row>
-          <div className="rounded d-flex justify-content-end m-2">
-            <Button
-              onClick={handleEdit}
-              className={`btn ${isDarkMode ? "btn-secondary" : "btn-danger"} m-1`}>
-              Limpiar Todo
-            </Button>
-
-            <Button disabled={isDisabled} onClick={handleValidar}
-              className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
-              Validar
-            </Button>
-          </div>
+            </div>
+          </form>
         </div>
-      </form>
+      </div >
       {/* Modal ESP_CODIGOs*/}
-      <Modal
+      < Modal
         show={mostrarModal}
         onHide={() => setMostrarModal(false)}
         size="lg"
@@ -1437,12 +1445,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Pagination>
           </div>
         </Modal.Body>
-      </Modal>
+      </Modal >
 
       {/* Modal tabla detalles activos Fijo*/}
-      <Modal
-        show={mostrarModalLista}
-        onHide={() => setMostrarModalLista(false)}
+      < Modal
+        show={mostrarModalDetalles}
+        onHide={() => setMostrarModalDetalles(false)}
         size="xl"
         backdrop="static"
       >
@@ -1578,7 +1586,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </div>
           </div>
         </Modal.Body>
-      </Modal>
+      </Modal >
     </Layout >
   );
 };
@@ -1625,6 +1633,7 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   obtenerInventarioActions,
+  obtenerInventarioxAltasActions,
   comboSerDepActions,
   // comboDependenciaModificarActions,
   comboDetalleActions,

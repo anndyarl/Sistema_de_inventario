@@ -24,9 +24,8 @@ interface SERVICIO {
 }
 
 interface DEPENDENCIA {
-  codigo: number;
+  deP_CORR: number;
   descripcion: string;
-  nombrE_ORD: string;
 }
 
 interface ListaEspecie {
@@ -297,411 +296,415 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
         <title>Buscar Inventario</title>
       </Helmet>
       <MenuInventario />
-      <form>
-        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-          <h3 className="form-title fw-semibold border-bottom p-1">
-            Buscar Inventario
-          </h3>
-          <Row className="border rounded p-2 m-2">
-            {/* Columna 1: Fechas y Especie */}
-            <Col md={3}>
-              <div className="mb-2">
-                <label htmlFor="fechaInicio" className="form-label fw-semibold small">
-                  Desde
-                </label>
-                <input
-                  aria-label="Fecha Desde"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""
-                    }`}
-                  name="fechaInicio"
-                  onChange={handleChange}
-                  value={Inventario.fechaInicio}
-                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                />
-                {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
-              </div>
+      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+        <div style={{ maxHeight: "80vh" }}>
+          <form>
+            <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+              <h3 className="form-title fw-semibold border-bottom p-1">
+                Buscar Inventario
+              </h3>
+              <Row className="border rounded p-2 m-2">
+                {/* Columna 1: Fechas y Especie */}
+                <Col md={3}>
+                  <div className="mb-2">
+                    <label htmlFor="fechaInicio" className="form-label fw-semibold small">
+                      Desde
+                    </label>
+                    <input
+                      aria-label="Fecha Desde"
+                      type="date"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""
+                        }`}
+                      name="fechaInicio"
+                      onChange={handleChange}
+                      value={Inventario.fechaInicio}
+                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                    />
+                    {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
+                  </div>
 
-              <div className="mb-2">
-                <label htmlFor="fechaTermino" className="form-label fw-semibold small">
-                  Hasta
-                </label>
-                <input
-                  aria-label="Fecha Hasta"
-                  type="date"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""
-                    }`}
-                  name="fechaTermino"
-                  onChange={handleChange}
-                  value={Inventario.fechaTermino}
-                  max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                />
-                {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
-              </div>
+                  <div className="mb-2">
+                    <label htmlFor="fechaTermino" className="form-label fw-semibold small">
+                      Hasta
+                    </label>
+                    <input
+                      aria-label="Fecha Hasta"
+                      type="date"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""
+                        }`}
+                      name="fechaTermino"
+                      onChange={handleChange}
+                      value={Inventario.fechaTermino}
+                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                    />
+                    {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
+                  </div>
 
-              <div className="mb-2">
-                <label className="form-label fw-semibold small">Buscar Especie</label>
-                <Select
-                  options={especieOptions}
-                  onChange={(selectedOption) => {
-                    handleComboEspecieChange(selectedOption)
-                  }}
-                  name="esP_CODIGO"
-                  placeholder="Buscar"
-                  className="form-select-container"
-                  classNamePrefix="react-select"
-                  isClearable
-                  value={especieOptions.find((option) => option.value === Inventario.esP_CODIGO) || null}
-                  styles={{
-                    control: (baseStyles) => ({
-                      ...baseStyles,
-                      backgroundColor: isDarkMode ? "#212529" : "white",
-                      color: isDarkMode ? "white" : "#212529",
-                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
-                    }),
-                    singleValue: (base) => ({
-                      ...base,
-                      color: isDarkMode ? "white" : "#212529",
-                    }),
-                    menu: (base) => ({
-                      ...base,
-                      backgroundColor: isDarkMode ? "#212529" : "white",
-                      color: isDarkMode ? "white" : "#212529",
-                    }),
-                    option: (base, { isFocused, isSelected }) => ({
-                      ...base,
-                      backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                      color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                    }),
-                  }}
-                />
-              </div>
-              <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
-            </Col>
+                  <div className="mb-2">
+                    <label className="form-label fw-semibold small">Buscar Especie</label>
+                    <Select
+                      options={especieOptions}
+                      onChange={(selectedOption) => {
+                        handleComboEspecieChange(selectedOption)
+                      }}
+                      name="esP_CODIGO"
+                      placeholder="Buscar"
+                      className="form-select-container"
+                      classNamePrefix="react-select"
+                      isClearable
+                      value={especieOptions.find((option) => option.value === Inventario.esP_CODIGO) || null}
+                      styles={{
+                        control: (baseStyles) => ({
+                          ...baseStyles,
+                          backgroundColor: isDarkMode ? "#212529" : "white",
+                          color: isDarkMode ? "white" : "#212529",
+                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          color: isDarkMode ? "white" : "#212529",
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          backgroundColor: isDarkMode ? "#212529" : "white",
+                          color: isDarkMode ? "white" : "#212529",
+                        }),
+                        option: (base, { isFocused, isSelected }) => ({
+                          ...base,
+                          backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                          color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                        }),
+                      }}
+                    />
+                  </div>
+                  <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
+                </Col>
 
-            {/* Columna 2: Servicio, Dependencia y N° Inventario */}
-            <Col md={3}>
-              <div className="mb-2">
-                <label htmlFor="seR_CORR" className="form-label fw-semibold small">
-                  Servicio
-                </label>
-                <select
-                  aria-label="seR_CORR"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="seR_CORR"
-                  onChange={handleChange}
-                  value={Inventario.seR_CORR}
-                >
-                  <option value="">Seleccionar</option>
-                  {comboServicio.map((traeServicio) => (
-                    <option key={traeServicio.codigo} value={traeServicio.codigo}>
-                      {traeServicio.descripcion}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {/* Columna 2: Servicio, Dependencia y N° Inventario */}
+                <Col md={3}>
+                  <div className="mb-2">
+                    <label htmlFor="seR_CORR" className="form-label fw-semibold small">
+                      Servicio
+                    </label>
+                    <select
+                      aria-label="seR_CORR"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="seR_CORR"
+                      onChange={handleChange}
+                      value={Inventario.seR_CORR}
+                    >
+                      <option value="">Seleccionar</option>
+                      {comboServicio.map((traeServicio) => (
+                        <option key={traeServicio.codigo} value={traeServicio.codigo}>
+                          {traeServicio.descripcion}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div className="mb-2">
-                <label htmlFor="deP_CORR" className="form-label fw-semibold small">
-                  Dependencia
-                </label>
-                <select
-                  aria-label="deP_CORR"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="deP_CORR"
-                  onChange={handleChange}
-                  value={Inventario.deP_CORR}
-                  disabled={!Inventario.seR_CORR}
-                >
-                  <option value="">Seleccionar</option>
-                  {comboDependencia.map((traeDependencia) => (
-                    <option key={traeDependencia.codigo} value={traeDependencia.codigo}>
-                      {traeDependencia.descripcion}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <div className="mb-2">
+                    <label htmlFor="deP_CORR" className="form-label fw-semibold small">
+                      Dependencia
+                    </label>
+                    <select
+                      aria-label="deP_CORR"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="deP_CORR"
+                      onChange={handleChange}
+                      value={Inventario.deP_CORR}
+                      disabled={!Inventario.seR_CORR}
+                    >
+                      <option value="">Seleccionar</option>
+                      {comboDependencia.map((traeDependencia) => (
+                        <option key={traeDependencia.deP_CORR} value={traeDependencia.deP_CORR}>
+                          {traeDependencia.descripcion}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div className="mb-2">
-                <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">
-                  Nº Inventario
-                </label>
-                <input
-                  aria-label="af_codigo_generico"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="af_codigo_generico"
-                  placeholder="Ej: 1000000008"
-                  onChange={handleChange}
-                  value={Inventario.af_codigo_generico}
-                />
-              </div>
-            </Col>
+                  <div className="mb-2">
+                    <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">
+                      Nº Inventario
+                    </label>
+                    <input
+                      aria-label="af_codigo_generico"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="af_codigo_generico"
+                      placeholder="Ej: 1000000008"
+                      onChange={handleChange}
+                      value={Inventario.af_codigo_generico}
+                    />
+                  </div>
+                </Col>
 
-            {/* Columna 3: Marca, Modelo y Serie */}
-            <Col md={2}>
-              <div className="mb-2">
-                <label htmlFor="marca" className="form-label fw-semibold small">
-                  Marca
-                </label>
-                <input
-                  aria-label="marca"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  maxLength={50}
-                  name="marca"
-                  placeholder="Introduzca marca"
-                  onChange={handleChange}
-                  value={Inventario.marca}
-                />
-              </div>
+                {/* Columna 3: Marca, Modelo y Serie */}
+                <Col md={2}>
+                  <div className="mb-2">
+                    <label htmlFor="marca" className="form-label fw-semibold small">
+                      Marca
+                    </label>
+                    <input
+                      aria-label="marca"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      maxLength={50}
+                      name="marca"
+                      placeholder="Introduzca marca"
+                      onChange={handleChange}
+                      value={Inventario.marca}
+                    />
+                  </div>
 
-              <div className="mb-2">
-                <label htmlFor="modelo" className="form-label fw-semibold small">
-                  Modelo
-                </label>
-                <input
-                  aria-label="modelo"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  maxLength={50}
-                  name="modelo"
-                  placeholder="Introduzca modelo"
-                  onChange={handleChange}
-                  value={Inventario.modelo}
-                />
-              </div>
+                  <div className="mb-2">
+                    <label htmlFor="modelo" className="form-label fw-semibold small">
+                      Modelo
+                    </label>
+                    <input
+                      aria-label="modelo"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      maxLength={50}
+                      name="modelo"
+                      placeholder="Introduzca modelo"
+                      onChange={handleChange}
+                      value={Inventario.modelo}
+                    />
+                  </div>
 
-              <div className="mb-2">
-                <label htmlFor="serie" className="form-label fw-semibold small">
-                  Serie
-                </label>
-                <input
-                  aria-label="serie"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  maxLength={50}
-                  name="serie"
-                  placeholder="Ingrese serie"
-                  onChange={handleChange}
-                  value={Inventario.serie}
-                />
-              </div>
-            </Col>
+                  <div className="mb-2">
+                    <label htmlFor="serie" className="form-label fw-semibold small">
+                      Serie
+                    </label>
+                    <input
+                      aria-label="serie"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      maxLength={50}
+                      name="serie"
+                      placeholder="Ingrese serie"
+                      onChange={handleChange}
+                      value={Inventario.serie}
+                    />
+                  </div>
+                </Col>
 
-            {/* Columna 4: Recepción, Orden de Compra y N° Alta */}
-            <Col md={2}>
-              <div className="mb-2">
-                <label htmlFor="nrecepcion" className="form-label fw-semibold small">
-                  Nº Recepción
-                </label>
-                <input
-                  aria-label="nrecepcion"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  maxLength={10}
-                  name="nrecepcion"
-                  placeholder="0"
-                  onChange={handleChange}
-                  value={Inventario.nrecepcion}
-                />
-              </div>
+                {/* Columna 4: Recepción, Orden de Compra y N° Alta */}
+                <Col md={2}>
+                  <div className="mb-2">
+                    <label htmlFor="nrecepcion" className="form-label fw-semibold small">
+                      Nº Recepción
+                    </label>
+                    <input
+                      aria-label="nrecepcion"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      maxLength={10}
+                      name="nrecepcion"
+                      placeholder="0"
+                      onChange={handleChange}
+                      value={Inventario.nrecepcion}
+                    />
+                  </div>
 
-              <div className="mb-2">
-                <label htmlFor="aF_OCO_NUMERO_REF" className="form-label fw-semibold small">
-                  Orden de Compra
-                </label>
-                <input
-                  aria-label="aF_OCO_NUMERO_REF"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  maxLength={30}
-                  name="aF_OCO_NUMERO_REF"
-                  placeholder="-"
-                  onChange={handleChange}
-                  value={Inventario.aF_OCO_NUMERO_REF}
-                />
-              </div>
+                  <div className="mb-2">
+                    <label htmlFor="aF_OCO_NUMERO_REF" className="form-label fw-semibold small">
+                      Orden de Compra
+                    </label>
+                    <input
+                      aria-label="aF_OCO_NUMERO_REF"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      maxLength={30}
+                      name="aF_OCO_NUMERO_REF"
+                      placeholder="-"
+                      onChange={handleChange}
+                      value={Inventario.aF_OCO_NUMERO_REF}
+                    />
+                  </div>
 
-              <div className="mb-2">
-                <label htmlFor="altaS_CORR" className="form-label fw-semibold small">
-                  Nº Alta
-                </label>
-                <input
-                  aria-label="altaS_CORR"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="altaS_CORR"
-                  placeholder="Ej: 0"
-                  onChange={handleChange}
-                  value={Inventario.altaS_CORR}
-                />
-              </div>
-            </Col>
+                  <div className="mb-2">
+                    <label htmlFor="altaS_CORR" className="form-label fw-semibold small">
+                      Nº Alta
+                    </label>
+                    <input
+                      aria-label="altaS_CORR"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="altaS_CORR"
+                      placeholder="Ej: 0"
+                      onChange={handleChange}
+                      value={Inventario.altaS_CORR}
+                    />
+                  </div>
+                </Col>
 
-            {/* Columna 5: Botones de Acción */}
-            <Col lg={1} md={2}>
-              <div className="d-flex flex-column gap-2 mt-4">
-                <Button
-                  onClick={handleBuscar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="w-100"
-                // disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      Buscar
-                      <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                    </>
-                  ) : (
-                    <>
-                      Buscar
-                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                    </>
+                {/* Columna 5: Botones de Acción */}
+                <Col lg={1} md={2}>
+                  <div className="d-flex flex-column gap-2 mt-4">
+                    <Button
+                      onClick={handleBuscar}
+                      variant={`${isDarkMode ? "secondary" : "primary"}`}
+                      className="w-100"
+                    // disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          Buscar
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                        </>
+                      ) : (
+                        <>
+                          Buscar
+                          <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                        </>
+                      )}
+                    </Button>
+
+                    <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                      Limpiar
+                      <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                    </Button>
+
+                    <Button variant={`${isDarkMode ? "secondary" : "success"}`} onClick={handleExportarExcel}>
+                      Exportar
+                      <FileExcel className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                    </Button>
+
+                  </div>
+                </Col>
+              </Row>
+              {/* Tamaño de página */}
+              <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
+                {/* Tamaño de página */}
+                <Col xs={12} lg="auto">
+                  {listaInventarioBuscar.length > 10 && (
+                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                      <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                        Tamaño de página:
+                      </label>
+                      <select
+                        aria-label="Seleccionar tamaño de página"
+                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        name="nPaginacion"
+                        onChange={handleChange}
+                        value={Paginacion.nPaginacion}
+                      >
+                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                          <option key={val} value={val}>{val}</option>
+                        ))}
+                      </select>
+                    </div>
                   )}
-                </Button>
+                </Col>
+              </Row>
 
-                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                  Limpiar
-                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                </Button>
-
-                <Button variant={`${isDarkMode ? "secondary" : "success"}`} onClick={handleExportarExcel}>
-                  Exportar
-                  <FileExcel className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                </Button>
-
-              </div>
-            </Col>
-          </Row>
-          {/* Tamaño de página */}
-          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
-            {/* Tamaño de página */}
-            <Col xs={12} lg="auto">
-              {listaInventarioBuscar.length > 10 && (
-                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                    Tamaño de página:
-                  </label>
-                  <select
-                    aria-label="Seleccionar tamaño de página"
-                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nPaginacion"
-                    onChange={handleChange}
-                    value={Paginacion.nPaginacion}
-                  >
-                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                      <option key={val} value={val}>{val}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </Col>
-          </Row>
-
-          {/* Tabla */}
-          {loading ? (
-            <>
-              <SkeletonLoader rowCount={elementosPorPagina} />
-            </>
-          ) : (
-            <div className='skeleton-table table-responsive'>
-              {elementosActuales.length > 0 && (
-                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                  <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                    <tr>
-                      {/* <th scope="col" className="text-nowrap">Estado Alta</th> */}
-                      <th scope="col" className="text-nowrap">Nº Inventario</th>
-                      <th scope="col" className="text-nowrap">Descripción</th>
-                      <th scope="col" className="text-nowrap">Fecha</th>
-                      <th scope="col" className="text-nowrap">Servicio</th>
-                      <th scope="col" className="text-nowrap">Dependencia</th>
-                      <th scope="col" className="text-nowrap">Especie</th>
-                      <th scope="col" className="text-nowrap">Precio</th>
-                      <th scope="col" className="text-nowrap">Vida Útil</th>
-                      {/* <th scope="col" className="text-nowrap">Depreciación</th>
+              {/* Tabla */}
+              {loading ? (
+                <>
+                  <SkeletonLoader rowCount={elementosPorPagina} />
+                </>
+              ) : (
+                <div className='skeleton-table table-responsive'>
+                  {elementosActuales.length > 0 && (
+                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                      <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                        <tr>
+                          {/* <th scope="col" className="text-nowrap">Estado Alta</th> */}
+                          <th scope="col" className="text-nowrap">Nº Inventario</th>
+                          <th scope="col" className="text-nowrap">Descripción</th>
+                          <th scope="col" className="text-nowrap">Fecha</th>
+                          <th scope="col" className="text-nowrap">Servicio</th>
+                          <th scope="col" className="text-nowrap">Dependencia</th>
+                          <th scope="col" className="text-nowrap">Especie</th>
+                          <th scope="col" className="text-nowrap">Precio</th>
+                          <th scope="col" className="text-nowrap">Vida Útil</th>
+                          {/* <th scope="col" className="text-nowrap">Depreciación</th>
                       <th scope="col" className="text-nowrap">Depreciación Acumulada</th>
                       <th scope="col" className="text-nowrap">Valor Libro</th>
                       <th scope="col" className="text-nowrap">Nº Trapasos</th> */}
-                      <th scope="col" className="text-nowrap">Nº Alta</th>
-                      <th scope="col" className="text-nowrap">Origen</th>
-                      <th scope="col" className="text-nowrap">Nº Recepción</th>
-                      <th scope="col" className="text-nowrap">Nº Cta</th>
-                      <th scope="col" className="text-nowrap">Orden de Compra</th>
-                      <th scope="col" className="text-nowrap">Marca</th>
-                      <th scope="col" className="text-nowrap">Modelo</th>
-                      <th scope="col" className="text-nowrap">Serie</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {elementosActuales.map((lista, index) => (
-                      <tr key={index}>
-                        {/* <td className="text-start">{lista.altaS_ESTADO === "1" ? <p className="badge bg-success w-100">Disponible</p> : <p className="badge bg-danger w-100">Anulado</p>}</td> */}
-                        <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
-                        <td className="text-start">{lista.aF_DESCRIPCION}</td>
-                        <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
-                        <td className="text-start">{lista.seR_NOMBRE}</td>
-                        <td className="text-start">{lista.deP_NOMBRE}</td>
-                        <td className="text-start">{lista.esP_NOMBRE}</td>
-                        <td className="text-start">
-                          ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
-                        <td className="text-start">{lista.aF_VIDAUTIL}</td>
-                        {/* <td className="text-start">.</td>
+                          <th scope="col" className="text-nowrap">Nº Alta</th>
+                          <th scope="col" className="text-nowrap">Origen</th>
+                          <th scope="col" className="text-nowrap">Nº Recepción</th>
+                          <th scope="col" className="text-nowrap">Nº Cta</th>
+                          <th scope="col" className="text-nowrap">Orden de Compra</th>
+                          <th scope="col" className="text-nowrap">Marca</th>
+                          <th scope="col" className="text-nowrap">Modelo</th>
+                          <th scope="col" className="text-nowrap">Serie</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {elementosActuales.map((lista, index) => (
+                          <tr key={index}>
+                            {/* <td className="text-start">{lista.altaS_ESTADO === "1" ? <p className="badge bg-success w-100">Disponible</p> : <p className="badge bg-danger w-100">Anulado</p>}</td> */}
+                            <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
+                            <td className="text-start">{lista.aF_DESCRIPCION}</td>
+                            <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
+                            <td className="text-start">{lista.seR_NOMBRE}</td>
+                            <td className="text-start">{lista.deP_NOMBRE}</td>
+                            <td className="text-start">{lista.esP_NOMBRE}</td>
+                            <td className="text-start">
+                              ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                            <td className="text-start">{lista.aF_VIDAUTIL}</td>
+                            {/* <td className="text-start">.</td>
                         <td className="text-start">.</td>
                         <td className="text-start">.</td>
                         <td className="text-start">.</td> */}
-                        <td className="text-start">{lista.altaS_CORR}</td>
-                        <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "-"}</td>
-                        <td className="text-start">{!lista.nrecepcion ? "-" : lista.nrecepcion}</td>
-                        <td className="text-start">{lista.ctA_COD}</td>
-                        <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
-                        <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
-                        <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
-                        <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                        {/* <td className="text-start">{lista.aF_ESTADO_INV}</td> */}
-                      </tr>
+                            <td className="text-start">{lista.altaS_CORR}</td>
+                            <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "-"}</td>
+                            <td className="text-start">{!lista.nrecepcion ? "-" : lista.nrecepcion}</td>
+                            <td className="text-start">{lista.ctA_COD}</td>
+                            <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
+                            <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
+                            <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
+                            <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
+                            {/* <td className="text-start">{lista.aF_ESTADO_INV}</td> */}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+
+              {/* Paginador */}
+              {elementosActuales.length > 0 && (
+                <div className="paginador-container position-relative z-0">
+                  <Pagination className="paginador-scroll">
+                    <Pagination.First
+                      onClick={() => paginar(1)}
+                      disabled={paginaActual === 1}
+                    />
+                    <Pagination.Prev
+                      onClick={() => paginar(paginaActual - 1)}
+                      disabled={paginaActual === 1}
+                    />
+
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                      <Pagination.Item
+                        key={i + 1}
+                        active={i + 1 === paginaActual}
+                        onClick={() => paginar(i + 1)}
+                      >
+                        {i + 1}
+                      </Pagination.Item>
                     ))}
-                  </tbody>
-                </table>
+                    <Pagination.Next
+                      onClick={() => paginar(paginaActual + 1)}
+                      disabled={paginaActual === totalPaginas}
+                    />
+                    <Pagination.Last
+                      onClick={() => paginar(totalPaginas)}
+                      disabled={paginaActual === totalPaginas}
+                    />
+                  </Pagination>
+                </div>
               )}
             </div>
-          )}
-
-          {/* Paginador */}
-          {elementosActuales.length > 0 && (
-            <div className="paginador-container position-relative z-0">
-              <Pagination className="paginador-scroll">
-                <Pagination.First
-                  onClick={() => paginar(1)}
-                  disabled={paginaActual === 1}
-                />
-                <Pagination.Prev
-                  onClick={() => paginar(paginaActual - 1)}
-                  disabled={paginaActual === 1}
-                />
-
-                {Array.from({ length: totalPaginas }, (_, i) => (
-                  <Pagination.Item
-                    key={i + 1}
-                    active={i + 1 === paginaActual}
-                    onClick={() => paginar(i + 1)}
-                  >
-                    {i + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next
-                  onClick={() => paginar(paginaActual + 1)}
-                  disabled={paginaActual === totalPaginas}
-                />
-                <Pagination.Last
-                  onClick={() => paginar(totalPaginas)}
-                  disabled={paginaActual === totalPaginas}
-                />
-              </Pagination>
-            </div>
-          )}
+          </form>
         </div>
-      </form>
+      </div>
     </Layout >
   );
 };

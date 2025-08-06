@@ -442,208 +442,210 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         <title>Bodega de Excluidos</title>
       </Helmet>
       <MenuBajas />
-      <form>
-        <div className="border-bottom shadow-sm p-2 rounded">
-          <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
-          <Row className="border rounded p-2 m-2">
-            <Col lg={3} md={4}>
-              <div className="mb-2">
-                <div className="mb-1">
-                  <label htmlFor="fDesde" className="fw-semibold">Desde</label>
-                  <input
-                    aria-label="fDesde"
-                    type="date"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                    name="fDesde"
-                    onChange={handleChange}
-                    value={Excluidos.fDesde}
-                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                  />
-                  {error.fDesde && (
-                    <div className="invalid-feedback d-block">{error.fDesde}</div>
-                  )}
-                </div>
+      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+        <div style={{ maxHeight: "80vh" }}>
+          <form>
+            <div className="border-bottom shadow-sm p-2 rounded">
+              <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
+              <Row className="border rounded p-2 m-2">
+                <Col lg={3} md={4}>
+                  <div className="mb-2">
+                    <div className="mb-1">
+                      <label htmlFor="fDesde" className="fw-semibold">Desde</label>
+                      <input
+                        aria-label="fDesde"
+                        type="date"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                        name="fDesde"
+                        onChange={handleChange}
+                        value={Excluidos.fDesde}
+                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                      />
+                      {error.fDesde && (
+                        <div className="invalid-feedback d-block">{error.fDesde}</div>
+                      )}
+                    </div>
 
-                <div className="flex-grow-1">
-                  <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
-                  <div className="input-group">
+                    <div className="flex-grow-1">
+                      <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                      <div className="input-group">
+                        <input
+                          aria-label="Fecha Hasta"
+                          type="date"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                          name="fHasta"
+                          onChange={handleChange}
+                          value={Excluidos.fHasta}
+                          max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                        />
+                      </div>
+                      {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                    </div>
+                    <small className="fw-semibold">Filtre los resultados por fecha de Baja.</small>
+                  </div>
+                </Col>
+
+                <Col lg={2} md={4}>
+                  <div className="mb-1">
+                    <label htmlFor="nresolucion" className="fw-semibold">Nº Certificado</label>
                     <input
-                      aria-label="Fecha Hasta"
-                      type="date"
-                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                      name="fHasta"
+                      aria-label="nresolucion"
+                      type="text"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="nresolucion"
+                      size={10}
+                      placeholder="0"
                       onChange={handleChange}
-                      value={Excluidos.fHasta}
-                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                      value={Excluidos.nresolucion}
                     />
                   </div>
-                  {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
-
-                </div>
-                <small className="fw-semibold">Filtre los resultados por fecha de Baja.</small>
-              </div>
-            </Col>
-
-            <Col lg={2} md={4}>
-              <div className="mb-1">
-                <label htmlFor="nresolucion" className="fw-semibold">Nº Certificado</label>
-                <input
-                  aria-label="nresolucion"
-                  type="text"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="nresolucion"
-                  size={10}
-                  placeholder="0"
-                  onChange={handleChange}
-                  value={Excluidos.nresolucion}
-                />
-              </div>
-              <div className="mb-2">
-                <label htmlFor="af_codigo_generico" className="form-label fw-semibold">Nº Inventario</label>
-                <input
-                  aria-label="af_codigo_generico"
-                  type="text"
-                  className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="af_codigo_generico"
-                  placeholder="Ej: 1000000008"
-                  onChange={handleChange}
-                  value={Excluidos.af_codigo_generico}
-                />
-              </div>
-            </Col>
-
-            {/* Columna 5: Botones de Acción */}
-            <Col lg={1} md={4}>
-              <div className="d-flex flex-column gap-2 mt-4">
-                <Button
-                  onClick={handleBuscar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="w-100"
-                // disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      Buscar
-                      <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                    </>
-                  ) : (
-                    <>
-                      Buscar
-                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                    </>
-                  )}
-                </Button>
-
-                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                  Limpiar
-                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                </Button>
-              </div>
-            </Col>
-          </Row>
-          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-            {/* Tamaño de página */}
-            <Col xs={12} lg="auto">
-              {listaExcluidos.length > 10 && (
-                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                    Tamaño de página:
-                  </label>
-                  <select
-                    aria-label="Seleccionar tamaño de página"
-                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nPaginacion"
-                    onChange={handleChange}
-                    value={Paginacion.nPaginacion}
-                  >
-                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                      <option key={val} value={val}>{val}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </Col>
-
-            {/* Botón o mensaje */}
-            <Col xs={12} lg={2}>
-              <div className="d-flex justify-content-center justify-content-lg-end">
-                {filasSeleccionadas.length > 0 ? (
-                  <Button
-                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                    onClick={handleRematarSeleccionados}
-                    className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                    disabled={loadingRegistro}
-                  >
-                    {loadingRegistro ? (
-                      <>
-                        Enviar a Remate
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                          className="mx-1"
-                        />
-                      </>
-                    ) : (
-                      <>
-                        Enviar a Remate
-                        <span className="badge bg-light text-dark mx-1 mt-1">
-                          {filasSeleccionadas.length}
-                        </span>
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
-                      No hay filas seleccionadas
-                    </strong>
+                  <div className="mb-2">
+                    <label htmlFor="af_codigo_generico" className="form-label fw-semibold">Nº Inventario</label>
+                    <input
+                      aria-label="af_codigo_generico"
+                      type="text"
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="af_codigo_generico"
+                      placeholder="Ej: 1000000008"
+                      onChange={handleChange}
+                      value={Excluidos.af_codigo_generico}
+                    />
                   </div>
-                )}
-              </div>
-            </Col>
-          </Row>
-          {/* </div> */}
+                </Col>
 
-          {/* Tabla*/}
-          {loading ? (
-            <>
-              <SkeletonLoader rowCount={elementosPorPagina} />
-            </>
-          ) : (
-            <div className='table-responsive'>
-              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                  <tr>
-                    <th style={{
-                      position: 'sticky',
-                      left: 0
+                {/* Columna 5: Botones de Acción */}
+                <Col lg={1} md={4}>
+                  <div className="d-flex flex-column gap-2 mt-4">
+                    <Button
+                      onClick={handleBuscar}
+                      variant={`${isDarkMode ? "secondary" : "primary"}`}
+                      className="w-100"
+                    // disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          Buscar
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                        </>
+                      ) : (
+                        <>
+                          Buscar
+                          <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                        </>
+                      )}
+                    </Button>
 
-                    }}>
-                      <Form.Check
-                        className="check-danger"
-                        type="checkbox"
-                        onChange={handleSeleccionaTodos}
-                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                      />
-                    </th>
-                    <th scope="col" className="text-nowrap text-center">Nº Baja</th>
-                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                    <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
-                    <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                    <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
-                    <th scope="col" className="text-nowrap text-center">Fecha Baja</th>
-                    <th scope="col" className="text-nowrap text-center">Especie</th>
-                    <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
-                    <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
-                    <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
-                    <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
-                    <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
-                    <th scope="col" className="text-nowrap text-center">Saldo Valor</th>
-                    <th scope="col" className="text-nowrap text-center">Estado</th>
-                    {/* <th
+                    <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                      Limpiar
+                      <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
+              <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                {/* Tamaño de página */}
+                <Col xs={12} lg="auto">
+                  {listaExcluidos.length > 10 && (
+                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                      <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                        Tamaño de página:
+                      </label>
+                      <select
+                        aria-label="Seleccionar tamaño de página"
+                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        name="nPaginacion"
+                        onChange={handleChange}
+                        value={Paginacion.nPaginacion}
+                      >
+                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                          <option key={val} value={val}>{val}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </Col>
+
+                {/* Botón o mensaje */}
+                <Col xs={12} lg={2}>
+                  <div className="d-flex justify-content-center justify-content-lg-end">
+                    {filasSeleccionadas.length > 0 ? (
+                      <Button
+                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                        onClick={handleRematarSeleccionados}
+                        className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                        disabled={loadingRegistro}
+                      >
+                        {loadingRegistro ? (
+                          <>
+                            Enviar a Remate
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="mx-1"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            Enviar a Remate
+                            <span className="badge bg-light text-dark mx-1 mt-1">
+                              {filasSeleccionadas.length}
+                            </span>
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                          No hay filas seleccionadas
+                        </strong>
+                      </div>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+              {/* </div> */}
+
+              {/* Tabla*/}
+              {loading ? (
+                <>
+                  <SkeletonLoader rowCount={elementosPorPagina} />
+                </>
+              ) : (
+                <div className='table-responsive'>
+                  <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                      <tr>
+                        <th style={{
+                          position: 'sticky',
+                          left: 0
+
+                        }}>
+                          <Form.Check
+                            className="check-danger"
+                            type="checkbox"
+                            onChange={handleSeleccionaTodos}
+                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                          />
+                        </th>
+                        <th scope="col" className="text-nowrap text-center">Nº Baja</th>
+                        <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                        <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
+                        <th scope="col" className="text-nowrap text-center">Observaciones</th>
+                        <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
+                        <th scope="col" className="text-nowrap text-center">Fecha Baja</th>
+                        <th scope="col" className="text-nowrap text-center">Especie</th>
+                        <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
+                        <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
+                        <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
+                        <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
+                        <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
+                        <th scope="col" className="text-nowrap text-center">Saldo Valor</th>
+                        <th scope="col" className="text-nowrap text-center">Estado</th>
+                        {/* <th
                       className="text-nowrap text-center"
                       style={{
                         position: 'sticky',
@@ -652,39 +654,39 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                     >
                       Acción
                     </th> */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {elementosActuales.map((Lista, index) => {
-                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                    return (
-                      <tr key={indexReal}>
-                        <td style={{
-                          position: 'sticky',
-                          left: 0
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {elementosActuales.map((Lista, index) => {
+                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                        return (
+                          <tr key={indexReal}>
+                            <td style={{
+                              position: 'sticky',
+                              left: 0
 
-                        }}>
-                          <Form.Check
-                            type="checkbox"
-                            onChange={() => setSeleccionaFila(indexReal)}
-                            checked={filasSeleccionadas.includes(indexReal.toString())}
-                          />
-                        </td>
-                        <td className="text-nowrap">{Lista.bajaS_CORR}</td>
-                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                        <td className="text-nowrap">{Lista.nresolucion}</td>
-                        <td className="text-nowrap">{Lista.observaciones}</td>
-                        <td className="text-nowrap">{Lista.useR_MOD}</td>
-                        <td className="text-nowrap">{Lista.fechA_BAJA}</td>
-                        <td className="text-nowrap">{Lista.especie}</td>
-                        <td className="text-nowrap">{Lista.ncuenta}</td>
-                        <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
-                        <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
-                        <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
-                        <td className="text-nowrap">{Lista.iniciaL_VALOR}</td>
-                        <td className="text-nowrap">{Lista.saldO_VALOR}</td>
-                        <td className="text-nowrap">{Lista.estado}</td>
-                        {/* <td style={{
+                            }}>
+                              <Form.Check
+                                type="checkbox"
+                                onChange={() => setSeleccionaFila(indexReal)}
+                                checked={filasSeleccionadas.includes(indexReal.toString())}
+                              />
+                            </td>
+                            <td className="text-nowrap">{Lista.bajaS_CORR}</td>
+                            <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                            <td className="text-nowrap">{Lista.nresolucion}</td>
+                            <td className="text-nowrap">{Lista.observaciones}</td>
+                            <td className="text-nowrap">{Lista.useR_MOD}</td>
+                            <td className="text-nowrap">{Lista.fechA_BAJA}</td>
+                            <td className="text-nowrap">{Lista.especie}</td>
+                            <td className="text-nowrap">{Lista.ncuenta}</td>
+                            <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
+                            <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
+                            <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
+                            <td className="text-nowrap">{Lista.iniciaL_VALOR}</td>
+                            <td className="text-nowrap">{Lista.saldO_VALOR}</td>
+                            <td className="text-nowrap">{Lista.estado}</td>
+                            {/* <td style={{
                           position: 'sticky',
                           right: 0                   
 
@@ -695,120 +697,120 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                             Quitar
                           </Button>
                         </td> */}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Paginador */}
+              <div className="paginador-container position-relative z-0">
+                <Pagination className="paginador-scroll">
+                  <Pagination.First
+                    onClick={() => paginar(1)}
+                    disabled={paginaActual === 1}
+                  />
+                  <Pagination.Prev
+                    onClick={() => paginar(paginaActual - 1)}
+                    disabled={paginaActual === 1}
+                  />
+
+                  {Array.from({ length: totalPaginas }, (_, i) => (
+                    <Pagination.Item
+                      key={i + 1}
+                      active={i + 1 === paginaActual}
+                      onClick={() => paginar(i + 1)}
+                    >
+                      {i + 1}
+                    </Pagination.Item>
+                  ))}
+                  <Pagination.Next
+                    onClick={() => paginar(paginaActual + 1)}
+                    disabled={paginaActual === totalPaginas}
+                  />
+                  <Pagination.Last
+                    onClick={() => paginar(totalPaginas)}
+                    disabled={paginaActual === totalPaginas}
+                  />
+                </Pagination>
+              </div>
             </div>
-          )}
-
-          {/* Paginador */}
-          <div className="paginador-container position-relative z-0">
-            <Pagination className="paginador-scroll">
-              <Pagination.First
-                onClick={() => paginar(1)}
-                disabled={paginaActual === 1}
-              />
-              <Pagination.Prev
-                onClick={() => paginar(paginaActual - 1)}
-                disabled={paginaActual === 1}
-              />
-
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === paginaActual}
-                  onClick={() => paginar(i + 1)}
-                >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => paginar(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-              />
-              <Pagination.Last
-                onClick={() => paginar(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
-              />
-            </Pagination>
-          </div>
+          </form>
         </div>
-      </form>
+      </div>
       {/* Modal formulario*/}
-      {
-        elementosActuales.map((lista, index) => (
-          <div key={index}>
-            <Modal
-              show={mostrarModal === index}
-              onHide={() => handleCerrarModal()}
-              dialogClassName="modal-right" // Clase personalizada
-            // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-            // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-            >
-              <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                <Modal.Title className="fw-semibold">Quitar registro: {lista.nresolucion}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                <form>
-                  {/* <div className="d-flex justify-content-end">
+      {elementosActuales.map((lista, index) => (
+        <div key={index}>
+          <Modal
+            show={mostrarModal === index}
+            onHide={() => handleCerrarModal()}
+            dialogClassName="modal-right" // Clase personalizada
+          // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+          // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+          >
+            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+              <Modal.Title className="fw-semibold">Quitar registro: {lista.nresolucion}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+              <form>
+                {/* <div className="d-flex justify-content-end">
                   <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>
                     Enviar a Bodega
                   </Button>
                 </div> */}
-                  {/* Boton anular filas seleccionadas */}
-                  <div className="d-flex justify-content-end">
-                    <Button
-                      variant="danger"
-                      onClick={handleQuitar}
-                      className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                      disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                    >
-                      {loadingRegistro ? (
-                        <>
-                          {" Quitando... "}
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="me-2"  // Espaciado entre el spinner y el texto
-                          />
+                {/* Boton anular filas seleccionadas */}
+                <div className="d-flex justify-content-end">
+                  <Button
+                    variant="danger"
+                    onClick={handleQuitar}
+                    className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                    disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                  >
+                    {loadingRegistro ? (
+                      <>
+                        {" Quitando... "}
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"  // Espaciado entre el spinner y el texto
+                        />
 
-                        </>
-                      ) : (
-                        <>
-                          Quitar
-                        </>
-                      )}
-                    </Button>
-
-                  </div>
-                  <div className="mb-1">
-                    <label htmlFor="nresolucion" className="fw-semibold">
-                      Ingrese número de resolución
-                    </label>
-                    <input
-                      aria-label="nresolucion"
-                      type="text"
-                      className={`form-control ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      name="nresolucion"
-                      maxLength={100}
-                      onChange={handleChange}
-                      value={Excluidos.nresolucion}
-                    />
-                    {error.nresolucion && (
-                      <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
+                      </>
+                    ) : (
+                      <>
+                        Quitar
+                      </>
                     )}
-                  </div>
-                </form>
-              </Modal.Body>
-            </Modal >
-          </div>
-        ))
-      }
+                  </Button>
+
+                </div>
+                <div className="mb-1">
+                  <label htmlFor="nresolucion" className="fw-semibold">
+                    Ingrese número de resolución
+                  </label>
+                  <input
+                    aria-label="nresolucion"
+                    type="text"
+                    className={`form-control ${error.nresolucion ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nresolucion"
+                    maxLength={100}
+                    onChange={handleChange}
+                    value={Excluidos.nresolucion}
+                  />
+                  {error.nresolucion && (
+                    <div className="invalid-feedback fw-semibold">{error.nresolucion}</div>
+                  )}
+                </div>
+              </form>
+            </Modal.Body>
+          </Modal >
+        </div>
+      ))}
     </Layout >
   );
 };

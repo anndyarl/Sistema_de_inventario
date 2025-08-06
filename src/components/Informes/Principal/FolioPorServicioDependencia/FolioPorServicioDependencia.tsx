@@ -589,286 +589,289 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 <title>Detalles de Bienes por Dependencia</title>
             </Helmet>
             <MenuInformes />
-            <form>
-                <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                    <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
-                    <Row className="border rounded p-2 m-2">
-                        <Col sm={12} md={12} lg={3}>
-                            {/* Servicio/Dependencia */}
-                            <div className="mb-1 position-relative z-1">
-                                <label className="fw-semibold">
-                                    Servicio / Dependencia
-                                </label>
-                                <Select
-                                    options={servicioOptions}
-                                    onChange={handleServicioChange}
-                                    name="servicio"
-                                    value={servicioOptions.find((option) => option.value === Buscar.servicio) || null}
-                                    placeholder="Buscar"
-                                    className={`form-select-container `}
-                                    classNamePrefix="react-select"
-                                    isClearable
-                                    isSearchable
-                                    styles={{
-                                        control: (baseStyles) => ({
-                                            ...baseStyles,
-                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                                            color: isDarkMode ? "white" : "#212529", // Texto blanco
-                                            borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                                        }),
-                                        singleValue: (base) => ({
-                                            ...base,
-                                            color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                                        }),
-                                        menu: (base) => ({
-                                            ...base,
-                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                                            color: isDarkMode ? "white" : "#212529",
-                                        }),
-                                        option: (base, { isFocused, isSelected }) => ({
-                                            ...base,
-                                            backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                                            color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                                        }),
-                                    }}
-                                />
-                            </div>
-                        </Col>
-                        <Col lg={2} md={4}>
-                            <div className="mb-1 mt-4">
-                                <Button onClick={handleBuscar}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1 w-100"
-                                    disabled={loading}>
-                                    {loading ? (
-                                        <>
-                                            {" Buscar"}
-                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            {"Buscar"}
-                                            <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </>
-                                    )}
-                                </Button>
-                                <Button onClick={handleLimpiar}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="mx-1 mb-1 w-100">
-                                    Limpiar
-                                    <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                </Button>
-
-                            </div>
-                        </Col>
-
-                    </Row>
-                    <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-                        {/* Tamaño de página */}
-                        <Col xs={12} lg="auto">
-                            {listaFolioServicioDependencia.length > 10 && (
-                                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                        Tamaño de página:
-                                    </label>
-                                    <select
-                                        aria-label="Seleccionar tamaño de página"
-                                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                        name="nPaginacion"
-                                        onChange={handleChange}
-                                        value={Paginacion.nPaginacion}
-                                    >
-                                        {[10, 15, 20, 25, 50, 100].map((val) => (
-                                            <option key={val} value={val}>{val}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
-                        </Col>
-
-                        {/* Botón o mensaje */}
-                        <Col xs={12} lg={4}>
-                            <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                                {filasSeleccionadas.length > 0 ? (
-                                    <>
-                                        <Button
+            <div className="table-responsive position-relative z-0 hide-scrollbar" >
+                <div style={{ maxHeight: "80vh" }}>
+                    <form>
+                        <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                            <h3 className="form-title fw-semibold border-bottom p-1">Detalles de Bienes por Dependencia</h3>
+                            <Row className="border rounded p-2 m-2">
+                                <Col sm={12} md={12} lg={3}>
+                                    {/* Servicio/Dependencia */}
+                                    <div className="mb-1 position-relative z-1">
+                                        <label className="fw-semibold">
+                                            Servicio / Dependencia
+                                        </label>
+                                        <Select
+                                            options={servicioOptions}
+                                            onChange={handleServicioChange}
+                                            name="servicio"
+                                            value={servicioOptions.find((option) => option.value === Buscar.servicio) || null}
+                                            placeholder="Buscar"
+                                            className={`form-select-container `}
+                                            classNamePrefix="react-select"
+                                            isClearable
+                                            isSearchable
+                                            styles={{
+                                                control: (baseStyles) => ({
+                                                    ...baseStyles,
+                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                                    color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                                    borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                                }),
+                                                singleValue: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                                    color: isDarkMode ? "white" : "#212529",
+                                                }),
+                                                option: (base, { isFocused, isSelected }) => ({
+                                                    ...base,
+                                                    backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                                    color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                                }),
+                                            }}
+                                        />
+                                    </div>
+                                </Col>
+                                <Col lg={2} md={4}>
+                                    <div className="mb-1 mt-4">
+                                        <Button onClick={handleBuscar}
                                             variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                            onClick={() => setMostrarModal(true)}
-                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                                            disabled={loading}
-                                        >
+                                            className="mx-1 mb-1 w-100"
+                                            disabled={loading}>
                                             {loading ? (
                                                 <>
-                                                    <FiletypePdf
-                                                        className="flex-shrink-0 h-5 w-5 mx-2"
-                                                        aria-hidden="true"
-                                                    />
-                                                    Exportar
-                                                    <Spinner
-                                                        as="span"
-                                                        animation="border"
-                                                        size="sm"
-                                                        role="status"
-                                                        aria-hidden="true"
-                                                        className="mx-2"
-                                                    />
+                                                    {" Buscar"}
+                                                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                                 </>
                                             ) : (
                                                 <>
-                                                    <FiletypePdf
-                                                        className="flex-shrink-0 h-5 w-5 mx-1"
-                                                        aria-hidden="true"
-                                                    />
-                                                    Exportar
-                                                    <span className="badge bg-light text-dark mx-2 mt-1">
-                                                        {filasSeleccionadas.length}
-                                                    </span>
+                                                    {"Buscar"}
+                                                    <Search className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                                 </>
                                             )}
                                         </Button>
-                                        {/* Botón Trasladar */}
-                                        <Button
-                                            variant="warning"
-                                            onClick={() => setMostrarModalTraslado(true)}
-                                            disabled={listaFolioServicioDependencia.length === 0}
-                                            className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
-                                        >
-                                            Trasladar
-                                            <span className="badge bg-light text-dark mx-1 mt-1">
-                                                {filasSeleccionadas.length}
-                                            </span>
+                                        <Button onClick={handleLimpiar}
+                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                            className="mx-1 mb-1 w-100">
+                                            Limpiar
+                                            <Eraser className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                         </Button>
 
-                                    </>
-                                ) : (
-                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
-                                            No hay filas seleccionadas
-                                        </strong>
                                     </div>
-                                )}
-                                <Button
-                                    onClick={handleAgregar}
-                                    disabled={loading}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center">
-                                    Agregar
-                                    <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
+                                </Col>
 
-                    {/* Tabla*/}
-                    {loading ? (
-                        <>
-                            {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                            <SkeletonLoader rowCount={10} columnCount={10} />
-                        </>
-                    ) : (
-                        <div className='table-responsive position-relative z-0'>
-                            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                <thead className={`sticky-top  z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                    <tr>
-                                        <th style={{
-                                            position: 'sticky',
-                                            left: 0,
-                                            zIndex: 0,
+                            </Row>
+                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                                {/* Tamaño de página */}
+                                <Col xs={12} lg="auto">
+                                    {listaFolioServicioDependencia.length > 10 && (
+                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                                Tamaño de página:
+                                            </label>
+                                            <select
+                                                aria-label="Seleccionar tamaño de página"
+                                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="nPaginacion"
+                                                onChange={handleChange}
+                                                value={Paginacion.nPaginacion}
+                                            >
+                                                {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                    <option key={val} value={val}>{val}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                </Col>
 
-                                        }}>
-                                            <Form.Check
-                                                className="check-danger"
-                                                type="checkbox"
-                                                onChange={handleSeleccionaTodos}
-                                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                            />
-                                        </th>
-                                        <th scope="col" className="text-nowrap">N° Inventario</th>
-                                        <th scope="col" className="text-nowrap">Especie</th>
-                                        <th scope="col" className="text-nowrap">Marca</th>
-                                        <th scope="col" className="text-nowrap">Modelo</th>
-                                        <th scope="col" className="text-nowrap">Serie</th>
-                                        <th scope="col" className="text-nowrap">Observación</th>
-                                        <th scope="col" className="text-nowrap">Fecha Ingreso</th>
-                                        <th scope="col" className="text-nowrap">Nº Alta</th>
-                                        <th scope="col" className="text-nowrap">Estado</th>
-                                        <th scope="col" className="text-nowrap">Nº Traslado</th>
-                                        <th scope="col" className="text-nowrap">Valor Inicial</th>
-                                        <th scope="col" className="text-nowrap">Cta Contable</th>
+                                {/* Botón o mensaje */}
+                                <Col xs={12} lg={4}>
+                                    <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                        {filasSeleccionadas.length > 0 ? (
+                                            <>
+                                                <Button
+                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                    onClick={() => setMostrarModal(true)}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? (
+                                                        <>
+                                                            <FiletypePdf
+                                                                className="flex-shrink-0 h-5 w-5 mx-2"
+                                                                aria-hidden="true"
+                                                            />
+                                                            Exportar
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                aria-hidden="true"
+                                                                className="mx-2"
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FiletypePdf
+                                                                className="flex-shrink-0 h-5 w-5 mx-1"
+                                                                aria-hidden="true"
+                                                            />
+                                                            Exportar
+                                                            <span className="badge bg-light text-dark mx-2 mt-1">
+                                                                {filasSeleccionadas.length}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </Button>
+                                                {/* Botón Trasladar */}
+                                                <Button
+                                                    variant="warning"
+                                                    onClick={() => setMostrarModalTraslado(true)}
+                                                    disabled={listaFolioServicioDependencia.length === 0}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
+                                                >
+                                                    Trasladar
+                                                    <span className="badge bg-light text-dark mx-1 mt-1">
+                                                        {filasSeleccionadas.length}
+                                                    </span>
+                                                </Button>
 
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {elementosActuales.map((Lista, index) => {
-                                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                        return (
-                                            <tr key={index}>
-                                                <td style={{
+                                            </>
+                                        ) : (
+                                            <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                                <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
+                                                    No hay filas seleccionadas
+                                                </strong>
+                                            </div>
+                                        )}
+                                        <Button
+                                            onClick={handleAgregar}
+                                            disabled={loading}
+                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center">
+                                            Agregar
+                                            <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </Button>
+                                    </div>
+                                </Col>
+                            </Row>
+
+                            {/* Tabla*/}
+                            {loading ? (
+                                <>
+                                    {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                                    <SkeletonLoader rowCount={10} columnCount={10} />
+                                </>
+                            ) : (
+                                <div className='table-responsive position-relative z-0'>
+                                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                        <thead className={`sticky-top  z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                            <tr>
+                                                <th style={{
                                                     position: 'sticky',
                                                     left: 0,
                                                     zIndex: 0,
 
                                                 }}>
                                                     <Form.Check
+                                                        className="check-danger"
                                                         type="checkbox"
-                                                        onChange={() => setSeleccionaFilas(indexReal)}
-                                                        checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                        onChange={handleSeleccionaTodos}
+                                                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                     />
-                                                </td>
-                                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                <td className="text-nowrap">{Lista.aF_ESPECIE}</td>
-                                                <td className="text-nowrap">{Lista.aF_MARCA}</td>
-                                                <td className="text-nowrap">{Lista.aF_MODELO}</td>
-                                                <td className="text-nowrap">{Lista.aF_SERIE}</td>
-                                                <td>{Lista.aF_OBS}</td>
-                                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                                                <td className="text-nowrap">{Lista.ntraslado}</td>
-                                                <td className="text-nowrap"> ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
-                                                <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                </th>
+                                                <th scope="col" className="text-nowrap">N° Inventario</th>
+                                                <th scope="col" className="text-nowrap">Especie</th>
+                                                <th scope="col" className="text-nowrap">Marca</th>
+                                                <th scope="col" className="text-nowrap">Modelo</th>
+                                                <th scope="col" className="text-nowrap">Serie</th>
+                                                <th scope="col" className="text-nowrap">Observación</th>
+                                                <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                                                <th scope="col" className="text-nowrap">Nº Alta</th>
+                                                <th scope="col" className="text-nowrap">Estado</th>
+                                                <th scope="col" className="text-nowrap">Nº Traslado</th>
+                                                <th scope="col" className="text-nowrap">Valor Inicial</th>
+                                                <th scope="col" className="text-nowrap">Cta Contable</th>
+
                                             </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                                        </thead>
+                                        <tbody>
+                                            {elementosActuales.map((Lista, index) => {
+                                                const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                return (
+                                                    <tr key={index}>
+                                                        <td style={{
+                                                            position: 'sticky',
+                                                            left: 0,
+                                                            zIndex: 0,
+
+                                                        }}>
+                                                            <Form.Check
+                                                                type="checkbox"
+                                                                onChange={() => setSeleccionaFilas(indexReal)}
+                                                                checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                            />
+                                                        </td>
+                                                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                                        <td className="text-nowrap">{Lista.aF_ESPECIE}</td>
+                                                        <td className="text-nowrap">{Lista.aF_MARCA}</td>
+                                                        <td className="text-nowrap">{Lista.aF_MODELO}</td>
+                                                        <td className="text-nowrap">{Lista.aF_SERIE}</td>
+                                                        <td>{Lista.aF_OBS}</td>
+                                                        <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                        <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
+                                                        <td className="text-nowrap">{Lista.ntraslado}</td>
+                                                        <td className="text-nowrap"> ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                                                        <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+
+                            {/* Paginador */}
+                            <div className="paginador-container position-relative z-0">
+                                <Pagination className="paginador-scroll">
+                                    <Pagination.First
+                                        onClick={() => paginar(1)}
+                                        disabled={paginaActual === 1}
+                                    />
+                                    <Pagination.Prev
+                                        onClick={() => paginar(paginaActual - 1)}
+                                        disabled={paginaActual === 1}
+                                    />
+
+                                    {Array.from({ length: totalPaginas }, (_, i) => (
+                                        <Pagination.Item
+                                            key={i + 1}
+                                            active={i + 1 === paginaActual}
+                                            onClick={() => paginar(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </Pagination.Item>
+                                    ))}
+                                    <Pagination.Next
+                                        onClick={() => paginar(paginaActual + 1)}
+                                        disabled={paginaActual === totalPaginas}
+                                    />
+                                    <Pagination.Last
+                                        onClick={() => paginar(totalPaginas)}
+                                        disabled={paginaActual === totalPaginas}
+                                    />
+                                </Pagination>
+                            </div>
                         </div>
-                    )}
-
-                    {/* Paginador */}
-                    <div className="paginador-container position-relative z-0">
-                        <Pagination className="paginador-scroll">
-                            <Pagination.First
-                                onClick={() => paginar(1)}
-                                disabled={paginaActual === 1}
-                            />
-                            <Pagination.Prev
-                                onClick={() => paginar(paginaActual - 1)}
-                                disabled={paginaActual === 1}
-                            />
-
-                            {Array.from({ length: totalPaginas }, (_, i) => (
-                                <Pagination.Item
-                                    key={i + 1}
-                                    active={i + 1 === paginaActual}
-                                    onClick={() => paginar(i + 1)}
-                                >
-                                    {i + 1}
-                                </Pagination.Item>
-                            ))}
-                            <Pagination.Next
-                                onClick={() => paginar(paginaActual + 1)}
-                                disabled={paginaActual === totalPaginas}
-                            />
-                            <Pagination.Last
-                                onClick={() => paginar(totalPaginas)}
-                                disabled={paginaActual === totalPaginas}
-                            />
-                        </Pagination>
-                    </div>
+                    </form>
                 </div>
-            </form>
-
+            </div>
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>

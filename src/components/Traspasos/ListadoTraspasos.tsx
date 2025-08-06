@@ -270,235 +270,238 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
         <title>Listado de Traslados</title>
       </Helmet>
       <MenuTraspasos />
-      <div className="border-bottom shadow-sm p-2 rounded">
-        <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traspasos</h3>
-        <Row className="border rounded p-2 m-2">
-          <Col md={3} sm={12}>
-            <div className="mb-2 ">
-              <div className="flex-grow-1 mb-2">
-                <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
-                <div className="input-group">
+      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+        <div style={{ maxHeight: "80vh" }}>
+          <div className="border-bottom shadow-sm p-2 rounded">
+            <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traspasos</h3>
+            <Row className="border rounded p-2 m-2">
+              <Col md={3} sm={12}>
+                <div className="mb-2 ">
+                  <div className="flex-grow-1 mb-2">
+                    <label htmlFor="fDesde" className="form-label fw-semibold small">Desde</label>
+                    <div className="input-group">
+                      <input
+                        aria-label="Fecha Desde"
+                        type="date"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                        name="fDesde"
+                        onChange={handleChange}
+                        value={ListadoTraslado.fDesde}
+                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                      />
+                    </div>
+                    {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                  </div>
+
+                  <div className="flex-grow-1">
+                    <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                    <div className="input-group">
+                      <input
+                        aria-label="Fecha Hasta"
+                        type="date"
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                        name="fHasta"
+                        onChange={handleChange}
+                        value={ListadoTraslado.fHasta}
+                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                      />
+                    </div>
+                    {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                  </div>
+                  <small className="fw-semibold">Filtre los resultados por fecha de Traspasos.</small>
+                </div>
+              </Col>
+
+              <Col md={2} sm={12}>
+                <div className="mb-1">
+                  <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
                   <input
-                    aria-label="Fecha Desde"
-                    type="date"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                    name="fDesde"
+                    aria-label="af_codigo_generico"
+                    type="text"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="af_codigo_generico"
+                    placeholder="Ej: 1000000008"
                     onChange={handleChange}
-                    value={ListadoTraslado.fDesde}
-                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                    value={ListadoTraslado.af_codigo_generico}
                   />
                 </div>
-                {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
-              </div>
-
-              <div className="flex-grow-1">
-                <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
-                <div className="input-group">
+                <div className="mb-1">
+                  <label htmlFor="tras_corr" className="fw-semibold">Nº Traspaso</label>
                   <input
-                    aria-label="Fecha Hasta"
-                    type="date"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                    name="fHasta"
+                    aria-label="tras_corr"
+                    type="text"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="tras_corr"
+                    size={10}
+                    placeholder="Eje: 1000000008"
                     onChange={handleChange}
-                    value={ListadoTraslado.fHasta}
-                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                    value={ListadoTraslado.tras_corr}
                   />
                 </div>
-                {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+              </Col>
 
-              </div>
-              <small className="fw-semibold">Filtre los resultados por fecha de Traspasos.</small>
-            </div>
-          </Col>
+              {/* Columna 5: Botones de Acción */}
+              <Col md={1}>
+                <div className="d-flex flex-column gap-2 mt-4">
+                  <Button
+                    onClick={handleBuscar}
+                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                    className="w-100"
+                  // disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        Buscar
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                      </>
+                    ) : (
+                      <>
+                        Buscar
+                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                      </>
+                    )}
+                  </Button>
 
-          <Col md={2} sm={12}>
-            <div className="mb-1">
-              <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
-              <input
-                aria-label="af_codigo_generico"
-                type="text"
-                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="af_codigo_generico"
-                placeholder="Ej: 1000000008"
-                onChange={handleChange}
-                value={ListadoTraslado.af_codigo_generico}
-              />
-            </div>
-            <div className="mb-1">
-              <label htmlFor="tras_corr" className="fw-semibold">Nº Traspaso</label>
-              <input
-                aria-label="tras_corr"
-                type="text"
-                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                name="tras_corr"
-                size={10}
-                placeholder="Eje: 1000000008"
-                onChange={handleChange}
-                value={ListadoTraslado.tras_corr}
-              />
-            </div>
-          </Col>
+                  <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                    Limpiar
+                    <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                  </Button>
+                </div>
+              </Col>
+            </Row>
 
-          {/* Columna 5: Botones de Acción */}
-          <Col md={1}>
-            <div className="d-flex flex-column gap-2 mt-4">
-              <Button
-                onClick={handleBuscar}
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                className="w-100"
-              // disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    Buscar
-                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                  </>
-                ) : (
-                  <>
-                    Buscar
-                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                  </>
+            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+              {/* Tamaño de página */}
+              <Col xs={12} lg="auto">
+                {listadoTraspasos.length > 10 && (
+                  <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                      Tamaño de página:
+                    </label>
+                    <select
+                      aria-label="Seleccionar tamaño de página"
+                      className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="nPaginacion"
+                      onChange={handleChange}
+                      value={Paginacion.nPaginacion}
+                    >
+                      {[10, 15, 20, 25, 50, 100].map((val) => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
                 )}
-              </Button>
-
-              <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                Limpiar
-                <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-              </Button>
-            </div>
-          </Col>
-        </Row>
-
-        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-          {/* Tamaño de página */}
-          <Col xs={12} lg="auto">
-            {listadoTraspasos.length > 10 && (
-              <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                  Tamaño de página:
-                </label>
-                <select
-                  aria-label="Seleccionar tamaño de página"
-                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="nPaginacion"
-                  onChange={handleChange}
-                  value={Paginacion.nPaginacion}
-                >
-                  {[10, 15, 20, 25, 50, 100].map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </Col>
-        </Row>
-        {loading ? (
-          <>
-            <SkeletonLoader rowCount={elementosPorPagina} />
-          </>
-        ) : (
-          <div className='table-responsive'>
-            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                <tr>
-                  {/* <th scope="col"></th> */}
-                  <th scope="col" className="text-nowrap">N° Inventario</th>
-                  <th scope="col" className="text-nowrap">N° Traspaso</th>
-                  <th scope="col" className="text-nowrap">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap">Nombre Especie</th>
-                  <th scope="col" className="text-nowrap">Fecha Memo</th>
-                  <th scope="col" className="text-nowrap">N° Memo de Referencia</th>
-                  <th scope="col" className="text-nowrap">Usuario Crea</th>
-                  <th scope="col"
-                    className="text-nowrap text-center sticky-col-right-0 rounded-top">
-                    <b>Ver</b>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {elementosActuales.map((Lista, index) => {
-                  let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                  return (
-                    <tr key={indexReal}>
-                      {/* <td>
+              </Col>
+            </Row>
+            {loading ? (
+              <>
+                <SkeletonLoader rowCount={elementosPorPagina} />
+              </>
+            ) : (
+              <div className='table-responsive'>
+                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                  <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                    <tr>
+                      {/* <th scope="col"></th> */}
+                      <th scope="col" className="text-nowrap">N° Inventario</th>
+                      <th scope="col" className="text-nowrap">N° Traspaso</th>
+                      <th scope="col" className="text-nowrap">Fecha Traslado</th>
+                      <th scope="col" className="text-nowrap">Nombre Especie</th>
+                      <th scope="col" className="text-nowrap">Fecha Memo</th>
+                      <th scope="col" className="text-nowrap">N° Memo de Referencia</th>
+                      <th scope="col" className="text-nowrap">Usuario Crea</th>
+                      <th scope="col"
+                        className="text-nowrap text-center sticky-col-right-0 rounded-top">
+                        <b>Ver</b>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {elementosActuales.map((Lista, index) => {
+                      let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                      return (
+                        <tr key={indexReal}>
+                          {/* <td>
                         <Form.Check
                           type="checkbox"
                           onChange={() => setSeleccionaFila(indexReal)}
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
-                      <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                      <td className="text-nowrap">{Lista.n_TRASPASO}</td>
-                      <td className="text-nowrap">{Lista.paS_FECHA}</td>
-                      <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                      <td className="text-nowrap">{Lista.paS_MEMO_REF}</td>
-                      <td className="text-nowrap">{Lista.paS_FECHA_MEMO}</td>
-                      <td className="text-nowrap">{
-                        Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
-                          Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
-                            Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
-                              Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
-                                Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
-                                  Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jhonatan Vargas' :
-                                    Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '6405' ? 'Gabriela Farias' :
-                                      Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+                          <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                          <td className="text-nowrap">{Lista.n_TRASPASO}</td>
+                          <td className="text-nowrap">{Lista.paS_FECHA}</td>
+                          <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                          <td className="text-nowrap">{Lista.paS_MEMO_REF}</td>
+                          <td className="text-nowrap">{Lista.paS_FECHA_MEMO}</td>
+                          <td className="text-nowrap">{
+                            Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                              Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
+                                  Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
+                                    Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                      Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jhonatan Vargas' :
+                                        Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '6405' ? 'Gabriela Farias' :
+                                          Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
 
-                      }
-                      </td>
-                      <td className="text-nowrap text-center sticky-col-right-0 rounded">
-                        <Button
-                          variant="outline-primary"
-                          className="fw-semibold  ps-3 pe-3"
-                          onClick={() => handleVer(index)}
-                        >
+                          }
+                          </td>
+                          <td className="text-nowrap text-center sticky-col-right-0 rounded">
+                            <Button
+                              variant="outline-primary"
+                              className="fw-semibold  ps-3 pe-3"
+                              onClick={() => handleVer(index)}
+                            >
 
-                          <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                              <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {/* Paginador */}
+            <div className="paginador-container position-relative z-0">
+              <Pagination className="paginador-scroll ">
+                <Pagination.First
+                  onClick={() => paginar(1)}
+                  disabled={paginaActual === 1}
+
+                />
+                <Pagination.Prev
+                  onClick={() => paginar(paginaActual - 1)}
+                  disabled={paginaActual === 1}
+                />
+
+                {Array.from({ length: totalPaginas }, (_, i) => (
+                  <Pagination.Item
+                    key={i + 1}
+                    active={i + 1 === paginaActual}
+                    onClick={() => paginar(i + 1)}
+
+                  >
+                    {i + 1} {/* adentro de aqui esta page-link */}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next
+                  onClick={() => paginar(paginaActual + 1)}
+                  disabled={paginaActual === totalPaginas}
+
+                />
+                <Pagination.Last
+                  onClick={() => paginar(totalPaginas)}
+                  disabled={paginaActual === totalPaginas}
+
+                />
+              </Pagination>
+            </div>
           </div>
-        )}
-        {/* Paginador */}
-        <div className="paginador-container position-relative z-0">
-          <Pagination className="paginador-scroll ">
-            <Pagination.First
-              onClick={() => paginar(1)}
-              disabled={paginaActual === 1}
-
-            />
-            <Pagination.Prev
-              onClick={() => paginar(paginaActual - 1)}
-              disabled={paginaActual === 1}
-            />
-
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={i + 1 === paginaActual}
-                onClick={() => paginar(i + 1)}
-
-              >
-                {i + 1} {/* adentro de aqui esta page-link */}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => paginar(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas}
-
-            />
-            <Pagination.Last
-              onClick={() => paginar(totalPaginas)}
-              disabled={paginaActual === totalPaginas}
-
-            />
-          </Pagination>
         </div>
       </div>
-
       {/* Formularios de detalle de traspaso */}
       {elementosActuales.map((fila, index) => (
         <Modal

@@ -331,264 +331,267 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         <title>Registrar Altas</title>
       </Helmet>
       <MenuAltas />
-      <form>
-        <div className={`border border-botom p-2 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-          <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
-          <Row className="border rounded p-2 m-2">
-            <Col md={3} sm={12}>
-              <div className="mb-2 ">
-                <div className="flex-grow-1 mb-2">
-                  <label htmlFor="fDesde" className="form-label fw-semibold small ">Desde</label>
-                  <div className="input-group">
-                    <input
-                      aria-label="Fecha Desde"
-                      type="date"
-                      className={`form-control  ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
-                      name="fDesde"
-                      onChange={handleChange}
-                      value={Inventario.fDesde}
-                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                    />
-                  </div>
-                  {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
-                </div>
-
-                <div className="flex-grow-1">
-                  <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
-                  <div className="input-group">
-                    <input
-                      aria-label="Fecha Hasta"
-                      type="date"
-                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
-                      name="fHasta"
-                      onChange={handleChange}
-                      value={Inventario.fHasta}
-                      max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                    />
-                  </div>
-                  {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
-
-                </div>
-                <small className="fw-semibold">Filtre los resultados por fecha de ingreso.</small>
-              </div>
-            </Col>
-            <Col md={2} sm={12}>
-              <div className="mb-1">
-                <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
-                <input
-                  aria-label="af_codigo_generico"
-                  type="text"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="af_codigo_generico"
-                  size={10}
-                  placeholder="Eje: 1000000008"
-                  onChange={handleChange}
-                  value={Inventario.af_codigo_generico}
-                />
-              </div>
-            </Col>
-            {/* Columna 5: Botones de Acción */}
-            <Col lg={1} md={4}>
-              <div className="d-flex flex-column gap-2 mt-4">
-                <Button
-                  onClick={handleBuscar}
-                  variant={`${isDarkMode ? "secondary" : "primary"}`}
-                  className="w-100"
-                // disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      Buscar
-                      <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                    </>
-                  ) : (
-                    <>
-                      Buscar
-                      <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                    </>
-                  )}
-                </Button>
-
-                <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                  Limpiar
-                  <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                </Button>
-              </div>
-            </Col>
-          </Row>
-
-          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-            {/* Tamaño de página */}
-            <Col xs={12} lg="auto">
-              {listaAltas.length > 10 && (
-                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                    Tamaño de página:
-                  </label>
-                  <select
-                    aria-label="Seleccionar tamaño de página"
-                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nPaginacion"
-                    onChange={handleChange}
-                    value={Paginacion.nPaginacion}
-                  >
-                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                      <option key={val} value={val}>{val}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </Col>
-
-            {/* Botón o mensaje */}
-            <Col xs={12} lg={2}>
-              <div className="d-flex justify-content-center justify-content-lg-end">
-                {filasSeleccionadas.length > 0 ? (
-                  <Button
-                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                    onClick={handleAgrearSeleccionados}
-                    className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                    disabled={loadingRegistro}
-                  >
-                    {loadingRegistro ? (
-                      <>
-                        Registrando...
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                          className="ms-2"
+      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+        <div style={{ maxHeight: "80vh" }}>
+          <form>
+            <div className={`border border-botom p-2 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+              <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
+              <Row className="border rounded p-2 m-2">
+                <Col md={3} sm={12}>
+                  <div className="mb-2 ">
+                    <div className="flex-grow-1 mb-2">
+                      <label htmlFor="fDesde" className="form-label fw-semibold small ">Desde</label>
+                      <div className="input-group">
+                        <input
+                          aria-label="Fecha Desde"
+                          type="date"
+                          className={`form-control  ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                          name="fDesde"
+                          onChange={handleChange}
+                          value={Inventario.fDesde}
+                          max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                         />
-                      </>
-                    ) : (
-                      <>
-                        Registrar
-                        <span className="badge bg-light text-dark mx-1 mt-1">
-                          {filasSeleccionadas.length}
-                        </span>
-                        {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
-                      No hay filas seleccionadas
-                    </strong>
-                  </div>
-                )}
-              </div>
-            </Col>
-          </Row>
+                      </div>
+                      {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                    </div>
 
-          {/* Tabla*/}
-          {loading ? (
-            <>
-              <SkeletonLoader rowCount={elementosPorPagina} />
-            </>
-          ) : (
-            <div className='table-responsive'>
-              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                  <tr>
-                    <th style={{
-                      position: 'sticky',
-                      left: 0
-                    }}>
-                      <Form.Check
-                        type="checkbox"
-                        onChange={handleSeleccionaTodos}
-                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                      />
-                    </th>
-                    <th scope="col" className="text-nowrap">N° Inventario</th>
-                    <th scope="col" className="text-nowrap">Servicio</th>
-                    <th scope="col" className="text-nowrap">Dependencia</th>
-                    <th scope="col" className="text-nowrap">Fecha Ingreso</th>
-                    <th scope="col" className="text-nowrap">Especie</th>
-                    <th scope="col" className="text-nowrap">N° Cuenta</th>
-                    <th scope="col" className="text-nowrap">Marca</th>
-                    <th scope="col" className="text-nowrap">Modelo</th>
-                    <th scope="col" className="text-nowrap">Serie</th>
-                    <th scope="col" className="text-nowrap">Estado</th>
-                    <th scope="col" className="text-nowrap">Precio</th>
-                    <th scope="col" className="text-nowrap">N° Recepcion</th>
-                    {/* <th scope="col">Acción</th> */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {elementosActuales.map((Lista, index) => {
-                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                    return (
-                      <tr key={indexReal}>
-                        <td style={{
+                    <div className="flex-grow-1">
+                      <label htmlFor="fHasta" className="form-label fw-semibold small">Hasta</label>
+                      <div className="input-group">
+                        <input
+                          aria-label="Fecha Hasta"
+                          type="date"
+                          className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                          name="fHasta"
+                          onChange={handleChange}
+                          value={Inventario.fHasta}
+                          max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                        />
+                      </div>
+                      {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+
+                    </div>
+                    <small className="fw-semibold">Filtre los resultados por fecha de ingreso.</small>
+                  </div>
+                </Col>
+                <Col md={2} sm={12}>
+                  <div className="mb-1">
+                    <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
+                    <input
+                      aria-label="af_codigo_generico"
+                      type="text"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="af_codigo_generico"
+                      size={10}
+                      placeholder="Eje: 1000000008"
+                      onChange={handleChange}
+                      value={Inventario.af_codigo_generico}
+                    />
+                  </div>
+                </Col>
+                {/* Columna 5: Botones de Acción */}
+                <Col lg={1} md={4}>
+                  <div className="d-flex flex-column gap-2 mt-4">
+                    <Button
+                      onClick={handleBuscar}
+                      variant={`${isDarkMode ? "secondary" : "primary"}`}
+                      className="w-100"
+                    // disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          Buscar
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                        </>
+                      ) : (
+                        <>
+                          Buscar
+                          <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                        </>
+                      )}
+                    </Button>
+
+                    <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                      Limpiar
+                      <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
+
+              <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                {/* Tamaño de página */}
+                <Col xs={12} lg="auto">
+                  {listaAltas.length > 10 && (
+                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                      <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                        Tamaño de página:
+                      </label>
+                      <select
+                        aria-label="Seleccionar tamaño de página"
+                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        name="nPaginacion"
+                        onChange={handleChange}
+                        value={Paginacion.nPaginacion}
+                      >
+                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                          <option key={val} value={val}>{val}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </Col>
+
+                {/* Botón o mensaje */}
+                <Col xs={12} lg={2}>
+                  <div className="d-flex justify-content-center justify-content-lg-end">
+                    {filasSeleccionadas.length > 0 ? (
+                      <Button
+                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                        onClick={handleAgrearSeleccionados}
+                        className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                        disabled={loadingRegistro}
+                      >
+                        {loadingRegistro ? (
+                          <>
+                            Registrando...
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="ms-2"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            Registrar
+                            <span className="badge bg-light text-dark mx-1 mt-1">
+                              {filasSeleccionadas.length}
+                            </span>
+                            {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                          No hay filas seleccionadas
+                        </strong>
+                      </div>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+
+              {/* Tabla*/}
+              {loading ? (
+                <>
+                  <SkeletonLoader rowCount={elementosPorPagina} />
+                </>
+              ) : (
+                <div className='table-responsive'>
+                  <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                      <tr>
+                        <th style={{
                           position: 'sticky',
                           left: 0
                         }}>
                           <Form.Check
                             type="checkbox"
-                            onChange={() => setSeleccionaFilas(index)}
-                            checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
+                            onChange={handleSeleccionaTodos}
+                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                           />
-                        </td>
-
-                        <td className="text-nowrap">{Lista.ninv}</td>
-                        <td className="text-nowrap">{Lista.serv}</td>
-                        <td className="text-nowrap">{Lista.dep}</td>
-                        <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                        <td className="text-nowrap">{Lista.esp}</td>
-                        <td className="text-nowrap">{Lista.ncuenta}</td>
-                        <td className="text-nowrap">{Lista.marca}</td>
-                        <td className="text-nowrap">{Lista.modelo}</td>
-                        <td className="text-nowrap">{Lista.serie}</td>
-                        <td className="text-nowrap">{Lista.estado}</td>
-                        <td className="text-nowrap">
-                          ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                        </td>
-                        <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
+                        </th>
+                        <th scope="col" className="text-nowrap">N° Inventario</th>
+                        <th scope="col" className="text-nowrap">Servicio</th>
+                        <th scope="col" className="text-nowrap">Dependencia</th>
+                        <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                        <th scope="col" className="text-nowrap">Especie</th>
+                        <th scope="col" className="text-nowrap">N° Cuenta</th>
+                        <th scope="col" className="text-nowrap">Marca</th>
+                        <th scope="col" className="text-nowrap">Modelo</th>
+                        <th scope="col" className="text-nowrap">Serie</th>
+                        <th scope="col" className="text-nowrap">Estado</th>
+                        <th scope="col" className="text-nowrap">Precio</th>
+                        <th scope="col" className="text-nowrap">N° Recepcion</th>
+                        {/* <th scope="col">Acción</th> */}
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {/* Paginador */}
-          <div className="paginador-container position-relative z-0">
-            <Pagination className="paginador-scroll">
-              <Pagination.First
-                onClick={() => paginar(1)}
-                disabled={paginaActual === 1}
-              />
-              <Pagination.Prev
-                onClick={() => paginar(paginaActual - 1)}
-                disabled={paginaActual === 1}
-              />
+                    </thead>
+                    <tbody>
+                      {elementosActuales.map((Lista, index) => {
+                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                        return (
+                          <tr key={indexReal}>
+                            <td style={{
+                              position: 'sticky',
+                              left: 0
+                            }}>
+                              <Form.Check
+                                type="checkbox"
+                                onChange={() => setSeleccionaFilas(index)}
+                                checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
+                              />
+                            </td>
 
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === paginaActual}
-                  onClick={() => paginar(i + 1)}
-                >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => paginar(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-              />
-              <Pagination.Last
-                onClick={() => paginar(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
-              />
-            </Pagination>
-          </div >
-        </div >
-      </form >
+                            <td className="text-nowrap">{Lista.ninv}</td>
+                            <td className="text-nowrap">{Lista.serv}</td>
+                            <td className="text-nowrap">{Lista.dep}</td>
+                            <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                            <td className="text-nowrap">{Lista.esp}</td>
+                            <td className="text-nowrap">{Lista.ncuenta}</td>
+                            <td className="text-nowrap">{Lista.marca}</td>
+                            <td className="text-nowrap">{Lista.modelo}</td>
+                            <td className="text-nowrap">{Lista.serie}</td>
+                            <td className="text-nowrap">{Lista.estado}</td>
+                            <td className="text-nowrap">
+                              ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                            </td>
+                            <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {/* Paginador */}
+              <div className="paginador-container position-relative z-0">
+                <Pagination className="paginador-scroll">
+                  <Pagination.First
+                    onClick={() => paginar(1)}
+                    disabled={paginaActual === 1}
+                  />
+                  <Pagination.Prev
+                    onClick={() => paginar(paginaActual - 1)}
+                    disabled={paginaActual === 1}
+                  />
 
+                  {Array.from({ length: totalPaginas }, (_, i) => (
+                    <Pagination.Item
+                      key={i + 1}
+                      active={i + 1 === paginaActual}
+                      onClick={() => paginar(i + 1)}
+                    >
+                      {i + 1}
+                    </Pagination.Item>
+                  ))}
+                  <Pagination.Next
+                    onClick={() => paginar(paginaActual + 1)}
+                    disabled={paginaActual === totalPaginas}
+                  />
+                  <Pagination.Last
+                    onClick={() => paginar(totalPaginas)}
+                    disabled={paginaActual === totalPaginas}
+                  />
+                </Pagination>
+              </div >
+            </div >
+          </form >
+        </div>
+      </div>
       <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="lg">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Inventario asociado a Nº de Alta</Modal.Title>

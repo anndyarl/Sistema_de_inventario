@@ -245,128 +245,131 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                 <title>Mantenedor de Servicios</title>
             </Helmet>
             <MenuMantenedores />
-            <div className="border-bottom shadow-sm p-4 rounded">
-                <h3 className="form-title fw-semibold border-bottom p-1">Listado de Servicios</h3>
+            <div className="table-responsive position-relative z-0 hide-scrollbar" >
+                <div style={{ maxHeight: "80vh" }}>
+                    <div className="border-bottom shadow-sm p-4 rounded">
+                        <h3 className="form-title fw-semibold border-bottom p-1">Listado de Servicios</h3>
 
-                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
-                    {/* Tamaño de página */}
-                    <Col xs={12} lg="auto">
-                        {listadoMantenedor.length > 10 && (
-                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                    Tamaño de página:
-                                </label>
-                                <select
-                                    aria-label="Seleccionar tamaño de página"
-                                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="nPaginacion"
-                                    onChange={handleChange}
-                                    value={Paginacion.nPaginacion}
-                                >
-                                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                                        <option key={val} value={val}>{val}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-                    </Col>
-                    {/* Boton Agregar */}
-                    <Col xs={12} lg={1}>
-                        <div className="d-flex justify-content-center justify-content-lg-end">
-                            <Button
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto"
-                                onClick={() => setMostrarModalRegistrar(true)}
-                            >
-                                Nuevo
-                                <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
-                {/* Tabla */}
-                {loading ? (
-                    <>
-                        <SkeletonLoader rowCount={elementosPorPagina} />
-                    </>
-                ) : (
+                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
+                            {/* Tamaño de página */}
+                            <Col xs={12} lg="auto">
+                                {listadoMantenedor.length > 10 && (
+                                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                        <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                            Tamaño de página:
+                                        </label>
+                                        <select
+                                            aria-label="Seleccionar tamaño de página"
+                                            className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="nPaginacion"
+                                            onChange={handleChange}
+                                            value={Paginacion.nPaginacion}
+                                        >
+                                            {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                <option key={val} value={val}>{val}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                            </Col>
+                            {/* Boton Agregar */}
+                            <Col xs={12} lg={1}>
+                                <div className="d-flex justify-content-center justify-content-lg-end">
+                                    <Button
+                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                        className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto"
+                                        onClick={() => setMostrarModalRegistrar(true)}
+                                    >
+                                        Nuevo
+                                        <Plus className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                    </Button>
+                                </div>
+                            </Col>
+                        </Row>
+                        {/* Tabla */}
+                        {loading ? (
+                            <>
+                                <SkeletonLoader rowCount={elementosPorPagina} />
+                            </>
+                        ) : (
 
-                    <div className='table-responsive'>
-                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                <tr>
-                                    {/* <th scope="col"></th> */}
-                                    <th scope="col" className="text-nowrap text-center">Código</th>
-                                    <th scope="col" className="text-nowrap text-center">Código Servicio</th>
-                                    <th scope="col" className="text-nowrap text-center">Nombre</th>
-                                    {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
-                                    <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
-                                    {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
-                                    <th scope="col" className="text-nowrap text-center">Establecimiento</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {elementosActuales.map((Lista, index) => {
-                                    let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                    return (
-                                        <tr key={indexReal}>
-                                            {/* <td>
+                            <div className='table-responsive'>
+                                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                        <tr>
+                                            {/* <th scope="col"></th> */}
+                                            <th scope="col" className="text-nowrap text-center">Código</th>
+                                            <th scope="col" className="text-nowrap text-center">Código Servicio</th>
+                                            <th scope="col" className="text-nowrap text-center">Nombre</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
+                                            <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
+                                            <th scope="col" className="text-nowrap text-center">Establecimiento</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {elementosActuales.map((Lista, index) => {
+                                            let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                            return (
+                                                <tr key={indexReal}>
+                                                    {/* <td>
                                                 <Form.Check
                                                     type="checkbox"
                                                     onChange={() => setSeleccionaFila(indexReal)}
                                                     checked={filasSeleccionada.includes((indexReal).toString())}
                                                 />
                                             </td> */}
-                                            <td scope="col" className="text-nowrap">{Lista.seR_CORR}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
-                                            <td scope="col" className="text-nowrap">{Lista.seR_NOMBRE}</td>
-                                            {/* <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td> */}
-                                            <td scope="col" className="text-nowrap">{Lista.seR_F_CREA}</td>
-                                            {/* <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td> */}
-                                            <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                                    <td scope="col" className="text-nowrap">{Lista.seR_CORR}</td>
+                                                    <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
+                                                    <td scope="col" className="text-nowrap">{Lista.seR_NOMBRE}</td>
+                                                    {/* <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td> */}
+                                                    <td scope="col" className="text-nowrap">{Lista.seR_F_CREA}</td>
+                                                    {/* <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td> */}
+                                                    <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                        {/* Paginador */}
+                        <div className="paginador-container position-relative z-0">
+                            <Pagination className="paginador-scroll">
+                                <Pagination.First
+                                    onClick={() => paginar(1)}
+                                    disabled={paginaActual === 1}
+
+                                />
+                                <Pagination.Prev
+                                    onClick={() => paginar(paginaActual - 1)}
+                                    disabled={paginaActual === 1}
+                                />
+
+                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                    <Pagination.Item
+                                        key={i + 1}
+                                        active={i + 1 === paginaActual}
+                                        onClick={() => paginar(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Next
+                                    onClick={() => paginar(paginaActual + 1)}
+                                    disabled={paginaActual === totalPaginas}
+
+                                />
+                                <Pagination.Last
+                                    onClick={() => paginar(totalPaginas)}
+                                    disabled={paginaActual === totalPaginas}
+
+                                />
+                            </Pagination>
+                        </div>
                     </div>
-                )}
-                {/* Paginador */}
-                <div className="paginador-container position-relative z-0">
-                    <Pagination className="paginador-scroll">
-                        <Pagination.First
-                            onClick={() => paginar(1)}
-                            disabled={paginaActual === 1}
-
-                        />
-                        <Pagination.Prev
-                            onClick={() => paginar(paginaActual - 1)}
-                            disabled={paginaActual === 1}
-                        />
-
-                        {Array.from({ length: totalPaginas }, (_, i) => (
-                            <Pagination.Item
-                                key={i + 1}
-                                active={i + 1 === paginaActual}
-                                onClick={() => paginar(i + 1)}
-                            >
-                                {i + 1}
-                            </Pagination.Item>
-                        ))}
-                        <Pagination.Next
-                            onClick={() => paginar(paginaActual + 1)}
-                            disabled={paginaActual === totalPaginas}
-
-                        />
-                        <Pagination.Last
-                            onClick={() => paginar(totalPaginas)}
-                            disabled={paginaActual === totalPaginas}
-
-                        />
-                    </Pagination>
                 </div>
             </div>
-
             {/* Modal formulario Registro*/}
             <Modal
                 show={mostrarModalRegistrar}
