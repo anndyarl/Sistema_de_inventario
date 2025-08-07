@@ -1,9 +1,9 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-  OBTENER_INVENTARIO_REQUEST,
-  OBTENER_INVENTARIO_SUCCESS,
-  OBTENER_INVENTARIO_FAIL
+  OBTENER_INVENTARIO_X_ALTAS_REQUEST,
+  OBTENER_INVENTARIO_X_ALTAS_SUCCESS,
+  OBTENER_INVENTARIO_X_ALTAS_FAIL
 } from "../types";
 import { LOGOUT } from "../../auth/types";
 
@@ -18,7 +18,7 @@ export const obtenerInventarioxAltasActions = (altas_corr: number, estabL_CORR: 
       },
     };
 
-    dispatch({ type: OBTENER_INVENTARIO_REQUEST });
+    dispatch({ type: OBTENER_INVENTARIO_X_ALTAS_REQUEST });
 
     try {
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeInvxIdAlta?altas_corr=${altas_corr}&estabL_CORR=${estabL_CORR}`, config);
@@ -27,20 +27,20 @@ export const obtenerInventarioxAltasActions = (altas_corr: number, estabL_CORR: 
         const isEmpty = res.data && Object.values(res.data).every((value) => value === 0 || value === null || value === undefined);
         if (!isEmpty) {
           dispatch({
-            type: OBTENER_INVENTARIO_SUCCESS,
+            type: OBTENER_INVENTARIO_X_ALTAS_SUCCESS,
             payload: res.data,
           });
           return true;
         } else {
           dispatch({
-            type: OBTENER_INVENTARIO_FAIL,
+            type: OBTENER_INVENTARIO_X_ALTAS_FAIL,
             error: "No se pudo obtener los datos. Por favor, intente nuevamente.",
           });
           return false;
         }
       } else {
         dispatch({
-          type: OBTENER_INVENTARIO_FAIL,
+          type: OBTENER_INVENTARIO_X_ALTAS_FAIL,
           error:
             "No se pudo obtener el inventario. Por favor, intente nuevamente.",
         });
@@ -49,7 +49,7 @@ export const obtenerInventarioxAltasActions = (altas_corr: number, estabL_CORR: 
     } catch (err: any) {
       console.error("Error en la solicitud:", err);
       dispatch({
-        type: OBTENER_INVENTARIO_FAIL,
+        type: OBTENER_INVENTARIO_X_ALTAS_FAIL,
         error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
@@ -57,7 +57,7 @@ export const obtenerInventarioxAltasActions = (altas_corr: number, estabL_CORR: 
     }
   } else {
     dispatch({
-      type: OBTENER_INVENTARIO_FAIL,
+      type: OBTENER_INVENTARIO_X_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
     dispatch({ type: LOGOUT });

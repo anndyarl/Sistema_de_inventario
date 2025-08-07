@@ -1460,6 +1460,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         </Modal.Body>
       </Modal >
 
+      {/* Resumen registro*/}
       <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="lg">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Inventario asociado a Nº de Traslado</Modal.Title>

@@ -23,16 +23,48 @@ import { comboDependenciaModificarActions } from "../../redux/actions/Inventario
 import { comboCuentaModificarActions } from "../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { obtenerInventarioxAltasActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioxAltasActions";
+import SkeletonLoader from "../Utils/SkeletonLoader";
 
 export interface SERVICIO_DEPENDENCIA {
   deP_CORR: number;
   descripcion: string
 }
-export interface InventarioCompleto {
+
+//Se usan estas props para llamar a la busqueda de inventario por altas_corr
+export interface listaAltas {
   aF_CLAVE: number;
   aF_CODIGO_GENERICO: string;
+  altaS_CORR: number;
+  aF_ORIGEN: number;
+  seR_CORR: number;
+  deP_CORR: number,
+  ctA_COD: string;
+  aF_FECHA_SOLICITUD: string;
+  aF_MONTOFACTURA: number;
+  idmodalidadcompra: number;
+  aF_OCO_NUMERO_REF: string;
+  aF_FECHAFAC: string;
+  esP_CODIGO: string;
+  nombrE_ESP: string;
+  esP_NOMBRE: string;
+  aF_NUM_FAC: string;
+  proV_RUN: number;
+  //-------Tabla detalles---------//
+  aF_VIDAUTIL: number;
+  aF_FINGRESO: string;
+  deT_MARCA: string;
+  deT_MODELO: string;
+  deT_SERIE: string;
+  deT_PRECIO: number;
+  deT_OBS: string;
+}
+
+//Se usan estas props para llamar a la busqueda de inventario por af_codigo_generico
+export interface InventarioCompleto {
+  aF_CLAVE: number;
+  AF_CODIGO_GENERICO: string;
   AF_FECHA_SOLICITUD: string; // fechaRecepcion 
-  AF_OCO_NUMERO_REF: number // nOrdenCompra
+  AF_OCO_NUMERO_REF: string // nOrdenCompra
   AF_NUM_FAC: string; // nFactura
   AF_ORIGEN: number;  //origenPresupuesto
   AF_MONTOFACTURA: number; //montoRecepcion
@@ -60,19 +92,20 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboCuenta: CUENTA[];
   comboBien: BIEN[];
   comboDetalle: DETALLE[];
-  listaEspecie: ListaEspecie[];
   comboEspecies: ListaEspecie[];
   comboProveedor: PROVEEDOR[];
   comboSerDep: SERVICIO_DEPENDENCIA[];
+  listaEspecie: ListaEspecie[];
+  listaAltas: listaAltas[];
   comboSerDepActions: (establ_corr: number) => void;//En buscador   
   // comboDependenciaModificarActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   obtenerInventarioActions: (af_codigo_generico: string, estabL_CORR: number) => Promise<boolean>;
   obtenerInventarioxAltasActions: (altas_corr: number, estabL_CORR: number) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
-  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
   comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
   comboProveedorActions: (rutProveedor: string) => void;
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
   isDarkMode: boolean;
@@ -89,10 +122,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboBien,
   comboDetalle,
   comboProveedor,
-  listaEspecie,
   comboEspecies,
+  listaEspecie,
+  listaAltas,
   aF_CLAVE,
-  aF_CODIGO_GENERICO, // nRecepcion
+  AF_CODIGO_GENERICO, // nRecepcion
   AF_FECHA_SOLICITUD,// fechaRecepcion 
   AF_OCO_NUMERO_REF, // nOrdenCompra
   AF_NUM_FAC,// nFactura
@@ -130,10 +164,24 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
   const [mostrarModalAltas, setMostrarModalAltas] = useState(false);
+
+  //--------------Paginación Especies--------------------//
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 50;
+  const [Paginacion, setPaginacion] = useState({
+    nPaginacion: 10
+  });
+  const elementosPorPagina = Paginacion.nPaginacion;
+  //--------------Paginación Altas--------------------//
+  const [filasSeleccionadasAltas, setFilasSeleccionadasAltas] = useState<string[]>([]);
+  const [elementoSeleccionadoAltas, setElementoSeleccionadoAltas] = useState<listaAltas>();
+  const [paginaActual1, setPaginaActual1] = useState(1);
+  const [Paginacion1, setPaginacion1] = useState({
+    nPaginacion1: 10
+  });
+  const elementosPorPagina1 = Paginacion1.nPaginacion1;
+
   const [isDisabled, setIsDisabled] = useState(true);
   const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -152,9 +200,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   });
   const [Inventario, setInventario] = useState({
     aF_CLAVE,
-    aF_CODIGO_GENERICO: "",
+    AF_CODIGO_GENERICO: "",
     AF_FECHA_SOLICITUD: "", // fechaRecepcion
-    AF_OCO_NUMERO_REF: 0, // nOrdenCompra
+    AF_OCO_NUMERO_REF: "", // nOrdenCompra
     USUARIO_MOD: objeto.IdCredencial,
     AF_NUM_FAC: "",// nFactura
     AF_ORIGEN: 0,  //origenPresupuesto
@@ -175,7 +223,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     DET_PRECIO: 0,
     DET_OBS: ""
   });
-
   const especieOptions = comboEspecies.map((item) => ({
     value: item.esP_CODIGO,
     label: item.nombrE_ESP,
@@ -208,10 +255,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
-    // Validación para N° de Recepción (debe ser un número)
-    if (!BuscarInventario.aF_CODIGO_GENERICO_B) tempErrors.aF_CODIGO_GENERICO_B = "Campo obligatorio";
     if (!Inventario.AF_FECHA_SOLICITUD || Inventario.AF_FECHA_SOLICITUD === "0") tempErrors.AF_FECHA_SOLICITUD = "Campo obligatorio";
-    if (!Inventario.AF_OCO_NUMERO_REF || Inventario.AF_OCO_NUMERO_REF == 0) tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
+    if (!Inventario.AF_OCO_NUMERO_REF) tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
     if (!Inventario.AF_NUM_FAC || Inventario.AF_NUM_FAC == "0") tempErrors.AF_NUM_FAC = "Campo obligatorio";
     if (!Inventario.AF_ORIGEN) tempErrors.AF_ORIGEN = "Campo obligatorio";
     if (!Inventario.AF_MONTOFACTURA || Inventario.AF_MONTOFACTURA == 0) tempErrors.AF_MONTOFACTURA = "Campo obligatorio";
@@ -231,7 +276,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     value: item.deP_CORR,
     label: item.descripcion,
   }));
-
 
   const handleServicioChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : 0;
@@ -260,7 +304,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
     setInventario({
       aF_CLAVE,
-      aF_CODIGO_GENERICO, // nRecepcion
+      AF_CODIGO_GENERICO, // nRecepcion
       AF_FECHA_SOLICITUD,// fechaRecepcion 
       AF_OCO_NUMERO_REF, // nOrdenCompra
       USUARIO_MOD: objeto.IdCredencial,
@@ -297,7 +341,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   }, [
     // comboDependencia.length,
     comboSerDep,
-    aF_CODIGO_GENERICO, // nRecepcion
+    AF_CODIGO_GENERICO, // nRecepcion
     AF_FECHA_SOLICITUD,//fechaRecepcion 
     AF_OCO_NUMERO_REF, //nOrdenCompra
     AF_NUM_FAC, //nFactura
@@ -325,7 +369,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
-    if (name === "aF_CODIGO_GENERICO_B" && !/^[0-9]*$/.test(value)) {
+    if ((name === "aF_CODIGO_GENERICO_B" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
       return; // Salir si contiene caracteres no numéricos
     }
 
@@ -340,7 +384,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       "DET_PRECIO",
       "USUARIO_MOD", //precio
       "AF_FINGRESO"
-
     ].includes(name)
 
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
@@ -357,11 +400,30 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       [name]: newValue,
     }));
 
+    setPaginacion((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    setPaginacion1((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    if (name === "nPaginacion") {
+      paginar1(1);
+    }
+
+    if (name === "nPaginacion1") {
+      paginar1(1);
+    }
+
     if (name === "idprograma") { //servicio
       comboDependenciaModificarActions(value);
     }
-    if (comboBien.length === 0) comboDetalleActions("0");
-
+    if (comboBien.length === 0) {
+      comboDetalleActions("0");
+    }
     if (name === "bien") {
       comboDetalleActions(value);
     }
@@ -382,11 +444,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         setShowInput(false);
       }
     }
-
     if (name === "aF_CODIGO_GENERICO_B") {
       comboCuentaModificarActions("");
     }
-
+    if (name === "altaS_CORR") {
+      comboCuentaModificarActions("");
+    }
   };
 
   const handleLimpiarTodo = () => {
@@ -395,7 +458,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       aF_CODIGO_GENERICO: "",
       AF_CLAVE: 0, // nRecepcion
       AF_FECHA_SOLICITUD: "", // fechaRecepcion 
-      AF_OCO_NUMERO_REF: 0, // nOrdenCompra      
+      AF_OCO_NUMERO_REF: "", // nOrdenCompra      
       AF_NUM_FAC: "",// nFactura
       AF_ORIGEN: 0,  //origenPresupuesto
       AF_MONTOFACTURA: 0, //montoRecepcion
@@ -424,7 +487,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     const item = listaEspecie[index];
     setFilasSeleccionadas([index.toString()]);
     setElementoSeleccionado(item);
-    // console.log("Elemento seleccionado", item);
+  };
+
+  //Selecciona fila del listado de Altas
+  const handleSeleccionFilaAltas = (index: number) => {
+    const item = listaAltas[index];
+    setFilasSeleccionadasAltas([index.toString()]);
+    setElementoSeleccionadoAltas(item);
   };
 
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
@@ -450,12 +519,64 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         ...Prev,
         ESP_CODIGO: descripcionEspecie.toString() // Actualiza el campo 'especie' en el estado de 'Cuenta'
       }));
-      // Resetea el estado de las filas seleccionadas para desmarcar el checkbox
+      // Resetea el estado de las filas seleccionadas para desmarcar el checkbox   
       setFilasSeleccionadas([]);
-
       setMostrarModal(false); // Cierra el modal
     } else {
       // console.log("No se ha seleccionado ningún elemento.");
+    }
+  };
+
+  const handleInventarioSeleccionado = () => {
+    if (typeof elementoSeleccionadoAltas === "object" && elementoSeleccionadoAltas !== null) {
+      const af_clave = (elementoSeleccionadoAltas as listaAltas).aF_CLAVE;
+      const af_codigo_generico = (elementoSeleccionadoAltas as listaAltas).aF_CODIGO_GENERICO;
+      const af_origen = (elementoSeleccionadoAltas as listaAltas).aF_ORIGEN;
+      const dep_corr = (elementoSeleccionadoAltas as listaAltas).deP_CORR;
+      const cta_cod = (elementoSeleccionadoAltas as listaAltas).ctA_COD;
+      const af_fecha_solicitud = (elementoSeleccionadoAltas as listaAltas).aF_FECHA_SOLICITUD;
+      const af_montofactura = (elementoSeleccionadoAltas as listaAltas).aF_MONTOFACTURA;
+      const idmodalidadcompra = (elementoSeleccionadoAltas as listaAltas).idmodalidadcompra;
+      const af_fechafac = (elementoSeleccionadoAltas as listaAltas).aF_FECHAFAC;
+      const af_oco_numero_ref = (elementoSeleccionadoAltas as listaAltas).aF_OCO_NUMERO_REF;
+      const af_num_fac = (elementoSeleccionadoAltas as listaAltas).aF_NUM_FAC;
+      const descripcionEspecie = (elementoSeleccionadoAltas as listaAltas).esP_CODIGO + " | " + `${(elementoSeleccionadoAltas as listaAltas).esP_NOMBRE}`;
+      const prov_run = (elementoSeleccionadoAltas as listaAltas).proV_RUN;
+
+      const af_vidautil = (elementoSeleccionadoAltas as listaAltas).aF_VIDAUTIL;
+      const af_fingreso = (elementoSeleccionadoAltas as listaAltas).aF_FINGRESO;
+      const det_marca = (elementoSeleccionadoAltas as listaAltas).deT_MARCA;
+      const det_modelo = (elementoSeleccionadoAltas as listaAltas).deT_MODELO;
+      const det_serie = (elementoSeleccionadoAltas as listaAltas).deT_SERIE;
+      const det_precio = (elementoSeleccionadoAltas as listaAltas).deT_PRECIO;
+      const det_obs = (elementoSeleccionadoAltas as listaAltas).deT_OBS;
+
+
+      // Actualiza el estado según la seleccion
+      setInventario((Prev) => ({
+        ...Prev,
+        aF_CLAVE: af_clave,
+        AF_CODIGO_GENERICO: af_codigo_generico,
+        AF_ORIGEN: af_origen,
+        DEP_CORR: dep_corr,
+        CTA_COD: cta_cod,
+        AF_FECHA_SOLICITUD: af_fecha_solicitud,
+        AF_MONTOFACTURA: af_montofactura,
+        IDMODALIDADCOMPRA: idmodalidadcompra,
+        AF_FECHAFAC: af_fechafac,
+        AF_OCO_NUMERO_REF: af_oco_numero_ref,
+        AF_NUM_FAC: af_num_fac,
+        ESP_CODIGO: descripcionEspecie.toString(),
+        PROV_RUN: prov_run,
+        AF_VIDAUTIL: af_vidautil,
+        AF_FINGRESO: af_fingreso,
+        DET_MARCA: det_marca,
+        DET_MODELO: det_modelo,
+        DET_SERIE: det_serie,
+        DET_PRECIO: det_precio,
+        DET_OBS: det_obs
+      }));
+      setMostrarModalAltas(false);
     }
   };
 
@@ -556,7 +677,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setIsDisabled(false);
       setLoadingBuscarInventario(false);
     }
-
   };
 
   const handleBuscarAlta = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -584,7 +704,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       Swal.fire({
         icon: "warning",
         title: "Sin Resultados",
-        text: "Inventario no encontrado",
+        text: "Inventarios no encontrado",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -631,8 +751,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   }
 
-
-  // Lógica de Paginación actualizada
+  // Lógica de paginación para lista especies
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
   const elementosActuales = useMemo(
@@ -640,8 +759,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     [listaEspecie, indicePrimerElemento, indiceUltimoElemento]
   );
   const totalPaginas = Math.ceil(listaEspecie.length / elementosPorPagina);
-  // const totalPaginas = Array.isArray(listaESP_CODIGO) ? Math.ceil(listaESP_CODIGO.length / elementosPorPagina) : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+
+  // Lógica de paginación para lista altas
+  const indiceUltimoElemento1 = paginaActual1 * elementosPorPagina1;
+  const indicePrimerElemento1 = indiceUltimoElemento1 - elementosPorPagina1;
+  const elementosActuales1 = useMemo(
+    () => listaAltas.slice(indicePrimerElemento1, indiceUltimoElemento1),
+    [listaAltas, indicePrimerElemento1, indiceUltimoElemento1]
+  );
+  const totalPaginas1 = Math.ceil(listaAltas.length / elementosPorPagina1);
+  const paginar1 = (numeroPagina: number) => setPaginaActual1(numeroPagina);
 
   return (
     <Layout>
@@ -705,7 +833,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         </Button>
                       </OverlayTrigger>
                     </div>
-                    {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
+                    {error.AF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.AF_CODIGO_GENERICO}
                     </div>
                     )}
                   </div>
@@ -755,9 +883,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         </Button>
                       </OverlayTrigger>
                     </div>
-                    {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
-                    </div>
-                    )}
                   </div>
                 </Col>
               </Row>
@@ -772,18 +897,18 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     </label>
                     <div className="d-flex align-items-center">
                       <input
-                        aria-label="aF_CODIGO_GENERICO"
+                        aria-label="AF_CODIGO_GENERICO"
                         type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.aF_CODIGO_GENERICO ? "is-invalid" : ""}`}
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_CODIGO_GENERICO ? "is-invalid" : ""}`}
                         maxLength={12}
-                        name="aF_CODIGO_GENERICO"
+                        name="AF_CODIGO_GENERICO"
                         placeholder="Eje: 1000000008"
                         onChange={handleChange}
-                        value={Inventario.aF_CODIGO_GENERICO}
+                        value={Inventario.AF_CODIGO_GENERICO}
                         disabled
                       />
                     </div>
-                    {error.aF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.aF_CODIGO_GENERICO}
+                    {error.AF_CODIGO_GENERICO && (<div className="invalid-feedback fw-semibold d-block">{error.AF_CODIGO_GENERICO}
                     </div>
                     )}
                   </div>
@@ -1238,7 +1363,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           </form>
         </div>
       </div >
-      {/* Modal ESP_CODIGOs*/}
+      {/* Modal Especies */}
       < Modal
         show={mostrarModal}
         onHide={() => setMostrarModal(false)}
@@ -1378,7 +1503,30 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </Col>
             </Row>
           </form>
-
+          <div className="bg-white shadow-sm sticky-top">
+            <Row>
+              <Col md={6}>
+                {/* {listaTrasladoSeleccion.length > 10 && ( */}
+                <div className="d-flex align-items-center me-2">
+                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                    Tamaño de página:
+                  </label>
+                  <select
+                    aria-label="Seleccionar tamaño de página"
+                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nPaginacion"
+                    onChange={handleChange}
+                    value={Paginacion.nPaginacion}
+                  >
+                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                      <option key={val} value={val}>{val}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* )} */}
+              </Col>
+            </Row>
+          </div>
           {/* Tabla*/}
           <div className='table-responsive position-relative z-0'>
             <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
@@ -1587,27 +1735,183 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           </div>
         </Modal.Body>
       </Modal >
+
+      {/* Modal lista seleccion Altas */}
+      <Modal show={mostrarModalAltas} onHide={() => setMostrarModalAltas(false)}
+        size="xl"
+        dialogClassName="draggable-modal"
+      // scrollable={false}
+      // backdrop="static" // Evita que se cierre al hacer clic afuera
+      // keyboard={false}
+      >
+        <Modal.Header className={`modal-header`} closeButton>
+          <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+
+          <div className="bg-white shadow-sm sticky-top">
+            <Row>
+              <Col md={6}>
+                {/* {listaTrasladoSeleccion.length > 10 && ( */}
+                <div className="d-flex align-items-center me-2">
+                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                    Tamaño de página:
+                  </label>
+                  <select
+                    aria-label="Seleccionar tamaño de página"
+                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nPaginacion1"
+                    onChange={handleChange}
+                    value={Paginacion1.nPaginacion1}
+                  >
+                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                      <option key={val} value={val}>{val}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* )} */}
+              </Col>
+              <Col md={6} className="d-flex justify-content-end">
+                {filasSeleccionadasAltas.length > 0 ? (
+                  <Button
+                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                    onClick={handleInventarioSeleccionado}
+                    className="m-1 p-2 d-flex align-items-center">
+                    Seleccionar
+                  </Button>
+                ) : (
+                  <strong className="alert alert-dark border m-1 p-2 mx-2">
+                    No hay filas seleccionadas
+                  </strong>
+                )}
+              </Col>
+            </Row>
+          </div>
+          {/* Tabla activos*/}
+          <div style={{ maxHeight: "50vh", overflowY: "auto" }} className="mt-2">
+            {/* Tabla*/}
+            {loading ? (
+              <>
+                {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                <SkeletonLoader rowCount={10} columnCount={10} />
+              </>
+            ) : (
+              <div className='table-responsive position-relative z-0'>
+                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                  <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                    <tr>
+                      <th style={{ position: 'sticky', left: 0 }}>
+                        <Form.Check
+                          className="check-danger"
+                          type="checkbox"
+                          // onChange={handleSeleccionaTodos}
+                          checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                        />
+                      </th>
+                      <th scope="col" className="text-nowrap">Nº Inventario</th>
+                      <th scope="col" className="text-nowrap">Nº Alta</th>
+                      <th scope="col" className="text-nowrap">Servicio</th>
+                      <th scope="col" className="text-nowrap">Dependencia</th>
+                      <th scope="col" className="text-nowrap">Monto Recepción</th>
+                      <th scope="col" className="text-nowrap">N° Orden de compra</th>
+                      <th scope="col" className="text-nowrap">Especie</th>
+                      <th scope="col" className="text-nowrap">N° factura</th>
+                      <th scope="col" className="text-nowrap">Cuenta</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {elementosActuales1.map((lista, index) => {
+                      const indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
+                      return (
+                        <tr key={index}>
+                          <td style={{ position: 'sticky', left: 0 }}>
+                            <Form.Check
+                              type="checkbox"
+                              onChange={() =>
+                                handleSeleccionFilaAltas(indexReal)
+                              }
+                              checked={filasSeleccionadasAltas.includes(
+                                (indicePrimerElemento1 + index).toString()
+                              )}
+                            />
+                          </td>
+                          <td className="text-nowrap">{lista.aF_CODIGO_GENERICO}</td>
+                          <td className="text-nowrap">{lista.altaS_CORR}</td>
+                          <td className="text-nowrap">{lista.seR_CORR}</td>
+                          <td className="text-nowrap">{lista.deP_CORR}</td>
+                          <td className="text-nowrap">{lista.aF_MONTOFACTURA}</td>
+                          <td className="text-nowrap">{lista.aF_OCO_NUMERO_REF}</td>
+                          <td className="text-nowrap">{lista.esP_NOMBRE}</td>
+                          <td className="text-nowrap">{lista.aF_NUM_FAC}</td>
+                          <td className="text-nowrap">{lista.ctA_COD}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+          {/* Paginador */}
+          <div className="paginador-container position-relative z-0">
+            <Pagination className="paginador-scroll">
+              <Pagination.First
+                onClick={() => paginar1(1)}
+                disabled={paginaActual1 === 1}
+              />
+              <Pagination.Prev
+                onClick={() => paginar1(paginaActual1 - 1)}
+                disabled={paginaActual1 === 1}
+              />
+
+              {Array.from({ length: totalPaginas1 }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === paginaActual1}
+                  onClick={() => paginar1(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() => paginar1(paginaActual1 + 1)}
+                disabled={paginaActual1 === totalPaginas1}
+              />
+              <Pagination.Last
+                onClick={() => paginar1(totalPaginas1)}
+                disabled={paginaActual1 === totalPaginas1}
+              />
+            </Pagination>
+          </div>
+        </Modal.Body>
+      </Modal>
+
     </Layout >
   );
 };
 
 const mapStateToProps = (state: RootState) => ({
-  comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
-  // comboServicio: state.comboServicioReducer.comboServicio,
-  comboModalidad: state.comboModalidadCompraReducer.comboModalidad,
-  comboCuenta: state.comboCuentaModificarReducers.comboCuenta,
-  // comboDependencia: state.comboDependenciaModificarReducers.comboDependencia,
-  comboSerDep: state.comboServDepReducers.comboSerDep,
-  comboDetalle: state.detallesReducer.comboDetalle,
-  comboBien: state.detallesReducer.comboBien,
-  comboProveedor: state.comboProveedorReducers.comboProveedor,
-  listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
-  comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
-  descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
+  //-------Combos del Formulario---------//
+  // comboServicio: state.comboServicioReducer.comboServicio,
+  // comboDependencia: state.comboDependenciaModificarReducers.comboDependencia,
+  comboOrigen: state.comboOrigenPresupuestoReducer.comboOrigen,
+  comboModalidad: state.comboModalidadCompraReducer.comboModalidad,
+  comboCuenta: state.comboCuentaModificarReducers.comboCuenta,
+  comboSerDep: state.comboServDepReducers.comboSerDep,
+  comboBien: state.detallesReducer.comboBien,
+  comboDetalle: state.detallesReducer.comboDetalle,
+  comboProveedor: state.comboProveedorReducers.comboProveedor,
+  comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
+  //-------Lista especies(Modal)---------//
+  descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie,
+  listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
+  //-------Lista Altas(Obtener mediante la busqueda)---------//
+  listaAltas: state.obtenerInventarioXAltasReducers.listaAltas,
+  //-------Formulario(renderiza en cada propiedad)---------//
   aF_CLAVE: state.obtenerInventarioReducers.aF_CLAVE,
-  aF_CODIGO_GENERICO: state.obtenerInventarioReducers.aF_CODIGO_GENERICO,// nRecepcion
+  AF_CODIGO_GENERICO: state.obtenerInventarioReducers.aF_CODIGO_GENERICO,// nRecepcion
   AF_FECHA_SOLICITUD: state.obtenerInventarioReducers.aF_FECHA_SOLICITUD,// fechaRecepcion 
   AF_OCO_NUMERO_REF: state.obtenerInventarioReducers.aF_OCO_NUMERO_REF, // nOrdenCompra
   AF_NUM_FAC: state.obtenerInventarioReducers.aF_NUM_FAC,// nFactura
@@ -1618,10 +1922,10 @@ const mapStateToProps = (state: RootState) => ({
   // SER_CORR: state.obtenerInventarioReducers.seR_CORR, //servicio
   DEP_CORR: state.obtenerInventarioReducers.deP_CORR, //dependencia
   IDMODALIDADCOMPRA: state.obtenerInventarioReducers.idmodalidadcompra, // modalidadDeCompra
-  ESP_CODIGO: state.obtenerInventarioReducers.esP_CODIGO,//ESP_CODIGO
+  ESP_CODIGO: state.obtenerInventarioReducers.esP_CODIGO,
   esP_NOMBRE: state.obtenerInventarioReducers.esP_NOMBRE,
   CTA_COD: state.obtenerInventarioReducers.ctA_COD,
-  //-------Tabla---------//
+  //-------Detalles Activo fijo---------//
   AF_VIDAUTIL: state.obtenerInventarioReducers.aF_VIDAUTIL,
   AF_FINGRESO: state.obtenerInventarioReducers.aF_FINGRESO,
   DET_MARCA: state.obtenerInventarioReducers.deT_MARCA,

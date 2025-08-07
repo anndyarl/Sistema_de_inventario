@@ -13,7 +13,7 @@ interface obtenerInventarioState {
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
     aF_FECHA_SOLICITUD: string; // fechaRecepcion 
-    aF_OCO_NUMERO_REF: number; // nOrdenCompra
+    aF_OCO_NUMERO_REF: string; // nOrdenCompra
     aF_NUM_FAC: string// nFactura
     aF_ORIGEN: number;  //origenPresupuesto
     aF_MONTOFACTURA: number; //montoRecepcion
@@ -42,7 +42,7 @@ const initialState: obtenerInventarioState = {
     aF_CLAVE: 0,
     aF_CODIGO_GENERICO: "", // nRecepcion
     aF_FECHA_SOLICITUD: "", // fechaRecepcion 
-    aF_OCO_NUMERO_REF: 0, // nOrdenCompra
+    aF_OCO_NUMERO_REF: "", // nOrdenCompra
     aF_NUM_FAC: "",// nFactura
     aF_ORIGEN: 0,  //origenPresupuesto
     aF_MONTOFACTURA: 0, //montoRecepcion
