@@ -137,35 +137,29 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "aF_CLAVE" && !/^[0-9]*$/.test(value)) {
+        //solo permitir números
+        if ((name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
             return; // Salir si contiene caracteres no numéricos
         }
-
-        // Convertir a número solo si el campo está en la lista
-        const camposNumericos = ["altaS_CORR"];
-        const newValue: string | number = camposNumericos.includes(name)
-            ? parseFloat(value) || 0
-            : value;
 
         // Actualizar estado
         setInventario((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value.replace(/^0+/, "") //Elimina ceroa la izquierda
         }));
         setReimprimir((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value.replace(/^0+/, "") //Elimina ceroa la izquierda
         }));
 
         setPaginacion((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value,
         }));
 
         setPaginacion1((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value,
         }));
     };
 
@@ -260,7 +254,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             fHastaR: ""
         }));
     };
-
 
     //----------------Lista con Estado Etiqueta N(Lista General) --------------------//
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -602,6 +595,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             name="af_codigo_generico"
                                             placeholder="Ej: 1000000008"
                                             onChange={handleChange}
+                                            maxLength={12}
                                             value={Inventario.af_codigo_generico}
                                         />
                                     </div>
@@ -614,6 +608,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             name="altaS_CORR"
                                             placeholder="Ej: 0"
                                             onChange={handleChange}
+                                            maxLength={12}
                                             value={Inventario.altaS_CORR}
                                         />
                                     </div>

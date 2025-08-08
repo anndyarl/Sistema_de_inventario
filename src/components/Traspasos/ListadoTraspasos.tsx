@@ -323,6 +323,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                     name="af_codigo_generico"
                     placeholder="Ej: 1000000008"
                     onChange={handleChange}
+                    maxLength={12}
                     value={ListadoTraslado.af_codigo_generico}
                   />
                 </div>
@@ -336,6 +337,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                     size={10}
                     placeholder="Eje: 1000000008"
                     onChange={handleChange}
+                    maxLength={12}
                     value={ListadoTraslado.tras_corr}
                   />
                 </div>

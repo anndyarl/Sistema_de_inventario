@@ -497,6 +497,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       size={10}
                       placeholder="0"
                       onChange={handleChange}
+                      maxLength={12}
                       value={Excluidos.nresolucion}
                     />
                   </div>
@@ -509,6 +510,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       name="af_codigo_generico"
                       placeholder="Ej: 1000000008"
                       onChange={handleChange}
+                      maxLength={12}
                       value={Excluidos.af_codigo_generico}
                     />
                   </div>

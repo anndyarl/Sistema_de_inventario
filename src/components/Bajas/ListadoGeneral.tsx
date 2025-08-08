@@ -309,6 +309,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                     size={10}
                     placeholder="Eje: 1000000008"
                     onChange={handleChange}
+                    maxLength={12}
                     value={Buscar.af_codigo_generico}
                   />
                 </div>
@@ -321,6 +322,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                     name="altaS_CORR"
                     placeholder="0"
                     onChange={handleChange}
+                    maxLength={12}
                     value={Buscar.altaS_CORR}
                   />
                 </div>

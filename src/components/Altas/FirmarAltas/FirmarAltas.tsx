@@ -319,27 +319,20 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+        //solo permitir números
+        if ((name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
             return; // Salir si contiene caracteres no numéricos
         }
-
-        // Convertir a número solo si el campo está en la lista
-        const camposNumericos = ["altaS_CORR"];
-        const newValue: string | number = camposNumericos.includes(name)
-            ? parseFloat(value) || 0
-            : value;
-
 
         // Actualizar estado
         setInventario((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value.replace(/^0+/, "") //Elimina ceroa la izquierda
         }));
 
         setPaginacion((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value,
         }));
 
         const prev = structuredClone(AltaInventario);
@@ -1283,6 +1276,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             name="af_codigo_generico"
                                             placeholder="Ej: 1000000008"
                                             onChange={handleChange}
+                                            maxLength={12}
                                             value={Inventario.af_codigo_generico}
                                         />
                                     </div>
@@ -1294,6 +1288,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                             name="altaS_CORR"
                                             placeholder="Ej: 0"
+                                            maxLength={12}
                                             onChange={handleChange}
                                             value={Inventario.altaS_CORR}
                                         />

@@ -66,26 +66,20 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        // Validación específica para af_codigo_generico: solo permitir números
+        // Solo permitir números
         if ((name === "altaS_CORR" || name === "idDocumento") && !/^[0-9]*$/.test(value)) {
             return; // Salir si contiene caracteres no numéricos
         }
 
-        // Convertir a número solo si el campo está en la lista
-        const camposNumericos = ["altaS_CORR"];
-        const newValue: string | number = camposNumericos.includes(name)
-            ? parseFloat(value) || 0
-            : value;
-
         // Actualizar estado
         setBuscar((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value.replace(/^0+/, "")
         }));
 
         setPaginacion((prevState) => ({
             ...prevState,
-            [name]: newValue,
+            [name]: value,
         }));
     };
 
@@ -113,7 +107,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             paginar(1);
             setLoading(false); //Finaliza estado de carga
         }
-
     };
 
     const handleRefrescar = async () => {
@@ -162,8 +155,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setCuerpoDocumentoPDF(visadoBase64);
     }, [documentoByte64, listaEstado.length, listaEstadoVisadores.length]);
 
-
-
     // useEffect(() => {
     //     const socket = new WebSocket("ws://localhost:5076/ws/notificaciones");
 
@@ -194,7 +185,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     //         socket.close();
     //     };
     // }, [documentoByte64, objeto.Roles]);
-
 
     const handleLimpiar = () => {
         setBuscar((prevInventario) => ({
@@ -256,6 +246,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             name="altaS_CORR"
                                             placeholder="0"
                                             onChange={handleChange}
+                                            maxLength={8}
                                             value={Buscar.altaS_CORR}
                                         />
                                     </div>
@@ -270,6 +261,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             name="idDocumento"
                                             placeholder="0"
                                             onChange={handleChange}
+                                            maxLength={8}
                                             value={Buscar.idDocumento}
                                         />
                                     </div>

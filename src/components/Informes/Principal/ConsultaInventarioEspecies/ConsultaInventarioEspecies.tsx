@@ -219,6 +219,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                         size={10}
                                         placeholder="Eje: 1000000008"
                                         onChange={handleChange}
+                                        maxLength={12}
                                         value={Inventario.af_codigo_generico}
                                     />
                                 </div>

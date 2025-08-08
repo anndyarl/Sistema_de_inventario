@@ -165,12 +165,12 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+    if ((name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
       return; // Salir si contiene caracteres no numéricos
     }
     setInventario((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: value.replace(/^0+/, "") //Elimina ceroa la izquierda
     }));
 
     setPaginacion((prevState) => ({
@@ -434,6 +434,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="af_codigo_generico"
                       placeholder="Ej: 1000000008"
                       onChange={handleChange}
+                      maxLength={12}
                       value={Inventario.af_codigo_generico}
                     />
                   </div>
@@ -481,7 +482,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       aria-label="serie"
                       type="text"
                       className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      maxLength={50}
+                      maxLength={12}
                       name="serie"
                       placeholder="Ingrese serie"
                       onChange={handleChange}
@@ -535,6 +536,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="altaS_CORR"
                       placeholder="Ej: 0"
                       onChange={handleChange}
+                      maxLength={12}
                       value={Inventario.altaS_CORR}
                     />
                   </div>

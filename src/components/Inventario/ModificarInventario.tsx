@@ -61,7 +61,7 @@ export interface listaAltas {
 
 //Se usan estas props para llamar a la busqueda de inventario por af_codigo_generico
 export interface InventarioCompleto {
-  aF_CLAVE: number;
+  AF_CLAVE: number;
   AF_CODIGO_GENERICO: string;
   AF_FECHA_SOLICITUD: string; // fechaRecepcion 
   AF_OCO_NUMERO_REF: string // nOrdenCompra
@@ -125,7 +125,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboEspecies,
   listaEspecie,
   listaAltas,
-  aF_CLAVE,
+  AF_CLAVE,
   AF_CODIGO_GENERICO, // nRecepcion
   AF_FECHA_SOLICITUD,// fechaRecepcion 
   AF_OCO_NUMERO_REF, // nOrdenCompra
@@ -199,7 +199,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     descripcionEspecie: "",
   });
   const [Inventario, setInventario] = useState({
-    aF_CLAVE,
+    AF_CLAVE,
     AF_CODIGO_GENERICO: "",
     AF_FECHA_SOLICITUD: "", // fechaRecepcion
     AF_OCO_NUMERO_REF: "", // nOrdenCompra
@@ -256,7 +256,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     if (!Inventario.AF_FECHA_SOLICITUD || Inventario.AF_FECHA_SOLICITUD === "0") tempErrors.AF_FECHA_SOLICITUD = "Campo obligatorio";
-    if (!Inventario.AF_OCO_NUMERO_REF) tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
+    if (!Inventario.AF_OCO_NUMERO_REF || Inventario.AF_OCO_NUMERO_REF === "0") tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
     if (!Inventario.AF_NUM_FAC || Inventario.AF_NUM_FAC == "0") tempErrors.AF_NUM_FAC = "Campo obligatorio";
     if (!Inventario.AF_ORIGEN) tempErrors.AF_ORIGEN = "Campo obligatorio";
     if (!Inventario.AF_MONTOFACTURA || Inventario.AF_MONTOFACTURA == 0) tempErrors.AF_MONTOFACTURA = "Campo obligatorio";
@@ -268,18 +268,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (!Inventario.DEP_CORR) tempErrors.DEP_CORR = "Campo obligatorio";
     if (!Inventario.CTA_COD || Inventario.CTA_COD === "") tempErrors.CTA_COD = "Campo obligatorio";
     if (!Inventario.ESP_CODIGO) tempErrors.ESP_CODIGO = "Campo obligatorio";
+
+    if (!Inventario.AF_VIDAUTIL) tempErrors.AF_VIDAUTIL = "Campo obligatorio";
+    if (!Inventario.AF_FINGRESO || Inventario.AF_FINGRESO === "0") tempErrors.AF_FINGRESO = "Campo obligatorio";
+    if (!Inventario.DET_MARCA) tempErrors.DET_MARCA = "Campo obligatorio";
+    if (!Inventario.DET_MODELO) tempErrors.DET_MODELO = "Campo obligatorio";
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
-  };
-
-  const servicioOptions = comboSerDep.map((item) => ({
-    value: item.deP_CORR,
-    label: item.descripcion,
-  }));
-
-  const handleServicioChange = (selectedOption: any) => {
-    const value = selectedOption ? selectedOption.value : 0;
-    setInventario((prevInventario) => ({ ...prevInventario, DEP_CORR: value }));
   };
 
   const validateDetalles = () => {
@@ -294,6 +289,17 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+
+  const servicioOptions = comboSerDep.map((item) => ({
+    value: item.deP_CORR,
+    label: item.descripcion,
+  }));
+
+  const handleServicioChange = (selectedOption: any) => {
+    const value = selectedOption ? selectedOption.value : 0;
+    setInventario((prevInventario) => ({ ...prevInventario, DEP_CORR: value }));
+  };
+
   //Hook que muestra los valores al input, Sincroniza el estado local con Redux
   useEffect(() => {
     //Carga combo especies
@@ -303,7 +309,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (comboSerDep.length === 0) { comboSerDepActions(objeto.Roles[0].codigoEstablecimiento) }
 
     setInventario({
-      aF_CLAVE,
+      AF_CLAVE,
       AF_CODIGO_GENERICO, // nRecepcion
       AF_FECHA_SOLICITUD,// fechaRecepcion 
       AF_OCO_NUMERO_REF, // nOrdenCompra
@@ -387,7 +393,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     ].includes(name)
 
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-      : value;
+      : value.replace(/^0+/, ""); //Elimina ceroa la izquierda
 
     //Parametros de busqueda
     setBuscarInventario((prevState) => ({
@@ -448,6 +454,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       comboCuentaModificarActions("");
     }
     if (name === "altaS_CORR") {
+
       comboCuentaModificarActions("");
     }
   };
@@ -585,11 +592,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (validate()) {
       Swal.fire({
         icon: "info",
-        // title: 'Confirmar',
-        text: "Confirmar la modificación del formulario",
+        title: 'Confirmar cambios',
+        text: 'Está a punto de modificar la información. ¿Desea continuar?',
         showDenyButton: false,
         showCancelButton: true,
         confirmButtonText: "Confirmar y modificar",
+        cancelButtonText: "Cerrar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -600,6 +608,19 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           handleSubmit();
+        }
+      });
+    }
+    else {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos obligatorios incompletos",
+        text: "Complete todos los campos requeridos antes de modificar el registro.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
         }
       });
     }
@@ -635,7 +656,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   };
 
-  const handleBuscarInventario = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleBuscarInventario = async (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
     setLoadingBuscarInventario(true);
@@ -643,7 +664,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (!BuscarInventario.aF_CODIGO_GENERICO_B || BuscarInventario.aF_CODIGO_GENERICO_B === "") {
       Swal.fire({
         icon: "warning",
-        title: "Por favor, ingrese un número de inventario",
+        title: "Campo requerido",
+        text: "Por favor ingrese un número de inventario.",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -652,7 +674,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           popup: "custom-border",
         }
       });
-      setLoading(false);
+      setLoadingBuscarInventario(false);
       return;
     }
     resultado = await obtenerInventarioActions(BuscarInventario.aF_CODIGO_GENERICO_B, objeto.Roles[0].codigoEstablecimiento);
@@ -679,7 +701,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   };
 
-  const handleBuscarAlta = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleBuscarAlta = async (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
     e.preventDefault();
     setLoadingBuscarAlta(true);
@@ -687,7 +709,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (!BuscarInventario.altaS_CORR || BuscarInventario.altaS_CORR === 0) {
       Swal.fire({
         icon: "warning",
-        title: "Por favor, ingrese un número de Alta",
+        title: "Campo requerido",
+        text: "Por favor ingrese un número de Alta.",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -696,7 +719,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           popup: "custom-border",
         }
       });
-      setLoading(false);
+      setLoadingBuscarAlta(false);
       return;
     }
     resultado = await obtenerInventarioxAltasActions(BuscarInventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
@@ -704,7 +727,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       Swal.fire({
         icon: "warning",
         title: "Sin Resultados",
-        text: "Inventarios no encontrado",
+        text: "Inventarios no encontrados",
         confirmButtonText: "Ok",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -718,6 +741,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
       // return;
     } else {
+      setFilasSeleccionadasAltas([]);
       setMostrarModalAltas(true);
       setIsDisabled(false);
       setLoadingBuscarAlta(false);
@@ -746,7 +770,30 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
 
   const handleCerrarModal = () => {
-    if (validateDetalles()) {
+    if (!validateDetalles()) {
+      Swal.fire({
+        icon: "warning",
+        title: 'Campos obligatorios incompletos',
+        text: "Complete todos los campos requeridos antes de modificar el registro.",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Ok",
+        cancelButtonText: "Cerrar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isDismissed) {
+          setMostrarModalDetalles(false);
+        }
+      });
+    }
+    else {
       setMostrarModalDetalles(false);
     }
   }
@@ -803,6 +850,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         name="aF_CODIGO_GENERICO_B"
                         placeholder="Eje: 1000000008"
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscarInventario(e);
+                          }
+                        }}
                         value={BuscarInventario.aF_CODIGO_GENERICO_B}
                       />
                       <OverlayTrigger
@@ -853,6 +905,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         name="altaS_CORR"
                         placeholder="Eje: 1000000008"
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscarAlta(e);
+                          }
+                        }}
                         value={BuscarInventario.altaS_CORR}
                       />
                       <OverlayTrigger
@@ -887,7 +944,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 </Col>
               </Row>
               <div className={`border-bottom mt-4 mb-2`}>
-                <h5 className="fw-semibold">MODIFICAR</h5>
+                <h5 className="fw-semibold">RESULTADO DE LA BUSQUEDA</h5>
               </div>
               <Row>
                 <Col md={3}>
@@ -1258,7 +1315,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       Cuenta</label>
                     <select
                       aria-label="CTA_COD"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.CTA_COD ? "is-invalid" : ""}`}
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.CTA_COD ? "is-invalid" : ""}`}
                       name="CTA_COD"
                       onChange={handleChange}
                       value={Inventario.CTA_COD}
@@ -1273,7 +1330,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       ))}
                     </select>
                     {error.CTA_COD && (
-                      <div className="invalid-feedback fw-semibold">{error.CTA_COD}</div>
+                      <div className="invalid-feedback fw-semibold d-block">{error.CTA_COD}</div>
                     )}
                   </div>
                   {/* <div className="mb-1">
@@ -1321,7 +1378,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   <div className="mb-1">
                     <label className="fw-semibold">
                       Activos fijos</label>
-                    <div className="d-flex align-items-center">
+                    <div className={`d-flex align-items-center form-select-container ${error.AF_VIDAUTIL || error.AF_FINGRESO || error.DET_MARCA || error.DET_MODELO ? "is-invalid border border-danger rounded" : ""}`}>
                       <p className="text-right w-100 border p-2 m-0 rounded">
                         Detalles activos fijos
                       </p>
@@ -1342,6 +1399,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         </Button>
                       </OverlayTrigger>
                     </div>
+                    {error.AF_VIDAUTIL || error.AF_FINGRESO || error.DET_MARCA || error.DET_MODELO && (
+                      <div className="invalid-feedback fw-semibold d-block">{error.AF_VIDAUTIL || error.AF_FINGRESO || error.DET_MARCA || error.DET_MODELO}</div>
+                    )}
                   </div>
                 </Col>
               </Row>
@@ -1813,9 +1873,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       <th scope="col" className="text-nowrap">Servicio</th>
                       <th scope="col" className="text-nowrap">Dependencia</th>
                       <th scope="col" className="text-nowrap">Monto Recepción</th>
-                      <th scope="col" className="text-nowrap">N° Orden de compra</th>
+                      <th scope="col" className="text-nowrap">N° Orden de Compra</th>
                       <th scope="col" className="text-nowrap">Especie</th>
-                      <th scope="col" className="text-nowrap">N° factura</th>
+                      <th scope="col" className="text-nowrap">N° Factura</th>
                       <th scope="col" className="text-nowrap">Cuenta</th>
                     </tr>
                   </thead>
@@ -1839,7 +1899,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           <td className="text-nowrap">{lista.altaS_CORR}</td>
                           <td className="text-nowrap">{lista.seR_CORR}</td>
                           <td className="text-nowrap">{lista.deP_CORR}</td>
-                          <td className="text-nowrap">{lista.aF_MONTOFACTURA}</td>
+                          <td className="text-nowrap">${lista.aF_MONTOFACTURA.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
                           <td className="text-nowrap">{lista.aF_OCO_NUMERO_REF}</td>
                           <td className="text-nowrap">{lista.esP_NOMBRE}</td>
                           <td className="text-nowrap">{lista.aF_NUM_FAC}</td>
@@ -1910,7 +1970,7 @@ const mapStateToProps = (state: RootState) => ({
   //-------Lista Altas(Obtener mediante la busqueda)---------//
   listaAltas: state.obtenerInventarioXAltasReducers.listaAltas,
   //-------Formulario(renderiza en cada propiedad)---------//
-  aF_CLAVE: state.obtenerInventarioReducers.aF_CLAVE,
+  AF_CLAVE: state.obtenerInventarioReducers.aF_CLAVE,
   AF_CODIGO_GENERICO: state.obtenerInventarioReducers.aF_CODIGO_GENERICO,// nRecepcion
   AF_FECHA_SOLICITUD: state.obtenerInventarioReducers.aF_FECHA_SOLICITUD,// fechaRecepcion 
   AF_OCO_NUMERO_REF: state.obtenerInventarioReducers.aF_OCO_NUMERO_REF, // nOrdenCompra

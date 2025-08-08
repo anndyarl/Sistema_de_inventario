@@ -349,6 +349,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                 name="af_codigo_generico"
                                                 placeholder="Ej: 1000000008"
                                                 onChange={handleChange}
+                                                maxLength={12}
                                                 value={Inventario.af_codigo_generico}
                                             />
                                         </div>

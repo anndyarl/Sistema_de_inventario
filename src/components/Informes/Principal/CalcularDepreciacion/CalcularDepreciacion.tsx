@@ -850,6 +850,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         name="af_codigo_generico"
                                         placeholder="Ej: 1000000008"
                                         onChange={handleChange}
+                                        maxLength={12}
                                         value={Inventario.af_codigo_generico}
                                     />
                                 </div>

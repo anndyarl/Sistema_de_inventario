@@ -362,6 +362,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                     size={10}
                     placeholder="0"
                     onChange={handleChange}
+                    maxLength={12}
                     value={Rematados.nresolucion}
                   />
                 </div>
@@ -374,6 +375,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                     name="af_codigo_generico"
                     placeholder="Ej: 1000000008"
                     onChange={handleChange}
+                    maxLength={12}
                     value={Rematados.af_codigo_generico}
                   />
                 </div>
