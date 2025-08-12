@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <!-- Google tag (gtag.js) ambiente producción-->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7ZHXRBWF4F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+ 
+      gtag('config', 'G-7ZHXRBWF4F'); // https://inventario.ssmso.cl/
+    </script>
+    <!-- Google tag (gtag.js) ambiente qa -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MF9EFMXJQQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-MF9EFMXJQQ'); // https://qainventario.ssmso.cl/
+    </script>
     <!-- <title>Vite + React + TS</title> -->
   </head>
   <body>

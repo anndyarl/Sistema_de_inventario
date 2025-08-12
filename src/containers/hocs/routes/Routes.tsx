@@ -58,9 +58,11 @@ import AnularInventario from '../../../components/Inventario/AnularInventario';
 import LevantamientoFisico from '../../../components/Inventario/LevantamientoFisico';
 import Especies from '../../../components/Mantenedores/Especies';
 import ListadoTraspasos from '../../../components/Traspasos/ListadoTraspasos';
+import useAnalytics from '../../../hooks/useAnalytics';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
+    useAnalytics(); // Google Analytics
     return (
         <AnimatePresence>
             <Routes location={location} key={location.pathname}>

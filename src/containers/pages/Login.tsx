@@ -150,7 +150,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
                       <td>{item.id || 'N/A'}</td>
                       <td>{item.establecimiento === 1 ? "SSMSO"
                         : item.establecimiento === 2 ? "CASR"
-                          : item.establecimiento === 3 ? "SJM" : "Sin Información"}</td>
+                          : item.establecimiento === 3 ? "HSJM" : "Sin Información"}</td>
                       <td>
                         <Button
                           variant="outline-primary"

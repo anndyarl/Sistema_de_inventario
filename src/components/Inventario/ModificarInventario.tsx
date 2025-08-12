@@ -1808,28 +1808,29 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-
           <div className="bg-white shadow-sm sticky-top">
             <Row>
+
               <Col md={6}>
-                {/* {listaTrasladoSeleccion.length > 10 && ( */}
-                <div className="d-flex align-items-center me-2">
-                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                    Tamaño de página:
-                  </label>
-                  <select
-                    aria-label="Seleccionar tamaño de página"
-                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nPaginacion1"
-                    onChange={handleChange}
-                    value={Paginacion1.nPaginacion1}
-                  >
-                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                      <option key={val} value={val}>{val}</option>
-                    ))}
-                  </select>
-                </div>
-                {/* )} */}
+                {listaAltas.length > 10 &&
+
+                  < div className="d-flex align-items-center me-2">
+                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                      Tamaño de página:
+                    </label>
+                    <select
+                      aria-label="Seleccionar tamaño de página"
+                      className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="nPaginacion1"
+                      onChange={handleChange}
+                      value={Paginacion1.nPaginacion1}
+                    >
+                      {[10, 15, 20, 25, 50, 100].map((val) => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+                }
               </Col>
               <Col md={6} className="d-flex justify-content-end">
                 {filasSeleccionadasAltas.length > 0 ? (
@@ -1860,14 +1861,15 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                   <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
-                      <th style={{ position: 'sticky', left: 0 }}>
+                      {/* <th style={{ position: 'sticky', left: 0 }}>
                         <Form.Check
                           className="check-danger"
                           type="checkbox"
                           // onChange={handleSeleccionaTodos}
                           checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                         />
-                      </th>
+                      </th> */}
+                      <th></th>
                       <th scope="col" className="text-nowrap">Nº Inventario</th>
                       <th scope="col" className="text-nowrap">Nº Alta</th>
                       <th scope="col" className="text-nowrap">Servicio</th>
