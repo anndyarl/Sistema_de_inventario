@@ -5,7 +5,6 @@ import {
   ACTUALIZAR_FORMULARIO_SUCCESS,
   ACTUALIZAR_FORMULARIO_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; // Token está en el estado de autenticación
@@ -57,7 +56,6 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
         type: ACTUALIZAR_FORMULARIO_FAIL,
         error: "Error en la solicitud:", err,
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -65,7 +63,6 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
       type: ACTUALIZAR_FORMULARIO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

@@ -60,6 +60,11 @@ export const REGISTRAR_ESPECIE_REQUEST = 'REGISTRAR_ESPECIE_REQUEST';
 export const REGISTRAR_ESPECIE_SUCCESS = 'REGISTRAR_ESPECIE_SUCCESS';
 export const REGISTRAR_ESPECIE_FAIL = 'REGISTRAR_ESPECIE_FAIL';
 
+// Acción Actualizar Especies
+export const ACTUALIZAR_ESPECIE_REQUEST = 'ACTUALIZAR_ESPECIE_REQUEST';
+export const ACTUALIZAR_ESPECIE_SUCCESS = 'ACTUALIZAR_ESPECIE_SUCCESS';
+export const ACTUALIZAR_ESPECIE_FAIL = 'ACTUALIZAR_ESPECIE_FAIL';
+
 /*************************** Proveedores ************************************/
 
 // Acción Lista mantenedor Proveedores

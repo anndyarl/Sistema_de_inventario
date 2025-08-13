@@ -15,11 +15,13 @@ import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Serv
 import { listadoMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/listadoMantenedorEspeciesActions.tsx";
 import { comboCuentaMantenedorActions } from "../../redux/actions/Mantenedores/Especies/comboCuentaMantenedorActions.tsx";
 import { registrarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/registrarMantenedorEspeciesActions.tsx";
+import { actualizarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/actualizarMantenedorEspeciesActions.tsx";
 
 export interface ListadoMantenedor {
     esP_CODIGO: string;
     esP_NOMBRE: string;
     ctA_NOMBRE: string;
+    ctA_COD: string;
     esP_VIGENTE: string;
     esP_USER_CREA: string;
     estabL_NOMBRE: string;
@@ -34,9 +36,10 @@ interface ComboCuentas {
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
     obtenerMaxServicioActions: () => void;
-    listadoMantenedorEspeciesActions: () => Promise<boolean>;
+    listadoMantenedorEspeciesActions: (establ_corr: number) => Promise<boolean>;
     comboCuentaMantenedorActions: () => Promise<boolean>;
     registrarMantenedorEspeciesActions: (formModal: Record<string, any>) => Promise<boolean>;
+    actualizarMantenedorEspeciesActions: (formModal: Record<string, any>) => Promise<boolean>;
     comboCuentas: ComboCuentas[];
     token: string | null;
     isDarkMode: boolean;
@@ -45,12 +48,12 @@ interface GeneralProps {
 
 }
 
-const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, registrarMantenedorEspeciesActions, seR_CORR, listadoMantenedor, comboCuentas, objeto, token, isDarkMode }) => {
+const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, registrarMantenedorEspeciesActions, actualizarMantenedorEspeciesActions, seR_CORR, listadoMantenedor, comboCuentas, objeto, token, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
     const [_, setFilaSeleccionada] = useState<any[]>([]);
-    const [mostrarModal, setMostrarModal] = useState<number | null>(null);
+    const [mostrarModalEditar, setMostrarModalEditar] = useState<number | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
@@ -68,6 +71,10 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         label: item.descripcion,
     }));
 
+    const handleCuentasChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : "";
+        setMantenedor((prevMantenedor) => ({ ...prevMantenedor, ctA_COD: value }));
+    }
     // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
     const totalPaginas = Array.isArray(listadoMantenedor)
         ? Math.ceil(listadoMantenedor.length / elementosPorPagina)
@@ -79,7 +86,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         if (token) {
             if (listadoMantenedor.length === 0) {
                 setLoading(true);
-                const resultado = await listadoMantenedorEspeciesActions();
+                const resultado = await listadoMantenedorEspeciesActions(objeto.Roles[0].codigoEstablecimiento);
                 if (resultado) {
                     setLoading(false);
                 }
@@ -101,10 +108,11 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
     };
 
     const [Mantenedor, setMantenedor] = useState({
+        esP_CODIGO: '',
         esP_NOMBRE: '',
-        ctA_NOMBRE: '',
+        ctA_COD: '',
         estabL_corr: objeto.Roles[0].codigoEstablecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
-        usuario: objeto.IdCredencial.toString(),
+        esp_user_crea: objeto.IdCredencial.toString(),
     });
 
     useEffect(() => {
@@ -124,15 +132,10 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         let tempErrors: Partial<any> & {} = {};
         // Validación  
         if (!Mantenedor.esP_NOMBRE) tempErrors.esP_NOMBRE = "Campo obligatorio";
-        if (!Mantenedor.ctA_NOMBRE) tempErrors.ctA_NOMBRE = "Campo obligatorio";
+        if (!Mantenedor.ctA_COD) tempErrors.ctA_COD = "Campo obligatorio";
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
-
-    const handleCuentasChange = (selectedOption: any) => {
-        const value = selectedOption ? selectedOption.value : "";
-        setMantenedor((prevMantenedor) => ({ ...prevMantenedor, ctA_NOMBRE: value }));
-    }
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -157,38 +160,17 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         }
     };
 
-    // const handleActualizar = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>,
-    //     index: number
-    // ) => {
-    //     const { name, value } = e.target;
-
-    //     // Actualiza el elemento correspondiente en el array
-    //     setFilaSeleccionada((prevElementos) =>
-    //         prevElementos.map((elemento, i) =>
-    //             i === index
-    //                 ? {
-    //                     ...elemento,
-    //                     [name]: value, // Actualiza solo la propiedad correspondiente
-    //                 }
-    //                 : elemento
-    //         )
-    //     );
-    // };
-
-    // const setSeleccionaFila = (index: number) => {
-    //     setMostrarModal(index); //Abre modal del indice seleccionado
-    //     setFilaSeleccionada((prev) =>
-    //         prev.includes(index.toString())
-    //             ? prev.filter((rowIndex) => rowIndex !== index.toString())
-    //             : [...prev, index.toString()]
-    //     );
-    // };
-
     const handleCerrarModal = (index: number) => {
         setFilaSeleccionada((prevSeleccionadas) =>
             prevSeleccionadas.filter((fila) => fila !== index.toString())
         );
-        setMostrarModal(null); //Cierra modal del indice seleccionado
+        setMostrarModalEditar(null); //Cierra modal del indice seleccionado
+        setMantenedor((prevPrev) => ({
+            ...prevPrev,
+            esP_CODIGO: '',
+            esP_NOMBRE: '',
+            ctA_COD: ''
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -217,7 +199,6 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 //     ...Mantenedor,
                 // }));
                 const resultado = await registrarMantenedorEspeciesActions(Mantenedor);
-                // console.log(formMantenedor);
                 if (resultado) {
                     Swal.fire({
                         icon: "success",
@@ -232,7 +213,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                     });
                     setLoadingRegistro(false);
                     // obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
-                    listadoMantenedorEspeciesActions();//llama al nuevo listado de servicios
+                    listadoMantenedorEspeciesActions(objeto.Roles[0].codigoEstablecimiento);
                     // setFilaSeleccionada([]);
                     setMostrarModalRegistrar(false);
 
@@ -250,10 +231,73 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                     });
                     setLoadingRegistro(false);
                 }
-
-                // console.log(Mantenedor);
             }
         }
+    };
+
+    const handleSubmitEditar = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (validate()) {
+            // const selectedIndices = filasSeleccionada.map(Number);
+            const result = await Swal.fire({
+                icon: "info",
+                title: "Editar",
+                text: "Confirme para editar la especie seleccionada",
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Confirmar",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            if (result.isConfirmed) {
+                console.log("editar", Mantenedor);
+                const resultado = await actualizarMantenedorEspeciesActions(Mantenedor);
+                if (resultado) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Modificación Exitosa",
+                        text: "Se ha modificado correctamente la especie seleccionada.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    listadoMantenedorEspeciesActions(objeto.Roles[0].codigoEstablecimiento);
+                    setMostrarModalEditar(null);
+
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: ":'(",
+                        text: "Hubo un problema al editar la especie.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                }
+            }
+        }
+    };
+    const handleSeleccion = async (index: number, esP_CODIGO: string, esP_NOMBRE: string, ctA_COD: string) => {
+        setMostrarModalEditar(index);
+
+        setFilaSeleccionada((prev) => prev.filter((_, i) => i !== index));
+        setMantenedor((prevMantenedor) => ({
+            ...prevMantenedor,
+            esP_CODIGO: esP_CODIGO,
+            esP_NOMBRE: esP_NOMBRE,
+            ctA_COD: ctA_COD,
+        }));
     };
 
     return (
@@ -317,11 +361,8 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                             <th scope="col" className="text-nowrap text-center">Código</th>
                                             <th scope="col" className="text-nowrap text-center">Nombre</th>
                                             <th scope="col" className="text-nowrap text-center">Descripcion Cuenta</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Usuario</th> */}
                                             <th scope="col" className="text-nowrap text-center">Establecimiento</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Dirección Ip</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Vida Útil</th> */}
+                                            <th scope="col" className="text-nowrap text-center">Acción</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -339,11 +380,20 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                                     <td scope="col" className="text-nowrap">{Lista.esP_CODIGO}</td>
                                                     <td scope="col" className="text-nowrap">{Lista.esP_NOMBRE}</td>
                                                     <td scope="col" className="text-nowrap">{Lista.ctA_NOMBRE}</td>
-                                                    {/* <td scope="col" className="text-nowrap">{Lista.esP_VIGENTE}</td> */}
-                                                    {/* <td scope="col" className="text-nowrap">{Lista.esP_USER_CREA}</td> */}
                                                     <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
-                                                    {/* <td scope="col" className="text-nowrap">{Lista.esP_IP_CREA}</td> */}
-                                                    {/* <td scope="col" className="text-nowrap">{Lista.esP_VIDAUTIL}</td> */}
+                                                    <td scope="col" className="text-nowrap" style={{
+                                                        position: 'sticky',
+                                                        right: 0
+                                                    }}>
+                                                        <Button
+                                                            variant="outline-primary"
+                                                            className="fw-semibold"
+                                                            size="sm"
+                                                            onClick={() => handleSeleccion(index, Lista.esP_CODIGO, Lista.esP_NOMBRE, Lista.ctA_COD)}
+                                                        >
+                                                            Editar
+                                                        </Button>
+                                                    </td>
                                                 </tr>
                                             );
                                         })}
@@ -436,9 +486,9 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                 type="text"
                                 className={`form-select ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                 name="esP_NOMBRE"
-                                size={10}
+                                // size={10}
                                 placeholder="Ingrese nueva especie"
-                                maxLength={100}
+                                // maxLength={50}
                                 onChange={handleChange}
                                 value={Mantenedor.esP_NOMBRE}
                             />
@@ -453,10 +503,10 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                             <Select
                                 options={cuentasOptions}
                                 onChange={handleCuentasChange}
-                                name="ctA_NOMBRE"
-                                value={cuentasOptions.find((option) => option.value === Mantenedor.ctA_NOMBRE) || null}
+                                name="ctA_COD"
+                                value={cuentasOptions.find((option) => option.value === Mantenedor.ctA_COD) || null}
                                 placeholder="Buscar"
-                                className={`form-select-container ${error.ctA_NOMBRE ? "is-invalid" : ""}`}
+                                className={`form-select-container ${error.ctA_COD ? "is-invalid border border-danger rounded" : ""}`}
                                 classNamePrefix="react-select"
                                 isClearable
                                 isSearchable
@@ -483,9 +533,9 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                     }),
                                 }}
                             />
-                            {error.ctA_NOMBRE && (
-                                <div className="invalid-feedback fw-semibold">
-                                    {error.ctA_NOMBRE}
+                            {error.ctA_COD && (
+                                <div className="invalid-feedback fw-semibold d-block">
+                                    {error.ctA_COD}
                                 </div>
                             )}
 
@@ -494,23 +544,23 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 </Modal.Body>
             </Modal >
 
-            {/* Modal formulario Actualizar*/}
+            {/* Modal formulario Editar*/}
             {elementosActuales.map((Lista, index) => {
                 let indexReal = indicePrimerElemento + index;
                 return (
                     <div key={indexReal}>
                         <Modal
-                            show={mostrarModal === indexReal}
+                            show={mostrarModalEditar === indexReal}
                             onHide={() => handleCerrarModal(indexReal)}
                             dialogClassName="modal-right" // Clase personalizada
                         // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
                         // keyboard={false}     // Evita el cierre al presionar la tecla Esc
                         >
                             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                                <Modal.Title className="fw-semibold">Servicio Nº {Lista.esP_CODIGO}</Modal.Title>
+                                <Modal.Title className="fw-semibold">Especie Nº {Lista.esP_CODIGO}</Modal.Title>
                             </Modal.Header>
                             <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                                <form onSubmit={handleSubmit}>
+                                <form onSubmit={handleSubmitEditar}>
                                     {/* Boton actualizar filas seleccionadas */}
                                     <div className="d-flex justify-content-end">
                                         <Button
@@ -534,7 +584,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                                 </>
                                             ) : (
                                                 <>
-                                                    Actualizar
+                                                    Guardar
                                                 </>
                                             )}
                                         </Button>
@@ -545,7 +595,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                         <input
                                             aria-label="esP_NOMBRE"
                                             type="text"
-                                            className={`form-constrol ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            className={`form-control ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                             name="esP_NOMBRE"
                                             placeholder="Ingrese nueva especie"
                                             maxLength={100}
@@ -556,26 +606,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                             <div className="invalid-feedback fw-semibold">{error.esP_NOMBRE}</div>
                                         )}
                                     </div>
-                                    {/* <div className="mt-1">
-                                        <label className="fw-semibold">Cuentas</label>
-                                        <select
-                                            aria-label="seR_COD"
-                                            className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.ctA_NOMBRE ? "is-invalid" : ""}`}
-                                            name="seR_COD"
-                                            onChange={handleChange}
-                                            value={Mantenedor.ctA_NOMBRE}
-                                        >
-                                            <option value="">Seleccione</option>
-                                            {comboCuentas.map((traeCuentas) => (
-                                                <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                                                    {traeCuentas.descripcion}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {error.ctA_NOMBRE && (
-                                            <div className="invalid-feedback fw-semibold">{error.ctA_NOMBRE}</div>
-                                        )}
-                                    </div> */}
+
                                     <div className="mb-1">
                                         <label className="fw-semibold">
                                             Seleccione una cuenta
@@ -583,10 +614,10 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                         <Select
                                             options={cuentasOptions}
                                             onChange={handleCuentasChange}
-                                            name="ctA_NOMBRE"
-                                            value={cuentasOptions.find((option) => option.value === Mantenedor.ctA_NOMBRE) || null}
+                                            name="ctA_COD"
+                                            value={cuentasOptions.find((option) => option.value === Mantenedor.ctA_COD) || null}
                                             placeholder="Buscar"
-                                            className={`form-select-container ${error.ctA_NOMBRE ? "is-invalid" : ""}`}
+                                            className={`form-select-container ${error.ctA_COD ? "is-invalid border border-danger rounded" : ""}`}
                                             classNamePrefix="react-select"
                                             isClearable
                                             isSearchable
@@ -613,9 +644,9 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                                 }),
                                             }}
                                         />
-                                        {error.ctA_NOMBRE && (
+                                        {error.ctA_COD && (
                                             <div className="invalid-feedback fw-semibold">
-                                                {error.ctA_NOMBRE}
+                                                {error.ctA_COD}
                                             </div>
                                         )}
 
@@ -644,5 +675,6 @@ export default connect(mapStateToProps, {
     obtenerMaxServicioActions,
     listadoMantenedorEspeciesActions,
     registrarMantenedorEspeciesActions,
+    actualizarMantenedorEspeciesActions,
     comboCuentaMantenedorActions
 })(Especies);

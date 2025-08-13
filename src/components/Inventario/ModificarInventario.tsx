@@ -24,6 +24,7 @@ import { comboCuentaModificarActions } from "../../redux/actions/Inventario/Comb
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { obtenerInventarioxAltasActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioxAltasActions";
 import SkeletonLoader from "../Utils/SkeletonLoader";
+import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
 
 export interface SERVICIO_DEPENDENCIA {
   deP_CORR: number;
@@ -107,6 +108,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboProveedorActions: (rutProveedor: string) => void;
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
   modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
+  limpiarDataActions: () => Promise<boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
   isDarkMode: boolean;
   objeto: Objeto;
@@ -159,6 +161,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboCuentaModificarActions,
   comboProveedorActions,
   modificarFormInventarioActions,
+  limpiarDataActions
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -640,7 +643,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      // handleLimpiarTodo();
+      limpiarDataActions();
     } else {
       Swal.fire({
         icon: "error",
@@ -1190,7 +1193,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       value={servicioOptions.find((option) => option.value === Inventario.DEP_CORR) || null}
                       placeholder="Buscar"
                       className={`form-select-container ${error.DEP_CORR ? "is-invalid border border-danger rounded" : ""}`}
-                      classNamePrefix={`react-select `}
+                      classNamePrefix="react-select"
                       isDisabled={isDisabled}
                       isClearable
                       isSearchable
@@ -2007,5 +2010,6 @@ export default connect(mapStateToProps, {
   listadoDeEspeciesBienActions,
   comboCuentaModificarActions,
   comboProveedorActions,
-  modificarFormInventarioActions
+  modificarFormInventarioActions,
+  limpiarDataActions
 })(ModificarInventario);
