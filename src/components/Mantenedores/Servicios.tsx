@@ -298,13 +298,13 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                                     <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                         <tr>
                                             {/* <th scope="col"></th> */}
-                                            <th scope="col" className="text-nowrap text-center">Código</th>
-                                            <th scope="col" className="text-nowrap text-center">Código Servicio</th>
-                                            <th scope="col" className="text-nowrap text-center">Nombre</th>
+                                            <th scope="col" className="text-nowrap">Código</th>
+                                            <th scope="col" className="text-nowrap">Código Servicio</th>
+                                            <th scope="col" className="text-nowrap">Nombre</th>
                                             {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Fecha de Creación</th>
+                                            <th scope="col" className="text-nowrap">Fecha de Creación</th>
                                             {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Establecimiento</th>
+                                            <th scope="col" className="text-nowrap">Establecimiento</th>
                                         </tr>
                                     </thead>
                                     <tbody>

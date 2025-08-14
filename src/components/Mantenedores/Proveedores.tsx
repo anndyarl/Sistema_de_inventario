@@ -313,12 +313,12 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                     <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                         <tr>
                                             {/* <th scope="col"></th> */}
-                                            <th scope="col" className="text-nowrap text-center">Código</th>
-                                            <th scope="col" className="text-nowrap text-center">Rut</th>
-                                            <th scope="col" className="text-nowrap text-center">Dv</th>
-                                            <th scope="col" className="text-nowrap text-center">Nombre</th>
-                                            <th scope="col" className="text-nowrap text-center">Fono</th>
-                                            <th scope="col" className="text-nowrap text-center">Dirección</th>
+                                            <th scope="col" className="text-nowrap">Código</th>
+                                            <th scope="col" className="text-nowrap">Rut</th>
+                                            <th scope="col" className="text-nowrap">Dv</th>
+                                            <th scope="col" className="text-nowrap">Nombre</th>
+                                            <th scope="col" className="text-nowrap">Fono</th>
+                                            <th scope="col" className="text-nowrap">Dirección</th>
                                         </tr>
                                     </thead>
                                     <tbody>

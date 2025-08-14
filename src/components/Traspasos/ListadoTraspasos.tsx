@@ -12,6 +12,8 @@ import { CircleFill, Eraser, Eye, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { listadoTraspasosActions } from "../../redux/actions/Trapasos/listadoTraspasosActions.tsx";
+import Mantenedores from "../../containers/pages/Mantenedores.tsx";
+import { recibeTraspasoActions } from "../../redux/actions/Trapasos/recibeTraspasoActions.tsx";
 
 interface FechasProps {
   fDesde: string;
@@ -50,12 +52,13 @@ interface GeneralProps {
   listadoTraspasos: listadoTraspasos[];
   listadoTraspasosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
+  recibeTraspasoActions: (RecibeTraspaso: Record<string, any>) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, listadoTraspasos, token, isDarkMode, objeto }) => {
+const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, recibeTraspasoActions, listadoTraspasos, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
   const [_, setElementoSeleccionado] = useState<string[]>([]);
@@ -190,7 +193,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
 
   };
 
-
   const handleVer = async (index: number) => {
     setMostrarModal(index);
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
@@ -201,6 +203,111 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
       prevSeleccionadas.filter((fila) => fila !== index.toString())
     );
     setMostrarModal(null); //Cierra modal del indice seleccionado       
+  };
+
+  const handleSubmitSI = async (aF_CLAVE: number) => {
+    const result = await Swal.fire({
+      icon: "info",
+      title: "Confirmar recepción",
+      text: "Está indicando que el bien ha sido entregado y recibido correctamente en su establecimiento.",
+      showCancelButton: true,
+      confirmButtonText: "Marcar como recibido",
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      cancelButtonText: "Cerrar",
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#198754"}`,
+      customClass: { popup: "custom-border" }
+    });
+
+    if (result.isConfirmed) {
+      setLoading(true);
+
+      const RecibeTraspaso = {
+        aF_CLAVE,
+        pas_estado_recibe: 1
+      };
+
+      const resultado = await recibeTraspasoActions(RecibeTraspaso);
+      if (resultado) {
+        Swal.fire({
+          icon: "success",
+          title: "Recepción confirmada",
+          text: "La recepción del activo en su establecimiento ha sido registrada correctamente.",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: ":'(",
+          text: "Hubo un problema al editar la especie.",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitNO = async (aF_CLAVE: number) => {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Confirmar no recepción",
+      text: "Está indicando que el bien ha sido entregado y aún no se encuentra en su establecimiento.",
+      showCancelButton: true,
+      confirmButtonText: "Marcar como pendiente",
+      background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "000000"}`,
+      cancelButtonText: "Cerrar",
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#dc3545"}`,
+      customClass: { popup: "custom-border" }
+    });
+
+    if (result.isConfirmed) {
+      setLoading(true);
+
+      const RecibeTraspaso = {
+        aF_CLAVE,
+        pas_estado_recibe: 2
+      };
+
+      const resultado = await recibeTraspasoActions(RecibeTraspaso);
+      if (resultado) {
+        Swal.fire({
+          icon: "warning",
+          text: "El activo seleccionado ha sido marcado como pendiente de recepción en su establecimiento. Una vez recibido, podrá actualizar su estado desde la opción 'Modificar estado'.",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: ":'(",
+          text: "Hubo un problema al editar la especie.",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+      }
+      setLoading(false);
+    }
   };
 
 
@@ -408,14 +515,13 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                       {/* <th scope="col"></th> */}
                       <th scope="col" className="text-nowrap">N° Inventario</th>
                       <th scope="col" className="text-nowrap">N° Traspaso</th>
-                      <th scope="col" className="text-nowrap">Fecha Traslado</th>
+                      <th scope="col" className="text-nowrap">Fecha Traspaso</th>
                       <th scope="col" className="text-nowrap">Nombre Especie</th>
                       <th scope="col" className="text-nowrap">Fecha Memo</th>
                       <th scope="col" className="text-nowrap">N° Memo de Referencia</th>
                       <th scope="col" className="text-nowrap">Usuario Crea</th>
-                      <th scope="col"
-                        className="text-nowrap text-center sticky-col-right-0 rounded-top">
-                        <b>Ver</b>
+                      <th scope="col" className="text-nowrap sticky-col-right-0 rounded-top">
+                        <b>Acción</b>
                       </th>
                     </tr>
                   </thead>
@@ -446,16 +552,15 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                                       Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
                                         Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
                                           Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
-
                           }
                           </td>
-                          <td className="text-nowrap text-center sticky-col-right-0 rounded">
+                          <td className="text-nowrap sticky-col-right-0 rounded">
                             <Button
                               variant="outline-primary"
                               className="fw-semibold  ps-3 pe-3"
                               onClick={() => handleVer(index)}
                             >
-
+                              Ver
                               <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                             </Button>
                           </td>
@@ -545,6 +650,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                 </div>
 
                 <div className="mb-3">
+                  <label className="fw-semibold">Fecha Traspaso</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_FECHA || "No definida"}</div>
+                </div>
+
+                <div className="mb-3">
                   <label className="fw-semibold">N° Memo de Referencia</label>
                   <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_MEMO_REF || "Sin Información"}</div>
                 </div>
@@ -555,8 +665,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                 </div>
 
                 <div className="mb-3">
-                  <label className="fw-semibold">Observaciones</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`} style={{ whiteSpace: "pre-wrap" }}>{fila.paS_OBS || "Sin observaciones"}</div>
+                  <label className="fw-semibold">Estado</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_ESTADO_AF || "No definida"}</div>
                 </div>
 
               </Col>
@@ -595,8 +705,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                 </div>
 
                 <div className="mb-3">
-                  <label className="fw-semibold">Estado</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_ESTADO_AF || "No definida"}</div>
+                  <label className="fw-semibold">Observaciones</label>
+                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`} style={{ whiteSpace: "pre-wrap", minHeight: "100px" }}>{fila.paS_OBS || "Sin observaciones"}</div>
                 </div>
               </Col>
               {/* Columna derecha */}
@@ -619,11 +729,35 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, lis
                     <p>{fila.paS_NOM_AUTORIZA || "Sin Información"}</p>
                   </div>
                 </div>
+                <div className="border rounded-3 p-4 mt-4 text-center">
+                  <h5 className="fw-semibold mb-4">
+                    ¿Confirma que el bien ha sido traspasado y recibido correctamente en su establecimiento?
+                  </h5>
+                  <div className="d-flex">
+                    <Button
+                      variant="success"
+                      className="w-100 mx-1"
+                      onClick={() => handleSubmitSI(fila.aF_CLAVE)}
+                    >
+                      Sí, recibido
+                    </Button>
+
+                    <Button
+                      variant="danger"
+                      className="w-100 mx-1"
+                      onClick={() => handleSubmitNO(fila.aF_CLAVE)}
+                    >
+                      No, pendiente
+                    </Button>
+                  </div>
+
+                </div>
               </Col>
             </Row>
           </Modal.Body>
-        </Modal>
-      ))}
+        </Modal >
+      ))
+      }
 
     </Layout >
   );
@@ -640,5 +774,6 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   listadoTraspasosActions,
   registrarMantenedorDependenciasActions,
+  recibeTraspasoActions
 })(ListadoTraspasos);
 

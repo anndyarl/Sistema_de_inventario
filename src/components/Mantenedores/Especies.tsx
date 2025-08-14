@@ -7,7 +7,7 @@ import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { Plus } from "react-bootstrap-icons";
+import { Pencil, Plus } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import Select from "react-select";
@@ -24,9 +24,11 @@ export interface ListadoMantenedor {
     ctA_COD: string;
     esP_VIGENTE: string;
     esP_USER_CREA: string;
-    estabL_NOMBRE: string;
+    esP_USER_MOD: string;
     esP_IP_CREA: string;
     esP_VIDAUTIL: number;
+    esP_F_CREA: string;
+    esP_F_MOD: string;
 }
 
 interface ComboCuentas {
@@ -112,7 +114,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         esP_NOMBRE: '',
         ctA_COD: '',
         estabL_corr: objeto.Roles[0].codigoEstablecimiento, //1 es iguall a establecimiento SSMSO (falta obtenerlo desde el login del usuario)
-        esp_user_crea: objeto.IdCredencial.toString(),
+
     });
 
     useEffect(() => {
@@ -160,28 +162,16 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         }
     };
 
-    const handleCerrarModal = (index: number) => {
-        setFilaSeleccionada((prevSeleccionadas) =>
-            prevSeleccionadas.filter((fila) => fila !== index.toString())
-        );
-        setMostrarModalEditar(null); //Cierra modal del indice seleccionado
-        setMantenedor((prevPrev) => ({
-            ...prevPrev,
-            esP_CODIGO: '',
-            esP_NOMBRE: '',
-            ctA_COD: ''
-        }));
-    };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+
+    const handleSubmiRegistrar = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (validate()) {
-            // const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
                 title: "Registrar",
-                text: "Confirme para registrar una nueva especie",
+                text: "Confirme para registrar una nueva especie.",
                 showDenyButton: false,
                 showCancelButton: true,
                 confirmButtonText: "Confirmar",
@@ -193,17 +183,19 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 }
             });
             if (result.isConfirmed) {
-                // // setLoadingRegistro(true);
-                // const formMantenedor = selectedIndices.map((activo) => ({
-                //     esP_CODIGO: listadoMantenedor[activo].esP_CODIGO,
-                //     ...Mantenedor,
-                // }));
-                const resultado = await registrarMantenedorEspeciesActions(Mantenedor);
+                const FormRegistrar = {
+                    ...Mantenedor,
+                    esP_CODIGO: Mantenedor.esP_CODIGO,
+                    esP_NOMBRE: Mantenedor.esP_NOMBRE,
+                    ctA_COD: Mantenedor.ctA_COD,
+                    esp_user_crea: objeto.IdCredencial.toString(),
+                };
+                const resultado = await registrarMantenedorEspeciesActions(FormRegistrar);
                 if (resultado) {
                     Swal.fire({
                         icon: "success",
                         title: "Registro Exitoso",
-                        text: "Se ha agregado una nueva especie.",
+                        text: "Se ha agregado una nueva especie correctamente.",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
                         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -212,16 +204,20 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                         }
                     });
                     setLoadingRegistro(false);
-                    // obtenerMaxServicioActions();//llama nuevamente el ultimo ser_corr
                     listadoMantenedorEspeciesActions(objeto.Roles[0].codigoEstablecimiento);
-                    // setFilaSeleccionada([]);
                     setMostrarModalRegistrar(false);
+                    setMantenedor((prevMantenedor) => ({
+                        ...prevMantenedor,
+                        esP_CODIGO: "",
+                        esP_NOMBRE: "",
+                        ctA_COD: "",
+                    }));
 
                 } else {
                     Swal.fire({
                         icon: "error",
                         title: ":'(",
-                        text: "Hubo un problema al registrar",
+                        text: "Hubo un problema al registrar la especie",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
                         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -239,7 +235,6 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         e.preventDefault();
 
         if (validate()) {
-            // const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
                 title: "Editar",
@@ -255,13 +250,20 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 }
             });
             if (result.isConfirmed) {
-                console.log("editar", Mantenedor);
-                const resultado = await actualizarMantenedorEspeciesActions(Mantenedor);
+                const FormEditar = {
+                    ...Mantenedor,
+                    esP_CODIGO: Mantenedor.esP_CODIGO,
+                    esP_NOMBRE: Mantenedor.esP_NOMBRE,
+                    ctA_COD: Mantenedor.ctA_COD,
+                    esp_user_mod: objeto.IdCredencial.toString(),
+                };
+
+                const resultado = await actualizarMantenedorEspeciesActions(FormEditar);
                 if (resultado) {
                     Swal.fire({
                         icon: "success",
-                        title: "Modificación Exitosa",
-                        text: "Se ha modificado correctamente la especie seleccionada.",
+                        title: "Actualización Exitosa",
+                        text: "Se ha editado una especie correctamente.",
                         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                         color: `${isDarkMode ? "#ffffff" : "000000"}`,
                         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -289,9 +291,9 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         }
     };
     const handleSeleccion = async (index: number, esP_CODIGO: string, esP_NOMBRE: string, ctA_COD: string) => {
-        setMostrarModalEditar(index);
-
-        setFilaSeleccionada((prev) => prev.filter((_, i) => i !== index));
+        let indexReal = indicePrimerElemento + index;
+        setMostrarModalEditar(indexReal);
+        setFilaSeleccionada((prev) => prev.filter((_, i) => i !== indexReal));
         setMantenedor((prevMantenedor) => ({
             ...prevMantenedor,
             esP_CODIGO: esP_CODIGO,
@@ -300,6 +302,28 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         }));
     };
 
+    const handleCerrarModalRegistro = () => {
+        setMostrarModalRegistrar(false);
+        setMantenedor((prevMantenedor) => ({
+            ...prevMantenedor,
+            esP_CODIGO: "",
+            esP_NOMBRE: "",
+            ctA_COD: "",
+        }));
+    };
+
+    const handleCerrarModalEditar = (index: number) => {
+        setFilaSeleccionada((prevSeleccionadas) =>
+            prevSeleccionadas.filter((fila) => fila !== index.toString())
+        );
+        setMostrarModalEditar(null); //Cierra modal del indice seleccionado
+        setMantenedor((prevPrev) => ({
+            ...prevPrev,
+            esP_CODIGO: '',
+            esP_NOMBRE: '',
+            ctA_COD: ''
+        }));
+    };
     return (
         <Layout>
             <Helmet>
@@ -358,11 +382,17 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                     <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                         <tr>
                                             {/* <th scope="col"></th> */}
-                                            <th scope="col" className="text-nowrap text-center">Código</th>
-                                            <th scope="col" className="text-nowrap text-center">Nombre</th>
-                                            <th scope="col" className="text-nowrap text-center">Descripcion Cuenta</th>
-                                            <th scope="col" className="text-nowrap text-center">Establecimiento</th>
-                                            <th scope="col" className="text-nowrap text-center">Acción</th>
+                                            <th scope="col" className="text-nowrap">Código</th>
+                                            <th scope="col" className="text-nowrap">Nombre</th>
+                                            <th scope="col" className="text-nowrap">Descripcion Cuenta</th>
+                                            <th scope="col" className="text-nowrap">Fecha Creación</th>
+                                            <th scope="col" className="text-nowrap">Fecha Modificación</th>
+                                            <th scope="col" className="text-nowrap">Creado por</th>
+                                            <th scope="col" className="text-nowrap">Modificado por</th>
+                                            <th scope="col"
+                                                className="text-nowrap  sticky-col-right-0 rounded-top">
+                                                <b>Acción</b>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -380,7 +410,32 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                                     <td scope="col" className="text-nowrap">{Lista.esP_CODIGO}</td>
                                                     <td scope="col" className="text-nowrap">{Lista.esP_NOMBRE}</td>
                                                     <td scope="col" className="text-nowrap">{Lista.ctA_NOMBRE}</td>
-                                                    <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
+                                                    <td scope="col" className="text-nowrap">{Lista.esP_F_CREA}</td>
+                                                    <td scope="col" className="text-nowrap">{Lista.esP_F_MOD}</td>
+                                                    <td className="text-nowrap">{
+                                                        Lista.esP_USER_CREA === '62511' ? 'Andy Riquelme' :
+                                                            Lista.esP_USER_CREA === '18124' ? 'Rodrigo Toledo' :
+                                                                Lista.esP_USER_CREA === 'JCASTILLO' || Lista.esP_USER_CREA === 'jcastillo' || Lista.esP_USER_CREA === '1770' ? 'Jaime Castillo' :
+                                                                    Lista.esP_USER_CREA === 'DROJASP' || Lista.esP_USER_CREA === 'drojasp' || Lista.esP_USER_CREA === '66098' ? 'Daniel Rojas' :
+                                                                        Lista.esP_USER_CREA === '1234567' || Lista.esP_USER_CREA === '18667' ? 'Felipe Almonte' :
+                                                                            Lista.esP_USER_CREA === 'JVARGAS' || Lista.esP_USER_CREA === 'jvargas' || Lista.esP_USER_CREA === '6405' ? 'Jonathan Vargas' :
+                                                                                Lista.esP_USER_CREA === 'GFARIAS' || Lista.esP_USER_CREA === 'gfarias' || Lista.esP_USER_CREA === '888' ? 'Gabriela Farias' :
+                                                                                    Lista.esP_USER_CREA === 'KREYESD' || Lista.esP_USER_CREA === 'kreyesd' || Lista.esP_USER_CREA === '66099' ? 'Katherine Reyes' : Lista.esP_USER_CREA
+
+                                                    }
+                                                    </td>
+                                                    <td className="text-nowrap">{
+                                                        Lista.esP_USER_MOD === '62511' ? 'Andy Riquelme' :
+                                                            Lista.esP_USER_MOD === '18124' ? 'Rodrigo Toledo' :
+                                                                Lista.esP_USER_MOD === 'JCASTILLO' || Lista.esP_USER_MOD === 'jcastillo' || Lista.esP_USER_MOD === '1770' ? 'Jaime Castillo' :
+                                                                    Lista.esP_USER_MOD === 'DROJASP' || Lista.esP_USER_MOD === 'drojasp' || Lista.esP_USER_MOD === '66098' ? 'Daniel Rojas' :
+                                                                        Lista.esP_USER_MOD === '1234567' || Lista.esP_USER_MOD === '18667' ? 'Felipe Almonte' :
+                                                                            Lista.esP_USER_MOD === 'JVARGAS' || Lista.esP_USER_MOD === 'jvargas' || Lista.esP_USER_MOD === '6405' ? 'Jonathan Vargas' :
+                                                                                Lista.esP_USER_MOD === 'GFARIAS' || Lista.esP_USER_MOD === 'gfarias' || Lista.esP_USER_MOD === '888' ? 'Gabriela Farias' :
+                                                                                    Lista.esP_USER_MOD === 'KREYESD' || Lista.esP_USER_MOD === 'kreyesd' || Lista.esP_USER_MOD === '66099' ? 'Katherine Reyes' : Lista.esP_USER_MOD
+
+                                                    }
+                                                    </td>
                                                     <td scope="col" className="text-nowrap" style={{
                                                         position: 'sticky',
                                                         right: 0
@@ -392,6 +447,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                                             onClick={() => handleSeleccion(index, Lista.esP_CODIGO, Lista.esP_NOMBRE, Lista.ctA_COD)}
                                                         >
                                                             Editar
+                                                            <Pencil className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                                         </Button>
                                                     </td>
                                                 </tr>
@@ -441,7 +497,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             {/* Modal formulario Registro*/}
             <Modal
                 show={mostrarModalRegistrar}
-                onHide={() => setMostrarModalRegistrar(false)}
+                onHide={handleCerrarModalRegistro}
                 dialogClassName="modal-right" // Clase personalizada
             // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
             // keyboard={false}     // Evita el cierre al presionar la tecla Esc
@@ -450,7 +506,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                     <Modal.Title className="fw-semibold">Nueva Especie</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmiRegistrar}>
                         {/* Boton actualizar filas seleccionadas */}
                         <div className="d-flex justify-content-end">
                             <Button
@@ -498,7 +554,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                         </div>
                         <div className="mb-1">
                             <label className="fw-semibold">
-                                Seleccione una cuenta
+                                Asociar a cuenta
                             </label>
                             <Select
                                 options={cuentasOptions}
@@ -551,13 +607,13 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                     <div key={indexReal}>
                         <Modal
                             show={mostrarModalEditar === indexReal}
-                            onHide={() => handleCerrarModal(indexReal)}
+                            onHide={() => handleCerrarModalEditar(indexReal)}
                             dialogClassName="modal-right" // Clase personalizada
                         // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
                         // keyboard={false}     // Evita el cierre al presionar la tecla Esc
                         >
                             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                                <Modal.Title className="fw-semibold">Especie Nº {Lista.esP_CODIGO}</Modal.Title>
+                                <Modal.Title className="fw-semibold">Especie: {Lista.esP_CODIGO}</Modal.Title>
                             </Modal.Header>
                             <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                                 <form onSubmit={handleSubmitEditar}>
@@ -609,7 +665,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
 
                                     <div className="mb-1">
                                         <label className="fw-semibold">
-                                            Seleccione una cuenta
+                                            Asociar a cuenta
                                         </label>
                                         <Select
                                             options={cuentasOptions}
