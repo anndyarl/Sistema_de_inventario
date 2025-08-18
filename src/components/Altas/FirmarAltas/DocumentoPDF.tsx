@@ -73,31 +73,33 @@ const styles = StyleSheet.create({
         wordWrap: 'break-word',
     },
     colNAlta: {
-        width: "20%",
+        width: "23%",
+        textAlign: "center",
     },
     colFechaAlta: {
         width: "40%",
     },
     colServicio: {
-        width: "50%",
+        width: "45%",
     },
     colDependencia: {
-        width: "50%",
+        width: "45%",
     },
     colEspecie: {
-        width: "40%",
+        width: "35%",
     },
     colCuenta: {
-        width: "40%",
+        width: "35%",
     },
     colMarca: {
-        width: "30%",
+        width: "35%",
     },
     colModelo: {
         width: "35%",
     },
     colSerie: {
-        width: "30%",
+        width: "55%",
+        wordWrap: 'break-word',
     },
     colPrecio: {
         width: "50%",
