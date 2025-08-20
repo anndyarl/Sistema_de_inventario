@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image, Svg, Path } from '@react-pdf/renderer';
 import { ListaEtiquetas } from './ImprimirEtiqueta';
 
 
@@ -49,7 +49,11 @@ const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[] }) => (
             <Page key={index} size={{ width: 300 }} style={styles.page}>
                 <View style={styles.fullPageContainer}>
                     {lista.qrImage ? (<>
-                        <Image src={lista.qrImage} style={styles.qrImage} />
+                        {/* <Image src={lista.qrImage} style={styles.qrImage} />
+                         */}
+                        <Svg width={100} height={100} viewBox="0 0 100 100">
+                            <Path d={lista.qrImage} fill="black" />
+                        </Svg>
                     </>
                     ) : (
                         <Text>Sin QR</Text>

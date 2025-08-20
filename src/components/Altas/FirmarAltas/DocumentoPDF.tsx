@@ -252,7 +252,6 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                                 <Text style={[styles.tableCell, styles.colRecepcion]}>{lista.nrecep}</Text>
                             </View>
                         ))}
-
                     </View>
                     {/* Área de firmas */}
                     {/* <View style={styles.firmaContainer}> */}

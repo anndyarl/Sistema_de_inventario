@@ -12,7 +12,6 @@ import { CircleFill, Eraser, Eye, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { listadoTraspasosActions } from "../../redux/actions/Trapasos/listadoTraspasosActions.tsx";
-import Mantenedores from "../../containers/pages/Mantenedores.tsx";
 import { recibeTraspasoActions } from "../../redux/actions/Trapasos/recibeTraspasoActions.tsx";
 
 interface FechasProps {
@@ -26,8 +25,10 @@ export interface listadoTraspasos {
   paS_FECHA: string;
   esP_CODIGO: string;
   esP_NOMBRE: string;
+  coD_ESTABL_ORIGEN: number
   seR_NOMBRE_ORIGEN: string;
   deP_NOMBRE_ORIGEN: string;
+  coD_ESTABL_DESTINO: number
   seR_NOMBRE_DESTINO: string;
   deP_NOMBRE_DESTINO: string;
   paS_MEMO_REF: string;
@@ -37,8 +38,8 @@ export interface listadoTraspasos {
   paS_NOM_RECIBE: string;
   paS_NOM_AUTORIZA: string;
   paS_ESTADO_AF: string;
-  establecimientO_ORIGEN: string;
-  establecimientO_DESTINO: string;
+  establecimientO_ORIGEN: number;
+  establecimientO_DESTINO: number;
   usuariO_CREA: string | number;
   estabL_CORR_ORIGEN: number;
   estabL_CORR: number;
@@ -50,7 +51,7 @@ export interface listadoTraspasos {
 
 interface GeneralProps {
   listadoTraspasos: listadoTraspasos[];
-  listadoTraspasosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
+  listadoTraspasosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   recibeTraspasoActions: (RecibeTraspaso: Record<string, any>) => Promise<boolean>;
   token: string | null;
@@ -97,7 +98,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, rec
     if (token) {
       if (listadoTraspasos.length === 0) {
         setLoading(true);
-        const resultado = await listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+        const resultado = await listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial);
         if (!resultado) {
           Swal.fire({
             icon: "warning",
@@ -160,14 +161,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, rec
   const handleBuscar = async () => {
     let resultado = false;
     setLoading(true);
-    resultado = await listadoTraspasosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
+    resultado = await listadoTraspasosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial);
     if (ListadoTraslado.fDesde != "" || ListadoTraslado.fHasta != "") {
       if (validate()) {
-        resultado = await listadoTraspasosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
+        resultado = await listadoTraspasosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial);
       }
     }
     else {
-      resultado = await listadoTraspasosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
+      resultado = await listadoTraspasosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial);
     }
 
     if (!resultado) {
@@ -183,7 +184,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, rec
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      resultado = await listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+      resultado = await listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -733,32 +734,53 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosActions, rec
                   <h5 className="fw-semibold mb-4">
                     ¿Confirma que el bien ha sido traspasado y recibido correctamente en su establecimiento?
                   </h5>
-                  <div className="d-flex">
-                    <Button
-                      variant="success"
-                      className="w-100 mx-1"
-                      onClick={() => handleSubmitSI(fila.aF_CLAVE)}
-                    >
-                      Sí, recibido
-                    </Button>
 
-                    <Button
-                      variant="danger"
-                      className="w-100 mx-1"
-                      onClick={() => handleSubmitNO(fila.aF_CLAVE)}
-                    >
-                      No, pendiente
-                    </Button>
-                  </div>
+                  {/* Caso ORIGEN */}
+                  {listadoTraspasos.some(
+                    (t) => t.coD_ESTABL_ORIGEN === objeto.Roles[0].codigoEstablecimiento
+                  ) && (
+                      <div className="d-flex">
+                        <p
+                          className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode
+                              ? "bg-dark text-light border border-secondary"
+                              : "bg-light text-muted border"
+                            }`}
+                        >
+                          Esperando Validación
+                        </p>
+                      </div>
+                    )}
 
+                  {/* Caso DESTINO */}
+                  {listadoTraspasos.some(
+                    (t) => t.coD_ESTABL_DESTINO === objeto.Roles[0].codigoEstablecimiento
+                  ) && (
+                      <div className="d-flex">
+                        <Button
+                          variant="success"
+                          className="w-100 mx-1"
+                          onClick={() => handleSubmitSI(fila.aF_CLAVE)}
+                        >
+                          Sí, recibido
+                        </Button>
+
+                        <Button
+                          variant="danger"
+                          className="w-100 mx-1"
+                          onClick={() => handleSubmitNO(fila.aF_CLAVE)}
+                        >
+                          No, pendiente
+                        </Button>
+                      </div>
+                    )}
                 </div>
+
+
               </Col>
             </Row>
           </Modal.Body>
         </Modal >
-      ))
-      }
-
+      ))}
     </Layout >
   );
 };

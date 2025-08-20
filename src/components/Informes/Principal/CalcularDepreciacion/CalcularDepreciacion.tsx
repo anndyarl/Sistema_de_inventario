@@ -914,7 +914,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             {/* Botón Calcular */}
                             <Col xs={12} lg={2}>
                                 <div className="d-flex justify-content-center justify-content-lg-end">
-                                    {listaActivosFijos.length > 0 && (
+                                    {listaActivosFijos[0]?.ctA_COD != "5320906" && listaActivosFijos[0]?.ctA_COD != "5320413" && listaActivosFijos.length > 0 && (
                                         <Button
                                             variant={`${isDarkMode ? "secondary" : "primary"}`}
                                             onClick={handleCalcular}
@@ -943,7 +943,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                 </>
                                             )}
                                         </Button>
-
                                     )}
                                 </div>
                             </Col>
@@ -1006,7 +1005,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             <th scope="col" className="text-nowrap text-center">Resolución</th>
                                             {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
                                             <th scope="col" className="text-nowrap text-center">N° Orden de Compra</th>
-                                            <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
+                                            {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
                                             <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
                                             {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
                                             {/* <th scope="col" className="text-nowrap text-center">Usuario Modificador</th> */}
@@ -1080,7 +1079,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <td className="text-nowrap">{Lista.aF_RESOLUCION}</td>
                                                     {/* <td className="text-nowrap text-center">{Lista.aF_FECHA_SOLICITUD}</td> */}
                                                     <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-nowrap">{Lista.usuariO_CREA}</td>
+                                                    {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
                                                     <td className="text-nowrap">{Lista.f_CREA}</td>
                                                     {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
                                                     {/* <td className="text-nowrap">{Lista.usuariO_MOD}</td> */}
@@ -1249,7 +1248,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         )}
                                         {listaActivosFijos.length > 0 && (
                                             <>
-                                                {/* Botón Calculados */}
+                                                {/* Botón Exportar Calculados */}
                                                 <Button
                                                     variant={`${isDarkMode ? "secondary" : "primary"}`}
                                                     onClick={handleAbrirModalCalcular}

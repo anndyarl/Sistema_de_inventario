@@ -1252,7 +1252,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 size="lg"
                 dialogClassName="modal-right"
                 backdrop="static"
-            //  keyboard={false}  // Evita el cierre al presionar la tecla Esc
+            // keyboard={false}  // Evita el cierre al presionar la tecla Esc
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                     <Modal.Title className="fw-semibold">
