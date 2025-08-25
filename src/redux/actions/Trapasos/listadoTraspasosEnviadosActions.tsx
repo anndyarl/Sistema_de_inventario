@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../auth/types";
 
 // Acción para obtener la recepción por número
-export const listadoTraspasosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoTraspasosEnviadosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -22,7 +22,7 @@ export const listadoTraspasosActions = (fDesde: string, fHasta: string, af_codig
     dispatch({ type: LISTA_TRASPASOS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListaDeTraspasos?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&tras_corr=${tras_corr}&establ_corr=${establ_corr}&usuario_crea=${usuario_crea}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeListaDeTraspasosEnviados?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&tras_corr=${tras_corr}&establ_corr=${establ_corr}&usuario_crea=${usuario_crea}&pas_estado_recibe=${pas_estado_recibe}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

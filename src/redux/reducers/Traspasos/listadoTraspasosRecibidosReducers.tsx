@@ -27,7 +27,11 @@ const listadoTraspasosRecibidosReducers = (state = initialState, action: any) =>
                 listadoTraspasosRecibidos: action.payload,
             };
         case LISTA_TRASPASOS_RECIBIDOS_FAIL:
-            return { ...state, loading: false, error: action.error };
+            return {
+                ...state, loading: false,
+                error: action.error,
+                listadoTraspasosRecibidos: []
+            };
         default:
             return state;
     }

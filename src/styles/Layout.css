@@ -311,3 +311,11 @@ padding: 2px;
   display: none; /* Chrome, Safari, Edge */
 }
 
+@media (max-width: 1767px) {  
+  /* Oculta iconos de expanción de las Listas de traspasos*/
+  .hide-icon{
+  display: none;
+}
+}
+
+

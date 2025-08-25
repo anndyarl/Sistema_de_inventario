@@ -21,8 +21,8 @@ import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Com
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { registroTraspasoMultipleActions } from "../../redux/actions/Trapasos/registroTrasladoMultipleActions";
-import { listadoTraspasosActions } from "../../redux/actions/Trapasos/listadoTraspasosActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+import { listadoTraspasosEnviadosActions } from "../../redux/actions/Trapasos/listadoTraspasosEnviadosActions";
 
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
@@ -107,7 +107,7 @@ interface TrasladosProps {
     comboSerDepActions: (establ_corr: number) => void;//En buscador  
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
     comboSerDep: SERVICIO_DEPENDENCIA[];
-    listadoTraspasosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number) => Promise<boolean>;
+    listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -125,7 +125,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     comboDependenciaDestinoActions,
     obtenerInventarioTrasladoActions,
     comboEspeciesBienActions,
-    listadoTraspasosActions,
+    listadoTraspasosEnviadosActions,
     comboTrasladoServicio,
     comboEstablecimiento,
     comboTrasladoEspecie,
@@ -169,6 +169,10 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         serie: ""
     });
 
+    //Primera Letra en mayúscula
+    const PrimeraMayuscula = (str: string) =>
+        str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
     const [Traspasos, setTraspasos] = useState({
         usuario_crea: objeto.IdCredencial.toString(),
         deP_CORR: 0, //Dependencia Destino
@@ -176,8 +180,8 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         paS_MEMO_REF: "",
         paS_FECHA_MEMO: "",
         paS_OBS: "",
-        paS_NOM_ENTREGA: "",
-        paS_NOM_RECIBE: "",
+        paS_NOM_ENTREGA: PrimeraMayuscula(objeto.Nombre).trim() + " " + PrimeraMayuscula(objeto.Apellido1).trim(),
+        // paS_NOM_RECIBE: "",
         paS_NOM_AUTORIZA: "",
         estabL_CORR: 0 //Establecimiento Destino
     });
@@ -209,7 +213,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         if (!Traspasos.paS_MEMO_REF) tempErrors.paS_MEMO_REF = "Campo obligatorio.";
         if (!Traspasos.paS_FECHA_MEMO) tempErrors.paS_FECHA_MEMO = "Campo obligatorio.";
         if (!Traspasos.paS_NOM_ENTREGA) tempErrors.paS_NOM_ENTREGA = "Campo obligatorio.";
-        if (!Traspasos.paS_NOM_RECIBE) tempErrors.paS_NOM_RECIBE = "Campo obligatorio.";
+        // if (!Traspasos.paS_NOM_RECIBE) tempErrors.paS_NOM_RECIBE = "Campo obligatorio.";
         if (!Traspasos.paS_NOM_AUTORIZA) tempErrors.paS_NOM_AUTORIZA = "Campo obligatorio.";
         if (!Traspasos.estabL_CORR) tempErrors.estabL_CORR = "Campo obligatorio.";
         setError(tempErrors);
@@ -319,8 +323,8 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             paS_MEMO_REF: "",
             paS_FECHA_MEMO: "",
             paS_OBS: "",
-            paS_NOM_ENTREGA: "",
-            paS_NOM_RECIBE: "",
+            // paS_NOM_ENTREGA: "",
+            // paS_NOM_RECIBE: "",
             paS_NOM_AUTORIZA: "",
             estabL_CORR_D: 0
         }));
@@ -578,7 +582,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     paS_MEMO_REF: Traspasos.paS_MEMO_REF,
                     paS_FECHA_MEMO: Traspasos.paS_FECHA_MEMO,
                     paS_NOM_ENTREGA: Traspasos.paS_NOM_ENTREGA,
-                    paS_NOM_RECIBE: Traspasos.paS_NOM_RECIBE,
+                    // paS_NOM_RECIBE: Traspasos.paS_NOM_RECIBE,
                     paS_NOM_AUTORIZA: Traspasos.paS_NOM_AUTORIZA,
                     estabL_CORR_ORIGEN: objeto.Roles[0].codigoEstablecimiento,
                     estabL_CORR: Traspasos.estabL_CORR,
@@ -588,7 +592,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 console.log(activosSeleccionados);
                 if (resultado) {
                     mostrarAlerta();
-                    listadoTraspasosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+                    listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, 0);
                     handleLimpiar();
                     handleLimpiarFormulario();
                     setFilasSeleccionadas([]);
@@ -1252,7 +1256,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 size="lg"
                 dialogClassName="modal-right"
                 backdrop="static"
-            // keyboard={false}  // Evita el cierre al presionar la tecla Esc
+                keyboard={false}  // Evita el cierre al presionar la tecla Esc
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                     <Modal.Title className="fw-semibold">
@@ -1441,6 +1445,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                             maxLength={50}
                                             name="paS_NOM_ENTREGA"
                                             onChange={handleChange}
+                                            disabled
                                             value={Traspasos.paS_NOM_ENTREGA}
                                         />
                                         {error.paS_NOM_ENTREGA && (
@@ -1448,7 +1453,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         )}
                                     </div>
                                     {/* Recibido Por */}
-                                    <div className="mb-1">
+                                    {/* <div className="mb-1">
                                         <label className="fw-semibold">
                                             Recibido Por
                                         </label>
@@ -1465,7 +1470,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         {error.paS_NOM_RECIBE && (
                                             <div className="invalid-feedback">{error.paS_NOM_RECIBE}</div>
                                         )}
-                                    </div>
+                                    </div> */}
                                     {/* Jefe que Autoriza */}
                                     <div className="mb-1">
                                         <label className="fw-semibold">
@@ -1557,5 +1562,5 @@ export default connect(mapStateToProps, {
     comboEspeciesBienActions,
     obtenerInventarioTrasladoActions,
     listadoDeEspeciesBienActions,
-    listadoTraspasosActions
+    listadoTraspasosEnviadosActions
 })(RegistrarTraspasos);

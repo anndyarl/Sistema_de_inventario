@@ -27,7 +27,11 @@ const listadoTraspasosReducers = (state = initialState, action: any) => {
                 listadoTraspasos: action.payload,
             };
         case LISTA_TRASPASOS_FAIL:
-            return { ...state, loading: false, error: action.error };
+            return {
+                ...state, loading: false,
+                error: action.error,
+                listadoTraspasos: []
+            };
         default:
             return state;
     }
