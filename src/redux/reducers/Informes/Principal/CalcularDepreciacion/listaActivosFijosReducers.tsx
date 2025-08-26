@@ -37,7 +37,8 @@ const listaActivosFijosReducers = (state = initialState, action: any): PropsStat
       return {
         ...state,
         loading: false,
-        error: action.error
+        error: action.error,
+        listaActivosFijos: []
       };
     default:
       return state;

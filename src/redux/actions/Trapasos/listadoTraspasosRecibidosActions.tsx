@@ -8,7 +8,7 @@ import {
 import { LOGOUT } from "../auth/types";
 
 // Acción para obtener la recepción por número
-export const listadoTraspasosRecibidosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listadoTraspasosRecibidosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {

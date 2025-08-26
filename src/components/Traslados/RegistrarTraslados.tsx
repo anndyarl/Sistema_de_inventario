@@ -860,6 +860,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                               ...base,
                               backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
                               color: isDarkMode ? "white" : "#212529",
+                              height: 100
                             }),
                             option: (base, { isFocused, isSelected }) => ({
                               ...base,
@@ -1326,6 +1327,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         ...base,
                         backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
                         color: isDarkMode ? "white" : "#212529",
+                        height: 100
                       }),
                       option: (base, { isFocused, isSelected }) => ({
                         ...base,

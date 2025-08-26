@@ -49,14 +49,14 @@ export interface listadoTraspasos {
   deP_CORR: number;
   traS_CO_REAL: number;
   paS_DET_CORR: number;
-  paS_ESTADO_RECIBE: number;
+  paS_ESTADO_RECIBE: string;
 }
 
 interface GeneralProps {
   listadoTraspasos: listadoTraspasos[];
   listadoTraspasosRecibidos: listadoTraspasos[];
-  listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
-  listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
+  listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
+  listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   recibeTraspasoActions: (RecibeTraspaso: Record<string, any>) => Promise<boolean>;
   limpiarDataActions: () => Promise<boolean>;
@@ -69,7 +69,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   const [loadingEnviados, setLoadingEnviados] = useState(false);
   const [loadingRecibidos, setLoadingRecibidos] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
-  const [esCreador, setEsCreador] = useState(false);
+  const [___, setEsCreador] = useState(false);
   const [estadoRecibido, setEstadoRecibido] = useState<number>(0);
   const [estadoEnviado, setEstadoEnviado] = useState<number>(0);
 
@@ -94,7 +94,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
   //------------------------------ Fin ------------------------------------//
 
-
   //--------------- Lógica de Paginación traspasos recibidos ----------------//
   const [mostrarModalRecibidos, setMostrarModalRecibidos] = useState<number | null>(null);
   const [__, setElementoSeleccionado1] = useState<string[]>([]);
@@ -114,7 +113,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   //------------------------------ Fin ------------------------------------//
 
-
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     if (ListaEnviados.fDesde > ListaEnviados.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
@@ -133,7 +131,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     fHasta: "",
     tras_corr: 0,
     af_codigo_generico: "",
-    paS_ESTADO_RECIBE: 0
+    paS_ESTADO_RECIBE: ""
   });
 
   const [ListaRecibidos, setListaRecibidos] = useState({
@@ -141,49 +139,38 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     fHasta: "",
     tras_corr: 0,
     af_codigo_generico: "",
-    paS_ESTADO_RECIBE: 0
+    paS_ESTADO_RECIBE: ""
   });
 
-  const listaAuto = async () => {
+  useEffect(() => {
+    listaAutoEnviados();
+    listaAutoRecibidos();
+  }, [token]); // Asegúrate de incluir dependencias relevantes
+
+  const listaAutoEnviados = async () => {
     if (token) {
       //Carga Lista enviados
-      if (listadoTraspasos.length === 0) {
+      if (listadoTraspasos.length == 0) {
         setLoadingEnviados(true);
-        const resultado = await listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
+        const resultado = await listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+
         if (!resultado) {
-          // Swal.fire({
-          //   icon: "warning",
-          //   title: "Sin Resultados",
-          //   text: "No hay registros disponibles para mostrar.",
-          //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          //   confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-          //   customClass: {
-          //     popup: "custom-border", // Clase personalizada para el borde
-          //   }
-          // });
           setLoadingEnviados(false);
         }
         else {
           setLoadingEnviados(false);
         }
       }
+    }
+  };
+
+  const listaAutoRecibidos = async () => {
+    if (token) {
       //Carga Lista recibidos
-      if (listadoTraspasosRecibidos.length === 0) {
+      if (listadoTraspasosRecibidos.length == 0) {
         setLoadingRecibidos(true);
-        const resultado = await listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaRecibidos.paS_ESTADO_RECIBE);
+        const resultado = await listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
         if (!resultado) {
-          // Swal.fire({
-          //   icon: "warning",
-          //   title: "Sin Resultados",
-          //   text: "No hay registros disponibles para mostrar.",
-          //   background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-          //   color: `${isDarkMode ? "#ffffff" : "000000"}`,
-          //   confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-          //   customClass: {
-          //     popup: "custom-border", // Clase personalizada para el borde
-          //   }
-          // });
           setLoadingRecibidos(false);
         }
         else {
@@ -192,10 +179,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       }
     }
   };
-
-  useEffect(() => {
-    listaAuto()
-  }, [listadoTraspasosEnviadosActions, listadoTraspasosRecibidosActions, listadoTraspasos.length, listadoTraspasosRecibidos.length, token]); // Asegúrate de incluir dependencias relevantes
 
   const handleLimpiarEnviados = () => {
     setListaEnviados((prev) => ({
@@ -224,7 +207,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       return; // Salir si contiene caracteres no numéricos
     }
     // Convertir a número solo si el campo está en la lista
-    const camposNumericos = ["tras_corr", "establ_corr", "paS_ESTADO_RECIBE"];
+    const camposNumericos = ["tras_corr", "establ_corr"];
     const newValue: string | number = camposNumericos.includes(name)
       ? parseFloat(value) || 0
       : value;
@@ -339,32 +322,37 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   const handleActualizar = async () => {
     limpiarDataActions();
-    // listadoTraspasosEnviadosActions("", "", ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
-    // listadoTraspasosRecibidosActions("", "", ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial);
+    setListaEnviados((prevState) => ({
+      ...prevState,
+      paS_ESTADO_RECIBE: "",
+    }));
+    setListaRecibidos((prevState) => ({
+      ...prevState,
+      paS_ESTADO_RECIBE: "",
+    }));
+    listadoTraspasosEnviadosActions("", "", ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
+    listadoTraspasosRecibidosActions("", "", ListaRecibidos.af_codigo_generico, ListaRecibidos.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaRecibidos.paS_ESTADO_RECIBE);
+
   };
 
   const handleVerEnviados = async (index: number, lista: any) => {
-
     setMostrarModalEnviados(index);
     // Actualiza lista eliminando el elemento seleccionado
     setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
-
     // Validar si el usuario actual es el creador según su establecimiento
     const esCreadorActual = objeto.Roles[0].codigoEstablecimiento === lista.coD_ESTABL_ORIGEN;
     setEsCreador(esCreadorActual);
     const estadoEnviado = parseInt(lista.paS_ESTADO_RECIBE);
     setEstadoEnviado(estadoEnviado);
-    console.log("estado enviado", estadoEnviado);
+
   };
 
   const handleVerRecibidos = async (index: number, lista: any) => {
     setMostrarModalRecibidos(index);
-
     // Actualiza lista eliminando el elemento seleccionado
     setElementoSeleccionado1((prev) => prev.filter((_, i) => i !== index));
     const estadoRecibido = parseInt(lista.paS_ESTADO_RECIBE);
     setEstadoRecibido(estadoRecibido);
-    console.log("estado recibido", estadoRecibido);
   };
 
   const handleCerrarModalEnviados = (index: number) => {
@@ -405,7 +393,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
       const RecibeTraspaso = {
         aF_CLAVE,
-        pas_estado_recibe: 1,
+        pas_estado_recibe: "1",
         paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre) + "" + PrimeraMayuscula(objeto.Apellido1)
       };
 
@@ -477,7 +465,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
       const RecibeTraspaso = {
         aF_CLAVE,
-        pas_estado_recibe: 2
+        pas_estado_recibe: "2",
+        paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre) + "" + PrimeraMayuscula(objeto.Apellido1)
       };
 
       const resultado = await recibeTraspasoActions(RecibeTraspaso);
@@ -653,12 +642,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         onChange={handleChangeEnviados}
                         value={ListaEnviados.paS_ESTADO_RECIBE}
                       >
+                        <option value="">Selecccionar</option>
                         <option value="0">Sin Validación</option>
                         <option value="1">Recibidos</option>
                         <option value="2">Pendiente</option>
                       </select>
                     </div>
                     <div className="d-flex gap-2">
+                      <div></div>
                       <Button
                         onClick={handleBuscarEnviados}
                         variant={`${isDarkMode ? "secondary" : "primary"}`}
@@ -745,9 +736,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         />
                         </td> */}
                                   <td className="text-nowrap">
-                                    {Lista.paS_ESTADO_RECIBE === 0 ? <span className="badge bg-primary  w-100"> Sin Validación</span>
-                                      : Lista.paS_ESTADO_RECIBE === 1 ? <span className="badge bg-success  w-100">Recibido</span>
-                                        : Lista.paS_ESTADO_RECIBE === 2 ? <span className="badge bg-warning  w-100">Pendiente</span> : <span>-</span>}
+                                    {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
+                                      : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
+                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-warning  w-100">Pendiente</span> : <span>-</span>}
                                   </td>
                                   <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                   <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
@@ -820,9 +811,10 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                 ) : (
                   <>
                     <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      No se encontraron resultados. Ajuste los filtros.
+                      No hay resultados para mostrar.
                     </p>
-                  </>)}
+                  </>
+                )}
               </Col>
               {/*Traspasos recibidos */}
               <Col className={`border border-1 rounded ${expandedColumn === "recibidos" ? "col-12" : ""} ${expandedColumn === "enviados" ? "d-none" : ""}`}>
@@ -929,6 +921,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         onChange={handleChangeRecibidos}
                         value={ListaRecibidos.paS_ESTADO_RECIBE}
                       >
+                        <option value="">Selecccionar</option>
                         <option value="0">Sin Validación</option>
                         <option value="1">Recibidos</option>
                         <option value="2">Pendiente</option>
@@ -1014,9 +1007,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                               return (
                                 <tr key={indexReal}>
                                   <td className="text-nowrap">
-                                    {Lista.paS_ESTADO_RECIBE === 0 ? <span className="badge bg-primary  w-100"> Sin Validación</span>
-                                      : Lista.paS_ESTADO_RECIBE === 1 ? <span className="badge bg-success  w-100">Recibido</span>
-                                        : Lista.paS_ESTADO_RECIBE === 2 ? <span className="badge bg-warning  w-100">Pendiente</span> : <span>-</span>}
+                                    {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
+                                      : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
+                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-warning  w-100">Pendiente</span> : <span>-</span>}
                                   </td>
                                   <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                   <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
@@ -1089,7 +1082,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                 ) : (
                   <>
                     <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      No se encontraron resultados. Ajuste los filtros.
+                      No hay resultados para mostrar.
                     </p>
                   </>
                 )}
@@ -1205,11 +1198,46 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
                   <div className="mb-3">
                     <label className="fw-semibold">Entregado Por</label>
-                    <p>{fila.paS_NOM_ENTREGA || "Sin Información"}</p>
+                    <p className="d-flex align-items-center mb-0">
+                      {fila.paS_NOM_ENTREGA ? (
+                        <>
+                          {fila.paS_NOM_ENTREGA}
+                          <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                        </>
+                      ) : (
+                        "Sin Información"
+                      )}
+                    </p>
+                  </div>
+                  <div className="mb-3">
+                    <label className="fw-semibold">Recibido Por</label>
+                    <p className="d-flex align-items-center mb-0">
+                      {fila.paS_NOM_RECIBE ? (
+                        <>
+                          {fila.paS_NOM_RECIBE}
+                          <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                        </>
+                      ) : (
+                        <>
+                          Pendiente
+                          <Clock className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
+                        </>
+                      )}
+                    </p>
+
                   </div>
                   <div className="mb-1">
                     <label className="fw-semibold">Jefe que Autoriza</label>
-                    <p>{fila.paS_NOM_AUTORIZA || "Sin Información"}</p>
+                    <p className="d-flex align-items-center mb-0">
+                      {fila.paS_NOM_AUTORIZA ? (
+                        <>
+                          {fila.paS_NOM_AUTORIZA}
+                          <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                        </>
+                      ) : (
+                        "Sin Información"
+                      )}
+                    </p>
                   </div>
                 </div>
                 {/* Validación Traspaso recibido */}

@@ -343,98 +343,107 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                     </div>
                                 )}
                             </Col>
-
                         </Row>
-                        {/* Tabla*/}
-                        {loading || loadingRefresh ? (
-                            <SkeletonLoader rowCount={elementosPorPagina} />
-                        ) : (
-                            <div className="table-responsive">
-                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                        <tr>
-                                            <th scope="col" className="text-center">N° DOCUMENTO</th>
-                                            <th scope="col" className="text-center">Nº Alta</th>
-                                            <th scope="col" className="text-center">Estado Solicitud</th>
-                                            <th scope="col" className="text-center">Última Actualización</th>
-                                            <th scope="col" className="text-center">Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((Lista, index) => {
-                                            // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                            return (
-                                                <tr key={index}>
-                                                    <td className="text-nowrap text-center">{Lista.idocumento}</td>
-                                                    <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                                                    <td className="text-center w-30">
-                                                        <Button
-                                                            onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
-                                                            variant="light"
-                                                            size="sm"
-                                                            className={`rounded border-0 fw-semibold  
-                                                                  ${Lista.estado === 0 ? "bg-warning text-white" :
-                                                                    Lista.estado === 1 ? "bg-success text-white" :
-                                                                        Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
-                                                        >
-                                                            {Lista.estado === 0 && "Enviada"}
-                                                            {Lista.estado === 1 && "Firmada"}
-                                                            {Lista.estado === 2 && "Rechazada"}
-                                                            <Eye className="mx-2" width={18} height={18} />
-                                                        </Button>
-                                                    </td>
-                                                    <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
-                                                    <td
-                                                        className="text-nowrap"
-                                                        style={{
-                                                            position: 'sticky',
-                                                            left: 0,
-                                                        }}>
-
-                                                        {Lista.estado === 1 ? (
-                                                            <OverlayTrigger
-                                                                placement="right"
-                                                                overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
-                                                            >
-                                                                <Button type="button" className="fw-semibold"
-                                                                    onClick={() => handleObtenerVisado(index, Lista.idocumento)}
-                                                                >
-                                                                    Ver
-                                                                    < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                </Button>
-                                                            </OverlayTrigger>
-                                                        ) : (
-                                                            <Button type="button" disabled>
-                                                                Ver
-                                                                < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                            </Button>
-                                                        )}
-
-                                                    </td>
+                        {listaEstado.length > 0 ? (
+                            <>
+                                {/* Tabla*/}
+                                {loading || loadingRefresh ? (
+                                    <SkeletonLoader rowCount={elementosPorPagina} />
+                                ) : (
+                                    <div className="table-responsive">
+                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                                <tr>
+                                                    <th scope="col" className="text-center">N° DOCUMENTO</th>
+                                                    <th scope="col" className="text-center">Nº Alta</th>
+                                                    <th scope="col" className="text-center">Estado Solicitud</th>
+                                                    <th scope="col" className="text-center">Última Actualización</th>
+                                                    <th scope="col" className="text-center">Acción</th>
                                                 </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                            </thead>
+                                            <tbody>
+                                                {elementosActuales.map((Lista, index) => {
+                                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                    return (
+                                                        <tr key={index}>
+                                                            <td className="text-nowrap text-center">{Lista.idocumento}</td>
+                                                            <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
+                                                            <td className="text-center w-30">
+                                                                <Button
+                                                                    onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
+                                                                    variant="light"
+                                                                    size="sm"
+                                                                    className={`rounded border-0 fw-semibold  
+                                                                  ${Lista.estado === 0 ? "bg-warning text-white" :
+                                                                            Lista.estado === 1 ? "bg-success text-white" :
+                                                                                Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
+                                                                >
+                                                                    {Lista.estado === 0 && "Enviada"}
+                                                                    {Lista.estado === 1 && "Firmada"}
+                                                                    {Lista.estado === 2 && "Rechazada"}
+                                                                    <Eye className="mx-2" width={18} height={18} />
+                                                                </Button>
+                                                            </td>
+                                                            <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
+                                                            <td
+                                                                className="text-nowrap"
+                                                                style={{
+                                                                    position: 'sticky',
+                                                                    left: 0,
+                                                                }}>
+
+                                                                {Lista.estado === 1 ? (
+                                                                    <OverlayTrigger
+                                                                        placement="right"
+                                                                        overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
+                                                                    >
+                                                                        <Button type="button" className="fw-semibold"
+                                                                            onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                                        >
+                                                                            Ver
+                                                                            < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                        </Button>
+                                                                    </OverlayTrigger>
+                                                                ) : (
+                                                                    <Button type="button" disabled>
+                                                                        Ver
+                                                                        < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                    </Button>
+                                                                )}
+
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                                <div className="paginador-container position-relative z-0">
+                                    <Pagination className="paginador-scroll">
+                                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                                        {Array.from({ length: totalPaginas }, (_, i) => (
+                                            <Pagination.Item
+                                                key={i + 1}
+                                                active={i + 1 === paginaActual}
+                                                onClick={() => paginar(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Pagination.Item>
+                                        ))}
+                                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                                    </Pagination>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                    No hay resultados para mostrar.
+                                </p>
+                            </>
                         )}
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                            </Pagination>
-                        </div>
                     </div>
                 </div>
             </div>

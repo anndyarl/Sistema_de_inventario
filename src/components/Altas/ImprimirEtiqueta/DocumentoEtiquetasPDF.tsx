@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Image, Svg, Path } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Svg, Path } from '@react-pdf/renderer';
 import { ListaEtiquetas } from './ImprimirEtiqueta';
 
 

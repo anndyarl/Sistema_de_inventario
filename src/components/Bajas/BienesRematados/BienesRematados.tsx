@@ -482,106 +482,115 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                 </div>
               </Col>
             </Row>
-            {/* Tabla*/}
-            {loading ? (
+            {listaRemates.length > 0 ? (
               <>
-                <SkeletonLoader rowCount={elementosPorPagina} />
+                {/* Tabla*/}
+                {loading ? (
+                  <>
+                    <SkeletonLoader rowCount={elementosPorPagina} />
+                  </>
+                ) : (
+                  <div className='table-responsive'>
+                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                      <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                        <tr>
+                          <th style={{
+                            position: 'sticky',
+                            left: 0,
+                            zIndex: 0,
+
+                          }}>
+                            <Form.Check
+                              className="check-danger"
+                              type="checkbox"
+                              onChange={handleSeleccionaTodos}
+                              checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
+                            />
+                          </th>
+                          <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                          <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
+                          <th scope="col" className="text-nowrap text-center">Nº Baja</th>
+                          <th scope="col" className="text-nowrap text-center">Especie</th>
+                          <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
+                          <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
+                          <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
+                          <th scope="col" className="text-nowrap text-center">Observaciones</th>
+                          <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
+                          <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
+                          <th scope="col" className="text-nowrap text-center">Estado</th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {elementosActuales.map((Lista, index) => {
+                          const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                          return (
+                            <tr key={indexReal}>
+                              <td>
+                                <Form.Check
+                                  type="checkbox"
+                                  onChange={() => setSeleccionaFila(index)}
+                                  checked={filaSeleccionada.includes(indexReal.toString())}
+                                />
+                              </td>
+                              {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
+                              <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                              <td className="text-nowrap">{Lista.nresolucion}</td>
+                              <td className="text-nowrap">{Lista.bajaS_CORR}</td>
+                              <td className="text-nowrap">{Lista.especie}</td>
+                              <td className="text-nowrap">{Lista.fechA_INGRESO}</td>
+                              <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
+                              <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
+                              <td className="text-nowrap">{Lista.observaciones}</td>
+                              <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
+                              <td className="text-nowrap">{Lista.ncuenta}</td>
+                              <td className="text-nowrap">{Lista.estado}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {/* Paginador */}
+                <div className="paginador-container position-relative z-0">
+                  <Pagination className="paginador-scroll">
+                    <Pagination.First
+                      onClick={() => paginar(1)}
+                      disabled={paginaActual === 1}
+                    />
+                    <Pagination.Prev
+                      onClick={() => paginar(paginaActual - 1)}
+                      disabled={paginaActual === 1}
+                    />
+
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                      <Pagination.Item
+                        key={i + 1}
+                        active={i + 1 === paginaActual}
+                        onClick={() => paginar(i + 1)}
+                      >
+                        {i + 1}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                      onClick={() => paginar(paginaActual + 1)}
+                      disabled={paginaActual === totalPaginas}
+                    />
+                    <Pagination.Last
+                      onClick={() => paginar(totalPaginas)}
+                      disabled={paginaActual === totalPaginas}
+                    />
+                  </Pagination>
+                </div>
               </>
             ) : (
-              <div className='table-responsive'>
-                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                  <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                    <tr>
-                      <th style={{
-                        position: 'sticky',
-                        left: 0,
-                        zIndex: 0,
-
-                      }}>
-                        <Form.Check
-                          className="check-danger"
-                          type="checkbox"
-                          onChange={handleSeleccionaTodos}
-                          checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
-                        />
-                      </th>
-                      <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                      <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
-                      <th scope="col" className="text-nowrap text-center">Nº Baja</th>
-                      <th scope="col" className="text-nowrap text-center">Especie</th>
-                      <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
-                      <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
-                      <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
-                      <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                      <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
-                      <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
-                      <th scope="col" className="text-nowrap text-center">Estado</th>
-
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {elementosActuales.map((Lista, index) => {
-                      const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                      return (
-                        <tr key={indexReal}>
-                          <td>
-                            <Form.Check
-                              type="checkbox"
-                              onChange={() => setSeleccionaFila(index)}
-                              checked={filaSeleccionada.includes(indexReal.toString())}
-                            />
-                          </td>
-                          {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
-                          <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                          <td className="text-nowrap">{Lista.nresolucion}</td>
-                          <td className="text-nowrap">{Lista.bajaS_CORR}</td>
-                          <td className="text-nowrap">{Lista.especie}</td>
-                          <td className="text-nowrap">{Lista.fechA_INGRESO}</td>
-                          <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
-                          <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
-                          <td className="text-nowrap">{Lista.observaciones}</td>
-                          <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
-                          <td className="text-nowrap">{Lista.ncuenta}</td>
-                          <td className="text-nowrap">{Lista.estado}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                  No hay resultados para mostrar.
+                </p>
+              </>
             )}
-
-            {/* Paginador */}
-            <div className="paginador-container position-relative z-0">
-              <Pagination className="paginador-scroll">
-                <Pagination.First
-                  onClick={() => paginar(1)}
-                  disabled={paginaActual === 1}
-                />
-                <Pagination.Prev
-                  onClick={() => paginar(paginaActual - 1)}
-                  disabled={paginaActual === 1}
-                />
-
-                {Array.from({ length: totalPaginas }, (_, i) => (
-                  <Pagination.Item
-                    key={i + 1}
-                    active={i + 1 === paginaActual}
-                    onClick={() => paginar(i + 1)}
-                  >
-                    {i + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next
-                  onClick={() => paginar(paginaActual + 1)}
-                  disabled={paginaActual === totalPaginas}
-                />
-                <Pagination.Last
-                  onClick={() => paginar(totalPaginas)}
-                  disabled={paginaActual === totalPaginas}
-                />
-              </Pagination>
-            </div>
           </div>
         </div>
       </div>

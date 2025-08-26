@@ -253,94 +253,104 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                 </div>
                             </Col>
                         </Row>
-                        {loading ? (
-                            <SkeletonLoader rowCount={elementosPorPagina} />
-                        ) : (
-                            <div className='table-responsive hide-scrollbar'>
-                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                        <tr>
-                                            <th scope="col" className="text-nowrap text-center"></th>
-                                            <th scope="col" className="text-nowrap text-center">Cuenta</th>
-                                            <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                                            <th scope="col" className="text-nowrap text-center">N° Traslado</th>
-                                            <th scope="col" className="text-nowrap text-center">N° Altas</th>
-                                            <th scope="col" className="text-nowrap text-center">Especie</th>
-                                            <th scope="col" className="text-nowrap text-center">Marca</th>
-                                            <th scope="col" className="text-nowrap text-center">Modelo</th>
-                                            <th scope="col" className="text-nowrap text-center">Serie</th>
-                                            <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                                            <th scope="col" className="text-nowrap text-center">Rut Proveedor</th>
-                                            <th scope="col" className="text-nowrap text-center">Nombre Proveedor</th>
-                                            <th scope="col" className="text-nowrap text-center">Servicio</th>
-                                            <th scope="col" className="text-nowrap text-center">Dependencia</th>
-                                            <th scope="col" className="text-nowrap text-center">Fecha Recepción</th>
-                                            <th scope="col" className="text-nowrap text-center">Años Vida Útil</th>
-                                            <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                            <th scope="col" className="text-nowrap text-center">Origen</th>
-                                            <th scope="col" className="text-nowrap text-center">Valor</th>
+                        {listaConsultaInventarioEspecie.length > 0 ? (
+                            <>
+                                {loading ? (
+                                    <SkeletonLoader rowCount={elementosPorPagina} />
+                                ) : (
+                                    <div className='table-responsive hide-scrollbar'>
+                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                                <tr>
+                                                    <th scope="col" className="text-nowrap text-center"></th>
+                                                    <th scope="col" className="text-nowrap text-center">Cuenta</th>
+                                                    <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
+                                                    <th scope="col" className="text-nowrap text-center">N° Traslado</th>
+                                                    <th scope="col" className="text-nowrap text-center">N° Altas</th>
+                                                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                                                    <th scope="col" className="text-nowrap text-center">Marca</th>
+                                                    <th scope="col" className="text-nowrap text-center">Modelo</th>
+                                                    <th scope="col" className="text-nowrap text-center">Serie</th>
+                                                    <th scope="col" className="text-nowrap text-center">Observaciones</th>
+                                                    <th scope="col" className="text-nowrap text-center">Rut Proveedor</th>
+                                                    <th scope="col" className="text-nowrap text-center">Nombre Proveedor</th>
+                                                    <th scope="col" className="text-nowrap text-center">Servicio</th>
+                                                    <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Recepción</th>
+                                                    <th scope="col" className="text-nowrap text-center">Años Vida Útil</th>
+                                                    <th scope="col" className="text-nowrap text-center">Resolución</th>
+                                                    <th scope="col" className="text-nowrap text-center">Origen</th>
+                                                    <th scope="col" className="text-nowrap text-center">Valor</th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((fila, index) => (
-                                            <tr key={indicePrimerElemento + index}>
-                                                <td style={{
-                                                    position: 'sticky',
-                                                    left: 0
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {elementosActuales.map((fila, index) => (
+                                                    <tr key={indicePrimerElemento + index}>
+                                                        <td style={{
+                                                            position: 'sticky',
+                                                            left: 0
 
-                                                }}>
-                                                    <Form.Check
-                                                        type="checkbox"
-                                                        onChange={() => setSeleccionaFila(index)}
-                                                        checked={filaSeleccionada.includes(
-                                                            (indicePrimerElemento + index).toString()
-                                                        )}
-                                                    />
-                                                </td>
-                                                <td className="text-nowrap">{fila.ctA_COD}</td>
-                                                <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                                <td className="text-nowrap">{fila.id}</td>
-                                                <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                                <td className="text-nowrap">{fila.especie.split('/')[0]}</td>
-                                                <td className="text-nowrap">{fila.deT_MARCA}</td>
-                                                <td className="text-nowrap">{fila.deT_MODELO}</td>
-                                                <td className="text-nowrap">{fila.deT_SERIE}</td>
-                                                <td className="text-nowrap">{fila.deT_OBS}</td>
-                                                <td className="text-nowrap">{fila.proV_RUN}</td>
-                                                <td className="text-nowrap">{fila.proV_NOMBRE}</td>
-                                                <td className="text-nowrap">{fila.servicio}</td>
-                                                <td className="text-nowrap">{fila.dependencia}</td>
-                                                <td className="text-nowrap">{fila.fecha}</td>
-                                                <td className="text-nowrap">{fila.vida} de 15 años</td>
-                                                <td className="text-nowrap">{fila.aF_RESOLUCION ? fila.aF_RESOLUCION : "n/a"}</td>
-                                                <td className="text-nowrap">{fila.origen}</td>
-                                                <td className="text-nowrap">
-                                                    ${(fila.valor ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                </td>
-                                            </tr>
+                                                        }}>
+                                                            <Form.Check
+                                                                type="checkbox"
+                                                                onChange={() => setSeleccionaFila(index)}
+                                                                checked={filaSeleccionada.includes(
+                                                                    (indicePrimerElemento + index).toString()
+                                                                )}
+                                                            />
+                                                        </td>
+                                                        <td className="text-nowrap">{fila.ctA_COD}</td>
+                                                        <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
+                                                        <td className="text-nowrap">{fila.id}</td>
+                                                        <td className="text-nowrap">{fila.altaS_CORR}</td>
+                                                        <td className="text-nowrap">{fila.especie.split('/')[0]}</td>
+                                                        <td className="text-nowrap">{fila.deT_MARCA}</td>
+                                                        <td className="text-nowrap">{fila.deT_MODELO}</td>
+                                                        <td className="text-nowrap">{fila.deT_SERIE}</td>
+                                                        <td className="text-nowrap">{fila.deT_OBS}</td>
+                                                        <td className="text-nowrap">{fila.proV_RUN}</td>
+                                                        <td className="text-nowrap">{fila.proV_NOMBRE}</td>
+                                                        <td className="text-nowrap">{fila.servicio}</td>
+                                                        <td className="text-nowrap">{fila.dependencia}</td>
+                                                        <td className="text-nowrap">{fila.fecha}</td>
+                                                        <td className="text-nowrap">{fila.vida} de 15 años</td>
+                                                        <td className="text-nowrap">{fila.aF_RESOLUCION ? fila.aF_RESOLUCION : "n/a"}</td>
+                                                        <td className="text-nowrap">{fila.origen}</td>
+                                                        <td className="text-nowrap">
+                                                            ${(fila.valor ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                                <div className="paginador-container position-relative z-0">
+                                    <Pagination className="paginador-scroll">
+                                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                                        {Array.from({ length: totalPaginas }, (_, i) => (
+                                            <Pagination.Item
+                                                key={i + 1}
+                                                active={i + 1 === paginaActual}
+                                                onClick={() => paginar(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Pagination.Item>
                                         ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                                    </Pagination>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                    No hay resultados para mostrar.
+                                </p>
+                            </>
                         )}
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                            </Pagination>
-                        </div>
                     </div>
                 </div>
             </div>

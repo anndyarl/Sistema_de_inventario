@@ -107,7 +107,7 @@ interface TrasladosProps {
     comboSerDepActions: (establ_corr: number) => void;//En buscador  
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
     comboSerDep: SERVICIO_DEPENDENCIA[];
-    listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
+    listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -592,7 +592,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 console.log(activosSeleccionados);
                 if (resultado) {
                     mostrarAlerta();
-                    listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, 0);
+                    listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
                     handleLimpiar();
                     handleLimpiarFormulario();
                     setFilasSeleccionadas([]);
@@ -859,26 +859,31 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                     isClearable
                                                     // isSearchable
                                                     value={especieOptions.find(option => option.value === Buscar.esP_CODIGO) || null}
+
                                                     styles={{
                                                         control: (baseStyles) => ({
                                                             ...baseStyles,
                                                             backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
                                                             color: isDarkMode ? "white" : "#212529", // Texto blanco
                                                             borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+
                                                         }),
                                                         singleValue: (base) => ({
                                                             ...base,
                                                             color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+
                                                         }),
                                                         menu: (base) => ({
                                                             ...base,
                                                             backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
                                                             color: isDarkMode ? "white" : "#212529",
+                                                            height: 100
                                                         }),
                                                         option: (base, { isFocused, isSelected }) => ({
                                                             ...base,
                                                             backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
                                                             color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+
                                                         }),
                                                     }}
                                                 />

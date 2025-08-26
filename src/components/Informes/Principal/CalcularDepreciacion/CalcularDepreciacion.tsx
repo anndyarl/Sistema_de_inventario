@@ -948,18 +948,20 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </Col>
                         </Row>
 
-                        {/* Tabla principal activos fijos*/}
-                        {loading ? (
+                        {listaActivosFijos.length > 0 ? (
                             <>
-                                {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                <SkeletonLoader rowCount={10} columnCount={10} />
-                            </>
-                        ) : (
-                            <div className='table-responsive'>
-                                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                        <tr>
-                                            {/* <th style={{
+                                {/* Tabla principal activos fijos*/}
+                                {loading ? (
+                                    <>
+                                        {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                                        <SkeletonLoader rowCount={10} columnCount={10} />
+                                    </>
+                                ) : (
+                                    <div className='table-responsive'>
+                                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                <tr>
+                                                    {/* <th style={{
                                         position: 'sticky',
                                         left: 0,                                      
 
@@ -971,72 +973,72 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                         />
                                     </th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Nº Inventario</th> */}
-                                            <th
-                                                className="text-nowrap"
-                                                style={{
-                                                    position: 'sticky',
-                                                    left: 0,
-                                                    zIndex: 0
+                                                    {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Nº Inventario</th> */}
+                                                    <th
+                                                        className="text-nowrap"
+                                                        style={{
+                                                            position: 'sticky',
+                                                            left: 0,
+                                                            zIndex: 0
 
-                                                }}>
-                                                Nº Inventario
-                                            </th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Dependencia</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
+                                                        }}>
+                                                        Nº Inventario
+                                                    </th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Dependencia</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
                                         <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Nº Altas</th>
-                                            <th scope="col" className="text-nowrap text-center">Especie</th>
-                                            <th scope="col" className="text-nowrap text-center">Marca</th>
-                                            <th scope="col" className="text-nowrap text-center">Modelo</th>
-                                            <th scope="col" className="text-nowrap text-center">Serie</th>
-                                            <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
-                                            <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                            <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Tipo</th>
-                                            <th scope="col" className="text-nowrap text-center">Alta</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Origen</th>
-                                            <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                            <th scope="col" className="text-nowrap text-center">N° Orden de Compra</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Usuario Modificador</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
-                                            <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Número Factura</th>
-                                            <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
-                                            <th scope="col" className="text-nowrap text-center">3 UTM</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ID Grupo</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Cuenta</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Transitoria</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Etiqueta</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                                            <th scope="col" className="text-nowrap text-center">Vigente</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ID Programa</th> */}
-                                            <th scope="col" className="text-nowrap text-center">Modalidad Compra</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">ID Propiedad</th> */}
-                                            {/* <th scope="col" className="text-nowrap text-center">Especie</th> */}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((Lista, index) => {
-                                            // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                            return (
-                                                <tr key={index}>
-                                                    {/* <td style={{
+                                                    {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Nº Altas</th>
+                                                    <th scope="col" className="text-nowrap text-center">Especie</th>
+                                                    <th scope="col" className="text-nowrap text-center">Marca</th>
+                                                    <th scope="col" className="text-nowrap text-center">Modelo</th>
+                                                    <th scope="col" className="text-nowrap text-center">Serie</th>
+                                                    <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
+                                                    <th scope="col" className="text-nowrap text-center">Descripción</th>
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Tipo</th>
+                                                    <th scope="col" className="text-nowrap text-center">Alta</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Origen</th>
+                                                    <th scope="col" className="text-nowrap text-center">Resolución</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">N° Orden de Compra</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Usuario Modificador</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
+                                                    <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Número Factura</th>
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
+                                                    <th scope="col" className="text-nowrap text-center">3 UTM</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ID Grupo</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Cuenta</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">Transitoria</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Monto Factura</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Etiqueta</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Vida Útil</th>
+                                                    <th scope="col" className="text-nowrap text-center">Vigente</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ID Programa</th> */}
+                                                    <th scope="col" className="text-nowrap text-center">Modalidad Compra</th>
+                                                    {/* <th scope="col" className="text-nowrap text-center">ID Propiedad</th> */}
+                                                    {/* <th scope="col" className="text-nowrap text-center">Especie</th> */}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {elementosActuales.map((Lista, index) => {
+                                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                    return (
+                                                        <tr key={index}>
+                                                            {/* <td style={{
                                                 position: 'sticky',
                                                 left: 0                                            
                                             }}>
@@ -1046,104 +1048,115 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     checked={filasSeleccionadas.includes(indexReal.toString())}
                                                 />
                                             </td> */}
-                                                    {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
-                                                    <td
-                                                        className="text-nowrap"
-                                                        style={{
-                                                            position: 'sticky',
-                                                            left: 0,
-                                                            zIndex: 0
-                                                        }}>
-                                                        {Lista.aF_CODIGO_GENERICO}
-                                                    </td>
-                                                    {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
-                                                    {/* <td className="text-nowrap">{Lista.deP_CORR}</td> */}
-                                                    {/* <td className="text-nowrap text-center">{Lista.esP_CODIGO}</td>
+                                                            {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
+                                                            <td
+                                                                className="text-nowrap"
+                                                                style={{
+                                                                    position: 'sticky',
+                                                                    left: 0,
+                                                                    zIndex: 0
+                                                                }}>
+                                                                {Lista.aF_CODIGO_GENERICO}
+                                                            </td>
+                                                            {/* <td className="text-nowrap">{Lista.aF_CODIGO_LARGO}</td> */}
+                                                            {/* <td className="text-nowrap">{Lista.deP_CORR}</td> */}
+                                                            {/* <td className="text-nowrap text-center">{Lista.esP_CODIGO}</td>
                                                 <td className="text-nowrap text-center">{Lista.aF_SECUENCIA}</td> */}
-                                                    <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                    <td className="text-nowrap">{Lista.especie}</td>
-                                                    <td className="text-nowrap">{Lista.marca}</td>
-                                                    <td className="text-nowrap">{Lista.modelo}</td>
-                                                    <td className="text-nowrap">{Lista.serie}</td>
-                                                    <td className="text-nowrap">
-                                                        ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap">{Lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : Lista.aF_DESCRIPCION}</td>
-                                                    <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                                                    {/* <td className="text-nowrap text-center">{Lista.aF_ESTADO}</td> */}
-                                                    {/* <td className="text-nowrap">{Lista.aF_CODIGO}</td> */}
-                                                    <td className="text-nowrap">{Lista.aF_TIPO}</td>
-                                                    <td className="text-nowrap">{Lista.aF_ALTA}</td>
-                                                    {/* <td className="text-nowrap">{Lista.aF_CANTIDAD}</td> */}
-                                                    <td className="text-nowrap">{Lista.origen}</td>
-                                                    <td className="text-nowrap">{Lista.aF_RESOLUCION}</td>
-                                                    {/* <td className="text-nowrap text-center">{Lista.aF_FECHA_SOLICITUD}</td> */}
-                                                    <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                    {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
-                                                    <td className="text-nowrap">{Lista.f_CREA}</td>
-                                                    {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
-                                                    {/* <td className="text-nowrap">{Lista.usuariO_MOD}</td> */}
-                                                    {/* <td className="text-nowrap">{Lista.f_MOD}</td> */}
-                                                    {/* <td className="text-nowrap text-center">{Lista.iP_MODt}</td> */}
-                                                    <td className="text-nowrap">{Lista.aF_TIPO_DOC}</td>
-                                                    <td className="text-nowrap">{Lista.proV_RUN}</td>
-                                                    {/* <td className="text-nowrap">{Lista.reG_EQM}</td> */}
-                                                    <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                                                    <td className="text-nowrap">{Lista.aF_FECHAFAC}</td>
-                                                    <td className="text-nowrap">{Lista.aF_3UTM}</td>
-                                                    {/* <td className="text-nowrap">{Lista.iD_GRUPO}</td> */}
-                                                    <td className="text-nowrap">{Lista.ctA_COD}</td>
-                                                    {/* <td className="text-nowrap">{Lista.transitoria}</td> */}
-                                                    <td className="text-nowrap">
-                                                        ${(Lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    {/* <td className="text-nowrap">{Lista.esP_DESCOMPONE}</td> */}
-                                                    {/* <td className="text-nowrap">{Lista.aF_ETIQUETA}</td> */}
-                                                    <td className="text-nowrap">{Lista.aF_VIDAUTIL}</td>
-                                                    <td className="text-nowrap">{Lista.aF_VIGENTE}</td>
-                                                    {/* <td className="text-nowrap">{Lista.idprograma}</td> */}
-                                                    <td className="text-nowrap">{Lista.modalidad}</td>
-                                                    {/* <td className="text-nowrap">{Lista.idpropiedad}</td> */}
-                                                    {/* <td className="text-nowrap">{Lista.especie}</td> */}
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                            <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                            <td className="text-nowrap">{Lista.especie}</td>
+                                                            <td className="text-nowrap">{Lista.marca}</td>
+                                                            <td className="text-nowrap">{Lista.modelo}</td>
+                                                            <td className="text-nowrap">{Lista.serie}</td>
+                                                            <td className="text-nowrap">
+                                                                ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                            </td>
+                                                            <td className="text-nowrap">{Lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : Lista.aF_DESCRIPCION}</td>
+                                                            <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                                            {/* <td className="text-nowrap text-center">{Lista.aF_ESTADO}</td> */}
+                                                            {/* <td className="text-nowrap">{Lista.aF_CODIGO}</td> */}
+                                                            <td className="text-nowrap">{Lista.aF_TIPO}</td>
+                                                            <td className="text-nowrap">{Lista.aF_ALTA}</td>
+                                                            {/* <td className="text-nowrap">{Lista.aF_CANTIDAD}</td> */}
+                                                            <td className="text-nowrap">{Lista.origen}</td>
+                                                            <td className="text-nowrap">{Lista.aF_RESOLUCION}</td>
+                                                            {/* <td className="text-nowrap text-center">{Lista.aF_FECHA_SOLICITUD}</td> */}
+                                                            <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
+                                                            {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
+                                                            <td className="text-nowrap">{Lista.f_CREA}</td>
+                                                            {/* <td className="text-nowrap">{Lista.iP_CREA}</td> */}
+                                                            {/* <td className="text-nowrap">{Lista.usuariO_MOD}</td> */}
+                                                            {/* <td className="text-nowrap">{Lista.f_MOD}</td> */}
+                                                            {/* <td className="text-nowrap text-center">{Lista.iP_MODt}</td> */}
+                                                            <td className="text-nowrap">{Lista.aF_TIPO_DOC}</td>
+                                                            <td className="text-nowrap">{Lista.proV_RUN}</td>
+                                                            {/* <td className="text-nowrap">{Lista.reG_EQM}</td> */}
+                                                            <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
+                                                            <td className="text-nowrap">{Lista.aF_FECHAFAC}</td>
+                                                            <td className="text-nowrap">{Lista.aF_3UTM}</td>
+                                                            {/* <td className="text-nowrap">{Lista.iD_GRUPO}</td> */}
+                                                            <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                            {/* <td className="text-nowrap">{Lista.transitoria}</td> */}
+                                                            <td className="text-nowrap">
+                                                                ${(Lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                            </td>
+                                                            {/* <td className="text-nowrap">{Lista.esP_DESCOMPONE}</td> */}
+                                                            {/* <td className="text-nowrap">{Lista.aF_ETIQUETA}</td> */}
+                                                            <td className="text-nowrap">{Lista.aF_VIDAUTIL}</td>
+                                                            <td className="text-nowrap">{Lista.aF_VIGENTE}</td>
+                                                            {/* <td className="text-nowrap">{Lista.idprograma}</td> */}
+                                                            <td className="text-nowrap">{Lista.modalidad}</td>
+                                                            {/* <td className="text-nowrap">{Lista.idpropiedad}</td> */}
+                                                            {/* <td className="text-nowrap">{Lista.especie}</td> */}
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {/* Paginador */}
+                                <div className="paginador-container position-relative z-0">
+                                    <Pagination className="paginador-scroll">
+                                        <Pagination.First
+                                            onClick={() => paginar(1)}
+                                            disabled={paginaActual === 1}
+                                        />
+                                        <Pagination.Prev
+                                            onClick={() => paginar(paginaActual - 1)}
+                                            disabled={paginaActual === 1}
+                                        />
+
+                                        {Array.from({ length: totalPaginas }, (_, i) => (
+                                            <Pagination.Item
+                                                key={i + 1}
+                                                active={i + 1 === paginaActual}
+                                                onClick={() => paginar(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Pagination.Item>
+                                        ))}
+                                        <Pagination.Next
+                                            onClick={() => paginar(paginaActual + 1)}
+                                            disabled={paginaActual === totalPaginas}
+                                        />
+                                        <Pagination.Last
+                                            onClick={() => paginar(totalPaginas)}
+                                            disabled={paginaActual === totalPaginas}
+                                        />
+                                    </Pagination>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div style={{ height: "75vh", overflowY: "auto" }} className="mt-2">
+                                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                        No hay resultados para mostrar.
+                                    </p>
+                                </div>
+                            </>
                         )}
 
-                        {/* Paginador */}
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First
-                                    onClick={() => paginar(1)}
-                                    disabled={paginaActual === 1}
-                                />
-                                <Pagination.Prev
-                                    onClick={() => paginar(paginaActual - 1)}
-                                    disabled={paginaActual === 1}
-                                />
-
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next
-                                    onClick={() => paginar(paginaActual + 1)}
-                                    disabled={paginaActual === totalPaginas}
-                                />
-                                <Pagination.Last
-                                    onClick={() => paginar(totalPaginas)}
-                                    disabled={paginaActual === totalPaginas}
-                                />
-                            </Pagination>
-                        </div>
                     </div>
                 </div>
             </div>
