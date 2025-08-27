@@ -1222,7 +1222,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 <title>Firmar Altas</title>
             </Helmet>
             <MenuAltas />
-            <div className="table-responsive position-relative z-0 hide-scrollbar" >
+            <div className="table-responsive position-relative z-0 -hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
                     <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                         <h3 className="form-title fw-semibold border-bottom p-1">Firmar Altas</h3>
@@ -1340,7 +1340,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             onChange={handleChange}
                                             value={Paginacion.nPaginacion}
                                         >
-                                            {[10, 15, 20, 25, 50, 100].map((val) => (
+                                            {[10, 15, 20, 25, 50, 100, 100000].map((val) => (
                                                 <option key={val} value={val}>
                                                     {val}
                                                 </option>
