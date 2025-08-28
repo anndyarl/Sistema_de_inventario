@@ -578,7 +578,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             return;
         }
 
-
         let firmanteInventario = prev.firmanteInventario || "";
         let firmanteFinanzas = prev.firmanteFinanzas || "";
         let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
@@ -586,11 +585,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         let firmanteCompra = prev.firmanteCompra || "";
         let firmanteConvenio = prev.firmanteConvenio || "";
         let firmanteRFisico = prev.firmanteRFisico || "";
-
         let visadoInventario = prev.visadoInventario || "";
         let visadoFinanzas = prev.visadoFinanzas || "";
         let visadoAbastecimiento = prev.visadoAbastecimiento || "";
-
 
         for (const firma of datosFirmas) {
 
@@ -692,7 +689,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         updatedState.titularRFisico = false;
                     }
                 }
-
             }
 
         }
