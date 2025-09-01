@@ -648,7 +648,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         <option value="2">Pendiente</option>
                       </select>
                     </div>
-                    <div className="d-flex gap-2">
+                    <div className="d-flex gap-2 mt-4">
                       <div></div>
                       <Button
                         onClick={handleBuscarEnviados}

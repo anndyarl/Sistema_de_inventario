@@ -80,7 +80,7 @@ interface SERVICIO {
 interface DatosAltas {
     registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
     listaFolioServicioDependencia: ListaFolioServicioDependencia[];
-    listaFolioServicioDependenciaActions: (dep_corr: number, establ_corr: number) => Promise<boolean>;
+    listaFolioServicioDependenciaActions: (dep_corr: number, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
     comboServicioInforme: SERVICIO[];
     comboDependenciaDestino: DEPENDENCIA[];
     comboServicioInformeActions: (establ_corr: number) => void;//En buscador   
@@ -124,6 +124,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     };
     //Estado para buscar
     const [Buscar, setBuscar] = useState({
+        af_codigo_generico: "",
         servicio: 0,
     });
 
@@ -196,19 +197,31 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
 
-        // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
-            return; // Salir si contiene caracteres no numéricos
-        }
         // Convierte `value` a número
-        let newValue: string | number = ["seR_CORR", "deP_CORR_DESTINO", "n_TRASLADO", "paginacion"].includes(name)
+        let newValue: string | number = ["seR_CORR", "deP_CORR_DESTINO", "n_TRASLADO",].includes(name)
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
-        setTraslados((prevTraslados) => ({
-            ...prevTraslados,
+        // Validación específica para af_codigo_generico: solo permitir números
+        if (name === "af_codigo_generico") {
+            // Solo números usando una expresión regular
+            const soloNumeros = /^[0-9]*$/;
+
+            if (!soloNumeros.test(value)) {
+                return; // No actualiza el estado si hay caracteres inválidos
+            }
+
+        }
+        setBuscar((prev) => ({
+            ...prev,
             [name]: newValue,
         }));
+
+        setTraslados((prev) => ({
+            ...prev,
+            [name]: newValue,
+        }));
+
         if (name === "seR_CORR") {
             comboDependenciaDestinoActions(value);
         }
@@ -221,22 +234,24 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
-        if (!Buscar.servicio || Buscar.servicio === 0) {
+        if (
+            (!Buscar.servicio || Buscar.servicio === 0) &&
+            Buscar.af_codigo_generico.trim() === ""
+        ) {
             Swal.fire({
                 icon: "warning",
-                title: "Por favor, seleccione un servicio",
+                title: "Faltan filtros",
+                text: "Debe seleccionar un servicio o ingresar un Nº inventario.",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: {
-                    popup: "custom-border", // Clase personalizada para el borde
-                }
+                customClass: { popup: "custom-border" }
             });
-            setLoading(false); //Finaliza estado de carga
+            setLoading(false);
             return;
         }
-        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, objeto.Roles[0].codigoEstablecimiento);
+        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, Buscar.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
 
         setError({});
         if (!resultado) {
@@ -264,6 +279,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleLimpiar = () => {
         setBuscar((prevInventario) => ({
             ...prevInventario,
+            af_codigo_generico: "",
             servicio: 0
         }));
     };
@@ -633,6 +649,21 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                     color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
                                                 }),
                                             }}
+                                        />
+                                    </div>
+
+                                    <div className="mb-1">
+                                        <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
+                                        <input
+                                            aria-label="af_codigo_generico"
+                                            type="text"
+                                            className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="af_codigo_generico"
+                                            size={10}
+                                            placeholder="Eje: 1000000008"
+                                            onChange={handleChange}
+                                            maxLength={12}
+                                            value={Buscar.af_codigo_generico}
                                         />
                                     </div>
                                 </Col>

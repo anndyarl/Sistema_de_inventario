@@ -115,13 +115,14 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
     };
 
     useEffect(() => {
+        if (elementosActuales.length > 0) {
+            setFilasSeleccionadas([indicePrimerElemento.toString()]);
+        }
         if (token) {
             // Verifica si las acciones ya fueron disparadas
             if (comboServicioInforme.length === 0) comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
         }
-    }, [comboServicioInformeActions,
-        comboServicioInforme.length,
-        listaSeleccion]);
+    }, [comboServicioInformeActions, comboServicioInforme.length, listaSeleccion]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -152,24 +153,23 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
     };
 
     /*-------------Tabla Modal-------------------*/
-    const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked) {
-            setFilasSeleccionadas(
-                elementosActuales.map((_, index) =>
-                    (indicePrimerElemento + index).toString()
-                )
-            );
-            // console.log("filas Seleccionadas ", filasSeleccionadas);
-        } else {
-            setFilasSeleccionadas([]);
-        }
-    };
+    // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     if (e.target.checked) {
+    //         setFilasSeleccionadas(
+    //             elementosActuales.map((_, index) =>
+    //                 (indicePrimerElemento + index).toString()
+    //             )
+    //         );
+    //         // console.log("filas Seleccionadas ", filasSeleccionadas);
+    //     } else {
+    //         setFilasSeleccionadas([]);
+    //     }
+    // };
 
     const setSeleccionaFilas = (index: number) => {
         setFilasSeleccionadas((prev) =>
-            prev.includes(index.toString())
-                ? prev.filter((rowIndex) => rowIndex !== index.toString())
-                : [...prev, index.toString()]
+            prev.includes(index.toString()) ?
+                prev.filter((rowIndex) => rowIndex !== index.toString()) : [...prev, index.toString()]
         );
     };
 
@@ -191,30 +191,30 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
             };
         });
 
-        const result = await Swal.fire({
-            icon: "info",
-            title: "Agregar articulo",
-            text: `Confirme para agregar`,
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Agregar",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-            }
-        });
+        // const result = await Swal.fire({
+        //     icon: "info",
+        //     title: "Agregar articulo",
+        //     text: `Confirme para agregar`,
+        //     showDenyButton: false,
+        //     showCancelButton: true,
+        //     confirmButtonText: "Confirmar y Agregar",
+        //     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        //     color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        //     confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+        //     customClass: {
+        //         popup: "custom-border", // Clase personalizada para el borde
+        //     }
+        // });
 
         // Verificar duplicados antes de mostrar la confirmación
         const duplicados = activosSeleccionados.filter(activo =>
             activosFijos.some(existente => existente.aF_CLAVE === activo.aF_CLAVE)
         );
 
-        if (result.isConfirmed) {
-            if (duplicados.length > 0) {
-                // Crear la tabla HTML con los duplicados
-                const tablaHTML = `
+        // if (result.isConfirmed) {
+        if (duplicados.length > 0) {
+            // Crear la tabla HTML con los duplicados
+            const tablaHTML = `
             <div style="max-height: 300px; overflow-y: auto;">
               <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                 <thead>
@@ -234,41 +234,42 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
               </table>
             </div>
           `;
-                Swal.fire({
-                    icon: "warning",
-                    title: "Artículos duplicados",
-                    html: `<p>Los siguientes artículos ya están agregados:</p>${tablaHTML}`,
-                    confirmButtonText: "Entendido",
-                    background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    width: '600px',
-                    customClass: {
-                        popup: "custom-border",
-                    }
-                });
-                setFilasSeleccionadas([]);
-                return;
-            } else {
-                Swal.fire({
-                    icon: "success",
-                    title: "Artículos Agregados",
-                    html: `Articulos agregados con exito!`,
-                    confirmButtonText: "Cerrar",
-                    background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    width: '600px',
-                    customClass: {
-                        popup: "custom-border",
-                    }
-                });
-                setActivosFijos((prev) => [...prev, ...activosSeleccionados]);
-                setFilasSeleccionadas([]);
-                paginar1(1);
-                // setMostrarModal(false);
-            }
+            Swal.fire({
+                icon: "warning",
+                title: "Artículos duplicados",
+                html: `<p>Los siguientes artículos ya están agregados:</p>${tablaHTML}`,
+                confirmButtonText: "Entendido",
+                background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                width: '600px',
+                customClass: {
+                    popup: "custom-border",
+                }
+            });
+            setFilasSeleccionadas([]);
+            return;
+        } else {
+            // Swal.fire({
+            //     icon: "success",
+            //     title: "Artículos Agregados",
+            //     html: `Articulos agregados con exito!`,
+            //     confirmButtonText: "Cerrar",
+            //     background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+            //     color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+            //     confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            //     width: '600px',
+            //     customClass: {
+            //         popup: "custom-border",
+            //     }
+            // });
+            setMostrarModal(false);
+            setActivosFijos((prev) => [...prev, ...activosSeleccionados]);
+            setFilasSeleccionadas([]);
+            paginar1(1);
+            // setMostrarModal(false);
         }
+        // }
     }
     /*-------------Tabla Activos Seleccionados-------------------*/
     const handleSeleccionaTodosLevantamiento = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -383,7 +384,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
             confirmButtonText: "Confirmar y Limpiar",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            confirmButtonColor: `#dc3545`,
             customClass: {
                 popup: "custom-border", // Clase personalizada para el borde
             }
@@ -532,11 +533,11 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                     <div className="mb-2">
                                         <Button
                                             onClick={handleLimpiar}
-                                            variant={isDarkMode ? "secondary" : "warning"}
+                                            variant="danger"
                                             className="btn w-100 d-flex justify-content-center align-items-center"
                                         >
                                             <EraserFill className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                                            <p className="mb-0 me-2">Limpiar Levantamiento</p>
+                                            <p className="mb-0 me-2">Limpiar Todo</p>
                                         </Button>
                                     </div>
                                 )}
@@ -556,10 +557,11 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                                 ) : (
                                                     <EyeFill width={18} height={18} className="mx-1" />
                                                 )}
-                                                <p className="mb-0 me-2">Ver Levantamiento</p>
+                                                <p className="mb-0 me-2">Levantamientos</p>
                                                 <span className="badge bg-light text-dark">
-                                                    {listaSeleccion.length}
+                                                    {activosFijos.length}
                                                 </span>
+
                                             </div>
                                         </Button>
                                     </div>
@@ -578,7 +580,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                         keyboard={false}
                     >
                         <Modal.Header className={`${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`} closeButton>
-                            <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
+                            <Modal.Title className="fw-semibold">Resultado de Búsqueda</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <div className={` border-botom p-2 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
@@ -630,9 +632,6 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                                     ) : (
                                                         <>
                                                             Agregar
-                                                            <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                {filasSeleccionadas.length}
-                                                            </span>
                                                         </>
                                                     )}
                                                 </Button>
@@ -661,14 +660,15 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                                     <tr>
-                                                        <th style={{ position: 'sticky', left: 0 }}>
+                                                        {/* <th style={{ position: 'sticky', left: 0 }}>
                                                             <Form.Check
                                                                 className="check-danger"
                                                                 type="checkbox"
                                                                 onChange={handleSeleccionaTodos}
                                                                 checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                             />
-                                                        </th>
+                                                        </th> */}
+                                                        <th></th>
                                                         <th scope="col" className="text-nowrap text-center">Código</th>
                                                         <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                                                         <th scope="col" className="text-nowrap text-center">Nº Alta</th>
@@ -756,7 +756,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                     >
                         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                             <Modal.Title className="fw-semibold">
-                                Bienes en la lista: {activosFijos.length}
+                                Levantamientos: {activosFijos.length}
                             </Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>

@@ -10,16 +10,18 @@ import Layout from "../../../containers/hocs/layout/Layout";
 import MenuAltas from "../../Menus/MenuAltas";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import DocumentoEtiquetasPDF from "./DocumentoEtiquetasPDF";
-import ReactDOM from 'react-dom';
-import { QRCodeSVG } from 'qrcode.react';
 import { Objeto } from "../../Navegacion/Profile";
 import { quitarEtiquetasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/quitarEtiquetasActions";
 import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
 import { obtenerReimpresionEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerReimpresionEtiquetasAltasActions";
+// import ReactDOM from 'react-dom';
+import QRCode from "qrcode";
+import { QRCodeSVG } from 'qrcode.react';
 interface FechasProps {
     fDesde: string;
     fHasta: string;
 }
+
 export interface ListaEtiquetas {
     aF_CODIGO_GENERICO: string;
     aF_CLAVE?: number;
@@ -44,8 +46,12 @@ export interface ListaEtiquetas {
     aF_VIDAUTIL?: number;
     proV_RUN?: string;
     proV_NOMBRE?: string;
-    qrImage?: string;
+    qrImage?: {
+        viewBox: string;
+        paths: { d: string; fill?: string; stroke?: string }[];
+    };
 }
+
 export interface DatosBajas {
     obtenerEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
     obtenerReimpresionEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
@@ -296,58 +302,81 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         );
     };
 
-    const generateQRCodeBase64 = (value: string): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const container = document.createElement("div");
-            container.style.position = "fixed";
-            container.style.top = "-10000px"; // fuera de la pantalla
+    // const generateQRCodeBase64 = (value: string): Promise<string> => {
+    //     return new Promise((resolve, reject) => {
+    //         const container = document.createElement("div");
+    //         container.style.position = "fixed";
+    //         container.style.top = "-10000px"; // fuera de la pantalla
+    //         document.body.appendChild(container);
 
-            document.body.appendChild(container);
+    //         // Crear root en React 18
+    //         const root = createRoot(container);
+    //         root.render(<QRCodeSVG value={value} size={100} />);
 
-            // Renderizamos el componente QR temporalmente
-            ReactDOM.render(<QRCodeSVG value={value} size={100} />, container);
+    //         setTimeout(() => {
+    //             try {
+    //                 const svgElement = container.querySelector("svg");
+    //                 if (!svgElement) {
+    //                     throw new Error("No se encontró el SVG del QR.");
+    //                 }
 
-            setTimeout(() => {
-                try {
-                    const svgElement = container.querySelector("svg");
+    //                 const svgData = new XMLSerializer().serializeToString(svgElement);
+    //                 const img = new Image();
 
-                    if (!svgElement) {
-                        throw new Error("No se encontró el SVG del QR.");
-                    }
+    //                 img.onload = () => {
+    //                     const canvas = document.createElement("canvas");
+    //                     canvas.width = img.width;
+    //                     canvas.height = img.height;
+    //                     const ctx = canvas.getContext("2d");
 
-                    const svgData = new XMLSerializer().serializeToString(svgElement);
-                    const img = new Image();
+    //                     if (ctx) {
+    //                         ctx.drawImage(img, 0, 0);
+    //                         const pngData = canvas.toDataURL("image/png");
+    //                         cleanup();
+    //                         resolve(pngData);
+    //                     } else {
+    //                         cleanup();
+    //                         reject("Error al obtener el contexto del canvas.");
+    //                     }
+    //                 };
 
-                    img.onload = () => {
-                        const canvas = document.createElement("canvas");
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext("2d");
-                        if (ctx) {
-                            ctx.drawImage(img, 0, 0);
-                            const pngData = canvas.toDataURL("image/png");
-                            document.body.removeChild(container);
-                            resolve(pngData);
-                        } else {
-                            document.body.removeChild(container);
-                            reject("Error al obtener el contexto del canvas.");
-                        }
-                    };
+    //                 img.onerror = () => {
+    //                     cleanup();
+    //                     reject("Error al cargar la imagen del QR.");
+    //                 };
 
-                    img.onerror = () => {
-                        document.body.removeChild(container);
-                        reject("Error al cargar la imagen del QR.");
-                    };
+    //                 img.src = "data:image/svg+xml;base64," + btoa(svgData);
 
-                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-                } catch (err) {
-                    document.body.removeChild(container);
-                    reject(err);
-                }
-            }, 100); // delay leve para asegurarse de que renderice
-        });
+    //                 // función para limpiar después de usar
+    //                 const cleanup = () => {
+    //                     root.unmount();
+    //                     document.body.removeChild(container);
+    //                 };
+    //             } catch (err) {
+    //                 root.unmount();
+    //                 document.body.removeChild(container);
+    //                 reject(err);
+    //             }
+    //         }, 100); // delay leve para asegurar render
+    //     });
+    // };
+
+
+
+    const extractPathFromSVG = (svgString: string): string[] => {
+        // Captura TODOS los atributos d="..." de los path
+        const matches = [...svgString.matchAll(/<path[^>]*d="([^"]+)"/g)];
+        return matches.map(m => m[1]);
     };
 
+    const generateQRCodeSVG = async (value: string): Promise<string> => {
+        try {
+            // Genera el QR en formato SVG (string)
+            return await QRCode.toString(value, { type: "svg" });
+        } catch (err) {
+            throw new Error("Error al generar el QR en SVG: " + err);
+        }
+    };
     const handleGenerar = async () => {
         setListaQRInicial([]);
         setListaQRReimpresion([]);
@@ -379,8 +408,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     `Cta. Contable: ${item.aF_NCUENTA}\n` +
                     `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
                     `${import.meta.env.VITE_CSRF_INFO_PDF}${item.aF_CODIGO_GENERICO}`;
-                const qrImage = await generateQRCodeBase64(valueQR);
-                return { ...item, qrImage };
+                // const qrImage = await generateQRCodeSVG(valueQR);
+                // return { ...item, qrImage };
+                const svgString = await generateQRCodeSVG(valueQR);
+                const path = extractPathFromSVG(svgString);
+                return { ...item, qrSvg: path };
             })
         );
 
@@ -390,6 +422,31 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         setMostrarModal(true);
         setLoading(false);
     };
+
+    const parseSVG = (svgString: string): { viewBox: string; paths: { d: string; fill?: string; stroke?: string }[] } => {
+        // viewBox
+        const viewBoxMatch = svgString.match(/viewBox="([^"]+)"/);
+        const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 100 100";
+
+        // todos los <path ...>
+        const pathMatches = [...svgString.matchAll(/<path([^>]*)>/g)];
+
+        const paths = pathMatches.map(m => {
+            const attrs = m[1];
+            const dMatch = attrs.match(/d="([^"]+)"/);
+            const fillMatch = attrs.match(/fill="([^"]+)"/);
+            const strokeMatch = attrs.match(/stroke="([^"]+)"/);
+
+            return {
+                d: dMatch ? dMatch[1] : "",
+                fill: fillMatch ? fillMatch[1] : undefined,
+                stroke: strokeMatch ? strokeMatch[1] : undefined,
+            };
+        });
+
+        return { viewBox, paths };
+    };
+
 
     const handleGenerarReimpresion = async () => {
         setListaQRInicial([]);
@@ -416,8 +473,14 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     `Cta. Contable: ${item.aF_NCUENTA}\n` +
                     `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
                     `${import.meta.env.VITE_CSRF_INFO_PDF}${item.aF_CODIGO_GENERICO}`;
-                const qrImage = await generateQRCodeBase64(valueQR);
-                return { ...item, qrImage };
+                // const qrImage = await generateQRCodeSVG(valueQR);
+                // console.log("etiquetasConQR:", qrImage);
+                // return { ...item, qrImage };
+                const svgString = await generateQRCodeSVG(valueQR);
+                const qrParsed = parseSVG(svgString); // devuelve {viewBox, paths}
+                console.log("svgString:", svgString);
+                console.log("qrParsed:", qrParsed);
+                return { ...item, qrSvg: qrParsed };
             })
         );
 
@@ -426,67 +489,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         setMostrarModalReimprimir(true);
         setLoadingReimprimir(false);
     };
-
-    // const handleQuitar = async () => {
-    //     const selectedIndices = filasSeleccionadas.map(Number);
-    //     const result = await Swal.fire({
-    //         icon: "warning",
-    //         title: "Quitar",
-    //         text: "Confirme para quitar las etiquetas seleccionadas",
-    //         showDenyButton: false,
-    //         showCancelButton: true,
-    //         confirmButtonText: "Confirmar y Quitar",
-    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-    //         customClass: {
-    //             popup: "custom-border", // Clase personalizada para el borde
-    //         }
-    //     });
-
-    //     if (result.isConfirmed) {
-    //         setLoadingQuitar(true);
-    //         // Crear un array de objetos con aF_CLAVE y nombre
-    //         const Formulario = selectedIndices.map((activo) => ({
-    //             aF_CLAVE: Number(listaEtiquetas[activo].aF_CLAVE),
-    //         }));
-
-    //         const resultado = await quitarEtiquetasActions(Formulario);
-    //         if (resultado) {
-    //             Swal.fire({
-    //                 icon: "success",
-    //                 title: "Quitadas del listado",
-    //                 text: "Se han quitado de la lista correctamente.",
-    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-    //                 customClass: {
-    //                     popup: "custom-border", // Clase personalizada para el borde
-    //                 }
-    //             });
-
-    //             setLoadingQuitar(false);
-    //             handleBuscar();
-    //             setFilasSeleccionadas([]);
-    //             obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
-    //         } else {
-    //             Swal.fire({
-    //                 icon: "error",
-    //                 title: ":'(",
-    //                 text: "Hubo un problema al quitar la etiquetas",
-    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-    //                 customClass: {
-    //                     popup: "custom-border", // Clase personalizada para el borde
-    //                 }
-    //             });
-    //             setLoadingQuitar(false);
-    //         }
-
-    //     }
-
-    // };
 
     const handleCerrarModal = () => {
 
@@ -1146,26 +1148,22 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form>
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-                        <BlobProvider document={<DocumentoEtiquetasPDF row={listaQRReimpresion} />
-                        }>
-                            {({ url, loading }) =>
-                                loading ? (
-                                    <p>Generando vista previa...</p>
-                                ) : (
+                        {listaQRReimpresion.length > 0 && (
+                            <BlobProvider document={<DocumentoEtiquetasPDF row={listaQRReimpresion} />}>
+                                {({ url, loading }) =>
+                                    loading ? (
+                                        <p>Generando vista previa...</p>
+                                    ) : (
+                                        <iframe
+                                            src={url ?? ""}
+                                            title="Vista Previa del PDF"
+                                            style={{ width: "100%", height: "900px", border: "none" }}
+                                        ></iframe>
+                                    )
+                                }
+                            </BlobProvider>
+                        )}
 
-                                    <iframe
-                                        src={url ? `${url}` : ""}
-                                        title="Vista Previa del PDF"
-                                        style={{
-                                            width: "100%",
-                                            height: "900px",
-                                            border: "none"
-                                        }}
-                                    ></iframe>
-
-                                )
-                            }
-                        </BlobProvider>
                     </form>
                 </Modal.Body>
             </Modal>

@@ -1,5 +1,15 @@
 import { Document, Page, Text, View, StyleSheet, Svg, Path } from '@react-pdf/renderer';
-import { ListaEtiquetas } from './ImprimirEtiqueta';
+
+export interface ListaEtiquetas {
+    aF_UBICACION?: string
+    aF_CODIGO_GENERICO?: string
+    aF_DESCRIPCION?: string
+    origen?: string
+    qrSvg?: {
+        viewBox: string
+        paths: { d: string; fill?: string; stroke?: string }[]
+    }
+}
 
 
 // Formatear la fecha actual en español (Chile)
@@ -43,27 +53,33 @@ const styles = StyleSheet.create({
     },
 });
 
-const DocumentoEtiquetasPDF = ({ row }: { row: ListaEtiquetas[] }) => (
+
+const DocumentoEtiquetasPDF = ({ row = [] }: { row: ListaEtiquetas[] }) => (
     <Document>
-        {row.map((lista, index) => (
-            <Page key={index} size={{ width: 300 }} style={styles.page}>
-                <View style={styles.fullPageContainer}>
-                    {lista.qrImage ? (<>
-                        {/* <Image src={lista.qrImage} style={styles.qrImage} />
-                         */}
-                        <Svg width={100} height={100} viewBox="0 0 100 100">
-                            <Path d={lista.qrImage} fill="black" />
-                        </Svg>
-                    </>
-                    ) : (
-                        <Text>Sin QR</Text>
-                    )}
-                    <Text style={styles.labelText}>
-                        {`${lista.aF_UBICACION}\n\n${lista.aF_CODIGO_GENERICO}\n\n${lista.aF_DESCRIPCION}\n${lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase()}`}
-                    </Text>
-                </View>
+        {row.length > 0 ? (
+            row.map((lista, index) => (
+                <Page key={index} size={{ width: 300 }} style={styles.page}>
+                    <View style={styles.fullPageContainer}>
+                        {lista?.qrSvg ? (
+                            <Svg style={styles.qrImage} viewBox={lista.qrSvg.viewBox}>
+                                {lista.qrSvg.paths.map((p, idx) => (
+                                    <Path key={idx} d={p.d} fill={p.fill ?? "none"} stroke={p.stroke ?? "none"} />
+                                ))}
+                            </Svg>
+                        ) : (
+                            <Text>Sin QR</Text>
+                        )}
+                        <Text style={styles.labelText}>
+                            {`${lista?.aF_UBICACION ?? ""}\n\n${lista?.aF_CODIGO_GENERICO ?? ""}\n\n${lista?.aF_DESCRIPCION ?? ""}\n${lista?.origen ? lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() : ""}`}
+                        </Text>
+                    </View>
+                </Page>
+            ))
+        ) : (
+            <Page size={{ width: 300 }} style={styles.page}>
+                <Text>No hay etiquetas para mostrar</Text>
             </Page>
-        ))}
+        )}
     </Document>
 );
 
