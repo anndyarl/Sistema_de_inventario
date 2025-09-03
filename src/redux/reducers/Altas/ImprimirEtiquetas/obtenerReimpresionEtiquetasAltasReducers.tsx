@@ -39,7 +39,8 @@ const obtenerReimpresionEtiquetasAltasReducers = (state = initialState, action: 
             return {
                 ...state,
                 loading: false,
-                error: action.error
+                error: action.error,
+                listaReimpresionEtiquetas: []
             };
         default:
             return state;

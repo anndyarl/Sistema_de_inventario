@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 // Acción para obtener la recepción por número
-export const obtenerReimpresionEtiquetasAltasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerReimpresionEtiquetasAltasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   const config = {
@@ -20,7 +20,7 @@ export const obtenerReimpresionEtiquetasAltasActions = (fDesde: string, fHasta: 
   dispatch({ type: REIMPRESION_ETIQUETAS_ALTAS_REQUEST });
 
   try {
-    const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/DatosReimprimirEtiquetas?fDesde=${fDesde}&fHasta=${fHasta}&establ_corr=${establ_corr}&altasCorr=${altasCorr}&af_codigo_generico=${af_codigo_generico}`, config);
+    const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/DatosReimprimirEtiquetas?fDesde=${fDesde}&fHasta=${fHasta}&establ_corr=${establ_corr}&altasCorr=${altasCorr}&af_codigo_generico=${af_codigo_generico}&dep_corr=${dep_corr}`, config);
     if (res.status === 200) {
       if (res.data?.length) {
         dispatch({

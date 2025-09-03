@@ -18,12 +18,12 @@ import { DatosFirmas } from "../../../Altas/FirmarAltas/FirmarAltas";
 import { useNavigate } from "react-router-dom";
 import { DEPENDENCIA } from "../../../Inventario/RegistrarInventario/DatosCuenta";
 import { listaFolioServicioDependenciaActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/listaFolioServicioDependenciaActions";
-import { comboServicioInformeActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
 import { obtenerfirmasAltasActions } from "../../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { comboDependenciaDestinoActions } from "../../../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
 import { comboTrasladoServicioActions } from "../../../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { registroTrasladoMultipleActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import DocumentoPDFServicioDependencia from "./DocumentoPDFServicioDependencia";
+import { comboSerDepActions } from "../../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -78,12 +78,14 @@ interface SERVICIO {
 }
 
 interface DatosAltas {
-    registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
+    registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>;
+    comboSerDepActions: (establ_corr: number) => void;//En buscador   
     listaFolioServicioDependencia: ListaFolioServicioDependencia[];
     listaFolioServicioDependenciaActions: (dep_corr: number, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
-    comboServicioInforme: SERVICIO[];
+    // comboServicioInforme: SERVICIO[];
+    comboSerDep: SERVICIO[];
     comboDependenciaDestino: DEPENDENCIA[];
-    comboServicioInformeActions: (establ_corr: number) => void;//En buscador   
+    // comboServicioInformeActions: (establ_corr: number) => void;//En buscador   
     // comboServicioInformeFormActions: (establ_corr: number) => void;//En formulario  
     obtenerfirmasAltasActions: () => Promise<boolean>;
     // comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
@@ -95,7 +97,7 @@ interface DatosAltas {
 
 }
 
-const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboServicioInformeActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, listaFolioServicioDependencia, comboServicioInforme, objeto, token, isDarkMode, datosFirmas }) => {
+const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, comboSerDepActions, listaFolioServicioDependencia, comboSerDep, objeto, token, isDarkMode, datosFirmas }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
     const [error, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
@@ -141,15 +143,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         traS_NOM_RECIBE: "",
         traS_NOM_AUTORIZA: ""
     });
-    //Estado de la paginacion
 
-
-    const servicioOptions = comboServicioInforme.map((item) => ({
-        value: item.deP_CORR,
-        label: item.descripcion,
-    }));
-
-    const servicioFormOptions = comboServicioInforme.map((item) => ({
+    const servicioOptions = comboSerDep.map((item) => ({
         value: item.deP_CORR,
         label: item.descripcion,
     }));
@@ -157,8 +152,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleServicioChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : 0;
         setBuscar((prevInventario) => ({ ...prevInventario, servicio: value }));
-        console.log(value);
     };
+
+    const servicioFormOptions = comboSerDep.map((item) => ({
+        value: item.deP_CORR,
+        label: item.descripcion,
+    }));
 
     const handleServicioFormChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : 0;
@@ -190,9 +189,12 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     useEffect(() => {
         if (token) {
             // listaAuto();
-            comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
+            if (comboSerDep.length === 0) {
+                comboSerDepActions(objeto.Roles[0].codigoEstablecimiento);
+            }
+            // comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
         }
-    }, [listaFolioServicioDependenciaActions, comboServicioInformeActions, listaFolioServicioDependencia.length, comboServicioInforme.length, token]); // Asegúrate de incluir dependencias relevantes
+    }, [listaFolioServicioDependenciaActions, comboSerDepActions, listaFolioServicioDependencia.length, token]); // Asegúrate de incluir dependencias relevantes
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -613,7 +615,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                             <Row className="border rounded p-2 m-2">
                                 <Col sm={12} md={12} lg={3}>
                                     {/* Servicio/Dependencia */}
-                                    <div className="mb-1 position-relative z-1">
+                                    <div className="mb-1 z-1000">
                                         <label className="fw-semibold">
                                             Servicio / Dependencia
                                         </label>
@@ -623,7 +625,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                             name="servicio"
                                             value={servicioOptions.find((option) => option.value === Buscar.servicio) || null}
                                             placeholder="Buscar"
-                                            className={`form-select-container `}
                                             classNamePrefix="react-select"
                                             isClearable
                                             isSearchable
@@ -642,6 +643,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                     ...base,
                                                     backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
                                                     color: isDarkMode ? "white" : "#212529",
+                                                    height: 100
                                                 }),
                                                 option: (base, { isFocused, isSelected }) => ({
                                                     ...base,
@@ -719,186 +721,201 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     )}
                                 </Col>
 
-                                {/* Botón o mensaje */}
-                                <Col xs={12} lg={4}>
-                                    <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                                        {filasSeleccionadas.length > 0 ? (
-                                            <>
-                                                <Button
-                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                    onClick={() => setMostrarModal(true)}
-                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                                                    disabled={loading}
-                                                >
-                                                    {loading ? (
-                                                        <>
-                                                            <FiletypePdf
-                                                                className="flex-shrink-0 h-5 w-5 mx-2"
-                                                                aria-hidden="true"
-                                                            />
-                                                            Exportar
-                                                            <Spinner
-                                                                as="span"
-                                                                animation="border"
-                                                                size="sm"
-                                                                role="status"
-                                                                aria-hidden="true"
-                                                                className="mx-2"
-                                                            />
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <FiletypePdf
-                                                                className="flex-shrink-0 h-5 w-5 mx-1"
-                                                                aria-hidden="true"
-                                                            />
-                                                            Exportar
-                                                            <span className="badge bg-light text-dark mx-2 mt-1">
+                                {listaFolioServicioDependencia.length > 0 && (
+                                    <>
+                                        {/* Botón o mensaje */}
+                                        <Col xs={12} lg={4}>
+                                            <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                                {filasSeleccionadas.length > 0 ? (
+                                                    <>
+                                                        <Button
+                                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                            onClick={() => setMostrarModal(true)}
+                                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                                            disabled={loading}
+                                                        >
+                                                            {loading ? (
+                                                                <>
+                                                                    <FiletypePdf
+                                                                        className="flex-shrink-0 h-5 w-5 mx-2"
+                                                                        aria-hidden="true"
+                                                                    />
+                                                                    Exportar
+                                                                    <Spinner
+                                                                        as="span"
+                                                                        animation="border"
+                                                                        size="sm"
+                                                                        role="status"
+                                                                        aria-hidden="true"
+                                                                        className="mx-2"
+                                                                    />
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <FiletypePdf
+                                                                        className="flex-shrink-0 h-5 w-5 mx-1"
+                                                                        aria-hidden="true"
+                                                                    />
+                                                                    Exportar
+                                                                    <span className="badge bg-light text-dark mx-2 mt-1">
+                                                                        {filasSeleccionadas.length}
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                        </Button>
+                                                        {/* Botón Trasladar */}
+                                                        <Button
+                                                            variant="warning"
+                                                            onClick={() => setMostrarModalTraslado(true)}
+                                                            disabled={listaFolioServicioDependencia.length === 0}
+                                                            className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
+                                                        >
+                                                            Trasladar
+                                                            <span className="badge bg-light text-dark mx-1 mt-1">
                                                                 {filasSeleccionadas.length}
                                                             </span>
-                                                        </>
-                                                    )}
-                                                </Button>
-                                                {/* Botón Trasladar */}
+                                                        </Button>
+
+                                                    </>
+                                                ) : (
+                                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
+                                                            No hay filas seleccionadas
+                                                        </strong>
+                                                    </div>
+                                                )}
                                                 <Button
-                                                    variant="warning"
-                                                    onClick={() => setMostrarModalTraslado(true)}
-                                                    disabled={listaFolioServicioDependencia.length === 0}
-                                                    className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
-                                                >
-                                                    Trasladar
-                                                    <span className="badge bg-light text-dark mx-1 mt-1">
-                                                        {filasSeleccionadas.length}
-                                                    </span>
+                                                    onClick={handleAgregar}
+                                                    disabled={loading}
+                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center">
+                                                    Agregar
+                                                    <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
                                                 </Button>
-
-                                            </>
-                                        ) : (
-                                            <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                                <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
-                                                    No hay filas seleccionadas
-                                                </strong>
                                             </div>
-                                        )}
-                                        <Button
-                                            onClick={handleAgregar}
-                                            disabled={loading}
-                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center">
-                                            Agregar
-                                            <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
-                                        </Button>
-                                    </div>
-                                </Col>
+                                        </Col>
+                                    </>
+                                )}
                             </Row>
-
-                            {/* Tabla*/}
-                            {loading ? (
+                            {listaFolioServicioDependencia.length > 0 ? (
                                 <>
-                                    {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                    <SkeletonLoader rowCount={10} columnCount={10} />
-                                </>
-                            ) : (
-                                <div className='table-responsive position-relative z-0'>
-                                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                        <thead className={`sticky-top  z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                            <tr>
-                                                <th style={{
-                                                    position: 'sticky',
-                                                    left: 0,
-                                                    zIndex: 0,
-
-                                                }}>
-                                                    <Form.Check
-                                                        className="check-danger"
-                                                        type="checkbox"
-                                                        onChange={handleSeleccionaTodos}
-                                                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                                    />
-                                                </th>
-                                                <th scope="col" className="text-nowrap">N° Inventario</th>
-                                                <th scope="col" className="text-nowrap">Especie</th>
-                                                <th scope="col" className="text-nowrap">Marca</th>
-                                                <th scope="col" className="text-nowrap">Modelo</th>
-                                                <th scope="col" className="text-nowrap">Serie</th>
-                                                <th scope="col" className="text-nowrap">Observación</th>
-                                                <th scope="col" className="text-nowrap">Fecha Ingreso</th>
-                                                <th scope="col" className="text-nowrap">Nº Alta</th>
-                                                <th scope="col" className="text-nowrap">Estado</th>
-                                                <th scope="col" className="text-nowrap">Nº Traslado</th>
-                                                <th scope="col" className="text-nowrap">Valor Inicial</th>
-                                                <th scope="col" className="text-nowrap">Cta Contable</th>
-
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {elementosActuales.map((Lista, index) => {
-                                                const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                return (
-                                                    <tr key={index}>
-                                                        <td style={{
+                                    {/* Tabla*/}
+                                    {loading ? (
+                                        <>
+                                            {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                                            <SkeletonLoader rowCount={10} columnCount={10} />
+                                        </>
+                                    ) : (
+                                        <div className='table-responsive position-relative z-0'>
+                                            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                                <thead className={`sticky-top  z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                                    <tr>
+                                                        <th style={{
                                                             position: 'sticky',
                                                             left: 0,
                                                             zIndex: 0,
 
                                                         }}>
                                                             <Form.Check
+                                                                className="check-danger"
                                                                 type="checkbox"
-                                                                onChange={() => setSeleccionaFilas(indexReal)}
-                                                                checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                                onChange={handleSeleccionaTodos}
+                                                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                             />
-                                                        </td>
-                                                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                        <td className="text-nowrap">{Lista.aF_ESPECIE}</td>
-                                                        <td className="text-nowrap">{Lista.aF_MARCA}</td>
-                                                        <td className="text-nowrap">{Lista.aF_MODELO}</td>
-                                                        <td className="text-nowrap">{Lista.aF_SERIE}</td>
-                                                        <td>{Lista.aF_OBS}</td>
-                                                        <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                                                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                        <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                                                        <td className="text-nowrap">{Lista.ntraslado}</td>
-                                                        <td className="text-nowrap"> ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
-                                                        <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                        </th>
+                                                        <th scope="col" className="text-nowrap">N° Inventario</th>
+                                                        <th scope="col" className="text-nowrap">Especie</th>
+                                                        <th scope="col" className="text-nowrap">Marca</th>
+                                                        <th scope="col" className="text-nowrap">Modelo</th>
+                                                        <th scope="col" className="text-nowrap">Serie</th>
+                                                        <th scope="col" className="text-nowrap">Observación</th>
+                                                        <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                                                        <th scope="col" className="text-nowrap">Nº Alta</th>
+                                                        <th scope="col" className="text-nowrap">Estado</th>
+                                                        <th scope="col" className="text-nowrap">Nº Traslado</th>
+                                                        <th scope="col" className="text-nowrap">Valor Inicial</th>
+                                                        <th scope="col" className="text-nowrap">Cta Contable</th>
+
                                                     </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                </thead>
+                                                <tbody>
+                                                    {elementosActuales.map((Lista, index) => {
+                                                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td style={{
+                                                                    position: 'sticky',
+                                                                    left: 0,
+                                                                    zIndex: 0,
+
+                                                                }}>
+                                                                    <Form.Check
+                                                                        type="checkbox"
+                                                                        onChange={() => setSeleccionaFilas(indexReal)}
+                                                                        checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                                    />
+                                                                </td>
+                                                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                                                <td className="text-nowrap">{Lista.aF_ESPECIE}</td>
+                                                                <td className="text-nowrap">{Lista.aF_MARCA}</td>
+                                                                <td className="text-nowrap">{Lista.aF_MODELO}</td>
+                                                                <td className="text-nowrap">{Lista.aF_SERIE}</td>
+                                                                <td>{Lista.aF_OBS}</td>
+                                                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                                <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
+                                                                <td className="text-nowrap">{Lista.ntraslado}</td>
+                                                                <td className="text-nowrap"> ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                                                                <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+
+                                    {/* Paginador */}
+                                    <div className="paginador-container position-relative z-0">
+                                        <Pagination className="paginador-scroll">
+                                            <Pagination.First
+                                                onClick={() => paginar(1)}
+                                                disabled={paginaActual === 1}
+                                            />
+                                            <Pagination.Prev
+                                                onClick={() => paginar(paginaActual - 1)}
+                                                disabled={paginaActual === 1}
+                                            />
+
+                                            {Array.from({ length: totalPaginas }, (_, i) => (
+                                                <Pagination.Item
+                                                    key={i + 1}
+                                                    active={i + 1 === paginaActual}
+                                                    onClick={() => paginar(i + 1)}
+                                                >
+                                                    {i + 1}
+                                                </Pagination.Item>
+                                            ))}
+                                            <Pagination.Next
+                                                onClick={() => paginar(paginaActual + 1)}
+                                                disabled={paginaActual === totalPaginas}
+                                            />
+                                            <Pagination.Last
+                                                onClick={() => paginar(totalPaginas)}
+                                                disabled={paginaActual === totalPaginas}
+                                            />
+                                        </Pagination>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                                        <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                            No hay resultados para mostrar.
+                                        </p>
+                                    </div>
+                                </>
                             )}
-
-                            {/* Paginador */}
-                            <div className="paginador-container position-relative z-0">
-                                <Pagination className="paginador-scroll">
-                                    <Pagination.First
-                                        onClick={() => paginar(1)}
-                                        disabled={paginaActual === 1}
-                                    />
-                                    <Pagination.Prev
-                                        onClick={() => paginar(paginaActual - 1)}
-                                        disabled={paginaActual === 1}
-                                    />
-
-                                    {Array.from({ length: totalPaginas }, (_, i) => (
-                                        <Pagination.Item
-                                            key={i + 1}
-                                            active={i + 1 === paginaActual}
-                                            onClick={() => paginar(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </Pagination.Item>
-                                    ))}
-                                    <Pagination.Next
-                                        onClick={() => paginar(paginaActual + 1)}
-                                        disabled={paginaActual === totalPaginas}
-                                    />
-                                    <Pagination.Last
-                                        onClick={() => paginar(totalPaginas)}
-                                        disabled={paginaActual === totalPaginas}
-                                    />
-                                </Pagination>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -1255,17 +1272,19 @@ const mapStateToProps = (state: RootState) => ({
     listaFolioServicioDependencia: state.listaFolioServicioDependenciaReducers.listaFolioServicioDependencia,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
+    // comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
     comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
     objeto: state.validaApiLoginReducers,
-    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
+    comboSerDep: state.comboServDepReducers.comboSerDep,
 });
 
 export default connect(mapStateToProps, {
     registroTrasladoMultipleActions,
     listaFolioServicioDependenciaActions,
     obtenerfirmasAltasActions,
-    comboServicioInformeActions,
+    // comboServicioInformeActions,
     comboTrasladoServicioActions,
-    comboDependenciaDestinoActions
+    comboDependenciaDestinoActions,
+    comboSerDepActions
 })(FolioPorServicioDependencia);

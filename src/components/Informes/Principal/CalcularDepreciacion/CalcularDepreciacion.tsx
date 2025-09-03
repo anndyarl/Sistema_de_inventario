@@ -1149,7 +1149,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </>
                         ) : (
                             <>
-                                <div style={{ height: "75vh", overflowY: "auto" }} className="mt-2">
+                                <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
                                     <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
                                         No hay resultados para mostrar.
                                     </p>

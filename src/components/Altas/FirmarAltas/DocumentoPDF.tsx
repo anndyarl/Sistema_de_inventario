@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
 
     },
     tableHeader: {
-        fontSize: 8,
+        fontSize: 7,
         flexDirection: "row",
         fontWeight: 'bold',
         backgroundColor: 'rgb(0 68 133 / 80%)',
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     },
     tableCell: {
         padding: 3,
-        fontSize: 8,
+        fontSize: 7,
         borderRight: "1px solid #ccc",
         textAlign: "center",
         overflow: "hidden",
@@ -72,12 +72,12 @@ const styles = StyleSheet.create({
         width: "45%", // o fixed in pt: 60
         wordWrap: 'break-word',
     },
-    colNAlta: {
-        width: "23%",
+    colNfactura: {
+        width: "30%",
         textAlign: "center",
     },
-    colFechaAlta: {
-        width: "40%",
+    colOdeCompra: {
+        width: "30%",
     },
     colServicio: {
         width: "45%",
@@ -220,8 +220,8 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                         {/* Cabecera de la tabla */}
                         <View style={styles.tableHeader}>
                             <Text style={[styles.tableCell, styles.colCodigo]}>N° Inventario</Text>
-                            <Text style={[styles.tableCell, styles.colNAlta]}>N° Alta</Text>
-                            <Text style={[styles.tableCell, styles.colFechaAlta]}>Fecha Alta</Text>
+                            <Text style={[styles.tableCell, styles.colNfactura]}>N° Factura</Text>
+                            <Text style={[styles.tableCell, styles.colOdeCompra]}>Ord. Compra</Text>
                             <Text style={[styles.tableCell, styles.colServicio]}>Servicio</Text>
                             <Text style={[styles.tableCell, styles.colDependencia]}>Dependencia</Text>
                             <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
@@ -238,8 +238,8 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
 
                             <View style={styles.tableRow} key={lista}>
                                 <Text style={[styles.tableCell, styles.colCodigo]}>{lista.ninv}</Text>
-                                <Text style={[styles.tableCell, styles.colNAlta]}>{lista.altaS_CORR}</Text>
-                                <Text style={[styles.tableCell, styles.colFechaAlta]}>{lista.fechA_ALTA}</Text>
+                                <Text style={[styles.tableCell, styles.colNfactura]}>{lista.aF_NUM_FAC}</Text>
+                                <Text style={[styles.tableCell, styles.colOdeCompra]}>{lista.aF_OCO_NUMERO_REF}</Text>
                                 <Text style={[styles.tableCell, styles.colServicio]}>{lista.serv}</Text>
                                 <Text style={[styles.tableCell, styles.colDependencia]}>{lista.dep}</Text>
                                 <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esp}</Text>

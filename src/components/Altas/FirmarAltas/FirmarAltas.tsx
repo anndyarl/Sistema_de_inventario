@@ -32,6 +32,8 @@ export interface ListaAltas {
     aF_CLAVE: number,
     ninv: string,
     altaS_CORR: number,
+    aF_NUM_FAC: string,
+    aF_OCO_NUMERO_REF: string,
     serv: string,
     dep: string,
     esp: string,
@@ -1404,8 +1406,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             </th>
                                             <th scope="col" className="text-nowrap">Estado</th>
                                             <th scope="col" className="text-nowrap">N° Inventario</th>
-                                            <th scope="col" className="text-nowrap">N° Alta</th>
-                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                            <th scope="col" className="text-nowrap">Nº Factura</th>
+                                            <th scope="col" className="text-nowrap">Orden de Compra</th>
                                             <th scope="col" className="text-nowrap">Servicio</th>
                                             <th scope="col" className="text-nowrap">Dependencia</th>
                                             <th scope="col" className="text-nowrap">Especie</th>
@@ -1458,9 +1460,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     </td>
 
                                                     <td className="text-nowrap">{Lista.ninv}</td>
-                                                    <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                    <td className="text-nowrap">{Lista.fechA_ALTA}</td>
-                                                    <td className="text-nowrap">{Lista.serv}</td>
+                                                    <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
+                                                    <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
                                                     <td className="text-nowrap">{Lista.dep}</td>
                                                     <td className="text-nowrap">{Lista.esp}</td>
                                                     <td className="text-nowrap">{Lista.ncuenta}</td>

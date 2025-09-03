@@ -10,11 +10,8 @@ import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import Select from "react-select";
-import SkeletonLoader from "../Utils/SkeletonLoader";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { registroTrasladoMultipleActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import { comboServicioInformeActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/comboServicioInformeActions";
-import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions";
 import { obtenerInventarioQRActions } from "../../redux/actions/Inventario/obtenerInventarioQRActions";
 import { useNavigate } from "react-router-dom";
 
@@ -36,22 +33,19 @@ export interface ListaSeleccion {
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
     altaS_CORR: number;
-    deT_OBS: string;
-    serviciO_DEPENDENCIA: string;
+    seR_NOMBRE: string;
     esP_NOMBRE: string;
     deT_MARCA: string;
     deT_MODELO: string;
     deT_SERIE: string;
-    deP_CORR_ORIGEN: number;
+    deT_PRECIO: number;
 }
 
 interface TrasladosProps {
-    registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
     obtenerInventarioQRActions: (aF_CODIGO_GENERICO: string) => Promise<boolean>
     listaSeleccion: ListaSeleccion[];
     comboServicioInformeActions: (establ_corr: number) => void;//En buscador 
     comboServicioInforme: SERVICIO[];
-    listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -76,7 +70,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
     const [filasSeleccionadasLevantamiento, setfilasSeleccionadasLevantamiento] = useState<string[]>([]);
     const [activosFijos, setActivosFijos] = useState<ListaSeleccion[]>([]);
     const [mostrarScanner, setMostrarScanner] = useState(false);
-    const [error, setError] = useState<Partial<ListaSeleccion> & {}>({});
+    const [error, setError] = useState<Partial<any> & {}>({});
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     const navigate = useNavigate();
@@ -166,12 +160,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
     //     }
     // };
 
-    const setSeleccionaFilas = (index: number) => {
-        setFilasSeleccionadas((prev) =>
-            prev.includes(index.toString()) ?
-                prev.filter((rowIndex) => rowIndex !== index.toString()) : [...prev, index.toString()]
-        );
-    };
+
 
     const handleAgregarSeleccionados = async () => {
         const selectedIndices = filasSeleccionadas.map(Number);
@@ -180,13 +169,12 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                 aF_CLAVE: listaSeleccion[index].aF_CLAVE,
                 aF_CODIGO_GENERICO: listaSeleccion[index].aF_CODIGO_GENERICO,
                 altaS_CORR: listaSeleccion[index].altaS_CORR,
-                deT_OBS: listaSeleccion[index].deT_OBS,
-                serviciO_DEPENDENCIA: listaSeleccion[index].serviciO_DEPENDENCIA,
+                seR_NOMBRE: listaSeleccion[index].seR_NOMBRE,
                 esP_NOMBRE: listaSeleccion[index].esP_NOMBRE,
                 deT_MARCA: listaSeleccion[index].deT_MARCA,
                 deT_MODELO: listaSeleccion[index].deT_MODELO,
                 deT_SERIE: listaSeleccion[index].deT_SERIE,
-                deP_CORR_ORIGEN: listaSeleccion[index].deP_CORR_ORIGEN,
+                deT_PRECIO: listaSeleccion[index].deT_PRECIO,
 
             };
         });
@@ -418,8 +406,6 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
         () => listaSeleccion.slice(indicePrimerElemento, indiceUltimoElemento),
         [listaSeleccion, indicePrimerElemento, indiceUltimoElemento]);
 
-    const totalPaginas = Array.isArray(listaSeleccion)
-        ? Math.ceil(listaSeleccion.length / elementosPorPagina) : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     /*-----------------------Tabla Selecciones a Trasladar----------------------*/
@@ -445,18 +431,24 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
             </Helmet>
             {isMobile ? (
                 <>
-                    <div className={`border p-2 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
+                    <div className={`border p-2 rounded h-100 vh-100 ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
                         <h3 className="form-title fw-semibold border-bottom p-1 mb-3 text-center">
                             Levantamiento Físico
                         </h3>
 
-                        <Row className="p-1 mb-5 justify-content-center">
-                            <h6 className="fw-semibold">SELECCIONAR DEPENDENCIA</h6>
-
-                            <Col md={4} mb={5}>
+                        <Row className="p-1 justify-content-center align-content-around h-75 vh-75">
+                            <Col md={4}>
+                                <p
+                                    className={`text-center px-3 py-2 mb-3 rounded-3 shadow-sm 
+                                         ${isDarkMode
+                                            ? 'bg-dark text-light border border-secondary'
+                                            : 'bg-light text-muted border'}`}
+                                >
+                                    Para comenzar con su levantamiento, seleccione primero su ubicación actual.
+                                </p>
                                 {/* Servicio / Dependencia   */}
                                 <div className="mb-3 position-relative z-1">
-                                    <label className="fw-semibold">Servicio / Dependencia Destino</label>
+                                    <label className="fw-semibold text-center">Servicio / Dependencia</label>
                                     <Select
                                         options={servicioFormOptions}
                                         onChange={handleServicioFormChange}
@@ -467,7 +459,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                             ) || null
                                         }
                                         placeholder="Buscar"
-                                        className={`form-select-container ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
+                                        className={`form-select-container  ${error.deP_CORR_ORIGEN ? "is-invalid" : ""}`}
                                         classNamePrefix="react-select"
                                         isClearable
                                         isSearchable
@@ -477,6 +469,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                                 backgroundColor: isDarkMode ? "#212529" : "white",
                                                 color: isDarkMode ? "white" : "#212529",
                                                 borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
+                                                borderRadius: "0.8rem",
                                             }),
                                             singleValue: (base) => ({
                                                 ...base,
@@ -506,13 +499,15 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                         </div>
                                     )}
                                 </div>
+                            </Col>
 
+                            <Col md={4}>
                                 {/* Botón Escanear */}
-                                <div className="mb-2 d-flex justify-content-center">
+                                <div className="d-flex justify-content-center mb-5">
                                     <Button
                                         onClick={handleScan}
                                         variant={isDarkMode ? "secondary" : "primary"}
-                                        className="btn w-100"
+                                        className="btn w-100 pt-3 pb-3 rounded-3"
                                     >
                                         <div className="d-flex justify-content-center align-items-center">
 
@@ -527,14 +522,16 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                         </div>
                                     </Button>
                                 </div>
+                            </Col>
 
+                            <Col md={4} >
                                 {/* Botón Limpiar */}
                                 {elementosActuales1.length > 0 && (
-                                    <div className="mb-2">
+                                    <div className="mb-1 mb-1">
                                         <Button
                                             onClick={handleLimpiar}
                                             variant="danger"
-                                            className="btn w-100 d-flex justify-content-center align-items-center"
+                                            className="btn w-100 d-flex justify-content-center align-items-center pt-2 pb-2 rounded-3"
                                         >
                                             <EraserFill className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                                             <p className="mb-0 me-2">Limpiar Todo</p>
@@ -544,11 +541,11 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
 
                                 {/* Botón Ver Levantamiento */}
                                 {elementosActuales1.length > 0 && (
-                                    <div className="mb-2 d-flex justify-content-center">
+                                    <div className="mb-5 d-flex justify-content-center">
                                         <Button
                                             onClick={() => setMostrarModalLevantamiento(true)}
                                             variant="success"
-                                            className="btn w-100"
+                                            className="btn w-100 pt-2 pb-2 rounded-3"
                                         >
                                             <div className="d-flex justify-content-center align-items-center">
 
@@ -585,164 +582,151 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <div className={` border-botom p-2 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
                                 <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-                                    {/* Tamaño de página */}
-                                    <Col xs={12} lg="auto">
-                                        {listaSeleccion.length > 10 && (
-                                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                                    Tamaño de página:
-                                                </label>
-                                                <select
-                                                    aria-label="Seleccionar tamaño de página"
-                                                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                    name="nPaginacion"
-                                                    onChange={handleChange}
-                                                    value={Paginacion.nPaginacion}
-                                                >
-                                                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                        <option key={val} value={val}>{val}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
+
+                                    {/* Botón de agregar */}
+                                    <Col xs={12} lg={2} className="d-flex justify-content-center justify-content-lg-end">
+                                        <Button
+                                            variant={isDarkMode ? "secondary" : "primary"}
+                                            onClick={handleAgregarSeleccionados}
+                                            className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    Agregar
+                                                    <Spinner
+                                                        as="span"
+                                                        animation="border"
+                                                        size="sm"
+                                                        role="status"
+                                                        aria-hidden="true"
+                                                        className="ms-2"
+                                                    />
+                                                </>
+                                            ) : (
+                                                <>Agregar</>
+                                            )}
+                                        </Button>
                                     </Col>
 
-                                    {/* Botón o mensaje */}
-                                    <Col xs={12} lg={2}>
-                                        <div className="d-flex justify-content-center justify-content-lg-end">
-                                            {filasSeleccionadas.length > 0 ? (
-                                                <Button
-                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                    onClick={handleAgregarSeleccionados}
-                                                    className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                                                    disabled={loading}
-                                                >
-                                                    {loading ? (
-                                                        <>
-                                                            Agregar
-                                                            <Spinner
-                                                                as="span"
-                                                                animation="border"
-                                                                size="sm"
-                                                                role="status"
-                                                                aria-hidden="true"
-                                                                className="ms-2"
-                                                            />
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            Agregar
-                                                        </>
-                                                    )}
-                                                </Button>
-                                            ) : (
-                                                <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
-                                                        No hay filas seleccionadas
-                                                    </strong>
-                                                </div>
-                                            )}
-                                        </div>
+                                    {/* Lista de elementos */}
+                                    <Col xs={12} lg={10}>
+                                        {elementosActuales.map((fila, index) => (
+                                            <Row key={index} className="mb-3 text-center">
+                                                <Col>
+                                                    {/* Nº Inventario */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Nº Inventario</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            {fila.aF_CODIGO_GENERICO || "Sin Información"}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Nº Alta */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Nº Alta</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            {fila.altaS_CORR || "Sin Información"}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Servicio/Dependencia */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Servicio/Dependencia</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            {fila.seR_NOMBRE || "Sin Información"}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Especie */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Especie</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            {fila.esP_NOMBRE || "Sin Información"}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Marca */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Marca</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            {fila.deT_MARCA || "Sin Información"}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Modelo */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Modelo</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            {fila.deT_MODELO || "Sin Información"}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Serie */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Serie</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            {fila.deT_SERIE || "Sin Información"}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Precio */}
+                                                    <div className="mb-2">
+                                                        <label className="fw-semibold">Precio</label>
+                                                        <div
+                                                            className={`rounded border px-2 py-1 small fw-medium ${isDarkMode
+                                                                ? "bg-dark border-secondary text-light"
+                                                                : "bg-light border-muted text-dark"
+                                                                }`}
+                                                        >
+                                                            $  {fila.deT_PRECIO
+                                                                ? fila.deT_PRECIO.toLocaleString("es-ES", { minimumFractionDigits: 0 })
+                                                                : "Sin Información"}
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                            </Row>
+
+                                        ))}
                                     </Col>
                                 </Row>
                             </div>
-                            {/* Tabla activos*/}
-                            <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
-                                {/* Tabla*/}
-                                {loading ? (
-                                    <>
-                                        {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                        <SkeletonLoader rowCount={10} columnCount={10} />
-                                    </>
-                                ) : (
-                                    <div className='table-responsive position-relative z-0'>
-                                        <div style={{ maxHeight: "70vh" }}>
-                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                                    <tr>
-                                                        {/* <th style={{ position: 'sticky', left: 0 }}>
-                                                            <Form.Check
-                                                                className="check-danger"
-                                                                type="checkbox"
-                                                                onChange={handleSeleccionaTodos}
-                                                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                                            />
-                                                        </th> */}
-                                                        <th></th>
-                                                        <th scope="col" className="text-nowrap text-center">Código</th>
-                                                        <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                                                        <th scope="col" className="text-nowrap text-center">Nº Alta</th>
-                                                        <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                                        <th scope="col" className="text-nowrap text-center">Dependencia	Serv/Depto</th>
-                                                        <th scope="col" className="text-nowrap text-center">Especie</th>
-                                                        <th scope="col" className="text-nowrap text-center">Marca</th>
-                                                        <th scope="col" className="text-nowrap text-center">Modelo</th>
-                                                        <th scope="col" className="text-nowrap text-center">Serie</th>
-                                                        <th scope="col" className="text-nowrap text-center">Código Dependencia</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {elementosActuales.map((lista, index) => {
-                                                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                        return (
-                                                            <tr key={index}>
-                                                                <td style={{ position: 'sticky', left: 0 }}>
-                                                                    <Form.Check
-                                                                        type="checkbox"
-                                                                        onChange={() => setSeleccionaFilas(indexReal)}
-                                                                        checked={filasSeleccionadas.includes(indexReal.toString())}
-                                                                    />
-                                                                </td>
-                                                                <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
-                                                                <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
-                                                                <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
-                                                                <td className="text-nowrap text-center">{lista.deT_OBS}</td>
-                                                                <td className="text-nowrap text-center">{lista.serviciO_DEPENDENCIA}</td>
-                                                                <td className="text-nowrap text-center">{lista.esP_NOMBRE}</td>
-                                                                <td className="text-nowrap text-center">{lista.deT_MARCA}</td>
-                                                                <td className="text-nowrap text-center">{lista.deT_MODELO}</td>
-                                                                <td className="text-nowrap text-center">{lista.deT_SERIE}</td>
-                                                                <td className="text-nowrap text-center">{lista.deP_CORR_ORIGEN}</td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                            {/* Paginador */}
-                            <div className="paginador-container position-relative z-0">
-                                <Pagination className="paginador-scroll">
-                                    <Pagination.First
-                                        onClick={() => paginar(1)}
-                                        disabled={paginaActual === 1}
-                                    />
-                                    <Pagination.Prev
-                                        onClick={() => paginar(paginaActual - 1)}
-                                        disabled={paginaActual === 1}
-                                    />
 
-                                    {Array.from({ length: totalPaginas }, (_, i) => (
-                                        <Pagination.Item
-                                            key={i + 1}
-                                            active={i + 1 === paginaActual}
-                                            onClick={() => paginar(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </Pagination.Item>
-                                    ))}
-                                    <Pagination.Next
-                                        onClick={() => paginar(paginaActual + 1)}
-                                        disabled={paginaActual === totalPaginas}
-                                    />
-                                    <Pagination.Last
-                                        onClick={() => paginar(totalPaginas)}
-                                        disabled={paginaActual === totalPaginas}
-                                    />
-                                </Pagination>
-                            </div>
                         </Modal.Body>
                     </Modal>
 
@@ -765,11 +749,32 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                     Seleccione artículos de la búsqueda para incluirlos aquí
                                 </p>
                             ) : (
-                                <div className={`border p-4 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
-
+                                <div className={`border p-1 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
                                     <p className="fw-semibold border-bottom fs-4">{dependencia ? dependencia.descripcion : "—"}</p>
                                     <p className="mb-4 fs-05em text-start">(Dependencia del levantamiento) </p>
                                     <Row className="p-1 row justify-content-center ">
+                                        <Col xs={12} lg="auto">
+                                            {elementosActuales1.length > 10 && (
+                                                <div className="d-flex m-1">
+                                                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                                        Tamaño de página:
+                                                    </label>
+                                                    <select
+                                                        aria-label="Seleccionar tamaño de página"
+                                                        className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                        name="nPaginacion"
+                                                        onChange={handleChange}
+                                                        value={Paginacion.nPaginacion}
+                                                    >
+                                                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                            <option key={val} value={val}>
+                                                                {val}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+                                        </Col>
                                         <Col md={8}>
                                             <div className="d-flex justify-content-end">
                                                 {/* Boton elimina filas seleccionadas */}
@@ -787,6 +792,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                                     </Button>
                                                 )}
                                             </div>
+
                                             <div className='table-responsive'>
                                                 <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                                     <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
@@ -799,16 +805,14 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                                                     checked={filasSeleccionadasLevantamiento.length === elementosActuales1.length && elementosActuales1.length > 0}
                                                                 />
                                                             </th>
-                                                            <th scope="col" className="text-nowrap text-center">Código</th>
                                                             <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                                                             <th scope="col" className="text-nowrap text-center">Nº Alta</th>
-                                                            <th scope="col" className="text-nowrap text-center">Descripción</th>
                                                             <th scope="col" className="text-nowrap text-center">Dependencia	Serv/Depto</th>
                                                             <th scope="col" className="text-nowrap text-center">Especie</th>
                                                             <th scope="col" className="text-nowrap text-center">Marca</th>
                                                             <th scope="col" className="text-nowrap text-center">Modelo</th>
                                                             <th scope="col" className="text-nowrap text-center">Serie</th>
-                                                            <th scope="col" className="text-nowrap text-center">Código Dependencia</th>
+                                                            <th scope="col" className="text-nowrap text-center">Precio</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -823,16 +827,15 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                                                                             checked={filasSeleccionadasLevantamiento.includes(indexReal.toString())}
                                                                         />
                                                                     </td>
-                                                                    <td className="text-nowrap text-center">{lista.aF_CLAVE}</td>
                                                                     <td className="text-nowrap text-center">{lista.aF_CODIGO_GENERICO}</td>
                                                                     <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
-                                                                    <td className="text-nowrap text-center">{lista.deT_OBS}</td>
-                                                                    <td className="text-nowrap text-center">{lista.serviciO_DEPENDENCIA}</td>
+                                                                    <td className="text-nowrap text-center">{lista.seR_NOMBRE}</td>
                                                                     <td className="text-nowrap text-center">{lista.esP_NOMBRE}</td>
                                                                     <td className="text-nowrap text-center">{lista.deT_MARCA}</td>
                                                                     <td className="text-nowrap text-center">{lista.deT_MODELO}</td>
                                                                     <td className="text-nowrap text-center">{lista.deT_SERIE}</td>
-                                                                    <td className="text-nowrap text-center">{lista.deP_CORR_ORIGEN}</td>
+                                                                    <td className="text-nowrap text-center">{lista.deT_PRECIO.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+
                                                                 </tr>
                                                             );
                                                         })}
@@ -903,7 +906,34 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                             </div>
                         </Modal.Header>
                         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                            {mostrarScanner && <div id="reader" style={{ width: "100%" }} />}
+                            {mostrarScanner && (
+                                <div
+                                    id="reader"
+                                    style={{
+                                        width: "100%",
+                                        maxWidth: "350px",
+                                        margin: "0 auto",
+                                        background: isDarkMode ? "#222" : "#f8f9fa",
+                                        borderRadius: "16px",
+                                        border: `2px solid ${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                                        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                                        padding: "24px 12px",
+                                        position: "relative",
+                                        textAlign: "center"
+                                    }}
+                                >
+                                    {/* Puedes agregar aquí un ícono SVG o de react-bootstrap-icons */}
+                                    <div style={{ marginBottom: "12px" }}>
+                                        <QrCodeScan size={48} color={isDarkMode ? "#fff" : "#0d6efd"} />
+                                    </div>
+                                    <div style={{ fontWeight: 500, marginBottom: "8px" }}>
+                                        Alinee el código QR dentro del recuadro
+                                    </div>
+                                    <div style={{ fontSize: "0.95em", color: isDarkMode ? "#ccc" : "#666" }}>
+                                        Si no funciona, verifique los permisos de cámara o pruebe subir una imagen.
+                                    </div>
+                                </div>
+                            )}
                         </Modal.Body>
                     </Modal >
                 </>
@@ -947,8 +977,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-    registroTrasladoMultipleActions,
     comboServicioInformeActions,
-    obtenerInventarioQRActions,
-    listadoTrasladosActions
+    obtenerInventarioQRActions
 })(LevantamientoFisico);

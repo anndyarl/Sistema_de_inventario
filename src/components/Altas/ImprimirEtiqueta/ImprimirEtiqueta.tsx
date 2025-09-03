@@ -14,9 +14,12 @@ import { Objeto } from "../../Navegacion/Profile";
 import { quitarEtiquetasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/quitarEtiquetasActions";
 import { obtenerEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerEtiquetasAltasActions";
 import { obtenerReimpresionEtiquetasAltasActions } from "../../../redux/actions/Altas/ImprimirEtiquetas/obtenerReimpresionEtiquetasAltasActions";
+import Select from "react-select";
 // import ReactDOM from 'react-dom';
 import QRCode from "qrcode";
 import { QRCodeSVG } from 'qrcode.react';
+import { comboSerDepActions } from "../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+
 interface FechasProps {
     fDesde: string;
     fHasta: string;
@@ -52,10 +55,17 @@ export interface ListaEtiquetas {
     };
 }
 
+export interface SERVICIO_DEPENDENCIA {
+    deP_CORR: number;
+    descripcion: string
+}
+
 export interface DatosBajas {
-    obtenerEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
-    obtenerReimpresionEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
+    obtenerEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => Promise<boolean>;
+    obtenerReimpresionEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => Promise<boolean>;
     quitarEtiquetasActions: (etiquetas: Record<number, any>[]) => Promise<boolean>;
+    comboSerDepActions: (establ_corr: number) => void;
+    comboSerDep: SERVICIO_DEPENDENCIA[];
     listaEtiquetas: ListaEtiquetas[];
     listaReimpresionEtiquetas: ListaEtiquetas[];
     token: string | null;
@@ -63,7 +73,7 @@ export interface DatosBajas {
     objeto: Objeto;
 }
 
-const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, obtenerReimpresionEtiquetasAltasActions, quitarEtiquetasActions, listaEtiquetas, listaReimpresionEtiquetas, token, isDarkMode, objeto }) => {
+const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, obtenerReimpresionEtiquetasAltasActions, quitarEtiquetasActions, comboSerDepActions, listaEtiquetas, listaReimpresionEtiquetas, comboSerDep, token, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
     //----------------Lista con Estado Etiqueta N(Lista General) --------------------//
@@ -85,25 +95,26 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const [mostrarModalReimprimir, setMostrarModalReimprimir] = useState(false);
     const [listaQRInicial, setListaQRInicial] = useState<ListaEtiquetas[]>([]);
     const [listaQRReimpresion, setListaQRReimpresion] = useState<ListaEtiquetas[]>([]);
-    const [Inventario, setInventario] = useState({
+    const [BuscarImprimir, setBuscarImprimir] = useState({
         fDesde: "",
         fHasta: "",
         altaS_CORR: 0,
-        af_codigo_generico: ""
+        af_codigo_generico: "",
+        servicio: 0
     });
 
-    const [Reimprimir, setReimprimir] = useState({
+    const [BuscarReimprimir, setBuscarReimprimir] = useState({
         fDesdeR: "",
         fHastaR: "",
         altaS_CORRr: 0,
-        af_codigo_genericoR: ""
+        af_codigo_genericoR: "",
+        servicio: 0
     });
-
     const listaAuto = async () => {
         if (token) {
             setLoading(true);
             if (listaEtiquetas.length === 0) {
-                const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+                const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
                 if (!resultado) {
                     Swal.fire({
                         icon: "warning",
@@ -127,18 +138,36 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     };
 
     useEffect(() => {
+        if (comboSerDep.length === 0) { comboSerDepActions(objeto.Roles[0].codigoEstablecimiento) }
         if (listaEtiquetas.length === 0) { listaAuto(); }
         if (listaReimpresionEtiquetas.length === 0) {
-            obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+            obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
         }
     }, [listaEtiquetas, listaReimpresionEtiquetas]);
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
-        if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
+        if (BuscarImprimir.fDesde > BuscarImprimir.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
 
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
+    };
+
+    const servicioOptions = comboSerDep.map((item) => ({
+        value: item.deP_CORR,
+        label: item.descripcion,
+    }));
+
+    const handleServicioImprimirChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : 0;
+        setBuscarImprimir((prev) => ({ ...prev, servicio: value }));
+
+    };
+
+    const handleServicioReimprimirChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : 0;
+        setBuscarReimprimir((prev) => ({ ...prev, servicio: value }));
+
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -149,11 +178,12 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         }
 
         // Actualizar estado
-        setInventario((prevState) => ({
+        setBuscarImprimir((prevState) => ({
             ...prevState,
             [name]: value.replace(/^0+/, "") //Elimina ceroa la izquierda
         }));
-        setReimprimir((prevState) => ({
+
+        setBuscarReimprimir((prevState) => ({
             ...prevState,
             [name]: value.replace(/^0+/, "") //Elimina ceroa la izquierda
         }));
@@ -173,13 +203,13 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         let resultado = false;
         setLoading(true);
 
-        if (Inventario.fDesde != "" || Inventario.fHasta != "") {
+        if (BuscarImprimir.fDesde != "" || BuscarImprimir.fHasta != "") {
             if (validate()) {
-                resultado = await obtenerEtiquetasAltasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+                resultado = await obtenerEtiquetasAltasActions(BuscarImprimir.fDesde, BuscarImprimir.fHasta, objeto.Roles[0].codigoEstablecimiento, BuscarImprimir.altaS_CORR, BuscarImprimir.af_codigo_generico, BuscarImprimir.servicio);
             }
         }
         else {
-            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, BuscarImprimir.altaS_CORR, BuscarImprimir.af_codigo_generico, BuscarImprimir.servicio);
         }
         if (!resultado) {
             Swal.fire({
@@ -194,7 +224,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+            resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
             setLoading(false); //Finaliza estado de carga
             paginar(1);
             return;
@@ -209,13 +239,13 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         let resultado = false;
         setLoadingReimprimir(true);
 
-        if (Reimprimir.fDesdeR != "" || Reimprimir.fHastaR != "") {
+        if (BuscarReimprimir.fDesdeR != "" || BuscarReimprimir.fHastaR != "") {
             if (validate()) {
-                resultado = await obtenerReimpresionEtiquetasAltasActions(Reimprimir.fDesdeR, Reimprimir.fHastaR, objeto.Roles[0].codigoEstablecimiento, Reimprimir.altaS_CORRr, Inventario.af_codigo_generico);
+                resultado = await obtenerReimpresionEtiquetasAltasActions(BuscarReimprimir.fDesdeR, BuscarReimprimir.fHastaR, objeto.Roles[0].codigoEstablecimiento, BuscarReimprimir.altaS_CORRr, BuscarReimprimir.af_codigo_genericoR, BuscarReimprimir.servicio);
             }
         }
         else {
-            resultado = await obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, Reimprimir.altaS_CORRr, Reimprimir.af_codigo_genericoR);
+            resultado = await obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, BuscarReimprimir.altaS_CORRr, BuscarReimprimir.af_codigo_genericoR, BuscarReimprimir.servicio);
         }
         if (!resultado) {
             Swal.fire({
@@ -230,7 +260,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+            resultado = await obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
             setLoadingReimprimir(false); //Finaliza estado de carga
             paginar1(1);
             return;
@@ -242,8 +272,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     };
 
     const handleLimpiar = () => {
-        setInventario((prevInventario) => ({
-            ...prevInventario,
+        setBuscarImprimir((prev) => ({
+            ...prev,
             af_codigo_generico: "",
             altaS_CORR: 0,
             fDesde: "",
@@ -252,8 +282,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     };
 
     const handleLimpiarReimprimir = () => {
-        setInventario((prevInventario) => ({
-            ...prevInventario,
+        setBuscarReimprimir((prev) => ({
+            ...prev,
             af_codigo_genericoR: "",
             altaS_CORRr: 0,
             fDesdeR: "",
@@ -361,8 +391,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     //     });
     // };
 
-
-
     const extractPathFromSVG = (svgString: string): string[] => {
         // Captura TODOS los atributos d="..." de los path
         const matches = [...svgString.matchAll(/<path[^>]*d="([^"]+)"/g)];
@@ -377,6 +405,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             throw new Error("Error al generar el QR en SVG: " + err);
         }
     };
+
     const handleGenerar = async () => {
         setListaQRInicial([]);
         setListaQRReimpresion([]);
@@ -416,7 +445,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             })
         );
 
-        obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+        obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
         setListaQRInicial(etiquetasConQR);
         // Muestra modal y finaliza la carga
         setMostrarModal(true);
@@ -446,7 +475,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
         return { viewBox, paths };
     };
-
 
     const handleGenerarReimpresion = async () => {
         setListaQRInicial([]);
@@ -478,8 +506,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 // return { ...item, qrImage };
                 const svgString = await generateQRCodeSVG(valueQR);
                 const qrParsed = parseSVG(svgString); // devuelve {viewBox, paths}
-                console.log("svgString:", svgString);
-                console.log("qrParsed:", qrParsed);
                 return { ...item, qrSvg: qrParsed };
             })
         );
@@ -559,7 +585,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                                 className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                                                 name="fDesde"
                                                 onChange={handleChange}
-                                                value={Inventario.fDesde}
+                                                value={BuscarImprimir.fDesde}
                                                 max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                             />
                                         </div>
@@ -575,7 +601,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                                 className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
                                                 name="fHasta"
                                                 onChange={handleChange}
-                                                value={Inventario.fHasta}
+                                                value={BuscarImprimir.fHasta}
                                                 max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                             />
                                         </div>
@@ -598,7 +624,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             placeholder="Ej: 1000000008"
                                             onChange={handleChange}
                                             maxLength={12}
-                                            value={Inventario.af_codigo_generico}
+                                            value={BuscarImprimir.af_codigo_generico}
                                         />
                                     </div>
                                     <div className="mb-2">
@@ -611,9 +637,50 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             placeholder="Ej: 0"
                                             onChange={handleChange}
                                             maxLength={12}
-                                            value={Inventario.altaS_CORR}
+                                            value={BuscarImprimir.altaS_CORR}
                                         />
                                     </div>
+                                </div>
+                            </Col>
+                            <Col sm={12} md={12} lg={3}>
+                                {/* Servicio/Dependencia */}
+                                <div className="mb-1 z-1000">
+                                    <label className="fw-semibold">
+                                        Servicio / Dependencia
+                                    </label>
+                                    <Select
+                                        options={servicioOptions}
+                                        onChange={handleServicioImprimirChange}
+                                        name="servicio"
+                                        value={servicioOptions.find((option) => option.value === BuscarImprimir.servicio) || null}
+                                        placeholder="Buscar"
+                                        classNamePrefix="react-select"
+                                        isClearable
+                                        isSearchable
+                                        styles={{
+                                            control: (baseStyles) => ({
+                                                ...baseStyles,
+                                                backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                                color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                                borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                            }),
+                                            singleValue: (base) => ({
+                                                ...base,
+                                                color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                            }),
+                                            menu: (base) => ({
+                                                ...base,
+                                                backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                                color: isDarkMode ? "white" : "#212529",
+                                                height: 100
+                                            }),
+                                            option: (base, { isFocused, isSelected }) => ({
+                                                ...base,
+                                                backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                                color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                            }),
+                                        }}
+                                    />
                                 </div>
                             </Col>
 
@@ -889,7 +956,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                                             name="fDesdeR"
                                             onChange={handleChange}
-                                            value={Reimprimir.fDesdeR}
+                                            value={BuscarReimprimir.fDesdeR}
                                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                         />
                                     </div>
@@ -905,7 +972,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
                                             name="fHastaR"
                                             onChange={handleChange}
-                                            value={Reimprimir.fHastaR}
+                                            value={BuscarReimprimir.fHastaR}
                                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                         />
                                     </div>
@@ -927,7 +994,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         name="af_codigo_genericoR"
                                         placeholder="Ej: 1000000008"
                                         onChange={handleChange}
-                                        value={Reimprimir.af_codigo_genericoR}
+                                        value={BuscarReimprimir.af_codigo_genericoR}
                                     />
                                 </div>
                                 <div className="mb-2">
@@ -939,12 +1006,53 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         name="altaS_CORRr"
                                         placeholder="Ej: 0"
                                         onChange={handleChange}
-                                        value={Reimprimir.altaS_CORRr}
+                                        value={BuscarReimprimir.altaS_CORRr}
                                     />
                                 </div>
                             </div>
                         </Col>
 
+                        <Col sm={12} md={12} lg={3}>
+                            {/* Servicio/Dependencia */}
+                            <div className="mb-1 z-1000">
+                                <label className="fw-semibold">
+                                    Servicio / Dependencia
+                                </label>
+                                <Select
+                                    options={servicioOptions}
+                                    onChange={handleServicioReimprimirChange}
+                                    name="servicio"
+                                    value={servicioOptions.find((option) => option.value === BuscarReimprimir.servicio) || null}
+                                    placeholder="Buscar"
+                                    classNamePrefix="react-select"
+                                    isClearable
+                                    isSearchable
+                                    styles={{
+                                        control: (baseStyles) => ({
+                                            ...baseStyles,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                            color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                            borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                        }),
+                                        singleValue: (base) => ({
+                                            ...base,
+                                            color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                            color: isDarkMode ? "white" : "#212529",
+                                            height: 100
+                                        }),
+                                        option: (base, { isFocused, isSelected }) => ({
+                                            ...base,
+                                            backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                            color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                        }),
+                                    }}
+                                />
+                            </div>
+                        </Col>
                         {/* Columna 5: Botones de Acción */}
                         <Col lg={1} md={4}>
                             <div className="d-flex flex-column gap-2 mt-4">
@@ -1178,12 +1286,14 @@ const mapStateToProps = (state: RootState) => ({
     isDarkMode: state.darkModeReducer.isDarkMode,
     objeto: state.validaApiLoginReducers,
     datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+    comboSerDep: state.comboServDepReducers.comboSerDep,
 });
 
 export default connect(mapStateToProps, {
     obtenerEtiquetasAltasActions,
     obtenerReimpresionEtiquetasAltasActions,
-    quitarEtiquetasActions
+    quitarEtiquetasActions,
+    comboSerDepActions
 })(ImprimirEtiqueta);
 

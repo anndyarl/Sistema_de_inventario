@@ -17,7 +17,7 @@ const InfoActivo: React.FC = () => {
 
     useEffect(() => {
         const cargarDatos = async () => {
-            dispatch(obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, ""));
+            dispatch(obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0));
             setLoading(false);
         };
         cargarDatos();
