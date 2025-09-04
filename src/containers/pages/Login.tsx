@@ -39,7 +39,9 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
     { rut: '17849831', nombre: 'Katherine Reyes', id: 66099, establecimiento: 2 },
     { rut: '19704000', nombre: 'Daniel Rojas', id: 66098, establecimiento: 2 },
     { rut: '20834661', nombre: 'Ademir Piñeda ', id: 67404, establecimiento: 2 },
-    { rut: '15533835', nombre: 'Jaime Castillo', id: 1770, establecimiento: 3 }
+    { rut: '15533835', nombre: 'Jaime Castillo', id: 1770, establecimiento: 3 },
+    { rut: '21067565', nombre: 'Benjamin Bulboa', id: 6601, establecimiento: 3 }
+
   ];
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>

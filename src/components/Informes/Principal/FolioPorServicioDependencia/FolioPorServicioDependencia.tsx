@@ -94,7 +94,6 @@ interface DatosAltas {
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario
     datosFirmas: DatosFirmas[];
-
 }
 
 const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, comboSerDepActions, listaFolioServicioDependencia, comboSerDep, objeto, token, isDarkMode, datosFirmas }) => {
