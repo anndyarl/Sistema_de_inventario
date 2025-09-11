@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
@@ -7,11 +7,13 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, CheckCircle, Eraser, Eye, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, CheckCircle, Eraser, Eye, FiletypePdf, Pencil, PencilFill, Search } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
+import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
+import { FileSignatureIcon } from "lucide-react";
 
 
 export interface ListaEstadoFirmas {
@@ -32,8 +34,32 @@ interface ListaEstadoVisadores {
     firmante: string;
     temails: string;
 }
+
+interface ListaAltas {
+    aF_CLAVE: number,
+    ninv: string,
+    altaS_CORR: number,
+    aF_NUM_FAC: string,
+    aF_OCO_NUMERO_REF: string,
+    serv: string,
+    dep: string,
+    esp: string,
+    ncuenta: string,
+    marca: string,
+    modelo: string,
+    serie: string,
+    estado: string,
+    precio: string,
+    fechA_ALTA: string,
+    nrecep: string,
+    estadO_FIRMA: number;
+    idocumento: number;
+    usuariO_CREA: string | number;
+}
 interface DatosBajas {
     listaEstado: ListaEstadoFirmas[];
+    listaAltasRegistradas: ListaAltas[];
+    listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
     listaEstadoActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     listaEstadoVisadoresActions: (altasCorr: number) => Promise<boolean>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
@@ -44,25 +70,29 @@ interface DatosBajas {
     listaEstadoVisadores: ListaEstadoVisadores[];
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaEstadoVisadores, listaEstado, token, isDarkMode, documentoByte64, objeto }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, token, isDarkMode, documentoByte64, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [mostrarModal, setMostrarModal] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-
-    // const filasSeleccionadasPDF = listaEstadoFirmas.filter((_, index) =>
-    //     filasSeleccionadas.includes(index.toString())
-    // );
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
     const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
     const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
+    const [_, setEditarCampo] = useState<string | null>(null);
+    const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
+    const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
+    const [paginaActualModificar, setPaginaActualModificar] = useState(1);
+    const [mostrarModalModificar, setMostrarModalModificar] = useState(false);
+
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
         idDocumento: 0,
         CuerpoDocumento: ""
     });
+
+    const [InventarioModificar, setInventarioModificar] = useState<ListaAltas[]>([]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -78,6 +108,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         }));
 
         setPaginacion((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+
+        setPaginacionModificar((prevState) => ({
             ...prevState,
             [name]: value,
         }));
@@ -147,14 +182,25 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     };
 
     useEffect(() => {
-        listaEstadoVisadores
+        // Solo copia cuando el modal está abierto y hay datos nuevos
+        if (mostrarModalModificar && listaAltasRegistradas.length > 0) {
+            setInventarioModificar(
+                listaAltasRegistradas.map(item => ({ ...item }))
+            );
+        }
         listaAuto();
         if (!documentoByte64) return;
         const tipo = detectarTipo(documentoByte64);
         const visadoBase64 = `data:application/${tipo};base64,${documentoByte64}`;
         setCuerpoDocumentoPDF(visadoBase64);
-    }, [documentoByte64, listaEstado.length, listaEstadoVisadores.length]);
 
+    }, [
+        documentoByte64,
+        listaEstado.length,
+        listaEstadoVisadores.length,
+        mostrarModalModificar,
+        listaAltasRegistradas // <-- solo escucha cambios en estos
+    ]);
     // useEffect(() => {
     //     const socket = new WebSocket("ws://localhost:5076/ws/notificaciones");
 
@@ -178,7 +224,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     //     };
 
     //     socket.onerror = (err) => {
-    //         console.error("❌ Error en WebSocket:", err);
+    //         console.error("Error en WebSocket:", err);
     //     };
 
     //     return () => {
@@ -200,7 +246,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         if (base64.startsWith("iVBOR")) return "png";
         if (base64.startsWith("R0lGOD")) return "gif";
         return "png"; // fallback
-    }
+    };
+
     const handleObtenerVisado = useCallback((index: number, idocumento: number) => {
         setMostrarModal(true);
         setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
@@ -214,7 +261,65 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         // console.log(listaEstadoVisadores);
     }, []);
 
+    const handleAbrirModalModificar = (altaS_CORR: number) => {
+        setMostrarModalModificar(true);
+        // Ejecuta la acción que actualizará listaAltasRegistradas en el reducer
+        listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");
+        setInventarioModificar(
+            listaAltasRegistradas.map(item => ({ ...item }))
+        );
+        paginarModificar(1);
+    };
+    const handleBlur = () => {
+        setEditarCampo(null);
+    };
 
+    const handleCambiaNCuenta = (indexVisible: number, nuevaCuenta: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, ncuenta: nuevaCuenta } : item
+            )
+        );
+    };
+    const handleCambiaMarca = (indexVisible: number, nuevaMarca: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, marca: nuevaMarca } : item
+            )
+        );
+    };
+
+    const handleCambiaModelo = (indexVisible: number, nuevaModelo: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, modelo: nuevaModelo } : item
+            )
+        );
+    };
+
+    const handleCambiaSerie = (indexVisible: number, nuevaSerie: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, serie: nuevaSerie } : item
+            )
+        );
+    };
+
+    const handleCambiaPrecio = (indexVisible: number, nuevaPrecio: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, precio: nuevaPrecio } : item
+            )
+        );
+    };
+
+
+    //Listado estado visadores
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
@@ -223,6 +328,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     );
     const totalPaginas = Math.ceil(listaEstado.length / elementosPorPagina);
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+
+    //Listado modificar
+    const indiceUltimoElementoModificar = paginaActualModificar * elementosPorPaginaModificar;
+    const indicePrimerElementoModificar = indiceUltimoElementoModificar - elementosPorPaginaModificar;
+    const elementosActualesModificar = useMemo(
+        () => InventarioModificar.slice(indicePrimerElementoModificar, indiceUltimoElementoModificar),
+        [InventarioModificar, indicePrimerElementoModificar, indiceUltimoElementoModificar]
+    );
+    const totalPaginasModificar = Math.ceil(InventarioModificar.length / elementosPorPaginaModificar);
+    const paginarModificar = (numeroPaginaModificar: number) => setPaginaActualModificar(numeroPaginaModificar);
 
     return (
         <Layout>
@@ -358,7 +473,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     <th scope="col" className="text-center">Nº Alta</th>
                                                     <th scope="col" className="text-center">Estado Solicitud</th>
                                                     <th scope="col" className="text-center">Última Actualización</th>
-                                                    <th scope="col" className="text-center">Acción</th>
+                                                    <th scope="col" className="text-start">Acción</th>
+
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -393,17 +509,25 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                 }}>
 
                                                                 {Lista.estado === 1 ? (
-                                                                    <OverlayTrigger
-                                                                        placement="right"
-                                                                        overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
-                                                                    >
-                                                                        <Button type="button" className="fw-semibold"
-                                                                            onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                                    <>
+                                                                        <OverlayTrigger
+                                                                            placement="right"
+                                                                            overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
                                                                         >
-                                                                            Ver
-                                                                            < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                            <Button type="button" className="fw-semibold mx-1"
+                                                                                onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                                            >
+                                                                                Ver
+                                                                                < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                            </Button>
+                                                                        </OverlayTrigger>
+                                                                        <Button type="button" variant="secondary" className="fw-semibold mx-1"
+                                                                            onClick={() => handleAbrirModalModificar(Lista.altaS_CORR)}
+                                                                        >
+                                                                            Modificar
+                                                                            <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                                         </Button>
-                                                                    </OverlayTrigger>
+                                                                    </>
                                                                 ) : (
                                                                     <Button type="button" disabled>
                                                                         Ver
@@ -448,6 +572,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </div>
             </div>
 
+            {/*Modal PDF */}
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={`modal-header text-white bg-success`} closeButton>
                     <Modal.Title className="fw-semibold">
@@ -480,7 +605,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     </form>
                 </Modal.Body>
             </Modal>
-
+            {/*Modal Estado Visadores */}
             <Modal show={mostrarModalEstado} onHide={() => setMostrarModalEstado(false)} size="lg">
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                     <Modal.Title className="fw-semibold">Estado Visadores</Modal.Title>
@@ -534,11 +659,192 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </Modal.Body>
             </Modal>
 
+            {/*Modal Modificar */}
+            <Modal show={mostrarModalModificar} onHide={() => setMostrarModalModificar(false)} fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "90vh" }}>
+                <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }} closeButton>
+                    <Modal.Title className="fw-semibold text-white">
+                        <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar</Modal.Title>
+                </Modal.Header>
+                <Modal.Body id="pdf-content" className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                        <Col xs={12} lg="auto">
+                            {listaAltasRegistradas.length > 10 && (
+                                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                    <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
+                                        Tamaño de página:
+                                    </label>
+                                    <select
+                                        aria-label="Seleccionar tamaño de página"
+                                        className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        name="nPaginacionModificar"
+                                        onChange={handleChange}
+                                        value={PaginacionModificar.nPaginacionModificar}
+                                    >
+                                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                                            <option key={val} value={val}>
+                                                {val}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </Col>
+                        <Col xs={12} lg={2}>
+                            <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                <Button
+                                    onClick={() => setMostrarModal(true)}
+                                    disabled={listaAltasRegistradas.length === 0}
+                                    variant={isDarkMode ? "secondary" : "primary"}
+                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
+                                >
+                                    {/* <FiletypePdf
+                                        className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
+                                        aria-hidden="true"
+                                    /> */}
+                                    Exportar
+                                </Button>
+                            </div>
+                        </Col>
+                    </Row>
+                    <div className="table-responsive">
+                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                            <thead>
+                                <tr>
+                                    <th scope="col" className="text-nowrap">N° Inventario</th>
+                                    <th scope="col" className="text-nowrap">N° Alta</th>
+                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                    <th scope="col" className="text-nowrap">Nº Factura</th>
+                                    <th scope="col" className="text-nowrap">Orden de Compra</th>
+                                    <th scope="col" className="text-nowrap">Servicio</th>
+                                    <th scope="col" className="text-nowrap">Dependencia</th>
+                                    <th scope="col" className="text-nowrap">Especie</th>
+                                    <th scope="col" className="text-nowrap">N° Cuenta</th>
+                                    <th scope="col" className="text-nowrap">Marca</th>
+                                    <th scope="col" className="text-nowrap">Modelo</th>
+                                    <th scope="col" className="text-nowrap">Serie</th>
+                                    <th scope="col" className="text-nowrap">Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {elementosActualesModificar.map((Lista, index) => {
+                                    const indexReal = indicePrimerElementoModificar + index;
+                                    return (
+                                        <tr key={index}>
+                                            <td className="text-nowrap">{Lista.ninv}</td>
+                                            <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                            <td className="text-nowrap">{Lista.fechA_ALTA}</td>
+                                            <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
+                                            <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
+                                            <td className="text-nowrap">{Lista.serv}</td>
+                                            <td className="text-nowrap">{Lista.dep}</td>
+                                            <td className="text-nowrap">{Lista.esp}</td>
+                                            <td className={`${isDarkMode ? "text-light" : "text-dark"}`} style={{ height: "100%" }} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={Lista.ncuenta}
+                                                        onChange={(e) => handleCambiaNCuenta(index, e.target.value)}
+                                                        onBlur={handleBlur}
+                                                        autoFocus
+                                                        maxLength={11}
+                                                        placeholder="-"
+                                                        pattern="\d*"
+                                                        data-index={indexReal}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={Lista.marca}
+                                                        onChange={(e) => handleCambiaMarca(index, e.target.value)}
+                                                        onBlur={handleBlur}
+                                                        autoFocus
+                                                        maxLength={50}
+                                                        placeholder="-"
+                                                        pattern="\d*"
+                                                        data-index={indexReal}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={Lista.modelo}
+                                                        onChange={(e) => handleCambiaModelo(index, e.target.value)}
+                                                        onBlur={handleBlur}
+                                                        autoFocus
+                                                        maxLength={50}
+                                                        placeholder="-"
+                                                        pattern="\d*"
+                                                        data-index={indexReal}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={Lista.serie}
+                                                        onChange={(e) => handleCambiaSerie(index, e.target.value)}
+                                                        onBlur={handleBlur}
+                                                        autoFocus
+                                                        maxLength={20}
+                                                        placeholder="-"
+                                                        pattern="\d*"
+                                                        data-index={indexReal}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={Lista.precio}
+                                                        onChange={(e) => handleCambiaPrecio(index, e.target.value)}
+                                                        onBlur={handleBlur}
+                                                        autoFocus
+                                                        maxLength={20}
+                                                        placeholder="-"
+                                                        pattern="\d*"
+                                                        data-index={indexReal}
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                        <div className="paginador-container position-relative z-0">
+                            <Pagination className="paginador-scroll">
+                                <Pagination.First onClick={() => paginarModificar(1)} disabled={paginaActualModificar === 1} />
+                                <Pagination.Prev onClick={() => paginarModificar(paginaActualModificar - 1)} disabled={paginaActualModificar === 1} />
+                                {Array.from({ length: totalPaginasModificar }, (_, i) => (
+                                    <Pagination.Item
+                                        key={i + 1}
+                                        active={i + 1 === paginaActualModificar}
+                                        onClick={() => paginarModificar(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Next onClick={() => paginarModificar(paginaActualModificar + 1)} disabled={paginaActualModificar === totalPaginasModificar} />
+                                <Pagination.Last onClick={() => paginarModificar(totalPaginasModificar)} disabled={paginaActualModificar === totalPaginasModificar} />
+                            </Pagination>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
+
         </Layout >
     );
 };
 
 const mapStateToProps = (state: RootState) => ({
+    listaAltasRegistradas: state.listaAltasRegistradasReducers.listaAltasRegistradas,
     listaEstado: state.listaEstadoReducers.listaEstado,
     listaEstadoVisadores: state.listaEstadoVisadoresReducers.listaEstadoVisadores,
     documentoByte64: state.obtieneVisadoCompletoReducers.documentoByte64,
@@ -549,6 +855,7 @@ const mapStateToProps = (state: RootState) => ({
 
 
 export default connect(mapStateToProps, {
+    listaAltasRegistradasActions,
     listaEstadoActions,
     obtieneVisadoCompletoActions,
     listaEstadoVisadoresActions

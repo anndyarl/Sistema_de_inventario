@@ -1163,19 +1163,16 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             {/* Modal Activos Calculados */}
             {listaActivosCalculados.length > 0 && (
                 < Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)}
-                    fullscreen
                     dialogClassName="draggable-modal"
-
-                // scrollable={false}
-
-                // backdrop="static" // Evita que se cierre al hacer clic afuera
-                // keyboard={false}
-                >
-                    <Modal.Header className={`modal-header text-white bg-success`} closeButton>
+                    // scrollable={false}
+                    // backdrop="static" // Evita que se cierre al hacer clic afuera
+                    // keyboard={false}
+                    fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
+                    <Modal.Header className={`modal-header text-white bg-success`} style={{ paddingRight: "3%" }} closeButton>
                         <Modal.Title className="fw-semibold">
                             <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className={`p-0 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                         <div
                             className="bg-white shadow-sm sticky-top p-3">
                             <Row >

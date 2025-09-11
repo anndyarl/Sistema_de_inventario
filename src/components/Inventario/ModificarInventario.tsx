@@ -315,7 +315,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       AF_CLAVE,
       AF_CODIGO_GENERICO, // nRecepcion
       AF_FECHA_SOLICITUD,// fechaRecepcion 
-      AF_OCO_NUMERO_REF, // nOrdenCompra
+      AF_OCO_NUMERO_REF, // nOrdenCompra 
       USUARIO_MOD: objeto.IdCredencial,
       AF_NUM_FAC,// nFactura
       AF_ORIGEN, //origenPresupuesto

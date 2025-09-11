@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { Eraser, FiletypePdf, Paperclip, Search, Trash } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, Paperclip, Search, Trash, XCircle } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -103,6 +103,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     // const [filaActiva, setFilaActiva] = useState<listaAltasRegistradas | null>(null);
     //------------Fin Modal----------//   
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [ultimaAltaSeleccionada, setUltimaAltaSeleccionada] = useState<number | null>(null);
+    const [seleccionarTodosHabilitado, setSeleccionarTodosHabilitado] = useState(false);
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [paginaActual, setPaginaActual] = useState(1);
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
@@ -110,6 +112,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const [Unidad, setUnidad] = useState<number>(0);
     const [__, setUnidadNombre] = useState<string>("");
     const [altaSeleccionada, setAltaSeleccionada] = useState(0);
+
     const filasSeleccionadasPDF = listaAltasRegistradas.filter((_, index) =>
         filasSeleccionadas.includes(index.toString())
     );
@@ -245,71 +248,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         }
     }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length, anexos.length]);
 
-    // Función al seleccionar una fila
-    const setSeleccionaFilas = (index: number, altaS_CORR: number) => {
-        if (comboUnidades.length === 0) obtenerUnidadesActions();
-        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
-        setAltaSeleccionada(altaS_CORR);
-
-        if (altaS_CORR === null || index === null) return;
-        const registro = listaAltasRegistradas.find((f) => f.altaS_CORR === altaS_CORR);
-        const estado = registro ? registro.estadO_FIRMA : null; // Te devuelve el valor del estado si existe, o null si no existe.
-
-
-        if (estado === 0) {
-            Swal.fire({
-                icon: "warning",
-                title: "Solicitud en proceso",
-                text: `Ya se ha enviado una solicitud al número de alta seleccionado`,
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: {
-                    popup: "custom-border",
-                },
-            });
-
-            // Deseleccionar si estaba seleccionada
-            setFilasSeleccionadas((prev) =>
-                prev.filter((rowIndex) => rowIndex !== index.toString())
-            );
-            setAltaSeleccionada(0);
-
-        }
-        else if (estado === 1) {
-            Swal.fire({
-                icon: "info",
-                title: "Firma ya registrada",
-                text: "Esta solicitud ya cuenta con una firma registrada para el número de alta seleccionado.",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: {
-                    popup: "custom-border",
-                },
-            });
-
-            // Deseleccionar si estaba seleccionada
-            setFilasSeleccionadas((prev) =>
-                prev.filter((rowIndex) => rowIndex !== index.toString())
-            );
-            setAltaSeleccionada(0);
-
-        }
-
-        else if (estado === -1) {
-            // Selección normal si estado != 0
-            setFilasSeleccionadas((prev) =>
-                prev.includes(index.toString())
-                    ? prev.filter((rowIndex) => rowIndex !== index.toString())
-                    : [...prev, index.toString()]
-            );
-        }
-
-        // Guarda la selección temporal para que el efecto reaccione
-        setAltaSeleccionada(altaS_CORR);
-
-    };
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -974,59 +912,166 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         }));
     };
 
+    const handleLimpiarFilasSeleccionadas = () => {
+        setFilasSeleccionadas([]);
+        setUltimaAltaSeleccionada(null);
+        setSeleccionarTodosHabilitado(false);
+    };
+
+    // Función al seleccionar una fila
+    const setSeleccionaFilas = (index: number, altaS_CORR: number | null) => {
+        setSeleccionarTodosHabilitado(false);
+        if (altaS_CORR === null) return;
+
+        // Cargar datos auxiliares solo si están vacíos
+        if (comboUnidades.length === 0) obtenerUnidadesActions();
+        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
+
+        const registro = listaAltasRegistradas.find((f) => f.altaS_CORR === altaS_CORR);
+        const estado = registro?.estadO_FIRMA ?? null;
+
+        // Validación: no mezclar altas diferentes
+        if (ultimaAltaSeleccionada !== null && ultimaAltaSeleccionada !== altaS_CORR) {
+            Swal.fire({
+                icon: "warning",
+                title: "Alta distinta",
+                text: "Solo puedes seleccionar filas que correspondan a la misma alta.",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                customClass: { popup: "custom-border" },
+            });
+            return;
+        }
+
+        // Validaciones según el estado
+        if (estado === 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Solicitud en proceso",
+                text: "Ya se ha enviado una solicitud para este número de alta.",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                customClass: { popup: "custom-border" },
+            });
+
+            setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
+            setAltaSeleccionada(0);
+            return;
+        }
+
+        if (estado === 1) {
+            Swal.fire({
+                icon: "info",
+                title: "Firma registrada",
+                text: "Esta solicitud ya cuenta con una firma registrada para este número de alta.",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                customClass: { popup: "custom-border" },
+            });
+
+            setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
+            setAltaSeleccionada(0);
+            return;
+        }
+
+        // Selección/deselección normal
+        setFilasSeleccionadas((prev) => {
+            let nuevas = prev.includes(index.toString())
+                ? prev.filter((rowIndex) => rowIndex !== index.toString()) // deselecciona
+                : [...prev, index.toString()]; // selecciona
+
+            if (nuevas.length === 0) {
+                // Reset si no queda nada
+                setUltimaAltaSeleccionada(null);
+                setAltaSeleccionada(0);
+            } else {
+                setUltimaAltaSeleccionada(altaS_CORR); // alta seleccionada
+                setAltaSeleccionada(index);            // índice de la fila
+            }
+
+            return nuevas;
+        });
+    };
+
+
+    // Función al seleccionar/deseleccionar todas
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (comboUnidades.length === 0) obtenerUnidadesActions();
         if (datosFirmas.length === 0) obtenerfirmasAltasActions();
 
-        if (e.target.checked) {
-            const filasValidas: string[] = [];
 
-            elementosActuales.forEach((elemento, index) => {
-                const altaS_CORR = elemento.altaS_CORR;
-                const registro = listaAltasRegistradas.find((f) => f.altaS_CORR === altaS_CORR);
-                const estado = registro?.estadO_FIRMA;
-
-                if (estado === 2 || estado === 3) {
-                    // Omitir estas filas completamente
-                    return;
-                }
-
-                if (estado === 0) {
-                    Swal.fire({
-                        icon: "info",
-                        title: "Ya existen solicitudes previas",
-                        text: "No se pudieron seleccionar todos los bienes, ya que algunos tienen solicitudes pendientes y/u otros ya han sido firmados.",
-                        background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                        customClass: {
-                            popup: "custom-border",
-                        },
-                    });
-
-                    setFilasSeleccionadas((prev) =>
-                        prev.filter((rowIndex) => rowIndex !== index.toString())
-                    );
-                    setAltaSeleccionada(0);
-                    return;
-                }
-
-                if (estado === 1) {
-                    setFilasSeleccionadas((prev) =>
-                        prev.filter((rowIndex) => rowIndex !== index.toString())
-                    );
-                    setAltaSeleccionada(0);
-                    return;
-                }
-
-                filasValidas.push((indicePrimerElemento + index).toString());
+        // Validar que exista una fila seleccionada previamente
+        if (!ultimaAltaSeleccionada) {
+            Swal.fire({
+                icon: "warning",
+                title: "Primero seleccione una fila",
+                text: "Debe seleccionar al menos una fila antes de usar 'Seleccionar todos'.",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                customClass: { popup: "custom-border" },
             });
-
-            setFilasSeleccionadas(filasValidas);
-        } else {
-            setFilasSeleccionadas([]);
+            e.target.checked = false;
+            return;
         }
+
+        // Seleccionar todas las filas que coincidan con ultimaAltaSeleccionada
+        const filasValidas: string[] = [];
+
+        elementosActuales.forEach((elemento, index) => {
+            if (elemento.altaS_CORR !== ultimaAltaSeleccionada) return;
+
+            const registro = listaAltasRegistradas.find(f => f.altaS_CORR === elemento.altaS_CORR);
+            const estado = registro?.estadO_FIRMA;
+
+            if (estado === 0) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Solicitud en proceso",
+                    text: "Algunos bienes no pudieron ser seleccionados porque tienen solicitudes pendientes.",
+                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                    customClass: { popup: "custom-border" },
+                });
+                return;
+            }
+            if (estado === 1) return; // ya firmadas
+            if (estado !== 2 && estado !== 3) {
+                filasValidas.push((indicePrimerElemento + index).toString());
+            }
+        });
+
+        if (filasValidas.length > 0) {
+            setFilasSeleccionadas(filasValidas);
+            Swal.fire({
+                icon: "info",
+                title: "Altas seleccionadas",
+                text: "Se han seleccionado todas filas correspondientes a las altas coincidentes de la página actual.",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                customClass: { popup: "custom-border" },
+            });
+            setSeleccionarTodosHabilitado(true);
+        } else {
+            e.target.checked = false;
+        }
+
+        // Si ya hay filas seleccionadas → deseleccionar todo y reiniciar el flujo
+        // if (filasSeleccionadas.length > 0) {
+        //     setFilasSeleccionadas([]);
+        //     setUltimaAltaSeleccionada(null);
+        //     setAltaSeleccionada(0);
+        //     e.target.checked = false;
+        //     return;
+        // }
     };
+
+
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -1160,8 +1205,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             return (indicePrimerElemento + index).toString();
         })
         .filter((x): x is string => x !== null);
-
-
 
     // const handleDescargarPDF = async (fila: any) => {
     //     const fecha = Date.now();
@@ -1349,33 +1392,55 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                             </Col>
 
                             {/* Exportar*/}
-                            <Col xs={12} lg={2}>
-                                <div className="d-flex justify-content-center justify-content-lg-end">
-                                    {filasSeleccionadas.length > 0 ? (
-                                        <Button
-                                            onClick={() => setMostrarModal(true)}
-                                            disabled={listaAltasRegistradas.length === 0}
-                                            variant={isDarkMode ? "secondary" : "primary"}
-                                            className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto"
-                                        >
-                                            <FiletypePdf
-                                                className="flex-shrink-0 h-5 w-5 mx-1"
-                                                aria-hidden="true"
-                                            />
-                                            Exportar
-                                            <span className="badge bg-light text-dark mx-2">
-                                                {filasSeleccionadas.length}
-                                            </span>
-                                        </Button>
-                                    ) : (
+                            {filasSeleccionadas.length > 0 ? (
+                                <Col xs={12} lg={4}>
+                                    <>
                                         <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                            <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
-                                                No hay filas seleccionadas
-                                            </strong>
+                                            <Button
+                                                onClick={handleLimpiarFilasSeleccionadas}
+                                                disabled={listaAltasRegistradas.length === 0}
+                                                variant="warning"
+                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
+                                            >
+                                                <XCircle
+                                                    className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
+                                                    aria-hidden="true"
+                                                />
+                                                Deseleccionar todo
+                                                <span className="badge bg-light text-muted mx-2">
+                                                    {filasSeleccionadas.length}
+                                                </span>
+                                            </Button>
+
+                                            <Button
+                                                onClick={() => setMostrarModal(true)}
+                                                disabled={listaAltasRegistradas.length === 0}
+                                                variant={isDarkMode ? "secondary" : "primary"}
+                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
+                                            >
+                                                <FiletypePdf
+                                                    className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
+                                                    aria-hidden="true"
+                                                />
+                                                Exportar
+                                                <span className="badge bg-light text-dark mx-2">
+                                                    {filasSeleccionadas.length}
+                                                </span>
+                                            </Button>
                                         </div>
-                                    )}
-                                </div>
-                            </Col>
+                                    </>
+
+                                </Col>
+                            ) : (
+                                <Col xs={12} lg={2}>
+                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                                            No hay filas seleccionadas
+                                        </strong>
+                                    </div>
+                                </Col>
+                            )}
+
                         </Row>
 
                         {/* Tabla*/}
@@ -1401,11 +1466,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                         filasSeleccionadas.length === filasSeleccionables.length &&
                                                         filasSeleccionables.every((f) => filasSeleccionadas.includes(f))
                                                     }
+                                                    disabled={seleccionarTodosHabilitado}
                                                 />
 
                                             </th>
                                             <th scope="col" className="text-nowrap">Estado</th>
                                             <th scope="col" className="text-nowrap">N° Inventario</th>
+                                            <th scope="col" className="text-nowrap">N° Alta</th>
+                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
                                             <th scope="col" className="text-nowrap">Nº Factura</th>
                                             <th scope="col" className="text-nowrap">Orden de Compra</th>
                                             <th scope="col" className="text-nowrap">Servicio</th>
@@ -1416,9 +1484,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             <th scope="col" className="text-nowrap">Marca</th>
                                             <th scope="col" className="text-nowrap">Modelo</th>
                                             <th scope="col" className="text-nowrap">Serie</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                                             <th scope="col" className="text-nowrap">Precio</th>
-                                            <th scope="col" className="text-nowrap">N° Recepcion</th>
+                                            <th scope="col" className="text-nowrap">Nº Recepción</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1460,8 +1527,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     </td>
 
                                                     <td className="text-nowrap">{Lista.ninv}</td>
+                                                    <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                    <td className="text-nowrap">{Lista.fechA_ALTA}</td>
                                                     <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
                                                     <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
+                                                    <td className="text-nowrap">{Lista.serv}</td>
                                                     <td className="text-nowrap">{Lista.dep}</td>
                                                     <td className="text-nowrap">{Lista.esp}</td>
                                                     <td className="text-nowrap">{Lista.ncuenta}</td>

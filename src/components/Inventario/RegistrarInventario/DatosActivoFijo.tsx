@@ -987,9 +987,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       }</td>
                       <td className="text-center">{activo.marca}</td>
                       <td className="text-center">{activo.modelo}</td>
-                      <td className={` ${isDarkMode ? "text-light" : "text-dark"}`} style={{
-                        width: "12%"
-                      }} onClick={() => setEditingSerie(indexReal.toString())}>
+                      <td className={` ${isDarkMode ? "text-light" : "text-dark"}`} style={{ width: "12%" }} onClick={() => setEditingSerie(indexReal.toString())}>
                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                           <Form.Control
                             type="text"

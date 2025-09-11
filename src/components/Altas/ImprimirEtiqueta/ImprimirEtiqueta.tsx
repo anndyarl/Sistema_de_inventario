@@ -938,12 +938,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             {/*Modal listado ReImprimir */}
             <Modal show={mostrarModalLista} onHide={() => setMostrarModalLista(false)}
                 dialogClassName="draggable-modal"
-                fullscreen
-            >
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
+                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} style={{ paddingRight: "3%" }} closeButton>
                     <Modal.Title className="fw-semibold">Reimprimir Etiquetas</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <Modal.Body className={`me-5 p-4 hide-scrollbar ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <Row className="border rounded p-2 m-2">
                         <Col lg={3} md={4}>
                             <div className="mb-2">
@@ -1247,13 +1246,14 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             <Modal
                 show={mostrarModalReimprimir}
                 onHide={() => setMostrarModalReimprimir(false)}
-                dialogClassName="modal-right" size="lg"
-                backdrop="static" // Evita que se cierre al hacer clic afuera
-                keyboard={false}>
+                dialogClassName="modal-right"
+                backdrop="static"
+                keyboard={false}
+                fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Reimprimir Etiquetas</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form>
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         {listaQRReimpresion.length > 0 && (
