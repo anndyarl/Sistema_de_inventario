@@ -862,7 +862,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             ListaDistribucion: [],
             ListaAnexos: anexosBase64
         };
-        console.log("documento", documento);
+        // console.log("documento", documento);
         if (result.isConfirmed) {
             setLoadingEnvio(true);
             setMostrarModal(false);
@@ -1582,6 +1582,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     </div>
                 </div>
             </div>
+            {/*Modal Firma visadores */}
             <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
@@ -1916,7 +1917,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         </Collapse>
                         <h6 className="fw-semibold p-2">Documentos Adjuntos:</h6>
 
-
                         {anexos.length > 2 && (
                             <div className="w-100 text-end">
                                 <span className="badge bg-danger p-2">
@@ -2050,7 +2050,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </button>
                                 </div> */}
                     </form>
-
                 </Modal.Body>
             </Modal >
             {

@@ -168,7 +168,7 @@ const arreglo = (array: any[], size: number) => {
     return result;
 };
 
-const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: ListaAltas[]; totalSum: number /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => {
+const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: any[]; totalSum: number /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => {
     const filasPorPagina = 12;
     const paginas = arreglo(row, filasPorPagina);
 
