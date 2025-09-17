@@ -30,19 +30,19 @@ interface FechasProps {
 }
 export interface ListaAltas {
     aF_CLAVE: number,
-    ninv: string,
+    aF_CODIGO_GENERICO: string,
     altaS_CORR: number,
     aF_NUM_FAC: string,
     aF_OCO_NUMERO_REF: string,
-    serv: string,
-    dep: string,
+    seR_CORR: string,
+    deP_CORR: string,
     esp: string,
     ncuenta: string,
-    marca: string,
-    modelo: string,
-    serie: string,
+    deT_MARCA: string,
+    deT_MODELO: string,
+    deT_SERIE: string,
     estado: string,
-    precio: number,
+    deT_PRECIO: number,
     fechA_ALTA: string,
     nrecep: string,
     estadO_FIRMA: number;
@@ -898,7 +898,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 setLoadingSolicitarVisado(false);
                 setAnexos([]);
             }
-
         }
     };
 
@@ -996,7 +995,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         });
     };
 
-
     // Función al seleccionar/deseleccionar todas
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (comboUnidades.length === 0) obtenerUnidadesActions();
@@ -1070,8 +1068,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         //     return;
         // }
     };
-
-
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -1254,7 +1250,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const botonHabilitado = (AltaInventario.chkFinanzas || AltaInventario.chkUnidad) && firmaFinanzasSeleccionada && firmaUnidadSeleccionada;
 
     const totalSum = useMemo(() => {
-        return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.precio.toString()), 0);
+        return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.deT_PRECIO.toString()), 0);
     }, [filasSeleccionadasPDF]);
 
     return (
@@ -1526,13 +1522,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                         )}
                                                     </td>
 
-                                                    <td className="text-nowrap">{Lista.ninv}</td>
+                                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                                     <td className="text-nowrap">{Lista.altaS_CORR}</td>
                                                     <td className="text-nowrap">{Lista.fechA_ALTA}</td>
                                                     <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
                                                     <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-nowrap">{Lista.serv}</td>
-                                                    <td className="text-nowrap">{Lista.dep}</td>
+                                                    <td className="text-nowrap">{Lista.seR_CORR}</td>
+                                                    <td className="text-nowrap">{Lista.deP_CORR}</td>
                                                     <td className="text-nowrap">{Lista.esp}</td>
                                                     <td className="text-nowrap">{Lista.ncuenta}</td>
                                                     <td className="text-nowrap">{
@@ -1546,12 +1542,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                                                     Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
 
                                                     }</td>
-                                                    <td className="text-nowrap">{Lista.marca}</td>
-                                                    <td className="text-nowrap">{Lista.modelo}</td>
-                                                    <td className="text-nowrap">{Lista.serie}</td>
+                                                    <td className="text-nowrap">{Lista.deT_MARCA}</td>
+                                                    <td className="text-nowrap">{Lista.deT_MODELO}</td>
+                                                    <td className="text-nowrap">{Lista.deT_SERIE}</td>
                                                     {/* <td className="text-nowrap">{Lista.estado}</td> */}
                                                     <td className="text-nowrap">
-                                                        ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                        ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                     </td>
                                                     <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
                                                 </tr>

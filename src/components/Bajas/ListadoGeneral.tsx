@@ -23,10 +23,10 @@ export interface ListaBajas {
   saldO_VALOR: number;
   observaciones: string;
   nresolucion: number;
-  ncuenta: string;
+  ctA_COD: string;
   iniciaL_VALOR: number;
   fechA_BAJA: string;
-  especie: string;
+  esP_NOMBRE: string;
   deP_ACUMULADA: number;
 }
 
@@ -182,11 +182,11 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         setLoadingRegistro(true);
         // Crear un array de objetos con aF_CLAVE y nombre
         const FormularioBajas = selectedIndices.map((activo) => ({
-          aF_CODIGO_GENERICO: listadoGeneralBajas[activo].ninv,
+          aF_CODIGO_GENERICO: listadoGeneralBajas[activo].aF_CODIGO_GENERICO,
           aF_CLAVE: listadoGeneralBajas[activo].aF_CLAVE,
           usuariO_MOD: objeto.IdCredencial.toString(),
-          ctA_COD: listadoGeneralBajas[activo].ncuenta,
-          especie: listadoGeneralBajas[activo].esp,
+          ctA_COD: listadoGeneralBajas[activo].ctA_COD,
+          especie: listadoGeneralBajas[activo].esP_NOMBRE,
           ...Bajas,
         }));
         const resultado = await registrarBienesBajasActions(FormularioBajas);
@@ -475,19 +475,19 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                                 />
                               </td>
 
-                              <td className="text-nowrap">{Lista.ninv}</td>
+                              <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                               <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                              <td className="text-nowrap">{Lista.serv}</td>
-                              <td className="text-nowrap">{Lista.dep}</td>
+                              <td className="text-nowrap">{Lista.seR_CORR}</td>
+                              <td className="text-nowrap">{Lista.deP_CORR}</td>
                               <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                              <td className="text-nowrap">{Lista.esp}</td>
-                              <td className="text-nowrap">{Lista.ncuenta}</td>
-                              <td className="text-nowrap">{Lista.marca}</td>
-                              <td className="text-nowrap">{Lista.modelo}</td>
-                              <td className="text-nowrap">{Lista.serie}</td>
+                              <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                              <td className="text-nowrap">{Lista.ctA_COD}</td>
+                              <td className="text-nowrap">{Lista.deT_MARCA}</td>
+                              <td className="text-nowrap">{Lista.deT_MODELO}</td>
+                              <td className="text-nowrap">{Lista.deT_SERIE}</td>
                               <td className="text-nowrap">{Lista.estado}</td>
                               <td className="text-nowrap">
-                                ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                               </td>
                               <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
                             </tr>

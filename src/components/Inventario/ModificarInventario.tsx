@@ -107,7 +107,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
   comboProveedorActions: (rutProveedor: string) => void;
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
-  modificarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
+  modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<Boolean>;
   limpiarDataActions: () => Promise<boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
   isDarkMode: boolean;
@@ -630,7 +630,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
 
   const handleSubmit = async () => {
-    const resultado = await modificarFormInventarioActions(Inventario);
+    const resultado = await modificarFormInventarioActions([Inventario]);
     if (resultado) {
       Swal.fire({
         icon: "success",
@@ -1813,10 +1813,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <div className="bg-white shadow-sm sticky-top">
             <Row>
-
               <Col md={6}>
                 {listaAltas.length > 10 &&
-
                   < div className="d-flex align-items-center me-2">
                     <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                       Tamaño de página:

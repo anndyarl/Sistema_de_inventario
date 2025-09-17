@@ -5,8 +5,9 @@ import {
   ACTUALIZAR_FORMULARIO_SUCCESS,
   ACTUALIZAR_FORMULARIO_FAIL,
 } from "../types";
+import { InventarioCompleto } from "../../../../components/Inventario/ModificarInventario";
 
-export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const modificarFormInventarioActions = (activos: InventarioCompleto[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; // Token está en el estado de autenticación
 
   if (token) {
@@ -16,17 +17,17 @@ export const modificarFormInventarioActions = (ActivoFijoCompleto: Record<string
         "Content-Type": "application/json",
       },
     };
-    if (!ActivoFijoCompleto || Object.keys(ActivoFijoCompleto).length === 0) {
+    if (!activos || Object.keys(activos).length === 0) {
       // console.error("El objeto datosInventario está vacío.");
       return false;
     }
-    const body = JSON.stringify(ActivoFijoCompleto);
+    const body = JSON.stringify(activos);
 
     dispatch({ type: ACTUALIZAR_FORMULARIO_REQUEST });
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/actualizaActivoFijo/`, body, config);
-
+      console.log(body);
       if (response.status === 200) {
         if (response.data === 1) {
           dispatch({

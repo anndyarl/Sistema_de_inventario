@@ -237,18 +237,18 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                         {rows.map((lista) => (
 
                             <View style={styles.tableRow} key={lista}>
-                                <Text style={[styles.tableCell, styles.colCodigo]}>{lista.ninv}</Text>
+                                <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
                                 <Text style={[styles.tableCell, styles.colNfactura]}>{lista.aF_NUM_FAC}</Text>
                                 <Text style={[styles.tableCell, styles.colOdeCompra]}>{lista.aF_OCO_NUMERO_REF}</Text>
                                 <Text style={[styles.tableCell, styles.colServicio]}>{lista.serv}</Text>
                                 <Text style={[styles.tableCell, styles.colDependencia]}>{lista.dep}</Text>
-                                <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esp}</Text>
-                                <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ncuenta}</Text>
-                                <Text style={[styles.tableCell, styles.colMarca]}>{lista.marca}</Text>
-                                <Text style={[styles.tableCell, styles.colModelo]}>{lista.modelo}</Text>
-                                <Text style={[styles.tableCell, styles.colSerie]}>{lista.serie}</Text>
+                                <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esP_NOMBRE}</Text>
+                                <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ctA_COD}</Text>
+                                <Text style={[styles.tableCell, styles.colMarca]}>{lista.deT_MARCA}</Text>
+                                <Text style={[styles.tableCell, styles.colModelo]}>{lista.deT_MODELO}</Text>
+                                <Text style={[styles.tableCell, styles.colSerie]}>{lista.deT_MARCA}</Text>
                                 {/* <Text style={[styles.tableCell, styles.colObs]}>{lista.estado}</Text> */}
-                                <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                                 <Text style={[styles.tableCell, styles.colRecepcion]}>{lista.nrecep}</Text>
                             </View>
                         ))}

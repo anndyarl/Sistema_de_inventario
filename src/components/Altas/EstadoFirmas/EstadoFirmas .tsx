@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, CheckCircle, Eraser, Eye, FiletypePdf, Paperclip, Pencil, PencilFill, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, CheckCircle, Eraser, Eye, FiletypePdf, Paperclip, Pencil, PencilFill, PencilSquare, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
@@ -20,6 +20,8 @@ import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAl
 import { DatosFirmas, Unidades } from "../FirmarAltas/FirmarAltas";
 import { pdf } from "@react-pdf/renderer";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
+import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
+import ModificarInventario, { InventarioCompleto } from "../../Inventario/ModificarInventario";
 
 export interface ListaEstadoFirmas {
     idocumento: number;
@@ -48,13 +50,13 @@ interface ListaAltas {
     aF_OCO_NUMERO_REF: string,
     serv: string,
     dep: string,
-    esp: string,
-    ncuenta: string,
+    esP_NOMBRE: string,
+    ctA_COD: string,
     marca: string,
-    modelo: string,
-    serie: string,
+    deT_MODELO: string,
+    deT_SERIE: string,
     estado: string,
-    precio: string,
+    deT_PRECIO: string,
     fechA_ALTA: string,
     nrecep: string,
     estadO_FIRMA: number;
@@ -70,6 +72,7 @@ interface DatosBajas {
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
+    modificarFormInventarioActions: (activos: InventarioCompleto[]) => Promise<Boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -79,20 +82,29 @@ interface DatosBajas {
     comboUnidades: Unidades[];
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, obtenerfirmasAltasActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, comboUnidades, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, obtenerfirmasAltasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, comboUnidades, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
+    const [_, setLoadingSolicitarVisado] = useState(false);
+    const [loadingEnvio, setLoadingEnvio] = useState(false);
+    const [loadingModificar, setLoadingModificar] = useState(false);
+
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
+    const [mostrarModalVisadores, setMostrarModalVisadores] = useState(false);
+    const [mostrarModalModificar, setMostrarModalModificar] = useState(false);
+
     const [paginaActual, setPaginaActual] = useState(1);
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
-    const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
-    const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
-    const [___, setEditarCampo] = useState<string | null>(null);
+
+    const [paginaActualModificar, setPaginaActualModificar] = useState(1);
     const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
     const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
-    const [paginaActualModificar, setPaginaActualModificar] = useState(1);
-    const [mostrarModalModificar, setMostrarModalModificar] = useState(false);
+
+    const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
+    const [___, setEditarCampo] = useState<string | null>(null);
+
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [InventarioModificar, setInventarioModificar] = useState<any[]>([]);
     const [____, setIsDisabled] = useState(true);
@@ -100,10 +112,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [Unidad, setUnidad] = useState<number>(0);
     const [_____, setUnidadNombre] = useState<string>("");
     const filasSeleccionadasPDF = InventarioModificar;
-    const [_, setLoadingSolicitarVisado] = useState(false);
-    const [loadingEnvio, setLoadingEnvio] = useState(false);
     const [anexos, setAnexos] = useState<File[]>([]);
-    const [mostrarModalVisadores, setMostrarModalVisadores] = useState(false);
 
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
@@ -235,6 +244,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     };
 
     useEffect(() => {
+
         // Solo copia cuando el modal está abierto y hay datos nuevos
         if (mostrarModalModificar && listaAltasRegistradas.length > 0) {
             setInventarioModificar(
@@ -284,11 +294,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     }, []);
 
     const handleAbrirModalModificar = async (idocumento: number, altaS_CORR: number) => {
+        setLoadingModificar(true);
         const result = await Swal.fire({
             icon: "warning",
             title: "Modificar",
             html: `Al confirmar la modificación del documento <b>Nº ${idocumento}</b> este quedará rechazado y se deberá iniciar un nuevo proceso de visado con la definición de los firmantes correspondientes. 
-El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
+                   El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
             showDenyButton: false,
             showCancelButton: true,
             confirmButtonText: "Confirmar y Modificar",
@@ -300,20 +311,24 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
                 popup: "custom-border", // Clase personalizada para el borde
             }
         });
+        await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");//filtra por numero de alta
+        setInventarioModificar(listaAltasRegistradas.map(item => ({ ...item }))); //se copia en esta nueva tabla setInventarioModificar desde listaAltasRegistradas
+        paginarModificar(1);
 
         if (result.isConfirmed) {
             setMostrarModalModificar(true);
-            listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");//filtra por numero de alta
-            setInventarioModificar(listaAltasRegistradas.map(item => ({ ...item })));//se copia en esta nueva tabla setInventarioModificar desde listaAltasRegistradas
-            paginarModificar(1);
-            //Falta metodo que actualiza datos
+            setLoadingModificar(false);
             //falta metodo que anula firma anterior
+        }
+        else {
+            setLoadingModificar(false);
         }
 
 
     };
 
     const handleCerrarModalModificar = () => {
+        setInventarioModificar([]);
         setMostrarModalModificar(false);
         if (datosFirmas.length === 0) obtenerfirmasAltasActions();
     };
@@ -322,20 +337,20 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
         setEditarCampo(null);
     };
 
-    const handleCambiaNCuenta = (indexVisible: number, nuevaCuenta: string) => {
-        const indexReal = indicePrimerElementoModificar + indexVisible;
-        setInventarioModificar(prev =>
-            prev.map((item, i) =>
-                i === indexReal ? { ...item, ncuenta: nuevaCuenta } : item
-            )
-        );
-    };
+    // const handleCambiaNCuenta = (indexVisible: number, nuevaCuenta: string) => {
+    //     const indexReal = indicePrimerElementoModificar + indexVisible;
+    //     setInventarioModificar(prev =>
+    //         prev.map((item, i) =>
+    //             i === indexReal ? { ...item, ctA_COD: nuevaCuenta } : item
+    //         )
+    //     );
+    // };
 
     const handleCambiaMarca = (indexVisible: number, nuevaMarca: string) => {
         const indexReal = indicePrimerElementoModificar + indexVisible;
         setInventarioModificar(prev =>
             prev.map((item, i) =>
-                i === indexReal ? { ...item, marca: nuevaMarca } : item
+                i === indexReal ? { ...item, deT_MARCA: nuevaMarca } : item
             )
         );
     };
@@ -344,7 +359,7 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
         const indexReal = indicePrimerElementoModificar + indexVisible;
         setInventarioModificar(prev =>
             prev.map((item, i) =>
-                i === indexReal ? { ...item, modelo: nuevaModelo } : item
+                i === indexReal ? { ...item, deT_MODELO: nuevaModelo } : item
             )
         );
     };
@@ -353,7 +368,7 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
         const indexReal = indicePrimerElementoModificar + indexVisible;
         setInventarioModificar(prev =>
             prev.map((item, i) =>
-                i === indexReal ? { ...item, serie: nuevaSerie } : item
+                i === indexReal ? { ...item, deT_SERIE: nuevaSerie } : item
             )
         );
     };
@@ -362,7 +377,7 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
         const indexReal = indicePrimerElementoModificar + indexVisible;
         setInventarioModificar(prev =>
             prev.map((item, i) =>
-                i === indexReal ? { ...item, precio: nuevaPrecio } : item
+                i === indexReal ? { ...item, deT_PRECIO: nuevaPrecio } : item
             )
         );
     };
@@ -647,6 +662,48 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
         }
     };
 
+    // const hoy = new Date();
+    // const fechaHoy = [
+    //     hoy.getFullYear(),
+    //     String(hoy.getMonth() + 1).padStart(2, "0"),
+    //     String(hoy.getDate()).padStart(2, "0")
+    // ].join("-");
+
+    const handleModificarSubmit = async () => {
+        const ListaModificar = InventarioModificar.map(item => ({
+            ...item,
+            usuariO_MOD: objeto.IdCredencial.toString()
+        }));
+
+        const resultado = await modificarFormInventarioActions(ListaModificar);
+        if (resultado) {
+            Swal.fire({
+                icon: "success",
+                title: "Actualización exitosa",
+                text: "Se ha actualizado el registro con éxito!",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+            // limpiarDataActions();
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+        }
+    };
+
     const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
 
@@ -887,7 +944,7 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
     }, [AltaInventario, datosFirmas, objeto]);
 
     const totalSum = useMemo(() => {
-        return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.precio.toString()), 0);
+        return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.deT_PRECIO), 0);
     }, [filasSeleccionadasPDF]);
 
 
@@ -1263,198 +1320,243 @@ El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
                 </Modal.Body>
             </Modal>
             {/*Modal Modificar */}
-            {elementosActualesModificar.map((Lista, index) => {
-                let indexReal = indicePrimerElemento + index;
-                return (
-                    <div key={indexReal}>
-                        <Modal show={mostrarModalModificar} onHide={handleCerrarModalModificar} fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "90vh" }}>
-                            <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }} closeButton>
-                                <Modal.Title className="fw-semibold text-white">
-                                    <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body id="pdf-content" className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
-
-                                <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-danger-subtle text-muted border'}`}>
-                                    El documento número <b>{Lista.idocumento}</b> ha sido rechazado.
-                                </p>
-                                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-                                    <Col xs={12} lg="auto">
-                                        {listaAltasRegistradas.length > 10 && (
-                                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                                <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
-                                                    Tamaño de página:
-                                                </label>
-                                                <select
-                                                    aria-label="Seleccionar tamaño de página"
-                                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                    name="nPaginacionModificar"
-                                                    onChange={handleChange}
-                                                    value={PaginacionModificar.nPaginacionModificar}
-                                                >
-                                                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                        <option key={val} value={val}>
-                                                            {val}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
-                                    </Col>
-                                    <Col xs={12} lg={2}>
-                                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                            <Button
-                                                onClick={() => setMostrarModalVisadores(true)}
-                                                disabled={listaAltasRegistradas.length === 0}
-                                                variant={isDarkMode ? "secondary" : "primary"}
-                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
-                                            >
-                                                <FiletypePdf
-                                                    className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
-                                                    aria-hidden="true"
-                                                />
-                                                Exportar
-                                                <span className="badge bg-light text-dark mx-2">
-                                                    {InventarioModificar.length}
-                                                </span>
-                                            </Button>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <div className="table-responsive">
-                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                        <thead>
-                                            <tr>
-                                                <th scope="col" className="text-nowrap">N° Inventario</th>
-                                                <th scope="col" className="text-nowrap">N° Alta</th>
-                                                <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                                <th scope="col" className="text-nowrap">Nº Factura</th>
-                                                <th scope="col" className="text-nowrap">Orden de Compra</th>
-                                                <th scope="col" className="text-nowrap">Servicio</th>
-                                                <th scope="col" className="text-nowrap">Dependencia</th>
-                                                <th scope="col" className="text-nowrap">Especie</th>
-                                                <th scope="col" className="text-nowrap">N° Cuenta</th>
-                                                <th scope="col" className="text-nowrap">Marca</th>
-                                                <th scope="col" className="text-nowrap">Modelo</th>
-                                                <th scope="col" className="text-nowrap">Serie</th>
-                                                <th scope="col" className="text-nowrap">Precio</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {elementosActualesModificar.map((Lista, index) => {
-                                                const indexReal = indicePrimerElementoModificar + index;
-                                                return (
-                                                    <tr key={index}>
-                                                        <td className="text-nowrap">{Lista.ninv}</td>
-                                                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                        <td className="text-nowrap">{Lista.fechA_ALTA}</td>
-                                                        <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                                                        <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                        <td className="text-nowrap">{Lista.serv}</td>
-                                                        <td className="text-nowrap">{Lista.dep}</td>
-                                                        <td className="text-nowrap">{Lista.esp}</td>
-                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} style={{ height: "100%" }} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                <Form.Control
-                                                                    type="text"
-                                                                    value={Lista.ncuenta}
-                                                                    onChange={(e) => handleCambiaNCuenta(index, e.target.value)}
-                                                                    onBlur={handleBlur}
-                                                                    autoFocus
-                                                                    maxLength={11}
-                                                                    placeholder="-"
-                                                                    pattern="\d*"
-                                                                    data-index={indexReal}
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                <Form.Control
-                                                                    type="text"
-                                                                    value={Lista.marca}
-                                                                    onChange={(e) => handleCambiaMarca(index, e.target.value)}
-                                                                    onBlur={handleBlur}
-                                                                    autoFocus
-                                                                    maxLength={50}
-                                                                    placeholder="-"
-                                                                    pattern="\d*"
-                                                                    data-index={indexReal}
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                <Form.Control
-                                                                    type="text"
-                                                                    value={Lista.modelo}
-                                                                    onChange={(e) => handleCambiaModelo(index, e.target.value)}
-                                                                    onBlur={handleBlur}
-                                                                    autoFocus
-                                                                    maxLength={50}
-                                                                    placeholder="-"
-                                                                    pattern="\d*"
-                                                                    data-index={indexReal}
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                <Form.Control
-                                                                    type="text"
-                                                                    value={Lista.serie}
-                                                                    onChange={(e) => handleCambiaSerie(index, e.target.value)}
-                                                                    onBlur={handleBlur}
-                                                                    autoFocus
-                                                                    maxLength={20}
-                                                                    placeholder="-"
-                                                                    pattern="\d*"
-                                                                    data-index={indexReal}
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                <Form.Control
-                                                                    type="text"
-                                                                    value={Lista.precio}
-                                                                    onChange={(e) => handleCambiaPrecio(index, e.target.value)}
-                                                                    onBlur={handleBlur}
-                                                                    autoFocus
-                                                                    maxLength={20}
-                                                                    placeholder="-"
-                                                                    pattern="\d*"
-                                                                    data-index={indexReal}
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                    <div className="paginador-container position-relative z-0">
-                                        <Pagination className="paginador-scroll">
-                                            <Pagination.First onClick={() => paginarModificar(1)} disabled={paginaActualModificar === 1} />
-                                            <Pagination.Prev onClick={() => paginarModificar(paginaActualModificar - 1)} disabled={paginaActualModificar === 1} />
-                                            {Array.from({ length: totalPaginasModificar }, (_, i) => (
-                                                <Pagination.Item
-                                                    key={i + 1}
-                                                    active={i + 1 === paginaActualModificar}
-                                                    onClick={() => paginarModificar(i + 1)}
-                                                >
-                                                    {i + 1}
-                                                </Pagination.Item>
-                                            ))}
-                                            <Pagination.Next onClick={() => paginarModificar(paginaActualModificar + 1)} disabled={paginaActualModificar === totalPaginasModificar} />
-                                            <Pagination.Last onClick={() => paginarModificar(totalPaginasModificar)} disabled={paginaActualModificar === totalPaginasModificar} />
-                                        </Pagination>
-                                    </div>
-                                </div>
-                            </Modal.Body>
-                        </Modal >
+            {loadingModificar ? (
+                <>
+                    <div
+                        className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+                        style={{
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 1050,
+                        }}
+                    >
+                        <div className="text-center">
+                            <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                            <p className="text-white fw-semibold mb-0">Un momento...</p>
+                        </div>
                     </div>
-                )
-            })}
+                </>
+            ) : (
+                <>
+                    {elementosActualesModificar.map((Lista, index) => {
+                        let indexReal = indicePrimerElemento + index;
+                        return (
+                            <div key={indexReal}>
+                                <Modal show={mostrarModalModificar} onHide={handleCerrarModalModificar} fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "90vh" }}>
+                                    <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }} closeButton>
+                                        <Modal.Title className="fw-semibold text-white">
+                                            <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body id="pdf-content" className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                                        <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold bg-warning-subtle text-muted border`} >
+                                            El documento número <b>{Lista.idocumento}</b> ha sido rechazado.
+                                        </p>
+                                        {/* Botón o mensaje */}
+
+                                        {loadingModificar ? (
+                                            <SkeletonLoader rowCount={elementosPorPagina} />
+                                        ) : (
+                                            <>
+                                                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                                                    <Col xs={12} lg="auto">
+                                                        {listaAltasRegistradas.length > 10 && (
+                                                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                                                <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
+                                                                    Tamaño de página:
+                                                                </label>
+                                                                <select
+                                                                    aria-label="Seleccionar tamaño de página"
+                                                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                                    name="nPaginacionModificar"
+                                                                    onChange={handleChange}
+                                                                    value={PaginacionModificar.nPaginacionModificar}
+                                                                >
+                                                                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                                        <option key={val} value={val}>
+                                                                            {val}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                        )}
+                                                    </Col>
+                                                    <Col xs={12} lg={2}>
+                                                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                                            <Button
+                                                                variant={isDarkMode ? "secondary" : "primary"}
+                                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
+                                                                onClick={handleModificarSubmit}
+                                                            >
+                                                                {loadingModificar ? (
+                                                                    <>
+                                                                        Modificar
+                                                                        <Spinner
+                                                                            as="span"
+                                                                            animation="border"
+                                                                            size="sm"
+                                                                            role="status"
+                                                                            aria-hidden="true"
+                                                                            className="ms-2"
+                                                                        />
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <PencilSquare
+                                                                            className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
+                                                                            aria-hidden="true"
+                                                                        />
+                                                                        Modificar
+                                                                        <span className="badge bg-light text-dark mx-1 mt-1">
+                                                                            {ModificarInventario.length}
+                                                                        </span>
+                                                                    </>
+                                                                )}
+                                                            </Button>
+
+                                                            <Button
+                                                                onClick={() => setMostrarModalVisadores(true)}
+                                                                disabled={listaAltasRegistradas.length === 0}
+                                                                variant={isDarkMode ? "secondary" : "primary"}
+                                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
+                                                            >
+                                                                <FiletypePdf
+                                                                    className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
+                                                                    aria-hidden="true"
+                                                                />
+                                                                Exportar
+                                                                <span className="badge bg-light text-dark mx-2">
+                                                                    {InventarioModificar.length}
+                                                                </span>
+                                                            </Button>
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                                <div className="table-responsive">
+                                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col" className="text-nowrap">N° Inventario</th>
+                                                                <th scope="col" className="text-nowrap">N° Alta</th>
+                                                                <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                                                <th scope="col" className="text-nowrap">Nº Factura</th>
+                                                                <th scope="col" className="text-nowrap">Orden de Compra</th>
+                                                                <th scope="col" className="text-nowrap">Servicio</th>
+                                                                <th scope="col" className="text-nowrap">Dependencia</th>
+                                                                <th scope="col" className="text-nowrap">Especie</th>
+                                                                <th scope="col" className="text-nowrap">N° Cuenta</th>
+                                                                <th scope="col" className="text-nowrap">Marca</th>
+                                                                <th scope="col" className="text-nowrap">Modelo</th>
+                                                                <th scope="col" className="text-nowrap">Serie</th>
+                                                                <th scope="col" className="text-nowrap">Precio</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {elementosActualesModificar.map((Lista, index) => {
+                                                                const indexReal = indicePrimerElementoModificar + index;
+                                                                return (
+                                                                    <tr key={index}>
+                                                                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                                                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                                        <td className="text-nowrap">{Lista.fechA_ALTA}</td>
+                                                                        <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
+                                                                        <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
+                                                                        <td className="text-nowrap">{Lista.serv}</td>
+                                                                        <td className="text-nowrap">{Lista.dep}</td>
+                                                                        <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                                                        <td className="text-nowrap">{Lista.ctA_COD}</td>
+
+                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                                                <Form.Control
+                                                                                    type="text"
+                                                                                    value={Lista.deT_MARCA}
+                                                                                    onChange={(e) => handleCambiaMarca(index, e.target.value)}
+                                                                                    onBlur={handleBlur}
+                                                                                    autoFocus
+                                                                                    maxLength={50}
+                                                                                    placeholder="-"
+                                                                                    pattern="\d*"
+                                                                                    data-index={indexReal}
+                                                                                />
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                                                <Form.Control
+                                                                                    type="text"
+                                                                                    value={Lista.deT_MODELO}
+                                                                                    onChange={(e) => handleCambiaModelo(index, e.target.value)}
+                                                                                    onBlur={handleBlur}
+                                                                                    autoFocus
+                                                                                    maxLength={50}
+                                                                                    placeholder="-"
+                                                                                    pattern="\d*"
+                                                                                    data-index={indexReal}
+                                                                                />
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                                                <Form.Control
+                                                                                    type="text"
+                                                                                    value={Lista.deT_SERIE}
+                                                                                    onChange={(e) => handleCambiaSerie(index, e.target.value)}
+                                                                                    onBlur={handleBlur}
+                                                                                    autoFocus
+                                                                                    maxLength={20}
+                                                                                    placeholder="-"
+                                                                                    pattern="\d*"
+                                                                                    data-index={indexReal}
+                                                                                />
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                                                <Form.Control
+                                                                                    type="text"
+                                                                                    value={Lista.deT_PRECIO}
+                                                                                    onChange={(e) => handleCambiaPrecio(index, e.target.value)}
+                                                                                    onBlur={handleBlur}
+                                                                                    autoFocus
+                                                                                    maxLength={20}
+                                                                                    placeholder="-"
+                                                                                    pattern="\d*"
+                                                                                    data-index={indexReal}
+                                                                                />
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+                                                    <div className="paginador-container position-relative z-0">
+                                                        <Pagination className="paginador-scroll">
+                                                            <Pagination.First onClick={() => paginarModificar(1)} disabled={paginaActualModificar === 1} />
+                                                            <Pagination.Prev onClick={() => paginarModificar(paginaActualModificar - 1)} disabled={paginaActualModificar === 1} />
+                                                            {Array.from({ length: totalPaginasModificar }, (_, i) => (
+                                                                <Pagination.Item
+                                                                    key={i + 1}
+                                                                    active={i + 1 === paginaActualModificar}
+                                                                    onClick={() => paginarModificar(i + 1)}
+                                                                >
+                                                                    {i + 1}
+                                                                </Pagination.Item>
+                                                            ))}
+                                                            <Pagination.Next onClick={() => paginarModificar(paginaActualModificar + 1)} disabled={paginaActualModificar === totalPaginasModificar} />
+                                                            <Pagination.Last onClick={() => paginarModificar(totalPaginasModificar)} disabled={paginaActualModificar === totalPaginasModificar} />
+                                                        </Pagination>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                    </Modal.Body>
+                                </Modal >
+                            </div>
+                        )
+                    })}
+                </>
+            )}
+
 
             {/*Modal Firma visadores */}
             <Modal show={mostrarModalVisadores} onHide={() => setMostrarModalVisadores(false)} dialogClassName="modal-right" size="xl">
@@ -1882,5 +1984,6 @@ export default connect(mapStateToProps, {
     listaEstadoVisadoresActions,
     obtenerfirmasAltasActions,
     registrarDocumentoAltaActions,
+    modificarFormInventarioActions
 })(EstadoFirmas);
 
