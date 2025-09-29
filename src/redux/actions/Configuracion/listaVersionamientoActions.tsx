@@ -5,8 +5,6 @@ import {
   LISTA_VERSIONAMIENTO_FAIL,
 } from './types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../auth/types';
-
 
 // Acción para obtener LISTA_VERSIONAMIENTO
 export const listaVersionamientoActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -46,7 +44,6 @@ export const listaVersionamientoActions = () => async (dispatch: Dispatch, getSt
         type: LISTA_VERSIONAMIENTO_FAIL,
         error: "Error en la solicitud:", err,
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -54,7 +51,6 @@ export const listaVersionamientoActions = () => async (dispatch: Dispatch, getSt
       type: LISTA_VERSIONAMIENTO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

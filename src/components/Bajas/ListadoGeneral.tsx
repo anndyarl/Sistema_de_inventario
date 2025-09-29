@@ -379,47 +379,50 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                   </div>
                 )}
               </Col>
-
-              {/* Botón o mensaje */}
-              <Col xs={12} lg={2}>
-                <div className="d-flex justify-content-center justify-content-lg-end">
-                  {filasSeleccionadas.length > 0 ? (
-                    <Button
-                      variant={`${isDarkMode ? "secondary" : "primary"}`}
-                      onClick={() => setMostrarModal(true)}
-                      className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          Enviar a Bodega
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="mx-2"
-                          />
-                        </>
+              {listadoGeneralBajas.length > 0 && (
+                <>
+                  {/* Botón o mensaje */}
+                  <Col xs={12} lg={2}>
+                    <div className="d-flex justify-content-center justify-content-lg-end">
+                      {filasSeleccionadas.length > 0 ? (
+                        <Button
+                          variant={`${isDarkMode ? "secondary" : "primary"}`}
+                          onClick={() => setMostrarModal(true)}
+                          className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              Enviar a Bodega
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                                className="mx-2"
+                              />
+                            </>
+                          ) : (
+                            <>
+                              Enviar a Bodega
+                              <span className="badge bg-light text-dark mx-1 mt-1">
+                                {filasSeleccionadas.length}
+                              </span>
+                            </>
+                          )}
+                        </Button>
                       ) : (
-                        <>
-                          Enviar a Bodega
-                          <span className="badge bg-light text-dark mx-1 mt-1">
-                            {filasSeleccionadas.length}
-                          </span>
-                        </>
+                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                          <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
+                            No hay filas seleccionadas
+                          </strong>
+                        </div>
                       )}
-                    </Button>
-                  ) : (
-                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                      <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
-                        No hay filas seleccionadas
-                      </strong>
                     </div>
-                  )}
-                </div>
-              </Col>
+                  </Col>
+                </>
+              )}
             </Row>
             {listadoGeneralBajas.length > 0 ? (
               <>

@@ -5,7 +5,7 @@ import {
   LISTA_CUENTA_FECHAS_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../../auth/types';
+
 
 
 // Acción para obtener LISTA_CUENTA_FECHAS
@@ -54,7 +54,6 @@ export const listaCuentaFechasActions = (fDesde: string, fHasta: string, codCuen
       type: LISTA_CUENTA_FECHAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

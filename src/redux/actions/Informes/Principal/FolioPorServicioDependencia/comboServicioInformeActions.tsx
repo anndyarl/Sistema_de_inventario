@@ -5,8 +5,6 @@ import {
   COMBO_SERVICIO_INFORME_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../../auth/types';
-
 
 // Acción para obtener COMBO_SERVICIO_INFORME
 export const comboServicioInformeActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -47,7 +45,6 @@ export const comboServicioInformeActions = (establ_corr: number) => async (dispa
       type: COMBO_SERVICIO_INFORME_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

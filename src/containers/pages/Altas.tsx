@@ -8,7 +8,6 @@ import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { Signature } from "lucide-react";
 import { Helmet } from "react-helmet-async";
-
 interface Props {
   isDarkMode: boolean;
 }

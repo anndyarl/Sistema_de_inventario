@@ -5,7 +5,6 @@ import {
   LISTA_INVENTARIO_ANULAR_SUCCESS,
   LISTA_INVENTARIO_ANULAR_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 export const listaInventarioAnularActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
@@ -60,7 +59,6 @@ export const listaInventarioAnularActions = (af_codigo_generico: string, FechaIn
       type: LISTA_INVENTARIO_ANULAR_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

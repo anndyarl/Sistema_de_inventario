@@ -4,7 +4,6 @@ import {
   LISTA_ESTADO_SUCCESS,
   LISTA_ESTADO_FAIL,
 } from "../types";
-// import { LOGOUT } from "../../auth/types";
 import axiosInstance from "../../auth/axiosConfig";
 
 // Acción para obtener la recepción por número
@@ -59,7 +58,6 @@ export const listaEstadoActions = (altas_corr: number, idDocumento: number, esta
       type: LISTA_ESTADO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    // dispatch({ type: LOGOUT });
     return false;
   }
 };

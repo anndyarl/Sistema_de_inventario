@@ -5,8 +5,6 @@ import {
   LISTA_SERVICIO_DEPENDENCIA_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../../auth/types';
-
 
 // Acción para obtener LISTA_SERVICIO_DEPENDENCIA
 export const listaFolioServicioDependenciaActions = (dep_corr: number, af_codigo_generico: string, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -54,7 +52,6 @@ export const listaFolioServicioDependenciaActions = (dep_corr: number, af_codigo
       type: LISTA_SERVICIO_DEPENDENCIA_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

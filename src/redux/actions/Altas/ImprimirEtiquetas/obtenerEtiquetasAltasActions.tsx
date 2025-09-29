@@ -49,7 +49,6 @@ export const obtenerEtiquetasAltasActions = (fDesde: string, fHasta: string, est
       type: ETIQUETAS_ALTAS_FAIL,
       error: "Error en la solicitud:", err,
     });
-    // dispatch({ type: LOGOUT });
     return false;
   }
 };

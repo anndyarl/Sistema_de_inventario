@@ -5,7 +5,6 @@ import {
   OBTIENE_VISADO_COMPLETO_SUCCESS,
   OBTIENE_VISADO_COMPLETO_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const obtieneVisadoCompletoActions = (idocumento: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -49,7 +48,6 @@ export const obtieneVisadoCompletoActions = (idocumento: number) => async (dispa
       type: OBTIENE_VISADO_COMPLETO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

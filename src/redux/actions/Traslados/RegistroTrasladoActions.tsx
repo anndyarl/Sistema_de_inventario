@@ -5,7 +5,6 @@ import {
     POST_FORMULARIO_TRASLADO_SUCCESS,
     POST_FORMULARIO_TRASLADO_FAIL,
 } from "./types";
-import { LOGOUT } from "../auth/types";
 
 // Acción para enviar el formulario
 export const registroTrasladoActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -68,7 +67,6 @@ export const registroTrasladoActions = (FormularioTraslado: Record<string, any>)
             type: POST_FORMULARIO_TRASLADO_FAIL,
             error: "No se encontró un token de autenticación válido.",
         });
-        dispatch({ type: LOGOUT });
         return false;
     }
 };

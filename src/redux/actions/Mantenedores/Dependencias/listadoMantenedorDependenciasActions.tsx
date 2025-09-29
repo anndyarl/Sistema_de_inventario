@@ -5,8 +5,6 @@ import {
     LISTA_MANTENEDOR_DEPENDENCIA_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../auth/types';
-
 
 // Acción para obtener servicio
 export const listadoMantenedorDependenciasActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -47,7 +45,6 @@ export const listadoMantenedorDependenciasActions = (establ_corr: number) => asy
             type: LISTA_MANTENEDOR_DEPENDENCIA_FAIL,
             error: "No se encontró un token de autenticación válido.",
         });
-        dispatch({ type: LOGOUT });
         return false;
     }
 };

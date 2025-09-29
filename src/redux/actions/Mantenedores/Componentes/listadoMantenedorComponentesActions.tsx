@@ -5,8 +5,6 @@ import {
     LISTA_MANTENEDOR_COMPONENTES_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../auth/types';
-
 
 // Acción para obtener servicio
 export const listadoMantenedorComponentesActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -47,7 +45,6 @@ export const listadoMantenedorComponentesActions = () => async (dispatch: Dispat
             type: LISTA_MANTENEDOR_COMPONENTES_FAIL,
             error: "No se encontró un token de autenticación válido.",
         });
-        dispatch({ type: LOGOUT });
         return false;
     }
 };

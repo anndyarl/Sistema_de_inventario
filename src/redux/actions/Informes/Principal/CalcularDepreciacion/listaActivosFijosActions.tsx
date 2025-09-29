@@ -5,7 +5,6 @@ import {
   LISTA_ACTIVOS_FIJOS_INFORME_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../../auth/types';
 
 export const listaActivosFijosActions = (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
@@ -51,7 +50,6 @@ export const listaActivosFijosActions = (cta_cod: string, fDesde: string, fHasta
       type: LISTA_ACTIVOS_FIJOS_INFORME_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

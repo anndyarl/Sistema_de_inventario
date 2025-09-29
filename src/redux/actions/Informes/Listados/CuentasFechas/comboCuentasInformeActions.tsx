@@ -5,8 +5,6 @@ import {
   COMBO_CUENTA_INFORME_FAIL,
 } from '../../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../../auth/types';
-
 
 // Acción para obtener COMBO_CUENTA_INFORME
 export const comboCuentasInformeActions = () => async (dispatch: Dispatch, getState: any) => {
@@ -45,7 +43,6 @@ export const comboCuentasInformeActions = () => async (dispatch: Dispatch, getSt
       type: COMBO_CUENTA_INFORME_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

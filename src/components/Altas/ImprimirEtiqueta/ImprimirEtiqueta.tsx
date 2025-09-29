@@ -113,33 +113,31 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const listaAuto = async () => {
         if (token) {
             setLoading(true);
-            if (listaEtiquetas.length === 0) {
-                const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
-                if (!resultado) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Sin Resultados",
-                        text: "No hay registros disponibles para mostrar.",
-                        confirmButtonText: "Ok",
-                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                        customClass: {
-                            popup: "custom-border", // Clase personalizada para el borde
-                        }
-                    });
-                    setLoading(false);
-                }
-                else {
-                    setLoading(false);
-                }
+            const resultado = await obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
+            if (!resultado) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Sin Resultados",
+                    text: "No hay registros disponibles para mostrar.",
+                    confirmButtonText: "Ok",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+                setLoading(false);
+            }
+            else {
+                setLoading(false);
             }
         }
     };
 
     useEffect(() => {
         if (comboSerDep.length === 0) { comboSerDepActions(objeto.Roles[0].codigoEstablecimiento) }
-        if (listaEtiquetas.length === 0) { listaAuto(); }
+        if (listaEtiquetas.length === 0) listaAuto();
         if (listaReimpresionEtiquetas.length === 0) {
             obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
         }
@@ -391,16 +389,20 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     //     });
     // };
 
-    const extractPathFromSVG = (svgString: string): string[] => {
-        // Captura TODOS los atributos d="..." de los path
-        const matches = [...svgString.matchAll(/<path[^>]*d="([^"]+)"/g)];
-        return matches.map(m => m[1]);
-    };
+    // const extractPathFromSVG = (svgString: string): string[] => {
+    //     // Captura TODOS los atributos d="..." de los path
+    //     const matches = [...svgString.matchAll(/<path[^>]*d="([^"]+)"/g)];
+    //     return matches.map(m => m[1]);
+    // };
 
     const generateQRCodeSVG = async (value: string): Promise<string> => {
         try {
             // Genera el QR en formato SVG (string)
-            return await QRCode.toString(value, { type: "svg" });
+            return await QRCode.toString(value, {
+                type: "svg",
+                width: 100,   // aumenta resolución/tamaño del QR               
+                margin: 0,    //espacio en blanco alrededor
+            });
         } catch (err) {
             throw new Error("Error al generar el QR en SVG: " + err);
         }
@@ -440,8 +442,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 // const qrImage = await generateQRCodeSVG(valueQR);
                 // return { ...item, qrImage };
                 const svgString = await generateQRCodeSVG(valueQR);
-                const path = extractPathFromSVG(svgString);
-                return { ...item, qrSvg: path };
+                const qrParsed = parseSVG(svgString);
+                return { ...item, qrSvg: qrParsed };
             })
         );
 
@@ -455,7 +457,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const parseSVG = (svgString: string): { viewBox: string; paths: { d: string; fill?: string; stroke?: string }[] } => {
         // viewBox
         const viewBoxMatch = svgString.match(/viewBox="([^"]+)"/);
-        const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 100 100";
+        const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 200 200";
 
         // todos los <path ...>
         const pathMatches = [...svgString.matchAll(/<path([^>]*)>/g)];
@@ -739,150 +741,166 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 )}
                             </Col>
 
-                            {/* Botones y mensajes */}
-                            <Col xs={12} lg={4}>
-                                <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                                    {filasSeleccionadas.length > 0 ? (
-                                        <>
-                                            {/* Botón Generar */}
+                            {listaEtiquetas.length > 0 && (
+                                <>
+                                    {/* Botones y mensajes */}
+                                    <Col xs={12} lg={4}>
+                                        <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                            {filasSeleccionadas.length > 0 ? (
+                                                <>
+                                                    {/* Botón Generar */}
+                                                    <Button
+                                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                        onClick={handleGenerar}
+                                                        disabled={listaEtiquetas.length === 0}
+                                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                                    >
+                                                        {loading ? (
+                                                            <>
+                                                                Generar
+                                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                                                Generar
+                                                                <span className="badge bg-light text-dark mx-1 mt-1">
+                                                                    {filasSeleccionadas.length}
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
+                                                        No hay filas seleccionadas
+                                                    </strong>
+                                                </div>
+                                            )}
+
+                                            {/* Botón Reimprimir */}
                                             <Button
-                                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                onClick={handleGenerar}
-                                                disabled={listaEtiquetas.length === 0}
-                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                                variant="warning"
+                                                onClick={() => setMostrarModalLista(true)}
+                                                disabled={loadingReimprimir}
+                                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
                                             >
-                                                {loading ? (
+                                                {loadingReimprimir ? (
                                                     <>
-                                                        Generar
-                                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                        Reimprimir
+                                                        <Spinner as="span" className="flex-shrink-0 h-5 w-5" animation="border" size="sm" role="status" aria-hidden="true" />
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                                                        Generar
-                                                        <span className="badge bg-light text-dark mx-1 mt-1">
-                                                            {filasSeleccionadas.length}
-                                                        </span>
+                                                        Reimprimir
+                                                        <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                                                     </>
                                                 )}
                                             </Button>
-                                        </>
-                                    ) : (
-                                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                            <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
-                                                No hay filas seleccionadas
-                                            </strong>
                                         </div>
-                                    )}
-
-                                    {/* Botón Reimprimir */}
-                                    <Button
-                                        variant="warning"
-                                        onClick={() => setMostrarModalLista(true)}
-                                        disabled={loadingReimprimir}
-                                        className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
-                                    >
-                                        {loadingReimprimir ? (
-                                            <>
-                                                Reimprimir
-                                                <Spinner as="span" className="flex-shrink-0 h-5 w-5" animation="border" size="sm" role="status" aria-hidden="true" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                Reimprimir
-                                                <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                                            </>
-                                        )}
-                                    </Button>
-                                </div>
-                            </Col>
+                                    </Col>
+                                </>
+                            )}
                         </Row>
 
-                        {/* Listado Principal */}
-                        {loading ? (
-                            <SkeletonLoader rowCount={elementosPorPagina} />
-                        ) : (
-                            <div className='table-responsive'>
-                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                    <thead className={` sticky-top z-0  ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                        <tr >
-                                            <th style={{
-                                                position: 'sticky',
-                                                left: 0
-                                            }}>
-                                                <Form.Check
-                                                    className="check-danger"
-                                                    type="checkbox"
-                                                    onChange={handleSeleccionaTodos}
-                                                    checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                                />
-                                            </th>
-
-                                            {/* <th scope="col" className="text-nowrap">Estado</th> */}
-                                            <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                            <th scope="col" className="text-nowrap">N° Alta</th>
-                                            <th scope="col" className="text-nowrap">Descripción</th>
-                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                            <th scope="col" className="text-nowrap">Nº Cuenta</th>
-                                            <th scope="col" className="text-nowrap">Ubicación</th>
-                                            <th scope="col" className="text-nowrap">Origen</th>
-                                            <th scope="col" className="text-nowrap">QR</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((fila, index) => {
-                                            const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                            return (
-                                                <tr key={index}>
-                                                    <td style={{
+                        {listaEtiquetas.length > 0 ? (
+                            <>        {/* Listado Principal */}
+                                {loading ? (
+                                    <SkeletonLoader rowCount={elementosPorPagina} />
+                                ) : (
+                                    <div className='table-responsive'>
+                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                            <thead className={` sticky-top z-0  ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                                <tr >
+                                                    <th style={{
                                                         position: 'sticky',
                                                         left: 0
-
                                                     }}>
                                                         <Form.Check
+                                                            className="check-danger"
                                                             type="checkbox"
-                                                            onChange={() => setSeleccionaFilas(indexReal)}
-                                                            checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                            onChange={handleSeleccionaTodos}
+                                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                         />
-                                                    </td>
-                                                    <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                                    <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                                    <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
-                                                    <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
-                                                    <td className="text-nowrap">{fila.aF_NCUENTA}</td>
-                                                    <td className="text-nowrap">{fila.aF_UBICACION}</td>
-                                                    <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
-                                                    <td className="text-nowrap">
-                                                        <QRCodeSVG
-                                                            value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
-                                                            size={50}
-                                                            level="H"
-                                                        />
-                                                    </td>
+                                                    </th>
+
+                                                    {/* <th scope="col" className="text-nowrap">Estado</th> */}
+                                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                    <th scope="col" className="text-nowrap">N° Alta</th>
+                                                    <th scope="col" className="text-nowrap">Descripción</th>
+                                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                                    <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                                                    <th scope="col" className="text-nowrap">Ubicación</th>
+                                                    <th scope="col" className="text-nowrap">Origen</th>
+                                                    <th scope="col" className="text-nowrap">QR</th>
                                                 </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                            </thead>
+                                            <tbody>
+                                                {elementosActuales.map((fila, index) => {
+                                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                    return (
+                                                        <tr key={index}>
+                                                            <td style={{
+                                                                position: 'sticky',
+                                                                left: 0
+
+                                                            }}>
+                                                                <Form.Check
+                                                                    type="checkbox"
+                                                                    onChange={() => setSeleccionaFilas(indexReal)}
+                                                                    checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                                />
+                                                            </td>
+                                                            <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
+                                                            <td className="text-nowrap">{fila.altaS_CORR}</td>
+                                                            <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
+                                                            <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
+                                                            <td className="text-nowrap">{fila.aF_NCUENTA}</td>
+                                                            <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                                            <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
+                                                            <td className="text-nowrap">
+                                                                <QRCodeSVG
+                                                                    value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
+                                                                    size={50}
+                                                                    level="H"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                                <div className="paginador-container position-relative z-0">
+                                    <Pagination className="paginador-scroll">
+                                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                                        {Array.from({ length: totalPaginas }, (_, i) => (
+                                            <Pagination.Item
+                                                key={i + 1}
+                                                active={i + 1 === paginaActual}
+                                                onClick={() => paginar(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Pagination.Item>
+                                        ))}
+                                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                                    </Pagination>
+                                </div>
+                            </>
+
+                        ) : (
+                            <>
+                                <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                        No hay resultados para mostrar.
+                                    </p>
+                                </div>
+                            </>
                         )}
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                            </Pagination>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1052,34 +1070,38 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 />
                             </div>
                         </Col>
-                        {/* Columna 5: Botones de Acción */}
-                        <Col lg={1} md={4}>
-                            <div className="d-flex flex-column gap-2 mt-4">
-                                <Button
-                                    onClick={handleBuscarReimprimir}
-                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                    className="w-100"
-                                // disabled={loading}
-                                >
-                                    {loading ? (
-                                        <>
-                                            Buscar
-                                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            Buscar
-                                            <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                        </>
-                                    )}
-                                </Button>
+                        {listaReimpresionEtiquetas.length > 0 && (
+                            <>
+                                {/* Columna 5: Botones de Acción */}
+                                <Col lg={1} md={4}>
+                                    <div className="d-flex flex-column gap-2 mt-4">
+                                        <Button
+                                            onClick={handleBuscarReimprimir}
+                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                            className="w-100"
+                                        // disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    Buscar
+                                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Buscar
+                                                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                                </>
+                                            )}
+                                        </Button>
 
-                                <Button onClick={handleLimpiarReimprimir} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                                    Limpiar
-                                    <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                </Button>
-                            </div>
-                        </Col>
+                                        <Button onClick={handleLimpiarReimprimir} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                                            Limpiar
+                                            <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                        </Button>
+                                    </div>
+                                </Col>
+                            </>
+                        )}
                     </Row>
                     <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                         {/* Tamaño de página */}
@@ -1142,103 +1164,115 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </Col>
                     </Row>
 
-                    {/* Tabla Reimprimir */}
-                    <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
-                        {loadingReimprimir ? (
-                            <>
-                                {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                <SkeletonLoader rowCount={10} columnCount={10} />
-                            </>
-                        ) : (
-                            <div className='table-responsive position-relative z-0'>
-                                <div style={{ maxHeight: "70vh" }}>
-                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                        <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                            <tr>
-                                                <th style={{ position: 'sticky', left: 0 }}>
-                                                    <Form.Check
-                                                        className="check-danger"
-                                                        type="checkbox"
-                                                        onChange={handleSeleccionaReimprimirTodos}
-                                                        checked={filasSeleccionadasReimprimir.length === elementosActuales1.length && elementosActuales1.length > 0}
-                                                    />
-                                                </th>
-                                                <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                                <th scope="col" className="text-nowrap">N° Alta</th>
-                                                <th scope="col" className="text-nowrap">Descripción</th>
-                                                <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                                <th scope="col" className="text-nowrap">Nº Cuenta</th>
-                                                <th scope="col" className="text-nowrap">Ubicación</th>
-                                                <th scope="col" className="text-nowrap">Origen</th>
-                                                <th scope="col" className="text-nowrap">QR</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {elementosActuales1.map((fila, index) => {
-                                                const indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
-                                                return (
-                                                    <tr key={index}>
-                                                        <td style={{ position: 'sticky', left: 0 }}>
+                    {listaReimpresionEtiquetas.length > 0 ? (
+                        <>
+                            {/* Tabla Reimprimir */}
+                            < div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
+                                {loadingReimprimir ? (
+                                    <>
+                                        {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
+                                        <SkeletonLoader rowCount={10} columnCount={10} />
+                                    </>
+                                ) : (
+                                    <div className='table-responsive position-relative z-0'>
+                                        <div style={{ maxHeight: "70vh" }}>
+                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                    <tr>
+                                                        <th style={{ position: 'sticky', left: 0 }}>
                                                             <Form.Check
+                                                                className="check-danger"
                                                                 type="checkbox"
-                                                                onChange={() => setSeleccionaFilasReimprimir(indexReal)}
-                                                                checked={filasSeleccionadasReimprimir.includes(indexReal.toString())}
+                                                                onChange={handleSeleccionaReimprimirTodos}
+                                                                checked={filasSeleccionadasReimprimir.length === elementosActuales1.length && elementosActuales1.length > 0}
                                                             />
-                                                        </td>
-                                                        <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                                        <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                                        <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
-                                                        <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
-                                                        <td className="text-nowrap">{fila.aF_NCUENTA}</td>
-                                                        <td className="text-nowrap">{fila.aF_UBICACION}</td>
-                                                        <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
-                                                        <td className="text-nowrap">
-                                                            <QRCodeSVG
-                                                                value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
-                                                                size={50}
-                                                                level="H"
-                                                            />
-                                                        </td>
+                                                        </th>
+                                                        <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                        <th scope="col" className="text-nowrap">N° Alta</th>
+                                                        <th scope="col" className="text-nowrap">Descripción</th>
+                                                        <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                                        <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                                                        <th scope="col" className="text-nowrap">Ubicación</th>
+                                                        <th scope="col" className="text-nowrap">Origen</th>
+                                                        <th scope="col" className="text-nowrap">QR</th>
                                                     </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                </thead>
+                                                <tbody>
+                                                    {elementosActuales1.map((fila, index) => {
+                                                        const indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td style={{ position: 'sticky', left: 0 }}>
+                                                                    <Form.Check
+                                                                        type="checkbox"
+                                                                        onChange={() => setSeleccionaFilasReimprimir(indexReal)}
+                                                                        checked={filasSeleccionadasReimprimir.includes(indexReal.toString())}
+                                                                    />
+                                                                </td>
+                                                                <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
+                                                                <td className="text-nowrap">{fila.altaS_CORR}</td>
+                                                                <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
+                                                                <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
+                                                                <td className="text-nowrap">{fila.aF_NCUENTA}</td>
+                                                                <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                                                <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
+                                                                <td className="text-nowrap">
+                                                                    <QRCodeSVG
+                                                                        value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
+                                                                        size={50}
+                                                                        level="H"
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-                    {/* Paginador */}
-                    <div className="paginador-container position-relative z-0">
-                        <Pagination className="paginador-scroll">
-                            <Pagination.First
-                                onClick={() => paginar1(1)}
-                                disabled={paginaActual1 === 1}
-                            />
-                            <Pagination.Prev
-                                onClick={() => paginar1(paginaActual1 - 1)}
-                                disabled={paginaActual1 === 1}
-                            />
+                            {/* Paginador */}
+                            <div className="paginador-container position-relative z-0">
+                                <Pagination className="paginador-scroll">
+                                    <Pagination.First
+                                        onClick={() => paginar1(1)}
+                                        disabled={paginaActual1 === 1}
+                                    />
+                                    <Pagination.Prev
+                                        onClick={() => paginar1(paginaActual1 - 1)}
+                                        disabled={paginaActual1 === 1}
+                                    />
 
-                            {Array.from({ length: totalPaginas1 }, (_, i) => (
-                                <Pagination.Item
-                                    key={i + 1}
-                                    active={i + 1 === paginaActual1}
-                                    onClick={() => paginar1(i + 1)}
-                                >
-                                    {i + 1}
-                                </Pagination.Item>
-                            ))}
-                            <Pagination.Next
-                                onClick={() => paginar1(paginaActual1 + 1)}
-                                disabled={paginaActual1 === totalPaginas1}
-                            />
-                            <Pagination.Last
-                                onClick={() => paginar1(totalPaginas1)}
-                                disabled={paginaActual1 === totalPaginas1}
-                            />
-                        </Pagination>
-                    </div>
+                                    {Array.from({ length: totalPaginas1 }, (_, i) => (
+                                        <Pagination.Item
+                                            key={i + 1}
+                                            active={i + 1 === paginaActual1}
+                                            onClick={() => paginar1(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </Pagination.Item>
+                                    ))}
+                                    <Pagination.Next
+                                        onClick={() => paginar1(paginaActual1 + 1)}
+                                        disabled={paginaActual1 === totalPaginas1}
+                                    />
+                                    <Pagination.Last
+                                        onClick={() => paginar1(totalPaginas1)}
+                                        disabled={paginaActual1 === totalPaginas1}
+                                    />
+                                </Pagination>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                                <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                    No hay resultados para mostrar.
+                                </p>
+                            </div>
+                        </>
+                    )}
                 </Modal.Body>
             </Modal>
 
@@ -1249,11 +1283,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 dialogClassName="modal-right"
                 backdrop="static"
                 keyboard={false}
-                fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                size="xl">
+                <Modal.Header className={` ${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                     <Modal.Title className="fw-semibold">Reimprimir Etiquetas</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form>
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         {listaQRReimpresion.length > 0 && (

@@ -5,7 +5,6 @@ import {
   OBTENER_ALTAS_REGISTRADAS_SUCCESS,
   OBTENER_ALTAS_REGISTRADAS_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
@@ -58,7 +57,6 @@ export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, est
       type: OBTENER_ALTAS_REGISTRADAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

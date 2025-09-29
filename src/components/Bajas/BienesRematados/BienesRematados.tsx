@@ -432,55 +432,59 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                   </div>
                 )}
               </Col>
-
-              {/* Botón o mensaje */}
-              <Col xs={12} lg={2}>
-                <div className="d-flex justify-content-center justify-content-lg-end">
-                  {filaSeleccionada.length > 0 ? (
-                    <Button
-                      variant={`${isDarkMode ? "secondary" : "primary"}`}
-                      onClick={() => setMostrarModal(true)}
-                      className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <FiletypePdf
-                            className="flex-shrink-0 h-5 w-5 mx-2"
-                            aria-hidden="true"
-                          />
-                          Exportar
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="mx-2"
-                          />
-                        </>
+              {listaRemates.length > 0 && (
+                <>
+                  {/* Botón o mensaje */}
+                  <Col xs={12} lg={2}>
+                    <div className="d-flex justify-content-center justify-content-lg-end">
+                      {filaSeleccionada.length > 0 ? (
+                        <Button
+                          variant={`${isDarkMode ? "secondary" : "primary"}`}
+                          onClick={() => setMostrarModal(true)}
+                          className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <FiletypePdf
+                                className="flex-shrink-0 h-5 w-5 mx-2"
+                                aria-hidden="true"
+                              />
+                              Exportar
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                                className="mx-2"
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <FiletypePdf
+                                className="flex-shrink-0 h-5 w-5 mx-1"
+                                aria-hidden="true"
+                              />
+                              Exportar
+                              <span className="badge bg-light text-dark mx-2 mt-1">
+                                {filaSeleccionada.length}
+                              </span>
+                            </>
+                          )}
+                        </Button>
                       ) : (
-                        <>
-                          <FiletypePdf
-                            className="flex-shrink-0 h-5 w-5 mx-1"
-                            aria-hidden="true"
-                          />
-                          Exportar
-                          <span className="badge bg-light text-dark mx-2 mt-1">
-                            {filaSeleccionada.length}
-                          </span>
-                        </>
+                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                          <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                            No hay filas seleccionadas
+                          </strong>
+                        </div>
                       )}
-                    </Button>
-                  ) : (
-                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                      <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
-                        No hay filas seleccionadas
-                      </strong>
                     </div>
-                  )}
-                </div>
-              </Col>
+                  </Col>
+                </>
+              )}
+
             </Row>
             {listaRemates.length > 0 ? (
               <>

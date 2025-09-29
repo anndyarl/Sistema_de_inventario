@@ -5,8 +5,6 @@ import {
     COMBO_CUENTAS_MANTENEDOR_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../auth/types';
-
 
 // Acción para obtener servicio
 export const comboCuentaMantenedorActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -39,7 +37,6 @@ export const comboCuentaMantenedorActions = () => async (dispatch: Dispatch, get
                 type: COMBO_CUENTAS_MANTENEDOR_FAIL,
                 error: "Error en la solicitud:", err,
             });
-            // dispatch({ type: LOGOUT });
             return false;
         }
     } else {
@@ -47,7 +44,6 @@ export const comboCuentaMantenedorActions = () => async (dispatch: Dispatch, get
             type: COMBO_CUENTAS_MANTENEDOR_FAIL,
             error: "No se encontró un token de autenticación válido.",
         });
-        dispatch({ type: LOGOUT });
         return false;
     }
 };

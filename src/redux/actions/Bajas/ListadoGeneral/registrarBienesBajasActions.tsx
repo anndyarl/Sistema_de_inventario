@@ -5,7 +5,6 @@ import {
   REGISTRAR_BIENES_BAJAS_SUCCESS,
   REGISTRAR_BIENES_BAJAS_FAIL,
 } from "./../types";
-import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, especie: string }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -51,7 +50,6 @@ export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO
       type: REGISTRAR_BIENES_BAJAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

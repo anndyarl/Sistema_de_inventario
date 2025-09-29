@@ -5,7 +5,6 @@ import {
   LISTA_TRASPASOS_RECIBIDOS_SUCCESS,
   LISTA_TRASPASOS_RECIBIDOS_FAIL,
 } from "./types";
-import { LOGOUT } from "../auth/types";
 
 // Acción para obtener la recepción por número
 export const listadoTraspasosRecibidosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -52,7 +51,6 @@ export const listadoTraspasosRecibidosActions = (fDesde: string, fHasta: string,
         type: LISTA_TRASPASOS_RECIBIDOS_SUCCESS,
         // error: "El token ha expirado.",
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -60,7 +58,6 @@ export const listadoTraspasosRecibidosActions = (fDesde: string, fHasta: string,
       type: LISTA_TRASPASOS_RECIBIDOS_SUCCESS,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

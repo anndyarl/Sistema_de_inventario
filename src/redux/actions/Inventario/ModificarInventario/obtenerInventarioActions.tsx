@@ -5,7 +5,6 @@ import {
   OBTENER_INVENTARIO_SUCCESS,
   OBTENER_INVENTARIO_FAIL
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por af_clave
 export const obtenerInventarioActions = (af_codigo_generico: string, estabL_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -52,7 +51,6 @@ export const obtenerInventarioActions = (af_codigo_generico: string, estabL_CORR
         type: OBTENER_INVENTARIO_FAIL,
         error: "Error en la solicitud:", err,
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -60,7 +58,6 @@ export const obtenerInventarioActions = (af_codigo_generico: string, estabL_CORR
       type: OBTENER_INVENTARIO_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

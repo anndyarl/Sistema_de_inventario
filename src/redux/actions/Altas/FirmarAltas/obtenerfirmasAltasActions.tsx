@@ -5,7 +5,6 @@ import {
   OBTENER_FIRMAS_ALTAS_SUCCESS,
   OBTENER_FIRMAS_ALTAS_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -49,7 +48,6 @@ export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getSta
       type: OBTENER_FIRMAS_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

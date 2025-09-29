@@ -5,7 +5,6 @@ import {
   QUITAR_ETIQUETAS_SUCCESS,
   QUITAR_ETIQUETAS_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const quitarEtiquetasActions = (etiquetas: Record<number, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -55,7 +54,6 @@ export const quitarEtiquetasActions = (etiquetas: Record<number, any>[]) => asyn
       type: QUITAR_ETIQUETAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

@@ -49,7 +49,6 @@ export const obtenerReimpresionEtiquetasAltasActions = (fDesde: string, fHasta: 
       type: REIMPRESION_ETIQUETAS_ALTAS_FAIL,
       error: "Error en la solicitud:", err,
     });
-    // dispatch({ type: LOGOUT });
     return false;
   }
 };

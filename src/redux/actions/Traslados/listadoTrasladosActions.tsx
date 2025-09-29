@@ -5,7 +5,6 @@ import {
   LISTA_TRASLADOS_SUCCESS,
   LISTA_TRASLADOS_FAIL,
 } from "./types";
-import { LOGOUT } from "../auth/types";
 
 // Acción para obtener la recepción por número
 export const listadoTrasladosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -60,7 +59,6 @@ export const listadoTrasladosActions = (fDesde: string, fHasta: string, af_codig
       type: LISTA_TRASLADOS_SUCCESS,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

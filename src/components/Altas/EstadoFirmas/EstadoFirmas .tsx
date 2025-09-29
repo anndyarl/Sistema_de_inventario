@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip, Form, Collapse } from "react-bootstrap";
+import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip, Form, Collapse, CloseButton } from "react-bootstrap";
 import { connect } from "react-redux";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, CheckCircle, Eraser, Eye, FiletypePdf, Paperclip, Pencil, PencilFill, PencilSquare, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, CheckCircle, Eraser, Eye, Paperclip, Pencil, PencilFill, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
@@ -22,6 +22,9 @@ import { pdf } from "@react-pdf/renderer";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import ModificarInventario, { InventarioCompleto } from "../../Inventario/ModificarInventario";
+import { rechazarAltaActions } from "../../../redux/actions/Altas/EstadoFirmas/rechazarAltaAcions";
+import { limpiarDataActions } from "../../../redux/actions/Configuracion/limparDataActions";
+import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
 
 export interface ListaEstadoFirmas {
     idocumento: number;
@@ -70,9 +73,12 @@ interface DatosBajas {
     listaEstadoActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     listaEstadoVisadoresActions: (altasCorr: number) => Promise<boolean>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
-    obtenerfirmasAltasActions: () => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
     modificarFormInventarioActions: (activos: InventarioCompleto[]) => Promise<Boolean>;
+    rechazarAltaActions: (documento: number) => Promise<boolean>;
+    limpiarDataActions: () => Promise<boolean>;
+    obtenerUnidadesActions: () => Promise<boolean>;
+    obtenerfirmasAltasActions: () => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -82,11 +88,11 @@ interface DatosBajas {
     comboUnidades: Unidades[];
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, obtenerfirmasAltasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, comboUnidades, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, comboUnidades, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
-    const [loadingEnvio, setLoadingEnvio] = useState(false);
+    const [______, setLoadingEnvio] = useState(false);
     const [loadingModificar, setLoadingModificar] = useState(false);
 
     const [mostrarModal, setMostrarModal] = useState(false);
@@ -107,12 +113,31 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [InventarioModificar, setInventarioModificar] = useState<any[]>([]);
-    const [____, setIsDisabled] = useState(true);
-    const [isExpanded, setIsExpanded] = useState(false);
+
+    const [____, setIsDisabled] = useState(true); //Habilita los firmantes en cada check
+    const [habilitarVisado, setHabilitarVisado] = useState(true); //Hasbilita botón solicitar visado
+    const [habilitarModificar, setHabilitarModificar] = useState(true); //Hasbilita botón modificar en modal
+    const [isExpanded, setIsExpanded] = useState(false); //expande el los visadores(ajustar visado)
     const [Unidad, setUnidad] = useState<number>(0);
     const [_____, setUnidadNombre] = useState<string>("");
     const filasSeleccionadasPDF = InventarioModificar;
     const [anexos, setAnexos] = useState<File[]>([]);
+
+    //Estado para renderizar los nombres de los usuarios en cada check de los firmantes
+    const [nombreTitularInventario, setNombreTitularInventario] = useState<string>("");
+    const [nombreSubInventario, setNombreSubInventario] = useState<string>("");
+    const [nombreTitularfinanzas, setNombreTitularFinanzas] = useState<string>("");
+    const [nombreSubFinanzas, setNombreSubFinanzas] = useState<string>("");
+    const [nombreTitularAbastecimiento, setNombreTitularAbastecimiento] = useState<string>("");
+    const [nombreSubAbastecimiento, setNombreSubAbastecimiento] = useState<string>("");
+    const [nombreTitularInformatica, setNombreTitularInformatica] = useState<string>("");
+    const [nombreSubInformatica, setNombreSubInformatica] = useState<string>("");
+    const [nombreTitularCompra, setNombreTitularCompra] = useState<string>("");
+    const [nombreSubCompra, setNombreSubCompra] = useState<string>("");
+    const [nombreTitularConvenio, setNombreTitularConvenio] = useState<string>("");
+    const [nombreSubConvenio, setNombreSubConvenio] = useState<string>("");
+    const [nombreTitularRFisico, setNombreTitularRFisico] = useState<string>("");
+    const [nombreSubRFisico, setNombreSubRFisico] = useState<string>("");
 
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
@@ -178,6 +203,101 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             ...prevState,
             [name]: value,
         }));
+
+        const prev = structuredClone(AltaInventario);
+        const updatedState = { ...prev, [name]: value };
+
+        if (name === "unidad") {
+            const unidadSeleccionada = parseInt(value);
+            setUnidad(unidadSeleccionada);
+
+            let nombreUnidad = "";
+            let cleanedState = { ...updatedState };
+            //Limpia los check segun la unidad selecionada
+            switch (unidadSeleccionada) {
+                case 3:
+                    nombreUnidad = "Unidad de Abastecimiento";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
+                    };
+                    break;
+
+                case 4:
+                    nombreUnidad = "Departamento de Informática";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
+                    };
+                    break;
+
+                case 5:
+                    nombreUnidad = "Departamento de Compra";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
+                    };
+                    break;
+                case 6:
+                    nombreUnidad = "Departamento de Convenio";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                        titularRFisico: false,
+                        subroganteRFisico: false,
+                    };
+                    break;
+
+                case 7:
+                    nombreUnidad = "Departamento de Recursos fisicos";
+                    cleanedState = {
+                        ...cleanedState,
+                        titularAbastecimiento: false,
+                        subroganteAbastecimiento: false,
+                        titularInformatica: false,
+                        subroganteInformatica: false,
+                        titularCompra: false,
+                        subroganteCompra: false,
+                        titularConvenio: false,
+                        subroganteConvenio: false,
+                    };
+                    break;
+
+
+                default:
+                    nombreUnidad = "";
+                    break;
+            }
+
+            setUnidadNombre(nombreUnidad);
+            setAltaInventario(cleanedState);
+        }
     };
 
     const handleBuscar = async () => {
@@ -244,12 +364,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     };
 
     useEffect(() => {
-
         // Solo copia cuando el modal está abierto y hay datos nuevos
         if (mostrarModalModificar && listaAltasRegistradas.length > 0) {
             setInventarioModificar(
                 listaAltasRegistradas.map(item => ({ ...item }))
             );
+            setLoadingModificar(false);
         }
         listaAuto();
         if (!documentoByte64) return;
@@ -258,10 +378,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setCuerpoDocumentoPDF(visadoBase64);
 
     }, [
+        mostrarModalModificar,
         documentoByte64,
         listaEstado.length,
         listaEstadoVisadores.length,
-        mostrarModalModificar,
         listaAltasRegistradas // <-- solo escucha cambios en estos
     ]);
 
@@ -293,46 +413,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         listaEstadoVisadoresActions(altaS_CORR);
     }, []);
 
-    const handleAbrirModalModificar = async (idocumento: number, altaS_CORR: number) => {
-        setLoadingModificar(true);
-        const result = await Swal.fire({
-            icon: "warning",
-            title: "Modificar",
-            html: `Al confirmar la modificación del documento <b>Nº ${idocumento}</b> este quedará rechazado y se deberá iniciar un nuevo proceso de visado con la definición de los firmantes correspondientes. 
-                   El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Modificar",
-            cancelButtonText: "Cerrar",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-            }
-        });
-        await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");//filtra por numero de alta
-        setInventarioModificar(listaAltasRegistradas.map(item => ({ ...item }))); //se copia en esta nueva tabla setInventarioModificar desde listaAltasRegistradas
-        paginarModificar(1);
-
-        if (result.isConfirmed) {
-            setMostrarModalModificar(true);
-            setLoadingModificar(false);
-            //falta metodo que anula firma anterior
-        }
-        else {
-            setLoadingModificar(false);
-        }
-
-
-    };
-
-    const handleCerrarModalModificar = () => {
-        setInventarioModificar([]);
-        setMostrarModalModificar(false);
-        if (datosFirmas.length === 0) obtenerfirmasAltasActions();
-    };
-
     const handleBlur = () => {
         setEditarCampo(null);
     };
@@ -353,6 +433,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 i === indexReal ? { ...item, deT_MARCA: nuevaMarca } : item
             )
         );
+        setHabilitarModificar(false);
     };
 
     const handleCambiaModelo = (indexVisible: number, nuevaModelo: string) => {
@@ -362,6 +443,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 i === indexReal ? { ...item, deT_MODELO: nuevaModelo } : item
             )
         );
+        setHabilitarModificar(false);
     };
 
     const handleCambiaSerie = (indexVisible: number, nuevaSerie: string) => {
@@ -371,6 +453,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 i === indexReal ? { ...item, deT_SERIE: nuevaSerie } : item
             )
         );
+        setHabilitarModificar(false);
     };
 
     const handleCambiaPrecio = (indexVisible: number, nuevaPrecio: string) => {
@@ -380,6 +463,436 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 i === indexReal ? { ...item, deT_PRECIO: nuevaPrecio } : item
             )
         );
+        setHabilitarModificar(false);
+    };
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileInput = () => {
+        inputRef.current?.click();
+    };
+
+    const handleChangeFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const nuevosArchivos = Array.from(e.target.files);
+
+            setAnexos((prev) => {
+                const nombresPrevios = new Set(prev.map((file) => file.name));
+                const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
+                return [...prev, ...archivosFiltrados];
+            });
+        }
+    };
+
+    // const hoy = new Date();
+    // const fechaHoy = [
+    //     hoy.getFullYear(),
+    //     String(hoy.getMonth() + 1).padStart(2, "0"),
+    //     String(hoy.getDate()).padStart(2, "0")
+    // ].join("-");
+
+    const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+
+        // Copia del estado actual
+        const prev = structuredClone(AltaInventario);
+        const updatedState = { ...prev, [name]: checked };
+        //Limpia Todo al deshabilitar check
+        if (name === "ajustarFirma") {
+            if (datosFirmas.length === 0) obtenerfirmasAltasActions();
+            if (comboUnidades.length === 0) obtenerUnidadesActions();
+            if (!checked) {
+                const cleanedState = {
+                    ...updatedState,
+                    chkFinanzas: false,
+                    chkAbastecimiento: false,
+                    chkUnidad: false,
+                    // JERARQUIA 1
+                    titularInventario: false,
+                    subroganteInventario: false,
+                    // JERARQUIA 2
+                    titularFinanzas: false,
+                    subroganteFinanzas: false,
+                    // JERARQUIA 3
+                    titularAbastecimiento: false,
+                    subroganteAbastecimiento: false,
+                    // JERARQUIA 3 //Combo
+                    titularInformatica: false,
+                    subroganteInformatica: false,
+                    titularCompra: false,
+                    subroganteCompra: false,
+                    titularConvenio: false,
+                    subroganteConvenio: false,
+                    titularRFisico: false,
+                    subroganteRFisico: false,
+
+                    // Nombres de firmantes
+                    firmanteInventario: "",
+                    firmanteFinanzas: "",
+                    firmanteAbastecimiento: "",
+                    firmanteInformatica: "",
+                    firmanteCompra: "",
+                    firmanteConvenio: "",
+                    firmanteRFisico: "",
+
+                    // Imágenes
+                    visadoInventario: "",
+                    visadoFinanzas: "",
+                    visadoAbastecimiento: ""
+                };
+                setIsDisabled(true);
+                setIsExpanded(false);
+                setAltaInventario(cleanedState);
+                setNombreTitularInventario("");
+                setNombreSubInventario("");
+                setNombreTitularFinanzas("");
+                setNombreSubFinanzas("");
+                setNombreTitularAbastecimiento("");
+                setNombreSubAbastecimiento("");
+                setNombreTitularInformatica("");
+                setNombreSubInformatica("");
+                setNombreTitularCompra("");
+                setNombreSubCompra("");
+                setNombreTitularConvenio("");
+                setNombreSubConvenio("");
+                setNombreTitularRFisico("");
+                setNombreSubRFisico("");
+            } else {
+                setIsDisabled(false);
+                setIsExpanded(true);
+                setAltaInventario(updatedState);
+            }
+            return;
+        }
+        //Limpia Solo Finanzas al deshabilitar check
+        if (name === "chkFinanzas" && !checked) {
+            const cleanedState = {
+                ...updatedState,
+                titularFinanzas: false,
+                subroganteFinanzas: false,
+                firmanteFinanzas: "",
+
+            };
+            setIsDisabled(false);
+            setIsExpanded(true);
+            setAltaInventario(cleanedState);
+            setNombreTitularFinanzas("");
+            setNombreSubFinanzas("");
+            return;
+        }
+        //Limpia Solo Abastecimiento al deshabilitar check
+        if (name === "chkAbastecimiento" && !checked) {
+            const cleanedState = {
+                ...updatedState,
+                titularAbastecimiento: false,
+                subroganteAbastecimiento: false,
+                firmanteAbastecimiento: "",
+
+            };
+            setIsDisabled(false);
+            setIsExpanded(true);
+            setAltaInventario(cleanedState);
+            setNombreTitularAbastecimiento("");
+            setNombreSubAbastecimiento("");
+            return;
+        }
+        //Limpia solo combo y sus unidades al deshabilitar check
+        if (name === "chkUnidad" && !checked) {
+            setUnidad(0); // limpia combo
+            setUnidadNombre(""); // limpia nombre visible
+            const cleanedState = {
+                ...updatedState,
+                titularAbastecimiento: false,
+                subroganteAbastecimiento: false,
+                titularInformatica: false,
+                subroganteInformatica: false,
+                titularCompra: false,
+                subroganteCompra: false,
+                titularConvenio: false,
+                subroganteConvenio: false,
+                titularRFisico: false,
+                subroganteRFisico: false,
+                firmanteAbastecimiento: "",
+                firmanteInformatica: "",
+                firmanteCompra: "",
+                firmanteConvenio: "",
+                firmanteRFisico: "",
+            };
+            setIsDisabled(false);
+            setIsExpanded(true);
+            setAltaInventario(cleanedState);
+            setNombreTitularAbastecimiento("");
+            setNombreSubAbastecimiento("");
+            setNombreTitularInformatica("");
+            setNombreSubInformatica("");
+            setNombreTitularCompra("");
+            setNombreSubCompra("");
+            setNombreTitularConvenio("");
+            setNombreSubConvenio("");
+            setNombreTitularRFisico("");
+            setNombreSubRFisico("");
+            return;
+        }
+
+        let firmanteInventario = prev.firmanteInventario || "";
+        let firmanteFinanzas = prev.firmanteFinanzas || "";
+        let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
+        let firmanteInformatica = prev.firmanteInformatica || "";
+        let firmanteCompra = prev.firmanteCompra || "";
+        let firmanteConvenio = prev.firmanteConvenio || "";
+        let firmanteRFisico = prev.firmanteRFisico || "";
+        let visadoInventario = prev.visadoInventario || "";
+        let visadoFinanzas = prev.visadoFinanzas || "";
+        let visadoAbastecimiento = prev.visadoAbastecimiento || "";
+
+        for (const firma of datosFirmas) {
+
+            const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
+
+            //Antes se renderizaba la imagen de la firma, este se cargaba desde la tabla en la columna firma(tabla inv_t_firmantes) se deja de todas manera si en algun momento se necesita volver a esto
+            const FIRMA = `data:image/${detectarTipo};base64,${firma.firma}`;
+
+            if (firma.iD_UNIDAD === 1) {
+                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                    firmanteInventario = nombreCompleto;
+                    visadoInventario = FIRMA;
+                    updatedState.subroganteInventario = false;
+                    setNombreTitularInventario(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreSubInventario("");
+                }
+                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                    firmanteInventario = nombreCompleto;
+                    visadoInventario = FIRMA;
+                    updatedState.titularInventario = false;
+                    setNombreSubInventario(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreTitularInventario("");
+                }
+            }
+            if (firma.iD_UNIDAD === 2) {
+                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                    firmanteFinanzas = nombreCompleto;
+                    visadoFinanzas = FIRMA;
+                    updatedState.subroganteFinanzas = false;
+                    setNombreTitularFinanzas(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreSubFinanzas("");
+                }
+                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
+                    firmanteFinanzas = nombreCompleto;
+                    visadoFinanzas = FIRMA;
+                    updatedState.titularFinanzas = false;
+                    setNombreSubFinanzas(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreTitularFinanzas("");
+                }
+            }
+            if (firma.iD_UNIDAD === 3) {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
+                    firmanteAbastecimiento = nombreCompleto;
+                    visadoAbastecimiento = FIRMA;
+                    updatedState.subroganteAbastecimiento = false;
+                    setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreSubAbastecimiento("");
+                }
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
+                    firmanteAbastecimiento = nombreCompleto;
+                    visadoAbastecimiento = FIRMA;
+                    updatedState.titularAbastecimiento = false;
+                    setNombreSubAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreTitularAbastecimiento("");
+                }
+            }
+            if (AltaInventario.chkUnidad) {
+                //Unidad de Abastecimiento
+                if (firma.iD_UNIDAD === 3) {
+
+                    if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
+                        firmanteAbastecimiento = nombreCompleto;
+                        updatedState.subroganteAbastecimiento = false;
+                        setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubAbastecimiento("");
+                    }
+                    if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteAbastecimiento = nombreCompleto;
+                        updatedState.titularAbastecimiento = false;
+                        setNombreSubAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularAbastecimiento("");
+                    }
+                }
+                //Departamento de Informática
+                if (firma.iD_UNIDAD === 4) {
+                    if (name === "titularInformatica" && checked && firma.rol === "TITULAR") {
+                        firmanteInformatica = nombreCompleto;
+                        updatedState.subroganteInformatica = false;
+                        setNombreTitularInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubInformatica("");
+                    }
+                    if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteInformatica = nombreCompleto;
+                        updatedState.titularInformatica = false;
+                        setNombreSubInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularInformatica("");
+                    }
+                }
+                //Departamento de Compra
+                if (firma.iD_UNIDAD === 5) {
+                    if (name === "titularCompra" && checked && firma.rol === "TITULAR") {
+                        firmanteCompra = nombreCompleto;
+                        updatedState.subroganteCompra = false;
+                        setNombreTitularCompra(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubCompra("");
+                    }
+                    if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteCompra = nombreCompleto;
+                        updatedState.titularCompra = false;
+                        setNombreSubCompra(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularCompra("");
+                    }
+                }
+                //Departamento de Convenio
+                if (firma.iD_UNIDAD === 6) {
+                    if (name === "titularConvenio" && checked && firma.rol === "TITULAR") {
+                        firmanteConvenio = nombreCompleto;
+                        updatedState.subroganteConvenio = false;
+                        setNombreTitularConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubConvenio("");
+                    }
+                    if (name === "subroganteConvenio" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteConvenio = nombreCompleto;
+                        updatedState.titularConvenio = false;
+                        setNombreSubConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularConvenio("");
+                    }
+                }
+                //Departamento de Recursos Fisicos
+                if (firma.iD_UNIDAD === 7) {
+                    if (name === "titularRFisico" && checked && firma.rol === "TITULAR") {
+                        firmanteRFisico = nombreCompleto;
+                        updatedState.subroganteRFisico = false;
+                        setNombreTitularRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubRFisico("");
+                    }
+                    if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE") {
+                        firmanteRFisico = nombreCompleto;
+                        updatedState.titularRFisico = false;
+                        setNombreSubRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularRFisico("");
+                    }
+                }
+            }
+        }
+
+        updatedState.firmanteInventario = firmanteInventario;
+        updatedState.firmanteFinanzas = firmanteFinanzas;
+        updatedState.firmanteAbastecimiento = firmanteAbastecimiento;
+        updatedState.firmanteInformatica = firmanteInformatica;
+        updatedState.firmanteCompra = firmanteCompra;
+        updatedState.firmanteConvenio = firmanteConvenio;
+        updatedState.firmanteRFisico = firmanteRFisico;
+
+        updatedState.visadoInventario = visadoInventario;
+        updatedState.visadoFinanzas = visadoFinanzas;
+        updatedState.visadoAbastecimiento = visadoAbastecimiento;
+        setIsDisabled(false);
+        setIsExpanded(true);
+        setAltaInventario(updatedState);
+    }, [AltaInventario, datosFirmas, objeto]);
+
+    const handleAbrirModalModificar = async (idocumento: number, altaS_CORR: number) => {
+        setLoadingModificar(true);
+        // Cargar datos auxiliares solo si están vacíos
+        const result = await Swal.fire({
+            icon: "warning",
+            title: "Modificar",
+            html: `Al confirmar la modificación del documento <b>Nº ${idocumento}</b> este quedará rechazado y se deberá iniciar un nuevo proceso de visado con la definición de los firmantes correspondientes. 
+                   El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Confirmar y Modificar",
+            cancelButtonText: "Cerrar",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            customClass: {
+                popup: "custom-border",
+            }
+        });
+        if (result.isConfirmed) {
+            rechazarAltaActions(idocumento);
+            setMostrarModalModificar(true); // Solo abre el modal si confirma
+            await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");
+            paginarModificar(1);
+            setLoadingModificar(false); // Mejor desactivar en el useEffect cuando los datos llegan
+        } else {
+            setLoadingModificar(false);
+        }
+    };
+
+    const handleCerrarModalModificar = () => {
+        Swal.fire({
+            icon: "info",
+            title: '¿Está seguro que desea salir?',
+            text: 'Para salir debe modificar los datos y volver a realizar la solicitud de visado.',
+            showDenyButton: false,
+            showCancelButton: false,
+            confirmButtonText: "Ok",
+            cancelButtonText: "Cerrar",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+
+            customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+            }
+        })
+    };
+
+    const handleModificarSubmit = async () => {
+        const result = await Swal.fire({
+            icon: "info",
+            title: "Confirmar Cambios",
+            text: `Confirme para habilitar la solicitud de visado`,
+            showCancelButton: true,
+            confirmButtonText: "Confirmar y Continuar",
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            customClass: { popup: "custom-border" }
+        });
+        if (result.isConfirmed) {
+            const ListaModificar = InventarioModificar.map(item => ({
+                ...item,
+                usuariO_MOD: objeto.IdCredencial.toString()
+            }));
+
+            const resultado = await modificarFormInventarioActions(ListaModificar);
+            if (resultado) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Actualización exitosa",
+                    text: "Se han actualizado los registros correctamente!",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+                setMostrarModalVisadores(true);
+                setHabilitarVisado(false);
+                limpiarDataActions();
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+            }
+        }
     };
 
     const handleSolicitarVisado = async () => {
@@ -446,6 +959,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
             });
         };
+
         // Genera el PDF
         const base64 = await generarPDFBase64();
         // Obtiene firmas según jerarquía activada
@@ -578,17 +1092,13 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             return firmasSeleccionadas;
         };
 
-        const selectedIndices = InventarioModificar.map(Number);
-        const FirmaAlta = selectedIndices.flatMap(index => {
-            const item = listaAltasRegistradas[index];
-            return obtenerFirmasJerarquia().map(({ jerarquia, idcargo, correo }) => ({
-                ALTAS_CORR: item.altaS_CORR,
-                JERARQUIA: jerarquia,
-                IDCARGO: idcargo,
-                FIRMADO: 0,
-                CORREO: correo
-            }));
-        });
+        const FirmaAlta = obtenerFirmasJerarquia().map(({ jerarquia, idcargo, correo }) => ({
+            ALTAS_CORR: InventarioModificar[0]?.altaS_CORR,
+            JERARQUIA: jerarquia,
+            IDCARGO: idcargo,
+            FIRMADO: 0,
+            CORREO: correo
+        }));
 
         const anexosBase64 = await convertirArchivosABase64(anexos);
 
@@ -603,9 +1113,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             ListaAnexos: anexosBase64
         };
 
-        // console.log("documento", documento);
+
 
         if (result.isConfirmed) {
+            // console.log("documento", documento);
             setLoadingEnvio(true);
             setMostrarModalVisadores(false);
             const resultado = await registrarDocumentoAltaActions(documento);
@@ -620,6 +1131,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     customClass: { popup: "custom-border" }
                 });
+                setMostrarModalModificar(false);
                 setLoadingEnvio(false);
             }
             else {
@@ -632,6 +1144,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                     customClass: { popup: "custom-border" }
                 });
+                setMostrarModalModificar(false);
                 setLoadingEnvio(false);
                 // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
                 // setFilasSeleccionadas([]);
@@ -640,313 +1153,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 setLoadingSolicitarVisado(false);
                 // setAnexos([]);
             }
-
         }
     };
-
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    const handleFileInput = () => {
-        inputRef.current?.click();
-    };
-
-    const handleChangeFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const nuevosArchivos = Array.from(e.target.files);
-
-            setAnexos((prev) => {
-                const nombresPrevios = new Set(prev.map((file) => file.name));
-                const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
-                return [...prev, ...archivosFiltrados];
-            });
-        }
-    };
-
-    // const hoy = new Date();
-    // const fechaHoy = [
-    //     hoy.getFullYear(),
-    //     String(hoy.getMonth() + 1).padStart(2, "0"),
-    //     String(hoy.getDate()).padStart(2, "0")
-    // ].join("-");
-
-    const handleModificarSubmit = async () => {
-        const ListaModificar = InventarioModificar.map(item => ({
-            ...item,
-            usuariO_MOD: objeto.IdCredencial.toString()
-        }));
-
-        const resultado = await modificarFormInventarioActions(ListaModificar);
-        if (resultado) {
-            Swal.fire({
-                icon: "success",
-                title: "Actualización exitosa",
-                text: "Se ha actualizado el registro con éxito!",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: {
-                    popup: "custom-border", // Clase personalizada para el borde
-                }
-            });
-            // limpiarDataActions();
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: {
-                    popup: "custom-border", // Clase personalizada para el borde
-                }
-            });
-        }
-    };
-
-    const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = e.target;
-
-        // Copia del estado actual
-        const prev = structuredClone(AltaInventario);
-        const updatedState = { ...prev, [name]: checked };
-        //Limpia Todo al deshabilitar check
-        if (name === "ajustarFirma" && !checked) {
-            const cleanedState = {
-                ...updatedState,
-                chkFinanzas: false,
-                chkAbastecimiento: false,
-                chkUnidad: false,
-                //JERARQUIA 1
-                titularInventario: false,
-                subroganteInventario: false,
-                //JERARQUIA 2
-                titularFinanzas: false,
-                subroganteFinanzas: false,
-                //JERARQUIA 3
-                titularAbastecimiento: false,
-                subroganteAbastecimiento: false,
-                //JERARQUIA 3 //Combo
-                titularInformatica: false,
-                subroganteInformatica: false,
-                titularCompra: false,
-                subroganteCompra: false,
-                titularConvenio: false,
-                subroganteConvenio: false,
-                titularRFisico: false,
-                subroganteRFisico: false,
-
-
-                //Nombres de los firmantes
-                firmanteInventario: "",
-                firmanteFinanzas: "",
-                firmanteAbastecimiento: "",
-                firmanteInformatica: "",
-                firmanteCompra: "",
-                firmanteConvenio: "",
-                firmanteRFisico: "",
-
-                //Imagenes(esta integrado para su renderizaci+on pero no se usa) se deja de todas maneras
-                visadoInventario: "",
-                visadoFinanzas: "",
-                visadoAbastecimiento: ""
-            };
-            setIsDisabled(false);
-            setIsExpanded(true);
-            setAltaInventario(cleanedState);
-            return;
-        }
-        //Limpia Solo Finanzas al deshabilitar check
-        if (name === "chkFinanzas" && !checked) {
-            const cleanedState = {
-                ...updatedState,
-                titularFinanzas: false,
-                subroganteFinanzas: false,
-                firmanteFinanzas: "",
-
-            };
-            setIsDisabled(false);
-            setIsExpanded(true);
-            setAltaInventario(cleanedState);
-            return;
-        }
-        //Limpia Solo Abastecimiento al deshabilitar check
-        if (name === "chkAbastecimiento" && !checked) {
-            const cleanedState = {
-                ...updatedState,
-                titularAbastecimiento: false,
-                subroganteAbastecimiento: false,
-                firmanteAbastecimiento: "",
-
-            };
-            setIsDisabled(false);
-            setIsExpanded(true);
-            setAltaInventario(cleanedState);
-            return;
-        }
-        //Limpia solo combo y sus unidades al deshabilitar check
-        if (name === "chkUnidad" && !checked) {
-            setUnidad(0); // limpia combo
-            setUnidadNombre(""); // limpia nombre visible
-            const cleanedState = {
-                ...updatedState,
-                titularAbastecimiento: false,
-                subroganteAbastecimiento: false,
-                titularInformatica: false,
-                subroganteInformatica: false,
-                titularCompra: false,
-                subroganteCompra: false,
-                titularConvenio: false,
-                subroganteConvenio: false,
-                titularRFisico: false,
-                subroganteRFisico: false,
-                firmanteAbastecimiento: "",
-                firmanteInformatica: "",
-                firmanteCompra: "",
-                firmanteConvenio: "",
-                firmanteRFisico: "",
-            };
-            setIsDisabled(false);
-            setIsExpanded(true);
-            setAltaInventario(cleanedState);
-            return;
-        }
-
-        let firmanteInventario = prev.firmanteInventario || "";
-        let firmanteFinanzas = prev.firmanteFinanzas || "";
-        let firmanteAbastecimiento = prev.firmanteAbastecimiento || "";
-        let firmanteInformatica = prev.firmanteInformatica || "";
-        let firmanteCompra = prev.firmanteCompra || "";
-        let firmanteConvenio = prev.firmanteConvenio || "";
-        let firmanteRFisico = prev.firmanteRFisico || "";
-        let visadoInventario = prev.visadoInventario || "";
-        let visadoFinanzas = prev.visadoFinanzas || "";
-        let visadoAbastecimiento = prev.visadoAbastecimiento || "";
-
-        for (const firma of datosFirmas) {
-
-            const nombreCompleto = `${firma.nombre} ${firma.apellidO_PATERNO} ${firma.apellidO_MATERNO}`;
-
-            //Antes se renderizaba la imagen de la firma, este se cargaba desde la tabla en la columna firma(tabla inv_t_firmantes) se deja de todas manera si en algun momento se necesita volver a esto
-            const FIRMA = `data:image/${detectarTipo};base64,${firma.firma}`;
-
-            if (firma.iD_UNIDAD === 1) {
-                if (name === "titularInventario" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteInventario = nombreCompleto;
-                    visadoInventario = FIRMA;
-                    updatedState.subroganteInventario = false;
-                }
-                if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteInventario = nombreCompleto;
-                    visadoInventario = FIRMA;
-                    updatedState.titularInventario = false;
-                }
-            }
-            if (firma.iD_UNIDAD === 2) {
-                if (name === "titularFinanzas" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteFinanzas = nombreCompleto;
-                    visadoFinanzas = FIRMA;
-                    updatedState.subroganteFinanzas = false;
-                }
-                if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
-                    firmanteFinanzas = nombreCompleto;
-                    visadoFinanzas = FIRMA;
-                    updatedState.titularFinanzas = false;
-                }
-            }
-            if (firma.iD_UNIDAD === 3) {
-                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
-                    firmanteAbastecimiento = nombreCompleto;
-                    visadoAbastecimiento = FIRMA;
-                    updatedState.subroganteAbastecimiento = false;
-                }
-                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
-                    firmanteAbastecimiento = nombreCompleto;
-                    visadoAbastecimiento = FIRMA;
-                    updatedState.titularAbastecimiento = false;
-                }
-            }
-            if (AltaInventario.chkUnidad) {
-                //Unidad de Abastecimiento
-                if (firma.iD_UNIDAD === 3) {
-
-                    if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
-                        firmanteAbastecimiento = nombreCompleto;
-                        updatedState.subroganteAbastecimiento = false;
-                    }
-                    if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
-                        firmanteAbastecimiento = nombreCompleto;
-                        updatedState.titularAbastecimiento = false;
-                    }
-                }
-                //Departamento de Informática
-                if (firma.iD_UNIDAD === 4) {
-                    if (name === "titularInformatica" && checked && firma.rol === "TITULAR") {
-                        firmanteInformatica = nombreCompleto;
-                        updatedState.subroganteInformatica = false;
-                    }
-                    if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE") {
-                        firmanteInformatica = nombreCompleto;
-                        updatedState.titularInformatica = false;
-                    }
-                }
-                //Departamento de Compra
-                if (firma.iD_UNIDAD === 5) {
-                    if (name === "titularCompra" && checked && firma.rol === "TITULAR") {
-                        firmanteCompra = nombreCompleto;
-                        updatedState.subroganteCompra = false;
-                    }
-                    if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE") {
-                        firmanteCompra = nombreCompleto;
-                        updatedState.titularCompra = false;
-                    }
-                }
-                //Departamento de Convenio
-                if (firma.iD_UNIDAD === 6) {
-                    if (name === "titularConvenio" && checked && firma.rol === "TITULAR") {
-                        firmanteConvenio = nombreCompleto;
-                        updatedState.subroganteConvenio = false;
-                    }
-                    if (name === "subroganteConvenio" && checked && firma.rol === "SUBROGANTE") {
-                        firmanteConvenio = nombreCompleto;
-                        updatedState.titularConvenio = false;
-                    }
-                }
-                //Departamento de Recursos Fisicos
-                if (firma.iD_UNIDAD === 7) {
-                    if (name === "titularRFisico" && checked && firma.rol === "TITULAR") {
-                        firmanteRFisico = nombreCompleto;
-                        updatedState.subroganteRFisico = false;
-                    }
-                    if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE") {
-                        firmanteRFisico = nombreCompleto;
-                        updatedState.titularRFisico = false;
-                    }
-                }
-            }
-
-        }
-
-        updatedState.firmanteInventario = firmanteInventario;
-        updatedState.firmanteFinanzas = firmanteFinanzas;
-        updatedState.firmanteAbastecimiento = firmanteAbastecimiento;
-        updatedState.firmanteInformatica = firmanteInformatica;
-        updatedState.firmanteCompra = firmanteCompra;
-        updatedState.firmanteConvenio = firmanteConvenio;
-        updatedState.firmanteRFisico = firmanteRFisico;
-
-        updatedState.visadoInventario = visadoInventario;
-        updatedState.visadoFinanzas = visadoFinanzas;
-        updatedState.visadoAbastecimiento = visadoAbastecimiento;
-        setIsDisabled(false);
-        setIsExpanded(true);
-        setAltaInventario(updatedState);
-    }, [AltaInventario, datosFirmas, objeto]);
 
     const totalSum = useMemo(() => {
         return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.deT_PRECIO), 0);
     }, [filasSeleccionadasPDF]);
-
 
     const firmaFinanzasSeleccionada = (() => {
         if (!AltaInventario.chkFinanzas) return true;
@@ -1182,16 +1394,23 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                                 < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                                             </Button>
                                                                         </OverlayTrigger>
-                                                                        <Button type="button" variant="secondary" className="fw-semibold mx-1"
-                                                                            onClick={() => handleAbrirModalModificar(Lista.idocumento, Lista.altaS_CORR)}
-                                                                        >
-                                                                            Modificar
-                                                                            <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                        </Button>
                                                                     </>
                                                                 ) : (
-                                                                    <Button type="button" disabled>
+                                                                    <Button type="button" className="fw-semibold mx-1" disabled>
                                                                         Ver
+                                                                        < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                    </Button>
+                                                                )}
+                                                                {Lista.estado === 1 ? (
+                                                                    <Button type="button" variant="secondary" className="fw-semibold mx-1"
+                                                                        onClick={() => handleAbrirModalModificar(Lista.idocumento, Lista.altaS_CORR)}
+                                                                    >
+                                                                        Modificar
+                                                                        <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                    </Button>
+                                                                ) : (
+                                                                    <Button type="button" variant="secondary" className="fw-semibold mx-1" disabled>
+                                                                        Modificar
                                                                         < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                                     </Button>
                                                                 )}
@@ -1320,243 +1539,225 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </Modal.Body>
             </Modal>
             {/*Modal Modificar */}
-            {loadingModificar ? (
-                <>
-                    <div
-                        className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-                        style={{
-                            backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            zIndex: 1050,
-                        }}
-                    >
-                        <div className="text-center">
-                            <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
-                            <p className="text-white fw-semibold mb-0">Un momento...</p>
-                        </div>
+            <Modal show={mostrarModalModificar} onHide={handleCerrarModalModificar}
+                backdrop="static"
+                keyboard={false}
+                fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}
+            >
+                <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }}>
+                    <div className="d-flex justify-content-between w-100">
+                        <Modal.Title className="fw-semibold text-white">
+                            <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar
+                        </Modal.Title>
+
+                        <Button
+                            variant="transparent"
+                            className="border-0"
+                            onClick={handleCerrarModalModificar}
+                        >
+                            <CloseButton
+                                aria-hidden="true"
+                                className={"flex-shrink-0 h-5 w-5"}
+                            />
+                        </Button>
                     </div>
-                </>
-            ) : (
-                <>
-                    {elementosActualesModificar.map((Lista, index) => {
-                        let indexReal = indicePrimerElemento + index;
-                        return (
-                            <div key={indexReal}>
-                                <Modal show={mostrarModalModificar} onHide={handleCerrarModalModificar} fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "90vh" }}>
-                                    <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }} closeButton>
-                                        <Modal.Title className="fw-semibold text-white">
-                                            <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar</Modal.Title>
-                                    </Modal.Header>
-                                    <Modal.Body id="pdf-content" className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                                        <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold bg-warning-subtle text-muted border`} >
-                                            El documento número <b>{Lista.idocumento}</b> ha sido rechazado.
-                                        </p>
-                                        {/* Botón o mensaje */}
+                </Modal.Header>
+                <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold bg-warning-subtle text-muted border`} >
+                        El documento número <b>{InventarioModificar[0]?.idocumento ?? "-"}</b> ha sido rechazado.
+                    </p>
+                    {/* Botón o mensaje */}
 
-                                        {loadingModificar ? (
-                                            <SkeletonLoader rowCount={elementosPorPagina} />
-                                        ) : (
-                                            <>
-                                                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-                                                    <Col xs={12} lg="auto">
-                                                        {listaAltasRegistradas.length > 10 && (
-                                                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                                                <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
-                                                                    Tamaño de página:
-                                                                </label>
-                                                                <select
-                                                                    aria-label="Seleccionar tamaño de página"
-                                                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                                    name="nPaginacionModificar"
-                                                                    onChange={handleChange}
-                                                                    value={PaginacionModificar.nPaginacionModificar}
-                                                                >
-                                                                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                                        <option key={val} value={val}>
-                                                                            {val}
-                                                                        </option>
-                                                                    ))}
-                                                                </select>
-                                                            </div>
-                                                        )}
-                                                    </Col>
-                                                    <Col xs={12} lg={2}>
-                                                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                                            <Button
-                                                                variant={isDarkMode ? "secondary" : "primary"}
-                                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
-                                                                onClick={handleModificarSubmit}
-                                                            >
-                                                                {loadingModificar ? (
-                                                                    <>
-                                                                        Modificar
-                                                                        <Spinner
-                                                                            as="span"
-                                                                            animation="border"
-                                                                            size="sm"
-                                                                            role="status"
-                                                                            aria-hidden="true"
-                                                                            className="ms-2"
-                                                                        />
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <PencilSquare
-                                                                            className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
-                                                                            aria-hidden="true"
-                                                                        />
-                                                                        Modificar
-                                                                        <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                            {ModificarInventario.length}
-                                                                        </span>
-                                                                    </>
-                                                                )}
-                                                            </Button>
+                    {loadingModificar ? (
+                        <SkeletonLoader rowCount={elementosPorPagina} />
+                    ) : (
+                        <>
+                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                                <Col xs={12} lg="auto">
+                                    {listaAltasRegistradas.length > 10 && (
+                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                            <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
+                                                Tamaño de página:
+                                            </label>
+                                            <select
+                                                aria-label="Seleccionar tamaño de página"
+                                                className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="nPaginacionModificar"
+                                                onChange={handleChange}
+                                                value={PaginacionModificar.nPaginacionModificar}
+                                            >
+                                                {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                    <option key={val} value={val}>
+                                                        {val}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                </Col>
+                                <Col xs={12} lg={3}>
+                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                        <Button
+                                            variant="secondary"
+                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
+                                            onClick={handleModificarSubmit}
+                                            disabled={habilitarModificar}
+                                        >
+                                            {loadingModificar ? (
+                                                <>
+                                                    Modificar
+                                                    <Spinner
+                                                        as="span"
+                                                        animation="border"
+                                                        size="sm"
+                                                        role="status"
+                                                        aria-hidden="true"
+                                                        className="ms-2"
+                                                    />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Modificar
+                                                    <span className="badge bg-light text-dark mx-1 mt-1">
+                                                        {ModificarInventario.length}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </Button>
 
-                                                            <Button
-                                                                onClick={() => setMostrarModalVisadores(true)}
-                                                                disabled={listaAltasRegistradas.length === 0}
-                                                                variant={isDarkMode ? "secondary" : "primary"}
-                                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
-                                                            >
-                                                                <FiletypePdf
-                                                                    className="flex-shrink-0 h-5 w-5 mx-1 mb-1"
-                                                                    aria-hidden="true"
-                                                                />
-                                                                Exportar
-                                                                <span className="badge bg-light text-dark mx-2">
-                                                                    {InventarioModificar.length}
-                                                                </span>
-                                                            </Button>
+                                        <Button
+                                            onClick={() => setMostrarModalVisadores(true)}
+                                            disabled={habilitarVisado}
+                                            variant={isDarkMode ? "secondary" : "primary"}
+                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
+                                        >
+                                            Solicitar Visado
+                                        </Button>
+                                    </div>
+                                </Col>
+                            </Row>
+                            <div className="table-responsive">
+                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" className="text-nowrap">N° Inventario</th>
+                                            <th scope="col" className="text-nowrap">N° Alta</th>
+                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                            <th scope="col" className="text-nowrap">Nº Factura</th>
+                                            <th scope="col" className="text-nowrap">Orden de Compra</th>
+                                            <th scope="col" className="text-nowrap">Servicio</th>
+                                            <th scope="col" className="text-nowrap">Dependencia</th>
+                                            <th scope="col" className="text-nowrap">Especie</th>
+                                            <th scope="col" className="text-nowrap">N° Cuenta</th>
+                                            <th scope="col" className="text-nowrap">Marca</th>
+                                            <th scope="col" className="text-nowrap">Modelo</th>
+                                            <th scope="col" className="text-nowrap">Serie</th>
+                                            <th scope="col" className="text-nowrap">Precio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {elementosActualesModificar.map((Lista, index) => {
+                                            const indexReal = indicePrimerElementoModificar + index;
+                                            return (
+                                                <tr key={index}>
+                                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                                    <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                    <td className="text-nowrap">{Lista.fechA_ALTA}</td>
+                                                    <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
+                                                    <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
+                                                    <td className="text-nowrap">{Lista.serv}</td>
+                                                    <td className="text-nowrap">{Lista.dep}</td>
+                                                    <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                                    <td className="text-nowrap">{Lista.ctA_COD}</td>
+
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={Lista.deT_MARCA}
+                                                                onChange={(e) => handleCambiaMarca(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                autoFocus
+                                                                maxLength={50}
+                                                                placeholder="-"
+                                                                pattern="\d*"
+                                                                data-index={indexReal}
+                                                            />
                                                         </div>
-                                                    </Col>
-                                                </Row>
-                                                <div className="table-responsive">
-                                                    <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                                        <thead>
-                                                            <tr>
-                                                                <th scope="col" className="text-nowrap">N° Inventario</th>
-                                                                <th scope="col" className="text-nowrap">N° Alta</th>
-                                                                <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                                                <th scope="col" className="text-nowrap">Nº Factura</th>
-                                                                <th scope="col" className="text-nowrap">Orden de Compra</th>
-                                                                <th scope="col" className="text-nowrap">Servicio</th>
-                                                                <th scope="col" className="text-nowrap">Dependencia</th>
-                                                                <th scope="col" className="text-nowrap">Especie</th>
-                                                                <th scope="col" className="text-nowrap">N° Cuenta</th>
-                                                                <th scope="col" className="text-nowrap">Marca</th>
-                                                                <th scope="col" className="text-nowrap">Modelo</th>
-                                                                <th scope="col" className="text-nowrap">Serie</th>
-                                                                <th scope="col" className="text-nowrap">Precio</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {elementosActualesModificar.map((Lista, index) => {
-                                                                const indexReal = indicePrimerElementoModificar + index;
-                                                                return (
-                                                                    <tr key={index}>
-                                                                        <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                                        <td className="text-nowrap">{Lista.fechA_ALTA}</td>
-                                                                        <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                                                                        <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                                        <td className="text-nowrap">{Lista.serv}</td>
-                                                                        <td className="text-nowrap">{Lista.dep}</td>
-                                                                        <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                                                        <td className="text-nowrap">{Lista.ctA_COD}</td>
-
-                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                                <Form.Control
-                                                                                    type="text"
-                                                                                    value={Lista.deT_MARCA}
-                                                                                    onChange={(e) => handleCambiaMarca(index, e.target.value)}
-                                                                                    onBlur={handleBlur}
-                                                                                    autoFocus
-                                                                                    maxLength={50}
-                                                                                    placeholder="-"
-                                                                                    pattern="\d*"
-                                                                                    data-index={indexReal}
-                                                                                />
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                                <Form.Control
-                                                                                    type="text"
-                                                                                    value={Lista.deT_MODELO}
-                                                                                    onChange={(e) => handleCambiaModelo(index, e.target.value)}
-                                                                                    onBlur={handleBlur}
-                                                                                    autoFocus
-                                                                                    maxLength={50}
-                                                                                    placeholder="-"
-                                                                                    pattern="\d*"
-                                                                                    data-index={indexReal}
-                                                                                />
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                                <Form.Control
-                                                                                    type="text"
-                                                                                    value={Lista.deT_SERIE}
-                                                                                    onChange={(e) => handleCambiaSerie(index, e.target.value)}
-                                                                                    onBlur={handleBlur}
-                                                                                    autoFocus
-                                                                                    maxLength={20}
-                                                                                    placeholder="-"
-                                                                                    pattern="\d*"
-                                                                                    data-index={indexReal}
-                                                                                />
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                                            <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                                                <Form.Control
-                                                                                    type="text"
-                                                                                    value={Lista.deT_PRECIO}
-                                                                                    onChange={(e) => handleCambiaPrecio(index, e.target.value)}
-                                                                                    onBlur={handleBlur}
-                                                                                    autoFocus
-                                                                                    maxLength={20}
-                                                                                    placeholder="-"
-                                                                                    pattern="\d*"
-                                                                                    data-index={indexReal}
-                                                                                />
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            })}
-                                                        </tbody>
-                                                    </table>
-                                                    <div className="paginador-container position-relative z-0">
-                                                        <Pagination className="paginador-scroll">
-                                                            <Pagination.First onClick={() => paginarModificar(1)} disabled={paginaActualModificar === 1} />
-                                                            <Pagination.Prev onClick={() => paginarModificar(paginaActualModificar - 1)} disabled={paginaActualModificar === 1} />
-                                                            {Array.from({ length: totalPaginasModificar }, (_, i) => (
-                                                                <Pagination.Item
-                                                                    key={i + 1}
-                                                                    active={i + 1 === paginaActualModificar}
-                                                                    onClick={() => paginarModificar(i + 1)}
-                                                                >
-                                                                    {i + 1}
-                                                                </Pagination.Item>
-                                                            ))}
-                                                            <Pagination.Next onClick={() => paginarModificar(paginaActualModificar + 1)} disabled={paginaActualModificar === totalPaginasModificar} />
-                                                            <Pagination.Last onClick={() => paginarModificar(totalPaginasModificar)} disabled={paginaActualModificar === totalPaginasModificar} />
-                                                        </Pagination>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )}
-                                    </Modal.Body>
-                                </Modal >
+                                                    </td>
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={Lista.deT_MODELO}
+                                                                onChange={(e) => handleCambiaModelo(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                autoFocus
+                                                                maxLength={50}
+                                                                placeholder="-"
+                                                                pattern="\d*"
+                                                                data-index={indexReal}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={Lista.deT_SERIE}
+                                                                onChange={(e) => handleCambiaSerie(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                autoFocus
+                                                                maxLength={20}
+                                                                placeholder="-"
+                                                                pattern="\d*"
+                                                                data-index={indexReal}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={Lista.deT_PRECIO}
+                                                                onChange={(e) => handleCambiaPrecio(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                autoFocus
+                                                                maxLength={20}
+                                                                placeholder="-"
+                                                                pattern="\d*"
+                                                                data-index={indexReal}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                                <div className="paginador-container position-relative z-0">
+                                    <Pagination className="paginador-scroll">
+                                        <Pagination.First onClick={() => paginarModificar(1)} disabled={paginaActualModificar === 1} />
+                                        <Pagination.Prev onClick={() => paginarModificar(paginaActualModificar - 1)} disabled={paginaActualModificar === 1} />
+                                        {Array.from({ length: totalPaginasModificar }, (_, i) => (
+                                            <Pagination.Item
+                                                key={i + 1}
+                                                active={i + 1 === paginaActualModificar}
+                                                onClick={() => paginarModificar(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Pagination.Item>
+                                        ))}
+                                        <Pagination.Next onClick={() => paginarModificar(paginaActualModificar + 1)} disabled={paginaActualModificar === totalPaginasModificar} />
+                                        <Pagination.Last onClick={() => paginarModificar(totalPaginasModificar)} disabled={paginaActualModificar === totalPaginasModificar} />
+                                    </Pagination>
+                                </div>
                             </div>
-                        )
-                    })}
-                </>
-            )}
-
+                        </>
+                    )
+                    }
+                </Modal.Body>
+            </Modal >
 
             {/*Modal Firma visadores */}
             <Modal show={mostrarModalVisadores} onHide={() => setMostrarModalVisadores(false)} dialogClassName="modal-right" size="xl">
@@ -1579,40 +1780,48 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         </Row>
 
                         <div className="d-flex justify-content-end">
-                            <Button onClick={handleSolicitarVisado}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
+                            <Button
+                                onClick={handleSolicitarVisado}
+                                variant={isDarkMode ? "secondary" : "primary"}
+                                className="mx-1 mb-1 d-flex align-items-center gap-2"
                                 disabled={!botonHabilitado || anexos.length > 2}
                             >
                                 {loading ? (
                                     <>
-                                        {"Solicitar Visado"}
                                         <Spinner
                                             as="span"
                                             animation="border"
                                             size="sm"
                                             role="status"
                                             aria-hidden="true"
-                                            className="ms-1"
                                         />
+                                        <span>Procesando...</span>
                                     </>
                                 ) : (
                                     <>
-                                        {"Solicitar Visado"}
-                                        <FileSignatureIcon className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                        <FileSignatureIcon className="flex-shrink-0" width={18} height={18} aria-hidden="true" />
+                                        <span>Solicitar visado</span>
                                     </>
                                 )}
                             </Button>
                             {(objeto.IdCredencial === 18667 || objeto.IdCredencial === 66099 || objeto.IdCredencial === 66098 || objeto.IdCredencial === 62511) &&
-                                <Button
-                                    variant={isDarkMode ? "secondary" : "primary"}
-                                    className="mx-1 mb-1 d-flex align-items-center"
-                                    onClick={handleFileInput}
-                                    disabled={anexos.length === 2}
+                                <OverlayTrigger
+                                    placement="top"
+                                    overlay={<Tooltip id="tooltip-adjuntar">Puede adjuntar hasta 2 documentos</Tooltip>}
                                 >
-                                    Adjuntar Documento
-                                    <Paperclip className="ms-2" width={18} height={18} aria-hidden="true" />
-                                </Button>
+                                    <span>
+                                        <Button
+                                            variant={isDarkMode ? "secondary" : "primary"}
+                                            className="mx-1 mb-1 d-flex align-items-center gap-2"
+                                            onClick={handleFileInput}
+                                            disabled={anexos.length >= 2}
+                                        >
+                                            <Paperclip width={18} height={18} aria-hidden="true" />
+                                            <span>Adjuntar documento</span>
+                                        </Button>
+                                    </span>
+                                </OverlayTrigger>
+
 
                             }
                             <input
@@ -1644,7 +1853,17 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             type="checkbox"
                                             checked={AltaInventario.titularInventario}
                                         />
-                                        <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                        {nombreTitularInventario ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularInventario || ""}</Tooltip>}
+                                            >
+                                                <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                        )}
+
                                     </div>
                                     <div className="d-flex">
                                         <Form.Check
@@ -1654,7 +1873,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             type="checkbox"
                                             checked={AltaInventario.subroganteInventario}
                                         />
-                                        <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                        {nombreSubInventario ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubInventario}</Tooltip>}
+                                            >
+                                                <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                        )}
                                     </div>
                                 </Col>
 
@@ -1680,7 +1908,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             type="checkbox"
                                             checked={AltaInventario.titularFinanzas}
                                         />
-                                        <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                        {nombreTitularfinanzas ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularfinanzas}</Tooltip>}
+                                            >
+                                                <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                        )}
                                     </div>
                                     <div className="d-flex">
                                         <Form.Check
@@ -1690,7 +1927,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             type="checkbox"
                                             checked={AltaInventario.subroganteFinanzas}
                                         />
-                                        <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                        {nombreSubFinanzas ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubFinanzas}</Tooltip>}
+                                            >
+                                                <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                        )}
                                     </div>
                                 </Col>
 
@@ -1738,7 +1984,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.titularAbastecimiento}
                                                         />
-                                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                        {nombreTitularAbastecimiento ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularAbastecimiento}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                        )}
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1748,7 +2003,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteAbastecimiento}
                                                         />
-                                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                        {nombreSubAbastecimiento ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubAbastecimiento}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1763,7 +2027,17 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.titularInformatica}
                                                         />
-                                                        <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                        {nombreTitularInformatica ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularInformatica}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                        )}
+
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1773,11 +2047,19 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteInformatica}
                                                         />
-                                                        <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                        {nombreSubInformatica ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubInformatica}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
-
                                             {Unidad === 5 && (
                                                 <>
                                                     <div className="d-flex mt-2">
@@ -1788,7 +2070,17 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.titularCompra}
                                                         />
-                                                        <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                        {nombreTitularCompra ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularCompra}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                        )}
+
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1798,7 +2090,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteCompra}
                                                         />
-                                                        <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                        {nombreSubCompra ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubCompra}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1812,7 +2113,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.titularConvenio}
                                                         />
-                                                        <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                        {nombreTitularConvenio ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularConvenio}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                        )}
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1822,7 +2132,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteConvenio}
                                                         />
-                                                        <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                        {nombreSubConvenio ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubConvenio}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1836,7 +2155,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.titularRFisico}
                                                         />
-                                                        <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                        {nombreTitularRFisico ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularRFisico}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                        )}
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1846,7 +2174,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteRFisico}
                                                         />
-                                                        <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                        {nombreSubRFisico ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubRFisico}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1874,7 +2211,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     type="checkbox"
                                                     checked={AltaInventario.titularAbastecimiento}
                                                 />
-                                                <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                {nombreTitularAbastecimiento ? (
+                                                    <OverlayTrigger
+                                                        placement="right"
+                                                        overlay={<Tooltip id="tooltip-limpiar">{nombreTitularAbastecimiento}</Tooltip>}
+                                                    >
+                                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                    </OverlayTrigger>
+                                                ) : (
+                                                    <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                )}
                                             </div>
                                             <div className="d-flex">
                                                 <Form.Check
@@ -1884,7 +2230,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     type="checkbox"
                                                     checked={AltaInventario.subroganteAbastecimiento}
                                                 />
-                                                <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                {nombreSubAbastecimiento ? (
+                                                    <OverlayTrigger
+                                                        placement="right"
+                                                        overlay={<Tooltip id="tooltip-limpiar">{nombreSubAbastecimiento}</Tooltip>}
+                                                    >
+                                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                    </OverlayTrigger>
+                                                ) : (
+                                                    <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                )}
                                             </div>
                                         </>
                                     )}
@@ -1982,8 +2337,11 @@ export default connect(mapStateToProps, {
     listaEstadoActions,
     obtieneVisadoCompletoActions,
     listaEstadoVisadoresActions,
-    obtenerfirmasAltasActions,
     registrarDocumentoAltaActions,
-    modificarFormInventarioActions
+    modificarFormInventarioActions,
+    rechazarAltaActions,
+    limpiarDataActions,
+    obtenerfirmasAltasActions,
+    obtenerUnidadesActions,
 })(EstadoFirmas);
 

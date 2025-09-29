@@ -8,8 +8,6 @@ import {
   LISTA_ACTIVOS_NO_CALCULADOS_FAIL
 } from '../../types';
 import { Dispatch } from 'redux';
-import { LOGOUT } from '../../../auth/types';
-
 
 // Acción para obtener LISTA_ACTIVOS_CALCULADOS
 export const listaActivosCalculadosActions = (activosSeleccionados: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -79,8 +77,6 @@ export const listaActivosCalculadosActions = (activosSeleccionados: Record<strin
       type: LISTA_ACTIVOS_CALCULADOS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-
-    dispatch({ type: LOGOUT });
     return false;
   }
 }

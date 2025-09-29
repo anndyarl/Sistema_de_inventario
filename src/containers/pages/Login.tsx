@@ -27,6 +27,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
   const [formData, setFormData] = useState({ usuario: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [mostrarListado, setMostrarListado] = useState(false);
+
   const navigate = useNavigate();
 
   const Usuarios: NavItem[] = [
@@ -55,7 +56,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
       setLoading(false);
       setMostrarListado(resultado);
     } catch (error) {
-      console.error("Error al intentar iniciar sesión:", error);
+      // console.error("Error al intentar iniciar sesión:", error);
       setLoading(false);
     }
   };
@@ -76,7 +77,9 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
     }
   };
 
-  if (isAuthenticated) return <Navigate to="/Inicio" />;
+  if (isAuthenticated) {
+    return <Navigate to="/Inicio" />;
+  }
 
   return (
     <div className={`d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>

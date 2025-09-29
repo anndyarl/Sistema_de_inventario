@@ -5,8 +5,6 @@ import {
   OBTENER_ALTAS_SUCCESS,
   OBTENER_ALTAS_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
-
 
 export const listaAltasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token;
@@ -54,7 +52,6 @@ export const listaAltasActions = (fDesde: string, fHasta: string, af_codigo_gene
       type: OBTENER_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

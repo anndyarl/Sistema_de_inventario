@@ -5,7 +5,6 @@ import {
   LISTA_INVENTARIO_BUSCAR_SUCCESS,
   LISTA_INVENTARIO_BUSCAR_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 export const listaInventarioBuscarActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, deP_CORR: number,
   esP_CODIGO: string, nrecepcion: string, marca: string, modelo: string,
@@ -62,7 +61,6 @@ export const listaInventarioBuscarActions = (af_codigo_generico: string, FechaIn
         type: LISTA_INVENTARIO_BUSCAR_FAIL,
         error: "No se encontró un token de autenticación válido.",
       });
-      dispatch({ type: LOGOUT });
       return false;
     }
   };

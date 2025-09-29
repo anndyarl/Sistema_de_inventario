@@ -5,7 +5,7 @@ import {
   ANULAR_ALTAS_SUCCESS,
   ANULAR_ALTAS_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
+
 
 // Acción para obtener la recepción por número
 export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -49,7 +49,6 @@ export const anularAltasActions = (activos: { aF_CLAVE: number }[]) => async (di
       type: ANULAR_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

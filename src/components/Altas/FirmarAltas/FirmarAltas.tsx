@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { Pagination, Form, Modal, Col, Row, Collapse, Button, Spinner } from "react-bootstrap";
+import { Pagination, Form, Modal, Col, Row, Collapse, Button, Spinner, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { connect } from "react-redux";
 // import Swal from "sweetalert2";
 // import SignatureCanvas from 'react-signature-canvas';
@@ -36,8 +36,8 @@ export interface ListaAltas {
     aF_OCO_NUMERO_REF: string,
     seR_CORR: string,
     deP_CORR: string,
-    esp: string,
-    ncuenta: string,
+    esP_NOMBRE: string,
+    ctA_COD: string,
     deT_MARCA: string,
     deT_MODELO: string,
     deT_SERIE: string,
@@ -78,9 +78,9 @@ export interface ListaEstadoFirmas {
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
     comboUnidades: Unidades[];
-    obtenerUnidadesActions: () => Promise<boolean>;
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
     listaEstadoFirmasActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
+    obtenerUnidadesActions: () => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
     // anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
@@ -91,7 +91,7 @@ interface DatosBajas {
     listaEstadoFirmas: ListaEstadoFirmas[];
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerfirmasAltasActions, obtenerUnidadesActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, objeto }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerUnidadesActions, obtenerfirmasAltasActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, objeto }) => {
     const [loading, setLoading] = useState(false);
     // const [loadingAnular, setLoadingAnular] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
@@ -121,6 +121,22 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const [loadingEnvio, setLoadingEnvio] = useState(false);
     // adjuntar archivos modal
     const [anexos, setAnexos] = useState<File[]>([]);
+
+    //Estado para renderizar los nombres de los usuarios en cada check de los firmantes
+    const [nombreTitularInventario, setNombreTitularInventario] = useState<string>("");
+    const [nombreSubInventario, setNombreSubInventario] = useState<string>("");
+    const [nombreTitularfinanzas, setNombreTitularFinanzas] = useState<string>("");
+    const [nombreSubFinanzas, setNombreSubFinanzas] = useState<string>("");
+    const [nombreTitularAbastecimiento, setNombreTitularAbastecimiento] = useState<string>("");
+    const [nombreSubAbastecimiento, setNombreSubAbastecimiento] = useState<string>("");
+    const [nombreTitularInformatica, setNombreTitularInformatica] = useState<string>("");
+    const [nombreSubInformatica, setNombreSubInformatica] = useState<string>("");
+    const [nombreTitularCompra, setNombreTitularCompra] = useState<string>("");
+    const [nombreSubCompra, setNombreSubCompra] = useState<string>("");
+    const [nombreTitularConvenio, setNombreTitularConvenio] = useState<string>("");
+    const [nombreSubConvenio, setNombreSubConvenio] = useState<string>("");
+    const [nombreTitularRFisico, setNombreTitularRFisico] = useState<string>("");
+    const [nombreSubRFisico, setNombreSubRFisico] = useState<string>("");
 
     const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
         const resultado: { nombre: string, contenido: string }[] = [];
@@ -330,6 +346,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         subroganteRFisico: false,
                     };
                     break;
+
                 case 6:
                     nombreUnidad = "Departamento de Convenio";
                     cleanedState = {
@@ -417,51 +434,71 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         const prev = structuredClone(AltaInventario);
         const updatedState = { ...prev, [name]: checked };
         //Limpia Todo al deshabilitar check
-        if (name === "ajustarFirma" && !checked) {
-            const cleanedState = {
-                ...updatedState,
-                chkFinanzas: false,
-                chkAbastecimiento: false,
-                chkUnidad: false,
-                //JERARQUIA 1
-                titularInventario: false,
-                subroganteInventario: false,
-                //JERARQUIA 2
-                titularFinanzas: false,
-                subroganteFinanzas: false,
-                //JERARQUIA 3
-                titularAbastecimiento: false,
-                subroganteAbastecimiento: false,
-                //JERARQUIA 3 //Combo
-                titularInformatica: false,
-                subroganteInformatica: false,
-                titularCompra: false,
-                subroganteCompra: false,
-                titularConvenio: false,
-                subroganteConvenio: false,
-                titularRFisico: false,
-                subroganteRFisico: false,
+        if (name === "ajustarFirma") {
+            if (!checked) {
+                const cleanedState = {
+                    ...updatedState,
+                    chkFinanzas: false,
+                    chkAbastecimiento: false,
+                    chkUnidad: false,
+                    // JERARQUIA 1
+                    titularInventario: false,
+                    subroganteInventario: false,
+                    // JERARQUIA 2
+                    titularFinanzas: false,
+                    subroganteFinanzas: false,
+                    // JERARQUIA 3
+                    titularAbastecimiento: false,
+                    subroganteAbastecimiento: false,
+                    // JERARQUIA 3 //Combo
+                    titularInformatica: false,
+                    subroganteInformatica: false,
+                    titularCompra: false,
+                    subroganteCompra: false,
+                    titularConvenio: false,
+                    subroganteConvenio: false,
+                    titularRFisico: false,
+                    subroganteRFisico: false,
 
+                    // Nombres de firmantes
+                    firmanteInventario: "",
+                    firmanteFinanzas: "",
+                    firmanteAbastecimiento: "",
+                    firmanteInformatica: "",
+                    firmanteCompra: "",
+                    firmanteConvenio: "",
+                    firmanteRFisico: "",
 
-                //Nombres de los firmantes
-                firmanteInventario: "",
-                firmanteFinanzas: "",
-                firmanteAbastecimiento: "",
-                firmanteInformatica: "",
-                firmanteCompra: "",
-                firmanteConvenio: "",
-                firmanteRFisico: "",
-
-                //Imagenes(esta integrado para su renderizaci+on pero no se usa) se deja de todas maneras
-                visadoInventario: "",
-                visadoFinanzas: "",
-                visadoAbastecimiento: ""
-            };
-            setIsDisabled(false);
-            setIsExpanded(true);
-            setAltaInventario(cleanedState);
+                    // Imágenes
+                    visadoInventario: "",
+                    visadoFinanzas: "",
+                    visadoAbastecimiento: ""
+                };
+                setIsDisabled(true);
+                setIsExpanded(false);
+                setAltaInventario(cleanedState);
+                setNombreTitularInventario("");
+                setNombreSubInventario("");
+                setNombreTitularFinanzas("");
+                setNombreSubFinanzas("");
+                setNombreTitularAbastecimiento("");
+                setNombreSubAbastecimiento("");
+                setNombreTitularInformatica("");
+                setNombreSubInformatica("");
+                setNombreTitularCompra("");
+                setNombreSubCompra("");
+                setNombreTitularConvenio("");
+                setNombreSubConvenio("");
+                setNombreTitularRFisico("");
+                setNombreSubRFisico("");
+            } else {
+                setIsDisabled(false);
+                setIsExpanded(true);
+                setAltaInventario(updatedState);
+            }
             return;
         }
+
         //Limpia Solo Finanzas al deshabilitar check
         if (name === "chkFinanzas" && !checked) {
             const cleanedState = {
@@ -474,6 +511,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             setIsDisabled(false);
             setIsExpanded(true);
             setAltaInventario(cleanedState);
+            setNombreTitularFinanzas("");
+            setNombreSubFinanzas("");
             return;
         }
         //Limpia Solo Abastecimiento al deshabilitar check
@@ -488,34 +527,48 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             setIsDisabled(false);
             setIsExpanded(true);
             setAltaInventario(cleanedState);
+            setNombreTitularAbastecimiento("");
+            setNombreSubAbastecimiento("");
             return;
         }
         //Limpia solo combo y sus unidades al deshabilitar check
         if (name === "chkUnidad" && !checked) {
-            setUnidad(0); // limpia combo
-            setUnidadNombre(""); // limpia nombre visible
-            const cleanedState = {
-                ...updatedState,
-                titularAbastecimiento: false,
-                subroganteAbastecimiento: false,
-                titularInformatica: false,
-                subroganteInformatica: false,
-                titularCompra: false,
-                subroganteCompra: false,
-                titularConvenio: false,
-                subroganteConvenio: false,
-                titularRFisico: false,
-                subroganteRFisico: false,
-                firmanteAbastecimiento: "",
-                firmanteInformatica: "",
-                firmanteCompra: "",
-                firmanteConvenio: "",
-                firmanteRFisico: "",
-            };
-            setIsDisabled(false);
-            setIsExpanded(true);
-            setAltaInventario(cleanedState);
-            return;
+            if (!checked) {
+                setUnidad(0); // limpia combo
+                setUnidadNombre(""); // limpia nombre visible
+                const cleanedState = {
+                    ...updatedState,
+                    titularAbastecimiento: false,
+                    subroganteAbastecimiento: false,
+                    titularInformatica: false,
+                    subroganteInformatica: false,
+                    titularCompra: false,
+                    subroganteCompra: false,
+                    titularConvenio: false,
+                    subroganteConvenio: false,
+                    titularRFisico: false,
+                    subroganteRFisico: false,
+                    firmanteAbastecimiento: "",
+                    firmanteInformatica: "",
+                    firmanteCompra: "",
+                    firmanteConvenio: "",
+                    firmanteRFisico: "",
+                };
+                setIsDisabled(false);
+                setIsExpanded(true);
+                setAltaInventario(cleanedState);
+                setNombreTitularAbastecimiento("");
+                setNombreSubAbastecimiento("");
+                setNombreTitularInformatica("");
+                setNombreSubInformatica("");
+                setNombreTitularCompra("");
+                setNombreSubCompra("");
+                setNombreTitularConvenio("");
+                setNombreSubConvenio("");
+                setNombreTitularRFisico("");
+                setNombreSubRFisico("");
+                return;
+            }
         }
 
         let firmanteInventario = prev.firmanteInventario || "";
@@ -541,11 +594,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.subroganteInventario = false;
+                    setNombreTitularInventario(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreSubInventario("");
                 }
                 if (name === "subroganteInventario" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteInventario = nombreCompleto;
                     visadoInventario = FIRMA;
                     updatedState.titularInventario = false;
+                    setNombreSubInventario(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreTitularInventario("");
                 }
             }
             if (firma.iD_UNIDAD === 2) {
@@ -553,11 +610,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.subroganteFinanzas = false;
+                    setNombreTitularFinanzas(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreSubFinanzas("");
                 }
                 if (name === "subroganteFinanzas" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteFinanzas = nombreCompleto;
                     visadoFinanzas = FIRMA;
                     updatedState.titularFinanzas = false;
+                    setNombreSubFinanzas(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreTitularFinanzas("");
                 }
             }
             if (firma.iD_UNIDAD === 3) {
@@ -565,11 +626,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.subroganteAbastecimiento = false;
+                    setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreSubAbastecimiento("");
                 }
                 if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.titularAbastecimiento = false;
+                    setNombreSubAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                    setNombreTitularAbastecimiento("");
                 }
             }
             if (AltaInventario.chkUnidad) {
@@ -579,10 +644,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
                         firmanteAbastecimiento = nombreCompleto;
                         updatedState.subroganteAbastecimiento = false;
+                        setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubAbastecimiento("");
                     }
                     if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
                         firmanteAbastecimiento = nombreCompleto;
                         updatedState.titularAbastecimiento = false;
+                        setNombreSubAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularAbastecimiento("");
                     }
                 }
                 //Departamento de Informática
@@ -590,10 +659,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     if (name === "titularInformatica" && checked && firma.rol === "TITULAR") {
                         firmanteInformatica = nombreCompleto;
                         updatedState.subroganteInformatica = false;
+                        setNombreTitularInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubInformatica("");
                     }
                     if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE") {
                         firmanteInformatica = nombreCompleto;
                         updatedState.titularInformatica = false;
+                        setNombreSubInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularInformatica("");
                     }
                 }
                 //Departamento de Compra
@@ -601,10 +674,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     if (name === "titularCompra" && checked && firma.rol === "TITULAR") {
                         firmanteCompra = nombreCompleto;
                         updatedState.subroganteCompra = false;
+                        setNombreTitularCompra(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubCompra("");
                     }
                     if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE") {
                         firmanteCompra = nombreCompleto;
                         updatedState.titularCompra = false;
+                        setNombreSubCompra(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularCompra("");
                     }
                 }
                 //Departamento de Convenio
@@ -612,10 +689,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     if (name === "titularConvenio" && checked && firma.rol === "TITULAR") {
                         firmanteConvenio = nombreCompleto;
                         updatedState.subroganteConvenio = false;
+                        setNombreTitularConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubConvenio("");
                     }
                     if (name === "subroganteConvenio" && checked && firma.rol === "SUBROGANTE") {
                         firmanteConvenio = nombreCompleto;
                         updatedState.titularConvenio = false;
+                        setNombreSubConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularConvenio("");
                     }
                 }
                 //Departamento de Recursos Fisicos
@@ -623,14 +704,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     if (name === "titularRFisico" && checked && firma.rol === "TITULAR") {
                         firmanteRFisico = nombreCompleto;
                         updatedState.subroganteRFisico = false;
+                        setNombreTitularRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreSubRFisico("");
                     }
                     if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE") {
                         firmanteRFisico = nombreCompleto;
                         updatedState.titularRFisico = false;
+                        setNombreSubRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
+                        setNombreTitularRFisico("");
                     }
                 }
             }
-
         }
 
         updatedState.firmanteInventario = firmanteInventario;
@@ -1529,8 +1613,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
                                                     <td className="text-nowrap">{Lista.seR_CORR}</td>
                                                     <td className="text-nowrap">{Lista.deP_CORR}</td>
-                                                    <td className="text-nowrap">{Lista.esp}</td>
-                                                    <td className="text-nowrap">{Lista.ncuenta}</td>
+                                                    <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                                    <td className="text-nowrap">{Lista.ctA_COD}</td>
                                                     <td className="text-nowrap">{
                                                         Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
                                                             Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
@@ -1549,7 +1633,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     <td className="text-nowrap">
                                                         ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                     </td>
-                                                    <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
+                                                    <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "S/n" : Lista.nrecep}</td>
                                                 </tr>
                                             );
                                         })}
@@ -1599,40 +1683,48 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         </Row>
 
                         <div className="d-flex justify-content-end">
-                            <Button onClick={handleSolicitarVisado}
-                                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                className="mx-1 mb-1"
+                            <Button
+                                onClick={handleSolicitarVisado}
+                                variant={isDarkMode ? "secondary" : "primary"}
+                                className="mx-1 mb-1 d-flex align-items-center gap-2"
                                 disabled={!botonHabilitado || anexos.length > 2}
                             >
                                 {loading ? (
                                     <>
-                                        {"Solicitar Visado"}
                                         <Spinner
                                             as="span"
                                             animation="border"
                                             size="sm"
                                             role="status"
                                             aria-hidden="true"
-                                            className="ms-1"
                                         />
+                                        <span>Procesando...</span>
                                     </>
                                 ) : (
                                     <>
-                                        {"Solicitar Visado"}
-                                        <FileSignatureIcon className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                        <FileSignatureIcon className="flex-shrink-0" width={18} height={18} aria-hidden="true" />
+                                        <span>Solicitar visado</span>
                                     </>
                                 )}
                             </Button>
                             {(objeto.IdCredencial === 18667 || objeto.IdCredencial === 66099 || objeto.IdCredencial === 66098 || objeto.IdCredencial === 62511) &&
-                                <Button
-                                    variant={isDarkMode ? "secondary" : "primary"}
-                                    className="mx-1 mb-1 d-flex align-items-center"
-                                    onClick={handleFileInput}
-                                    disabled={anexos.length === 2}
+                                <OverlayTrigger
+                                    placement="top"
+                                    overlay={<Tooltip id="tooltip-adjuntar">Puede adjuntar hasta 2 documentos</Tooltip>}
                                 >
-                                    Adjuntar Documento
-                                    <Paperclip className="ms-2" width={18} height={18} aria-hidden="true" />
-                                </Button>
+                                    <span>
+                                        <Button
+                                            variant={isDarkMode ? "secondary" : "primary"}
+                                            className="mx-1 mb-1 d-flex align-items-center gap-2"
+                                            onClick={handleFileInput}
+                                            disabled={anexos.length >= 2}
+                                        >
+                                            <Paperclip width={18} height={18} aria-hidden="true" />
+                                            <span>Adjuntar documento</span>
+                                        </Button>
+                                    </span>
+                                </OverlayTrigger>
+
 
                             }
                             <input
@@ -1664,7 +1756,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             type="checkbox"
                                             checked={AltaInventario.titularInventario}
                                         />
-                                        <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                        {nombreTitularInventario ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularInventario || ""}</Tooltip>}
+                                            >
+                                                <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                        )}
+
                                     </div>
                                     <div className="d-flex">
                                         <Form.Check
@@ -1674,7 +1776,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             type="checkbox"
                                             checked={AltaInventario.subroganteInventario}
                                         />
-                                        <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                        {nombreSubInventario ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubInventario}</Tooltip>}
+                                            >
+                                                <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                        )}
                                     </div>
                                 </Col>
 
@@ -1700,7 +1811,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             type="checkbox"
                                             checked={AltaInventario.titularFinanzas}
                                         />
-                                        <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                        {nombreTitularfinanzas ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularfinanzas}</Tooltip>}
+                                            >
+                                                <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                        )}
                                     </div>
                                     <div className="d-flex">
                                         <Form.Check
@@ -1710,7 +1830,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             type="checkbox"
                                             checked={AltaInventario.subroganteFinanzas}
                                         />
-                                        <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                        {nombreSubFinanzas ? (
+                                            <OverlayTrigger
+                                                placement="right"
+                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubFinanzas}</Tooltip>}
+                                            >
+                                                <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                            </OverlayTrigger>
+                                        ) : (
+                                            <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                        )}
                                     </div>
                                 </Col>
 
@@ -1758,7 +1887,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.titularAbastecimiento}
                                                         />
-                                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                        {nombreTitularAbastecimiento ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularAbastecimiento}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                        )}
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1768,7 +1906,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteAbastecimiento}
                                                         />
-                                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                        {nombreSubAbastecimiento ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubAbastecimiento}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1783,7 +1930,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.titularInformatica}
                                                         />
-                                                        <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                        {nombreTitularInformatica ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularInformatica}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                        )}
+
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1793,11 +1950,19 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteInformatica}
                                                         />
-                                                        <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                        {nombreSubInformatica ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubInformatica}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
-
                                             {Unidad === 5 && (
                                                 <>
                                                     <div className="d-flex mt-2">
@@ -1808,7 +1973,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.titularCompra}
                                                         />
-                                                        <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                        {nombreTitularCompra ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularCompra}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                        )}
+
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1818,7 +1993,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteCompra}
                                                         />
-                                                        <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                        {nombreSubCompra ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubCompra}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1832,7 +2016,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.titularConvenio}
                                                         />
-                                                        <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                        {nombreTitularConvenio ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularConvenio}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                        )}
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1842,7 +2035,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteConvenio}
                                                         />
-                                                        <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                        {nombreSubConvenio ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubConvenio}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1856,7 +2058,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.titularRFisico}
                                                         />
-                                                        <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                        {nombreTitularRFisico ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreTitularRFisico}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                        )}
                                                     </div>
                                                     <div className="d-flex">
                                                         <Form.Check
@@ -1866,7 +2077,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             type="checkbox"
                                                             checked={AltaInventario.subroganteRFisico}
                                                         />
-                                                        <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                        {nombreSubRFisico ? (
+                                                            <OverlayTrigger
+                                                                placement="right"
+                                                                overlay={<Tooltip id="tooltip-limpiar">{nombreSubRFisico}</Tooltip>}
+                                                            >
+                                                                <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                            </OverlayTrigger>
+                                                        ) : (
+                                                            <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
@@ -1894,7 +2114,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     type="checkbox"
                                                     checked={AltaInventario.titularAbastecimiento}
                                                 />
-                                                <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                {nombreTitularAbastecimiento ? (
+                                                    <OverlayTrigger
+                                                        placement="right"
+                                                        overlay={<Tooltip id="tooltip-limpiar">{nombreTitularAbastecimiento}</Tooltip>}
+                                                    >
+                                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                    </OverlayTrigger>
+                                                ) : (
+                                                    <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                )}
                                             </div>
                                             <div className="d-flex">
                                                 <Form.Check
@@ -1904,15 +2133,22 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     type="checkbox"
                                                     checked={AltaInventario.subroganteAbastecimiento}
                                                 />
-                                                <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                {nombreSubAbastecimiento ? (
+                                                    <OverlayTrigger
+                                                        placement="right"
+                                                        overlay={<Tooltip id="tooltip-limpiar">{nombreSubAbastecimiento}</Tooltip>}
+                                                    >
+                                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                    </OverlayTrigger>
+                                                ) : (
+                                                    <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                )}
                                             </div>
                                         </>
                                     )}
                                 </Col>
                             </Row>
                         </Collapse>
-                        <h6 className="fw-semibold p-2">Documentos Adjuntos:</h6>
-
                         {anexos.length > 2 && (
                             <div className="w-100 text-end">
                                 <span className="badge bg-danger p-2">
@@ -1926,7 +2162,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 <table className={`table ${isDarkMode ? "table-dark" : "table-hover"}`}>
                                     <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
                                         <tr>
-                                            <th scope="col">Documento</th>
+                                            <th scope="col">Documentos adjuntos:</th>
                                             <th scope="col"></th>
                                         </tr>
                                     </thead>

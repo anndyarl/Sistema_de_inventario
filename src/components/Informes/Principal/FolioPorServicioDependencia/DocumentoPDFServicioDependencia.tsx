@@ -83,16 +83,16 @@ const styles = StyleSheet.create({
     tableRow: {
         flexDirection: "row",
         borderBottom: "1px solid #ccc",
-        alignItems: "center",
     },
     tableCell: {
         padding: 3,
         fontSize: 8,
+        fontWeight: "bold",
         borderRight: "1px solid #ccc",
-        textAlign: "center",
         overflow: "hidden",
         flexGrow: 1,
     },
+
     colCodigo: { width: "13%" },
     colEspecie: { width: "13%" },
     colMarca: { width: "10%" },
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     colTraslado: { width: "10%" },
     colPrecio: { width: "13%" },
     colCuenta: { width: "15%" },
+
 
     firmaContainer: {
         flexDirection: 'row',

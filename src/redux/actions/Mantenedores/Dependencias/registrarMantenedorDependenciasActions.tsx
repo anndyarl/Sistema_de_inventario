@@ -5,7 +5,6 @@ import {
   REGISTRAR_DEPENDENCIA_SUCCESS,
   REGISTRAR_DEPENDENCIA_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const registrarMantenedorDependenciasActions = (formModal: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -55,7 +54,6 @@ export const registrarMantenedorDependenciasActions = (formModal: Record<string,
       type: REGISTRAR_DEPENDENCIA_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

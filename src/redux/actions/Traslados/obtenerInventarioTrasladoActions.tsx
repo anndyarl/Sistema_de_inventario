@@ -5,7 +5,6 @@ import {
     OBTIENE_INV_TRASLADOS_SUCCESS,
     OBTIENE_INV_TRASLADOS_FAIL,
 } from "./types";
-import { LOGOUT } from "../auth/types";
 
 // Acción para obtener la recepción por número
 export const obtenerInventarioTrasladoActions = (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string, estabL_CORR: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -61,7 +60,6 @@ export const obtenerInventarioTrasladoActions = (aF_CODIGO_GENERICO: string, alt
             type: OBTIENE_INV_TRASLADOS_FAIL,
             error: "No se encontró un token de autenticación válido.",
         });
-        dispatch({ type: LOGOUT });
         return false;
     }
 };

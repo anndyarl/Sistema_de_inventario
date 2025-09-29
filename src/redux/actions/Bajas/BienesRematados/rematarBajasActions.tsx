@@ -5,7 +5,6 @@ import {
   REGISTRAR_REMATES_SUCCESS,
   REGISTRAR_REMATES_FAIL,
 } from "./../types";
-import { LOGOUT } from "../../auth/types";
 
 // Acción para obtener la recepción por número
 export const rematarBajasActions = (activos: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -55,7 +54,6 @@ export const rematarBajasActions = (activos: Record<string, any>[]) => async (di
       type: REGISTRAR_REMATES_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

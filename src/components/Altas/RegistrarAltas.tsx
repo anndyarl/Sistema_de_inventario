@@ -24,6 +24,8 @@ export interface ListaAltas {
   altaS_CORR: number;
   aF_CODIGO_GENERICO: string,
   aF_FINGRESO: string;
+  serv: string;
+  dep: string;
   seR_CORR: string,
   deP_CORR: string,
   esP_NOMBRE: string,
@@ -429,151 +431,166 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                 </Col>
 
                 {/* Botón o mensaje */}
-                <Col xs={12} lg={2}>
-                  <div className="d-flex justify-content-center justify-content-lg-end">
-                    {filasSeleccionadas.length > 0 ? (
-                      <Button
-                        variant={`${isDarkMode ? "secondary" : "primary"}`}
-                        onClick={handleAgrearSeleccionados}
-                        className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                        disabled={loadingRegistro}
-                      >
-                        {loadingRegistro ? (
-                          <>
-                            Registrando...
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="ms-2"
-                            />
-                          </>
+                {listaAltas.length > 0 && (
+                  <>
+                    <Col xs={12} lg={2}>
+                      <div className="d-flex justify-content-center justify-content-lg-end">
+                        {filasSeleccionadas.length > 0 ? (
+                          <Button
+                            variant={`${isDarkMode ? "secondary" : "primary"}`}
+                            onClick={handleAgrearSeleccionados}
+                            className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                            disabled={loadingRegistro}
+                          >
+                            {loadingRegistro ? (
+                              <>
+                                Registrando...
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  role="status"
+                                  aria-hidden="true"
+                                  className="ms-2"
+                                />
+                              </>
+                            ) : (
+                              <>
+                                Registrar
+                                <span className="badge bg-light text-dark mx-1 mt-1">
+                                  {filasSeleccionadas.length}
+                                </span>
+                                {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
+                              </>
+                            )}
+                          </Button>
                         ) : (
-                          <>
-                            Registrar
-                            <span className="badge bg-light text-dark mx-1 mt-1">
-                              {filasSeleccionadas.length}
-                            </span>
-                            {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
-                          </>
+                          <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                            <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                              No hay filas seleccionadas
+                            </strong>
+                          </div>
                         )}
-                      </Button>
-                    ) : (
-                      <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
-                          No hay filas seleccionadas
-                        </strong>
                       </div>
-                    )}
-                  </div>
-                </Col>
+                    </Col>
+                  </>
+                )}
               </Row>
-
-              {/* Tabla*/}
-              {loading ? (
+              {listaAltas.length > 0 ? (
                 <>
-                  <SkeletonLoader rowCount={elementosPorPagina} />
-                </>
-              ) : (
-                <div className='table-responsive'>
-                  <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                      <tr>
-                        <th style={{
-                          position: 'sticky',
-                          left: 0
-                        }}>
-                          <Form.Check
-                            type="checkbox"
-                            onChange={handleSeleccionaTodos}
-                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                          />
-                        </th>
-                        <th scope="col" className="text-nowrap">N° Inventario</th>
-                        <th scope="col" className="text-nowrap">Servicio</th>
-                        <th scope="col" className="text-nowrap">Dependencia</th>
-                        <th scope="col" className="text-nowrap">Fecha Ingreso</th>
-                        <th scope="col" className="text-nowrap">Especie</th>
-                        <th scope="col" className="text-nowrap">N° Cuenta</th>
-                        <th scope="col" className="text-nowrap">Marca</th>
-                        <th scope="col" className="text-nowrap">Modelo</th>
-                        <th scope="col" className="text-nowrap">Serie</th>
-                        <th scope="col" className="text-nowrap">Estado</th>
-                        <th scope="col" className="text-nowrap">Precio</th>
-                        <th scope="col" className="text-nowrap">N° Recepcion</th>
-                        {/* <th scope="col">Acción</th> */}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {elementosActuales.map((Lista, index) => {
-                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                        return (
-                          <tr key={indexReal}>
-                            <td style={{
+                  {/* Tabla*/}
+                  {loading ? (
+                    <>
+                      <SkeletonLoader rowCount={elementosPorPagina} />
+                    </>
+                  ) : (
+                    <div className='table-responsive'>
+                      <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                          <tr>
+                            <th style={{
                               position: 'sticky',
                               left: 0
                             }}>
                               <Form.Check
                                 type="checkbox"
-                                onChange={() => setSeleccionaFilas(index)}
-                                checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
+                                onChange={handleSeleccionaTodos}
+                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                               />
-                            </td>
-
-                            <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                            <td className="text-nowrap">{Lista.seR_CORR}</td>
-                            <td className="text-nowrap">{Lista.deP_CORR}</td>
-                            <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                            <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                            <td className="text-nowrap">{Lista.ctA_COD}</td>
-                            <td className="text-nowrap">{Lista.deT_MARCA}</td>
-                            <td className="text-nowrap">{Lista.deT_MODELO}</td>
-                            <td className="text-nowrap">{Lista.deT_SERIE}</td>
-                            <td className="text-nowrap">{Lista.estado}</td>
-                            <td className="text-nowrap">
-                              ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                            </td>
-                            <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
+                            </th>
+                            <th scope="col" className="text-nowrap">N° Inventario</th>
+                            <th scope="col" className="text-nowrap">Servicio</th>
+                            <th scope="col" className="text-nowrap">Dependencia</th>
+                            <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                            <th scope="col" className="text-nowrap">Especie</th>
+                            <th scope="col" className="text-nowrap">N° Cuenta</th>
+                            <th scope="col" className="text-nowrap">Marca</th>
+                            <th scope="col" className="text-nowrap">Modelo</th>
+                            <th scope="col" className="text-nowrap">Serie</th>
+                            <th scope="col" className="text-nowrap">Estado</th>
+                            <th scope="col" className="text-nowrap">Precio</th>
+                            <th scope="col" className="text-nowrap">N° Recepcion</th>
+                            {/* <th scope="col">Acción</th> */}
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {/* Paginador */}
-              <div className="paginador-container position-relative z-0">
-                <Pagination className="paginador-scroll">
-                  <Pagination.First
-                    onClick={() => paginar(1)}
-                    disabled={paginaActual === 1}
-                  />
-                  <Pagination.Prev
-                    onClick={() => paginar(paginaActual - 1)}
-                    disabled={paginaActual === 1}
-                  />
+                        </thead>
+                        <tbody>
+                          {elementosActuales.map((Lista, index) => {
+                            const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                            return (
+                              <tr key={indexReal}>
+                                <td style={{
+                                  position: 'sticky',
+                                  left: 0
+                                }}>
+                                  <Form.Check
+                                    type="checkbox"
+                                    onChange={() => setSeleccionaFilas(index)}
+                                    checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
+                                  />
+                                </td>
 
-                  {Array.from({ length: totalPaginas }, (_, i) => (
-                    <Pagination.Item
-                      key={i + 1}
-                      active={i + 1 === paginaActual}
-                      onClick={() => paginar(i + 1)}
-                    >
-                      {i + 1}
-                    </Pagination.Item>
-                  ))}
-                  <Pagination.Next
-                    onClick={() => paginar(paginaActual + 1)}
-                    disabled={paginaActual === totalPaginas}
-                  />
-                  <Pagination.Last
-                    onClick={() => paginar(totalPaginas)}
-                    disabled={paginaActual === totalPaginas}
-                  />
-                </Pagination>
-              </div >
+                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                <td className="text-nowrap">{Lista.serv}</td>
+                                <td className="text-nowrap">{Lista.dep}</td>
+                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                <td className="text-nowrap">{Lista.deT_MARCA}</td>
+                                <td className="text-nowrap">{Lista.deT_MODELO}</td>
+                                <td className="text-nowrap">{Lista.deT_SERIE}</td>
+                                <td className="text-nowrap">{Lista.estado}</td>
+                                <td className="text-nowrap">
+                                  ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                </td>
+                                <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {/* Paginador */}
+                  <div className="paginador-container position-relative z-0">
+                    <Pagination className="paginador-scroll">
+                      <Pagination.First
+                        onClick={() => paginar(1)}
+                        disabled={paginaActual === 1}
+                      />
+                      <Pagination.Prev
+                        onClick={() => paginar(paginaActual - 1)}
+                        disabled={paginaActual === 1}
+                      />
+
+                      {Array.from({ length: totalPaginas }, (_, i) => (
+                        <Pagination.Item
+                          key={i + 1}
+                          active={i + 1 === paginaActual}
+                          onClick={() => paginar(i + 1)}
+                        >
+                          {i + 1}
+                        </Pagination.Item>
+                      ))}
+                      <Pagination.Next
+                        onClick={() => paginar(paginaActual + 1)}
+                        disabled={paginaActual === totalPaginas}
+                      />
+                      <Pagination.Last
+                        onClick={() => paginar(totalPaginas)}
+                        disabled={paginaActual === totalPaginas}
+                      />
+                    </Pagination>
+                  </div >
+                </>
+              ) : (
+                <>
+                  <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                      No hay resultados para mostrar.
+                    </p>
+                  </div>
+                </>
+              )}
             </div >
           </form >
         </div>

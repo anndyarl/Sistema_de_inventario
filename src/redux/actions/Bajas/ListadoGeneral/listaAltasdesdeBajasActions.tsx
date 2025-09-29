@@ -5,8 +5,6 @@ import {
   LISTADO_GENERAL_BAJAS_SUCCESS,
   LISTADO_GENERAL_BAJAS_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
-
 
 export const listaAltasdesdeBajasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token;
@@ -50,7 +48,6 @@ export const listaAltasdesdeBajasActions = (fDesde: string, fHasta: string, af_c
         type: LISTADO_GENERAL_BAJAS_FAIL,
         error: "Error en la solicitud:", err,
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
   } else {
@@ -58,7 +55,6 @@ export const listaAltasdesdeBajasActions = (fDesde: string, fHasta: string, af_c
       type: LISTADO_GENERAL_BAJAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

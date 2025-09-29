@@ -5,7 +5,6 @@ import {
   OBTENER_REMATES_SUCCESS,
   OBTENER_REMATES_FAIL,
 } from "./../types"
-import { LOGOUT } from "../../auth/types";
 
 export const obtenerListaRematesActions = (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
@@ -59,7 +58,6 @@ export const obtenerListaRematesActions = (fDesde: string, fHasta: string, nreso
       type: OBTENER_REMATES_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };
