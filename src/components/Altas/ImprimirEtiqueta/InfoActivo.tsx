@@ -14,16 +14,22 @@ const InfoActivo: React.FC = () => {
     const params = new URLSearchParams(location.search);
     const aF_CODIGO_GENERICO = params.get("codigoinv") ?? "";
     const [loading, setLoading] = useState(true);
+    const [etiqueta, setEtiqueta] = useState<any | null>(null);
 
     useEffect(() => {
-        const cargarDatos = async () => {
-            dispatch(obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0));
-            setLoading(false);
-        };
-        cargarDatos();
+        if (aF_CODIGO_GENERICO.length > 0) { dispatch(obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, aF_CODIGO_GENERICO, 0)); }
+        setLoading(false);
+
     }, [aF_CODIGO_GENERICO]);
 
-    const etiqueta = listaReimpresionEtiquetas.find(item => item.aF_CODIGO_GENERICO === aF_CODIGO_GENERICO);
+    useEffect(() => {
+        if (listaReimpresionEtiquetas.length > 0) {
+            const encontrada = listaReimpresionEtiquetas.find(
+                (item) => item.aF_CODIGO_GENERICO === aF_CODIGO_GENERICO
+            );
+            setEtiqueta(encontrada ?? null);
+        }
+    }, [listaReimpresionEtiquetas, aF_CODIGO_GENERICO]);
 
 
     if (loading) {
@@ -50,6 +56,18 @@ const InfoActivo: React.FC = () => {
                 <iframe className='vh-100' src={url ?? ""} style={{ width: "100%", height: "100%", border: "none" }} />
             }
         </BlobProvider>
+
+        //    <BlobProvider document={<InfoActivoPDF row={[etiqueta]} />}>
+        //     {({ url, loading }) => {
+        //         useEffect(() => {
+        //             if (!loading && url) {
+        //                 window.open(url, "_blank");
+        //             }
+        //         }, [loading, url]);
+
+        //         return loading ? <p>Generando PDF...</p> : null;
+        //     }}
+        // </BlobProvider>
     );
 };
 

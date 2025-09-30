@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Form, Modal, Col, Row, Button, Spinner, CloseButton } from "react-bootstrap";
+import { Pagination, Form, Modal, Col, Row, Button, Spinner } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
+import { BlobProvider, pdf, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { ArrowCounterclockwise, Eraser, Printer, Search } from "react-bootstrap-icons";
 import { RootState } from "../../../store";
@@ -19,6 +19,7 @@ import Select from "react-select";
 import QRCode from "qrcode";
 import { QRCodeSVG } from 'qrcode.react';
 import { comboSerDepActions } from "../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+import { limpiarDataActions } from "../../../redux/actions/Configuracion/limparDataActions";
 
 interface FechasProps {
     fDesde: string;
@@ -65,6 +66,7 @@ export interface DatosBajas {
     obtenerReimpresionEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => Promise<boolean>;
     quitarEtiquetasActions: (etiquetas: Record<number, any>[]) => Promise<boolean>;
     comboSerDepActions: (establ_corr: number) => void;
+    limpiarDataActions: () => void;
     comboSerDep: SERVICIO_DEPENDENCIA[];
     listaEtiquetas: ListaEtiquetas[];
     listaReimpresionEtiquetas: ListaEtiquetas[];
@@ -73,7 +75,7 @@ export interface DatosBajas {
     objeto: Objeto;
 }
 
-const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, obtenerReimpresionEtiquetasAltasActions, quitarEtiquetasActions, comboSerDepActions, listaEtiquetas, listaReimpresionEtiquetas, comboSerDep, token, isDarkMode, objeto }) => {
+const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, obtenerReimpresionEtiquetasAltasActions, quitarEtiquetasActions, comboSerDepActions, limpiarDataActions, listaEtiquetas, listaReimpresionEtiquetas, comboSerDep, token, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
 
     //----------------Lista con Estado Etiqueta N(Lista General) --------------------//
@@ -83,7 +85,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const [paginaActual, setPaginaActual] = useState(1);
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
-    const [mostrarModal, setMostrarModal] = useState(false);
+    // const [mostrarModal, setMostrarModal] = useState(false);
 
     //----------------Lista con Estado Etiqueta S(Reimpresión) --------------------//
     const [loadingReimprimir, setLoadingReimprimir] = useState(false);
@@ -93,7 +95,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const elementosPorPagina1 = Paginacion1.nPaginacion1;
     const [mostrarModalLista, setMostrarModalLista] = useState(false);
     const [mostrarModalReimprimir, setMostrarModalReimprimir] = useState(false);
-    const [listaQRInicial, setListaQRInicial] = useState<ListaEtiquetas[]>([]);
+    const [_, setListaQRInicial] = useState<ListaEtiquetas[]>([]);
     const [listaQRReimpresion, setListaQRReimpresion] = useState<ListaEtiquetas[]>([]);
     const [BuscarImprimir, setBuscarImprimir] = useState({
         fDesde: "",
@@ -138,10 +140,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     useEffect(() => {
         if (comboSerDep.length === 0) { comboSerDepActions(objeto.Roles[0].codigoEstablecimiento) }
         if (listaEtiquetas.length === 0) listaAuto();
-        if (listaReimpresionEtiquetas.length === 0) {
-            obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
-        }
-    }, [listaEtiquetas, listaReimpresionEtiquetas]);
+
+    }, [listaEtiquetas, listaReimpresionEtiquetas,]);
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -433,11 +433,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             activosSeleccionados.map(async (item) => {
 
                 const valueQR =
-                    `Cod. Bien: ${item.aF_CODIGO_GENERICO}\n` +
-                    `Nom. Bien: ${item.aF_DESCRIPCION}\n` +
-                    `F. Alta: ${item.aF_FECHA_ALTA}\n` +
-                    `Cta. Contable: ${item.aF_NCUENTA}\n` +
-                    `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
+                    // `Cod. Bien: ${item.aF_CODIGO_GENERICO}\n` +
+                    // `Nom. Bien: ${item.aF_DESCRIPCION}\n` +
+                    // `F. Alta: ${item.aF_FECHA_ALTA}\n` +
+                    // `Cta. Contable: ${item.aF_NCUENTA}\n` +
+                    // `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
                     `${import.meta.env.VITE_CSRF_INFO_PDF}${item.aF_CODIGO_GENERICO}`;
                 // const qrImage = await generateQRCodeSVG(valueQR);
                 // return { ...item, qrImage };
@@ -447,10 +447,19 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             })
         );
 
-        obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
+
+        const blob = await pdf(
+            <DocumentoEtiquetasPDF row={etiquetasConQR} />
+        ).toBlob();
+
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+        obtenerEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
+        limpiarDataActions()
+        setFilasSeleccionadas([]);
         setListaQRInicial(etiquetasConQR);
         // Muestra modal y finaliza la carga
-        setMostrarModal(true);
+        // setMostrarModal(true);
         setLoading(false);
     };
 
@@ -479,8 +488,6 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     };
 
     const handleGenerarReimpresion = async () => {
-        setListaQRInicial([]);
-        setListaQRReimpresion([]);
         setLoadingReimprimir(true);
         // Seleccionar los nuevos activos
         const selectedIndices = filasSeleccionadasReimprimir.map(Number);
@@ -497,11 +504,11 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
             activosSeleccionados.map(async (item) => {
 
                 const valueQR =
-                    `Cod. Bien: ${item.aF_CODIGO_GENERICO}\n` +
-                    `Nom. Bien: ${item.aF_DESCRIPCION}\n` +
-                    `F. Alta: ${item.aF_FECHA_ALTA}\n` +
-                    `Cta. Contable: ${item.aF_NCUENTA}\n` +
-                    `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
+                    // `Cod. Bien: ${item.aF_CODIGO_GENERICO}\n` +
+                    // `Nom. Bien: ${item.aF_DESCRIPCION}\n` +
+                    // `F. Alta: ${item.aF_FECHA_ALTA}\n` +
+                    // `Cta. Contable: ${item.aF_NCUENTA}\n` +
+                    // `Origen: ${item.origen.charAt(0).toUpperCase() + item.origen.slice(1).toLocaleLowerCase()}\n` +
                     `${import.meta.env.VITE_CSRF_INFO_PDF}${item.aF_CODIGO_GENERICO}`;
                 // const qrImage = await generateQRCodeSVG(valueQR);
                 // console.log("etiquetasConQR:", qrImage);
@@ -511,39 +518,52 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 return { ...item, qrSvg: qrParsed };
             })
         );
+        const blob = await pdf(
+            <DocumentoEtiquetasPDF row={etiquetasConQR} />
+        ).toBlob();
+
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
 
         setListaQRReimpresion(etiquetasConQR);
         // Muestra modal y finaliza la carga
-        setMostrarModalReimprimir(true);
+        // setMostrarModalReimprimir(true);
         setLoadingReimprimir(false);
     };
 
-    const handleCerrarModal = () => {
+    const handleAbrirModalReimprimir = () => {
+        setMostrarModalLista(true)
+        if (listaReimpresionEtiquetas.length === 0) {
+            obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
+        }
+    }
 
-        Swal.fire({
-            icon: "info",
-            title: "Reimpresión disponible",
-            text: "Para ver todas las etiquetas que ya han sido generadas, haga clic en el botón 'Reimprimir'.",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: { popup: "custom-border" },
-            allowOutsideClick: false,
-            confirmButtonText: "Reimprimir",
-            showCancelButton: true, // Agrega un segundo botón
-            cancelButtonText: "Cerrar", // Texto del botón
-            willClose: () => {
-                document.body.style.overflow = "auto"; // Restaura el scroll
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                setMostrarModalLista(true);
-            }
-        });
-        handleBuscar();
-        setMostrarModal(false);
-        setFilasSeleccionadas([]);
-    };
+    // const handleCerrarModal = () => {
+
+    //     Swal.fire({
+    //         icon: "info",
+    //         title: "Reimpresión disponible",
+    //         text: "Para ver todas las etiquetas que ya han sido generadas, haga clic en el botón 'Reimprimir'.",
+    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+    //         customClass: { popup: "custom-border" },
+    //         allowOutsideClick: false,
+    //         confirmButtonText: "Reimprimir",
+    //         showCancelButton: true, // Agrega un segundo botón
+    //         cancelButtonText: "Cerrar", // Texto del botón
+    //         willClose: () => {
+    //             document.body.style.overflow = "auto"; // Restaura el scroll
+    //         }
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             setMostrarModalLista(true);
+    //         }
+    //     });
+    //     handleBuscar();
+    //     setMostrarModal(false);
+    //     setFilasSeleccionadas([]);
+    // };
 
     //----------------Lista con Estado Etiqueta N(Lista General) --------------------//
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -741,67 +761,71 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 )}
                             </Col>
 
-                            {listaEtiquetas.length > 0 && (
-                                <>
-                                    {/* Botones y mensajes */}
-                                    <Col xs={12} lg={4}>
-                                        <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                                            {filasSeleccionadas.length > 0 ? (
-                                                <>
-                                                    {/* Botón Generar */}
-                                                    <Button
-                                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                        onClick={handleGenerar}
-                                                        disabled={listaEtiquetas.length === 0}
-                                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
-                                                    >
-                                                        {loading ? (
-                                                            <>
-                                                                Generar
-                                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
-                                                                Generar
-                                                                <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                    {filasSeleccionadas.length}
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                    </Button>
-                                                </>
-                                            ) : (
-                                                <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
-                                                        No hay filas seleccionadas
-                                                    </strong>
-                                                </div>
-                                            )}
-
-                                            {/* Botón Reimprimir */}
+                            {/* Botones y mensajes */}
+                            <Col xs={12} lg={listaEtiquetas.length > 0 ? 4 : 2}>
+                                <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                    {filasSeleccionadas.length > 0 ? (
+                                        <>
+                                            {/* Botón Generar */}
                                             <Button
-                                                variant="warning"
-                                                onClick={() => setMostrarModalLista(true)}
-                                                disabled={loadingReimprimir}
-                                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
+                                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                onClick={handleGenerar}
+                                                disabled={listaEtiquetas.length === 0}
+                                                className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                                             >
-                                                {loadingReimprimir ? (
+                                                {loading ? (
                                                     <>
-                                                        Reimprimir
-                                                        <Spinner as="span" className="flex-shrink-0 h-5 w-5" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                        Generar
+                                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
                                                     </>
                                                 ) : (
                                                     <>
-                                                        Reimprimir
-                                                        <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                                        <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                                        Generar
+                                                        <span className="badge bg-light text-dark mx-1 mt-1">
+                                                            {filasSeleccionadas.length}
+                                                        </span>
                                                     </>
                                                 )}
                                             </Button>
-                                        </div>
-                                    </Col>
-                                </>
-                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {
+                                                listaEtiquetas.length > 0 && (
+
+                                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
+                                                            No hay filas seleccionadas
+                                                        </strong>
+                                                    </div>
+                                                )
+                                            }
+                                        </>
+                                    )}
+
+                                    {/* Botón Reimprimir */}
+                                    <Button
+                                        variant="warning"
+                                        onClick={handleAbrirModalReimprimir}
+                                        disabled={loadingReimprimir}
+                                        className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
+                                    >
+                                        {loadingReimprimir ? (
+                                            <>
+                                                Reimprimir
+                                                <Spinner as="span" className="flex-shrink-0 h-5 w-5" animation="border" size="sm" role="status" aria-hidden="true" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                Reimprimir
+                                                <ArrowCounterclockwise className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </Col>
+
                         </Row>
 
                         {listaEtiquetas.length > 0 ? (
@@ -905,7 +929,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 </div>
             </div>
             {/*Modal Imprimir Etiquetas */}
-            <Modal
+            {/* <Modal
                 show={mostrarModal}
                 onHide={() => setMostrarModal(false)}
                 dialogClassName="modal-right" size="lg"
@@ -927,8 +951,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     </div>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form>
-                        {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+                    <form>                     
                         <BlobProvider document={<DocumentoEtiquetasPDF row={listaQRInicial} />
                         }>
                             {({ url, loading }) =>
@@ -951,7 +974,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </BlobProvider>
                     </form>
                 </Modal.Body>
-            </Modal>
+            </Modal> */}
+
 
             {/*Modal listado ReImprimir */}
             <Modal show={mostrarModalLista} onHide={() => setMostrarModalLista(false)}
@@ -1070,38 +1094,35 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                 />
                             </div>
                         </Col>
-                        {listaReimpresionEtiquetas.length > 0 && (
-                            <>
-                                {/* Columna 5: Botones de Acción */}
-                                <Col lg={1} md={4}>
-                                    <div className="d-flex flex-column gap-2 mt-4">
-                                        <Button
-                                            onClick={handleBuscarReimprimir}
-                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                            className="w-100"
-                                        // disabled={loading}
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    Buscar
-                                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Buscar
-                                                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                                </>
-                                            )}
-                                        </Button>
+                        {/* Columna 5: Botones de Acción */}
+                        <Col lg={1} md={4}>
+                            <div className="d-flex flex-column gap-2 mt-4">
+                                <Button
+                                    onClick={handleBuscarReimprimir}
+                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                    className="w-100"
+                                // disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            Buscar
+                                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            Buscar
+                                            <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                        </>
+                                    )}
+                                </Button>
 
-                                        <Button onClick={handleLimpiarReimprimir} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                                            Limpiar
-                                            <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                        </Button>
-                                    </div>
-                                </Col>
-                            </>
-                        )}
+                                <Button onClick={handleLimpiarReimprimir} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                                    Limpiar
+                                    <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                </Button>
+                            </div>
+                        </Col>
+
                     </Row>
                     <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                         {/* Tamaño de página */}
@@ -1132,7 +1153,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         <Col xs={12} lg={2}>
                             {filasSeleccionadasReimprimir.length > 0 ? (
                                 <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end">
-                                    <Button
+                                    {/* <Button
                                         variant={isDarkMode ? "secondary" : "primary"}
                                         onClick={handleGenerarReimpresion}
                                         disabled={loadingReimprimir}
@@ -1152,7 +1173,34 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                                 </span>
                                             </>
                                         )}
-                                    </Button>
+                                    </Button> */}
+                                    {/* Botón Reimprimir + PDF */}
+                                    <BlobProvider document={<DocumentoEtiquetasPDF row={listaQRReimpresion} />}>
+                                        {({ url, loading }) =>
+                                            loading ? (
+                                                <Button
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                                    disabled
+                                                >
+                                                    <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                                    Generando...
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                                    onClick={async () => {
+                                                        await handleGenerarReimpresion(); // genera los QR
+                                                        if (url) {
+                                                            window.open(url, "_blank"); // abre el PDF
+                                                        }
+                                                    }}
+                                                >
+                                                    <Printer className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                                    Reimprimir
+                                                </Button>
+                                            )
+                                        }
+                                    </BlobProvider>
                                 </div>
                             ) : (
                                 <div className="d-flex justify-content-center justify-content-lg-end">
@@ -1289,8 +1337,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form>
-                        {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-                        {listaQRReimpresion.length > 0 && (
+                        {/* {listaQRReimpresion.length > 0 && (
                             <BlobProvider document={<DocumentoEtiquetasPDF row={listaQRReimpresion} />}>
                                 {({ url, loading }) =>
                                     loading ? (
@@ -1303,8 +1350,8 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                                         ></iframe>
                                     )
                                 }
-                            </BlobProvider>
-                        )}
+                            </BlobProvider>                          
+                        )} */}
 
                     </form>
                 </Modal.Body>
@@ -1328,6 +1375,7 @@ export default connect(mapStateToProps, {
     obtenerEtiquetasAltasActions,
     obtenerReimpresionEtiquetasAltasActions,
     quitarEtiquetasActions,
-    comboSerDepActions
+    comboSerDepActions,
+    limpiarDataActions
 })(ImprimirEtiqueta);
 

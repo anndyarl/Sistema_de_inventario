@@ -1116,7 +1116,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
 
         if (result.isConfirmed) {
-            // console.log("documento", documento);
+            console.log("documento", documento);
             setLoadingEnvio(true);
             setMostrarModalVisadores(false);
             const resultado = await registrarDocumentoAltaActions(documento);

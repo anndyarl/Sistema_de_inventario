@@ -48,6 +48,8 @@ export interface ListaAltas {
     estadO_FIRMA: number;
     idocumento: number;
     usuariO_CREA: string | number;
+    serv: string;
+    dep: string;
 }
 export interface DatosFirmas {
     nombre: string,
@@ -63,7 +65,7 @@ export interface DatosFirmas {
     url: string,
     iD_UNIDAD: number,
     idcargo: number;
-    correo: string
+    correo: string;
 }
 export interface Unidades {
     iD_UNIDAD: number,
@@ -1611,8 +1613,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     <td className="text-nowrap">{Lista.fechA_ALTA}</td>
                                                     <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
                                                     <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-nowrap">{Lista.seR_CORR}</td>
-                                                    <td className="text-nowrap">{Lista.deP_CORR}</td>
+                                                    <td className="text-nowrap">{Lista.serv}</td>
+                                                    <td className="text-nowrap">{Lista.dep}</td>
                                                     <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
                                                     <td className="text-nowrap">{Lista.ctA_COD}</td>
                                                     <td className="text-nowrap">{

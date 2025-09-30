@@ -28,6 +28,9 @@ export interface ListaBajas {
   fechA_BAJA: string;
   esP_NOMBRE: string;
   deP_ACUMULADA: number;
+  aF_FINGRESO: string;
+  serv: string;
+  dep: string;
 }
 
 interface DatosBajas {
@@ -480,8 +483,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
                               <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                               <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                              <td className="text-nowrap">{Lista.seR_CORR}</td>
-                              <td className="text-nowrap">{Lista.deP_CORR}</td>
+                              <td className="text-nowrap">{Lista.serv}</td>
+                              <td className="text-nowrap">{Lista.dep}</td>
                               <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
                               <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
                               <td className="text-nowrap">{Lista.ctA_COD}</td>
