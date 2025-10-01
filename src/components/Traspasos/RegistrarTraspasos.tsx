@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form, CloseButton } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CaretDown, CaretUpFill, Eraser, Search, Send } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Eraser, Paperclip, Search, Send } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -168,7 +168,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         modelo: "",
         serie: ""
     });
-
+    const [anexos, setAnexos] = useState<File[]>([]);
     //Primera Letra en mayúscula
     const PrimeraMayuscula = (str: string) =>
         str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -185,6 +185,49 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         paS_NOM_AUTORIZA: "",
         estabL_CORR: 0 //Establecimiento Destino
     });
+
+    // const [nombreDocumento, setNombreDocumento] = useState<string>("");
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileInput = () => {
+        inputRef.current?.click();
+    };
+
+    const handleChangeFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const nuevosArchivos = Array.from(e.target.files);
+
+            setAnexos((prev) => {
+                const nombresPrevios = new Set(prev.map((file) => file.name));
+                const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
+                return [...prev, ...archivosFiltrados];
+            });
+        }
+    };
+
+    // const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
+    //     const resultado: { nombre: string, contenido: string }[] = [];
+
+    //     for (const archivo of archivos) {
+    //         const contenido = await new Promise<string>((resolve, reject) => {
+    //             const reader = new FileReader();
+    //             reader.onload = () => resolve((reader.result as string).split(",")[1]);
+    //             reader.onerror = reject;
+    //             reader.readAsDataURL(archivo);
+    //         });
+
+    //         resultado.push({
+    //             nombre: archivo.name,
+    //             contenido
+    //         });
+
+    //         setNombreDocumento(archivo.name);//Guardo el nombre del documento adjunto
+    //         // console.log("archivo.name", archivo.name);
+    //     }
+
+    //     return resultado;
+    // };
 
     const especieOptions = comboEspecies.map((item) => ({
         value: item.esP_CODIGO,
@@ -571,6 +614,9 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
 
             if (result.isConfirmed) {
                 setLoading(true);
+
+
+                // const anexosBase64 = await convertirArchivosABase64(anexos);
                 const activosSeleccionados = activosFijos.map((item) => ({
                     aF_CLAVE: item.aF_CLAVE,
                     aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
@@ -585,11 +631,13 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     // paS_NOM_RECIBE: Traspasos.paS_NOM_RECIBE,
                     paS_NOM_AUTORIZA: Traspasos.paS_NOM_AUTORIZA,
                     estabL_CORR_ORIGEN: objeto.Roles[0].codigoEstablecimiento,
-                    estabL_CORR: Traspasos.estabL_CORR,
+                    estabL_CORR: Traspasos.estabL_CORR
+                    // Adjuntos: anexosBase64
                 }));
 
+
                 const resultado = await registroTraspasoMultipleActions(activosSeleccionados);
-                console.log(activosSeleccionados);
+                // console.log("formulario", activosSeleccionados);
                 if (resultado) {
                     mostrarAlerta();
                     listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
@@ -611,6 +659,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                         customClass: { popup: "custom-border" }
                     });
                 }
+
                 setLoading(false);
             }
         }
@@ -1494,6 +1543,31 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                             <div className="invalid-feedback">{error.paS_NOM_AUTORIZA}</div>
                                         )}
                                     </div>
+                                </div>
+
+                                <div className="border border-1 mt-4 p-4 pb-5 rounded-2 d-flex justify-content-center align-items-center ">
+                                    <span>
+                                        <Button
+
+                                            variant={isDarkMode ? "secondary" : "primary"}
+                                            className="mx-1"
+                                            onClick={handleFileInput}
+
+                                        >
+                                            <Paperclip width={18} height={18} aria-hidden="true" />
+                                            <span>Adjuntar documento</span>
+                                        </Button>
+                                    </span>
+                                    <input
+                                        aria-label="file"
+                                        ref={inputRef}
+                                        type="file"
+                                        multiple
+                                        accept=".pdf,.doc,.docx,.jpg,.png"
+                                        style={{ display: "none" }}
+                                        className={anexos.length > 1 ? "disabled" : ""}
+                                        onChange={handleChangeFiles}
+                                    />
                                 </div>
                             </Col>
                         </Row>

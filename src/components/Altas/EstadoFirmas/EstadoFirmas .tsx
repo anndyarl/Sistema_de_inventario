@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip, Form, Collapse, CloseButton } from "react-bootstrap";
+import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip, Form, Collapse } from "react-bootstrap";
 import { connect } from "react-redux";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { RootState } from "../../../store";
@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, CheckCircle, Eraser, Eye, Paperclip, Pencil, PencilFill, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, CheckCircle, Eraser, Eye, Paperclip, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
@@ -21,7 +21,7 @@ import { DatosFirmas, Unidades } from "../FirmarAltas/FirmarAltas";
 import { pdf } from "@react-pdf/renderer";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
-import ModificarInventario, { InventarioCompleto } from "../../Inventario/ModificarInventario";
+import { InventarioCompleto } from "../../Inventario/ModificarInventario";
 import { rechazarAltaActions } from "../../../redux/actions/Altas/EstadoFirmas/rechazarAltaAcions";
 import { limpiarDataActions } from "../../../redux/actions/Configuracion/limparDataActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -88,12 +88,12 @@ interface DatosBajas {
     comboUnidades: Unidades[];
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, comboUnidades, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, /*listaAltasRegistradasActions, */ registrarDocumentoAltaActions, /*modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions,*/ obtenerUnidadesActions, obtenerfirmasAltasActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, comboUnidades, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
     const [______, setLoadingEnvio] = useState(false);
-    const [loadingModificar, setLoadingModificar] = useState(false);
+    // const [loadingModificar, setLoadingModificar] = useState(false);
 
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
@@ -104,19 +104,19 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
 
-    const [paginaActualModificar, setPaginaActualModificar] = useState(1);
-    const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
-    const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
+    // const [paginaActualModificar, setPaginaActualModificar] = useState(1);
+    // const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
+    // const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
 
     const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
-    const [___, setEditarCampo] = useState<string | null>(null);
+    // const [___, setEditarCampo] = useState<string | null>(null);
 
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [InventarioModificar, setInventarioModificar] = useState<any[]>([]);
 
     const [____, setIsDisabled] = useState(true); //Habilita los firmantes en cada check
-    const [habilitarVisado, setHabilitarVisado] = useState(true); //Hasbilita botón solicitar visado
-    const [habilitarModificar, setHabilitarModificar] = useState(true); //Hasbilita botón modificar en modal
+    // const [habilitarVisado, setHabilitarVisado] = useState(true); //Hasbilita botón solicitar visado
+    // const [habilitarModificar, setHabilitarModificar] = useState(true); //Hasbilita botón modificar en modal
     const [isExpanded, setIsExpanded] = useState(false); //expande el los visadores(ajustar visado)
     const [Unidad, setUnidad] = useState<number>(0);
     const [_____, setUnidadNombre] = useState<string>("");
@@ -199,10 +199,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             [name]: value,
         }));
 
-        setPaginacionModificar((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+        // setPaginacionModificar((prevState) => ({
+        //     ...prevState,
+        //     [name]: value,
+        // }));
 
         const prev = structuredClone(AltaInventario);
         const updatedState = { ...prev, [name]: value };
@@ -369,7 +369,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             setInventarioModificar(
                 listaAltasRegistradas.map(item => ({ ...item }))
             );
-            setLoadingModificar(false);
+            // setLoadingModificar(false);
         }
         listaAuto();
         if (!documentoByte64) return;
@@ -413,9 +413,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         listaEstadoVisadoresActions(altaS_CORR);
     }, []);
 
-    const handleBlur = () => {
-        setEditarCampo(null);
-    };
+    // const handleBlur = () => {
+    //     setEditarCampo(null);
+    // };
 
     // const handleCambiaNCuenta = (indexVisible: number, nuevaCuenta: string) => {
     //     const indexReal = indicePrimerElementoModificar + indexVisible;
@@ -426,45 +426,45 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     //     );
     // };
 
-    const handleCambiaMarca = (indexVisible: number, nuevaMarca: string) => {
-        const indexReal = indicePrimerElementoModificar + indexVisible;
-        setInventarioModificar(prev =>
-            prev.map((item, i) =>
-                i === indexReal ? { ...item, deT_MARCA: nuevaMarca } : item
-            )
-        );
-        setHabilitarModificar(false);
-    };
+    // const handleCambiaMarca = (indexVisible: number, nuevaMarca: string) => {
+    //     const indexReal = indicePrimerElementoModificar + indexVisible;
+    //     setInventarioModificar(prev =>
+    //         prev.map((item, i) =>
+    //             i === indexReal ? { ...item, deT_MARCA: nuevaMarca } : item
+    //         )
+    //     );
+    //     setHabilitarModificar(false);
+    // };
 
-    const handleCambiaModelo = (indexVisible: number, nuevaModelo: string) => {
-        const indexReal = indicePrimerElementoModificar + indexVisible;
-        setInventarioModificar(prev =>
-            prev.map((item, i) =>
-                i === indexReal ? { ...item, deT_MODELO: nuevaModelo } : item
-            )
-        );
-        setHabilitarModificar(false);
-    };
+    // const handleCambiaModelo = (indexVisible: number, nuevaModelo: string) => {
+    //     const indexReal = indicePrimerElementoModificar + indexVisible;
+    //     setInventarioModificar(prev =>
+    //         prev.map((item, i) =>
+    //             i === indexReal ? { ...item, deT_MODELO: nuevaModelo } : item
+    //         )
+    //     );
+    //     setHabilitarModificar(false);
+    // };
 
-    const handleCambiaSerie = (indexVisible: number, nuevaSerie: string) => {
-        const indexReal = indicePrimerElementoModificar + indexVisible;
-        setInventarioModificar(prev =>
-            prev.map((item, i) =>
-                i === indexReal ? { ...item, deT_SERIE: nuevaSerie } : item
-            )
-        );
-        setHabilitarModificar(false);
-    };
+    // const handleCambiaSerie = (indexVisible: number, nuevaSerie: string) => {
+    //     const indexReal = indicePrimerElementoModificar + indexVisible;
+    //     setInventarioModificar(prev =>
+    //         prev.map((item, i) =>
+    //             i === indexReal ? { ...item, deT_SERIE: nuevaSerie } : item
+    //         )
+    //     );
+    //     setHabilitarModificar(false);
+    // };
 
-    const handleCambiaPrecio = (indexVisible: number, nuevaPrecio: string) => {
-        const indexReal = indicePrimerElementoModificar + indexVisible;
-        setInventarioModificar(prev =>
-            prev.map((item, i) =>
-                i === indexReal ? { ...item, deT_PRECIO: nuevaPrecio } : item
-            )
-        );
-        setHabilitarModificar(false);
-    };
+    // const handleCambiaPrecio = (indexVisible: number, nuevaPrecio: string) => {
+    //     const indexReal = indicePrimerElementoModificar + indexVisible;
+    //     setInventarioModificar(prev =>
+    //         prev.map((item, i) =>
+    //             i === indexReal ? { ...item, deT_PRECIO: nuevaPrecio } : item
+    //         )
+    //     );
+    //     setHabilitarModificar(false);
+    // };
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -796,104 +796,104 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setAltaInventario(updatedState);
     }, [AltaInventario, datosFirmas, objeto]);
 
-    const handleAbrirModalModificar = async (idocumento: number, altaS_CORR: number) => {
-        setLoadingModificar(true);
-        // Cargar datos auxiliares solo si están vacíos
-        const result = await Swal.fire({
-            icon: "warning",
-            title: "Modificar",
-            html: `Al confirmar la modificación del documento <b>Nº ${idocumento}</b> este quedará rechazado y se deberá iniciar un nuevo proceso de visado con la definición de los firmantes correspondientes. 
-                   El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Modificar",
-            cancelButtonText: "Cerrar",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: {
-                popup: "custom-border",
-            }
-        });
-        if (result.isConfirmed) {
-            rechazarAltaActions(idocumento);
-            setMostrarModalModificar(true); // Solo abre el modal si confirma
-            await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");
-            paginarModificar(1);
-            setLoadingModificar(false); // Mejor desactivar en el useEffect cuando los datos llegan
-        } else {
-            setLoadingModificar(false);
-        }
-    };
+    // const handleAbrirModalModificar = async (idocumento: number, altaS_CORR: number) => {
+    //     setLoadingModificar(true);
+    //     // Cargar datos auxiliares solo si están vacíos
+    //     const result = await Swal.fire({
+    //         icon: "warning",
+    //         title: "Modificar",
+    //         html: `Al confirmar la modificación del documento <b>Nº ${idocumento}</b> este quedará rechazado y se deberá iniciar un nuevo proceso de visado con la definición de los firmantes correspondientes. 
+    //                El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
+    //         showDenyButton: false,
+    //         showCancelButton: true,
+    //         confirmButtonText: "Confirmar y Modificar",
+    //         cancelButtonText: "Cerrar",
+    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+    //         customClass: {
+    //             popup: "custom-border",
+    //         }
+    //     });
+    //     if (result.isConfirmed) {
+    //         rechazarAltaActions(idocumento);
+    //         setMostrarModalModificar(true); // Solo abre el modal si confirma
+    //         await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");
+    //         // paginarModificar(1);
+    //         setLoadingModificar(false); // Mejor desactivar en el useEffect cuando los datos llegan
+    //     } else {
+    //         setLoadingModificar(false);
+    //     }
+    // };
 
-    const handleCerrarModalModificar = () => {
-        Swal.fire({
-            icon: "info",
-            title: '¿Está seguro que desea salir?',
-            text: 'Para salir debe modificar los datos y volver a realizar la solicitud de visado.',
-            showDenyButton: false,
-            showCancelButton: false,
-            confirmButtonText: "Ok",
-            cancelButtonText: "Cerrar",
-            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-            color: `${isDarkMode ? "#ffffff" : "000000"}`,
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+    // const handleCerrarModalModificar = () => {
+    //     Swal.fire({
+    //         icon: "info",
+    //         title: '¿Está seguro que desea salir?',
+    //         text: 'Para salir debe modificar los datos y volver a realizar la solicitud de visado.',
+    //         showDenyButton: false,
+    //         showCancelButton: false,
+    //         confirmButtonText: "Ok",
+    //         cancelButtonText: "Cerrar",
+    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
 
-            customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-            }
-        })
-    };
+    //         customClass: {
+    //             popup: "custom-border", // Clase personalizada para el borde
+    //         }
+    //     })
+    // };
 
-    const handleModificarSubmit = async () => {
-        const result = await Swal.fire({
-            icon: "info",
-            title: "Confirmar Cambios",
-            text: `Confirme para habilitar la solicitud de visado`,
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Continuar",
-            background: isDarkMode ? "#1e1e1e" : "#ffffff",
-            color: isDarkMode ? "#ffffff" : "#000000",
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: { popup: "custom-border" }
-        });
-        if (result.isConfirmed) {
-            const ListaModificar = InventarioModificar.map(item => ({
-                ...item,
-                usuariO_MOD: objeto.IdCredencial.toString()
-            }));
+    // const handleModificarSubmit = async () => {
+    //     const result = await Swal.fire({
+    //         icon: "info",
+    //         title: "Confirmar Cambios",
+    //         text: `Confirme para habilitar la solicitud de visado`,
+    //         showCancelButton: true,
+    //         confirmButtonText: "Confirmar y Continuar",
+    //         background: isDarkMode ? "#1e1e1e" : "#ffffff",
+    //         color: isDarkMode ? "#ffffff" : "#000000",
+    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+    //         customClass: { popup: "custom-border" }
+    //     });
+    //     if (result.isConfirmed) {
+    //         const ListaModificar = InventarioModificar.map(item => ({
+    //             ...item,
+    //             usuariO_MOD: objeto.IdCredencial.toString()
+    //         }));
 
-            const resultado = await modificarFormInventarioActions(ListaModificar);
-            if (resultado) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Actualización exitosa",
-                    text: "Se han actualizado los registros correctamente!",
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-                setMostrarModalVisadores(true);
-                setHabilitarVisado(false);
-                limpiarDataActions();
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
-                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: {
-                        popup: "custom-border", // Clase personalizada para el borde
-                    }
-                });
-            }
-        }
-    };
+    //         const resultado = await modificarFormInventarioActions(ListaModificar);
+    //         if (resultado) {
+    //             Swal.fire({
+    //                 icon: "success",
+    //                 title: "Actualización exitosa",
+    //                 text: "Se han actualizado los registros correctamente!",
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
+    //             setMostrarModalVisadores(true);
+    //             setHabilitarVisado(false);
+    //             limpiarDataActions();
+    //         } else {
+    //             Swal.fire({
+    //                 icon: "error",
+    //                 title: "Error",
+    //                 text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
+    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
+    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+    //                 customClass: {
+    //                     popup: "custom-border", // Clase personalizada para el borde
+    //                 }
+    //             });
+    //         }
+    //     }
+    // };
 
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
@@ -1116,7 +1116,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
 
         if (result.isConfirmed) {
-            console.log("documento", documento);
+            // console.log("documento", documento);
             setLoadingEnvio(true);
             setMostrarModalVisadores(false);
             const resultado = await registrarDocumentoAltaActions(documento);
@@ -1203,14 +1203,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     //Listado modificar
-    const indiceUltimoElementoModificar = paginaActualModificar * elementosPorPaginaModificar;
-    const indicePrimerElementoModificar = indiceUltimoElementoModificar - elementosPorPaginaModificar;
-    const elementosActualesModificar = useMemo(
-        () => InventarioModificar.slice(indicePrimerElementoModificar, indiceUltimoElementoModificar),
-        [InventarioModificar, indicePrimerElementoModificar, indiceUltimoElementoModificar]
-    );
-    const totalPaginasModificar = Math.ceil(InventarioModificar.length / elementosPorPaginaModificar);
-    const paginarModificar = (numeroPaginaModificar: number) => setPaginaActualModificar(numeroPaginaModificar);
+    // const indiceUltimoElementoModificar = paginaActualModificar * elementosPorPaginaModificar;
+    // const indicePrimerElementoModificar = indiceUltimoElementoModificar - elementosPorPaginaModificar;
+    // const elementosActualesModificar = useMemo(
+    //     () => InventarioModificar.slice(indicePrimerElementoModificar, indiceUltimoElementoModificar),
+    //     [InventarioModificar, indicePrimerElementoModificar, indiceUltimoElementoModificar]
+    // );
+    // const totalPaginasModificar = Math.ceil(InventarioModificar.length / elementosPorPaginaModificar);
+    // const paginarModificar = (numeroPaginaModificar: number) => setPaginaActualModificar(numeroPaginaModificar);
 
     return (
         <Layout>
@@ -1401,7 +1401,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                         < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                                     </Button>
                                                                 )}
-                                                                {Lista.estado === 1 ? (
+                                                                {/* {Lista.estado === 1 ? (
                                                                     <Button type="button" variant="secondary" className="fw-semibold mx-1"
                                                                         onClick={() => handleAbrirModalModificar(Lista.idocumento, Lista.altaS_CORR)}
                                                                     >
@@ -1413,7 +1413,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                         Modificar
                                                                         < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                                     </Button>
-                                                                )}
+                                                                )} */}
 
                                                             </td>
                                                         </tr>
@@ -1539,7 +1539,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </Modal.Body>
             </Modal>
             {/*Modal Modificar */}
-            <Modal show={mostrarModalModificar} onHide={handleCerrarModalModificar}
+            {/* <Modal show={mostrarModalModificar} onHide={handleCerrarModalModificar}
                 backdrop="static"
                 keyboard={false}
                 fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}
@@ -1566,8 +1566,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold bg-warning-subtle text-muted border`} >
                         El documento número <b>{InventarioModificar[0]?.idocumento ?? "-"}</b> ha sido rechazado.
                     </p>
-                    {/* Botón o mensaje */}
-
                     {loadingModificar ? (
                         <SkeletonLoader rowCount={elementosPorPagina} />
                     ) : (
@@ -1757,7 +1755,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     )
                     }
                 </Modal.Body>
-            </Modal >
+            </Modal > */}
 
             {/*Modal Firma visadores */}
             <Modal show={mostrarModalVisadores} onHide={() => setMostrarModalVisadores(false)} dialogClassName="modal-right" size="xl">

@@ -8,6 +8,7 @@ import {
 
 // Acción para obtener la recepción por número
 export const obtenerReimpresionEtiquetasAltasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   const config = {
@@ -49,6 +50,7 @@ export const obtenerReimpresionEtiquetasAltasActions = (fDesde: string, fHasta: 
       type: REIMPRESION_ETIQUETAS_ALTAS_FAIL,
       error: "Error en la solicitud:", err,
     });
+    // dispatch({ type: LOGOUT });
     return false;
   }
 };

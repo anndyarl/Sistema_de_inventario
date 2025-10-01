@@ -531,15 +531,18 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
         setLoadingReimprimir(false);
     };
 
-    const handleAbrirModalReimprimir = () => {
-        setMostrarModalLista(true)
+    const handleAbrirModalReimprimir = async () => {
+        setMostrarModalLista(true);
+        setLoadingReimprimir(true);
         if (listaReimpresionEtiquetas.length === 0) {
-            obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
+            const resultado = await obtenerReimpresionEtiquetasAltasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "", 0);
+            if (resultado) {
+                setLoadingReimprimir(false);
+            }
         }
     }
 
     // const handleCerrarModal = () => {
-
     //     Swal.fire({
     //         icon: "info",
     //         title: "Reimpresión disponible",
@@ -1215,70 +1218,63 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                     {listaReimpresionEtiquetas.length > 0 ? (
                         <>
                             {/* Tabla Reimprimir */}
-                            < div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
-                                {loadingReimprimir ? (
-                                    <>
-                                        {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                        <SkeletonLoader rowCount={10} columnCount={10} />
-                                    </>
-                                ) : (
-                                    <div className='table-responsive position-relative z-0'>
-                                        <div style={{ maxHeight: "70vh" }}>
-                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                                    <tr>
-                                                        <th style={{ position: 'sticky', left: 0 }}>
-                                                            <Form.Check
-                                                                className="check-danger"
-                                                                type="checkbox"
-                                                                onChange={handleSeleccionaReimprimirTodos}
-                                                                checked={filasSeleccionadasReimprimir.length === elementosActuales1.length && elementosActuales1.length > 0}
-                                                            />
-                                                        </th>
-                                                        <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                                        <th scope="col" className="text-nowrap">N° Alta</th>
-                                                        <th scope="col" className="text-nowrap">Descripción</th>
-                                                        <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                                        <th scope="col" className="text-nowrap">Nº Cuenta</th>
-                                                        <th scope="col" className="text-nowrap">Ubicación</th>
-                                                        <th scope="col" className="text-nowrap">Origen</th>
-                                                        <th scope="col" className="text-nowrap">QR</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {elementosActuales1.map((fila, index) => {
-                                                        const indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
-                                                        return (
-                                                            <tr key={index}>
-                                                                <td style={{ position: 'sticky', left: 0 }}>
-                                                                    <Form.Check
-                                                                        type="checkbox"
-                                                                        onChange={() => setSeleccionaFilasReimprimir(indexReal)}
-                                                                        checked={filasSeleccionadasReimprimir.includes(indexReal.toString())}
-                                                                    />
-                                                                </td>
-                                                                <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                                                <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                                                <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
-                                                                <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
-                                                                <td className="text-nowrap">{fila.aF_NCUENTA}</td>
-                                                                <td className="text-nowrap">{fila.aF_UBICACION}</td>
-                                                                <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
-                                                                <td className="text-nowrap">
-                                                                    <QRCodeSVG
-                                                                        value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
-                                                                        size={50}
-                                                                        level="H"
-                                                                    />
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                            <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
+                                <div className='table-responsive position-relative z-0'>
+                                    <div style={{ maxHeight: "70vh" }}>
+                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                <tr>
+                                                    <th style={{ position: 'sticky', left: 0 }}>
+                                                        <Form.Check
+                                                            className="check-danger"
+                                                            type="checkbox"
+                                                            onChange={handleSeleccionaReimprimirTodos}
+                                                            checked={filasSeleccionadasReimprimir.length === elementosActuales1.length && elementosActuales1.length > 0}
+                                                        />
+                                                    </th>
+                                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                    <th scope="col" className="text-nowrap">N° Alta</th>
+                                                    <th scope="col" className="text-nowrap">Descripción</th>
+                                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                                    <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                                                    <th scope="col" className="text-nowrap">Ubicación</th>
+                                                    <th scope="col" className="text-nowrap">Origen</th>
+                                                    <th scope="col" className="text-nowrap">QR</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {elementosActuales1.map((fila, index) => {
+                                                    const indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
+                                                    return (
+                                                        <tr key={index}>
+                                                            <td style={{ position: 'sticky', left: 0 }}>
+                                                                <Form.Check
+                                                                    type="checkbox"
+                                                                    onChange={() => setSeleccionaFilasReimprimir(indexReal)}
+                                                                    checked={filasSeleccionadasReimprimir.includes(indexReal.toString())}
+                                                                />
+                                                            </td>
+                                                            <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
+                                                            <td className="text-nowrap">{fila.altaS_CORR}</td>
+                                                            <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
+                                                            <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
+                                                            <td className="text-nowrap">{fila.aF_NCUENTA}</td>
+                                                            <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                                            <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
+                                                            <td className="text-nowrap">
+                                                                <QRCodeSVG
+                                                                    value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
+                                                                    size={50}
+                                                                    level="H"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                )}
+                                </div>
                             </div>
                             {/* Paginador */}
                             <div className="paginador-container position-relative z-0">
@@ -1314,11 +1310,17 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </>
                     ) : (
                         <>
-                            <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
-                                <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                                    No hay resultados para mostrar.
-                                </p>
-                            </div>
+                            {loadingReimprimir ? (
+                                <>
+                                    <SkeletonLoader rowCount={10} columnCount={10} />
+                                </>
+                            ) : (
+                                <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                        No hay resultados para mostrar.
+                                    </p>
+                                </div>
+                            )}
                         </>
                     )}
                 </Modal.Body>

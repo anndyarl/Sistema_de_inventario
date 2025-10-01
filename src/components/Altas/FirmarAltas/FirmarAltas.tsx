@@ -1740,7 +1740,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 disabled={anexos.length > 2}
                                 onChange={handleChangeFiles}
                             />
-
                         </div>
 
                         <Collapse in={isExpanded} dimension="height">
