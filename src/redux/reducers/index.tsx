@@ -102,6 +102,7 @@ import comboServDepReducers from "./Inventario/Combos/comboServDepReducers";
 import datosTraspasoRegistradoReducers from "./Traspasos/datosTraspasoRegistradoReducers";
 import obtenerInventarioXAltasReducers from "./Inventario/ModificarInventario/obtenerInventarioXAltasReducers";
 import listadoTraspasosRecibidosReducers from "./Traspasos/listadoTraspasosRecibidosReducers";
+import listadoTraspasosAdjuntosReducers from "./Traspasos/listadoTraspasosAdjuntosReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -182,6 +183,7 @@ const appReducer = combineReducers({
   //Traspasos
   listadoTraspasosReducers,
   listadoTraspasosRecibidosReducers,
+  listadoTraspasosAdjuntosReducers,
   datosTraspasoRegistradoReducers,
   //-------Otros/Preferenicas---------------//
   // Indicadores

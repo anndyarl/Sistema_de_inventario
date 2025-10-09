@@ -1,4 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Col, Row } from 'react-bootstrap';
 const styles = StyleSheet.create({
     page: {
         padding: 20,
@@ -25,19 +26,23 @@ const styles = StyleSheet.create({
     headerContainer: {
         display: 'flex',
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+        marginTop: 20
     },
+
     headerContent: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-around'
+        justifyContent: 'flex-start',
     },
 
     header: {
-        fontSize: 16,
-        marginBottom: 10,
+        fontSize: 12,
         fontWeight: 'bold',
-        textAlign: 'center',
+        marginBottom: 2,
     },
+
     p: {
         fontSize: 10,
         marginBottom: 2,
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     colOdeCompra: {
-        width: "30%",
+        width: "40%",
     },
     colServicio: {
         width: "45%",
@@ -99,11 +104,10 @@ const styles = StyleSheet.create({
         width: "35%",
     },
     colSerie: {
-        width: "55%",
-        wordWrap: 'break-word',
+        width: "35%",
     },
     colPrecio: {
-        width: "50%",
+        width: "35%",
     },
     colRecepcion: {
         width: "35%",
@@ -171,6 +175,19 @@ const arreglo = (array: any[], size: number) => {
     return result;
 };
 
+// Inserta saltos de línea 
+function insertNewLinesDigits(value: any, every = 10) {
+    if (value === null || value === undefined) return "";
+    const s = String(value);
+    // Si ya tiene saltos, procesamos cada línea por separado para no romperlos
+    return s
+        .split('\n')
+        .map(line => line.replace(new RegExp(`(.{${every}})`, 'g'), '$1\n'))
+        .join('\n');
+}
+
+
+
 const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: any[]; totalSum: number /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => {
     const filasPorPagina = 12;
     const paginas = arreglo(row, filasPorPagina);
@@ -202,12 +219,26 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                         {(() => {
                             const altasUnicas = [...new Set(row.map(item => item.altaS_CORR))];
                             if (altasUnicas.length === 1) {
-                                const unicaAlta = row[0]; // todos tienen la misma altaS_CORR, así que usamos el primero
+                                const lista = row[0]; // todos tienen la misma altaS_CORR, así que usamos el primero
                                 return (
-                                    <View style={styles.headerContent}>
-                                        <Text style={styles.header}>Alta Nº: {unicaAlta.altaS_CORR}</Text>
-                                        <Text style={styles.header}>Fecha de Alta: {unicaAlta.fechA_ALTA}</Text>
-                                    </View>
+                                    <>
+
+                                        <Row>
+                                            <View style={styles.headerContainer}>
+                                                <Col md={6}>
+                                                    <Text style={styles.header}>Alta Nº: {lista.altaS_CORR}</Text>
+                                                    <Text style={styles.header}>Fecha de Alta: {lista.fechA_ALTA}</Text>
+                                                </Col>
+                                                <Col md={6}>
+                                                    <Text style={styles.header}>Nº Factura: {lista.aF_NUM_FAC}</Text>
+                                                    <Text style={styles.header}>Nº Recepción: {lista.nrecep}</Text>
+                                                    <Text style={styles.header}>Orde de Compra:{lista.aF_OCO_NUMERO_REF}</Text>
+                                                </Col>
+
+                                            </View>
+                                        </Row>
+                                    </>
+
                                 );
                             }
 
@@ -224,8 +255,8 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                             {/* Cabecera de la tabla */}
                             <View style={styles.tableHeader}>
                                 <Text style={[styles.tableCell, styles.colCodigo]}>N° Inventario</Text>
-                                <Text style={[styles.tableCell, styles.colNfactura]}>N° Factura</Text>
-                                <Text style={[styles.tableCell, styles.colOdeCompra]}>Ord. Compra</Text>
+                                {/* <Text style={[styles.tableCell, styles.colNfactura]}>N° Factura</Text>
+                                <Text style={[styles.tableCell, styles.colOdeCompra]}>Ord. Compra</Text> */}
                                 <Text style={[styles.tableCell, styles.colServicio]}>Servicio</Text>
                                 <Text style={[styles.tableCell, styles.colDependencia]}>Dependencia</Text>
                                 <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
@@ -235,25 +266,25 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                                 <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
                                 {/* <Text style={[styles.tableCell, styles.colObs]}>Estado</Text> */}
                                 <Text style={[styles.tableCell, styles.colPrecio]}>Precio</Text>
-                                <Text style={[styles.tableCell, styles.colRecepcion]}>Nº Recepción</Text>
+                                {/* <Text style={[styles.tableCell, styles.colRecepcion]}>Nº Recepción</Text> */}
                             </View>
                             {/* Fila de datos */}
                             {rows.map((lista) => (
 
                                 <View style={styles.tableRow} key={lista}>
                                     <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
-                                    <Text style={[styles.tableCell, styles.colNfactura]}>{lista.aF_NUM_FAC}</Text>
-                                    <Text style={[styles.tableCell, styles.colOdeCompra]}>{lista.aF_OCO_NUMERO_REF}</Text>
+                                    {/* <Text style={[styles.tableCell, styles.colNfactura]}>{lista.aF_NUM_FAC}</Text>
+                                    <Text style={[styles.tableCell, styles.colOdeCompra]}>{lista.aF_OCO_NUMERO_REF}</Text> */}
                                     <Text style={[styles.tableCell, styles.colServicio]}>{lista.serv}</Text>
                                     <Text style={[styles.tableCell, styles.colDependencia]}>{lista.dep}</Text>
                                     <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esP_NOMBRE}</Text>
                                     <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ctA_COD}</Text>
                                     <Text style={[styles.tableCell, styles.colMarca]}>{lista.deT_MARCA}</Text>
                                     <Text style={[styles.tableCell, styles.colModelo]}>{lista.deT_MODELO}</Text>
-                                    <Text style={[styles.tableCell, styles.colSerie]}>{lista.deT_SERIE}</Text>
+                                    <Text style={[styles.tableCell, styles.colSerie]}> {insertNewLinesDigits(lista.deT_SERIE, 10)}</Text>
                                     {/* <Text style={[styles.tableCell, styles.colObs]}>{lista.estado}</Text> */}
-                                    <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                    <Text style={[styles.tableCell, styles.colRecepcion]}>{lista.nrecep}</Text>
+                                    <Text style={[styles.tableCell, styles.colPrecio]}>$ {insertNewLinesDigits((lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 }), 10)}</Text>
+                                    {/* <Text style={[styles.tableCell, styles.colRecepcion]}>{lista.nrecep}</Text> */}
                                 </View>
                             ))}
                         </View>

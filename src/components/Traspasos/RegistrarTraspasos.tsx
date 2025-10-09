@@ -4,7 +4,7 @@ import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Paginatio
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CaretDown, CaretUpFill, Eraser, Paperclip, Search, Send } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Eraser, Paperclip, Plus, Search, Send, Trash } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -22,7 +22,8 @@ import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { registroTraspasoMultipleActions } from "../../redux/actions/Trapasos/registroTrasladoMultipleActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
-import { listadoTraspasosEnviadosActions } from "../../redux/actions/Trapasos/listadoTraspasosEnviadosActions";
+
+import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
 
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
@@ -107,7 +108,7 @@ interface TrasladosProps {
     comboSerDepActions: (establ_corr: number) => void;//En buscador  
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
     comboSerDep: SERVICIO_DEPENDENCIA[];
-    listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, paS_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
+    limpiarDataActions: () => void;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -125,7 +126,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     comboDependenciaDestinoActions,
     obtenerInventarioTrasladoActions,
     comboEspeciesBienActions,
-    listadoTraspasosEnviadosActions,
+    limpiarDataActions,
     comboTrasladoServicio,
     comboEstablecimiento,
     comboTrasladoEspecie,
@@ -168,7 +169,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         modelo: "",
         serie: ""
     });
-    const [anexos, setAnexos] = useState<File[]>([]);
+
     //Primera Letra en mayúscula
     const PrimeraMayuscula = (str: string) =>
         str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -186,7 +187,8 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         estabL_CORR: 0 //Establecimiento Destino
     });
 
-    // const [nombreDocumento, setNombreDocumento] = useState<string>("");
+    const [anexos, setAnexos] = useState<File[]>([]);
+    const [_, setNombreDocumento] = useState<string>("");
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -206,28 +208,28 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         }
     };
 
-    // const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
-    //     const resultado: { nombre: string, contenido: string }[] = [];
+    const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
+        const resultado: { nombre: string, contenido: string }[] = [];
 
-    //     for (const archivo of archivos) {
-    //         const contenido = await new Promise<string>((resolve, reject) => {
-    //             const reader = new FileReader();
-    //             reader.onload = () => resolve((reader.result as string).split(",")[1]);
-    //             reader.onerror = reject;
-    //             reader.readAsDataURL(archivo);
-    //         });
+        for (const archivo of archivos) {
+            const contenido = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve((reader.result as string).split(",")[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(archivo);
+            });
 
-    //         resultado.push({
-    //             nombre: archivo.name,
-    //             contenido
-    //         });
+            resultado.push({
+                nombre: archivo.name,
+                contenido
+            });
 
-    //         setNombreDocumento(archivo.name);//Guardo el nombre del documento adjunto
-    //         // console.log("archivo.name", archivo.name);
-    //     }
+            setNombreDocumento(archivo.name);//Guardo el nombre del documento adjunto
+            // console.log("archivo.name", archivo.name);
+        }
 
-    //     return resultado;
-    // };
+        return resultado;
+    };
 
     const especieOptions = comboEspecies.map((item) => ({
         value: item.esP_CODIGO,
@@ -541,19 +543,6 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 setFilasSeleccionadas([]);
                 return;
             } else {
-                Swal.fire({
-                    icon: "success",
-                    title: "Artículos Agregados",
-                    html: `Articulos agregados con exito!`,
-                    confirmButtonText: "Cerrar",
-                    background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
-                    color: `${isDarkMode ? "#ffffff" : "#000000"}`,
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    width: '600px',
-                    customClass: {
-                        popup: "custom-border",
-                    }
-                });
                 setActivosFijos((prev) => [...prev, ...activosSeleccionados]);
                 setFilasSeleccionadas([]);
                 paginar1(1);
@@ -596,7 +585,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         paginar1(1);
     };
 
-    const handleSubmitTraslado = async () => {
+    const handleSubmitTraspaso = async () => {
         if (validateForm()) {
             const result = await Swal.fire({
                 icon: "info",
@@ -615,8 +604,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             if (result.isConfirmed) {
                 setLoading(true);
 
-
-                // const anexosBase64 = await convertirArchivosABase64(anexos);
+                const anexosBase64 = await convertirArchivosABase64(anexos);
                 const activosSeleccionados = activosFijos.map((item) => ({
                     aF_CLAVE: item.aF_CLAVE,
                     aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
@@ -631,16 +619,16 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     // paS_NOM_RECIBE: Traspasos.paS_NOM_RECIBE,
                     paS_NOM_AUTORIZA: Traspasos.paS_NOM_AUTORIZA,
                     estabL_CORR_ORIGEN: objeto.Roles[0].codigoEstablecimiento,
-                    estabL_CORR: Traspasos.estabL_CORR
-                    // Adjuntos: anexosBase64
+                    estabL_CORR: Traspasos.estabL_CORR,
+                    Adjuntos: anexosBase64
                 }));
 
 
                 const resultado = await registroTraspasoMultipleActions(activosSeleccionados);
-                // console.log("formulario", activosSeleccionados);
+                console.log("formulario", activosSeleccionados);
                 if (resultado) {
                     mostrarAlerta();
-                    listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+                    limpiarDataActions();
                     handleLimpiar();
                     handleLimpiarFormulario();
                     setFilasSeleccionadas([]);
@@ -1051,6 +1039,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                     variant="warning"
                                                     onClick={() => setMostrarModalTraslado(true)}
                                                     className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+
                                                 >
                                                     <Send className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                                                     Traspasar
@@ -1322,15 +1311,15 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     <p className={`text-start  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
                         (Escoga su propio centro para traslados externos)
                     </p>
-                    <form onSubmit={handleSubmitTraslado}>
+                    <form onSubmit={handleSubmitTraspaso}>
                         <Col >
                             <div className="d-flex flex-column flex-sm-row justify-content-end align-items-stretch">
                                 {/* Botón Traspasar */}
                                 <Button
                                     variant="warning"
-                                    onClick={handleSubmitTraslado}
+                                    onClick={handleSubmitTraspaso}
                                     className="p-2 mb-2 mb-sm-0 mx-sm-1"
-                                    disabled={loading}
+                                    disabled={anexos.length == 0}
                                 >
                                     {loading ? (
                                         <>
@@ -1347,8 +1336,9 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         </>
                                     ) : (
                                         <>
-                                            Traspasar
                                             <Send className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                            Traspasar
+
                                         </>
                                     )}
                                 </Button>
@@ -1463,25 +1453,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         <div className="invalid-feedback">{error.paS_FECHA_MEMO}</div>
                                     )}
                                 </div>
-                                {/* Observaciones */}
-                                <div className="mb-1">
-                                    <label className="fw-semibold">
-                                        Observaciones
-                                    </label>
-                                    <textarea
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_OBS ? "is-invalid" : ""}`}
-                                        aria-label="paS_OBS"
-                                        name="paS_OBS"
-                                        rows={6}
-                                        maxLength={500}
-                                        style={{ minHeight: "8px", resize: "none" }}
-                                        onChange={handleChange}
-                                        value={Traspasos.paS_OBS}
-                                    />
-                                    {error.paS_OBS && (
-                                        <div className="invalid-feedback">{error.paS_OBS}</div>
-                                    )}
-                                </div>
+
                             </Col>
                             <Col md={6}>
                                 <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
@@ -1544,30 +1516,110 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         )}
                                     </div>
                                 </div>
+                            </Col>
+                            <Col>
 
-                                <div className="border border-1 mt-4 p-4 pb-5 rounded-2 d-flex justify-content-center align-items-center ">
-                                    <span>
-                                        <Button
+                                <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
+                                    {/* Observaciones */}
+                                    <div className="mb-1">
+                                        <label className="fw-semibold">
+                                            Observaciones
+                                        </label>
+                                        <textarea
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_OBS ? "is-invalid" : ""}`}
+                                            aria-label="paS_OBS"
+                                            name="paS_OBS"
+                                            rows={2}
+                                            maxLength={500}
+                                            style={{ minHeight: "8px", resize: "none" }}
+                                            placeholder="Escriba una observacion aquí..."
+                                            onChange={handleChange}
+                                            value={Traspasos.paS_OBS}
+                                        />
+                                        {error.paS_OBS && (
+                                            <div className="invalid-feedback">{error.paS_OBS}</div>
+                                        )}
+                                    </div>
 
-                                            variant={isDarkMode ? "secondary" : "primary"}
-                                            className="mx-1"
-                                            onClick={handleFileInput}
+                                    {anexos.length > 0 ? (
+                                        <div className='table-responsive'>
+                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
+                                                    <tr>
+                                                        <th className="fw-semibold text-center">Eliminar</th>
+                                                        <th className="fw-semibold text-center">Documentos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {anexos.map((file, index) => (
+                                                        <tr key={index} >
+                                                            <td>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="danger"
+                                                                    className="rounded"
+                                                                    onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
+                                                                >
+                                                                    <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
+                                                                </Button>
+                                                            </td>
+                                                            <td className="text-center"> {file.name}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
 
-                                        >
-                                            <Paperclip width={18} height={18} aria-hidden="true" />
-                                            <span>Adjuntar documento</span>
-                                        </Button>
-                                    </span>
-                                    <input
-                                        aria-label="file"
-                                        ref={inputRef}
-                                        type="file"
-                                        multiple
-                                        accept=".pdf,.doc,.docx,.jpg,.png"
-                                        style={{ display: "none" }}
-                                        className={anexos.length > 1 ? "disabled" : ""}
-                                        onChange={handleChangeFiles}
-                                    />
+                                            </table>
+                                            {anexos.length > 2 ? (
+                                                <></>
+                                            ) : (
+                                                <div className="ms-2">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="primary"
+                                                        className="rounded"
+                                                        onClick={handleFileInput}
+                                                    >
+                                                        <Plus width={18} height={18} aria-hidden="true" />
+                                                    </Button>
+                                                    <input
+                                                        aria-label="file"
+                                                        ref={inputRef}
+                                                        type="file"
+                                                        multiple
+                                                        accept=".pdf,.doc,.docx,.jpg,.png"
+                                                        style={{ display: "none" }}
+                                                        className={anexos.length >= 2 ? "disabled" : ""}
+                                                        onChange={handleChangeFiles}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                                <a
+
+                                                    className="mx-1 text-decoration-none text-muted"
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={handleFileInput}
+                                                >
+                                                    <Paperclip width={18} height={18} aria-hidden="true" />
+                                                    <span> Haga clic aquí para agregar documento</span>
+                                                </a>
+                                                <input
+                                                    aria-label="file"
+                                                    ref={inputRef}
+                                                    type="file"
+                                                    multiple
+                                                    accept=".pdf,.doc,.docx,.jpg,.png"
+                                                    style={{ display: "none" }}
+                                                    className={anexos.length >= 2 ? "disabled" : ""}
+                                                    onChange={handleChangeFiles}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
                                 </div>
                             </Col>
                         </Row>
@@ -1641,5 +1693,5 @@ export default connect(mapStateToProps, {
     comboEspeciesBienActions,
     obtenerInventarioTrasladoActions,
     listadoDeEspeciesBienActions,
-    listadoTraspasosEnviadosActions
+    limpiarDataActions
 })(RegistrarTraspasos);

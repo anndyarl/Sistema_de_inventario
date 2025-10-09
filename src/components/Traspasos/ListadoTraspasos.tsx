@@ -8,14 +8,14 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Eraser, Search } from "react-bootstrap-icons";
+import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { recibeTraspasoActions } from "../../redux/actions/Trapasos/recibeTraspasoActions.tsx";
 import { listadoTraspasosRecibidosActions } from "../../redux/actions/Trapasos/listadoTraspasosRecibidosActions.tsx";
 import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions.tsx";
 import { listadoTraspasosEnviadosActions } from "../../redux/actions/Trapasos/listadoTraspasosEnviadosActions.tsx";
-
+import { obtenerAdjuntosActions } from "../../redux/actions/Trapasos/obtenerAdjuntosActions.tsx";
 interface FechasProps {
   fDesde: string;
   fHasta: string;
@@ -50,22 +50,29 @@ export interface listadoTraspasos {
   traS_CO_REAL: number;
   paS_DET_CORR: number;
   paS_ESTADO_RECIBE: string;
+  paS_CORR: number;
 }
 
+interface ListaAdjuntos {
+  nombre: string;
+  contenido: string;
+}
 interface GeneralProps {
   listadoTraspasos: listadoTraspasos[];
   listadoTraspasosRecibidos: listadoTraspasos[];
+  listadoTraspasosAdjuntos: ListaAdjuntos[];
   listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
   listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   recibeTraspasoActions: (RecibeTraspaso: Record<string, any>) => Promise<boolean>;
   limpiarDataActions: () => Promise<boolean>;
+  obtenerAdjuntosActions: (pas_corr: number) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActions, listadoTraspasosRecibidosActions, recibeTraspasoActions, limpiarDataActions, listadoTraspasos, listadoTraspasosRecibidos, token, isDarkMode, objeto }) => {
+const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActions, listadoTraspasosRecibidosActions, recibeTraspasoActions, limpiarDataActions, obtenerAdjuntosActions, listadoTraspasos, listadoTraspasosRecibidos, listadoTraspasosAdjuntos, token, isDarkMode, objeto }) => {
   const [loadingEnviados, setLoadingEnviados] = useState(false);
   const [loadingRecibidos, setLoadingRecibidos] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
@@ -77,6 +84,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   const handleExpandColumn = (column: "recibidos" | "enviados") => {
     setExpandedColumn(expandedColumn === column ? null : column)
   }
+
   //--------------- Lógica de Paginación traspasos enviados ----------------//
   const [mostrarModalEnviados, setMostrarModalEnviados] = useState<number | null>(null);
   const [_, setElementoSeleccionado] = useState<string[]>([]);
@@ -113,6 +121,22 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   //------------------------------ Fin ------------------------------------//
 
+  //--------------- Lógica de Paginación traspasos adjuntos ----------------// 
+  const [PaginacionAdj, setPaginacionAdj] = useState({ nPaginacionAdj: 10 });
+  const elementosPorPaginaAdj = PaginacionAdj.nPaginacionAdj;
+  const indiceUltimoElementoAdj = elementosPorPaginaAdj;
+  const indicePrimerElementoAdj = indiceUltimoElementoAdj - elementosPorPaginaAdj;
+  const elementosActualesAdj = useMemo(() => listadoTraspasosAdjuntos.slice(indicePrimerElementoAdj, indiceUltimoElementoAdj),
+    [listadoTraspasosAdjuntos, indicePrimerElementoAdj, indiceUltimoElementoAdj]
+  );
+
+  // const totalPaginasAdj = Array.isArray(listadoTraspasosAdjuntos)
+  //   ? Math.ceil(listadoTraspasosAdjuntos.length / elementosPorPaginaAdj)
+  //   : 0;
+  // const paginarAdj = (numeroPagina: number) => setPaginaActualAdj(numeroPagina);
+
+  //------------------------------ Fin ------------------------------------//
+
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
     if (ListaEnviados.fDesde > ListaEnviados.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
@@ -145,6 +169,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   useEffect(() => {
     listaAutoEnviados();
     listaAutoRecibidos();
+
   }, [token]); // Asegúrate de incluir dependencias relevantes
 
   const listaAutoEnviados = async () => {
@@ -222,6 +247,12 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       ...prevState,
       [name]: newValue,
     }));
+
+    setPaginacionAdj((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
+
   };
 
   const handleChangeRecibidos = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -345,6 +376,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     const estadoEnviado = parseInt(lista.paS_ESTADO_RECIBE);
     setEstadoEnviado(estadoEnviado);
 
+    const pasCORR = parseInt(lista.paS_CORR);
+    obtenerAdjuntosActions(pasCORR);
+
   };
 
   const handleVerRecibidos = async (index: number, lista: any) => {
@@ -353,13 +387,16 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     setElementoSeleccionado1((prev) => prev.filter((_, i) => i !== index));
     const estadoRecibido = parseInt(lista.paS_ESTADO_RECIBE);
     setEstadoRecibido(estadoRecibido);
+
+    const pasCORR = parseInt(lista.paS_CORR);
+    obtenerAdjuntosActions(pasCORR);
   };
 
   const handleCerrarModalEnviados = (index: number) => {
     setElementoSeleccionado((prevSeleccionadas) =>
       prevSeleccionadas.filter((fila) => fila !== index.toString())
     );
-    setMostrarModalEnviados(null); //Cierra modal del indice seleccionado     
+    setMostrarModalEnviados(null); //Cierra modal del indice seleccionado 
   };
 
   const handleCerrarModalRecibidos = (index: number) => {
@@ -444,15 +481,15 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   const handleSubmitNO = async (aF_CLAVE: number) => {
     const result = await Swal.fire({
-      icon: "warning",
-      title: "Confirmar no recepción",
-      text: "Está indicando que el bien ha sido informado como enviado, pero aún no se encuentra en su establecimiento.",
+      icon: "error",
+      title: "Rechazar recepción",
+      // text: "El bien rechazado ",
       showCancelButton: true,
-      confirmButtonText: "Marcar como pendiente",
+      confirmButtonText: "Marcar como rechazado",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
       color: `${isDarkMode ? "#ffffff" : "000000"}`,
       cancelButtonText: "Cerrar",
-      confirmButtonColor: "#ffc107",
+      confirmButtonColor: "#f27474",
       customClass: { popup: "custom-border" }
     });
 
@@ -473,7 +510,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       if (resultado) {
         Swal.fire({
           icon: "warning",
-          text: "El activo seleccionado ha sido marcado como pendiente de recepción en su establecimiento. Una vez recibido, podrá actualizar su estado desde la opción 'Modificar estado'.",
+          text: "El activo ha sido marcado como rechazado.",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -511,6 +548,66 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       }
     }
   };
+
+  function detectarTipo(base64: string): string {
+    if (base64.startsWith("JVBERi0")) return "pdf";
+    if (base64.startsWith("/9j/")) return "jpeg";
+    if (base64.startsWith("iVBOR")) return "png";
+    if (base64.startsWith("R0lGOD")) return "gif";
+    return "png"; // fallback
+  };
+
+  const handleDescargarAdjunto = (lista: any) => {
+    const contenido = listadoTraspasosAdjuntos?.[lista]?.contenido || lista?.contenido;
+    const nombreArchivo = lista?.nombre || "documento";
+
+    if (!contenido) {
+      console.warn("Sin contenido en el adjunto");
+      return;
+    }
+
+    // Limpia el base64 (quita saltos de línea o espacios)
+    const base64Limpio = contenido.replace(/\s/g, "").trim();
+
+    // Detecta tipo de archivo
+    const tipo = detectarTipo(base64Limpio);
+    const mimeType =
+      tipo === "pdf"
+        ? "application/pdf"
+        : tipo === "docx"
+          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          : tipo === "doc"
+            ? "image/jpeg"
+            : tipo === "png"
+              ? "image/png"
+              : tipo === "gif"
+                ? "image/gif"
+                : "application/octet-stream";
+
+    // Convierte base64 → Blob
+    const byteCharacters = atob(base64Limpio);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
+
+    // Crea una URL temporal tipo blob:
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Crea un link invisible para descargar el archivo
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `${nombreArchivo}.${tipo === "jpeg" ? "jpg" : tipo}`; // agrega extensión correcta
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Limpia la URL del blob después de un momento
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+  };
+
+
 
   return (
     <Layout>
@@ -738,7 +835,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                   <td className="text-nowrap">
                                     {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
                                       : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
-                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-warning  w-100">Pendiente</span> : <span>-</span>}
+                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
                                   </td>
                                   <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                   <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
@@ -1009,7 +1106,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                   <td className="text-nowrap">
                                     {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
                                       : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
-                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-warning  w-100">Pendiente</span> : <span>-</span>}
+                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
                                   </td>
                                   <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                   <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
@@ -1105,175 +1202,276 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
           </Modal.Header>
 
           <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
-            <Row className="g-3">
-              {/* Columna izquierda */}
-              <Col md={4}>
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Nº Inventario
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.aF_CODIGO_GENERICO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold ">
-                    Establecimiento Origen
-                    <CircleFill className="ms-1 text-warning" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.establecimientO_ORIGEN || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Servicio/Dependencia Origen
-                    <CircleFill className="ms-1 text-warning" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{(fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN) || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Fecha Traspaso</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_FECHA || "No definida"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">N° Memo de Referencia</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_MEMO_REF || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Especie</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.esP_NOMBRE || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Estado</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_ESTADO_AF || "No definida"}</div>
-                </div>
-
-              </Col>
-              <Col md={4}>
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Nº Traspaso
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.n_TRASPASO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Establecimiento Destino
-                    <CircleFill className="ms-1 text-success" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.establecimientO_DESTINO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Servicio/Dependencia Destino
-                    <CircleFill className="ms-1 text-success" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{(fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO) || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Fecha del Memo</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_FECHA_MEMO || "No definida"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Codigo Especie</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.esP_CODIGO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Observaciones</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`} style={{ whiteSpace: "pre-wrap", minHeight: "100px" }}>{fila.paS_OBS || "Sin observaciones"}</div>
+            <Row className="g-1">
+              {/* Información General del Traspaso */}
+              <Col lg={6}>
+                <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
+                  <Row className="g-1">
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Nº Inventario</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.aF_CODIGO_GENERICO || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Nº Traspaso</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.n_TRASPASO || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Fecha Traspaso</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_FECHA || "No definida"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Fecha del Memo</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_FECHA_MEMO || "No definida"}
+                      </div>
+                    </Col>
+                    <Col md={12}>
+                      <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_MEMO_REF || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Especie</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.esP_NOMBRE || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Codigo Especie</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.esP_CODIGO || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={12}>
+                      <label className="fw-semibold small text-muted">Estado</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_ESTADO_AF || "No definida"}
+                      </div>
+                    </Col>
+                  </Row>
                 </div>
               </Col>
-              {/* Columna derecha */}
-              <Col md={4}>
-                <div className="border rounded-3 p-4 mt-4 ">
-                  <h5 className="fw-semibold mb-4">Despacho</h5>
 
-                  <div className="mb-3">
-                    <label className="fw-semibold">Entregado Por</label>
-                    <p className="d-flex align-items-center mb-0">
-                      {fila.paS_NOM_ENTREGA ? (
-                        <>
-                          {fila.paS_NOM_ENTREGA}
-                          <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                        </>
-                      ) : (
-                        "Sin Información"
-                      )}
-                    </p>
-                  </div>
-                  <div className="mb-3">
-                    <label className="fw-semibold">Recibido Por</label>
-                    <p className="d-flex align-items-center mb-0">
-                      {fila.paS_NOM_RECIBE ? (
-                        <>
-                          {fila.paS_NOM_RECIBE}
-                          <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                        </>
-                      ) : (
-                        <>
-                          Pendiente
-                          <Clock className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
-                        </>
-                      )}
-                    </p>
+              {/* Origen y Destino */}
+              <Col lg={6}>
+                <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
+                  <Row className="g-1">
+                    <Col md={12}>
+                      <div className="mb-3">
+                        <label className="fw-semibold small d-flex align-items-center">
+                          <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
+                          Establecimiento Origen
+                        </label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.establecimientO_ORIGEN || "Sin Información"}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
+                        </div>
+                      </div>
+                    </Col>
+                    <Col md={12}>
+                      <div className="mb-3">
+                        <label className="fw-semibold small d-flex align-items-center">
+                          <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
+                          Establecimiento Destino
+                        </label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.establecimientO_DESTINO || "Sin Información"}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              </Col>
 
-                  </div>
-                  <div className="mb-1">
-                    <label className="fw-semibold">Jefe que Autoriza</label>
-                    <p className="d-flex align-items-center mb-0">
-                      {fila.paS_NOM_AUTORIZA ? (
-                        <>
-                          {fila.paS_NOM_AUTORIZA}
-                          <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                        </>
-                      ) : (
-                        "Sin Información"
-                      )}
-                    </p>
+              {/* Observaciones */}
+              <Col lg={12}>
+                <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <label className="fw-semibold mb-2">Observaciones</label>
+                  <div
+                    className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
+                  >
+                    {fila.paS_OBS || "Sin observaciones"}
                   </div>
                 </div>
-                {/* Validación Traspaso recibido */}
-                <div className="border rounded-3 p-4 mt-4 text-center">
-                  <h5 className="fw-semibold mb-4">
-                    Estado solicitud
-                  </h5>
+              </Col>
+
+              {/* Despacho y Estado */}
+              <Col lg={6}>
+                <Row className="g-1">
+                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Despacho</h5>
+                    <div className="mb-3">
+                      <label className="fw-semibold small text-muted">Entregado Por</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {fila.paS_NOM_ENTREGA ? (
+                          <>
+                            {fila.paS_NOM_ENTREGA}
+                            <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                          </>
+                        ) : (
+                          "Sin Información"
+                        )}
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <label className="fw-semibold small text-muted">Recibido Por</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {fila.paS_NOM_RECIBE ? (
+                          <>
+                            {fila.paS_NOM_RECIBE}
+                            <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                          </>
+                        ) : (
+                          <>
+                            Pendiente
+                            <Clock className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    <div className="mb-1">
+                      <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {fila.paS_NOM_AUTORIZA ? (
+                          <>
+                            {fila.paS_NOM_AUTORIZA}
+                            <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                          </>
+                        ) : (
+                          "Sin Información"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </Row>
+              </Col>
+
+              {/* Documentos */}
+              <Col lg={6}>
+                {listadoTraspasosAdjuntos.length > 0 ? (
+                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
+                    <div className="table-responsive">
+                      <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                        <thead className={isDarkMode ? "table-dark" : "table-light"}>
+                          <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col" className="text-center" style={{ width: "100px" }}>
+                              Descargar
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {elementosActualesAdj.map((Lista, index) => {
+                            const indexReal = indicePrimerElementoAdj + index
+                            return (
+                              <tr key={indexReal}>
+                                <td>{Lista.nombre}</td>
+                                <td className="text-center">
+                                  <Button
+                                    size="sm"
+                                    variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                    onClick={() => handleDescargarAdjunto(Lista)}
+                                  >
+                                    <Download className="h-4 w-4" aria-hidden="true" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                      Sin documentos adjuntos
+                    </p>
+                  </>
+                )}
+              </Col>
+              {/*  Estado */}
+              <Col lg={6}>
+                <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Estado Solicitud</h5>
                   {estadoEnviado === 0 ? (
-                    <>
-                      <div className="alert alert-primary d-flex align-items-center  justify-content-center m-2 px-4 py-2 w-100 fs-09em rounded shadow-sm" role="alert">
-                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold ">Esperando Validación </span>
-                      </div>
-                    </>
+                    <div
+                      className="alert alert-primary d-flex align-items-center justify-content-center m-0 px-4 py-3"
+                      role="alert"
+                    >
+                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                      <span className="fw-semibold">Esperando Validación</span>
+                    </div>
                   ) : estadoEnviado === 1 ? (
-                    <>
-                      <div className="alert alert-success d-flex align-items-center  justify-content-center m-2 px-4 py-2 w-100 fs-09em rounded shadow-sm" role="alert">
-                        <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold ">Marcado como recibido </span>
-                      </div>
-                    </>
+                    <div
+                      className="alert alert-success d-flex align-items-center justify-content-center m-0 px-4 py-3"
+                      role="alert"
+                    >
+                      <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
+                      <span className="fw-semibold">Marcado como recibido</span>
+                    </div>
                   ) : (
-                    <>
-                      <div className="alert alert-warning d-flex align-items-center  justify-content-center m-2 px-4 py-2 w-100 fs-09em rounded shadow-sm" role="alert">
-                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold ">Marcado como pendiente </span>
-                      </div>
-                    </>
+                    <div
+                      className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-4 py-3"
+                      role="alert"
+                    >
+                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                      <span className="fw-semibold">Marcado como rechazado</span>
+                    </div>
                   )}
                 </div>
-
               </Col>
             </Row>
           </Modal.Body>
-        </Modal >
+        </Modal>
       ))}
+
       {/* Detalle de traspasos recibidos */}
       {elementosActuales1.map((fila, index) => (
         <Modal
@@ -1288,168 +1486,255 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
           </Modal.Header>
 
           <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
-            <Row className="g-3">
-              {/* Columna izquierda */}
-              <Col md={4}>
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Nº Inventario
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.aF_CODIGO_GENERICO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold ">
-                    Establecimiento Origen
-                    <CircleFill className="ms-1 text-warning" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.establecimientO_ORIGEN || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Servicio/Dependencia Origen
-                    <CircleFill className="ms-1 text-warning" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{(fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN) || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Fecha Traspaso</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_FECHA || "No definida"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">N° Memo de Referencia</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_MEMO_REF || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Especie</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.esP_NOMBRE || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Estado</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_ESTADO_AF || "No definida"}</div>
-                </div>
-
-              </Col>
-              <Col md={4}>
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Nº Traspaso
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.n_TRASPASO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Establecimiento Destino
-                    <CircleFill className="ms-1 text-success" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.establecimientO_DESTINO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Servicio/Dependencia Destino
-                    <CircleFill className="ms-1 text-success" width={12} height={12} aria-hidden="true" />
-                  </label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{(fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO) || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Fecha del Memo</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.paS_FECHA_MEMO || "No definida"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Codigo Especie</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>{fila.esP_CODIGO || "Sin Información"}</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="fw-semibold">Observaciones</label>
-                  <div className={`rounded border px-2 py-1 small fw-medium ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`} style={{ whiteSpace: "pre-wrap", minHeight: "100px" }}>{fila.paS_OBS || "Sin observaciones"}</div>
+            <Row className="g-1">
+              {/* Información General del Traspaso */}
+              <Col lg={6}>
+                <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
+                  <Row className="g-1">
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Nº Inventario</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.aF_CODIGO_GENERICO || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Nº Traspaso</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.n_TRASPASO || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Fecha Traspaso</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_FECHA || "No definida"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Fecha del Memo</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_FECHA_MEMO || "No definida"}
+                      </div>
+                    </Col>
+                    <Col md={12}>
+                      <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_MEMO_REF || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Especie</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.esP_NOMBRE || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <label className="fw-semibold small text-muted">Codigo Especie</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.esP_CODIGO || "Sin Información"}
+                      </div>
+                    </Col>
+                    <Col md={12}>
+                      <label className="fw-semibold small text-muted">Estado</label>
+                      <div
+                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        {fila.paS_ESTADO_AF || "No definida"}
+                      </div>
+                    </Col>
+                  </Row>
                 </div>
               </Col>
-              {/* Columna derecha */}
-              <Col md={4}>
-                <div className="border rounded-3 p-4 mt-4 ">
-                  <h5 className="fw-semibold mb-4">Recepción</h5>
 
-                  <div className="mb-3">
-                    <label className="fw-semibold">Entregado Por</label>
-                    <p>{fila.paS_NOM_ENTREGA || "Sin Información"}</p>
+              {/* Origen y Destino */}
+              <Col lg={6}>
+                <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
+                  <Row className="g-1">
+                    <Col md={12}>
+                      <div className="mb-3">
+                        <label className="fw-semibold small d-flex align-items-center">
+                          <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
+                          Establecimiento Origen
+                        </label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.establecimientO_ORIGEN || "Sin Información"}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
+                        </div>
+                      </div>
+                    </Col>
+                    <Col md={12}>
+                      <div className="mb-3">
+                        <label className="fw-semibold small d-flex align-items-center">
+                          <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
+                          Establecimiento Destino
+                        </label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.establecimientO_DESTINO || "Sin Información"}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
+                        <div
+                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              </Col>
+
+              {/* Observaciones */}
+              <Col lg={12}>
+                <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <label className="fw-semibold mb-2">Observaciones</label>
+                  <div
+                    className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
+                  >
+                    {fila.paS_OBS || "Sin observaciones"}
                   </div>
+                </div>
+              </Col>
 
-                  <div className="mb-3">
-                    <label className="fw-semibold">Recibido Por</label>
-                    <p>{objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)} {objeto?.Nombre && PrimeraMayuscula(objeto.Apellido1)}</p>
-                  </div>
-
+              {/* Recepción y Validación */}
+              <Col lg={6}>
+                <div className={`border rounded-3 p-3 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Recepción</h5>
                   <div className="mb-1">
-                    <label className="fw-semibold">Jefe que Autoriza</label>
-                    <p>{fila.paS_NOM_AUTORIZA || "Sin Información"}</p>
+                    <label className="fw-semibold small text-muted">Entregado Por</label>
+                    <p className="d-flex align-items-center mb-0">
+                      {fila.paS_NOM_ENTREGA || "Sin Información"}
+                      <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                    </p>
+
+                  </div>
+                  <div className="mb-1">
+                    <label className="fw-semibold small text-muted">Recibido Por</label>
+                    <p className="d-flex align-items-center mb-0">
+                      {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)}{" "}
+                      {objeto?.Apellido1 && PrimeraMayuscula(objeto.Apellido1)}
+                      <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                    </p>
+                  </div>
+                  <div>
+                    <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
+                    <p className="d-flex align-items-center mb-0">
+                      {fila.paS_NOM_AUTORIZA || "Sin Información"}
+                      <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                    </p>
                   </div>
                 </div>
-                {/* Validación Traspaso recibido */}
-                <div className="border rounded-3 p-4 mt-4 text-center">
 
-                  <>
-                    {estadoRecibido === 0 ? (
-                      <>
-                        <h5 className="fw-semibold mb-4">
-                          ¿Ha recibido el bien en su establecimiento?
-                        </h5>
-                        <div className="d-flex">
-                          <Button
-                            variant="success"
-                            className="w-100 mx-1"
-                            onClick={() => handleSubmitSI(fila.aF_CLAVE)}
-                          >
-                            Sí, recibido
-                          </Button>
-
-                          <Button
-                            variant="warning"
-                            className="w-100 mx-1"
-                            onClick={() => handleSubmitNO(fila.aF_CLAVE)}
-                          >
-                            No, pendiente
-                          </Button>
-
-                        </div>
-                      </>
-                    ) : estadoRecibido === 1 ? (
-                      <>
-                        <h5 className="fw-semibold mb-4">
-                          Estado solicitud
-                        </h5>
-                        <div className="alert alert-success d-flex align-items-center  justify-content-center m-2 px-4 py-2 w-100 fs-09em rounded shadow-sm" role="alert">
-                          <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                          <span className="fw-semibold ">Marcado como recibido</span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <h5 className="fw-semibold mb-4">
-                          Estado solicitud
-                        </h5>
-                        <div className="alert alert-warning d-flex align-items-center  justify-content-center m-2 px-4 py-2 w-100 fs-09em rounded shadow-sm" role="alert">
-                          <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                          <span className="fw-semibold ">Marcado como pendiente</span>
-                        </div>
-                      </>
-                    )}
-                  </>
-
+                {/* Validación */}
+                <div className={`border rounded-3 p-3 mt-1 ${isDarkMode ? "border-secondary" : ""}`}>
+                  {estadoRecibido === 0 ? (
+                    <>
+                      <h6 className="fw-semibold mb-3 text-center">¿Ha recibido el bien en su establecimiento?</h6>
+                      <div className="d-flex gap-2">
+                        <Button variant="success" className="w-100" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
+                          Sí, recibido
+                        </Button>
+                        <Button variant="danger" className="w-100" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
+                          No, rechazar
+                        </Button>
+                      </div>
+                    </>
+                  ) : estadoRecibido === 1 ? (
+                    <>
+                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
+                      <div className="alert alert-success d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
+                        <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
+                        <span className="fw-semibold ">Marcado como recibido</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
+                      <div className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
+                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                        <span className="fw-semibold">Marcado como rechazado</span>
+                      </div>
+                    </>
+                  )}
                 </div>
+              </Col>
+
+              {/* Documentos */}
+              <Col lg={6}>
+                {listadoTraspasosAdjuntos.length > 0 ? (
+                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
+                    <div className="table-responsive">
+                      <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                        <thead className={isDarkMode ? "table-dark" : "table-light"}>
+                          <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col" className="text-center" style={{ width: "100px" }}>
+                              Descargar
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {elementosActualesAdj.map((Lista, index) => {
+                            const indexReal = indicePrimerElementoAdj + index
+                            return (
+                              <tr key={indexReal}>
+                                <td>{Lista.nombre}</td>
+                                <td className="text-center">
+                                  <Button
+                                    size="sm"
+                                    variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                    onClick={() => handleDescargarAdjunto(Lista)}
+                                  >
+                                    <Download className="h-4 w-4" aria-hidden="true" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                      Sin documentos adjuntos
+                    </p>
+                  </>
+                )}
               </Col>
             </Row>
           </Modal.Body>
-        </Modal >
+        </Modal>
       ))}
 
     </Layout >
@@ -1459,6 +1744,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 const mapStateToProps = (state: RootState) => ({
   listadoTraspasos: state.listadoTraspasosReducers.listadoTraspasos,
   listadoTraspasosRecibidos: state.listadoTraspasosRecibidosReducers.listadoTraspasosRecibidos,
+  listadoTraspasosAdjuntos: state.listadoTraspasosAdjuntosReducers.listadoTraspasosAdjuntos,
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   comboServicio: state.comboServicioReducer.comboServicio,
@@ -1470,6 +1756,7 @@ export default connect(mapStateToProps, {
   listadoTraspasosRecibidosActions,
   registrarMantenedorDependenciasActions,
   recibeTraspasoActions,
-  limpiarDataActions
+  limpiarDataActions,
+  obtenerAdjuntosActions
 })(ListadoTraspasos);
 

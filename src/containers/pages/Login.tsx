@@ -93,7 +93,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
         <h1 className="fw-bold text-center" style={{ color: "#575757", fontSize: "1.6rem" }}>SSMSO</h1>
 
         <form id="Login" className="text-start" onSubmit={onSubmit}>
-          <label htmlFor="usuario" style={{ fontSize: "12px" }}>Ingresa tu RUN</label>
+          <label htmlFor="usuario" style={{ fontSize: "12px" }}>Ingresar usuario</label>
           <input
             type="text"
             className="form-control w-100 mx-auto m-1 border-dark rounded-0"
@@ -105,7 +105,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
             required
           />
 
-          <label htmlFor="password" style={{ fontSize: "12px" }}>Ingresa Contraseña</label>
+          <label htmlFor="password" style={{ fontSize: "12px" }}>Ingresar Contraseña</label>
           <input
             type="password"
             className="form-control w-100 mx-auto m-1 border-dark rounded-0"

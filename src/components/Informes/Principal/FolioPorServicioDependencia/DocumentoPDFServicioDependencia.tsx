@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import ssmso_logo from "../../../../assets/img/SSMSO-LOGO.png"
-import ago from "../../../../assets/img/ago.jpg"
+import ago from "../../../../assets/img/logo_red.jpg"
 import { Container } from 'react-bootstrap';
 import { ListaFolioServicioDependencia } from './FolioPorServicioDependencia';
 
@@ -9,14 +9,15 @@ const styles = StyleSheet.create({
         padding: 20,
         fontSize: 12,
     },
-    logoContainer: {
-        display: 'flex',
-        alignItems: 'flex-start',
-        marginBottom: 20,
-    },
     logo: {
-        width: 100, // Ajusta el tamaño del logo
+        width: 80, // Ajusta el tamaño del logo
         height: 'auto',
+        textAlign: 'left',
+    },
+    logo_red: {
+        width: 70,
+        height: 25,                // opcional: controla el alto para mejor proporción
+        marginBottom: 2,           // separa un poco del texto
     },
     containerHeader: {
         marginBottom: 10,
@@ -46,24 +47,31 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     centerText: {
-        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
         textAlign: 'center',
     },
     title: {
         fontSize: 12,
         fontWeight: 'bold',
+        color: '#000',
+        textAlign: 'center',
+    },
+    titleRed: {
+        fontSize: 6,
+        fontWeight: 900,
         textAlign: 'center',
     },
     subTitle: {
         fontSize: 10,
         fontWeight: 'bold',
-        paddingTop: 2,
+        paddingTop: 3,
         borderTop: '1px black solid',
         textAlign: 'center'
     },
     p: {
         fontSize: 10,
-        marginBottom: 2,
+        marginBottom: 5,
         fontWeight: 'semibold',
         textAlign: 'left',
     },
@@ -73,39 +81,45 @@ const styles = StyleSheet.create({
 
     },
     tableHeader: {
-        fontSize: 8,
+        fontSize: 7,
         flexDirection: "row",
-        fontWeight: 'bold',
-        backgroundColor: 'rgb(0 68 133 / 80%)',
-        color: '#fff',
-        borderBottom: "1px solid #000",
+
     },
     tableRow: {
         flexDirection: "row",
         borderBottom: "1px solid #ccc",
     },
+    tableCellHeader: {
+        padding: 2,
+        fontSize: 7,
+        fontWeight: 'bold',
+        backgroundColor: 'rgb(0 68 133 / 80%)',
+        color: '#fff',
+        borderBottom: "1px solid #000"
+
+    },
     tableCell: {
-        padding: 3,
-        fontSize: 8,
+        padding: 2,
+        fontSize: 7,
         fontWeight: "bold",
         borderRight: "1px solid #ccc",
+        backgroundColor: '#f1f1f1ff',
         overflow: "hidden",
         flexGrow: 1,
     },
-
-    colCodigo: { width: "13%" },
+    colInventario: { width: "13%" },
+    colInventarioGris: { width: "13%", backgroundColor: '#c7c7c7ff' },
     colEspecie: { width: "13%" },
     colMarca: { width: "10%" },
     colModelo: { width: "10%" },
-    colSerie: { width: "10%" },
-    colObs: { width: "20%" },
-    colFIngreso: { width: "12%" },
+    colSerie: { width: "12%" },
+    colObs: { width: "18%" },
+    colFIngreso: { width: "14%" },
     colAlta: { width: "8%" },
-    colEstado: { width: "5%" },
-    colTraslado: { width: "10%" },
-    colPrecio: { width: "13%" },
-    colCuenta: { width: "15%" },
-
+    colEstado: { width: "7%" },
+    colTraslado: { width: "8%" },
+    colPrecio: { width: "12%" },
+    colCuenta: { width: "9%" },
 
     firmaContainer: {
         flexDirection: 'row',
@@ -140,6 +154,27 @@ const styles = StyleSheet.create({
     fechaHoy: {
         padding: 2,
     },
+    footer: {
+        position: 'absolute',
+        bottom: 20,          // distancia del borde inferior
+        left: 40,
+        right: 40,
+        height: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',  // separa fecha y numeración
+        alignItems: 'center',
+        fontSize: 9,
+        color: '#000',
+        borderTopWidth: 1,                // línea separadora superior
+        borderTopColor: '#ccc',
+        paddingTop: 4,
+    },
+    footerLeft: {
+        textAlign: 'left',
+    },
+    footerRight: {
+        textAlign: 'right',
+    },
 
 });
 
@@ -161,9 +196,21 @@ const arreglo = (array: any[], size: number) => {
     return result;
 };
 
+// Inserta saltos de línea 
+function insertNewLinesDigits(value: any, every = 10) {
+    if (value === null || value === undefined) return "";
+    const s = String(value);
+    // Si ya tiene saltos, procesamos cada línea por separado para no romperlos
+    return s
+        .split('\n')
+        .map(line => line.replace(new RegExp(`(.{${every}})`, 'g'), '$1\n'))
+        .join('\n');
+}
+
+
 
 const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDependencia[]; }) => {
-    const filasPorPagina = 12;
+    const filasPorPagina = 10;
     const paginas = arreglo(row, filasPorPagina);
 
     return (
@@ -173,12 +220,20 @@ const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDepen
                     {/* Encabezado */}
                     <Container style={styles.containerHeader}>
                         <View style={styles.headerRow}>
-                            <Image src={ssmso_logo} style={styles.logo} />
+                            <View style={styles.centerText}>
+                                <Image src={ssmso_logo} style={styles.logo} />
+                            </View>
+
                             <View style={styles.centerText}>
                                 <Text style={styles.title}>SISTEMA DE ACTIVO FIJO</Text>
                                 <Text style={styles.title}>UNIDAD DE INVENTARIO</Text>
                             </View>
-                            <Image src={ago} style={styles.logo} />
+                            <View style={styles.centerText}>
+                                <Image src={ago} style={styles.logo_red} />
+                                <Text style={styles.titleRed}>RED PUBLICA</Text>
+                                <Text style={styles.titleRed}>SALUD SUR ORIENTE</Text>
+                            </View>
+
                         </View>
                     </Container>
 
@@ -191,33 +246,36 @@ const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDepen
                         <View style={styles.headerContent}>
                             <Text style={styles.p}>Dependencia: {row[0]?.dependencia}</Text>
                             <Text style={styles.p}>Fecha: {fechaHoy}</Text>
+
+                        </View>
+                        <View style={styles.headerContent}>
+                            <Text style={styles.p}>Cantidad: {row.length}</Text>
                         </View>
                     </Container>
-
                     {/* Tabla */}
                     <View style={styles.table}>
                         <View style={styles.tableHeader}>
-                            <Text style={[styles.tableCell, styles.colCodigo]}>N° Inventario</Text>
-                            <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
-                            <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
-                            <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
-                            <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
-                            <Text style={[styles.tableCell, styles.colObs]}>Observación</Text>
-                            <Text style={[styles.tableCell, styles.colFIngreso]}>Fecha Ingreso</Text>
-                            <Text style={[styles.tableCell, styles.colAlta]}>N° Alta</Text>
-                            <Text style={[styles.tableCell, styles.colEstado]}>Estado</Text>
-                            <Text style={[styles.tableCell, styles.colTraslado]}>N° Traslado</Text>
-                            <Text style={[styles.tableCell, styles.colPrecio]}>Valor Inicial</Text>
-                            <Text style={[styles.tableCell, styles.colCuenta]}>Cuenta Contable</Text>
+                            <Text style={[styles.tableCellHeader, styles.colInventario]}>N° Inventario</Text>
+                            <Text style={[styles.tableCellHeader, styles.colEspecie]}>Especie</Text>
+                            <Text style={[styles.tableCellHeader, styles.colMarca]}>Marca</Text>
+                            <Text style={[styles.tableCellHeader, styles.colModelo]}>Modelo</Text>
+                            <Text style={[styles.tableCellHeader, styles.colSerie]}>Serie</Text>
+                            <Text style={[styles.tableCellHeader, styles.colObs]}>Observación</Text>
+                            <Text style={[styles.tableCellHeader, styles.colFIngreso]}>Fecha Ingreso</Text>
+                            <Text style={[styles.tableCellHeader, styles.colAlta]}>N° Alta</Text>
+                            <Text style={[styles.tableCellHeader, styles.colEstado]}>Estado</Text>
+                            <Text style={[styles.tableCellHeader, styles.colTraslado]}>N° Traslado</Text>
+                            <Text style={[styles.tableCellHeader, styles.colPrecio]}>Valor Inicial</Text>
+                            <Text style={[styles.tableCellHeader, styles.colCuenta]}>Cuenta Contable</Text>
                         </View>
 
                         {rows.map((lista, idx) => (
                             <View style={styles.tableRow} key={idx}>
-                                <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
+                                <Text style={[styles.tableCell, styles.colInventarioGris]}>{lista.aF_CODIGO_GENERICO}</Text>
                                 <Text style={[styles.tableCell, styles.colEspecie]}>{lista.aF_ESPECIE}</Text>
                                 <Text style={[styles.tableCell, styles.colMarca]}>{lista.aF_MARCA}</Text>
                                 <Text style={[styles.tableCell, styles.colModelo]}>{lista.aF_MODELO}</Text>
-                                <Text style={[styles.tableCell, styles.colSerie]}>{lista.aF_SERIE}</Text>
+                                <Text style={[styles.tableCell, styles.colSerie]}>{insertNewLinesDigits(lista.aF_SERIE, 10)}</Text>
                                 <Text style={[styles.tableCell, styles.colObs]}>{lista.aF_OBS}</Text>
                                 <Text style={[styles.tableCell, styles.colFIngreso]}>{lista.aF_FINGRESO}</Text>
                                 <Text style={[styles.tableCell, styles.colAlta]}>{lista.altaS_CORR}</Text>
@@ -245,21 +303,21 @@ const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDepen
                                 </View>
                             </View>
 
-                            <Container style={styles.containerFooter}>
-                                <Text style={styles.fechaHoy}>{fechaHoy}</Text>
-                                <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
-                            </Container>
                         </>
                     )}
                     {/* Pie de página para otras páginas */}
-                    {indicePagina !== paginas.length - 1 && (
-                        <Container style={styles.containerFooter}>
-                            {/* <View style={styles.flex}> */}
-                            <Text style={styles.fechaHoy}>{fechaHoy}</Text>
-                            <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
-                            {/* </View> */}
-                        </Container>
-                    )}
+                    {/* Footer fijo en todas las páginas */}
+                    <View style={styles.footer} fixed>
+                        <Text style={styles.footerLeft}>{fechaHoy}</Text>
+
+                        <Text
+                            style={styles.footerRight}
+                            render={({ pageNumber, totalPages }) =>
+                                `Página ${pageNumber} de ${totalPages}`
+                            }
+                        />
+                    </View>
+
                 </Page>
             ))}
         </Document>

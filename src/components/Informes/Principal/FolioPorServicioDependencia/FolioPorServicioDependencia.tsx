@@ -98,6 +98,7 @@ interface DatosAltas {
 
 const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, comboSerDepActions, listaFolioServicioDependencia, comboSerDep, objeto, token, isDarkMode, datosFirmas }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [mostrarTodoModal, setMostrarTodoModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
     const [error, setError] = useState<Partial<ListaFolioServicioDependencia> & {}>({});
     const [loading, setLoading] = useState(false); // Estado para controlar la carga busqueda 
@@ -235,6 +236,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
+        setFilasSeleccionadas([]);
         if (
             (!Buscar.servicio || Buscar.servicio === 0) &&
             Buscar.af_codigo_generico.trim() === ""
@@ -699,7 +701,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                             </Row>
                             <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                                 {/* Tamaño de página */}
-                                <Col xs={12} lg="auto">
+                                <Col xs={12} lg={4}>
                                     {listaFolioServicioDependencia.length > 10 && (
                                         <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                                             <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
@@ -716,6 +718,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                     <option key={val} value={val}>{val}</option>
                                                 ))}
                                             </select>
+
                                         </div>
                                     )}
                                 </Col>
@@ -723,59 +726,59 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                 {listaFolioServicioDependencia.length > 0 && (
                                     <>
                                         {/* Botón o mensaje */}
-                                        <Col xs={12} lg={4}>
+                                        <Col xs={12} lg={6}>
                                             <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                                                {filasSeleccionadas.length > 0 ? (
-                                                    <>
-                                                        <Button
-                                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                            onClick={() => setMostrarModal(true)}
-                                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                                                            disabled={loading}
-                                                        >
-                                                            {loading ? (
-                                                                <>
-                                                                    <FiletypePdf
-                                                                        className="flex-shrink-0 h-5 w-5 mx-2"
-                                                                        aria-hidden="true"
-                                                                    />
-                                                                    Exportar
-                                                                    <Spinner
-                                                                        as="span"
-                                                                        animation="border"
-                                                                        size="sm"
-                                                                        role="status"
-                                                                        aria-hidden="true"
-                                                                        className="mx-2"
-                                                                    />
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <FiletypePdf
-                                                                        className="flex-shrink-0 h-5 w-5 mx-1"
-                                                                        aria-hidden="true"
-                                                                    />
-                                                                    Exportar
-                                                                    <span className="badge bg-light text-dark mx-2 mt-1">
-                                                                        {filasSeleccionadas.length}
-                                                                    </span>
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                        {/* Botón Trasladar */}
-                                                        <Button
-                                                            variant="warning"
-                                                            onClick={() => setMostrarModalTraslado(true)}
-                                                            disabled={listaFolioServicioDependencia.length === 0}
-                                                            className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
-                                                        >
-                                                            Trasladar
-                                                            <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                {filasSeleccionadas.length}
-                                                            </span>
-                                                        </Button>
+                                                {filasSeleccionadas.length > 0 ? (<>
+                                                    {/* Botón Exportar */}
+                                                    <Button
+                                                        variant={`primary`}
+                                                        onClick={() => setMostrarModal(true)}
+                                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                                        disabled={loading}
+                                                    >
+                                                        {loading ? (
+                                                            <>
+                                                                <FiletypePdf
+                                                                    className="flex-shrink-0 h-5 w-5 mx-2"
+                                                                    aria-hidden="true"
+                                                                />
+                                                                Exportar
+                                                                <Spinner
+                                                                    as="span"
+                                                                    animation="border"
+                                                                    size="sm"
+                                                                    role="status"
+                                                                    aria-hidden="true"
+                                                                    className="mx-2"
+                                                                />
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <FiletypePdf
+                                                                    className="flex-shrink-0 h-5 w-5 mx-1"
+                                                                    aria-hidden="true"
+                                                                />
+                                                                Exportar
+                                                                <span className="badge bg-light text-dark mx-2 mt-1">
+                                                                    {filasSeleccionadas.length}
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                    {/* Botón Trasladar */}
+                                                    <Button
+                                                        variant="warning text-dark"
+                                                        onClick={() => setMostrarModalTraslado(true)}
+                                                        disabled={listaFolioServicioDependencia.length === 0}
+                                                        className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 d-flex align-items-center justify-content-center"
+                                                    >
+                                                        Trasladar
+                                                        <span className="badge bg-light text-dark mx-1 mt-1">
+                                                            {filasSeleccionadas.length}
+                                                        </span>
+                                                    </Button>
 
-                                                    </>
+                                                </>
                                                 ) : (
                                                     <div className="d-flex justify-content-center justify-content-lg-end w-100">
                                                         <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center ">
@@ -784,9 +787,44 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                     </div>
                                                 )}
                                                 <Button
+                                                    variant={`secondary`}
+                                                    onClick={() => setMostrarTodoModal(true)}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? (
+                                                        <>
+                                                            <FiletypePdf
+                                                                className="flex-shrink-0 h-5 w-5 mx-2"
+                                                                aria-hidden="true"
+                                                            />
+                                                            Exportar todo
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                aria-hidden="true"
+                                                                className="mx-2"
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FiletypePdf
+                                                                className="flex-shrink-0 h-5 w-5 mx-1"
+                                                                aria-hidden="true"
+                                                            />
+                                                            Exportar todo
+                                                            <span className="badge bg-light text-dark mx-2 mt-1">
+                                                                {listaFolioServicioDependencia.length}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </Button>
+                                                <Button
                                                     onClick={handleAgregar}
                                                     disabled={loading}
-                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                    variant={`btn btn-success`}
                                                     className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center">
                                                     Agregar
                                                     <Plus className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
@@ -918,8 +956,62 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                         </div>
                     </form>
                 </div>
-            </div>
-            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
+            </div >
+            {/* Modal selecciona todo*/}
+            < Modal show={mostrarTodoModal} onHide={() => setMostrarTodoModal(false)} dialogClassName="modal-right" size="xl" >
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                    <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <form >
+
+                        {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+                        <BlobProvider document={
+                            <DocumentoPDFServicioDependencia
+                                row={listaFolioServicioDependencia}
+                            />
+                        }>
+                            {({ url, loading }) =>
+                                loading ? (
+                                    <p>Generando vista previa...</p>
+                                ) : (
+
+                                    <>
+                                        {/* Botones para exportar a Excel y Word */}
+                                        <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
+                                            <Button
+                                                onClick={() => exportarExcel(listaFolioServicioDependencia)}
+                                                variant="success">
+                                                Descargar Excel
+                                                <FileEarmarkExcel className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                            </Button>
+                                            {/* <Button
+                                            onClick={() => exportarWord()}
+                                            variant="primary">
+                                            Descargar Word
+                                            <FileEarmarkWord className={classNames("flex-shrink-0", "h-5 w-5 ms-1")} aria-hidden="true" />
+                                        </Button> */}
+                                        </div>
+                                        {/* Frame para vista previa del PDF */}
+                                        <iframe
+                                            src={url ? `${url}` : ""}
+                                            title="Vista Previa del PDF"
+                                            style={{
+                                                width: "100%",
+                                                height: "900px",
+                                                border: "none"
+                                            }}
+                                        ></iframe>
+                                    </>
+
+                                )
+                            }
+                        </BlobProvider>
+                    </form>
+                </Modal.Body>
+            </Modal >
+            {/*Modal para seleccion*/}
+            < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl" >
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
                 </Modal.Header>
@@ -970,9 +1062,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                         </BlobProvider>
                     </form>
                 </Modal.Body>
-            </Modal>
+            </Modal >
             {/* Modal formulario traslado*/}
-            <Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)} size="lg" dialogClassName="modal-right" backdrop="static"
+            < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)} size="lg" dialogClassName="modal-right" backdrop="static"
             //  keyboard={false}     // Evita el cierre al presionar la tecla Esc
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>

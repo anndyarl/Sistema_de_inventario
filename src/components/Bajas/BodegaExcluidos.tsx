@@ -135,6 +135,10 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       [name]: value,
     }));
 
+    if (name === 'nPaginacion') {
+      paginar(1);
+    }
+
   };
 
   //Funcion para seleccion multiple
