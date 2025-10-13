@@ -1355,7 +1355,6 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
 const mapStateToProps = (state: RootState) => ({
   montoRecepcion: state.obtenerRecepcionReducers.montoRecepcion,
-
   resetFormulario: state.datosActivoFijoReducers.resetFormulario,
   datosTablaActivoFijo: state.datosActivoFijoReducers.datosTablaActivoFijo,
   isDarkMode: state.darkModeReducer.isDarkMode,

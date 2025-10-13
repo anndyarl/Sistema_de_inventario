@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 // Acción para obtener la recepción por número
-export const listaEstadoVisadoresActions = (altas_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaEstadoVisadoresActions = (iDocumento: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -21,7 +21,7 @@ export const listaEstadoVisadoresActions = (altas_corr: number) => async (dispat
     dispatch({ type: LISTA_ESTADO_VISADORES_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEstadoVisadores?altas_corr=${altas_corr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEstadoVisadores?iDocumento=${iDocumento}`, config);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({

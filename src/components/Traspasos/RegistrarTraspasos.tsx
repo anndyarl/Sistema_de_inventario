@@ -321,7 +321,6 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
 
         if (name === "seR_CORR") {
             comboDependenciaOrigenActions(value);
-            console.log(value);
         }
 
         if (name === "paS_DET_CORR") {

@@ -157,13 +157,11 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const handleComboEspecieChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setBuscar((prev) => ({ ...prev, esP_CODIGO: value }));
-    console.log("select:", value);
   };
 
   // Si escribe a mano
   const handleInputEspecieChange = (input: string) => {
     setBuscar((prev) => ({ ...prev, esp_NOMBRE: input }));
-    console.log("texto:", input);
     handleBuscar();
   };
 
@@ -678,7 +676,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
           )}
         </Modal.Body>
       </Modal >
-
     </>
   );
 };

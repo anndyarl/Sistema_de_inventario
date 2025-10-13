@@ -84,14 +84,14 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                 else if (result.dismiss === Swal.DismissReason.cancel) {
 
                     if (origenLogin === 0) {
-                        console.log("Valor 0 regresa a Gestor Documental");
+                        // console.log("Valor 0 regresa a Gestor Documental");
                         dispatch(logout());
                         const redirectUrl = import.meta.env.VITE_ORIGEN_LOGIN
                         window.location.href = redirectUrl
                         return;
                     }
                     else {
-                        console.log("Valor 1 regresa a login Original");
+                        // console.log("Valor 1 regresa a login Original");
                         dispatch(logout());
                         navigate("/");;
                     }

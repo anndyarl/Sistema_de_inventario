@@ -27,7 +27,6 @@ export const modificarFormInventarioActions = (activos: InventarioCompleto[]) =>
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/actualizaActivoFijo/`, body, config);
-      console.log(body);
       if (response.status === 200) {
         if (response.data === 1) {
           dispatch({

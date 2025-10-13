@@ -146,7 +146,6 @@ const CuentaFechas: React.FC<DatosAltas> = ({ listaCuentaFechasActions, comboCue
     const handleCuentasChange = (selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : "";
         setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
-        console.log(value);
     }
 
     const handleBuscar = async () => {

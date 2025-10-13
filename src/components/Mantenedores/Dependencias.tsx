@@ -131,9 +131,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
       [name]: newValue,
     }));
 
-    if (name === "seR_COD") {
-      console.log('value', value);
-    }
   };
 
   // const setSeleccionaFila = (index: number) => {
@@ -173,7 +170,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
       if (result.isConfirmed) {
         setLoadingRegistro(true);
         const resultado = await registrarMantenedorDependenciasActions(Mantenedor);
-        console.log(Mantenedor);
         if (resultado) {
           Swal.fire({
             icon: "success",

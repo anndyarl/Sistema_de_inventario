@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, CheckCircle, Eraser, Eye, Paperclip, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, Paperclip, Pencil, PencilFill, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
@@ -21,11 +21,15 @@ import { DatosFirmas, Unidades } from "../FirmarAltas/FirmarAltas";
 import { pdf } from "@react-pdf/renderer";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
-import { InventarioCompleto } from "../../Inventario/ModificarInventario";
+import ModificarInventario, { InventarioCompleto } from "../../Inventario/ModificarInventario";
 import { rechazarAltaActions } from "../../../redux/actions/Altas/EstadoFirmas/rechazarAltaAcions";
 import { limpiarDataActions } from "../../../redux/actions/Configuracion/limparDataActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
-
+import { BIEN, DETALLE, ListaEspecie } from "../../Inventario/RegistrarInventario/DatosCuenta";
+import Select from "react-select";
+import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
+import { comboEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
+import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
 export interface ListaEstadoFirmas {
     idocumento: number;
     altaS_CORR: number;
@@ -69,9 +73,14 @@ interface ListaAltas {
 interface DatosBajas {
     listaEstado: ListaEstadoFirmas[];
     listaAltasRegistradas: ListaAltas[];
+    listaEspecie: ListaEspecie[];
+    comboBien: BIEN[];
+    comboDetalle: DETALLE[];
+    comboEspecies: ListaEspecie[];
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
+    listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string /* esP_NOMBRE: string*/) => Promise<boolean>; //Lista Especies en tabla
     listaEstadoActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
-    listaEstadoVisadoresActions: (altasCorr: number) => Promise<boolean>;
+    listaEstadoVisadoresActions: (idocumento: number) => Promise<boolean>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
     modificarFormInventarioActions: (activos: InventarioCompleto[]) => Promise<Boolean>;
@@ -79,6 +88,8 @@ interface DatosBajas {
     limpiarDataActions: () => Promise<boolean>;
     obtenerUnidadesActions: () => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
+    comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
+    comboDetalleActions: (bienSeleccionado: string) => void;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -86,14 +97,15 @@ interface DatosBajas {
     listaEstadoVisadores: ListaEstadoVisadores[];
     datosFirmas: DatosFirmas[];
     comboUnidades: Unidades[];
+    descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie  
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, /*listaAltasRegistradasActions, */ registrarDocumentoAltaActions, /*modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions,*/ obtenerUnidadesActions, obtenerfirmasAltasActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, comboUnidades, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, descripcionEspecie, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
     const [______, setLoadingEnvio] = useState(false);
-    // const [loadingModificar, setLoadingModificar] = useState(false);
+    const [loadingModificar, setLoadingModificar] = useState(false);
 
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
@@ -104,24 +116,29 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
 
-    // const [paginaActualModificar, setPaginaActualModificar] = useState(1);
-    // const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
-    // const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
+    const [paginaActualModificar, setPaginaActualModificar] = useState(1);
+    const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
+    const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
 
-    const [__, setElementoSeleccionado] = useState<ListaEstadoFirmas[]>([]);
-    // const [___, setEditarCampo] = useState<string | null>(null);
+    const [paginaActualEspecies, setPaginaActualEspecies] = useState(1);
+    const [PaginacionEspecies, setPaginacionEspecies] = useState({ nPaginacionEspecies: 10 });
+    const elementosPorPaginaEspecies = PaginacionEspecies.nPaginacionEspecies;
+
+    const [__, setElementoSeleccionadoVisado] = useState<ListaEstadoFirmas[]>([]);
+    const [___, setEditarCampo] = useState<string | null>(null);
 
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
     const [InventarioModificar, setInventarioModificar] = useState<any[]>([]);
 
     const [____, setIsDisabled] = useState(true); //Habilita los firmantes en cada check
-    // const [habilitarVisado, setHabilitarVisado] = useState(true); //Hasbilita botón solicitar visado
-    // const [habilitarModificar, setHabilitarModificar] = useState(true); //Hasbilita botón modificar en modal
+    const [habilitarVisado, setHabilitarVisado] = useState(true); //Hasbilita botón solicitar visado
+    const [habilitarModificar, setHabilitarModificar] = useState(true); //Hasbilita botón modificar en modal
     const [isExpanded, setIsExpanded] = useState(false); //expande el los visadores(ajustar visado)
     const [Unidad, setUnidad] = useState<number>(0);
     const [_____, setUnidadNombre] = useState<string>("");
     const filasSeleccionadasPDF = InventarioModificar;
     const [anexos, setAnexos] = useState<File[]>([]);
+    const [estadoRechazado, setEstadoRechazado] = useState(true);
 
     //Estado para renderizar los nombres de los usuarios en cada check de los firmantes
     const [nombreTitularInventario, setNombreTitularInventario] = useState<string>("");
@@ -138,6 +155,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [nombreSubConvenio, setNombreSubConvenio] = useState<string>("");
     const [nombreTitularRFisico, setNombreTitularRFisico] = useState<string>("");
     const [nombreSubRFisico, setNombreSubRFisico] = useState<string>("");
+
+    const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
+    const [mostrarModalEspecie, setMostrarModalEspecie] = useState(false);
+    const [loadingEspecie, setLoadingEspecie] = useState(false);
+    const [indiceEditar, setIndiceEditar] = useState<number | null>(null);
 
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
@@ -181,6 +204,19 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         visadoAbastecimiento: ""
     });
 
+    const [Especies, setEspecies] = useState({
+        estableEspecie: 0,
+        codigoEspecie: "",
+        nombreEspecie: "",
+        descripcionEspecie: "",
+    });
+
+
+    const [BuscarEspecie, setBuscarEspecie] = useState({
+        esP_CODIGO: "",
+        esp_NOMBRE: ""
+    });
+
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Solo permitir números
@@ -199,10 +235,15 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             [name]: value,
         }));
 
-        // setPaginacionModificar((prevState) => ({
-        //     ...prevState,
-        //     [name]: value,
-        // }));
+        setPaginacionModificar((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+
+        setPaginacionEspecies((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
 
         const prev = structuredClone(AltaInventario);
         const updatedState = { ...prev, [name]: value };
@@ -364,12 +405,18 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     };
 
     useEffect(() => {
+        if (comboBien.length === 0) comboDetalleActions("0");
+        //Carga combo especies
+        if (comboEspecies.length === 0) {
+            comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
+        }
+
         // Solo copia cuando el modal está abierto y hay datos nuevos
         if (mostrarModalModificar && listaAltasRegistradas.length > 0) {
             setInventarioModificar(
                 listaAltasRegistradas.map(item => ({ ...item }))
             );
-            // setLoadingModificar(false);
+            setLoadingModificar(false);
         }
         listaAuto();
         if (!documentoByte64) return;
@@ -403,68 +450,89 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     const handleObtenerVisado = useCallback((index: number, idocumento: number) => {
         setMostrarModal(true);
-        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+        setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== index));
         obtieneVisadoCompletoActions(idocumento); // solo dispara la acción
     }, []);
 
-    const handleObtenerEstadoVisadores = useCallback((index: number, altaS_CORR: number) => {
+    const handleObtenerEstadoVisadores = useCallback((index: number, idocumento: number) => {
         setMostrarModalEstado(true);
-        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
-        listaEstadoVisadoresActions(altaS_CORR);
+        setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== index));
+        listaEstadoVisadoresActions(idocumento);
     }, []);
 
-    // const handleBlur = () => {
-    //     setEditarCampo(null);
-    // };
+    const handleBlur = () => {
+        setEditarCampo(null);
+    };
 
-    // const handleCambiaNCuenta = (indexVisible: number, nuevaCuenta: string) => {
-    //     const indexReal = indicePrimerElementoModificar + indexVisible;
-    //     setInventarioModificar(prev =>
-    //         prev.map((item, i) =>
-    //             i === indexReal ? { ...item, ctA_COD: nuevaCuenta } : item
-    //         )
-    //     );
-    // };
 
-    // const handleCambiaMarca = (indexVisible: number, nuevaMarca: string) => {
-    //     const indexReal = indicePrimerElementoModificar + indexVisible;
-    //     setInventarioModificar(prev =>
-    //         prev.map((item, i) =>
-    //             i === indexReal ? { ...item, deT_MARCA: nuevaMarca } : item
-    //         )
-    //     );
-    //     setHabilitarModificar(false);
-    // };
+    const handleCambiaOCO = (indexVisible: number, nuevaOco: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, aF_OCO_NUMERO_REF: nuevaOco } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
+    const handleCambiaEspecie = (indexVisible: number, nueveEspecie: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, esP_NOMBRE: nueveEspecie } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
 
-    // const handleCambiaModelo = (indexVisible: number, nuevaModelo: string) => {
-    //     const indexReal = indicePrimerElementoModificar + indexVisible;
-    //     setInventarioModificar(prev =>
-    //         prev.map((item, i) =>
-    //             i === indexReal ? { ...item, deT_MODELO: nuevaModelo } : item
-    //         )
-    //     );
-    //     setHabilitarModificar(false);
-    // };
+    const handleCambiaCuenta = (indexVisible: number, nuevaCuenta: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, ctA_COD: nuevaCuenta } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
 
-    // const handleCambiaSerie = (indexVisible: number, nuevaSerie: string) => {
-    //     const indexReal = indicePrimerElementoModificar + indexVisible;
-    //     setInventarioModificar(prev =>
-    //         prev.map((item, i) =>
-    //             i === indexReal ? { ...item, deT_SERIE: nuevaSerie } : item
-    //         )
-    //     );
-    //     setHabilitarModificar(false);
-    // };
+    const handleCambiaMarca = (indexVisible: number, nuevaMarca: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, deT_MARCA: nuevaMarca } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
 
-    // const handleCambiaPrecio = (indexVisible: number, nuevaPrecio: string) => {
-    //     const indexReal = indicePrimerElementoModificar + indexVisible;
-    //     setInventarioModificar(prev =>
-    //         prev.map((item, i) =>
-    //             i === indexReal ? { ...item, deT_PRECIO: nuevaPrecio } : item
-    //         )
-    //     );
-    //     setHabilitarModificar(false);
-    // };
+    const handleCambiaModelo = (indexVisible: number, nuevaModelo: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, deT_MODELO: nuevaModelo } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
+
+    const handleCambiaSerie = (indexVisible: number, nuevaSerie: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, deT_SERIE: nuevaSerie } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
+
+    const handleCambiaPrecio = (indexVisible: number, nuevaPrecio: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, deT_PRECIO: nuevaPrecio } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -796,104 +864,81 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setAltaInventario(updatedState);
     }, [AltaInventario, datosFirmas, objeto]);
 
-    // const handleAbrirModalModificar = async (idocumento: number, altaS_CORR: number) => {
-    //     setLoadingModificar(true);
-    //     // Cargar datos auxiliares solo si están vacíos
-    //     const result = await Swal.fire({
-    //         icon: "warning",
-    //         title: "Modificar",
-    //         html: `Al confirmar la modificación del documento <b>Nº ${idocumento}</b> este quedará rechazado y se deberá iniciar un nuevo proceso de visado con la definición de los firmantes correspondientes. 
-    //                El número de alta <b>Nº ${altaS_CORR}</b> se mantendrá vigente.`,
-    //         showDenyButton: false,
-    //         showCancelButton: true,
-    //         confirmButtonText: "Confirmar y Modificar",
-    //         cancelButtonText: "Cerrar",
-    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-    //         customClass: {
-    //             popup: "custom-border",
-    //         }
-    //     });
-    //     if (result.isConfirmed) {
-    //         rechazarAltaActions(idocumento);
-    //         setMostrarModalModificar(true); // Solo abre el modal si confirma
-    //         await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, "");
-    //         // paginarModificar(1);
-    //         setLoadingModificar(false); // Mejor desactivar en el useEffect cuando los datos llegan
-    //     } else {
-    //         setLoadingModificar(false);
-    //     }
-    // };
+    const handleAbrirModalModificar = async (altaS_CORR: number) => {
+        setMostrarModalModificar(true); //Abre modal modificar
+        setLoadingModificar(true); //Carga skeletor tabla
+        setHabilitarModificar(true); //deshabilita boton modificar
+        setHabilitarVisado(true); //deshabilita boton visado
+        setEstadoRechazado(false); //quita mensaje de rechazo idocumento
+        await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, ""); // Consulta data y en useEffect actualiza la tabla nueva
+        paginarModificar(1); //muestra la primera pagina
+        setLoadingModificar(false); //para la carga de Skeletor
+    };
 
-    // const handleCerrarModalModificar = () => {
-    //     Swal.fire({
-    //         icon: "info",
-    //         title: '¿Está seguro que desea salir?',
-    //         text: 'Para salir debe modificar los datos y volver a realizar la solicitud de visado.',
-    //         showDenyButton: false,
-    //         showCancelButton: false,
-    //         confirmButtonText: "Ok",
-    //         cancelButtonText: "Cerrar",
-    //         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //         color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
 
-    //         customClass: {
-    //             popup: "custom-border", // Clase personalizada para el borde
-    //         }
-    //     })
-    // };
+    const handleModificarSubmit = async () => {
 
-    // const handleModificarSubmit = async () => {
-    //     const result = await Swal.fire({
-    //         icon: "info",
-    //         title: "Confirmar Cambios",
-    //         text: `Confirme para habilitar la solicitud de visado`,
-    //         showCancelButton: true,
-    //         confirmButtonText: "Confirmar y Continuar",
-    //         background: isDarkMode ? "#1e1e1e" : "#ffffff",
-    //         color: isDarkMode ? "#ffffff" : "#000000",
-    //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-    //         customClass: { popup: "custom-border" }
-    //     });
-    //     if (result.isConfirmed) {
-    //         const ListaModificar = InventarioModificar.map(item => ({
-    //             ...item,
-    //             usuariO_MOD: objeto.IdCredencial.toString()
-    //         }));
+        let mensajeHtml = "";
+        if (InventarioModificar[0]?.estadO_FIRMA === 1) {
+            mensajeHtml = `Al modificar el documento <b>Nº ${InventarioModificar[0]?.idocumento}</b>, este será <b>rechazado de forma automática</b>. Posteriormente, deberá reiniciar el proceso de visado correspondiente manteniendo el número de alta <b>Nº ${InventarioModificar[0]?.altaS_CORR}</b>.`;
+        } else {
+            mensajeHtml = `Confirme para modificar su documento actualmente rechazado.`;
+        }
 
-    //         const resultado = await modificarFormInventarioActions(ListaModificar);
-    //         if (resultado) {
-    //             Swal.fire({
-    //                 icon: "success",
-    //                 title: "Actualización exitosa",
-    //                 text: "Se han actualizado los registros correctamente!",
-    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-    //                 customClass: {
-    //                     popup: "custom-border", // Clase personalizada para el borde
-    //                 }
-    //             });
-    //             setMostrarModalVisadores(true);
-    //             setHabilitarVisado(false);
-    //             limpiarDataActions();
-    //         } else {
-    //             Swal.fire({
-    //                 icon: "error",
-    //                 title: "Error",
-    //                 text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
-    //                 background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-    //                 color: `${isDarkMode ? "#ffffff" : "000000"}`,
-    //                 confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-    //                 customClass: {
-    //                     popup: "custom-border", // Clase personalizada para el borde
-    //                 }
-    //             });
-    //         }
-    //     }
-    // };
+        const result = await Swal.fire({
+            icon: "warning",
+            title: "Modificar Documento",
+            html: mensajeHtml,
+            showCancelButton: true,
+            confirmButtonText: "De acuerdo, continuar",
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            customClass: { popup: "custom-border" }
+        });
+        if (result.isConfirmed) {
+            const ListaModificar = InventarioModificar.map(item => ({
+                ...item,
+                usuariO_MOD: objeto.IdCredencial.toString()
+            }));
+
+            const resultadoModificar = await modificarFormInventarioActions(ListaModificar);
+            if (resultadoModificar) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Modificación exitosa",
+                    text: "Se han actualizado los registros correctamente.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                    customClass: {
+                        popup: "custom-border", // Clase personalizada para el borde
+                    }
+                });
+            }
+
+            if (InventarioModificar[0]?.estadO_FIRMA === 1) {
+                const resultadoRechazar = await rechazarAltaActions(InventarioModificar[0]?.idocumento);
+                if (resultadoRechazar) {
+                    setEstadoRechazado(true);
+                }
+            }
+            setHabilitarVisado(false); //habilita boton de visado
+            limpiarDataActions(); //limpia datos desde el storage de redux
+        }
+    };
 
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
@@ -1116,46 +1161,136 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
 
         if (result.isConfirmed) {
-            // console.log("documento", documento);
             setLoadingEnvio(true);
             setMostrarModalVisadores(false);
             const resultado = await registrarDocumentoAltaActions(documento);
 
-            if (!resultado) {
-                await Swal.fire({
-                    icon: "warning",
-                    title: "No se pudo enviar la solicitud",
-                    text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
-                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: { popup: "custom-border" }
-                });
-                setMostrarModalModificar(false);
-                setLoadingEnvio(false);
-            }
-            else {
-                await Swal.fire({
-                    icon: "success",
-                    title: "Solicitud enviada",
-                    text: "Su solicitud de visado ha sido enviada con exito",
-                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: { popup: "custom-border" }
-                });
-                setMostrarModalModificar(false);
-                setLoadingEnvio(false);
-                // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
-                // setFilasSeleccionadas([]);
-                handleBuscar();
-                setMostrarModalVisadores(false);
-                setLoadingSolicitarVisado(false);
-                // setAnexos([]);
-            }
+            // if (!resultado) {
+            //     await Swal.fire({
+            //         icon: "warning",
+            //         title: "No se pudo enviar la solicitud",
+            //         text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
+            //         background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            //         color: isDarkMode ? "#ffffff" : "#000000",
+            //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            //         customClass: { popup: "custom-border" }
+            //     });
+            //     setMostrarModalModificar(false);
+            //     setLoadingEnvio(false);
+            // }
+            // else {
+            //     await Swal.fire({
+            //         icon: "success",
+            //         title: "Solicitud enviada",
+            //         text: "Su solicitud de visado ha sido enviada con exito",
+            //         background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            //         color: isDarkMode ? "#ffffff" : "#000000",
+            //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            //         customClass: { popup: "custom-border" }
+            //     });
+            //     setMostrarModalModificar(false);
+            //     setLoadingEnvio(false);
+            //     // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
+            //     // setFilasSeleccionadas([]);
+            //     handleBuscar();
+            //     setMostrarModalVisadores(false);
+            //     setLoadingSolicitarVisado(false);
+            //     // setAnexos([]);
+            // }
         }
     };
 
+    {/*---------------------- Logica Especies--------------------*/ }
+
+    const especieOptions = comboEspecies.map((item) => ({
+        value: item.esP_CODIGO,
+        label: item.nombrE_ESP,
+    }));
+
+    const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (elementoSeleccionado && indiceEditar !== null) {
+            const estableEspecie = elementoSeleccionado.estabL_CORR;
+            const codigoEspecie = elementoSeleccionado.esP_CODIGO;
+            const nombreEspecie = elementoSeleccionado.nombrE_ESP;
+            const descripcionEspecie = `${codigoEspecie} | ${nombreEspecie}`;
+
+            // Actualiza el estado de la especie global si lo necesitas
+            setEspecies({
+                estableEspecie,
+                codigoEspecie,
+                nombreEspecie,
+                descripcionEspecie,
+            });
+
+            setInventarioModificar((prev) =>
+                prev.map((item, i) =>
+                    i === indiceEditar
+                        ? { ...item, esP_NOMBRE: nombreEspecie, esP_CODIGO: codigoEspecie }
+                        : item
+                )
+            );
+
+            // Limpieza
+            setFilasSeleccionadas([]);
+            setMostrarModalEspecie(false);
+            setIndiceEditar(null);
+            setHabilitarModificar(false);
+        }
+    };
+
+
+    //Selecciona fila del listado de especies
+    const handleSeleccionFila = (index: number) => {
+        const item = listaEspecie[index];
+        setFilasSeleccionadas([index.toString()]);
+        setElementoSeleccionado(item);
+    };
+
+    // Si selecciona desde el combo
+    const handleComboEspecieChange = (selectedOption: any) => {
+        const value = selectedOption ? selectedOption.value : "";
+        setBuscarEspecie((prev) => ({ ...prev, esP_CODIGO: value }));
+    };
+
+    // Si escribe a mano
+    const handleInputEspecieChange = (input: string) => {
+        setBuscarEspecie((prev) => ({ ...prev, esp_NOMBRE: input }));
+        handleBuscarEspecie();
+    };
+
+    const handleBuscarEspecie = async () => {
+        setLoadingEspecie(true);
+        let resultado = false;
+        if (BuscarEspecie.esP_CODIGO && BuscarEspecie.esP_CODIGO.includes("-")) {
+            // Seleccionó del combo: usar código
+            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, BuscarEspecie.esP_CODIGO);
+            // } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
+            //   // Escribió manualmente: usar nombre   
+            //   resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
+        } else {
+            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "",);
+            setLoadingEspecie(false);
+            return;
+        }
+        if (!resultado) {
+            Swal.fire({
+                icon: "warning",
+                title: "Especie no encontrada",
+                text: "La especie consultado no ha sido encontrada",
+                confirmButtonText: "Ok",
+            });
+            setLoadingEspecie(false); //Finaliza estado de carga
+            return;
+        } else {
+            paginarEspecies(1);
+            setLoadingEspecie(false); //Finaliza estado de carga
+        }
+        setLoadingEspecie(false);
+    };
+
+
+    {/*---------------------- Fin Logica Especies--------------------*/ }
     const totalSum = useMemo(() => {
         return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.deT_PRECIO), 0);
     }, [filasSeleccionadasPDF]);
@@ -1203,14 +1338,24 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     //Listado modificar
-    // const indiceUltimoElementoModificar = paginaActualModificar * elementosPorPaginaModificar;
-    // const indicePrimerElementoModificar = indiceUltimoElementoModificar - elementosPorPaginaModificar;
-    // const elementosActualesModificar = useMemo(
-    //     () => InventarioModificar.slice(indicePrimerElementoModificar, indiceUltimoElementoModificar),
-    //     [InventarioModificar, indicePrimerElementoModificar, indiceUltimoElementoModificar]
-    // );
-    // const totalPaginasModificar = Math.ceil(InventarioModificar.length / elementosPorPaginaModificar);
-    // const paginarModificar = (numeroPaginaModificar: number) => setPaginaActualModificar(numeroPaginaModificar);
+    const indiceUltimoElementoModificar = paginaActualModificar * elementosPorPaginaModificar;
+    const indicePrimerElementoModificar = indiceUltimoElementoModificar - elementosPorPaginaModificar;
+    const elementosActualesModificar = useMemo(
+        () => InventarioModificar.slice(indicePrimerElementoModificar, indiceUltimoElementoModificar),
+        [InventarioModificar, indicePrimerElementoModificar, indiceUltimoElementoModificar]
+    );
+    const totalPaginasModificar = Math.ceil(InventarioModificar.length / elementosPorPaginaModificar);
+    const paginarModificar = (numeroPaginaModificar: number) => setPaginaActualModificar(numeroPaginaModificar);
+
+    //Listado especies
+    const indiceUltimoElementoEspecies = paginaActualEspecies * elementosPorPaginaEspecies;
+    const indicePrimerElementoEspecies = indiceUltimoElementoEspecies - elementosPorPaginaEspecies;
+    const elementosActualesEspecies = useMemo(
+        () => listaEspecie.slice(indicePrimerElementoEspecies, indiceUltimoElementoEspecies),
+        [listaEspecie, indicePrimerElementoEspecies, indiceUltimoElementoEspecies]
+    );
+    const totalPaginasEspecies = Math.ceil(listaEspecie.length / elementosPorPaginaEspecies);
+    const paginarEspecies = (numeroPaginaEspecies: number) => setPaginaActualEspecies(numeroPaginaEspecies);
 
     return (
         <Layout>
@@ -1359,7 +1504,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
                                                             <td className="text-center w-30">
                                                                 <Button
-                                                                    onClick={() => handleObtenerEstadoVisadores(index, Lista.altaS_CORR)}
+                                                                    onClick={() => handleObtenerEstadoVisadores(index, Lista.idocumento)}
                                                                     variant="light"
                                                                     size="sm"
                                                                     className={`rounded border-0 fw-semibold  
@@ -1401,20 +1546,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                         < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
                                                                     </Button>
                                                                 )}
-                                                                {/* {Lista.estado === 1 ? (
-                                                                    <Button type="button" variant="secondary" className="fw-semibold mx-1"
-                                                                        onClick={() => handleAbrirModalModificar(Lista.idocumento, Lista.altaS_CORR)}
-                                                                    >
-                                                                        Modificar
-                                                                        <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                    </Button>
-                                                                ) : (
-                                                                    <Button type="button" variant="secondary" className="fw-semibold mx-1" disabled>
-                                                                        Modificar
-                                                                        < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                    </Button>
-                                                                )} */}
-
+                                                                <Button type="button" variant="secondary" className="fw-semibold mx-1"
+                                                                    onClick={() => handleAbrirModalModificar(Lista.altaS_CORR)}
+                                                                >
+                                                                    Modificar
+                                                                    <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                </Button>
                                                             </td>
                                                         </tr>
                                                     );
@@ -1485,6 +1622,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     </form>
                 </Modal.Body>
             </Modal>
+
             {/*Modal Estado Visadores */}
             <Modal show={mostrarModalEstado} onHide={() => setMostrarModalEstado(false)} size="lg">
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
@@ -1538,34 +1676,26 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     </div>
                 </Modal.Body>
             </Modal>
+
             {/*Modal Modificar */}
-            {/* <Modal show={mostrarModalModificar} onHide={handleCerrarModalModificar}
+            <Modal show={mostrarModalModificar} onHide={() => setMostrarModalModificar(false)}
                 backdrop="static"
                 keyboard={false}
                 fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}
             >
-                <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }}>
-                    <div className="d-flex justify-content-between w-100">
-                        <Modal.Title className="fw-semibold text-white">
-                            <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar
-                        </Modal.Title>
-
-                        <Button
-                            variant="transparent"
-                            className="border-0"
-                            onClick={handleCerrarModalModificar}
-                        >
-                            <CloseButton
-                                aria-hidden="true"
-                                className={"flex-shrink-0 h-5 w-5"}
-                            />
-                        </Button>
-                    </div>
+                <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }} closeButton>
+                    <Modal.Title className="fw-semibold text-white">
+                        <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold bg-warning-subtle text-muted border`} >
-                        El documento número <b>{InventarioModificar[0]?.idocumento ?? "-"}</b> ha sido rechazado.
-                    </p>
+                    {estadoRechazado && (
+                        <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold bg-warning-subtle text-muted border`} >
+                            El documento número <b>{InventarioModificar[0]?.idocumento ?? "-"}</b> ha sido rechazado.
+                        </p>
+                    )}
+                    {/* Botón o mensaje */}
+
                     {loadingModificar ? (
                         <SkeletonLoader rowCount={elementosPorPagina} />
                     ) : (
@@ -1642,9 +1772,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             <th scope="col" className="text-nowrap">N° Alta</th>
                                             <th scope="col" className="text-nowrap">Fecha Alta</th>
                                             <th scope="col" className="text-nowrap">Nº Factura</th>
-                                            <th scope="col" className="text-nowrap">Orden de Compra</th>
                                             <th scope="col" className="text-nowrap">Servicio</th>
                                             <th scope="col" className="text-nowrap">Dependencia</th>
+                                            <th scope="col" className="text-nowrap">Orden de Compra</th>
                                             <th scope="col" className="text-nowrap">Especie</th>
                                             <th scope="col" className="text-nowrap">N° Cuenta</th>
                                             <th scope="col" className="text-nowrap">Marca</th>
@@ -1662,11 +1792,75 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     <td className="text-nowrap">{Lista.altaS_CORR}</td>
                                                     <td className="text-nowrap">{Lista.fechA_ALTA}</td>
                                                     <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                                                    <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-nowrap">{Lista.serv}</td>
+                                                    <td className="text-nowrap">
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.serv}</Tooltip>}
+                                                        >
+                                                            <span style={{ cursor: "default" }}>
+                                                                {Lista.serv.length > 15 ? `${Lista.serv.slice(0, 15)}...` : Lista.serv}
+                                                            </span>
+                                                        </OverlayTrigger>
+                                                    </td>
                                                     <td className="text-nowrap">{Lista.dep}</td>
-                                                    <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                                    <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={Lista.aF_OCO_NUMERO_REF}
+                                                                onChange={(e) => handleCambiaOCO(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                autoFocus
+                                                                maxLength={50}
+                                                                placeholder="-"
+                                                                pattern="\d*"
+                                                                data-index={indexReal}
+                                                            />
+                                                        </div>
+                                                    </td>
+
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <dd className="d-flex align-items-center">
+                                                            <Form.Control
+                                                                aria-label="especie"
+                                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                                type="text"
+                                                                name="especie"
+                                                                value={Lista.esP_NOMBRE}
+                                                                autoFocus
+                                                                onChange={(e) => handleCambiaEspecie(index, e.target.value)}
+                                                                pattern="\d*"
+                                                                disabled
+                                                                data-index={indexReal}
+                                                            />
+                                                            <Button
+                                                                variant="primary"
+                                                                onClick={() => {
+                                                                    setIndiceEditar(indexReal); // 🔹 Guardas el índice que vas a editar
+                                                                    setMostrarModalEspecie(true);
+                                                                }}
+                                                                className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
+                                                                <Search className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
+                                                            </Button>
+
+                                                        </dd>
+                                                    </td>
+
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={Lista.ctA_COD}
+                                                                onChange={(e) => handleCambiaCuenta(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                autoFocus
+                                                                maxLength={50}
+                                                                placeholder="-"
+                                                                pattern="\d*"
+                                                                data-index={indexReal}
+                                                            />
+                                                        </div>
+                                                    </td>
 
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
@@ -1755,7 +1949,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     )
                     }
                 </Modal.Body>
-            </Modal > */}
+            </Modal >
 
             {/*Modal Firma visadores */}
             <Modal show={mostrarModalVisadores} onHide={() => setMostrarModalVisadores(false)} dialogClassName="modal-right" size="xl">
@@ -2313,6 +2507,229 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </Modal.Body>
             </Modal >
 
+            {/* Modal Especies*/}
+            <Modal
+                show={mostrarModalEspecie}
+                onHide={() => setMostrarModalEspecie(false)}
+                size="lg"
+                className="modal-fullscreen-sm-down"
+            >
+                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                    <Modal.Title>Listado de Especies</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <form onSubmit={handleSubmitSeleccionado}>
+                        <Row className="mb-2">
+                            {/* Bien / Detalles */}
+                            <Col xs={12} md={6}>
+                                <div className="mb-1">
+                                    <label aria-label="bien" className="fw-semibold">Bien</label>
+                                    <select
+                                        aria-label="bien"
+                                        name="bien"
+                                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="">Seleccionar</option>
+                                        {comboBien.map((traeBien) => (
+                                            <option key={traeBien.codigo} value={traeBien.codigo}>
+                                                {traeBien.descripcion}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="mb-1">
+                                    <label className="fw-semibold">Detalles</label>
+                                    <select
+                                        aria-label="detalles"
+                                        name="detalles"
+                                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        onChange={handleChange}
+                                    // disabled={!Cuenta.bien}
+                                    >
+                                        <option value="">Seleccionar</option>
+                                        {comboDetalle.map((traeDetalles) => (
+                                            <option key={traeDetalles.codigo} value={traeDetalles.codigo}>
+                                                {traeDetalles.descripcion}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </Col>
+
+                            <Col xs={12} md={6}>
+                                {/* Especie */}
+                                <div className="mb-1">
+                                    <label className="fw-semibold">
+                                        Buscar Especie
+                                    </label>
+                                    <div className="d-flex align-items-center">
+                                        <Select
+                                            options={especieOptions}
+                                            onChange={(selectedOption) => handleComboEspecieChange(selectedOption)}
+                                            onInputChange={(inputValue) => handleInputEspecieChange(inputValue)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault();
+                                                    handleBuscarEspecie();
+                                                }
+                                            }}
+                                            name="esP_CODIGO"
+                                            placeholder="Buscar"
+                                            isClearable
+                                            classNamePrefix="react-select"
+                                            className="w-100 mx-1"
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#212529" : "white",
+                                                    color: isDarkMode ? "white" : "#212529",
+                                                    borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
+
+                                                }),
+                                                singleValue: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "white" : "#212529",
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#212529" : "white",
+                                                    color: isDarkMode ? "white" : "#212529",
+
+                                                }),
+                                                option: (base, { isFocused, isSelected }) => ({
+                                                    ...base,
+                                                    backgroundColor:
+                                                        isSelected || isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                                    color:
+                                                        isSelected || isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                                }),
+                                            }}
+                                        />
+                                        <OverlayTrigger
+                                            placement="top"
+                                            overlay={<Tooltip id="tooltip-limpiar">Buscar</Tooltip>}
+                                        >
+                                            <Button
+                                                onClick={handleBuscarEspecie}
+                                                variant={isDarkMode ? "secondary" : "primary"}
+                                                className="w-md-auto"
+                                                disabled={loadingEspecie}
+                                            >
+                                                {loadingEspecie ? (
+                                                    <>
+                                                        <Spinner
+                                                            as="span"
+                                                            animation="border"
+                                                            size="sm"
+                                                            role="status"
+                                                            aria-hidden="true"
+                                                            className="ms-1"
+                                                        />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Search className="ms-1" />
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </OverlayTrigger>
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        {listaEspecie.length > 0 && (
+                            <Col xs={12} className="d-flex justify-content-end ">
+                                <Button
+                                    variant={isDarkMode ? "secondary" : "primary"}
+                                    type="submit"
+                                    className="mb-1"
+                                    disabled={!filasSeleccionadas.length}
+                                >
+                                    Seleccionar <Check2Circle className="ms-1" />
+                                </Button>
+                            </Col>
+                        )}
+
+                    </form>
+                    {/* Tabla responsive */}
+                    {listaEspecie.length != 0 ? (
+                        <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "table-light"}`}>
+                                    <tr>
+                                        <th></th>
+                                        <th className={isDarkMode ? "text-light" : "text-dark"}>Código</th>
+                                        <th className={isDarkMode ? "text-light" : "text-dark"}>Especie</th>
+                                        {/* <th className={isDarkMode ? "text-light" : "text-dark"}>Vida Útil</th> */}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {elementosActualesEspecies.map((listadoEspecies, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    onChange={() => handleSeleccionFila(indicePrimerElementoEspecies + index)}
+                                                    checked={filasSeleccionadas.includes(
+                                                        (indicePrimerElementoEspecies + index).toString()
+                                                    )}
+                                                />
+                                            </td>
+                                            <td className={isDarkMode ? "text-light" : "text-dark"}>
+                                                {listadoEspecies.esP_CODIGO}
+                                            </td>
+                                            <td className={isDarkMode ? "text-light" : "text-dark"}>
+                                                {listadoEspecies.nombrE_ESP}
+                                            </td>
+                                            {/* <td className={isDarkMode ? "text-light" : "text-dark"}>
+                                    {listadoEspecies.vidA_UTIL}
+                                  </td> */}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <p className={`text-center m-2 p-2 rounded fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                            Aplique un filtro para visualizar los detalles de cada especie aquí.
+                        </p>
+
+                    )}
+                    {/* Paginador */}
+                    {listaEspecie.length > 10 && (
+                        <div className="paginador-container mt-3">
+                            <Pagination className="paginador-scroll">
+                                <Pagination.First onClick={() => paginarEspecies(1)} disabled={paginaActualEspecies === 1} />
+                                <Pagination.Prev
+                                    onClick={() => paginarEspecies(paginaActualEspecies - 1)}
+                                    disabled={paginaActualEspecies === 1}
+                                />
+                                {Array.from({ length: totalPaginasEspecies }, (_, i) => (
+                                    <Pagination.Item
+                                        key={i + 1}
+                                        active={i + 1 === paginaActualEspecies}
+                                        onClick={() => paginarEspecies(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Next
+                                    onClick={() => paginarEspecies(paginaActualEspecies + 1)}
+                                    disabled={paginaActualEspecies === totalPaginasEspecies}
+                                />
+                                <Pagination.Last
+                                    onClick={() => paginar(totalPaginasEspecies)}
+                                    disabled={paginaActualEspecies === totalPaginasEspecies}
+                                />
+                            </Pagination>
+                        </div>
+                    )}
+                </Modal.Body>
+            </Modal >
+
         </Layout >
     );
 };
@@ -2327,6 +2744,10 @@ const mapStateToProps = (state: RootState) => ({
     isDarkMode: state.darkModeReducer.isDarkMode,
     datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
     comboUnidades: state.obtenerUnidadesReducers.comboUnidades,
+    comboDetalle: state.detallesReducer.comboDetalle,
+    comboBien: state.detallesReducer.comboBien,
+    comboEspecies: state.listadoDeEspeciesBienReducers.comboEspecies,
+    listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
 });
 
 
@@ -2341,5 +2762,8 @@ export default connect(mapStateToProps, {
     limpiarDataActions,
     obtenerfirmasAltasActions,
     obtenerUnidadesActions,
+    listadoDeEspeciesBienActions,
+    comboEspeciesBienActions,
+    comboDetalleActions
 })(EstadoFirmas);
 

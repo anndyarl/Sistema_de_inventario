@@ -329,8 +329,6 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
         const codigoExtraido = match ? match[1] : null;
 
         if (codigoExtraido) {
-            console.log("Código:", codigoExtraido);
-
             resultado = await obtenerInventarioQRActions(codigoExtraido);
             if (!resultado) {
                 Swal.fire({

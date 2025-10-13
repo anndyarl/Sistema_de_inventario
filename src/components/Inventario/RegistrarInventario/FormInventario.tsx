@@ -133,7 +133,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   // Función para manejar la selección de detalles en el componente `DatosCuenta`
   const handleDetalleSeleccionado = async (codigoDetalle: number) => {
     setDetalleSeleccionado(codigoDetalle);
-    console.log(codigoDetalle);
     let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, codigoDetalle, "", ""); // aqui le paso codigo de detalle
 
     if (!resultado) {

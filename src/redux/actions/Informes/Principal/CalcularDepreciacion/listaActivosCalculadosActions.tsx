@@ -54,8 +54,6 @@ export const listaActivosCalculadosActions = (activosSeleccionados: Record<strin
             payload: []
           });
         }
-        console.log("Depreciaciones:", res.data?.depreciaciones);
-        console.log("vidaUtilCero:", res.data?.vidaUtilCero);
         return true;
 
       } else {
