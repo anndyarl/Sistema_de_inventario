@@ -735,7 +735,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       });
 
       if (confirmResult.isConfirmed) {
-        // console.log(FormulariosCombinados);
+        console.log(FormulariosCombinados);
         setLoadingEnvio(true);
         try {
           const resultado = await registrarFormInventarioActions(FormulariosCombinados);
@@ -995,7 +995,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                             onChange={(e) => handleCambiaSerie(index, e.target.value)}
                             onBlur={handleSerieBlur}
                             autoFocus
-                            maxLength={20}
+                            maxLength={50}
                             placeholder="-"
                             pattern="\d*"
                             data-index={indexReal}
@@ -1336,7 +1336,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
         {loadingEnvio && (
           <div
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+            className="position-fixed top-0 start-0 w-100 h-100 z-2000 d-flex justify-content-center align-items-center"
             style={{
               backgroundColor: "rgba(0, 0, 0, 0.5)",
               zIndex: 1050,

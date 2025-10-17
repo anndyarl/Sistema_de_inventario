@@ -107,7 +107,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
   comboProveedorActions: (rutProveedor: string) => void;
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
-  modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<Boolean>;
+  modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<{ success: boolean; error?: string }>;
   limpiarDataActions: () => Promise<boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
   isDarkMode: boolean;
@@ -592,7 +592,45 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleValidar = () => {
     // console.log("campos", JSON.stringify(Inventario, null, 2));
-    if (validate()) {
+
+    if (objeto.IdCredencial != 18667) {
+      if (validate()) {
+        Swal.fire({
+          icon: "info",
+          title: 'Confirmar cambios',
+          text: 'Está a punto de modificar la información. ¿Desea continuar?',
+          showDenyButton: false,
+          showCancelButton: true,
+          confirmButtonText: "Confirmar y modificar",
+          cancelButtonText: "Cerrar",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        }).then((result) => {
+          /* Read more about isConfirmed, isDenied below */
+          if (result.isConfirmed) {
+            handleSubmit();
+          }
+        });
+      }
+      else {
+        Swal.fire({
+          icon: "warning",
+          title: "Campos obligatorios incompletos",
+          text: "Complete todos los campos requeridos antes de modificar el registro.",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+      }
+    }
+    else {
       Swal.fire({
         icon: "info",
         title: 'Confirmar cambios',
@@ -614,50 +652,38 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         }
       });
     }
-    else {
-      Swal.fire({
-        icon: "warning",
-        title: "Campos obligatorios incompletos",
-        text: "Complete todos los campos requeridos antes de modificar el registro.",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      });
-    }
   };
 
   const handleSubmit = async () => {
-    const resultado = await modificarFormInventarioActions([Inventario]);
-    if (resultado) {
+    const { success, error } = await modificarFormInventarioActions([Inventario]);
+
+    if (success) {
       Swal.fire({
         icon: "success",
         title: "Actualización exitosa",
         text: "Se ha actualizado el registro con éxito!",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
+        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+        customClass: { popup: "custom-border" },
       });
+      setIsDisabled(true);
       limpiarDataActions();
     } else {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Ocurrió un error al actualizar el registro. Si el problema persiste, por favor contacte a la Unidad de Desarrollo para recibir asistencia.",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
+        html: `Ocurrió un error al actualizar el registro.<br>
+             Por favor contacte a la Unidad de Desarrollo para recibir asistencia.<br>
+             <strong>Error:</strong> ${error}`,
+        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+        customClass: { popup: "custom-border" },
       });
     }
   };
+
 
   const handleBuscarInventario = async (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
@@ -773,28 +799,34 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
 
   const handleCerrarModal = () => {
-    if (!validateDetalles()) {
-      Swal.fire({
-        icon: "warning",
-        title: 'Campos obligatorios incompletos',
-        text: "Complete todos los campos requeridos antes de modificar el registro.",
-        showDenyButton: false,
-        showCancelButton: true,
-        confirmButtonText: "Ok",
-        cancelButtonText: "Cerrar",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
 
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
-      }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if (result.isDismissed) {
-          setMostrarModalDetalles(false);
-        }
-      });
+    if (objeto.IdCredencial != 18667) {
+      if (!validateDetalles()) {
+        Swal.fire({
+          icon: "warning",
+          title: 'Campos obligatorios incompletos',
+          text: "Complete todos los campos requeridos antes de modificar el registro.",
+          showDenyButton: false,
+          showCancelButton: true,
+          confirmButtonText: "Ok",
+          cancelButtonText: "Cerrar",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        }).then((result) => {
+          /* Read more about isConfirmed, isDenied below */
+          if (result.isDismissed) {
+            setMostrarModalDetalles(false);
+          }
+        });
+      }
+      else {
+        setMostrarModalDetalles(false);
+      }
     }
     else {
       setMostrarModalDetalles(false);

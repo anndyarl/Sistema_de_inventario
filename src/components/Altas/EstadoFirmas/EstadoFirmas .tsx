@@ -9,27 +9,29 @@ import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
 import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, Paperclip, Pencil, PencilFill, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
+import Select from "react-select";
+import { pdf } from "@react-pdf/renderer";
+import { DatosFirmas, Unidades } from "../FirmarAltas/FirmarAltas";
+import { FileSignatureIcon } from "lucide-react";
+import { BlobProvider } from "@react-pdf/renderer";
+import DocumentoPDF from "../FirmarAltas/DocumentoPDF";
+import ModificarInventario, { InventarioCompleto, SERVICIO_DEPENDENCIA } from "../../Inventario/ModificarInventario";
+import { BIEN, CUENTA, DETALLE, ListaEspecie } from "../../Inventario/RegistrarInventario/DatosCuenta";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
 import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
-import { FileSignatureIcon } from "lucide-react";
-import { BlobProvider } from "@react-pdf/renderer";
-import DocumentoPDF from "../FirmarAltas/DocumentoPDF";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
-import { DatosFirmas, Unidades } from "../FirmarAltas/FirmarAltas";
-import { pdf } from "@react-pdf/renderer";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
-import ModificarInventario, { InventarioCompleto } from "../../Inventario/ModificarInventario";
 import { rechazarAltaActions } from "../../../redux/actions/Altas/EstadoFirmas/rechazarAltaAcions";
 import { limpiarDataActions } from "../../../redux/actions/Configuracion/limparDataActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
-import { BIEN, DETALLE, ListaEspecie } from "../../Inventario/RegistrarInventario/DatosCuenta";
-import Select from "react-select";
 import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
+import { comboCuentaModificarActions } from "../../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
+import { comboSerDepActions } from "../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 export interface ListaEstadoFirmas {
     idocumento: number;
     altaS_CORR: number;
@@ -77,19 +79,23 @@ interface DatosBajas {
     comboBien: BIEN[];
     comboDetalle: DETALLE[];
     comboEspecies: ListaEspecie[];
+    comboCuenta: CUENTA[];
+    comboSerDep: SERVICIO_DEPENDENCIA[];
     listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
-    listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string /* esP_NOMBRE: string*/) => Promise<boolean>; //Lista Especies en tabla
+    listadoDeEspeciesBienActions: (establ_corr: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
     listaEstadoActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     listaEstadoVisadoresActions: (idocumento: number) => Promise<boolean>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
-    modificarFormInventarioActions: (activos: InventarioCompleto[]) => Promise<Boolean>;
+    modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<{ success: boolean; error?: string }>;
     rechazarAltaActions: (documento: number) => Promise<boolean>;
     limpiarDataActions: () => Promise<boolean>;
     obtenerUnidadesActions: () => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
     comboDetalleActions: (bienSeleccionado: string) => void;
+    comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
+    comboSerDepActions: (establ_corr: number) => void;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -97,10 +103,10 @@ interface DatosBajas {
     listaEstadoVisadores: ListaEstadoVisadores[];
     datosFirmas: DatosFirmas[];
     comboUnidades: Unidades[];
-    descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie  
+
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, descripcionEspecie, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, comboCuentaModificarActions, comboSerDepActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, comboCuenta, comboSerDep, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
@@ -204,7 +210,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         visadoAbastecimiento: ""
     });
 
-    const [Especies, setEspecies] = useState({
+    const [_______, setEspecies] = useState({
         estableEspecie: 0,
         codigoEspecie: "",
         nombreEspecie: "",
@@ -217,12 +223,25 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         esp_NOMBRE: ""
     });
 
+
+
+    const servicioOptions = comboSerDep.map((item) => ({
+        value: item.deP_CORR,
+        label: item.descripcion,
+    }));
+
+    // const handleServicioChange = (selectedOption: any) => {
+    //     const value = selectedOption ? selectedOption.value : 0;
+    //     setInventarioModificar((prevInventario) => ({ ...prevInventario, DEP_CORR: value }));
+    // };
+
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Solo permitir números
         if ((name === "altaS_CORR" || name === "idDocumento") && !/^[0-9]*$/.test(value)) {
             return; // Salir si contiene caracteres no numéricos
         }
+
 
         // Actualizar estado
         setBuscar((prevState) => ({
@@ -339,6 +358,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             setUnidadNombre(nombreUnidad);
             setAltaInventario(cleanedState);
         }
+
+        if (name === "bien") {
+            comboDetalleActions(value);
+        }
+
+        if (name === "detalles") {
+            listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, parseInt(value), "");
+        }
     };
 
     const handleBuscar = async () => {
@@ -405,11 +432,31 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     };
 
     useEffect(() => {
-        if (comboBien.length === 0) comboDetalleActions("0");
-        //Carga combo especies
+        if (comboBien.length === 0) {
+            comboDetalleActions("0");
+        }
+
         if (comboEspecies.length === 0) {
             comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
         }
+
+        if (comboCuenta.length === 0) {
+            comboCuentaModificarActions("");
+        }
+
+        if (comboSerDep.length === 0) {
+            comboSerDepActions(objeto.Roles[0].codigoEstablecimiento)
+        }
+
+        // if (BuscarEspecie.esP_CODIGO) {
+        //     comboCuentaModificarActions("");
+        //     comboCuentaModificarActions(BuscarEspecie.esP_CODIGO);
+        //     setInventarioModificar((prevState) => ({
+        //         ...prevState,
+        //         CTA_COD: "",
+        //     }));
+        // }
+
 
         // Solo copia cuando el modal está abierto y hay datos nuevos
         if (mostrarModalModificar && listaAltasRegistradas.length > 0) {
@@ -464,6 +511,25 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setEditarCampo(null);
     };
 
+    const handleCambiaNumFac = (indexVisible: number, nuevaNumFac: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, aF_NUM_FAC: nuevaNumFac } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
+
+    const handleCambiaServicioDependencia = (indexVisible: number, selectedOption: any) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, deP_CORR: selectedOption } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
 
     const handleCambiaOCO = (indexVisible: number, nuevaOco: string) => {
         const indexReal = indicePrimerElementoModificar + indexVisible;
@@ -474,6 +540,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         );
         setHabilitarModificar(false);
     };
+
     const handleCambiaEspecie = (indexVisible: number, nueveEspecie: string) => {
         const indexReal = indicePrimerElementoModificar + indexVisible;
         setInventarioModificar(prev =>
@@ -875,11 +942,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setLoadingModificar(false); //para la carga de Skeletor
     };
 
-
     const handleModificarSubmit = async () => {
 
         let mensajeHtml = "";
-        if (InventarioModificar[0]?.estadO_FIRMA === 1) {
+        if (InventarioModificar[0]?.estadO_FIRMA === 0 || InventarioModificar[0]?.estadO_FIRMA === 1) {
             mensajeHtml = `Al modificar el documento <b>Nº ${InventarioModificar[0]?.idocumento}</b>, este será <b>rechazado de forma automática</b>. Posteriormente, deberá reiniciar el proceso de visado correspondiente manteniendo el número de alta <b>Nº ${InventarioModificar[0]?.altaS_CORR}</b>.`;
         } else {
             mensajeHtml = `Confirme para modificar su documento actualmente rechazado.`;
@@ -897,6 +963,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             customClass: { popup: "custom-border" }
         });
         if (result.isConfirmed) {
+
+            if (InventarioModificar[0]?.estadO_FIRMA === 0 || InventarioModificar[0]?.estadO_FIRMA === 1) {
+                const resultadoRechazar = await rechazarAltaActions(InventarioModificar[0]?.idocumento);
+                if (resultadoRechazar) {
+                    setEstadoRechazado(true);
+                }
+            }
+
             const ListaModificar = InventarioModificar.map(item => ({
                 ...item,
                 usuariO_MOD: objeto.IdCredencial.toString()
@@ -929,12 +1003,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 });
             }
 
-            if (InventarioModificar[0]?.estadO_FIRMA === 1) {
-                const resultadoRechazar = await rechazarAltaActions(InventarioModificar[0]?.idocumento);
-                if (resultadoRechazar) {
-                    setEstadoRechazado(true);
-                }
-            }
             setHabilitarVisado(false); //habilita boton de visado
             limpiarDataActions(); //limpia datos desde el storage de redux
         }
@@ -1159,44 +1227,43 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         };
 
 
-
         if (result.isConfirmed) {
             setLoadingEnvio(true);
             setMostrarModalVisadores(false);
             const resultado = await registrarDocumentoAltaActions(documento);
 
-            // if (!resultado) {
-            //     await Swal.fire({
-            //         icon: "warning",
-            //         title: "No se pudo enviar la solicitud",
-            //         text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
-            //         background: isDarkMode ? "#1e1e1e" : "#ffffff",
-            //         color: isDarkMode ? "#ffffff" : "#000000",
-            //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            //         customClass: { popup: "custom-border" }
-            //     });
-            //     setMostrarModalModificar(false);
-            //     setLoadingEnvio(false);
-            // }
-            // else {
-            //     await Swal.fire({
-            //         icon: "success",
-            //         title: "Solicitud enviada",
-            //         text: "Su solicitud de visado ha sido enviada con exito",
-            //         background: isDarkMode ? "#1e1e1e" : "#ffffff",
-            //         color: isDarkMode ? "#ffffff" : "#000000",
-            //         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            //         customClass: { popup: "custom-border" }
-            //     });
-            //     setMostrarModalModificar(false);
-            //     setLoadingEnvio(false);
-            //     // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
-            //     // setFilasSeleccionadas([]);
-            //     handleBuscar();
-            //     setMostrarModalVisadores(false);
-            //     setLoadingSolicitarVisado(false);
-            //     // setAnexos([]);
-            // }
+            if (!resultado) {
+                await Swal.fire({
+                    icon: "warning",
+                    title: "No se pudo enviar la solicitud",
+                    text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
+                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                    customClass: { popup: "custom-border" }
+                });
+                setMostrarModalModificar(false);
+                setLoadingEnvio(false);
+            }
+            else {
+                await Swal.fire({
+                    icon: "success",
+                    title: "Solicitud enviada",
+                    text: "Su solicitud de visado ha sido enviada con exito",
+                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                    customClass: { popup: "custom-border" }
+                });
+                setMostrarModalModificar(false);
+                setLoadingEnvio(false);
+                // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
+                // setFilasSeleccionadas([]);
+                handleBuscar();
+                setMostrarModalVisadores(false);
+                setLoadingSolicitarVisado(false);
+                // setAnexos([]);
+            }
         }
     };
 
@@ -1239,7 +1306,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         }
     };
 
-
     //Selecciona fila del listado de especies
     const handleSeleccionFila = (index: number) => {
         const item = listaEspecie[index];
@@ -1269,7 +1335,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             //   // Escribió manualmente: usar nombre   
             //   resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
         } else {
-            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "",);
+            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "");
             setLoadingEspecie(false);
             return;
         }
@@ -1548,6 +1614,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                 )}
                                                                 <Button type="button" variant="secondary" className="fw-semibold mx-1"
                                                                     onClick={() => handleAbrirModalModificar(Lista.altaS_CORR)}
+                                                                // disabled
+
                                                                 >
                                                                     Modificar
                                                                     <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
@@ -1772,8 +1840,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             <th scope="col" className="text-nowrap">N° Alta</th>
                                             <th scope="col" className="text-nowrap">Fecha Alta</th>
                                             <th scope="col" className="text-nowrap">Nº Factura</th>
-                                            <th scope="col" className="text-nowrap">Servicio</th>
-                                            <th scope="col" className="text-nowrap">Dependencia</th>
+                                            <th scope="col" className="text-nowrap">Servicio/Dependencia</th>
                                             <th scope="col" className="text-nowrap">Orden de Compra</th>
                                             <th scope="col" className="text-nowrap">Especie</th>
                                             <th scope="col" className="text-nowrap">N° Cuenta</th>
@@ -1789,10 +1856,25 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             return (
                                                 <tr key={index}>
                                                     <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                    <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                    <td className="text-nowrap">{Lista.fechA_ALTA}</td>
-                                                    <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                                                    <td className="text-nowrap">
+                                                    <td className="text-nowrap" >{Lista.altaS_CORR}</td>
+                                                    <td className="text-nowrap" >{Lista.fechA_ALTA}</td>
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                            <Form.Control
+                                                                size="sm"
+                                                                type="text"
+                                                                value={Lista.aF_NUM_FAC}
+                                                                onChange={(e) => handleCambiaNumFac(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                autoFocus
+                                                                maxLength={50}
+                                                                placeholder="-"
+                                                                pattern="\d*"
+                                                                data-index={indexReal}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    {/* <td className="text-nowrap">
                                                         <OverlayTrigger
                                                             placement="top"
                                                             overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.serv}</Tooltip>}
@@ -1801,11 +1883,52 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                 {Lista.serv.length > 15 ? `${Lista.serv.slice(0, 15)}...` : Lista.serv}
                                                             </span>
                                                         </OverlayTrigger>
+                                                    </td> */}
+                                                    <td className="mb-1 position-relative z-1000">
+                                                        <Select
+                                                            options={servicioOptions}
+                                                            onChange={(option) => handleCambiaServicioDependencia(index, option ? option.value : 0)}
+                                                            value={servicioOptions.find((option) => option.value === Lista.deP_CORR) || null}
+                                                            onBlur={handleBlur}
+                                                            className="form-select-container"
+                                                            classNamePrefix="react-select"
+                                                            data-index={indexReal}
+                                                            autoFocus
+                                                            isClearable
+                                                            isSearchable
+                                                            styles={{
+                                                                control: (baseStyles) => ({
+                                                                    ...baseStyles,
+                                                                    // background: !isDarkMode ? "#e9ecef" : "",//Color que indica deshabilitado
+                                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                                                    color: isDarkMode ? "white" : "#dc3545", // Texto blanco
+                                                                    borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                                                    fontSize: "0.875rem",
+                                                                    minHeight: "31px", // altura del input sm (~31px)
+                                                                    height: "31px",
+                                                                }),
+                                                                singleValue: (base) => ({
+                                                                    ...base,
+                                                                    color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                                                }),
+                                                                menu: (base) => ({
+                                                                    ...base,
+                                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                                                    color: isDarkMode ? "white" : "#212529",
+                                                                }),
+                                                                option: (base, { isFocused, isSelected }) => ({
+                                                                    ...base,
+                                                                    backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                                                    color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                                                    fontSize: "0.875rem",
+                                                                }),
+                                                            }}
+                                                        />
                                                     </td>
-                                                    <td className="text-nowrap">{Lista.dep}</td>
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
+                                                                size="sm"
                                                                 type="text"
                                                                 value={Lista.aF_OCO_NUMERO_REF}
                                                                 onChange={(e) => handleCambiaOCO(index, e.target.value)}
@@ -1818,53 +1941,64 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             />
                                                         </div>
                                                     </td>
-
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                        <dd className="d-flex align-items-center">
-                                                            <Form.Control
-                                                                aria-label="especie"
-                                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                                type="text"
-                                                                name="especie"
-                                                                value={Lista.esP_NOMBRE}
-                                                                autoFocus
-                                                                onChange={(e) => handleCambiaEspecie(index, e.target.value)}
-                                                                pattern="\d*"
-                                                                disabled
-                                                                data-index={indexReal}
-                                                            />
-                                                            <Button
-                                                                variant="primary"
-                                                                onClick={() => {
-                                                                    setIndiceEditar(indexReal); // 🔹 Guardas el índice que vas a editar
-                                                                    setMostrarModalEspecie(true);
-                                                                }}
-                                                                className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
-                                                                <Search className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
-                                                            </Button>
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.esP_NOMBRE}</Tooltip>}
+                                                        >
+                                                            <dd className="d-flex align-items-center">
+                                                                <Form.Control
+                                                                    size="sm"
+                                                                    aria-label="especie"
+                                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                                    type="text"
+                                                                    name="especie"
+                                                                    value={Lista.esP_NOMBRE}
+                                                                    autoFocus
+                                                                    onChange={(e) => handleCambiaEspecie(index, e.target.value)}
+                                                                    pattern="\d*"
+                                                                    disabled
+                                                                    data-index={indexReal}
 
-                                                        </dd>
+                                                                />
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="primary"
+                                                                    onClick={() => {
+                                                                        setIndiceEditar(indexReal);
+                                                                        setMostrarModalEspecie(true);
+                                                                    }}
+                                                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
+                                                                    <Search className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
+                                                                </Button>
+
+                                                            </dd>
+                                                        </OverlayTrigger>
                                                     </td>
-
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+                                                        <select
+                                                            aria-label="CTA_COD"
+                                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                            name="CTA_COD"
+                                                            onChange={(e) => handleCambiaCuenta(index, e.target.value)}
+                                                            onBlur={handleBlur}
+                                                            value={Lista.ctA_COD}
+                                                            autoFocus
+                                                            data-index={indexReal}
+                                                        // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                                                        >
+                                                            <option value="">Selecciona una opción</option>
+                                                            {comboCuenta.map((traeCuentas) => (
+                                                                <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                                                                    {traeCuentas.descripcion}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </td>
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
-                                                                type="text"
-                                                                value={Lista.ctA_COD}
-                                                                onChange={(e) => handleCambiaCuenta(index, e.target.value)}
-                                                                onBlur={handleBlur}
-                                                                autoFocus
-                                                                maxLength={50}
-                                                                placeholder="-"
-                                                                pattern="\d*"
-                                                                data-index={indexReal}
-                                                            />
-                                                        </div>
-                                                    </td>
-
-                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                        <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
-                                                            <Form.Control
+                                                                size="sm"
                                                                 type="text"
                                                                 value={Lista.deT_MARCA}
                                                                 onChange={(e) => handleCambiaMarca(index, e.target.value)}
@@ -1880,6 +2014,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
+                                                                size="sm"
                                                                 type="text"
                                                                 value={Lista.deT_MODELO}
                                                                 onChange={(e) => handleCambiaModelo(index, e.target.value)}
@@ -1895,6 +2030,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
+                                                                size="sm"
                                                                 type="text"
                                                                 value={Lista.deT_SERIE}
                                                                 onChange={(e) => handleCambiaSerie(index, e.target.value)}
@@ -1910,6 +2046,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
+                                                                size="sm"
                                                                 type="text"
                                                                 value={Lista.deT_PRECIO}
                                                                 onChange={(e) => handleCambiaPrecio(index, e.target.value)}
@@ -2747,6 +2884,8 @@ const mapStateToProps = (state: RootState) => ({
     comboDetalle: state.detallesReducer.comboDetalle,
     comboBien: state.detallesReducer.comboBien,
     comboEspecies: state.listadoDeEspeciesBienReducers.comboEspecies,
+    comboCuenta: state.comboCuentaModificarReducers.comboCuenta,
+    comboSerDep: state.comboServDepReducers.comboSerDep,
     listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
 });
 
@@ -2764,6 +2903,8 @@ export default connect(mapStateToProps, {
     obtenerUnidadesActions,
     listadoDeEspeciesBienActions,
     comboEspeciesBienActions,
-    comboDetalleActions
+    comboDetalleActions,
+    comboCuentaModificarActions,
+    comboSerDepActions
 })(EstadoFirmas);
 

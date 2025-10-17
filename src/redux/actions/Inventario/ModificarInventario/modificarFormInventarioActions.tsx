@@ -7,62 +7,59 @@ import {
 } from "../types";
 import { InventarioCompleto } from "../../../../components/Inventario/ModificarInventario";
 
-export const modificarFormInventarioActions = (activos: InventarioCompleto[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; // Token está en el estado de autenticación
+export const modificarFormInventarioActions = (activos: InventarioCompleto[]) =>
+  async (dispatch: Dispatch, getState: any): Promise<{ success: boolean; error?: string }> => {
 
-  if (token) {
+    const token = getState().loginReducer.token;
+    if (!token) {
+      const error = "No se encontró un token de autenticación válido.";
+      dispatch({ type: ACTUALIZAR_FORMULARIO_FAIL, error });
+      return { success: false, error };
+    }
+
+    if (!activos?.length) {
+      const error = "No se proporcionaron activos para actualizar.";
+      dispatch({ type: ACTUALIZAR_FORMULARIO_FAIL, error });
+      return { success: false, error };
+    }
+
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     };
-    if (!activos || Object.keys(activos).length === 0) {
-      // console.error("El objeto datosInventario está vacío.");
-      return false;
-    }
-    const body = JSON.stringify(activos);
 
     dispatch({ type: ACTUALIZAR_FORMULARIO_REQUEST });
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/actualizaActivoFijo/`, body, config);
-      if (response.status === 200) {
-        if (response.data === 1) {
-          dispatch({
-            type: ACTUALIZAR_FORMULARIO_SUCCESS,
-            payload: response.data,
-          });
-          return true;
-        }
-        else {
-          dispatch({
-            type: ACTUALIZAR_FORMULARIO_SUCCESS,
-            payload: response.data,
-          });
-          return false;
-        }
+      const { data, status } = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/actualizaActivoFijo/`, activos, config);
 
-      } else {
-        dispatch({
-          type: ACTUALIZAR_FORMULARIO_FAIL,
-          error: "No se pudo obtener el inventario. Por favor, intente nuevamente.",
-        });
-        return false;
+      if (status === 200) {
+        const success = data === 1;
+
+        if (success) {
+          dispatch({ type: ACTUALIZAR_FORMULARIO_SUCCESS, payload: data });
+          return { success };
+        } else {
+          const error = `Servidor retornó: ${data}`;
+          dispatch({ type: ACTUALIZAR_FORMULARIO_FAIL, error });
+          return { success: false, error };
+        }
       }
+
+      const error = "No se pudo actualizar el inventario. Intente nuevamente.";
+      dispatch({ type: ACTUALIZAR_FORMULARIO_FAIL, error });
+      return { success: false, error };
+
     } catch (err: any) {
-      console.error("Error en la solicitud:", err);
-      dispatch({
-        type: ACTUALIZAR_FORMULARIO_FAIL,
-        error: "Error en la solicitud:", err,
-      });
-      return false;
+      const serverError = err.response?.data?.message
+        || err.response?.data?.error
+        || err.message
+        || "Error desconocido en el servidor.";
+
+      dispatch({ type: ACTUALIZAR_FORMULARIO_FAIL, error: serverError });
+      return { success: false, error: serverError };
     }
-  } else {
-    dispatch({
-      type: ACTUALIZAR_FORMULARIO_FAIL,
-      error: "No se encontró un token de autenticación válido.",
-    });
-    return false;
-  }
-};
+  };
+

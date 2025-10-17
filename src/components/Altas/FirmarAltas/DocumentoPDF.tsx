@@ -227,12 +227,12 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                                             <View style={styles.headerContainer}>
                                                 <Col md={6}>
                                                     <Text style={styles.header}>Alta Nº: {lista.altaS_CORR}</Text>
-                                                    <Text style={styles.header}>Fecha de Alta: {lista.fechA_ALTA}</Text>
+                                                    <Text style={styles.header}>Nº Recepción: {lista.nrecep}</Text>
                                                 </Col>
                                                 <Col md={6}>
-                                                    <Text style={styles.header}>Nº Factura: {lista.aF_NUM_FAC}</Text>
-                                                    <Text style={styles.header}>Nº Recepción: {lista.nrecep}</Text>
-                                                    <Text style={styles.header}>Orde de Compra:{lista.aF_OCO_NUMERO_REF}</Text>
+                                                    <Text style={styles.header}>Fecha de Alta: {lista.fechA_ALTA}</Text>
+                                                    {/* <Text style={styles.header}>Nº Factura: {lista.aF_NUM_FAC}</Text> */}
+                                                    {/* <Text style={styles.header}>Orde de Compra:{lista.aF_OCO_NUMERO_REF}</Text> */}
                                                 </Col>
 
                                             </View>
@@ -255,8 +255,8 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                             {/* Cabecera de la tabla */}
                             <View style={styles.tableHeader}>
                                 <Text style={[styles.tableCell, styles.colCodigo]}>N° Inventario</Text>
-                                {/* <Text style={[styles.tableCell, styles.colNfactura]}>N° Factura</Text>
-                                <Text style={[styles.tableCell, styles.colOdeCompra]}>Ord. Compra</Text> */}
+                                <Text style={[styles.tableCell, styles.colNfactura]}>N° Factura</Text>
+                                <Text style={[styles.tableCell, styles.colOdeCompra]}>Ord. Compra</Text>
                                 <Text style={[styles.tableCell, styles.colServicio]}>Servicio</Text>
                                 <Text style={[styles.tableCell, styles.colDependencia]}>Dependencia</Text>
                                 <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
@@ -273,8 +273,8 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
 
                                 <View style={styles.tableRow} key={lista}>
                                     <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
-                                    {/* <Text style={[styles.tableCell, styles.colNfactura]}>{lista.aF_NUM_FAC}</Text>
-                                    <Text style={[styles.tableCell, styles.colOdeCompra]}>{lista.aF_OCO_NUMERO_REF}</Text> */}
+                                    <Text style={[styles.tableCell, styles.colNfactura]}> {insertNewLinesDigits(lista.aF_NUM_FAC, 10)}</Text>
+                                    <Text style={[styles.tableCell, styles.colOdeCompra]}> {insertNewLinesDigits(lista.aF_OCO_NUMERO_REF, 10)}</Text>
                                     <Text style={[styles.tableCell, styles.colServicio]}>{lista.serv}</Text>
                                     <Text style={[styles.tableCell, styles.colDependencia]}>{lista.dep}</Text>
                                     <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esP_NOMBRE}</Text>
