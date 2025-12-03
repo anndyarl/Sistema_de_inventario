@@ -63,7 +63,7 @@ const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode }) => {
     const version = listaVersionamiento[0]?.numerO_VERSION || "";
     return (
         <>
-            <footer className={`p-3  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+            <footer className={`p-3  ${isDarkMode ? "bg-color-dark" : "bg-light"} border-top`}>
                 <div className="d-flex align-items-center">
                     <p className='fs-09em'><Info width={22} height={22} aria-hidden="true" /> Copyright © 2025 Todos los derechos reservados SSMSO. <b className='text-warning'>{Ambiente}</b>
                         <a onClick={() => setMostrarModal(true)} className={`fw-normal mx-1 text-decoration-none`} style={{ cursor: "pointer" }}><b className={`fw-semibold ${isDarkMode ? "text-white" : "text-dark"}`}>{version}</b></a>

@@ -157,6 +157,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   const handleComboEspecieChange = (selectedOption: any) => {
     const value = selectedOption ? selectedOption.value : "";
     setBuscar((prev) => ({ ...prev, esP_CODIGO: value }));
+
   };
 
   // Si escribe a mano

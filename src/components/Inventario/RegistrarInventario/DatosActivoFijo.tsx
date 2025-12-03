@@ -438,7 +438,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         ...activoFormulario,
         id: `${Math.floor(performance.now())}${Math.floor(Math.random() * 1000)}`,
         especie: ultimaEspecie,
-        cuenta: Utmxtres > parseInt(activoFormulario.precio) ? "5320413" : nCuenta.toString(),
+        cuenta: nCuenta.toString() != "5321001" ? parseInt(activoFormulario.precio) < Utmxtres ? "5320413" : nCuenta.toString() : nCuenta.toString(),
         cuentaOriginal: nCuenta.toString(),
         color: colorUltimaEspecie, // Asigna el color correspondiente a la ultima especie
         chkMantener: Utmxtres > parseInt(activoFormulario.precio) ? false : true,
@@ -750,7 +750,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             dispatch(setOrigenPresupuestoActions(0));
             dispatch(setMontoRecepcionActions(0));
             dispatch(setFechaFacturaActions(""));
-            dispatch(setRutProveedorActions(""));
+            dispatch(setRutProveedorActions(0));
             dispatch(setModalidadCompraActions(0));
             dispatch(setServicioActions(0));
             dispatch(setDependenciaActions(0));
@@ -1032,26 +1032,34 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                           </>
                         )}
                       </td>
-                      {Utmxtres > parseInt(activo.precio) ? (
-                        <td className="text-center"
-                          style={{ width: "100px", minWidth: "150px", maxWidth: "40px" }}
-                        >
-                          <Form.Check
-                            onChange={(e) => handleCheck(e, indexReal)}
-                            name="chkMantener"
-                            type="checkbox"
-                            className="form-switch"
-                            checked={activo.chkMantener ?? true}
-                          />
-                        </td>
-                      ) : (
+                      {nCuenta.toString() !== "5321001" ? (
                         <>
-                          <td className="text-center">
-                            -
-                          </td>
+                          {Utmxtres > parseInt(activo.precio) ? (
+                            <td className="text-center"
+                              style={{ width: "100px", minWidth: "150px", maxWidth: "40px" }}
+                            >
+                              <Form.Check
+                                onChange={(e) => handleCheck(e, indexReal)}
+                                name="chkMantener"
+                                type="checkbox"
+                                className="form-switch"
+                                checked={activo.chkMantener ?? true}
+                              />
+                            </td>
+
+                          ) : (
+                            <>
+                              <td className="text-center">
+                                -
+                              </td>
+                            </>
+                          )}
                         </>
-                      )
-                      }
+                      ) : (
+                        <td className="text-center">
+                          -
+                        </td>
+                      )}
                       <td>
                         {/* ELiminar */}
                         <Button variant="outline-danger" size="sm" className="rounded-2" onClick={() => handleQuitar(indexReal)} /*, parseFloat(activo.precio */>
@@ -1333,13 +1341,14 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             </form>
           </Modal.Body>
         </Modal>
-
-        {loadingEnvio && (
+      </div >
+      {
+        loadingEnvio && (
           <div
-            className="position-fixed top-0 start-0 w-100 h-100 z-2000 d-flex justify-content-center align-items-center"
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
             style={{
               backgroundColor: "rgba(0, 0, 0, 0.5)",
-              zIndex: 1050,
+              // zIndex: 1050,
             }}
           >
             <div className="text-center">
@@ -1347,9 +1356,10 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
               <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
             </div>
           </div>
-        )}
-      </div >
+        )
+      }
     </>
+
   );
 };
 

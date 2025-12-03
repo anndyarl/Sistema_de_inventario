@@ -466,6 +466,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               </strong>
             )}
           </div>
+
           {/* Tabla*/}
           {loading || loadingRefresh ? (
             <>
@@ -473,106 +474,118 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               <SkeletonLoader rowCount={10} columnCount={10} />
             </>
           ) : (
-            <div className='table-responsive'>
-              <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                  <tr>
-                    <th style={{
-                      position: 'sticky',
-                      left: 0
-                    }}>
-                      <Form.Check
-                        className="check-danger"
-                        type="checkbox"
-                        onChange={handleSeleccionaTodos}
-                        checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+            <>
+              {listaAltasRegistradas.length > 0 ? (
+                <>
+                  <div className='table-responsive'>
+                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                      <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                        <tr>
+                          <th style={{
+                            position: 'sticky',
+                            left: 0
+                          }}>
+                            <Form.Check
+                              className="check-danger"
+                              type="checkbox"
+                              onChange={handleSeleccionaTodos}
+                              checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                            />
+                          </th>
+                          <th scope="col" className="text-nowrap text-center">N° Inventario</th>
+                          <th scope="col" className="text-nowrap text-center">N° Alta</th>
+                          <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
+                          <th scope="col" className="text-nowrap text-center">Servicio</th>
+                          <th scope="col" className="text-nowrap text-center">Dependencia</th>
+                          <th scope="col" className="text-nowrap text-center">Especie</th>
+                          <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
+                          <th scope="col" className="text-nowrap text-center">Marca</th>
+                          <th scope="col" className="text-nowrap text-center">Modelo</th>
+                          <th scope="col" className="text-nowrap text-center">Serie</th>
+                          <th scope="col" className="text-nowrap text-center">Estado</th>
+                          <th scope="col" className="text-nowrap text-center">Precio</th>
+                          <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
+                          {/* <th>Acción</th> */}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {elementosActuales.map((Lista, index) => {
+                          const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                          const esEstado0 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 0);
+                          const esEstado1 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 1);
+                          return (
+                            <tr key={index} className={esEstado0 ? "table-warning" :
+                              esEstado1 ? "table-success" : ""}>
+                              <td style={{ position: 'sticky', left: 0 }}>
+                                <Form.Check
+                                  type="checkbox"
+                                  onChange={() => setSeleccionaFilas(indexReal)}
+                                  checked={filasSeleccionadas.includes(indexReal.toString())}
+                                />
+                              </td>
+                              <td className="text-nowrap">{Lista.ninv}</td>
+                              <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                              <td className="text-nowrap">{Lista.fechA_ALTA}</td>
+                              <td className="text-nowrap">{Lista.serv}</td>
+                              <td className="text-nowrap">{Lista.dep}</td>
+                              <td className="text-nowrap">{Lista.esp}</td>
+                              <td className="text-nowrap">{Lista.ncuenta}</td>
+                              <td className="text-nowrap">{Lista.marca}</td>
+                              <td className="text-nowrap">{Lista.modelo}</td>
+                              <td className="text-nowrap">{Lista.serie}</td>
+                              <td className="text-nowrap">{Lista.estado}</td>
+                              <td className="text-nowrap">
+                                ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                              </td>
+                              <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* Paginador */}
+                  <div className="paginador-container position-relative z-0">
+                    <Pagination className="paginador-scroll">
+                      <Pagination.First
+                        onClick={() => paginar(1)}
+                        disabled={paginaActual === 1}
                       />
-                    </th>
-                    <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                    <th scope="col" className="text-nowrap text-center">N° Alta</th>
-                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
-                    <th scope="col" className="text-nowrap text-center">Servicio</th>
-                    <th scope="col" className="text-nowrap text-center">Dependencia</th>
-                    <th scope="col" className="text-nowrap text-center">Especie</th>
-                    <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
-                    <th scope="col" className="text-nowrap text-center">Marca</th>
-                    <th scope="col" className="text-nowrap text-center">Modelo</th>
-                    <th scope="col" className="text-nowrap text-center">Serie</th>
-                    <th scope="col" className="text-nowrap text-center">Estado</th>
-                    <th scope="col" className="text-nowrap text-center">Precio</th>
-                    <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
-                    {/* <th>Acción</th> */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {elementosActuales.map((Lista, index) => {
-                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                    const esEstado0 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 0);
-                    const esEstado1 = listaEstadoFirmas.some((f) => f.altaS_CORR === Lista.altaS_CORR && f.estado === 1);
-                    return (
-                      <tr key={index} className={esEstado0 ? "table-warning" :
-                        esEstado1 ? "table-success" : ""}>
-                        <td style={{ position: 'sticky', left: 0 }}>
-                          <Form.Check
-                            type="checkbox"
-                            onChange={() => setSeleccionaFilas(indexReal)}
-                            checked={filasSeleccionadas.includes(indexReal.toString())}
-                          />
-                        </td>
-                        <td className="text-nowrap">{Lista.ninv}</td>
-                        <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                        <td className="text-nowrap">{Lista.fechA_ALTA}</td>
-                        <td className="text-nowrap">{Lista.serv}</td>
-                        <td className="text-nowrap">{Lista.dep}</td>
-                        <td className="text-nowrap">{Lista.esp}</td>
-                        <td className="text-nowrap">{Lista.ncuenta}</td>
-                        <td className="text-nowrap">{Lista.marca}</td>
-                        <td className="text-nowrap">{Lista.modelo}</td>
-                        <td className="text-nowrap">{Lista.serie}</td>
-                        <td className="text-nowrap">{Lista.estado}</td>
-                        <td className="text-nowrap">
-                          ${(Lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                        </td>
-                        <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                      <Pagination.Prev
+                        onClick={() => paginar(paginaActual - 1)}
+                        disabled={paginaActual === 1}
+                      />
+
+                      {Array.from({ length: totalPaginas }, (_, i) => (
+                        <Pagination.Item
+                          key={i + 1}
+                          active={i + 1 === paginaActual}
+                          onClick={() => paginar(i + 1)}
+                        >
+                          {i + 1}
+                        </Pagination.Item>
+                      ))}
+                      <Pagination.Next
+                        onClick={() => paginar(paginaActual + 1)}
+                        disabled={paginaActual === totalPaginas}
+                      />
+                      <Pagination.Last
+                        onClick={() => paginar(totalPaginas)}
+                        disabled={paginaActual === totalPaginas}
+                      />
+                    </Pagination>
+                  </div>
+                </>
+              ) : (
+                <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                  <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                    No hay resultados para mostrar.
+                  </p>
+                </div>
+              )}
+            </>
           )}
 
-          {/* Paginador */}
-          <div className="paginador-container position-relative z-0">
-            <Pagination className="paginador-scroll">
-              <Pagination.First
-                onClick={() => paginar(1)}
-                disabled={paginaActual === 1}
-              />
-              <Pagination.Prev
-                onClick={() => paginar(paginaActual - 1)}
-                disabled={paginaActual === 1}
-              />
-
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === paginaActual}
-                  onClick={() => paginar(i + 1)}
-                >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => paginar(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-              />
-              <Pagination.Last
-                onClick={() => paginar(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
-              />
-            </Pagination>
-          </div>
         </div>
       </form>
     </Layout >

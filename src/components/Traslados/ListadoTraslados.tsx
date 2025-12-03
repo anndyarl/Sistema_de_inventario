@@ -393,115 +393,126 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
             )}
           </Col>
         </Row>
+
         {loading ? (
           <>
             <SkeletonLoader rowCount={elementosPorPagina} />
           </>
         ) : (
-          <div className='table-responsive'>
-            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                <tr>
-                  {/* <th scope="col"></th> */}
-                  <th scope="col" className="text-nowrap">N° Inventario</th>
-                  <th scope="col" className="text-nowrap">N° Traslado</th>
-                  <th scope="col" className="text-nowrap">Fecha Traslado</th>
-                  <th scope="col" className="text-nowrap">Especie</th>
-                  <th scope="col" className="text-nowrap">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                  <th scope="col" className="text-nowrap">Memo de Referencia</th>
-                  <th scope="col" className="text-nowrap">Fecha Memo</th>
-                  <th scope="col" className="text-nowrap">Usuario Crea</th>
-                  <th scope="col" className="text-nowrap">Observaciones</th>
-                  <th scope="col" className="text-nowrap">Nombre Entrega</th>
-                  <th scope="col" className="text-nowrap">Nombre Recibe</th>
-                  <th scope="col" className="text-nowrap">Nombre Autoriza</th>
-                  <th scope="col" className="text-nowrap">Estado</th>
-                  {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
-                  {/* <th scope="col" className="text-nowrap text-center">Tipo Traslado</th> */}
+          <>
+            {listadoTraslados.length > 0 ? (
+              <>
+                <div className='table-responsive'>
+                  <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                      <tr>
+                        {/* <th scope="col"></th> */}
+                        <th scope="col" className="text-nowrap">N° Inventario</th>
+                        <th scope="col" className="text-nowrap">N° Traslado</th>
+                        <th scope="col" className="text-nowrap">Fecha Traslado</th>
+                        <th scope="col" className="text-nowrap">Especie</th>
+                        <th scope="col" className="text-nowrap">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
+                        <th scope="col" className="text-nowrap">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
+                        <th scope="col" className="text-nowrap">Memo de Referencia</th>
+                        <th scope="col" className="text-nowrap">Fecha Memo</th>
+                        <th scope="col" className="text-nowrap">Usuario Crea</th>
+                        <th scope="col" className="text-nowrap">Observaciones</th>
+                        <th scope="col" className="text-nowrap">Nombre Entrega</th>
+                        <th scope="col" className="text-nowrap">Nombre Recibe</th>
+                        <th scope="col" className="text-nowrap">Nombre Autoriza</th>
+                        <th scope="col" className="text-nowrap">Estado</th>
+                        {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
+                        {/* <th scope="col" className="text-nowrap text-center">Tipo Traslado</th> */}
 
-                </tr>
-              </thead>
-              <tbody>
-                {elementosActuales.map((Lista, index) => {
-                  let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                  return (
-                    <tr key={indexReal}>
-                      {/* <td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {elementosActuales.map((Lista, index) => {
+                        let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                        return (
+                          <tr key={indexReal}>
+                            {/* <td>
                         <Form.Check
                           type="checkbox"
                           onChange={() => setSeleccionaFila(indexReal)}
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
-                      <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                      <td className="text-nowrap">{Lista.n_TRASLADO}</td>
-                      <td className="text-nowrap">{Lista.traS_FECHA}</td>
-                      <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                      <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
-                      <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
-                      <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
-                      <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
-                      <td className="text-nowrap">{
-                        Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
-                          Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
-                            Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
-                              Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
-                                Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
-                                  Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
-                                    Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
-                                      Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+                            <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                            <td className="text-nowrap">{Lista.n_TRASLADO}</td>
+                            <td className="text-nowrap">{Lista.traS_FECHA}</td>
+                            <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                            <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
+                            <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
+                            <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
+                            <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
+                            <td className="text-nowrap">{
+                              Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                                Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                  Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
+                                    Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
+                                      Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                        Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
+                                          Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
+                                            Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
 
-                      }</td>
-                      <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "Sin observaciones" : Lista.traS_OBS}</td>
-                      <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
-                      <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
-                      <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
-                      <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                      {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
-                      {/* <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td> */}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                            }</td>
+                            <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "Sin observaciones" : Lista.traS_OBS}</td>
+                            <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
+                            <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
+                            <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
+                            <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
+                            {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
+                            {/* <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td> */}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Paginador */}
+                <div className="paginador-container position-relative z-0">
+                  <Pagination className="paginador-scroll ">
+                    <Pagination.First
+                      onClick={() => paginar(1)}
+                      disabled={paginaActual === 1}
+
+                    />
+                    <Pagination.Prev
+                      onClick={() => paginar(paginaActual - 1)}
+                      disabled={paginaActual === 1}
+                    />
+
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                      <Pagination.Item
+                        key={i + 1}
+                        active={i + 1 === paginaActual}
+                        onClick={() => paginar(i + 1)}
+
+                      >
+                        {i + 1} {/* adentro de aqui esta page-link */}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                      onClick={() => paginar(paginaActual + 1)}
+                      disabled={paginaActual === totalPaginas}
+
+                    />
+                    <Pagination.Last
+                      onClick={() => paginar(totalPaginas)}
+                      disabled={paginaActual === totalPaginas}
+
+                    />
+                  </Pagination>
+                </div>
+              </>
+            ) : (
+              <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                No hay resultados para mostrar.
+              </p>
+            )}
+          </>
         )}
-        {/* Paginador */}
-        <div className="paginador-container position-relative z-0">
-          <Pagination className="paginador-scroll ">
-            <Pagination.First
-              onClick={() => paginar(1)}
-              disabled={paginaActual === 1}
-
-            />
-            <Pagination.Prev
-              onClick={() => paginar(paginaActual - 1)}
-              disabled={paginaActual === 1}
-            />
-
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <Pagination.Item
-                key={i + 1}
-                active={i + 1 === paginaActual}
-                onClick={() => paginar(i + 1)}
-
-              >
-                {i + 1} {/* adentro de aqui esta page-link */}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => paginar(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas}
-
-            />
-            <Pagination.Last
-              onClick={() => paginar(totalPaginas)}
-              disabled={paginaActual === totalPaginas}
-
-            />
-          </Pagination>
-        </div>
       </div>
     </Layout >
   );

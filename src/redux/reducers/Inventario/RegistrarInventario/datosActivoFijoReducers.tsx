@@ -38,7 +38,8 @@ const initialState: DatosRecepcionState = {
     precio: "",
     nServicio: "",
     nDependencia: 0,
-    resultadoRegistro: 0
+    resultadoRegistro: 0,
+
 };
 
 

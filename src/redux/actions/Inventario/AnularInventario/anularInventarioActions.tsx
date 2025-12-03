@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 // Acción para obtener la recepción por número
-export const anularInventarioActions = (aF_CLAVE: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const anularInventarioActions = (aF_CLAVE: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {

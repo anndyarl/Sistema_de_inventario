@@ -28,7 +28,12 @@ const listaInventarioBuscarReducers = (state = initialState, action: any) => {
         listaInventarioBuscar: action.payload,
       };
     case LISTA_INVENTARIO_BUSCAR_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state,
+        loading: false,
+        error: action.error,
+        listaInventarioBuscar: []
+      };
     default:
       return state;
   }

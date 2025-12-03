@@ -29,10 +29,16 @@ export const setFechaFacturaActions = (fechaFactura: string) => ({
   type: 'SET_FECHA_FACTURA',
   payload: fechaFactura,
 });
+
+export const setTipoInventarioActions = (tipoInventario: string) => ({
+  type: 'SET_TIPO_INVENTARIO',
+  payload: tipoInventario,
+});
+
 /*-----------------------Proveedor----------------------*/
-export const setRutProveedorActions = (rutProveedor: number | string) => ({
+export const setRutProveedorActions = (rutProveedor: number) => ({
   type: 'SET_RUT_PROVEEDOR',
-  payload: rutProveedor,
+  payload: rutProveedor || 0,
 });
 export const setOtroProveedorActions = (otroProveedor: string) => ({
   type: 'SET_OTRO_PROVEEDOR',
@@ -42,6 +48,7 @@ export const showInputProveedorActions = (showInputproveedor: boolean) => ({
   type: 'SET_MOSTRAR_PROVEEDOR',
   payload: showInputproveedor,
 });
+
 /*-----------------------Fin Proveedor----------------------*/
 
 /*-----------------------Modalidad de compra----------------------*/
@@ -167,5 +174,14 @@ export const setServicioDependencias = (datosServicioDependencia: DEPENDENCIA[])
   type: 'SET_SERVICIO_DEPENDENCIA',
   payload: datosServicioDependencia,
 });
+
+export const setActualizaCuenta = (checked: boolean, cuentaOriginal: number) => ({
+  type: "ACTUALIZAR_MANTENER_CUENTA_BIEN_PROPIO",
+  payload: {
+    checked,
+    cuentaOriginal,
+  },
+});
+
 
 

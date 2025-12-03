@@ -28,7 +28,12 @@ const listaInventarioAnularReducers = (state = initialState, action: any) => {
         listaInventarioAnular: action.payload,
       };
     case LISTA_INVENTARIO_ANULAR_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state,
+        loading: false,
+        error: action.error,
+        listaInventarioAnular: []
+      };
     default:
       return state;
   }

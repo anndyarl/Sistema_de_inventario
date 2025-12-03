@@ -26,7 +26,10 @@ const datosTrasladoRegistradoReducers = (state = initialState, action: any) => {
         listaSalidaTraslados: action.payload,
       };
     case POST_FORMULARIO_TRASLADO_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state, loading: false,
+        error: action.error
+      };
     default:
       return state;
   }

@@ -831,101 +831,102 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
                         </Row>
 
-                        {listaEtiquetas.length > 0 ? (
-                            <>        {/* Listado Principal */}
-                                {loading ? (
-                                    <SkeletonLoader rowCount={elementosPorPagina} />
-                                ) : (
-                                    <div className='table-responsive'>
-                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                            <thead className={` sticky-top z-0  ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                                <tr >
-                                                    <th style={{
-                                                        position: 'sticky',
-                                                        left: 0
-                                                    }}>
-                                                        <Form.Check
-                                                            className="check-danger"
-                                                            type="checkbox"
-                                                            onChange={handleSeleccionaTodos}
-                                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                                        />
-                                                    </th>
-
-                                                    {/* <th scope="col" className="text-nowrap">Estado</th> */}
-                                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                                    <th scope="col" className="text-nowrap">N° Alta</th>
-                                                    <th scope="col" className="text-nowrap">Descripción</th>
-                                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                                    <th scope="col" className="text-nowrap">Nº Cuenta</th>
-                                                    <th scope="col" className="text-nowrap">Ubicación</th>
-                                                    <th scope="col" className="text-nowrap">Origen</th>
-                                                    <th scope="col" className="text-nowrap">QR</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {elementosActuales.map((fila, index) => {
-                                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                    return (
-                                                        <tr key={index}>
-                                                            <td style={{
-                                                                position: 'sticky',
-                                                                left: 0
-
-                                                            }}>
-                                                                <Form.Check
-                                                                    type="checkbox"
-                                                                    onChange={() => setSeleccionaFilas(indexReal)}
-                                                                    checked={filasSeleccionadas.includes(indexReal.toString())}
-                                                                />
-                                                            </td>
-                                                            <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                                            <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                                            <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
-                                                            <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
-                                                            <td className="text-nowrap">{fila.aF_NCUENTA}</td>
-                                                            <td className="text-nowrap">{fila.aF_UBICACION}</td>
-                                                            <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
-                                                            <td className="text-nowrap">
-                                                                <QRCodeSVG
-                                                                    value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
-                                                                    size={50}
-                                                                    level="H"
-                                                                />
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                                <div className="paginador-container position-relative z-0">
-                                    <Pagination className="paginador-scroll">
-                                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                                        {Array.from({ length: totalPaginas }, (_, i) => (
-                                            <Pagination.Item
-                                                key={i + 1}
-                                                active={i + 1 === paginaActual}
-                                                onClick={() => paginar(i + 1)}
-                                            >
-                                                {i + 1}
-                                            </Pagination.Item>
-                                        ))}
-                                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                                    </Pagination>
-                                </div>
-                            </>
-
+                        {/* Listado Principal */}
+                        {loading ? (
+                            <SkeletonLoader rowCount={elementosPorPagina} />
                         ) : (
                             <>
-                                <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
-                                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                                        No hay resultados para mostrar.
-                                    </p>
-                                </div>
+                                {listaEtiquetas.length > 0 ? (
+                                    <>
+                                        <div className='table-responsive'>
+                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                                <thead className={` sticky-top z-0  ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                                    <tr >
+                                                        <th style={{
+                                                            position: 'sticky',
+                                                            left: 0
+                                                        }}>
+                                                            <Form.Check
+                                                                className="check-danger"
+                                                                type="checkbox"
+                                                                onChange={handleSeleccionaTodos}
+                                                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                                                            />
+                                                        </th>
+
+                                                        {/* <th scope="col" className="text-nowrap">Estado</th> */}
+                                                        <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                        <th scope="col" className="text-nowrap">N° Alta</th>
+                                                        <th scope="col" className="text-nowrap">Descripción</th>
+                                                        <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                                        <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                                                        <th scope="col" className="text-nowrap">Ubicación</th>
+                                                        <th scope="col" className="text-nowrap">Origen</th>
+                                                        <th scope="col" className="text-nowrap">QR</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {elementosActuales.map((fila, index) => {
+                                                        const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td style={{
+                                                                    position: 'sticky',
+                                                                    left: 0
+
+                                                                }}>
+                                                                    <Form.Check
+                                                                        type="checkbox"
+                                                                        onChange={() => setSeleccionaFilas(indexReal)}
+                                                                        checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                                    />
+                                                                </td>
+                                                                <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
+                                                                <td className="text-nowrap">{fila.altaS_CORR}</td>
+                                                                <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
+                                                                <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
+                                                                <td className="text-nowrap">{fila.aF_NCUENTA}</td>
+                                                                <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                                                <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
+                                                                <td className="text-nowrap">
+                                                                    <QRCodeSVG
+                                                                        value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
+                                                                        size={50}
+                                                                        level="H"
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {/* Paginador */}
+                                        <div className="paginador-container position-relative z-0">
+                                            <Pagination className="paginador-scroll">
+                                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                                    <Pagination.Item
+                                                        key={i + 1}
+                                                        active={i + 1 === paginaActual}
+                                                        onClick={() => paginar(i + 1)}
+                                                    >
+                                                        {i + 1}
+                                                    </Pagination.Item>
+                                                ))}
+                                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                                            </Pagination>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                                        <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                            No hay resultados para mostrar.
+                                        </p>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>
@@ -1215,104 +1216,104 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
                         </Col>
                     </Row>
 
-                    {listaReimpresionEtiquetas.length > 0 ? (
+                    {loadingReimprimir ? (
                         <>
-                            {/* Tabla Reimprimir */}
-                            <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
-                                <div className='table-responsive position-relative z-0'>
-                                    <div style={{ maxHeight: "70vh" }}>
-                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                            <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                                <tr>
-                                                    <th style={{ position: 'sticky', left: 0 }}>
-                                                        <Form.Check
-                                                            className="check-danger"
-                                                            type="checkbox"
-                                                            onChange={handleSeleccionaReimprimirTodos}
-                                                            checked={filasSeleccionadasReimprimir.length === elementosActuales1.length && elementosActuales1.length > 0}
-                                                        />
-                                                    </th>
-                                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                                    <th scope="col" className="text-nowrap">N° Alta</th>
-                                                    <th scope="col" className="text-nowrap">Descripción</th>
-                                                    <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                                    <th scope="col" className="text-nowrap">Nº Cuenta</th>
-                                                    <th scope="col" className="text-nowrap">Ubicación</th>
-                                                    <th scope="col" className="text-nowrap">Origen</th>
-                                                    <th scope="col" className="text-nowrap">QR</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {elementosActuales1.map((fila, index) => {
-                                                    const indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
-                                                    return (
-                                                        <tr key={index}>
-                                                            <td style={{ position: 'sticky', left: 0 }}>
-                                                                <Form.Check
-                                                                    type="checkbox"
-                                                                    onChange={() => setSeleccionaFilasReimprimir(indexReal)}
-                                                                    checked={filasSeleccionadasReimprimir.includes(indexReal.toString())}
-                                                                />
-                                                            </td>
-                                                            <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                                            <td className="text-nowrap">{fila.altaS_CORR}</td>
-                                                            <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
-                                                            <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
-                                                            <td className="text-nowrap">{fila.aF_NCUENTA}</td>
-                                                            <td className="text-nowrap">{fila.aF_UBICACION}</td>
-                                                            <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
-                                                            <td className="text-nowrap">
-                                                                <QRCodeSVG
-                                                                    value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
-                                                                    size={50}
-                                                                    level="H"
-                                                                />
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Paginador */}
-                            <div className="paginador-container position-relative z-0">
-                                <Pagination className="paginador-scroll">
-                                    <Pagination.First
-                                        onClick={() => paginar1(1)}
-                                        disabled={paginaActual1 === 1}
-                                    />
-                                    <Pagination.Prev
-                                        onClick={() => paginar1(paginaActual1 - 1)}
-                                        disabled={paginaActual1 === 1}
-                                    />
-
-                                    {Array.from({ length: totalPaginas1 }, (_, i) => (
-                                        <Pagination.Item
-                                            key={i + 1}
-                                            active={i + 1 === paginaActual1}
-                                            onClick={() => paginar1(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </Pagination.Item>
-                                    ))}
-                                    <Pagination.Next
-                                        onClick={() => paginar1(paginaActual1 + 1)}
-                                        disabled={paginaActual1 === totalPaginas1}
-                                    />
-                                    <Pagination.Last
-                                        onClick={() => paginar1(totalPaginas1)}
-                                        disabled={paginaActual1 === totalPaginas1}
-                                    />
-                                </Pagination>
-                            </div>
+                            <SkeletonLoader rowCount={elementosPorPagina} />
                         </>
                     ) : (
                         <>
-                            {loadingReimprimir ? (
+                            {listaReimpresionEtiquetas.length > 0 ? (
                                 <>
-                                    <SkeletonLoader rowCount={10} columnCount={10} />
+                                    {/* Tabla Reimprimir */}
+                                    <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
+                                        <div className='table-responsive position-relative z-0'>
+                                            <div style={{ maxHeight: "70vh" }}>
+                                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                                    <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                        <tr>
+                                                            <th style={{ position: 'sticky', left: 0 }}>
+                                                                <Form.Check
+                                                                    className="check-danger"
+                                                                    type="checkbox"
+                                                                    onChange={handleSeleccionaReimprimirTodos}
+                                                                    checked={filasSeleccionadasReimprimir.length === elementosActuales1.length && elementosActuales1.length > 0}
+                                                                />
+                                                            </th>
+                                                            <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                            <th scope="col" className="text-nowrap">N° Alta</th>
+                                                            <th scope="col" className="text-nowrap">Descripción</th>
+                                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                                            <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                                                            <th scope="col" className="text-nowrap">Ubicación</th>
+                                                            <th scope="col" className="text-nowrap">Origen</th>
+                                                            <th scope="col" className="text-nowrap">QR</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {elementosActuales1.map((fila, index) => {
+                                                            const indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
+                                                            return (
+                                                                <tr key={index}>
+                                                                    <td style={{ position: 'sticky', left: 0 }}>
+                                                                        <Form.Check
+                                                                            type="checkbox"
+                                                                            onChange={() => setSeleccionaFilasReimprimir(indexReal)}
+                                                                            checked={filasSeleccionadasReimprimir.includes(indexReal.toString())}
+                                                                        />
+                                                                    </td>
+                                                                    <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
+                                                                    <td className="text-nowrap">{fila.altaS_CORR}</td>
+                                                                    <td className="text-nowrap">{fila.aF_DESCRIPCION}</td>
+                                                                    <td className="text-nowrap">{fila.aF_FECHA_ALTA}</td>
+                                                                    <td className="text-nowrap">{fila.aF_NCUENTA}</td>
+                                                                    <td className="text-nowrap">{fila.aF_UBICACION}</td>
+                                                                    <td className="text-nowrap">{fila.origen.charAt(0).toUpperCase() + fila.origen.slice(1).toLocaleLowerCase()}</td>
+                                                                    <td className="text-nowrap">
+                                                                        <QRCodeSVG
+                                                                            value={`Cod. Bien: ${fila.aF_CODIGO_GENERICO} Nom. Bien: ${fila.aF_DESCRIPCION} F. Alta: ${fila.aF_FECHA_ALTA} Cta. Contable: ${fila.aF_NCUENTA} URL: http://localhost:3002/Altas/InfoActivo?codigo_inventario=${fila.aF_CODIGO_GENERICO}`}
+                                                                            size={50}
+                                                                            level="H"
+                                                                        />
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Paginador */}
+                                    <div className="paginador-container position-relative z-0">
+                                        <Pagination className="paginador-scroll">
+                                            <Pagination.First
+                                                onClick={() => paginar1(1)}
+                                                disabled={paginaActual1 === 1}
+                                            />
+                                            <Pagination.Prev
+                                                onClick={() => paginar1(paginaActual1 - 1)}
+                                                disabled={paginaActual1 === 1}
+                                            />
+
+                                            {Array.from({ length: totalPaginas1 }, (_, i) => (
+                                                <Pagination.Item
+                                                    key={i + 1}
+                                                    active={i + 1 === paginaActual1}
+                                                    onClick={() => paginar1(i + 1)}
+                                                >
+                                                    {i + 1}
+                                                </Pagination.Item>
+                                            ))}
+                                            <Pagination.Next
+                                                onClick={() => paginar1(paginaActual1 + 1)}
+                                                disabled={paginaActual1 === totalPaginas1}
+                                            />
+                                            <Pagination.Last
+                                                onClick={() => paginar1(totalPaginas1)}
+                                                disabled={paginaActual1 === totalPaginas1}
+                                            />
+                                        </Pagination>
+                                    </div>
                                 </>
                             ) : (
                                 <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">

@@ -608,101 +608,113 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                   <SkeletonLoader rowCount={elementosPorPagina} />
                 </>
               ) : (
-                <div className='skeleton-table table-responsive'>
-                  {elementosActuales.length > 0 && (
-                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                      <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                        <tr>
-                          {/* <th scope="col" className="text-nowrap">Estado Alta</th> */}
-                          <th scope="col" className="text-nowrap">Nº Inventario</th>
-                          <th scope="col" className="text-nowrap">Descripción</th>
-                          <th scope="col" className="text-nowrap">Fecha</th>
-                          <th scope="col" className="text-nowrap">Servicio</th>
-                          <th scope="col" className="text-nowrap">Dependencia</th>
-                          <th scope="col" className="text-nowrap">Especie</th>
-                          <th scope="col" className="text-nowrap">Precio</th>
-                          <th scope="col" className="text-nowrap">Vida Útil</th>
-                          {/* <th scope="col" className="text-nowrap">Depreciación</th>
+                <>
+                  {listaInventarioBuscar.length > 0 ? (
+                    <>
+                      <div className='skeleton-table table-responsive'>
+                        {elementosActuales.length > 0 && (
+                          <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                              <tr>
+                                {/* <th scope="col" className="text-nowrap">Estado Alta</th> */}
+                                <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                <th scope="col" className="text-nowrap">Descripción</th>
+                                <th scope="col" className="text-nowrap">Fecha</th>
+                                <th scope="col" className="text-nowrap">Servicio</th>
+                                <th scope="col" className="text-nowrap">Dependencia</th>
+                                <th scope="col" className="text-nowrap">Especie</th>
+                                <th scope="col" className="text-nowrap">Precio</th>
+                                <th scope="col" className="text-nowrap">Vida Útil</th>
+                                {/* <th scope="col" className="text-nowrap">Depreciación</th>
                       <th scope="col" className="text-nowrap">Depreciación Acumulada</th>
                       <th scope="col" className="text-nowrap">Valor Libro</th>
                       <th scope="col" className="text-nowrap">Nº Trapasos</th> */}
-                          <th scope="col" className="text-nowrap">Nº Alta</th>
-                          <th scope="col" className="text-nowrap">Origen</th>
-                          <th scope="col" className="text-nowrap">Nº Recepción</th>
-                          <th scope="col" className="text-nowrap">Nº Cta</th>
-                          <th scope="col" className="text-nowrap">Orden de Compra</th>
-                          <th scope="col" className="text-nowrap">Marca</th>
-                          <th scope="col" className="text-nowrap">Modelo</th>
-                          <th scope="col" className="text-nowrap">Serie</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {elementosActuales.map((lista, index) => (
-                          <tr key={index}>
-                            {/* <td className="text-start">{lista.altaS_ESTADO === "1" ? <p className="badge bg-success w-100">Disponible</p> : <p className="badge bg-danger w-100">Anulado</p>}</td> */}
-                            <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
-                            <td className="text-start">{lista.aF_DESCRIPCION}</td>
-                            <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
-                            <td className="text-start">{lista.seR_NOMBRE}</td>
-                            <td className="text-start">{lista.deP_NOMBRE}</td>
-                            <td className="text-start">{lista.esP_NOMBRE}</td>
-                            <td className="text-start">
-                              ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
-                            <td className="text-start">{lista.aF_VIDAUTIL}</td>
-                            {/* <td className="text-start">.</td>
+                                <th scope="col" className="text-nowrap">Nº Alta</th>
+                                <th scope="col" className="text-nowrap">Origen</th>
+                                <th scope="col" className="text-nowrap">Nº Recepción</th>
+                                <th scope="col" className="text-nowrap">Nº Cta</th>
+                                <th scope="col" className="text-nowrap">Orden de Compra</th>
+                                <th scope="col" className="text-nowrap">Marca</th>
+                                <th scope="col" className="text-nowrap">Modelo</th>
+                                <th scope="col" className="text-nowrap">Serie</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {elementosActuales.map((lista, index) => (
+                                <tr key={index}>
+                                  {/* <td className="text-start">{lista.altaS_ESTADO === "1" ? <p className="badge bg-success w-100">Disponible</p> : <p className="badge bg-danger w-100">Anulado</p>}</td> */}
+                                  <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
+                                  <td className="text-start">{lista.aF_DESCRIPCION}</td>
+                                  <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
+                                  <td className="text-start">{lista.seR_NOMBRE}</td>
+                                  <td className="text-start">{lista.deP_NOMBRE}</td>
+                                  <td className="text-start">{lista.esP_NOMBRE}</td>
+                                  <td className="text-start">
+                                    ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                                  <td className="text-start">{lista.aF_VIDAUTIL}</td>
+                                  {/* <td className="text-start">.</td>
                         <td className="text-start">.</td>
                         <td className="text-start">.</td>
                         <td className="text-start">.</td> */}
-                            <td className="text-start">{lista.altaS_CORR}</td>
-                            <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "-"}</td>
-                            <td className="text-start">{!lista.nrecepcion ? "-" : lista.nrecepcion}</td>
-                            <td className="text-start">{lista.ctA_COD}</td>
-                            <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
-                            <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
-                            <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
-                            <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                            {/* <td className="text-start">{lista.aF_ESTADO_INV}</td> */}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                                  <td className="text-start">{lista.altaS_CORR}</td>
+                                  <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "-"}</td>
+                                  <td className="text-start">{!lista.nrecepcion ? "-" : lista.nrecepcion}</td>
+                                  <td className="text-start">{lista.ctA_COD}</td>
+                                  <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
+                                  <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
+                                  <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
+                                  <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
+                                  {/* <td className="text-start">{lista.aF_ESTADO_INV}</td> */}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        )}
+                      </div>
+                      {/* Paginador */}
+                      {elementosActuales.length > 0 && (
+                        <div className="paginador-container position-relative z-0">
+                          <Pagination className="paginador-scroll">
+                            <Pagination.First
+                              onClick={() => paginar(1)}
+                              disabled={paginaActual === 1}
+                            />
+                            <Pagination.Prev
+                              onClick={() => paginar(paginaActual - 1)}
+                              disabled={paginaActual === 1}
+                            />
+
+                            {Array.from({ length: totalPaginas }, (_, i) => (
+                              <Pagination.Item
+                                key={i + 1}
+                                active={i + 1 === paginaActual}
+                                onClick={() => paginar(i + 1)}
+                              >
+                                {i + 1}
+                              </Pagination.Item>
+                            ))}
+                            <Pagination.Next
+                              onClick={() => paginar(paginaActual + 1)}
+                              disabled={paginaActual === totalPaginas}
+                            />
+                            <Pagination.Last
+                              onClick={() => paginar(totalPaginas)}
+                              disabled={paginaActual === totalPaginas}
+                            />
+                          </Pagination>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                      <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        No hay resultados para mostrar.
+                      </p>
+                    </div>
                   )}
-                </div>
+                </>
               )}
 
-              {/* Paginador */}
-              {elementosActuales.length > 0 && (
-                <div className="paginador-container position-relative z-0">
-                  <Pagination className="paginador-scroll">
-                    <Pagination.First
-                      onClick={() => paginar(1)}
-                      disabled={paginaActual === 1}
-                    />
-                    <Pagination.Prev
-                      onClick={() => paginar(paginaActual - 1)}
-                      disabled={paginaActual === 1}
-                    />
-
-                    {Array.from({ length: totalPaginas }, (_, i) => (
-                      <Pagination.Item
-                        key={i + 1}
-                        active={i + 1 === paginaActual}
-                        onClick={() => paginar(i + 1)}
-                      >
-                        {i + 1}
-                      </Pagination.Item>
-                    ))}
-                    <Pagination.Next
-                      onClick={() => paginar(paginaActual + 1)}
-                      disabled={paginaActual === totalPaginas}
-                    />
-                    <Pagination.Last
-                      onClick={() => paginar(totalPaginas)}
-                      disabled={paginaActual === totalPaginas}
-                    />
-                  </Pagination>
-                </div>
-              )}
             </div>
           </form>
         </div>

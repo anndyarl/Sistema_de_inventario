@@ -149,7 +149,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
       {/* Contenedor principal */}
       <div id="page-content-wrapper" className="d-flex flex-column">
         {/* Navbar (móvil) */}
-        <div className={`d-flex justify-content-around align-content-center shadow-sm sticky-top z-1050  ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
+        <div className={`d-flex justify-content-around align-content-center shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
           <button className="p-3 navbar-toggler" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
             {sidebarOpen ? <X size={35} className={`${isDarkMode ? "text-white" : ""}`} /> : <List size={35} className={`${isDarkMode ? "text-white" : ""}`} />}
           </button>
@@ -158,7 +158,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
         </div>
 
         {/* Navbar (escritorio) */}
-        <div className={`d-none d-md-flex justify-content-end align-content-center sticky-top z-1050  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+        <div className={`d-none d-md-flex justify-content-end align-content-center ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
           <Navbar />
           <Profile />
         </div>
@@ -171,7 +171,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
         </div>
 
         {/* Footer siempre al final */}
-        <div className="d-none d-md-block sticky-bottom z-1 d-none w-100">
+        <div className={`d-none d-md-block  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
           <Footer />
         </div>
         {/* MobileBar solo visible en móviles */}

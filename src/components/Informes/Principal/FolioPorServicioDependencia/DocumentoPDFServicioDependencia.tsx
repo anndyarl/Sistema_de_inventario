@@ -209,7 +209,7 @@ function insertNewLinesDigits(value: any, every = 10) {
 
 
 
-const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDependencia[]; }) => {
+const DocumentoPDFServicioDependencia = ({ row, Firma }: { row: ListaFolioServicioDependencia[]; Firma: any }) => {
     const filasPorPagina = 10;
     const paginas = arreglo(row, filasPorPagina);
 
@@ -281,7 +281,7 @@ const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDepen
                                 <Text style={[styles.tableCell, styles.colAlta]}>{lista.altaS_CORR}</Text>
                                 <Text style={[styles.tableCell, styles.colEstado]}>{lista.traS_ESTADO_AF}</Text>
                                 <Text style={[styles.tableCell, styles.colTraslado]}>{lista.ntraslado === 0 ? "" : lista.ntraslado}</Text>
-                                <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.aF_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                                 <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ctA_COD}</Text>
                             </View>
                         ))}
@@ -290,14 +290,17 @@ const DocumentoPDFServicioDependencia = ({ row }: { row: ListaFolioServicioDepen
                         <>
                             <View style={styles.firmaContainer}>
                                 <View style={styles.firmaBox}>
+                                    <Text style={styles.firmaBox}>{Firma.encargadoInventario}</Text>
                                     <Text>_______________________</Text>
                                     <Text style={styles.firmaLabel}>Encargado</Text>
                                 </View>
                                 <View style={styles.firmaBox}>
+                                    <Text style={styles.firmaBox}>{Firma.jefe}</Text>
                                     <Text>_______________________</Text>
                                     <Text style={styles.firmaLabel}>Jefe</Text>
                                 </View>
                                 <View style={styles.firmaBox}>
+                                    <Text style={styles.firmaBox}>{Firma.jefeInventario}</Text>
                                     <Text>_______________________</Text>
                                     <Text style={styles.firmaLabel}>Jefe de Inventario</Text>
                                 </View>

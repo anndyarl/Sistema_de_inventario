@@ -103,6 +103,9 @@ import datosTraspasoRegistradoReducers from "./Traspasos/datosTraspasoRegistrado
 import obtenerInventarioXAltasReducers from "./Inventario/ModificarInventario/obtenerInventarioXAltasReducers";
 import listadoTraspasosRecibidosReducers from "./Traspasos/listadoTraspasosRecibidosReducers";
 import listadoTraspasosAdjuntosReducers from "./Traspasos/listadoTraspasosAdjuntosReducers";
+import maxBienesFuncionariosReducers from "./Inventario/BienesFuncionario/maxBienesFuncionariosReducers";
+import listadoBienesFuncionariosReducers from "./Inventario/BienesFuncionario/listadoBienesFuncionariosReducers";
+import buscarBienesFuncionariosReducers from "./Inventario/BienesFuncionario/buscarBienesFuncionariosReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -169,6 +172,9 @@ const appReducer = combineReducers({
 
   // Bienes de Funcionarios
   datosBienesFuncionarioReducers,
+  maxBienesFuncionariosReducers,
+  listadoBienesFuncionariosReducers,
+  buscarBienesFuncionariosReducers,
 
   // Traslado
   comboEstablecimientoReducer,
@@ -224,7 +230,7 @@ const appReducer = combineReducers({
 //--------------------- Root Reducer ---------------------//
 const rootReducer = (state: any, action: any) => {
   if (action.type === "LOGOUT") {
-    // Reinicia el estado general a su valor inicial, soloo mantiene el valor de darkModeReducer(Modo Oscuro)
+    // Reinicia el estado general a su valor inicial, solo mantiene el valor de darkModeReducer(Modo Oscuro)
     const { darkModeReducer } = state || {};
     state = {
       darkModeReducer

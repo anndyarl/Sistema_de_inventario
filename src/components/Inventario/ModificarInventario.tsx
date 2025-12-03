@@ -12,7 +12,8 @@ import MenuInventario from "../Menus/MenuInventario";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import Select from "react-select";
-import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
+import SkeletonLoader from "../Utils/SkeletonLoader";
+import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
 import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
@@ -22,9 +23,8 @@ import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/
 import { comboDependenciaModificarActions } from "../../redux/actions/Inventario/Combos/comboDependenciaModificarActions ";
 import { comboCuentaModificarActions } from "../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
 import { obtenerInventarioxAltasActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioxAltasActions";
-import SkeletonLoader from "../Utils/SkeletonLoader";
-import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
 
 export interface SERVICIO_DEPENDENCIA {
   deP_CORR: number;
@@ -58,6 +58,7 @@ export interface listaAltas {
   deT_SERIE: string;
   deT_PRECIO: number;
   deT_OBS: string;
+  estadO_VISADO: number;
 }
 
 //Se usan estas props para llamar a la busqueda de inventario por af_codigo_generico
@@ -500,8 +501,43 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
 
   //Selecciona fila del listado de Altas
-  const handleSeleccionFilaAltas = (index: number) => {
+  const handleSeleccionFilaAltas = (index: number, altaS_CORR: number) => {
     const item = listaAltas[index];
+
+    const registro = listaAltas.find((f) => f.altaS_CORR === altaS_CORR);
+    const estado = registro?.estadO_VISADO ?? null;
+
+    // Validaciones según el estado
+    if (estado === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Visado en curso",
+        text: "Este inventario se encuentra en proceso de visado. No es posible realizar modificaciones.",
+        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+        customClass: { popup: "custom-border" },
+      });
+
+      setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
+      return;
+    }
+
+    if (estado === 1) {
+      Swal.fire({
+        icon: "info",
+        title: "Inventario visado",
+        text: "Este inventario ya cuenta con todas las firmas o visados correspondientes, por lo que no puede ser modificado.",
+        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+        customClass: { popup: "custom-border" },
+      });
+
+      setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
+      return;
+    }
+
     setFilasSeleccionadasAltas([index.toString()]);
     setElementoSeleccionadoAltas(item);
   };
@@ -1902,7 +1938,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                         />
                       </th> */}
-                      <th></th>
+                      <th scope="col" className="text-nowrap"></th>
+                      <th scope="col" className="text-nowrap">Estado</th>
                       <th scope="col" className="text-nowrap">Nº Inventario</th>
                       <th scope="col" className="text-nowrap">Nº Alta</th>
                       <th scope="col" className="text-nowrap">Servicio</th>
@@ -1923,12 +1960,22 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                             <Form.Check
                               type="checkbox"
                               onChange={() =>
-                                handleSeleccionFilaAltas(indexReal)
+                                handleSeleccionFilaAltas(indexReal, lista.altaS_CORR)
                               }
                               checked={filasSeleccionadasAltas.includes(
                                 (indicePrimerElemento1 + index).toString()
                               )}
                             />
+                          </td>
+
+                          <td className="text-nowrap">
+                            {lista.estadO_VISADO === 0 ? (
+                              <p className="badge bg-warning w-100">Visado en curso</p>
+                            ) : lista.estadO_VISADO === 1 ? (
+                              <p className="badge bg-success w-100">Visado</p>
+                            ) : (
+                              <p className="badge bg-primary w-100">Sin Visado</p>
+                            )}
                           </td>
                           <td className="text-nowrap">{lista.aF_CODIGO_GENERICO}</td>
                           <td className="text-nowrap">{lista.altaS_CORR}</td>

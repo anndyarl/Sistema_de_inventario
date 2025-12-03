@@ -4,7 +4,7 @@ import {
     LISTA_TRASPASOS_REQUEST,
     LISTA_TRASPASOS_SUCCESS,
     LISTA_TRASPASOS_FAIL
-} from '../../actions/Trapasos/types'
+} from '../../actions/Traspasos/types'
 
 // Define el tipo para el estado inicial
 interface PropsState {

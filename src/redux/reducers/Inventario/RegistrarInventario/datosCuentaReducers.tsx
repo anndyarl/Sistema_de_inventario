@@ -6,6 +6,9 @@ interface datosCuentaState {
     especie: string;
     descripcionEspecie: string;
     nombreEspecie: string[];
+    cuentaBienPropio: number;
+    checkBienFuncionario: boolean
+
 }
 
 // Estado inicial tipado
@@ -16,6 +19,8 @@ const initialState: datosCuentaState = {
     especie: '',
     descripcionEspecie: '',
     nombreEspecie: [],
+    cuentaBienPropio: 0,
+    checkBienFuncionario: false
 };
 
 // Reducer con tipos definidos
@@ -38,6 +43,16 @@ const datosCuentaReducers = (state = initialState, action: any) => {
                 ...state,
                 nombreEspecie: [...state.nombreEspecie, action.payload], // Agrega el nuevo nombre al array
             };
+
+        case 'ACTUALIZAR_MANTENER_CUENTA_BIEN_PROPIO':
+            return {
+                ...state,
+                cuenta: action.payload.checked
+                    ? 5000001
+                    : action.payload.cuentaOriginal,
+                checkBienFuncionario: action.payload.checked,
+            };
+
         default:
             return state;
     }

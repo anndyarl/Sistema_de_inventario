@@ -1,13 +1,13 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal, Row, Col } from "react-bootstrap";
+import { Pagination, Button, Spinner, Modal, Row, Col, Form } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { Plus } from "react-bootstrap-icons";
+import { Plus, Search } from "react-bootstrap-icons";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { listadoMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/listadoMantenedorServiciosActions.tsx";
 import { registrarMantenedorServiciosActions } from "../../redux/actions/Mantenedores/Servicios/registrarMantenedorServiciosActions.tsx";
@@ -53,16 +53,39 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
     const [paginaActual, setPaginaActual] = useState(1);
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
+    const [terminoBusqueda, setTerminoBusqueda] = useState("");
 
+    const datosFiltrados = useMemo(() => {
+        if (!terminoBusqueda.trim()) {
+            return listadoMantenedor;
+        }
+
+        const termino = terminoBusqueda.toLowerCase();
+        return listadoMantenedor.filter((item) => {
+            // Función auxiliar para convertir código de usuario a nombre
+
+            return (
+                item.seR_COD.toString().includes(termino) ||
+                item.seR_CORR.toString().includes(termino) ||
+                item.seR_NOMBRE.toLowerCase().includes(termino)
+
+            );
+        });
+    }, [listadoMantenedor, terminoBusqueda]);
+
+
+    useEffect(() => {
+        setPaginaActual(1);
+    }, [terminoBusqueda]);
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(() => listadoMantenedor.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listadoMantenedor, indicePrimerElemento, indiceUltimoElemento]
+    const elementosActuales = useMemo(() => datosFiltrados.slice(indicePrimerElemento, indiceUltimoElemento),
+        [datosFiltrados, indicePrimerElemento, indiceUltimoElemento]
     );
     // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-    const totalPaginas = Array.isArray(listadoMantenedor)
-        ? Math.ceil(listadoMantenedor.length / elementosPorPagina)
+    const totalPaginas = Array.isArray(datosFiltrados)
+        ? Math.ceil(datosFiltrados.length / elementosPorPagina)
         : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -249,7 +272,25 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                 <div style={{ maxHeight: "80vh" }}>
                     <div className="border-bottom shadow-sm p-4 rounded">
                         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Servicios</h3>
-
+                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-2">
+                            <Col xs={12} lg="auto" className="flex-grow-1">
+                                <div className="position-relative">
+                                    <Search
+                                        className="position-absolute top-50 start-0 translate-middle-y ms-3"
+                                        size={18}
+                                        style={{ color: isDarkMode ? "#adb5bd" : "#6c757d" }}
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Buscar en todas las columnas..."
+                                        value={terminoBusqueda}
+                                        onChange={(e) => setTerminoBusqueda(e.target.value)}
+                                        className={`ps-5 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        style={{ maxWidth: "400px" }}
+                                    />
+                                </div>
+                            </Col>
+                        </Row>
                         <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
                             {/* Tamaño de página */}
                             <Col xs={12} lg="auto">
@@ -286,87 +327,106 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                                 </div>
                             </Col>
                         </Row>
+
+                        <div className="mb-2">
+                            <small className={`${isDarkMode ? "text-light" : "text-muted"}`}>
+                                Mostrando {datosFiltrados.length} de {listadoMantenedor.length} registros
+                            </small>
+                        </div>
+
                         {/* Tabla */}
                         {loading ? (
                             <>
                                 <SkeletonLoader rowCount={elementosPorPagina} />
                             </>
                         ) : (
-
-                            <div className='table-responsive'>
-                                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                        <tr>
-                                            {/* <th scope="col"></th> */}
-                                            <th scope="col" className="text-nowrap">Código</th>
-                                            <th scope="col" className="text-nowrap">Código Servicio</th>
-                                            <th scope="col" className="text-nowrap">Nombre</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
-                                            <th scope="col" className="text-nowrap">Fecha de Creación</th>
-                                            {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
-                                            <th scope="col" className="text-nowrap">Establecimiento</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((Lista, index) => {
-                                            let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                            return (
-                                                <tr key={indexReal}>
-                                                    {/* <td>
+                            <>
+                                {listadoMantenedor.length > 0 ? (
+                                    <>
+                                        <div className='table-responsive'>
+                                            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                    <tr>
+                                                        {/* <th scope="col"></th> */}
+                                                        <th scope="col" className="text-nowrap">Código</th>
+                                                        <th scope="col" className="text-nowrap">Código Servicio</th>
+                                                        <th scope="col" className="text-nowrap">Nombre</th>
+                                                        {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
+                                                        <th scope="col" className="text-nowrap">Fecha de Creación</th>
+                                                        {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
+                                                        <th scope="col" className="text-nowrap">Establecimiento</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {elementosActuales.map((Lista, index) => {
+                                                        let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                        return (
+                                                            <tr key={indexReal}>
+                                                                {/* <td>
                                                 <Form.Check
                                                     type="checkbox"
                                                     onChange={() => setSeleccionaFila(indexReal)}
                                                     checked={filasSeleccionada.includes((indexReal).toString())}
                                                 />
                                             </td> */}
-                                                    <td scope="col" className="text-nowrap">{Lista.seR_CORR}</td>
-                                                    <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
-                                                    <td scope="col" className="text-nowrap">{Lista.seR_NOMBRE}</td>
-                                                    {/* <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td> */}
-                                                    <td scope="col" className="text-nowrap">{Lista.seR_F_CREA}</td>
-                                                    {/* <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td> */}
-                                                    <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                                <td scope="col" className="text-nowrap">{Lista.seR_CORR}</td>
+                                                                <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
+                                                                <td scope="col" className="text-nowrap">{Lista.seR_NOMBRE}</td>
+                                                                {/* <td scope="col" className="text-nowrap">{Lista.seR_VIGENTE}</td> */}
+                                                                <td scope="col" className="text-nowrap">{Lista.seR_F_CREA}</td>
+                                                                {/* <td scope="col" className="text-nowrap">{Lista.seR_IP_CREA}</td> */}
+                                                                <td scope="col" className="text-nowrap">{Lista.estabL_NOMBRE}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {/* Paginador */}
+                                        <div className="paginador-container position-relative z-0">
+                                            <Pagination className="paginador-scroll">
+                                                <Pagination.First
+                                                    onClick={() => paginar(1)}
+                                                    disabled={paginaActual === 1}
+
+                                                />
+                                                <Pagination.Prev
+                                                    onClick={() => paginar(paginaActual - 1)}
+                                                    disabled={paginaActual === 1}
+                                                />
+
+                                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                                    <Pagination.Item
+                                                        key={i + 1}
+                                                        active={i + 1 === paginaActual}
+                                                        onClick={() => paginar(i + 1)}
+                                                    >
+                                                        {i + 1}
+                                                    </Pagination.Item>
+                                                ))}
+                                                <Pagination.Next
+                                                    onClick={() => paginar(paginaActual + 1)}
+                                                    disabled={paginaActual === totalPaginas}
+
+                                                />
+                                                <Pagination.Last
+                                                    onClick={() => paginar(totalPaginas)}
+                                                    disabled={paginaActual === totalPaginas}
+
+                                                />
+                                            </Pagination>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                                        <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                            No hay resultados para mostrar.
+                                        </p>
+                                    </div>
+                                )}
+                            </>
                         )}
-                        {/* Paginador */}
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First
-                                    onClick={() => paginar(1)}
-                                    disabled={paginaActual === 1}
 
-                                />
-                                <Pagination.Prev
-                                    onClick={() => paginar(paginaActual - 1)}
-                                    disabled={paginaActual === 1}
-                                />
-
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next
-                                    onClick={() => paginar(paginaActual + 1)}
-                                    disabled={paginaActual === totalPaginas}
-
-                                />
-                                <Pagination.Last
-                                    onClick={() => paginar(totalPaginas)}
-                                    disabled={paginaActual === totalPaginas}
-
-                                />
-                            </Pagination>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -61,7 +61,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
+  const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
@@ -286,7 +286,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        setModalMostrarResumen(true);
+        setMostrarModalResumen(true);
       }
     });
   };
@@ -476,126 +476,128 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                   </>
                 )}
               </Row>
-              {listaAltas.length > 0 ? (
+
+              {/* Tabla*/}
+              {loading ? (
                 <>
-                  {/* Tabla*/}
-                  {loading ? (
-                    <>
-                      <SkeletonLoader rowCount={elementosPorPagina} />
-                    </>
-                  ) : (
-                    <div className='table-responsive'>
-                      <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                          <tr>
-                            <th style={{
-                              position: 'sticky',
-                              left: 0
-                            }}>
-                              <Form.Check
-                                type="checkbox"
-                                onChange={handleSeleccionaTodos}
-                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                              />
-                            </th>
-                            <th scope="col" className="text-nowrap">N° Inventario</th>
-                            <th scope="col" className="text-nowrap">Servicio</th>
-                            <th scope="col" className="text-nowrap">Dependencia</th>
-                            <th scope="col" className="text-nowrap">Fecha Ingreso</th>
-                            <th scope="col" className="text-nowrap">Especie</th>
-                            <th scope="col" className="text-nowrap">N° Cuenta</th>
-                            <th scope="col" className="text-nowrap">Marca</th>
-                            <th scope="col" className="text-nowrap">Modelo</th>
-                            <th scope="col" className="text-nowrap">Serie</th>
-                            <th scope="col" className="text-nowrap">Estado</th>
-                            <th scope="col" className="text-nowrap">Precio</th>
-                            <th scope="col" className="text-nowrap">N° Recepcion</th>
-                            {/* <th scope="col">Acción</th> */}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {elementosActuales.map((Lista, index) => {
-                            const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                            return (
-                              <tr key={indexReal}>
-                                <td style={{
-                                  position: 'sticky',
-                                  left: 0
-                                }}>
-                                  <Form.Check
-                                    type="checkbox"
-                                    onChange={() => setSeleccionaFilas(index)}
-                                    checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
-                                  />
-                                </td>
-
-                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                <td className="text-nowrap">{Lista.serv}</td>
-                                <td className="text-nowrap">{Lista.dep}</td>
-                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                                <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                <td className="text-nowrap">{Lista.ctA_COD}</td>
-                                <td className="text-nowrap">{Lista.deT_MARCA}</td>
-                                <td className="text-nowrap">{Lista.deT_MODELO}</td>
-                                <td className="text-nowrap">{Lista.deT_SERIE}</td>
-                                <td className="text-nowrap">{Lista.estado}</td>
-                                <td className="text-nowrap">
-                                  ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                </td>
-                                <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                  {/* Paginador */}
-                  <div className="paginador-container position-relative z-0">
-                    <Pagination className="paginador-scroll">
-                      <Pagination.First
-                        onClick={() => paginar(1)}
-                        disabled={paginaActual === 1}
-                      />
-                      <Pagination.Prev
-                        onClick={() => paginar(paginaActual - 1)}
-                        disabled={paginaActual === 1}
-                      />
-
-                      {Array.from({ length: totalPaginas }, (_, i) => (
-                        <Pagination.Item
-                          key={i + 1}
-                          active={i + 1 === paginaActual}
-                          onClick={() => paginar(i + 1)}
-                        >
-                          {i + 1}
-                        </Pagination.Item>
-                      ))}
-                      <Pagination.Next
-                        onClick={() => paginar(paginaActual + 1)}
-                        disabled={paginaActual === totalPaginas}
-                      />
-                      <Pagination.Last
-                        onClick={() => paginar(totalPaginas)}
-                        disabled={paginaActual === totalPaginas}
-                      />
-                    </Pagination>
-                  </div >
+                  <SkeletonLoader rowCount={elementosPorPagina} />
                 </>
               ) : (
                 <>
-                  <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
-                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      No hay resultados para mostrar.
-                    </p>
-                  </div>
+                  {listaAltas.length > 0 ? (
+                    <>
+                      <div className='table-responsive'>
+                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                          <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                            <tr>
+                              <th style={{
+                                position: 'sticky',
+                                left: 0
+                              }}>
+                                <Form.Check
+                                  type="checkbox"
+                                  onChange={handleSeleccionaTodos}
+                                  checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                                />
+                              </th>
+                              <th scope="col" className="text-nowrap">N° Inventario</th>
+                              <th scope="col" className="text-nowrap">Servicio</th>
+                              <th scope="col" className="text-nowrap">Dependencia</th>
+                              <th scope="col" className="text-nowrap">Fecha Ingreso</th>
+                              <th scope="col" className="text-nowrap">Especie</th>
+                              <th scope="col" className="text-nowrap">N° Cuenta</th>
+                              <th scope="col" className="text-nowrap">Marca</th>
+                              <th scope="col" className="text-nowrap">Modelo</th>
+                              <th scope="col" className="text-nowrap">Serie</th>
+                              <th scope="col" className="text-nowrap">Estado</th>
+                              <th scope="col" className="text-nowrap">Precio</th>
+                              <th scope="col" className="text-nowrap">N° Recepcion</th>
+                              {/* <th scope="col">Acción</th> */}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {elementosActuales.map((Lista, index) => {
+                              const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                              return (
+                                <tr key={indexReal}>
+                                  <td style={{
+                                    position: 'sticky',
+                                    left: 0
+                                  }}>
+                                    <Form.Check
+                                      type="checkbox"
+                                      onChange={() => setSeleccionaFilas(index)}
+                                      checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
+                                    />
+                                  </td>
+
+                                  <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                  <td className="text-nowrap">{Lista.serv}</td>
+                                  <td className="text-nowrap">{Lista.dep}</td>
+                                  <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                  <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                  <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                  <td className="text-nowrap">{Lista.deT_MARCA}</td>
+                                  <td className="text-nowrap">{Lista.deT_MODELO}</td>
+                                  <td className="text-nowrap">{Lista.deT_SERIE}</td>
+                                  <td className="text-nowrap">{Lista.estado}</td>
+                                  <td className="text-nowrap">
+                                    ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                  </td>
+                                  <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      {/* Paginador */}
+                      <div className="paginador-container position-relative z-0">
+                        <Pagination className="paginador-scroll">
+                          <Pagination.First
+                            onClick={() => paginar(1)}
+                            disabled={paginaActual === 1}
+                          />
+                          <Pagination.Prev
+                            onClick={() => paginar(paginaActual - 1)}
+                            disabled={paginaActual === 1}
+                          />
+
+                          {Array.from({ length: totalPaginas }, (_, i) => (
+                            <Pagination.Item
+                              key={i + 1}
+                              active={i + 1 === paginaActual}
+                              onClick={() => paginar(i + 1)}
+                            >
+                              {i + 1}
+                            </Pagination.Item>
+                          ))}
+                          <Pagination.Next
+                            onClick={() => paginar(paginaActual + 1)}
+                            disabled={paginaActual === totalPaginas}
+                          />
+                          <Pagination.Last
+                            onClick={() => paginar(totalPaginas)}
+                            disabled={paginaActual === totalPaginas}
+                          />
+                        </Pagination>
+                      </div >
+                    </>
+                  ) : (
+                    <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                      <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        No hay resultados para mostrar.
+                      </p>
+                    </div>
+                  )}
                 </>
               )}
+
             </div >
           </form >
         </div>
       </div>
-      <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="lg">
+      <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="lg">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Inventario asociado a Nº de Alta</Modal.Title>
         </Modal.Header>

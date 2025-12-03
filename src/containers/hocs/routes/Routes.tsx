@@ -21,7 +21,6 @@ import FormInventario from '../../../components/Inventario/RegistrarInventario/F
 import AnularAltas from '../../../components/Altas/AnularAltas';
 import RegistrarAltas from '../../../components/Altas/RegistrarAltas';
 import Error404 from '../../errors/Error404';
-import FormBienesFuncionarios from '../../../components/Inventario/FormBienesFuncionarios';
 import BodegaExcluidos from '../../../components/Bajas/BodegaExcluidos';
 import RegistrarTraslados from '../../../components/Traslados/RegistrarTraslados';
 import FirmarAltas from '../../../components/Altas/FirmarAltas/FirmarAltas';
@@ -58,6 +57,9 @@ import AnularInventario from '../../../components/Inventario/AnularInventario';
 import LevantamientoFisico from '../../../components/Inventario/LevantamientoFisico';
 import Especies from '../../../components/Mantenedores/Especies';
 import ListadoTraspasos from '../../../components/Traspasos/ListadoTraspasos';
+import ListadoBienesFuncionarios from '../../../components/Inventario/BienesFuncionario/ListadoBienesFuncionarios';
+import RegistroBienesFuncionarios from '../../../components/Inventario/BienesFuncionario/RegistroBienesFuncionarios';
+
 // import useAnalytics from '../../../hooks/useAnalytics';
 
 const AnimatedRoutes: React.FC = () => {
@@ -84,7 +86,8 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Inventario/ModificarInventario" element={<ModificarInventario />} />
                 <Route path="/Inventario/AnularInventario" element={<AnularInventario />} />
                 <Route path="/Inventario/BuscarInventario" element={<BuscarInventario />} />
-                <Route path="/Inventario/FormBienesFuncionarios" element={<FormBienesFuncionarios />} />
+                <Route path="/Inventario/RegistroBienesFuncionarios" element={<RegistroBienesFuncionarios />} />
+                <Route path="/Inventario/ListadoBienesFuncionarios" element={<ListadoBienesFuncionarios />} />
                 <Route path="/Inventario/LevantamientoFisico" element={<LevantamientoFisico />} />
                 {/* <Route path="/Inventario/CargaMasiva" element={<CargaMasiva />} /> */}
                 {/* Fin Menu Inventario */}

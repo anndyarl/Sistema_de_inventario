@@ -28,11 +28,12 @@ import {
   setOtraModalidadActions,
   showInputActions,
   setOtroProveedorActions,
-  setInventarioRegistrado
+  setInventarioRegistrado,
+  setTipoInventarioActions
 } from "../../../redux/actions/Inventario/RegistrarInventario/datosRegistroInventarioActions";
 import { obtenerRecepcionActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerRecepcionActions";
 import { ActivoFijo } from "./DatosActivoFijo";
-import { Eraser, EraserFill, FiletypePdf } from "react-bootstrap-icons";
+import { Eraser, EraserFill, FiletypePdf, Info } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
 import { DEPENDENCIA } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
@@ -63,12 +64,13 @@ export interface InventarioProps {
   nOrdenCompra: string;
   nRecepcion: number;
   origenPresupuesto: number;
-  rutProveedor: string;
+  rutProveedor: number;
   usuarioCrea?: string;
   modalidadDeCompra: number;
   otraModalidad?: string;
   showInputReducer?: boolean;
   establecimiento?: number;
+  tipoInventario: string;
 }
 
 /*-----Se definen nuevas props para no tener conflictos------*/
@@ -156,6 +158,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   usuarioCrea,
   establecimiento,
   origenPresupuesto,
+  tipoInventario,
   /*-------Modalidad compra----*/
   modalidadDeCompra,
   otraModalidad,
@@ -181,9 +184,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     nOrdenCompra: "",
     nRecepcion: 0,
     origenPresupuesto: 0,
-    rutProveedor: "",
+    rutProveedor: 0,
     otraModalidad: "",
-    establecimiento: objeto.Roles[0].codigoEstablecimiento
+    establecimiento: objeto.Roles[0].codigoEstablecimiento,
+    tipoInventario: "1"
   });
 
   const dispatch = useDispatch<AppDispatch>();
@@ -195,19 +199,44 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
 
   const proveedorOptions = comboProveedor.map((item) => ({
-    value: item.proV_RUN.toString(),
+    value: item.proV_RUN,
     label: item.proV_NOMBRE,
   }));
 
-  const handleProveedorChange = (selectedOption: any) => {
-    const value = selectedOption ? selectedOption.value : "";
-    setInventario((prevInventario) => ({ ...prevInventario, rutProveedor: value }));
-    dispatch(setRutProveedorActions(value));
+  const handleProveedorChange = (selectedOption: { value: number; label: string } | null) => {
+    let value = selectedOption ? selectedOption.value : 0;
+    value = Number(value) || 0;
+
+    setInventario((prev) => ({
+      ...prev,
+      rutProveedor: value,
+    }));
+
+    dispatch(setRutProveedorActions(Number(value) || 0));
   };
 
   //Validaciones del formulario
   const validate = () => {
     let tempErrors: Partial<any> & {} = {};
+
+    // Validación para Bienes Funcionarios
+    if (Inventario.tipoInventario === "2") { // Inventario tpo 2 es Bienes de funcionario
+
+      // origenPresupuesto
+      if (!Inventario.origenPresupuesto) {
+        tempErrors.origenPresupuesto = "Campo obligatorio";
+      }
+
+      // montoRecepcion
+      if (!Inventario.montoRecepcion && Inventario.montoRecepcion === 0) {
+        tempErrors.montoRecepcion = "Campo obligatorio";
+      } else if (!/^\d+(\.\d{1,2})?$/.test(String(Inventario.montoRecepcion))) {
+        tempErrors.montoRecepcion = "Monto inválido (máx. 2 decimales)";
+      }
+
+      setError(tempErrors);
+      return Object.keys(tempErrors).length === 0;
+    }
     // Validación para N° de Recepción (debe ser un número)
     if (!Inventario.nRecepcion && Inventario.nRecepcion === 0) tempErrors.nRecepcion = "Campo obligatorio";
     if (!Inventario.fechaRecepcion) tempErrors.fechaRecepcion = "Campo obligatorio";
@@ -232,7 +261,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     const { name, value } = e.target;
 
     // Convierte `value` a número
-    let newValue: string | number = ["montoRecepcion", "nRecepcion"].includes(name)
+    let newValue: string | number = ["montoRecepcion", "nRecepcion", "rutProveedor"].includes(name)
       ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
       : value;
 
@@ -278,10 +307,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     else if (name === "otraModalidad") {
       dispatch(setOtraModalidadActions(newValue as string));
     }
+    else if (name === "rutProveedor") {
+      newValue = parseFloat(value) || 0;
+      dispatch(setRutProveedorActions(newValue as number));
+    }
     else if (name === "otroProveedor") {
       dispatch(setOtroProveedorActions(newValue as string));
     }
-
     if (name === "montoRecepcion" && datosTablaActivoFijo.length > 0) {
       if (!isMontoRecepcionEdited) {
         Swal.fire({
@@ -316,7 +348,29 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         return;
       }
     }
+    if (name === "tipoInventario") {
 
+      dispatch(setTipoInventarioActions(value));
+
+      if (value === "2") {
+        setInventario(prev => ({
+          ...prev,
+          tipoInventario: value,
+          origenPresupuesto: 6
+        }));
+        dispatch(setOrigenPresupuestoActions(6));
+      }
+      else {
+        setInventario(prev => ({
+          ...prev,
+          tipoInventario: value,
+          origenPresupuesto: 0
+        }));
+        dispatch(setOrigenPresupuestoActions(0));
+      }
+
+      return;
+    }
   };
 
   const mostrarAlerta = () => {
@@ -379,8 +433,10 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       origenPresupuesto,
       rutProveedor,
       usuarioCrea: objeto.IdCredencial.toString(),
-      establecimiento: objeto.Roles[0].codigoEstablecimiento
+      establecimiento: objeto.Roles[0].codigoEstablecimiento,
+      tipoInventario
     });
+
   }, [
     fechaFactura,
     fechaRecepcion,
@@ -468,7 +524,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             nRecepcion: 0,
             nombreProveedor: "",
             origenPresupuesto: 0,
-            rutProveedor: ""
+            rutProveedor: 0
           }));
           dispatch(setNRecepcionActions(0));
           dispatch(setFechaRecepcionActions(""));
@@ -477,7 +533,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           dispatch(setOrigenPresupuestoActions(0));
           dispatch(setMontoRecepcionActions(0));
           dispatch(setFechaFacturaActions(""));
-          dispatch(setRutProveedorActions(""));
+          dispatch(setRutProveedorActions(0));
           dispatch(setModalidadCompraActions(0));
           dispatch(setModalidadCompraActions(0));
           dispatch(setServicioActions(0));
@@ -495,11 +551,14 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   //En el componente DatosActivoFijo se encuentra el post del fomrulario completo
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (validate()) {
       dispatch(setMontoRecepcionActions(Inventario.montoRecepcion));
       onNext(Inventario);
     }
   };
+
+
 
   const handleExportPDF = () => {
     const input: any = document.getElementById("pdf-content");
@@ -521,7 +580,37 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           <h3 className="form-title fw-semibold border-bottom p-1">
             Registrar Inventario
           </h3>
-          <p className="p-1 fw-semibold">* Campos obligatorios</p>
+          {objeto.Roles[0].codigoEstablecimiento === 1 && (
+            <div className="mb-4">
+              <label
+                htmlFor="tipoInventario"
+                className="fw-bold mb-1 text-secondary"
+              >
+                Tipo de Inventario
+              </label>
+
+              <select
+                id="tipoInventario"
+                name="tipoInventario"
+                value={tipoInventario}
+                onChange={handleChange}
+                className={`form-select form-select-sm rounded-pill px-3 shadow-sm 
+    ${isDarkMode ? "bg-dark text-light border-light" : "bg-white border-secondary"}`}
+                style={{
+                  width: "260px",
+                  fontWeight: 600,
+                  borderWidth: "2px",
+                }}
+              >
+                <option value="1" selected>General</option>
+                <option value="2">Bienes de Funcionarios</option>
+              </select>
+
+            </div >
+          )}
+
+
+
           <Row>
             <Col md={4}>
               {/* Nº Recepción */}
@@ -674,6 +763,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                       {traeOrigen.descripcion}
                     </option>
                   ))}
+
                 </select>
                 {error.origenPresupuesto && (
                   <div className="invalid-feedback fw-semibold">{error.origenPresupuesto}</div>
@@ -728,35 +818,52 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                   options={proveedorOptions}
                   onChange={handleProveedorChange}
                   name="rutProveedor"
-                  value={proveedorOptions.find((option) => option.value === Inventario.rutProveedor) || null}
+                  value={
+                    Inventario.rutProveedor && Inventario.rutProveedor !== 0
+                      ? proveedorOptions.find((option) => option.value === Inventario.rutProveedor)
+                      : null
+                  }
                   placeholder="Buscar"
-                  className={`form-select-container ${error.rutProveedor ? "is-invalid border border-danger rounded" : ""}`}
-                  classNamePrefix={`react-select`}
                   isClearable
                   isSearchable
+                  className={`form-select-container ${error.rutProveedor ? "is-invalid border border-danger rounded" : ""}`}
+                  classNamePrefix="react-select"
                   styles={{
-                    control: (baseStyles) => ({
-                      ...baseStyles,
-                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                      color: isDarkMode ? "white" : "#212529", // Texto blanco
-                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                    control: (base) => ({
+                      ...base,
+                      backgroundColor: isDarkMode ? "#212529" : "white",
+                      color: isDarkMode ? "white" : "#212529",
+                      borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
                     }),
                     singleValue: (base) => ({
                       ...base,
-                      color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                      color: isDarkMode ? "white" : "#212529",
                     }),
                     menu: (base) => ({
                       ...base,
-                      backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                      backgroundColor: isDarkMode ? "#212529" : "white",
                       color: isDarkMode ? "white" : "#212529",
                     }),
                     option: (base, { isFocused, isSelected }) => ({
                       ...base,
-                      backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                      color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                      backgroundColor: isSelected
+                        ? "#6c757d"
+                        : isFocused
+                          ? "#6c757d"
+                          : isDarkMode
+                            ? "#212529"
+                            : "white",
+                      color: isSelected
+                        ? "white"
+                        : isFocused
+                          ? "white"
+                          : isDarkMode
+                            ? "white"
+                            : "#212529",
                     }),
                   }}
                 />
+
 
                 {error.rutProveedor && (
                   <div className="invalid-feedback fw-semibold">{error.rutProveedor}</div>
@@ -811,11 +918,14 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               )}
             </Col>
           </Row>
+
           <div className="rounded d-flex justify-content-end m-2">
+
             <button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
               Siguiente
             </button>
           </div>
+          <p className="fw-semibold"><Info width={22} height={22} aria-hidden="true" /> Campos obligatorios *</p>
         </div>
       </form>
       <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="xl">
@@ -996,6 +1106,7 @@ const mapStateToProps = (state: RootState) => ({
   nOrdenCompra: state.obtenerRecepcionReducers.nOrdenCompra,
   nRecepcion: state.obtenerRecepcionReducers.nRecepcion,
   origenPresupuesto: state.obtenerRecepcionReducers.origenPresupuesto,
+  tipoInventario: state.obtenerRecepcionReducers.tipoInventario,
   /*--------------Modalidad Compra--------------*/
   modalidadDeCompra: state.obtenerRecepcionReducers.modalidadDeCompra,
   otraModalidad: state.obtenerRecepcionReducers.otraModalidad,

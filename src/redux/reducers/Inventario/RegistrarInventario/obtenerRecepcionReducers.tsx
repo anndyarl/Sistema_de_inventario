@@ -19,6 +19,7 @@ interface obtenerRecepcionState {
     origenPresupuesto: number;
     montoRecepcion: number;
     fechaFactura: string;
+    tipoInventario: string;
 
     /*----------Modalidad Compra-----------*/
     modalidadDeCompra: number;
@@ -26,7 +27,7 @@ interface obtenerRecepcionState {
     showInput: boolean;
     /*----------Fin Modalidad Compra-----------*/
     /*----------Proveedor-----------*/
-    rutProveedor: string;
+    rutProveedor: number;
     otroProveedor: string;
     showInputProveedor: boolean;
     /*----------Fin Proveedor-----------*/
@@ -44,13 +45,14 @@ const initialState: obtenerRecepcionState = {
     origenPresupuesto: 0,
     montoRecepcion: 0,
     fechaFactura: '',
+    tipoInventario: '',
     /*----------Modalidad Compra-----------*/
     modalidadDeCompra: 0,
     otraModalidad: '',
     showInput: false,
     /*----------Fin Modalidad Compra-----------*/
     /*----------Proveedor-----------*/
-    rutProveedor: '',
+    rutProveedor: 0,
     otroProveedor: '',
     showInputProveedor: false
     /*----------Fin Proveedor-----------*/
@@ -76,6 +78,9 @@ const obtenerRecepcionReducers = (state = initialState, action: any): obtenerRec
             return { ...state, montoRecepcion: action.payload };
         case 'SET_FECHA_FACTURA':
             return { ...state, fechaFactura: action.payload };
+
+        case 'SET_TIPO_INVENTARIO':
+            return { ...state, tipoInventario: action.payload };
         /*----------Modalidad Compra-----------*/
         case 'SET_MODALIDAD_COMPRA':
             return { ...state, modalidadDeCompra: action.payload };
@@ -87,7 +92,7 @@ const obtenerRecepcionReducers = (state = initialState, action: any): obtenerRec
 
         /*----------Proveedor-----------*/
         case 'SET_RUT_PROVEEDOR':
-            return { ...state, rutProveedor: action.payload };
+            return { ...state, rutProveedor: action.payload || 0 };
         case 'SET_OTRO_PROVEEDOR':
             return { ...state, otroProveedor: action.payload };
         case 'SET_MOSTRAR_PROVEEDOR':
@@ -112,7 +117,7 @@ const obtenerRecepcionReducers = (state = initialState, action: any): obtenerRec
                 origenPresupuesto: action.payload.origen,
                 montoRecepcion: action.payload.montoRecepcion,
                 fechaFactura: action.payload.fechaFactura,
-                rutProveedor: action.payload.rutProveedor,
+                rutProveedor: action.payload ? action.payload : 0,
                 modalidadDeCompra: action.payload.modalidadDeCompra
             };
         case RECEPCION_FAIL:

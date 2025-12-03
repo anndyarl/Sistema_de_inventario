@@ -39,6 +39,7 @@ export interface ListaActivosFijos {
     itE_CLAVE: number;
     aF_DESCRIPCION: string;
     aF_FINGRESO: string;
+    fechA_ALTA: string;
     // aF_ESTADO: string;
     aF_CODIGO: string;
     aF_TIPO: string;
@@ -87,6 +88,8 @@ export interface ListaActivosFijos {
     depreciacionPorMes?: number;
     depreciacionAcumuladaActualizada?: number;
     valorResidual?: number;
+    depreciacioN_ACUMULADA_SIGFE: number;
+    depreciacioN_SIGFE: number;
 }
 interface ComboCuentas {
     codigo: string;
@@ -114,6 +117,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const [mostrarModalCalcular, setMostrarModalCalcular] = useState(false);
     const [loadingBuscar, setLoadingBuscar] = useState(false); // Estado para controlar la carga 
     const [loading, setLoading] = useState(false);
+    const [loadingBuscarCasr, setloadingBuscarCasr] = useState(false);
     const [loadingExportar, setLoadingExportar] = useState(false);
     const [_, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -264,8 +268,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     };
 
     const handleBuscarCasr = async () => {
-        setLoadingBuscar(true);
-        // Limpiar los activos seleccionados antes de enviar los nuevos datos
+        setloadingBuscarCasr(true);
 
         // Llama al backend
         const resultado = await listaActivosCasrActions(
@@ -293,10 +296,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             paginar(1);
         }
 
-        setLoadingBuscar(false);
+        setloadingBuscarCasr(false);
     };
-
-
 
     const handleLimpiar = () => {
         setInventario((prevInventario) => ({
@@ -327,6 +328,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             itE_CLAVE: item.itE_CLAVE,
             aF_DESCRIPCION: item.aF_DESCRIPCION,
             aF_FINGRESO: item.aF_FINGRESO,
+            fechA_ALTA: item.fechA_ALTA,
             aF_CODIGO: item.aF_CODIGO,
             aF_TIPO: item.aF_TIPO,
             aF_ALTA: item.aF_ALTA,
@@ -397,6 +399,13 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         }, 50); //se ajusta este tiempo para que cargue de inmediato
     };
 
+    const handleCerrarModal = () => {
+        setTotalRes(0);
+        setTotalDep(0);
+        setTotalDepAnual(0);
+        setMostrarModalCalcular(false);
+    };
+
 
     // const setSeleccionaFilas = (index: number) => {
     //     setFilasSeleccionadas((prev) =>
@@ -406,18 +415,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     //     );
     // };
 
-    // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     if (e.target.checked) {
-    //         setFilasSeleccionadas(
-    //             elementosActuales.map((_, index) =>
-    //                 (indicePrimerElemento + index).toString()
-    //             )
-    //         );
-    //         // console.log("filas Seleccionadas ", filasSeleccionadas);
-    //     } else {
-    //         setFilasSeleccionadas([]);
-    //     }
-    // };
 
     //------------------------------Tabla Principal(Activos Fijos)--------------------------------------//
 
@@ -447,20 +444,31 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         ? Math.ceil(listaActivosCalculados.length / elementosPorPagina2)
         : 0;
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
+    const [totalRes, setTotalRes] = useState(0);
+    const [totalDep, setTotalDep] = useState(0);
+    const [totalDepAnual, setTotalDepAnual] = useState(0);
 
-    // Calcula el total del valor residual de la tabla
-    const totalRes = useMemo(() => {
-        return listaActivosCalculados.reduce((sum, activo) => sum + (activo.valorResidual ?? 0), 0);
-    }, [listaActivosCalculados]);
+    useEffect(() => {
+        // Calcula el total del valor residual de la tabla
+        const sumaResidual = listaActivosCalculados.reduce(
+            (sum, activo) => sum + (activo.valorResidual ?? 0),
+            0
+        );
+        // Calcula el total de la depreciación de la tabla
+        const sumaDep = listaActivosCalculados.reduce(
+            (sum, activo) => sum + (activo.depreciacionAcumuladaActualizada ?? 0),
+            0
+        );
+        // Calcula el total de la depreciación de la tabla
+        const sumaDepAnual = listaActivosCalculados.reduce(
+            (sum, activo) => sum + (activo.depreciacionPorAno ?? 0),
+            0
+        );
 
-    // Calcula el total de la depreciación de la tabla
-    const totalDep = useMemo(() => {
-        return listaActivosCalculados.reduce((sum, activo) => sum + (activo.depreciacionAcumuladaActualizada ?? 0), 0);
-    }, [listaActivosCalculados]);
+        setTotalRes(sumaResidual);
+        setTotalDep(sumaDep);
+        setTotalDepAnual(sumaDepAnual);
 
-    // Calcula el total de la depreciación de la tabla
-    const totalDepAnual = useMemo(() => {
-        return listaActivosCalculados.reduce((sum, activo) => sum + (activo.depreciacionPorAno ?? 0), 0);
     }, [listaActivosCalculados]);
 
 
@@ -493,7 +501,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 "Modelo",
                 "Serie",
                 "Descripción",
-                "Fecha Ingreso",
+                "Fecha Alta",
                 "Tipo",
                 "Alta",
                 "Valor Inicial",
@@ -518,7 +526,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 "Depreciación Mensual",
                 "Depreciación Anual",
                 "Depreciación Acumulada",
-                "Valor Residual"
+                "Valor Residual",
+                // "Depreciación SIGFE",
+                // "Depreciación Acumulada SIGFE"
+
             ]
         ];
 
@@ -531,7 +542,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             item.modelo ?? "",
             item.serie ?? "",
             item.aF_DESCRIPCION ?? "",
-            item.aF_FINGRESO ?? "",
+            // item.aF_FINGRESO ?? "",
+            item.fechA_ALTA ?? "",
+            // item.alt
             item.aF_TIPO ?? "",
             item.aF_ALTA ?? "",
             item.aF_PRECIO_REF?.toString() ?? "",
@@ -557,8 +570,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             item.depreciacionPorAno ?? "",
             item.depreciacionAcumuladaActualizada ?? "",
             item.valorResidual ?? "",
-
-
+            // item.depreciacioN_SIGFE ?? "",
+            // item.depreciacioN_ACUMULADA_SIGFE ?? ""
         ]);
 
         // Crear hoja de cálculo
@@ -933,7 +946,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             className="w-100"
                                         // disabled={loading}
                                         >
-                                            {loadingBuscar ? (
+                                            {loadingBuscarCasr ? (
                                                 <>
                                                     Buscar Crowe
                                                     <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
@@ -978,7 +991,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             {/* Botón Calcular */}
                             <Col xs={12} lg={2}>
                                 <div className="d-flex justify-content-center justify-content-lg-end">
-                                    {listaActivosFijos[0]?.ctA_COD != "5320906" && listaActivosFijos[0]?.ctA_COD != "5320413" && listaActivosFijos.length > 0 && (
+                                    {listaActivosFijos[0]?.ctA_COD != "5320906" && listaActivosFijos[0]?.ctA_COD != "5320413" && listaActivosFijos[0]?.ctA_COD !== "5321001" && listaActivosFijos.length > 0 ? (
                                         <Button
                                             variant={`${isDarkMode ? "secondary" : "primary"}`}
                                             onClick={handleCalcular}
@@ -1007,7 +1020,39 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                 </>
                                             )}
                                         </Button>
-                                    )}
+                                    ) :
+                                        (
+                                            <>
+                                                {/* Botón Exportar Calculados */}
+                                                {listaActivosFijos.length > 0 && (
+
+                                                    <Button
+                                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                        onClick={handleAbrirModalCalcular}
+                                                        disabled={listaActivosFijos.length === 0 || loadingExportar}
+                                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                                    >
+                                                        {loadingExportar ? (
+                                                            <>
+                                                                Un Momento...
+                                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <FiletypePdf
+                                                                    className="flex-shrink-0 h-5 w-5 mx-2"
+                                                                    aria-hidden="true"
+                                                                />
+                                                                Exportar
+                                                                <span className="badge bg-light text-dark mx-1 mt-1">
+                                                                    {listaActivosFijos.length}
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                )}
+                                            </>
+                                        )}
                                 </div>
                             </Col>
                         </Row>
@@ -1061,7 +1106,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <th scope="col" className="text-nowrap text-center">Serie</th>
                                                     <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
                                                     <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                                    <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                                    <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
                                                     {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                                                     {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
                                                     <th scope="col" className="text-nowrap text-center">Tipo</th>
@@ -1135,7 +1180,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                                 ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
                                                             <td className="text-nowrap">{Lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : Lista.aF_DESCRIPCION}</td>
-                                                            <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                                            {/* <td className="text-nowrap">{Lista.aF_FINGRESO}</td> */}
+                                                            <td className="text-nowrap">{Lista.fechA_ALTA}</td>
                                                             {/* <td className="text-nowrap text-center">{Lista.aF_ESTADO}</td> */}
                                                             {/* <td className="text-nowrap">{Lista.aF_CODIGO}</td> */}
                                                             <td className="text-nowrap">{Lista.aF_TIPO}</td>
@@ -1227,7 +1273,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             {/* Modal Activos Calculados */}
             {
                 listaActivosCalculados.length > 0 && (
-                    < Modal show={mostrarModalCalcular} onHide={() => setMostrarModalCalcular(false)}
+                    < Modal show={mostrarModalCalcular} onHide={handleCerrarModal}
                         dialogClassName="draggable-modal"
                         // scrollable={false}
                         // backdrop="static" // Evita que se cierre al hacer clic afuera
@@ -1388,7 +1434,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         <th scope="col" className="text-nowrap text-center">Serie</th>
                                                         <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
                                                         <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                                        <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                                        <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
                                                         {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
                                                         {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
                                                         <th scope="col" className="text-nowrap text-center">Tipo</th>
@@ -1427,6 +1473,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
                                                         <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
                                                         <th scope="col" className="text-nowrap text-center">Depreciación Mensual</th>
+                                                        {/* <th scope="col" className="text-nowrap text-center">Depreciación Sigfe </th> */}
+                                                        {/* <th scope="col" className="text-nowrap text-center">Depreciación Acumulada Sigfe</th> */}
                                                         <td
                                                             scope="col"
                                                             className="text-nowrap text-center bg-primary text-white sticky-col-right-2 rounded-top">
@@ -1466,7 +1514,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                                 ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
                                                             <td className="text-nowrap text-center">{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</td>
-                                                            <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
+                                                            {/* <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td> */}
+                                                            <td className="text-nowrap text-center">{lista.fechA_ALTA}</td>
                                                             {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
                                                             {/* <td className="text-nowrap text-center">{lista.aF_CODIGO}</td> */}
                                                             <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
@@ -1507,6 +1556,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                             <td className="text-nowrap text-center">{lista.vidaUtil}</td>
                                                             <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
                                                             <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
+
                                                             <td className="text-nowrap text-center">
                                                                 ${(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
@@ -1514,7 +1564,13 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                             <td className="text-nowrap text-center">
                                                                 ${(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
+                                                            {/* <td className="text-nowrap text-center"> */}
+                                                            {/* ${(lista.depreciacioN_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })} */}
 
+                                                            {/* </td> */}
+                                                            {/* <td className="text-nowrap text-center"> */}
+                                                            {/* ${(lista.depreciacioN_ACUMULADA_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })} */}
+                                                            {/* </td> */}
                                                             <td className="text-nowrap text-center fw-bold sticky-col-right-2" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
@@ -1539,6 +1595,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         </tr>
                                                     )}
                                                 </tbody>
+
                                             </table>
                                         </div>
                                     </div>
@@ -1615,7 +1672,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
                                         <th scope="col" className="text-nowrap text-center">Descripción</th>
                                         <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                                        <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
+                                        <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
                                         <th scope="col" className="text-nowrap text-center">N° Orden de compra</th>
                                         <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
                                         <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
@@ -1647,7 +1704,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             </td>
                                             <td className="text-nowrap">{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</td>
                                             <td className={`text-nowrap text-center ${isDarkMode ? "bg-warning" : "bg-warning-subtle"}`}>{lista.vidaUtil}</td>
-                                            <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td>
+                                            {/* <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td> */}
+                                            <td className="text-nowrap text-center">{lista.fechA_ALTA}</td>
                                             <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
                                             <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
                                             <td className="text-nowrap text-center">{lista.f_CREA}</td>
@@ -1713,7 +1771,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                     <BlobProvider
                         document={
                             <DocumentoPDF
-                                row={listaActivosCalculados}
+                                row={listaActivosFijos.length > 0 ? listaActivosFijos : listaActivosCalculados}
                                 totalRes={totalRes}
                                 totalDep={totalDep}
                             />
@@ -1733,7 +1791,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <>
                                     <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
-                                            onClick={() => exportarExcel(listaActivosCalculados)}
+                                            onClick={() => exportarExcel(listaActivosFijos.length > 0 ? listaActivosFijos : listaActivosCalculados)}
                                             variant="success"
                                         >
                                             Descargar Excel

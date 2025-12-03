@@ -4,7 +4,7 @@ import {
   POST_FORMULARIO_TRASPASO_REQUEST,
   POST_FORMULARIO_TRASPASO_SUCCESS,
   POST_FORMULARIO_TRASPASO_FAIL
-} from '../../actions/Trapasos/types';
+} from '../../actions/Traspasos/types';
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
@@ -26,7 +26,10 @@ const datosTraspasoRegistradoReducers = (state = initialState, action: any) => {
         listaSalidaTraspasos: action.payload,
       };
     case POST_FORMULARIO_TRASPASO_FAIL:
-      return { ...state, loading: false, error: action.error };
+      return {
+        ...state, loading: false,
+        error: action.error
+      };
     default:
       return state;
   }

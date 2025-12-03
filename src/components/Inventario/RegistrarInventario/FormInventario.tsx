@@ -159,6 +159,10 @@ const FormInventario: React.FC<FormInventarioProps> = ({
       comboSoloxCuentaActions(8); // Arriendo    
       setCodOrigenSeleccionado(codOrigen);
     }
+    if (codOrigen === 6) {
+      comboSoloxCuentaActions(9); // Bienes funcionarios   
+      setCodOrigenSeleccionado(codOrigen);
+    }
   };
 
   // Función para manejar la selección de la especie en el componente `DatosCuenta`
@@ -166,6 +170,9 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     setEspecieSeleccionado(nombreEspecie);
     if (codOrigenSeleccionado !== 3 && codOrigenSeleccionado !== 4) {
       comboCuentaxEspecieActions(nombreEspecie); // Minsal, Propio, Donacion   
+    }
+    if (codOrigenSeleccionado === 9) {
+      comboCuentaxEspecieActions(nombreEspecie);
     }
   };
 
@@ -258,7 +265,9 @@ const FormInventario: React.FC<FormInventarioProps> = ({
           )}
         </div>
       </div>
+
     </Layout>
+
   );
 };
 

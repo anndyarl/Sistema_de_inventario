@@ -32,6 +32,7 @@ import { comboEspeciesBienActions } from "../../../redux/actions/Inventario/Comb
 import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboCuentaModificarActions } from "../../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
 import { comboSerDepActions } from "../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 export interface ListaEstadoFirmas {
     idocumento: number;
     altaS_CORR: number;
@@ -96,6 +97,7 @@ interface DatosBajas {
     comboDetalleActions: (bienSeleccionado: string) => void;
     comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
     comboSerDepActions: (establ_corr: number) => void;
+    anularInventarioActions: (aF_CLAVE: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -106,7 +108,7 @@ interface DatosBajas {
 
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, comboCuentaModificarActions, comboSerDepActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, comboCuenta, comboSerDep, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, comboCuentaModificarActions, comboSerDepActions, anularInventarioActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, comboCuenta, comboSerDep, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
@@ -162,7 +164,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [nombreTitularRFisico, setNombreTitularRFisico] = useState<string>("");
     const [nombreSubRFisico, setNombreSubRFisico] = useState<string>("");
 
-    const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [filasSeleccionadas, setFilasSeleccionadas] = useState<number[]>([]);
     const [elementoSeleccionado, setElementoSeleccionado] = useState<ListaEspecie>();
     const [mostrarModalEspecie, setMostrarModalEspecie] = useState(false);
     const [loadingEspecie, setLoadingEspecie] = useState(false);
@@ -942,6 +944,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setLoadingModificar(false); //para la carga de Skeletor
     };
 
+    const handleCerrarModalModificar = () => {
+        setMostrarModalModificar(false);
+        setFilasSeleccionadas([]);
+    };
+
     const handleModificarSubmit = async () => {
 
         let mensajeHtml = "";
@@ -1309,7 +1316,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     //Selecciona fila del listado de especies
     const handleSeleccionFila = (index: number) => {
         const item = listaEspecie[index];
-        setFilasSeleccionadas([index.toString()]);
+        setFilasSeleccionadas([index]);
         setElementoSeleccionado(item);
     };
 
@@ -1355,24 +1362,112 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setLoadingEspecie(false);
     };
 
+    const handleAnular = async () => {
+        const seleccionados = InventarioModificar.filter(item =>
+            filasSeleccionadas.includes(item.aF_CLAVE)
+        );
+        let mensajeHtml = "";
+        if (InventarioModificar[0]?.estadO_FIRMA === 0 || InventarioModificar[0]?.estadO_FIRMA === 1) {
+            mensajeHtml = `Al anular el documento <b>Nº ${InventarioModificar[0]?.idocumento}</b>, este será <b>rechazado de forma automática</b>. Posteriormente, deberá reiniciar el proceso de visado correspondiente manteniendo el número de alta <b>Nº ${InventarioModificar[0]?.altaS_CORR}</b>.`;
+        } else {
+            mensajeHtml = `Confirme para anular su documento actualmente rechazado.`;
+        }
+        const result = await Swal.fire({
+            icon: "info",
+            title: "Anular Registro",
+            html: mensajeHtml,
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Confirmar y Anular",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            customClass: {
+                popup: "custom-border", // Clase personalizada para el borde
+            }
+        });
+
+        if (result.isConfirmed) {
+            //Aplica la misma logica que al modificar, en este caso si va a anular un documento este antes rechazará el documento
+            if (InventarioModificar[0]?.estadO_FIRMA === 0 || InventarioModificar[0]?.estadO_FIRMA === 1) {
+                const resultadoRechazar = await rechazarAltaActions(InventarioModificar[0]?.idocumento);
+                if (resultadoRechazar) {
+                    setEstadoRechazado(true);
+                }
+            }
+            const FormularioBajas = seleccionados.map(item => ({
+                aF_CLAVE: item.aF_CLAVE,
+                altaS_CORR: item.altaS_CORR,
+            }));
+
+            try {
+                // Anular todos en serie
+                for (const i of FormularioBajas) {
+                    await anularInventarioActions(i.aF_CLAVE);
+                    listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, i.altaS_CORR, "");
+                    setFilasSeleccionadas([]);
+                    setHabilitarVisado(false);
+                    handleRefrescar();
+                }
+                Swal.fire({
+                    icon: "success",
+                    title: "Registros anulados",
+                    text: `Se han anulado ${FormularioBajas.length} registro(s).`,
+                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                    customClass: { popup: "custom-border" }
+                });
+
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Ocurrió un problema al anular uno o más registros.",
+                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                    customClass: { popup: "custom-border" }
+                });
+            }
+        };
+
+    };
+
+    const setSeleccionaFilas = (item: any) => {
+        const clave = item.aF_CLAVE;
+
+        setFilasSeleccionadas((prev) =>
+            prev.includes(clave)
+                ? prev.filter((id) => id !== clave)
+                : [...prev, clave]
+        );
+    };
+
+    const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setFilasSeleccionadas(
+                elementosActualesModificar.map(item => item.aF_CLAVE)
+            );
+        } else {
+            setFilasSeleccionadas([]);
+        }
+    };
 
     {/*---------------------- Fin Logica Especies--------------------*/ }
     const totalSum = useMemo(() => {
         return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.deT_PRECIO), 0);
     }, [filasSeleccionadasPDF]);
 
+    const firmaInventarioSeleccionada = (() => {
+        return AltaInventario.titularInventario || AltaInventario.subroganteInventario;
+    })();
+
     const firmaFinanzasSeleccionada = (() => {
-        if (!AltaInventario.chkFinanzas) return true;
-        if (!AltaInventario.chkAbastecimiento) return true;
-        return (
-            (AltaInventario.titularInventario || AltaInventario.subroganteInventario) &&
-            (AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas) &&
-            (AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento)
-        );
+        return (AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas);
     })();
 
     const firmaUnidadSeleccionada = (() => {
-        if (!AltaInventario.chkUnidad) return true;
 
         switch (Unidad) {
             case 3:
@@ -1391,7 +1486,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     })();
 
     // BOTÓN SE HABILITA SOLO CUANDO TODOS LOS CHEQUEADOS SE CUMPLEN
-    const botonHabilitado = (AltaInventario.chkFinanzas || AltaInventario.chkUnidad) && firmaFinanzasSeleccionada && firmaUnidadSeleccionada;
+    const botonHabilitado = AltaInventario.chkFinanzas === true ? firmaInventarioSeleccionada && firmaFinanzasSeleccionada :
+        AltaInventario.chkUnidad === true ? firmaInventarioSeleccionada && firmaUnidadSeleccionada :
+            AltaInventario.ajustarFirma === true ? firmaInventarioSeleccionada : false
 
     //Listado estado visadores
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -1543,116 +1640,120 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                 )}
                             </Col>
                         </Row>
-                        {listaEstado.length > 0 ? (
-                            <>
-                                {/* Tabla*/}
-                                {loading || loadingRefresh ? (
-                                    <SkeletonLoader rowCount={elementosPorPagina} />
-                                ) : (
-                                    <div className="table-responsive">
-                                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                                <tr>
-                                                    <th scope="col" className="text-center">N° DOCUMENTO</th>
-                                                    <th scope="col" className="text-center">Nº Alta</th>
-                                                    <th scope="col" className="text-center">Estado Solicitud</th>
-                                                    <th scope="col" className="text-center">Última Actualización</th>
-                                                    <th scope="col" className="text-start">Acción</th>
 
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {elementosActuales.map((Lista, index) => {
-                                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                    return (
-                                                        <tr key={index}>
-                                                            <td className="text-nowrap text-center">{Lista.idocumento}</td>
-                                                            <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                                                            <td className="text-center w-30">
-                                                                <Button
-                                                                    onClick={() => handleObtenerEstadoVisadores(index, Lista.idocumento)}
-                                                                    variant="light"
-                                                                    size="sm"
-                                                                    className={`rounded border-0 fw-semibold  
-                                                                  ${Lista.estado === 0 ? "bg-warning text-white" :
-                                                                            Lista.estado === 1 ? "bg-success text-white" :
-                                                                                Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
-                                                                >
-                                                                    {Lista.estado === 0 && "Enviada"}
-                                                                    {Lista.estado === 1 && "Firmada"}
-                                                                    {Lista.estado === 2 && "Rechazada"}
-                                                                    <Eye className="mx-2" width={18} height={18} />
-                                                                </Button>
-                                                            </td>
-                                                            <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
-                                                            <td
-                                                                className="text-nowrap"
-                                                                style={{
-                                                                    position: 'sticky',
-                                                                    left: 0,
-                                                                }}>
-
-                                                                {Lista.estado === 1 ? (
-                                                                    <>
-                                                                        <OverlayTrigger
-                                                                            placement="right"
-                                                                            overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
-                                                                        >
-                                                                            <Button type="button" className="fw-semibold mx-1"
-                                                                                onClick={() => handleObtenerVisado(index, Lista.idocumento)}
-                                                                            >
-                                                                                Ver
-                                                                                < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                            </Button>
-                                                                        </OverlayTrigger>
-                                                                    </>
-                                                                ) : (
-                                                                    <Button type="button" className="fw-semibold mx-1" disabled>
-                                                                        Ver
-                                                                        < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                    </Button>
-                                                                )}
-                                                                <Button type="button" variant="secondary" className="fw-semibold mx-1"
-                                                                    onClick={() => handleAbrirModalModificar(Lista.altaS_CORR)}
-                                                                // disabled
-
-                                                                >
-                                                                    Modificar
-                                                                    <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                </Button>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                                <div className="paginador-container position-relative z-0">
-                                    <Pagination className="paginador-scroll">
-                                        <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                                        <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                                        {Array.from({ length: totalPaginas }, (_, i) => (
-                                            <Pagination.Item
-                                                key={i + 1}
-                                                active={i + 1 === paginaActual}
-                                                onClick={() => paginar(i + 1)}
-                                            >
-                                                {i + 1}
-                                            </Pagination.Item>
-                                        ))}
-                                        <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                                        <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                                    </Pagination>
-                                </div>
-                            </>
+                        {/* Tabla*/}
+                        {loading || loadingRefresh ? (
+                            <SkeletonLoader rowCount={elementosPorPagina} />
                         ) : (
                             <>
-                                <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                                    No hay resultados para mostrar.
-                                </p>
+                                {listaEstado.length > 0 ? (
+                                    <>
+                                        <div className="table-responsive">
+                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
+                                                    <tr>
+                                                        <th scope="col" className="text-center">N° DOCUMENTO</th>
+                                                        <th scope="col" className="text-center">Nº Alta</th>
+                                                        <th scope="col" className="text-center">Estado Solicitud</th>
+                                                        <th scope="col" className="text-center">Última Actualización</th>
+                                                        <th scope="col" className="text-start">Acción</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {elementosActuales.map((Lista, index) => {
+                                                        // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td className="text-nowrap text-center">{Lista.idocumento}</td>
+                                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
+                                                                <td className="text-center w-30">
+                                                                    <Button
+                                                                        onClick={() => handleObtenerEstadoVisadores(index, Lista.idocumento)}
+                                                                        variant="light"
+                                                                        size="sm"
+                                                                        className={`rounded border-0 fw-semibold  
+                                                                  ${Lista.estado === 0 ? "bg-warning text-white" :
+                                                                                Lista.estado === 1 ? "bg-success text-white" :
+                                                                                    Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
+                                                                    >
+                                                                        {Lista.estado === 0 && "Enviada"}
+                                                                        {Lista.estado === 1 && "Firmada"}
+                                                                        {Lista.estado === 2 && "Rechazada"}
+                                                                        <Eye className="mx-2" width={18} height={18} />
+                                                                    </Button>
+                                                                </td>
+                                                                <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
+                                                                <td
+                                                                    className="text-nowrap"
+                                                                    style={{
+                                                                        position: 'sticky',
+                                                                        left: 0,
+                                                                    }}>
+
+                                                                    {Lista.estado === 1 ? (
+                                                                        <>
+                                                                            <OverlayTrigger
+                                                                                placement="right"
+                                                                                overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
+                                                                            >
+                                                                                <Button type="button" className="fw-semibold mx-1"
+                                                                                    onClick={() => handleObtenerVisado(index, Lista.idocumento)}
+                                                                                >
+                                                                                    Ver
+                                                                                    < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                                </Button>
+                                                                            </OverlayTrigger>
+                                                                        </>
+                                                                    ) : (
+                                                                        <Button type="button" className="fw-semibold mx-1" disabled>
+                                                                            Ver
+                                                                            < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                        </Button>
+                                                                    )}
+
+                                                                    <Button type="button" variant="secondary" className="fw-semibold mx-1"
+                                                                        onClick={() => handleAbrirModalModificar(Lista.altaS_CORR)}
+                                                                    // disabled
+
+                                                                    >
+                                                                        Modificar
+                                                                        <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                                                                    </Button>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {/* Paginador */}
+                                        <div className="paginador-container position-relative z-0">
+                                            <Pagination className="paginador-scroll">
+                                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                                    <Pagination.Item
+                                                        key={i + 1}
+                                                        active={i + 1 === paginaActual}
+                                                        onClick={() => paginar(i + 1)}
+                                                    >
+                                                        {i + 1}
+                                                    </Pagination.Item>
+                                                ))}
+                                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                                            </Pagination>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                        No hay resultados para mostrar.
+                                    </p>
+                                )}
                             </>
                         )}
+
                     </div>
                 </div>
             </div>
@@ -1746,7 +1847,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             </Modal>
 
             {/*Modal Modificar */}
-            <Modal show={mostrarModalModificar} onHide={() => setMostrarModalModificar(false)}
+            <Modal show={mostrarModalModificar} onHide={(handleCerrarModalModificar)}
                 backdrop="static"
                 keyboard={false}
                 fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}
@@ -1762,13 +1863,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             El documento número <b>{InventarioModificar[0]?.idocumento ?? "-"}</b> ha sido rechazado.
                         </p>
                     )}
-                    {/* Botón o mensaje */}
 
                     {loadingModificar ? (
                         <SkeletonLoader rowCount={elementosPorPagina} />
                     ) : (
                         <>
-                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-end">
                                 <Col xs={12} lg="auto">
                                     {listaAltasRegistradas.length > 10 && (
                                         <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
@@ -1791,7 +1891,48 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         </div>
                                     )}
                                 </Col>
-                                <Col xs={12} lg={3}>
+                                <Col xs={12} lg={2}>
+                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                        {filasSeleccionadas.length > 0 ? (
+                                            <Button
+                                                variant={`danger`}
+                                                onClick={(handleAnular)}
+                                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                                disabled={loading}
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        Quitar
+                                                        <Spinner
+                                                            as="span"
+                                                            animation="border"
+                                                            size="sm"
+                                                            role="status"
+                                                            aria-hidden="true"
+                                                            className="mx-2"
+                                                        />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Quitar
+                                                        <span className="badge bg-light text-dark">
+                                                            {filasSeleccionadas.length}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </Button>
+                                        ) : (
+
+                                            <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                                <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
+                                                    No hay filas seleccionadas
+                                                </strong>
+                                            </div>
+
+                                        )}
+                                    </div>
+                                </Col>
+                                <Col xs={12} lg={4}>
                                     <div className="d-flex justify-content-center justify-content-lg-end w-100">
                                         <Button
                                             variant="secondary"
@@ -1836,6 +1977,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                 <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                                     <thead>
                                         <tr>
+                                            <th style={{
+                                                position: 'sticky',
+                                                left: 0
+                                            }}>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    onChange={handleSeleccionaTodos}
+                                                    checked={filasSeleccionadas.length === elementosActualesModificar.length && elementosActualesModificar.length > 0}
+                                                />
+                                            </th>
                                             <th scope="col" className="text-nowrap">N° Inventario</th>
                                             <th scope="col" className="text-nowrap">N° Alta</th>
                                             <th scope="col" className="text-nowrap">Fecha Alta</th>
@@ -1855,6 +2006,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             const indexReal = indicePrimerElementoModificar + index;
                                             return (
                                                 <tr key={index}>
+                                                    <td style={{
+                                                        position: 'sticky',
+                                                        left: 0
+                                                    }}>
+                                                        <Form.Check
+                                                            type="checkbox"
+                                                            checked={filasSeleccionadas.includes(Lista.aF_CLAVE)}
+                                                            onChange={() => setSeleccionaFilas(Lista)}
+                                                        />
+                                                    </td>
                                                     <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                                     <td className="text-nowrap" >{Lista.altaS_CORR}</td>
                                                     <td className="text-nowrap" >{Lista.fechA_ALTA}</td>
@@ -2179,7 +2340,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.ajustarFirma}
                                             name="titularInventario"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.titularInventario}
                                         />
                                         {nombreTitularInventario ? (
@@ -2199,7 +2360,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.ajustarFirma}
                                             name="subroganteInventario"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.subroganteInventario}
                                         />
                                         {nombreSubInventario ? (
@@ -2234,7 +2395,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.chkFinanzas}
                                             name="titularFinanzas"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.titularFinanzas}
                                         />
                                         {nombreTitularfinanzas ? (
@@ -2253,7 +2414,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.chkFinanzas}
                                             name="subroganteFinanzas"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.subroganteFinanzas}
                                         />
                                         {nombreSubFinanzas ? (
@@ -2310,7 +2471,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularAbastecimiento"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularAbastecimiento}
                                                         />
                                                         {nombreTitularAbastecimiento ? (
@@ -2329,7 +2490,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteAbastecimiento"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteAbastecimiento}
                                                         />
                                                         {nombreSubAbastecimiento ? (
@@ -2353,7 +2514,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularInformatica"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularInformatica}
                                                         />
                                                         {nombreTitularInformatica ? (
@@ -2373,7 +2534,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteInformatica"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteInformatica}
                                                         />
                                                         {nombreSubInformatica ? (
@@ -2396,7 +2557,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularCompra"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularCompra}
                                                         />
                                                         {nombreTitularCompra ? (
@@ -2416,7 +2577,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteCompra"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteCompra}
                                                         />
                                                         {nombreSubCompra ? (
@@ -2439,7 +2600,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularConvenio"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularConvenio}
                                                         />
                                                         {nombreTitularConvenio ? (
@@ -2458,7 +2619,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteConvenio"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteConvenio}
                                                         />
                                                         {nombreSubConvenio ? (
@@ -2481,7 +2642,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularRFisico"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularRFisico}
                                                         />
                                                         {nombreTitularRFisico ? (
@@ -2500,7 +2661,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteRFisico"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteRFisico}
                                                         />
                                                         {nombreSubRFisico ? (
@@ -2537,7 +2698,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     onChange={handleCheck}
                                                     disabled={!AltaInventario.chkAbastecimiento}
                                                     name="titularAbastecimiento"
-                                                    type="checkbox"
+                                                    type="radio"
                                                     checked={AltaInventario.titularAbastecimiento}
                                                 />
                                                 {nombreTitularAbastecimiento ? (
@@ -2556,7 +2717,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     onChange={handleCheck}
                                                     disabled={!AltaInventario.chkAbastecimiento}
                                                     name="subroganteAbastecimiento"
-                                                    type="checkbox"
+                                                    type="radio"
                                                     checked={AltaInventario.subroganteAbastecimiento}
                                                 />
                                                 {nombreSubAbastecimiento ? (
@@ -2811,7 +2972,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     type="checkbox"
                                                     onChange={() => handleSeleccionFila(indicePrimerElementoEspecies + index)}
                                                     checked={filasSeleccionadas.includes(
-                                                        (indicePrimerElementoEspecies + index).toString()
+                                                        (indicePrimerElementoEspecies + index)
                                                     )}
                                                 />
                                             </td>
@@ -2905,6 +3066,7 @@ export default connect(mapStateToProps, {
     comboEspeciesBienActions,
     comboDetalleActions,
     comboCuentaModificarActions,
-    comboSerDepActions
+    comboSerDepActions,
+    anularInventarioActions
 })(EstadoFirmas);
 

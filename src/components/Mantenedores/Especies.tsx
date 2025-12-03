@@ -1,13 +1,13 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal, Col, Row } from "react-bootstrap";
+import { Pagination, Button, Spinner, Modal, Col, Row, Form } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { Pencil, Plus } from "react-bootstrap-icons";
+import { Pencil, Plus, Search } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import Select from "react-select";
@@ -60,12 +60,34 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
     const [paginaActual, setPaginaActual] = useState(1);
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
+    const [terminoBusqueda, setTerminoBusqueda] = useState("");
+
+    const datosFiltrados = useMemo(() => {
+        if (!terminoBusqueda.trim()) {
+            return listadoMantenedor;
+        }
+
+        const termino = terminoBusqueda.toLowerCase();
+        return listadoMantenedor.filter((item) => {
+            return (
+                item.ctA_COD.toString().includes(termino) ||
+                item.ctA_NOMBRE.toLowerCase().includes(termino) ||
+                item.esP_CODIGO.toLowerCase().includes(termino) ||
+                item.esP_NOMBRE.toLowerCase().includes(termino)
+            );
+        });
+    }, [listadoMantenedor, terminoBusqueda]);
+
+
+    useEffect(() => {
+        setPaginaActual(1);
+    }, [terminoBusqueda]);
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(() => listadoMantenedor.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listadoMantenedor, indicePrimerElemento, indiceUltimoElemento]
+    const elementosActuales = useMemo(() => datosFiltrados.slice(indicePrimerElemento, indiceUltimoElemento),
+        [datosFiltrados, indicePrimerElemento, indiceUltimoElemento]
     );
 
     const cuentasOptions = comboCuentas.map((item) => ({
@@ -78,8 +100,8 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         setMantenedor((prevMantenedor) => ({ ...prevMantenedor, ctA_COD: value }));
     }
     // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-    const totalPaginas = Array.isArray(listadoMantenedor)
-        ? Math.ceil(listadoMantenedor.length / elementosPorPagina)
+    const totalPaginas = Array.isArray(datosFiltrados)
+        ? Math.ceil(datosFiltrados.length / elementosPorPagina)
         : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -334,6 +356,25 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 <div style={{ maxHeight: "80vh" }}>
                     <div className="border-bottom shadow-sm p-4 rounded">
                         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Especies</h3>
+                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-2">
+                            <Col xs={12} lg="auto" className="flex-grow-1">
+                                <div className="position-relative">
+                                    <Search
+                                        className="position-absolute top-50 start-0 translate-middle-y ms-3"
+                                        size={18}
+                                        style={{ color: isDarkMode ? "#adb5bd" : "#6c757d" }}
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Buscar en todas las columnas..."
+                                        value={terminoBusqueda}
+                                        onChange={(e) => setTerminoBusqueda(e.target.value)}
+                                        className={`ps-5 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        style={{ maxWidth: "400px" }}
+                                    />
+                                </div>
+                            </Col>
+                        </Row>
                         <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
                             {/* Tamaño de página */}
                             <Col xs={12} lg="auto">
@@ -370,127 +411,146 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                 </div>
                             </Col>
                         </Row>
+
+                        <div className="mb-2">
+                            <small className={`${isDarkMode ? "text-light" : "text-muted"}`}>
+                                Mostrando {datosFiltrados.length} de {listadoMantenedor.length} registros
+                            </small>
+                        </div>
+
                         {/* Tabla */}
                         {loading ? (
                             <>
                                 <SkeletonLoader rowCount={elementosPorPagina} />
                             </>
                         ) : (
-
-                            <div className='table-responsive'>
-                                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                        <tr>
-                                            {/* <th scope="col"></th> */}
-                                            <th scope="col" className="text-nowrap">Código</th>
-                                            <th scope="col" className="text-nowrap">Nombre</th>
-                                            <th scope="col" className="text-nowrap">Descripcion Cuenta</th>
-                                            <th scope="col" className="text-nowrap">Fecha Creación</th>
-                                            <th scope="col" className="text-nowrap">Fecha Modificación</th>
-                                            <th scope="col" className="text-nowrap">Creado por</th>
-                                            <th scope="col" className="text-nowrap">Modificado por</th>
-                                            <th scope="col"
-                                                className="text-nowrap  sticky-col-right-0 rounded-top">
-                                                <b>Acción</b>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((Lista, index) => {
-                                            let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                            return (
-                                                <tr key={indexReal}>
-                                                    {/* <td>
+                            <>
+                                {listadoMantenedor.length > 0 ? (
+                                    <>
+                                        <div className='table-responsive'>
+                                            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                    <tr>
+                                                        {/* <th scope="col"></th> */}
+                                                        <th scope="col" className="text-nowrap">Código</th>
+                                                        <th scope="col" className="text-nowrap">Nombre</th>
+                                                        <th scope="col" className="text-nowrap">Descripcion Cuenta</th>
+                                                        <th scope="col" className="text-nowrap">Fecha Creación</th>
+                                                        <th scope="col" className="text-nowrap">Fecha Modificación</th>
+                                                        <th scope="col" className="text-nowrap">Creado por</th>
+                                                        <th scope="col" className="text-nowrap">Modificado por</th>
+                                                        <th scope="col"
+                                                            className="text-nowrap  sticky-col-right-0 rounded-top">
+                                                            <b>Acción</b>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {elementosActuales.map((Lista, index) => {
+                                                        let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                        return (
+                                                            <tr key={indexReal}>
+                                                                {/* <td>
                                                 <Form.Check
                                                     type="checkbox"
                                                     onChange={() => setSeleccionaFila(indexReal)}
                                                     checked={filasSeleccionada.includes((indexReal).toString())}
                                                 />
                                             </td> */}
-                                                    <td scope="col" className="text-nowrap">{Lista.esP_CODIGO}</td>
-                                                    <td scope="col" className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                                    <td scope="col" className="text-nowrap">{Lista.ctA_NOMBRE}</td>
-                                                    <td scope="col" className="text-nowrap">{Lista.esP_F_CREA}</td>
-                                                    <td scope="col" className="text-nowrap">{Lista.esP_F_MOD}</td>
-                                                    <td className="text-nowrap">{
-                                                        Lista.esP_USER_CREA === '62511' ? 'Andy Riquelme' :
-                                                            Lista.esP_USER_CREA === '18124' ? 'Rodrigo Toledo' :
-                                                                Lista.esP_USER_CREA === 'JCASTILLO' || Lista.esP_USER_CREA === 'jcastillo' || Lista.esP_USER_CREA === '1770' ? 'Jaime Castillo' :
-                                                                    Lista.esP_USER_CREA === 'DROJASP' || Lista.esP_USER_CREA === 'drojasp' || Lista.esP_USER_CREA === '66098' ? 'Daniel Rojas' :
-                                                                        Lista.esP_USER_CREA === '1234567' || Lista.esP_USER_CREA === '18667' ? 'Felipe Almonte' :
-                                                                            Lista.esP_USER_CREA === 'JVARGAS' || Lista.esP_USER_CREA === 'jvargas' || Lista.esP_USER_CREA === '6405' ? 'Jonathan Vargas' :
-                                                                                Lista.esP_USER_CREA === 'GFARIAS' || Lista.esP_USER_CREA === 'gfarias' || Lista.esP_USER_CREA === '888' ? 'Gabriela Farias' :
-                                                                                    Lista.esP_USER_CREA === 'KREYESD' || Lista.esP_USER_CREA === 'kreyesd' || Lista.esP_USER_CREA === '66099' ? 'Katherine Reyes' : Lista.esP_USER_CREA
+                                                                <td scope="col" className="text-nowrap">{Lista.esP_CODIGO}</td>
+                                                                <td scope="col" className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                                                <td scope="col" className="text-nowrap">{Lista.ctA_NOMBRE}</td>
+                                                                <td scope="col" className="text-nowrap">{Lista.esP_F_CREA}</td>
+                                                                <td scope="col" className="text-nowrap">{Lista.esP_F_MOD}</td>
+                                                                <td className="text-nowrap">{
+                                                                    Lista.esP_USER_CREA === '62511' ? 'Andy Riquelme' :
+                                                                        Lista.esP_USER_CREA === '18124' ? 'Rodrigo Toledo' :
+                                                                            Lista.esP_USER_CREA === 'JCASTILLO' || Lista.esP_USER_CREA === 'jcastillo' || Lista.esP_USER_CREA === '1770' ? 'Jaime Castillo' :
+                                                                                Lista.esP_USER_CREA === 'DROJASP' || Lista.esP_USER_CREA === 'drojasp' || Lista.esP_USER_CREA === '66098' ? 'Daniel Rojas' :
+                                                                                    Lista.esP_USER_CREA === '1234567' || Lista.esP_USER_CREA === '18667' ? 'Felipe Almonte' :
+                                                                                        Lista.esP_USER_CREA === 'JVARGAS' || Lista.esP_USER_CREA === 'jvargas' || Lista.esP_USER_CREA === '6405' ? 'Jonathan Vargas' :
+                                                                                            Lista.esP_USER_CREA === 'GFARIAS' || Lista.esP_USER_CREA === 'gfarias' || Lista.esP_USER_CREA === '888' ? 'Gabriela Farias' :
+                                                                                                Lista.esP_USER_CREA === 'KREYESD' || Lista.esP_USER_CREA === 'kreyesd' || Lista.esP_USER_CREA === '66099' ? 'Katherine Reyes' : Lista.esP_USER_CREA
 
-                                                    }
-                                                    </td>
-                                                    <td className="text-nowrap">{
-                                                        Lista.esP_USER_MOD === '62511' ? 'Andy Riquelme' :
-                                                            Lista.esP_USER_MOD === '18124' ? 'Rodrigo Toledo' :
-                                                                Lista.esP_USER_MOD === 'JCASTILLO' || Lista.esP_USER_MOD === 'jcastillo' || Lista.esP_USER_MOD === '1770' ? 'Jaime Castillo' :
-                                                                    Lista.esP_USER_MOD === 'DROJASP' || Lista.esP_USER_MOD === 'drojasp' || Lista.esP_USER_MOD === '66098' ? 'Daniel Rojas' :
-                                                                        Lista.esP_USER_MOD === '1234567' || Lista.esP_USER_MOD === '18667' ? 'Felipe Almonte' :
-                                                                            Lista.esP_USER_MOD === 'JVARGAS' || Lista.esP_USER_MOD === 'jvargas' || Lista.esP_USER_MOD === '6405' ? 'Jonathan Vargas' :
-                                                                                Lista.esP_USER_MOD === 'GFARIAS' || Lista.esP_USER_MOD === 'gfarias' || Lista.esP_USER_MOD === '888' ? 'Gabriela Farias' :
-                                                                                    Lista.esP_USER_MOD === 'KREYESD' || Lista.esP_USER_MOD === 'kreyesd' || Lista.esP_USER_MOD === '66099' ? 'Katherine Reyes' : Lista.esP_USER_MOD
+                                                                }
+                                                                </td>
+                                                                <td className="text-nowrap">{
+                                                                    Lista.esP_USER_MOD === '62511' ? 'Andy Riquelme' :
+                                                                        Lista.esP_USER_MOD === '18124' ? 'Rodrigo Toledo' :
+                                                                            Lista.esP_USER_MOD === 'JCASTILLO' || Lista.esP_USER_MOD === 'jcastillo' || Lista.esP_USER_MOD === '1770' ? 'Jaime Castillo' :
+                                                                                Lista.esP_USER_MOD === 'DROJASP' || Lista.esP_USER_MOD === 'drojasp' || Lista.esP_USER_MOD === '66098' ? 'Daniel Rojas' :
+                                                                                    Lista.esP_USER_MOD === '1234567' || Lista.esP_USER_MOD === '18667' ? 'Felipe Almonte' :
+                                                                                        Lista.esP_USER_MOD === 'JVARGAS' || Lista.esP_USER_MOD === 'jvargas' || Lista.esP_USER_MOD === '6405' ? 'Jonathan Vargas' :
+                                                                                            Lista.esP_USER_MOD === 'GFARIAS' || Lista.esP_USER_MOD === 'gfarias' || Lista.esP_USER_MOD === '888' ? 'Gabriela Farias' :
+                                                                                                Lista.esP_USER_MOD === 'KREYESD' || Lista.esP_USER_MOD === 'kreyesd' || Lista.esP_USER_MOD === '66099' ? 'Katherine Reyes' : Lista.esP_USER_MOD
 
-                                                    }
-                                                    </td>
-                                                    <td scope="col" className="text-nowrap" style={{
-                                                        position: 'sticky',
-                                                        right: 0
-                                                    }}>
-                                                        <Button
-                                                            variant="outline-primary"
-                                                            className="fw-semibold"
-                                                            size="sm"
-                                                            onClick={() => handleSeleccion(index, Lista.esP_CODIGO, Lista.esP_NOMBRE, Lista.ctA_COD)}
-                                                        >
-                                                            Editar
-                                                            <Pencil className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                                }
+                                                                </td>
+                                                                <td scope="col" className="text-nowrap" style={{
+                                                                    position: 'sticky',
+                                                                    right: 0
+                                                                }}>
+                                                                    <Button
+                                                                        variant="outline-primary"
+                                                                        className="fw-semibold"
+                                                                        size="sm"
+                                                                        onClick={() => handleSeleccion(index, Lista.esP_CODIGO, Lista.esP_NOMBRE, Lista.ctA_COD)}
+                                                                    >
+                                                                        Editar
+                                                                        <Pencil className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                                                    </Button>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {/* Paginador */}
+                                        <div className="paginador-container position-relative z-0">
+                                            <Pagination className="paginador-scroll">
+                                                <Pagination.First
+                                                    onClick={() => paginar(1)}
+                                                    disabled={paginaActual === 1}
+
+                                                />
+                                                <Pagination.Prev
+                                                    onClick={() => paginar(paginaActual - 1)}
+                                                    disabled={paginaActual === 1}
+                                                />
+
+                                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                                    <Pagination.Item
+                                                        key={i + 1}
+                                                        active={i + 1 === paginaActual}
+                                                        onClick={() => paginar(i + 1)}
+                                                    >
+                                                        {i + 1}
+                                                    </Pagination.Item>
+                                                ))}
+                                                <Pagination.Next
+                                                    onClick={() => paginar(paginaActual + 1)}
+                                                    disabled={paginaActual === totalPaginas}
+
+                                                />
+                                                <Pagination.Last
+                                                    onClick={() => paginar(totalPaginas)}
+                                                    disabled={paginaActual === totalPaginas}
+
+                                                />
+                                            </Pagination>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
+                                        <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                            No hay resultados para mostrar.
+                                        </p>
+                                    </div>
+                                )}
+                            </>
                         )}
-                        {/* Paginador */}
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First
-                                    onClick={() => paginar(1)}
-                                    disabled={paginaActual === 1}
 
-                                />
-                                <Pagination.Prev
-                                    onClick={() => paginar(paginaActual - 1)}
-                                    disabled={paginaActual === 1}
-                                />
-
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next
-                                    onClick={() => paginar(paginaActual + 1)}
-                                    disabled={paginaActual === totalPaginas}
-
-                                />
-                                <Pagination.Last
-                                    onClick={() => paginar(totalPaginas)}
-                                    disabled={paginaActual === totalPaginas}
-
-                                />
-                            </Pagination>
-                        </div>
                     </div>
                 </div>
             </div>

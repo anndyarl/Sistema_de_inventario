@@ -435,6 +435,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         // Copia del estado actual
         const prev = structuredClone(AltaInventario);
         const updatedState = { ...prev, [name]: checked };
+
         //Limpia Todo al deshabilitar check
         if (name === "ajustarFirma") {
             if (!checked) {
@@ -1300,21 +1301,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     //     link.click();
     // };
 
-    //Logica para habilitar Boton "Solicitar Visado" si los opcionales son habilitados se requerira algun titular o subrogante
-    // const ajustarFirma = AltaInventario.ajustarFirma;
+    //Logica para habilitar Boton "Solicitar Visado" si los opcionales son habilitados se requerirá algun titular o subrogante
+    const firmaInventarioSeleccionada = (() => {
+        return AltaInventario.titularInventario || AltaInventario.subroganteInventario;
+    })();
 
     const firmaFinanzasSeleccionada = (() => {
-        if (!AltaInventario.chkFinanzas) return true;
-        if (!AltaInventario.chkAbastecimiento) return true;
-        return (
-            (AltaInventario.titularInventario || AltaInventario.subroganteInventario) &&
-            (AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas) &&
-            (AltaInventario.titularAbastecimiento || AltaInventario.subroganteAbastecimiento)
-        );
+        return (AltaInventario.titularFinanzas || AltaInventario.subroganteFinanzas);
     })();
 
     const firmaUnidadSeleccionada = (() => {
-        if (!AltaInventario.chkUnidad) return true;
 
         switch (Unidad) {
             case 3:
@@ -1333,7 +1329,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     })();
 
     // BOTÓN SE HABILITA SOLO CUANDO TODOS LOS CHEQUEADOS SE CUMPLEN
-    const botonHabilitado = (AltaInventario.chkFinanzas || AltaInventario.chkUnidad) && firmaFinanzasSeleccionada && firmaUnidadSeleccionada;
+    const botonHabilitado = AltaInventario.chkFinanzas === true ? firmaInventarioSeleccionada && firmaFinanzasSeleccionada :
+        AltaInventario.chkUnidad === true ? firmaInventarioSeleccionada && firmaUnidadSeleccionada :
+            AltaInventario.ajustarFirma === true ? firmaInventarioSeleccionada : false
 
     const totalSum = useMemo(() => {
         return filasSeleccionadasPDF.reduce((sum, activo) => sum + parseFloat(activo.deT_PRECIO.toString()), 0);
@@ -1529,138 +1527,154 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         {loading ? (
                             <SkeletonLoader rowCount={elementosPorPagina} />
                         ) : (
-                            <div className='table-responsive'>
-                                <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                        <tr>
-                                            <th style={{
-                                                position: 'sticky',
-                                                left: 0,
-                                                zIndex: 0,
+                            <>
+                                {listaAltasRegistradas.length > 0 ? (
+                                    <>
+                                        <div className='table-responsive'>
+                                            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                    <tr>
+                                                        <th style={{
+                                                            position: 'sticky',
+                                                            left: 0,
+                                                            zIndex: 0,
 
-                                            }}>
-                                                <Form.Check
-                                                    className="check-danger"
-                                                    type="checkbox"
-                                                    onChange={handleSeleccionaTodos}
-                                                    checked={
-                                                        filasSeleccionadas.length > 0 &&
-                                                        filasSeleccionadas.length === filasSeleccionables.length &&
-                                                        filasSeleccionables.every((f) => filasSeleccionadas.includes(f))
-                                                    }
-                                                    disabled={seleccionarTodosHabilitado}
-                                                />
+                                                        }}>
+                                                            <Form.Check
+                                                                className="check-danger"
+                                                                type="checkbox"
+                                                                onChange={handleSeleccionaTodos}
+                                                                checked={
+                                                                    filasSeleccionadas.length > 0 &&
+                                                                    filasSeleccionadas.length === filasSeleccionables.length &&
+                                                                    filasSeleccionables.every((f) => filasSeleccionadas.includes(f))
+                                                                }
+                                                                disabled={seleccionarTodosHabilitado}
+                                                            />
 
-                                            </th>
-                                            <th scope="col" className="text-nowrap">Estado</th>
-                                            <th scope="col" className="text-nowrap">N° Inventario</th>
-                                            <th scope="col" className="text-nowrap">N° Alta</th>
-                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
-                                            <th scope="col" className="text-nowrap">Nº Factura</th>
-                                            <th scope="col" className="text-nowrap">Orden de Compra</th>
-                                            <th scope="col" className="text-nowrap">Servicio</th>
-                                            <th scope="col" className="text-nowrap">Dependencia</th>
-                                            <th scope="col" className="text-nowrap">Especie</th>
-                                            <th scope="col" className="text-nowrap">N° Cuenta</th>
-                                            <th scope="col" className="text-nowrap">Usuario Crea</th>
-                                            <th scope="col" className="text-nowrap">Marca</th>
-                                            <th scope="col" className="text-nowrap">Modelo</th>
-                                            <th scope="col" className="text-nowrap">Serie</th>
-                                            <th scope="col" className="text-nowrap">Precio</th>
-                                            <th scope="col" className="text-nowrap">Nº Recepción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {elementosActuales.map((Lista, index) => {
-                                            const indexReal = indicePrimerElemento + index;
-                                            const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === Lista.altaS_CORR);
-                                            const estado = registro?.estado;
+                                                        </th>
+                                                        <th scope="col" className="text-nowrap">Estado</th>
+                                                        <th scope="col" className="text-nowrap">N° Inventario</th>
+                                                        <th scope="col" className="text-nowrap">N° Alta</th>
+                                                        <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                                        <th scope="col" className="text-nowrap">Nº Factura</th>
+                                                        <th scope="col" className="text-nowrap">Orden de Compra</th>
+                                                        <th scope="col" className="text-nowrap">Servicio</th>
+                                                        <th scope="col" className="text-nowrap">Dependencia</th>
+                                                        <th scope="col" className="text-nowrap">Especie</th>
+                                                        <th scope="col" className="text-nowrap">N° Cuenta</th>
+                                                        <th scope="col" className="text-nowrap">Usuario Crea</th>
+                                                        <th scope="col" className="text-nowrap">Marca</th>
+                                                        <th scope="col" className="text-nowrap">Modelo</th>
+                                                        <th scope="col" className="text-nowrap">Serie</th>
+                                                        <th scope="col" className="text-nowrap">Precio</th>
+                                                        <th scope="col" className="text-nowrap">Nº Recepción</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {elementosActuales.map((Lista, index) => {
+                                                        const indexReal = indicePrimerElemento + index;
+                                                        // const registro = listaEstadoFirmas.find((f) => f.altaS_CORR === Lista.altaS_CORR);
+                                                        // const estado = registro?.estado;
 
-                                            if (estado === 2 || estado === 3) {
-                                                // Omitir estas filas completamente
-                                                return;
-                                            }
+                                                        // if (estado === 2 || estado === 3) {
+                                                        //     // Omitir estas filas completamente
+                                                        //     return;
+                                                        // }
 
-                                            return (
-                                                <tr key={index}>
-                                                    <td style={{
-                                                        position: 'sticky',
-                                                        left: 0
-                                                    }}>
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            onChange={() => setSeleccionaFilas(indexReal, Lista.altaS_CORR)}
-                                                            checked={filasSeleccionadas.includes(indexReal.toString())}
-                                                        />
-                                                    </td>
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td style={{
+                                                                    position: 'sticky',
+                                                                    left: 0
+                                                                }}>
+                                                                    <Form.Check
+                                                                        type="checkbox"
+                                                                        onChange={() => setSeleccionaFilas(indexReal, Lista.altaS_CORR)}
+                                                                        checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                                    />
+                                                                </td>
 
-                                                    {/* <td className="text-nowrap">{
+                                                                {/* <td className="text-nowrap">{
                                                 estado === 0 ? <p className="badge bg-warning w-100">Pendiente</p>
                                                     : estado === 1 ? <p className="badge bg-success w-100">Firmada</p> : <p className="badge bg-primary w-100">Sin Firma</p>}
                                             </td> */}
-                                                    <td className="text-nowrap">
-                                                        {Lista.estadO_FIRMA === 0 ? (
-                                                            <p className="badge bg-warning w-100">Pendiente</p>
-                                                        ) : Lista.estadO_FIRMA === 1 ? (
-                                                            <p className="badge bg-success w-100">Firmada</p>
-                                                        ) : (
-                                                            <p className="badge bg-primary w-100">Sin Firma</p>
-                                                        )}
-                                                    </td>
+                                                                <td className="text-nowrap">
+                                                                    {Lista.estadO_FIRMA === 0 ? (
+                                                                        <p className="badge bg-warning w-100">Pendiente</p>
+                                                                    ) : Lista.estadO_FIRMA === 1 ? (
+                                                                        <p className="badge bg-success w-100">Firmada</p>
+                                                                    ) : Lista.estadO_FIRMA === 2 ? (
+                                                                        <p className="badge bg-danger w-100">Rechazado</p>
+                                                                    ) : Lista.estadO_FIRMA === 3 ? (
+                                                                        <p className="badge bg-danger w-100">Rechazado</p>
+                                                                    ) : (
+                                                                        <p className="badge bg-primary w-100">Sin Firma</p>
+                                                                    )}
+                                                                </td>
 
-                                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                    <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                                                    <td className="text-nowrap">{Lista.fechA_ALTA}</td>
-                                                    <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
-                                                    <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
-                                                    <td className="text-nowrap">{Lista.serv}</td>
-                                                    <td className="text-nowrap">{Lista.dep}</td>
-                                                    <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                                    <td className="text-nowrap">{Lista.ctA_COD}</td>
-                                                    <td className="text-nowrap">{
-                                                        Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
-                                                            Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
-                                                                Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
-                                                                    Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
-                                                                        Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
-                                                                            Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
-                                                                                Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
-                                                                                    Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+                                                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                                                <td className="text-nowrap">{Lista.fechA_ALTA}</td>
+                                                                <td className="text-nowrap">{Lista.aF_NUM_FAC}</td>
+                                                                <td className="text-nowrap">{Lista.aF_OCO_NUMERO_REF}</td>
+                                                                <td className="text-nowrap">{Lista.serv}</td>
+                                                                <td className="text-nowrap">{Lista.dep}</td>
+                                                                <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                                                <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                                <td className="text-nowrap">{
+                                                                    Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                                                                        Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                                                            Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
+                                                                                Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
+                                                                                    Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                                                                        Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
+                                                                                            Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
+                                                                                                Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
 
-                                                    }</td>
-                                                    <td className="text-nowrap">{Lista.deT_MARCA}</td>
-                                                    <td className="text-nowrap">{Lista.deT_MODELO}</td>
-                                                    <td className="text-nowrap">{Lista.deT_SERIE}</td>
-                                                    {/* <td className="text-nowrap">{Lista.estado}</td> */}
-                                                    <td className="text-nowrap">
-                                                        ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                    </td>
-                                                    <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "S/n" : Lista.nrecep}</td>
-                                                </tr>
-                                            );
-                                        })}
+                                                                }</td>
+                                                                <td className="text-nowrap">{Lista.deT_MARCA}</td>
+                                                                <td className="text-nowrap">{Lista.deT_MODELO}</td>
+                                                                <td className="text-nowrap">{Lista.deT_SERIE}</td>
+                                                                {/* <td className="text-nowrap">{Lista.estado}</td> */}
+                                                                <td className="text-nowrap">
+                                                                    ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                                </td>
+                                                                <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "S/n" : Lista.nrecep}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
 
-                                    </tbody>
-                                </table>
-                            </div>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {/* Paginador */}
+                                        <div className="paginador-container position-relative z-0">
+                                            <Pagination className="paginador-scroll">
+                                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
+                                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                                    <Pagination.Item
+                                                        key={i + 1}
+                                                        active={i + 1 === paginaActual}
+                                                        onClick={() => paginar(i + 1)}
+                                                    >
+                                                        {i + 1}
+                                                    </Pagination.Item>
+                                                ))}
+                                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
+                                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
+                                            </Pagination>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                        No hay resultados para mostrar.
+                                    </p>
+                                )}
+                            </>
                         )}
-                        <div className="paginador-container position-relative z-0">
-                            <Pagination className="paginador-scroll">
-                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual}
-                                        onClick={() => paginar(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                            </Pagination>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1754,7 +1768,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.ajustarFirma}
                                             name="titularInventario"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.titularInventario}
                                         />
                                         {nombreTitularInventario ? (
@@ -1774,7 +1788,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.ajustarFirma}
                                             name="subroganteInventario"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.subroganteInventario}
                                         />
                                         {nombreSubInventario ? (
@@ -1809,7 +1823,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.chkFinanzas}
                                             name="titularFinanzas"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.titularFinanzas}
                                         />
                                         {nombreTitularfinanzas ? (
@@ -1828,7 +1842,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             onChange={handleCheck}
                                             disabled={!AltaInventario.chkFinanzas}
                                             name="subroganteFinanzas"
-                                            type="checkbox"
+                                            type="radio"
                                             checked={AltaInventario.subroganteFinanzas}
                                         />
                                         {nombreSubFinanzas ? (
@@ -1885,7 +1899,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularAbastecimiento"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularAbastecimiento}
                                                         />
                                                         {nombreTitularAbastecimiento ? (
@@ -1904,7 +1918,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteAbastecimiento"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteAbastecimiento}
                                                         />
                                                         {nombreSubAbastecimiento ? (
@@ -1928,7 +1942,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularInformatica"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularInformatica}
                                                         />
                                                         {nombreTitularInformatica ? (
@@ -1948,7 +1962,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteInformatica"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteInformatica}
                                                         />
                                                         {nombreSubInformatica ? (
@@ -1971,7 +1985,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularCompra"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularCompra}
                                                         />
                                                         {nombreTitularCompra ? (
@@ -1991,7 +2005,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteCompra"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteCompra}
                                                         />
                                                         {nombreSubCompra ? (
@@ -2014,7 +2028,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularConvenio"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularConvenio}
                                                         />
                                                         {nombreTitularConvenio ? (
@@ -2033,7 +2047,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteConvenio"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteConvenio}
                                                         />
                                                         {nombreSubConvenio ? (
@@ -2056,7 +2070,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="titularRFisico"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.titularRFisico}
                                                         />
                                                         {nombreTitularRFisico ? (
@@ -2075,7 +2089,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                             onChange={handleCheck}
                                                             disabled={!AltaInventario.chkUnidad}
                                                             name="subroganteRFisico"
-                                                            type="checkbox"
+                                                            type="radio"
                                                             checked={AltaInventario.subroganteRFisico}
                                                         />
                                                         {nombreSubRFisico ? (
@@ -2102,7 +2116,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     onChange={handleCheck}
                                                     disabled={!AltaInventario.ajustarFirma}
                                                     name="chkAbastecimiento"
-                                                    type="checkbox"
+                                                    type="radio"
                                                     className="form-switch"
                                                     checked={AltaInventario.chkAbastecimiento}
                                                 />
@@ -2112,7 +2126,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     onChange={handleCheck}
                                                     disabled={!AltaInventario.chkAbastecimiento}
                                                     name="titularAbastecimiento"
-                                                    type="checkbox"
+                                                    type="radio"
                                                     checked={AltaInventario.titularAbastecimiento}
                                                 />
                                                 {nombreTitularAbastecimiento ? (
@@ -2131,7 +2145,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                     onChange={handleCheck}
                                                     disabled={!AltaInventario.chkAbastecimiento}
                                                     name="subroganteAbastecimiento"
-                                                    type="checkbox"
+                                                    type="radio"
                                                     checked={AltaInventario.subroganteAbastecimiento}
                                                 />
                                                 {nombreSubAbastecimiento ? (

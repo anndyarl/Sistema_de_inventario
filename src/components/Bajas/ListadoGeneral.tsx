@@ -37,7 +37,7 @@ interface DatosBajas {
   listadoGeneralBajas: ListaAltas[];
   listaSalidaBajas: ListaBajas[];
   listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
-  registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, especie: string }[]) => Promise<boolean>;
+  registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, especie: string, establ_corr: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
@@ -53,6 +53,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   const [paginaActual, setPaginaActual] = useState(1);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
+  const [busquedaCodigoGenerico, setBusquedaCodigoGenerico] = useState("");
+  const [busquedaAltas, setBusquedaAltas] = useState("");
 
   const [Bajas, setBajas] = useState({
     nresolucion: 0,
@@ -66,6 +68,20 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     altaS_CORR: 0,
     af_codigo_generico: ""
   });
+
+  const datosFiltrados = listadoGeneralBajas
+    .filter(item =>
+      item.aF_CODIGO_GENERICO.toString().includes(Buscar.af_codigo_generico.toString())
+    )
+    .filter(item =>
+      item.altaS_CORR.toString().includes(Buscar.altaS_CORR.toString())
+    );
+
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busquedaCodigoGenerico, busquedaAltas]);
+
 
   //Se lista automaticamente apenas entra al componente
   const listadoGeneralBajasAuto = async () => {
@@ -110,27 +126,39 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
 
-    // Validación específica para af_codigo_generico: solo permitir números
+    // Validación numérica
     if ((name === "af_codigo_generico" || name === "altaS_CORR") && !/^[0-9]*$/.test(value)) {
-      return; // Salir si contiene caracteres no numéricos
+      return;
     }
+
     // Convertir a número solo si el campo está en la lista
     const camposNumericos = ["nresolucion"];
     const newValue: string | number = camposNumericos.includes(name)
       ? parseFloat(value) || 0
       : value;
 
+    if (name === "altaS_CORR") {
+      setBusquedaAltas(value); // <-- estado de búsqueda
+    }
+
+    if (name === "af_codigo_generico") {
+      setBusquedaCodigoGenerico(value);
+    }
+
+    // Actualizar filtros usados en la tabla
+    setBuscar(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
     // Actualizar estado
     setBajas((prevState) => ({
       ...prevState,
-      [name]: newValue,
-    }));
-
-    setBuscar((prevBuscar) => ({
-      ...prevBuscar,
       [name]: newValue,
     }));
 
@@ -141,32 +169,57 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
   };
 
+
+  // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.checked) {
+  //     setFilasSeleccionadas(
+  //       elementosActuales.map((_, index) =>
+  //         (indicePrimerElemento + index).toString()
+  //       )
+  //     );
+  //   } else {
+  //     setFilasSeleccionadas([]);
+  //   }
+  // };
+
+  // const setSeleccionaFilas = (index: number) => {
+  //   const indexReal = indicePrimerElemento + index;
+  //   setFilasSeleccionadas((prev) =>
+  //     prev.includes(indexReal.toString())
+  //       ? prev.filter((rowIndex) => rowIndex !== indexReal.toString())
+  //       : [...prev, indexReal.toString()]
+  //   );
+  //   // console.log("indices seleccionmados", indexReal);
+  // };
   const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       setFilasSeleccionadas(
-        elementosActuales.map((_, index) =>
-          (indicePrimerElemento + index).toString()
-        )
+        elementosActuales.map(item => item.aF_CLAVE.toString())
       );
     } else {
       setFilasSeleccionadas([]);
     }
   };
 
-  const setSeleccionaFilas = (index: number) => {
-    const indexReal = indicePrimerElemento + index;
+  const setSeleccionaFilas = (item: any) => {
+    const clave = item.aF_CLAVE.toString();
+
     setFilasSeleccionadas((prev) =>
-      prev.includes(indexReal.toString())
-        ? prev.filter((rowIndex) => rowIndex !== indexReal.toString())
-        : [...prev, indexReal.toString()]
+      prev.includes(clave)
+        ? prev.filter((id) => id !== clave)
+        : [...prev, clave]
     );
-    // console.log("indices seleccionmados", indexReal);
   };
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) {
-      const selectedIndices = filasSeleccionadas.map(Number);
+      // const selectedIndices = listadoGeneralBajas.map(Number);
+      const seleccionados = listadoGeneralBajas.filter(item =>
+        filasSeleccionadas.includes(item.aF_CLAVE.toString())
+      );
+
       const result = await Swal.fire({
         icon: "info",
         title: "Enviar a Bodega de Excluidos",
@@ -183,15 +236,17 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       });
       if (result.isConfirmed) {
         setLoadingRegistro(true);
-        // Crear un array de objetos con aF_CLAVE y nombre
-        const FormularioBajas = selectedIndices.map((activo) => ({
-          aF_CODIGO_GENERICO: listadoGeneralBajas[activo].aF_CODIGO_GENERICO,
-          aF_CLAVE: listadoGeneralBajas[activo].aF_CLAVE,
+        //   // Crear un array de objetos con aF_CLAVE y nombre
+        const FormularioBajas = seleccionados.map((item) => ({
+          aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+          aF_CLAVE: item.aF_CLAVE,
           usuariO_MOD: objeto.IdCredencial.toString(),
-          ctA_COD: listadoGeneralBajas[activo].ctA_COD,
-          especie: listadoGeneralBajas[activo].esP_NOMBRE,
+          ctA_COD: item.ctA_COD,
+          especie: item.esP_NOMBRE,
           ...Bajas,
+          establ_corr: objeto.Roles[0].codigoEstablecimiento
         }));
+
         const resultado = await registrarBienesBajasActions(FormularioBajas);
         if (resultado) {
           mostrarAlerta();
@@ -215,7 +270,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         }
       }
     }
-  };
+  }
+
 
   const mostrarAlerta = () => {
     document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
@@ -269,24 +325,29 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   };
 
   const handleLimpiar = () => {
-    setBuscar((prevInventario) => ({
-      ...prevInventario,
-      af_codigo_generico: "",
+    // limpiar filtros
+    setBuscar({
+      fDesde: "",
+      fHasta: "",
       altaS_CORR: 0,
-    }));
+      af_codigo_generico: ""
+    });
+
+    // limpiar inputs visuales
+    setBusquedaAltas("");
+    setBusquedaCodigoGenerico("");
   };
+
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(
-    () =>
-      listadoGeneralBajas.slice(indicePrimerElemento, indiceUltimoElemento),
-    [listadoGeneralBajas, indicePrimerElemento, indiceUltimoElemento]
+  const elementosActuales = useMemo(() => datosFiltrados.slice(indicePrimerElemento, indiceUltimoElemento),
+    [datosFiltrados, indicePrimerElemento, indiceUltimoElemento]
   );
   // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(listadoGeneralBajas)
-    ? Math.ceil(listadoGeneralBajas.length / elementosPorPagina)
+  const totalPaginas = Array.isArray(datosFiltrados)
+    ? Math.ceil(datosFiltrados.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -301,10 +362,57 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           <div className="border-bottom shadow-sm p-2 rounded">
             <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
             <Row className="border rounded p-2 m-2">
-              <Col lg={2} md={4}>
+              <Col lg={2} md={5}>
+                <div className="mb-2">
+                  <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
+                  <div className="position-relative">
+                    <Form.Control
+                      type="text"
+                      placeholder="0"
+                      value={busquedaAltas}
+                      onChange={handleChange}
+                      name="altaS_CORR"
+                      className={` ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      style={{ maxWidth: "400px" }}
+                      maxLength={5}
+                    />
+                    <Search
+                      className="position-absolute top-50 end-0 translate-middle-y me-3"
+                      size={18}
+                      style={{ color: isDarkMode ? "#adb5bd" : "#6c757d" }}
+                    />
+                  </div>
+                  {/* <input
+                    aria-label="altaS_CORR"
+                    type="text"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="altaS_CORR"
+                    placeholder="0"
+                    onChange={handleChange}
+                    maxLength={12}
+                    value={Buscar.altaS_CORR}
+                  /> */}
+                </div>
                 <div className="mb-1">
                   <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
-                  <input
+                  <div className="position-relative">
+                    <Form.Control
+                      type="text"
+                      placeholder="Eje: 1000000008"
+                      value={busquedaCodigoGenerico}
+                      onChange={handleChange}
+                      name="af_codigo_generico"
+                      className={` ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      style={{ maxWidth: "400px" }}
+                      maxLength={12}
+                    />
+                    <Search
+                      className="position-absolute top-50 end-0 translate-middle-y me-3"
+                      size={18}
+                      style={{ color: isDarkMode ? "#adb5bd" : "#6c757d" }}
+                    />
+                  </div>
+                  {/* <input
                     aria-label="af_codigo_generico"
                     type="text"
                     className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
@@ -314,20 +422,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                     onChange={handleChange}
                     maxLength={12}
                     value={Buscar.af_codigo_generico}
-                  />
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
-                  <input
-                    aria-label="altaS_CORR"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="altaS_CORR"
-                    placeholder="0"
-                    onChange={handleChange}
-                    maxLength={12}
-                    value={Buscar.altaS_CORR}
-                  />
+                  /> */}
                 </div>
               </Col>
               {/* Columna 5: Botones de Acción */}
@@ -427,121 +522,134 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 </>
               )}
             </Row>
-            {listadoGeneralBajas.length > 0 ? (
-              <>
-                {/* Tabla*/}
-                {loading ? (
-                  <>
-                    <SkeletonLoader rowCount={elementosPorPagina} />
-                  </>
-                ) : (
-                  <div className='table-responsive'>
-                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                      <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                        <tr>
-                          <th style={{
-                            position: 'sticky',
-                            left: 0
-                          }}>
-                            <Form.Check
-                              type="checkbox"
-                              onChange={handleSeleccionaTodos}
-                              checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                            />
-                          </th>
-                          <th scope="col" className="text-nowrap text-center">N° Inventario</th>
-                          <th scope="col" className="text-nowrap text-center">N° Alta</th>
-                          <th scope="col" className="text-nowrap text-center">Servicio</th>
-                          <th scope="col" className="text-nowrap text-center">Dependencia</th>
-                          <th scope="col" className="text-nowrap text-center">Fecha Ingreso</th>
-                          <th scope="col" className="text-nowrap text-center">Especie</th>
-                          <th scope="col" className="text-nowrap text-center">N° Cuenta</th>
-                          <th scope="col" className="text-nowrap text-center">Marca</th>
-                          <th scope="col" className="text-nowrap text-center">Modelo</th>
-                          <th scope="col" className="text-nowrap text-center">Serie</th>
-                          <th scope="col" className="text-nowrap text-center">Estado</th>
-                          <th scope="col" className="text-nowrap text-center">Precio</th>
-                          <th scope="col" className="text-nowrap text-center">N° Recepcion</th>
-                          {/* <th scope="col">Acción</th> */}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {elementosActuales.map((Lista, index) => {
-                          const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                          return (
-                            <tr key={indexReal}>
-                              <td style={{
-                                position: 'sticky',
-                                left: 0
-                              }}>
-                                <Form.Check
-                                  type="checkbox"
-                                  onChange={() => setSeleccionaFilas(index)}
-                                  checked={filasSeleccionadas.includes(indexReal.toString())} // Verifica con el índice real
-                                />
-                              </td>
 
-                              <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                              <td className="text-nowrap">{Lista.altaS_CORR}</td>
-                              <td className="text-nowrap">{Lista.serv}</td>
-                              <td className="text-nowrap">{Lista.dep}</td>
-                              <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
-                              <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                              <td className="text-nowrap">{Lista.ctA_COD}</td>
-                              <td className="text-nowrap">{Lista.deT_MARCA}</td>
-                              <td className="text-nowrap">{Lista.deT_MODELO}</td>
-                              <td className="text-nowrap">{Lista.deT_SERIE}</td>
-                              <td className="text-nowrap">{Lista.estado}</td>
-                              <td className="text-nowrap">
-                                ${(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                              </td>
-                              <td className="text-nowrap">{Lista.nrecep == "" || parseInt(Lista.nrecep) == 0 ? "Sin Nº Recepción" : Lista.nrecep}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                {/* Paginador */}
-                <div className="paginador-container position-relative z-0">
-                  <Pagination className="paginador-scroll">
-                    <Pagination.First
-                      onClick={() => paginar(1)}
-                      disabled={paginaActual === 1}
-                    />
-                    <Pagination.Prev
-                      onClick={() => paginar(paginaActual - 1)}
-                      disabled={paginaActual === 1}
-                    />
+            <div className="mb-2">
+              <small className={`${isDarkMode ? "text-light" : "text-muted"}`}>
+                Mostrando {datosFiltrados.length} de {listadoGeneralBajas.length} registros
+              </small>
+            </div>
 
-                    {Array.from({ length: totalPaginas }, (_, i) => (
-                      <Pagination.Item
-                        key={i + 1}
-                        active={i + 1 === paginaActual}
-                        onClick={() => paginar(i + 1)}
-                      >
-                        {i + 1}
-                      </Pagination.Item>
-                    ))}
-                    <Pagination.Next
-                      onClick={() => paginar(paginaActual + 1)}
-                      disabled={paginaActual === totalPaginas}
-                    />
-                    <Pagination.Last
-                      onClick={() => paginar(totalPaginas)}
-                      disabled={paginaActual === totalPaginas}
-                    />
-                  </Pagination>
-                </div>
-              </>
+
+            {/* Tabla */}
+            {loading ? (
+              <SkeletonLoader rowCount={elementosPorPagina} />
             ) : (
               <>
-                <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                  No hay resultados para mostrar.
-                </p>
+                {listadoGeneralBajas.length > 0 ? (
+                  <>
+                    <div className="table-responsive">
+                      <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}
+                      >
+                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}
+                        >
+                          <tr>
+                            <th style={{ position: "sticky", left: 0 }}>
+                              <Form.Check
+                                type="checkbox"
+                                onChange={handleSeleccionaTodos}
+                                checked={
+                                  filasSeleccionadas.length === elementosActuales.length &&
+                                  elementosActuales.length > 0
+                                }
+                              />
+                            </th>
+
+                            <th className="text-nowrap text-center">N° Inventario</th>
+                            <th className="text-nowrap text-center">N° Alta</th>
+                            <th className="text-nowrap text-center">Servicio</th>
+                            <th className="text-nowrap text-center">Dependencia</th>
+                            <th className="text-nowrap text-center">Fecha Ingreso</th>
+                            <th className="text-nowrap text-center">Especie</th>
+                            <th className="text-nowrap text-center">N° Cuenta</th>
+                            <th className="text-nowrap text-center">Marca</th>
+                            <th className="text-nowrap text-center">Modelo</th>
+                            <th className="text-nowrap text-center">Serie</th>
+                            <th className="text-nowrap text-center">Estado</th>
+                            <th className="text-nowrap text-center">Precio</th>
+                            <th className="text-nowrap text-center">N° Recepción</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {elementosActuales.map((Lista, index) => {
+                            const indexReal = indicePrimerElemento + index;
+
+                            return (
+                              <tr key={indexReal}>
+                                <td style={{ position: "sticky", left: 0 }}>
+                                  <Form.Check
+                                    type="checkbox"
+                                    checked={filasSeleccionadas.includes(Lista.aF_CLAVE.toString())}
+                                    onChange={() => setSeleccionaFilas(Lista)}
+                                  />
+                                </td>
+
+                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                <td className="text-nowrap">{Lista.serv}</td>
+                                <td className="text-nowrap">{Lista.dep}</td>
+                                <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
+                                <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                <td className="text-nowrap">{Lista.deT_MARCA}</td>
+                                <td className="text-nowrap">{Lista.deT_MODELO}</td>
+                                <td className="text-nowrap">{Lista.deT_SERIE}</td>
+                                <td className="text-nowrap">{Lista.estado}</td>
+                                <td className="text-nowrap">
+                                  $
+                                  {(Lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0, })}
+                                </td>
+                                <td className="text-nowrap">
+                                  {Lista.nrecep === "" || parseInt(Lista.nrecep) === 0 ? "Sin Nº Recepción" : Lista.nrecep}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Paginador */}
+                    <div className="paginador-container position-relative z-0">
+                      <Pagination className="paginador-scroll">
+                        <Pagination.First
+                          onClick={() => paginar(1)}
+                          disabled={paginaActual === 1}
+                        />
+                        <Pagination.Prev
+                          onClick={() => paginar(paginaActual - 1)}
+                          disabled={paginaActual === 1}
+                        />
+
+                        {Array.from({ length: totalPaginas }, (_, i) => (
+                          <Pagination.Item
+                            key={i + 1}
+                            active={i + 1 === paginaActual}
+                            onClick={() => paginar(i + 1)}
+                          >
+                            {i + 1}
+                          </Pagination.Item>
+                        ))}
+
+                        <Pagination.Next
+                          onClick={() => paginar(paginaActual + 1)}
+                          disabled={paginaActual === totalPaginas}
+                        />
+                        <Pagination.Last
+                          onClick={() => paginar(totalPaginas)}
+                          disabled={paginaActual === totalPaginas}
+                        />
+                      </Pagination>
+                    </div>
+                  </>
+                ) : (
+                  <p className={`text-center pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? "bg-dark text-light border border-secondary" : "bg-light text-muted border"}`}>
+                    No hay resultados para mostrar.
+                  </p>
+                )}
               </>
             )}
+
           </div >
         </div>
       </div>

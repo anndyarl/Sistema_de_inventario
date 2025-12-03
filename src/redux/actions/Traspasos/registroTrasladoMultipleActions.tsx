@@ -4,10 +4,10 @@ import {
     POST_FORMULARIO_TRASPASO_REQUEST,
     POST_FORMULARIO_TRASPASO_SUCCESS,
     POST_FORMULARIO_TRASPASO_FAIL,
-} from "./types";
+} from "../Traspasos/types";
 
 // Acción para enviar el formulario
-export const registroTraspasoMultipleActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registroTraspasoMultipleActions = (FormularioTraspaso: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; // Token está en el estado de autenticación
     if (token) {
         const config = {
@@ -17,11 +17,11 @@ export const registroTraspasoMultipleActions = (FormularioTraslado: Record<strin
             },
         };
         // Verifica si `datosInventario` tiene datos antes de enviar
-        if (!FormularioTraslado || Object.keys(FormularioTraslado).length === 0) {
+        if (!FormularioTraspaso || Object.keys(FormularioTraspaso).length === 0) {
             // console.error("El objeto datosInventario está vacío.");
             return false;
         }
-        const body = JSON.stringify(FormularioTraslado);
+        const body = JSON.stringify(FormularioTraspaso);
 
         dispatch({ type: POST_FORMULARIO_TRASPASO_REQUEST });
 

@@ -20,10 +20,10 @@ import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/
 import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
-import { registroTraspasoMultipleActions } from "../../redux/actions/Trapasos/registroTrasladoMultipleActions";
+import { registroTraspasoMultipleActions } from "../../redux/actions/Traspasos/registroTrasladoMultipleActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
-
-import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
+import { listadoTraspasosRecibidosActions } from "../../redux/actions/Traspasos/listadoTraspasosRecibidosActions";
+import { listadoTraspasosEnviadosActions } from "../../redux/actions/Traspasos/listadoTraspasosEnviadosActions";
 
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
@@ -64,7 +64,7 @@ export interface listaTrasladoSeleccion {
     deP_CORR_ORIGEN: number;
 }
 /*------Formulario Modal--------*/
-interface FormularioTraslado {
+interface FormularioTraspaso {
     deP_CORR_DESTINO: number;
     paS_MEMO_REF: string;
     paS_FECHA_MEMO: string;
@@ -91,7 +91,7 @@ interface SERVICIO_DEPENDENCIA {
 }
 
 interface TrasladosProps {
-    registroTraspasoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>
+    registroTraspasoMultipleActions: (FormularioTraspaso: Record<string, any>) => Promise<boolean>
     comboTrasladoServicio: TRASLADOSERVICIO[];
     comboTrasladoServicioActions: (establ_corr: number) => void;
     comboEstablecimiento: ESTABLECIMIENTO[];
@@ -103,12 +103,13 @@ interface TrasladosProps {
     comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
     comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado 
     obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string, estabL_CORR: number) => Promise<boolean>
+    listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
+    listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
     listaTrasladoSeleccion: listaTrasladoSeleccion[];
     comboEspecies: ListaEspecie[];
     comboSerDepActions: (establ_corr: number) => void;//En buscador  
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
     comboSerDep: SERVICIO_DEPENDENCIA[];
-    limpiarDataActions: () => void;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -126,7 +127,8 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     comboDependenciaDestinoActions,
     obtenerInventarioTrasladoActions,
     comboEspeciesBienActions,
-    limpiarDataActions,
+    listadoTraspasosEnviadosActions,
+    listadoTraspasosRecibidosActions,
     comboTrasladoServicio,
     comboEstablecimiento,
     comboTrasladoEspecie,
@@ -140,7 +142,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     isDarkMode }) => {
     const [loading, setLoadingBuscar] = useState(false); // Estado para controlar la carga
     const [loadingBuscar, setLoading] = useState(false); // Estado para controlar la carga
-    const [error, setError] = useState<Partial<FormularioTraslado> & {}>({});
+    const [error, setError] = useState<Partial<FormularioTraspaso> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
     const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
@@ -624,17 +626,16 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
 
 
                 const resultado = await registroTraspasoMultipleActions(activosSeleccionados);
-                console.log("formulario", activosSeleccionados);
                 if (resultado) {
                     mostrarAlerta();
-                    limpiarDataActions();
+                    listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+                    listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
                     handleLimpiar();
                     handleLimpiarFormulario();
                     setFilasSeleccionadas([]);
                     setFilasSeleccionadasTraslados([]);
                     setActivosFijos([]);
                     setMostrarModalTraslado(false);
-
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -653,7 +654,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     };
 
     const mostrarAlerta = () => {
-        document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
+        document.body.style.overflow = "hidden"; // Evita que el fondo se desplace       
         Swal.fire({
             icon: "success",
             title: "Registro Exitoso",
@@ -668,6 +669,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             willClose: () => {
                 document.body.style.overflow = "auto"; // Restaura el scroll
             }
+
         }).then((result) => {
             if (result.isConfirmed) {
                 setMostrarModalResumen(true);
@@ -1307,9 +1309,13 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <h5 className="fw-semibold">Ubicación del centro de destino</h5>
-                    <p className={`text-start  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                        (Escoga su propio centro para traslados externos)
-                    </p>
+                    <div className={`d-flex flex-column flex-md-row align-items-center 
+                           bg-light border-start border-4 border-warning shadow-sm rounded p-2 gap-2 mb-2`}>
+                        <p className="fw-semibold  small text-dark">
+                            Escoga su propio centro para traslados externos.
+                        </p>
+                    </div>
+
                     <form onSubmit={handleSubmitTraspaso}>
                         <Col >
                             <div className="d-flex flex-column flex-sm-row justify-content-end align-items-stretch">
@@ -1692,5 +1698,6 @@ export default connect(mapStateToProps, {
     comboEspeciesBienActions,
     obtenerInventarioTrasladoActions,
     listadoDeEspeciesBienActions,
-    limpiarDataActions
+    listadoTraspasosRecibidosActions,
+    listadoTraspasosEnviadosActions
 })(RegistrarTraspasos);

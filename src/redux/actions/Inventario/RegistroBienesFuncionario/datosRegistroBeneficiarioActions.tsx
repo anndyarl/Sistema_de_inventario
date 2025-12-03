@@ -12,6 +12,11 @@ export const setDependenciaBienesFuncionarioActions = (dependencia: number) => (
   payload: dependencia,
 });
 
+export const setAfCodigoGenericoActions = (af_codigo_generico: string) => ({
+  type: 'SET_AF_CODIGO_GENERICO',
+  payload: af_codigo_generico,
+});
+
 
 
 

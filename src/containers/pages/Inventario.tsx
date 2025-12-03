@@ -3,7 +3,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Card, Row, Col } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { PlusCircle, BoxSeam, PencilSquare, Search, SlashCircle } from "react-bootstrap-icons";
+import { PlusCircle, BoxSeam, PencilSquare, Search, SlashCircle, Table } from "react-bootstrap-icons";
 import Layout from "../hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "../../components/Inventario/RegistrarInventario/DatosInventario";
 import { BIEN, DEPENDENCIA, SERVICIO } from "../../components/Inventario/RegistrarInventario/DatosCuenta";
@@ -109,7 +109,8 @@ const Inventario: React.FC<FormInventarioProps> = ({
     { descripcion: 'Encuentre y modifique el inventario existente.', name: 'ModificarInventario', title: 'Modificar Inventario', href: '/Inventario/ModificarInventario', icon: PencilSquare },
     { descripcion: 'Para anular un inventario, búsquelo previamente por fecha de inicio y término.', name: 'AnularInventario', title: 'Anular Inventario', href: '/Inventario/AnularInventario', icon: SlashCircle },
     { descripcion: 'Filtre por distintos criterios para encontrar de manera fácil sus bienes.', name: 'BuscarInventario', title: 'Buscar Inventario', href: '/Inventario/BuscarInventario', icon: Search },
-    { descripcion: 'Registre los bienes asignados a funcionarios.', name: 'FormBienesFuncionarios', title: 'Bienes de Funcionarios', href: '/Inventario/FormBienesFuncionarios', icon: BoxSeam },
+    { descripcion: 'Registre los bienes asignados a funcionarios.', name: 'RegistroBienesFuncionarios', title: 'Bienes de Funcionarios', href: '/Inventario/RegistroBienesFuncionarios', icon: BoxSeam },
+    { descripcion: 'Busque el activo de los Bienes de Funcionarios previamente registrados.', name: 'ListadoBienesFuncionarios', title: 'Listado Bienes de Funcionarios', href: '/Inventario/ListadoBienesFuncionarios', icon: Table },
     // { descripcion: 'Adjunte su archivo excel para realizar una carga masiva', name: 'CargaMasiva', title: 'Carga Masiva', href: '/Inventario/CargaMasiva', icon: FileExcel },
 
   ];

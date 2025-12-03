@@ -27,7 +27,8 @@ const styles = StyleSheet.create({
         height: 'auto',
     },
     containerHeader: {
-        marginBottom: 20,
+        marginTop: 15,
+        marginBottom: 5,
     },
     textContainer: {
         marginLeft: 5
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     header: {
         flex: 1,
         fontSize: 6,
-        marginBottom: 10,
+        marginBottom: 5,
         fontWeight: 'bold',
         textAlign: 'right',
     },
@@ -77,17 +78,17 @@ const styles = StyleSheet.create({
         padding: 3,
         fontSize: 6,
         borderRight: "1px solid #ccc",
-        textAlign: "center",
+        // textAlign: "center",
         overflow: "hidden",
         flexGrow: 1,
     },
-    colCodigo: { width: "10%" },
-    colEspecie: { width: "10%" },
-    colMarca: { width: "12%" },
-    colModelo: { width: "10%" },
+    colCodigo: { width: "13%" },
+    colEspecie: { width: "10%", fontSize: 5 },
+    colMarca: { width: "10%", fontSize: 5 },
+    colModelo: { width: "10%", fontSize: 5 },
     colSerie: { width: "10%" },
     colPrecio: { width: "10%" },
-    colDescripcion: { width: "10%" },
+    colDescripcion: { width: "10%", fontSize: 5 },
     colMesesTranscurridos: { width: "7%" },
     colVidaUtil: { width: "6%" },
     colMesVidaUtil: { width: "6%" },
@@ -97,63 +98,113 @@ const styles = StyleSheet.create({
     colDepreciacionMensual: { width: "8%" },
     colDepAcumulada: { width: "10%" },
     colValorResidual: { width: "10%" },
+    // colDepSIGFE: { width: "12%" },
+    // colDepAcumuladaSIGFE: { width: "12%" },
 
+    fechaHoy: {
+        padding: 2,
+    },
+
+    footer: {
+        position: 'absolute',
+        bottom: 20,          // distancia del borde inferior
+        left: 40,
+        right: 40,
+        height: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',  // separa fecha y numeración
+        alignItems: 'center',
+        fontSize: 9,
+        color: '#000',
+        borderTopWidth: 1,                // línea separadora superior
+        borderTopColor: '#ccc',
+        paddingTop: 4,
+    },
+    footerLeft: {
+        textAlign: 'left',
+    },
+    footerRight: {
+        textAlign: 'right',
+    },
 });
-const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number }) => (
-    <Document>
-        <Page style={styles.page}>
-            {/* Logo */}
-            <Container style={styles.containerHeader}>
-                <View style={styles.headerContainer}>
-                    {/* Logo a la izquierda */}
-                    <Image src={ssmso_logo} style={styles.logo} />
-                    {/* Textos a la derecha */}
-                    <View style={styles.textContainer}>
-                        <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
-                        <Text style={styles.p}>Subdirección Administrativa</Text>
-                        <Text style={styles.p}>Departamento de Finanzas</Text>
-                        <Text style={styles.p}>Unidad de Inventarios</Text>
-                    </View>
-                </View>
-            </Container>
-            {/* Encabezado */}
-            <Container style={styles.containerHeader}>
-                <View style={styles.headerContent}>
-                    {totalDep < 0 ? (
-                        <p className="fw-semibold text-center">
-                            <Text style={styles.p}>Total Depreciación Acumulada: $ 1</Text>
-                        </p>
-                    ) : (
-                        <p className="fw-semibold text-center">
-                            <Text style={styles.p}>Total Depreciación Acumulada: $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        </p>
-                    )}
 
-                </View>
-                <View style={styles.headerContent}>
-                    {totalRes < 0 ? (
-                        <p className="fw-semibold text-center">
-                            <Text style={styles.p}>Total Valor Residual: $ 1</Text>
-                        </p>
-                    ) : (
-                        <p className="fw-semibold text-center">
-                            <Text style={styles.p}>Total Valor Residual: $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        </p>
-                    )}
-                </View>
-            </Container>
-            {/* Tabla */}
-            <View style={styles.table}>
-                {/* Cabecera de la tabla */}
-                <View style={styles.tableHeader}>
-                    {/* <Text style={styles.tableCellHeader}>Código</Text> */}
-                    <Text style={[styles.tableCell, styles.colCodigo]}>Nº Inventario</Text>
-                    <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
-                    <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
-                    <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
-                    <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
-                    <Text style={[styles.tableCell, styles.colPrecio]}>Precio</Text>
-                    {/* <Text style={styles.tableCellHeader}>Código Largo</Text>
+
+
+// Formatear la fecha actual en español (Chile)
+const fechaHoy = new Date()
+    .toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    })
+    .replace(/-/g, '/');
+
+
+const arreglo = (array: any[], size: number) => {
+    const result = [];
+    for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+    }
+    return result;
+};
+
+
+const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number }) => {
+
+    const filasPorPagina = 12;
+    const paginas = arreglo(row, filasPorPagina);
+    return (
+        <Document>
+            {paginas.map((rows, indicePagina) => (
+                <Page key={indicePagina} style={styles.page}>
+                    {/* Logo */}
+                    <Container style={styles.containerHeader}>
+                        <View style={styles.headerContainer}>
+                            {/* Logo a la izquierda */}
+                            <Image src={ssmso_logo} style={styles.logo} />
+                            {/* Textos a la derecha */}
+                            <View style={styles.textContainer}>
+                                <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
+                                <Text style={styles.p}>Subdirección Administrativa</Text>
+                                <Text style={styles.p}>Departamento de Finanzas</Text>
+                                <Text style={styles.p}>Unidad de Inventarios</Text>
+                            </View>
+                        </View>
+                    </Container>
+                    {/* Encabezado */}
+                    <Container style={styles.containerHeader}>
+                        <View style={styles.headerContent}>
+
+                            {totalDep > 0 && (
+                                <p className="fw-semibold text-center">
+                                    <Text style={styles.p}>Total Depreciación Acumulada: $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                </p>
+                            )}
+
+                        </View>
+                        <View style={styles.headerContent}>
+                            {totalRes > 0 && (
+                                <p className="fw-semibold text-center">
+                                    <Text style={styles.p}>Total Valor Residual: $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                </p>
+                            )}
+                        </View>
+                        <View style={styles.headerContent}>
+                            <Text style={styles.p}>Cantidad: {row.length}</Text>
+                        </View>
+                    </Container>
+                    {/* Tabla */}
+                    <View style={styles.table}>
+                        {/* Cabecera de la tabla */}
+                        <View style={styles.tableHeader}>
+                            {/* <Text style={styles.tableCellHeader}>Código</Text> */}
+                            <Text style={[styles.tableCell, styles.colCodigo]}>Nº Inventario</Text>
+                            <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
+                            <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
+                            <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
+                            <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
+                            <Text style={[styles.tableCell, styles.colPrecio]}>Precio</Text>
+                            {/* <Text style={styles.tableCellHeader}>Código Largo</Text>
                     <Text style={styles.tableCellHeader}>Departamento Corr</Text>
                     <Text style={styles.tableCellHeader}>Código Específico</Text>
                     <Text style={styles.tableCellHeader}>Secuencia</Text>
@@ -193,28 +244,31 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                     <Text style={styles.tableCellHeader}>ID Programa</Text>
                     <Text style={styles.tableCellHeader}>ID Modalidad Compra</Text>
                     <Text style={styles.tableCellHeader}>ID Propiedad</Text>*/}
-                    <Text style={[styles.tableCell, styles.colDescripcion]}>Descripción</Text>
-                    <Text style={[styles.tableCell, styles.colMesesTranscurridos]}>Meses Transcurridos</Text>
-                    <Text style={[styles.tableCell, styles.colVidaUtil]}>Vida Útil</Text>
-                    <Text style={[styles.tableCell, styles.colMesVidaUtil]}>Mes Vida Útil</Text>
-                    <Text style={[styles.tableCell, styles.colMesesRestantes]}>Meses Restantes</Text>
-                    <Text style={[styles.tableCell, styles.colMontoInicial]}>Monto Inicial</Text>
-                    <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
-                    <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>Depreciación por Mes</Text>
-                    <Text style={[styles.tableCell, styles.colDepAcumulada]}>Depreciación Acumulada Actualizada</Text>
-                    <Text style={[styles.tableCell, styles.colValorResidual]}>Valor Residual</Text>
-                </View>
-                {/* Fila de datos */}
-                {row.map((lista) => (
-                    <View style={styles.tableRow}>
-                        {/* <Text style={styles.tableCell}>{lista.aF_CLAVE}</Text> */}
-                        <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
-                        <Text style={[styles.tableCell, styles.colEspecie]}>{lista.especie}</Text>
-                        <Text style={[styles.tableCell, styles.colEspecie]}>{lista.marca}</Text>
-                        <Text style={[styles.tableCell, styles.colMarca]}>{lista.modelo}</Text>
-                        <Text style={[styles.tableCell, styles.colSerie]}>{lista.serie}</Text>
-                        <Text style={[styles.tableCell, styles.colPrecio]}>{(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        {/* <Text style={styles.tableCell}>{lista.aF_CODIGO_LARGO}</Text>
+                            <Text style={[styles.tableCell, styles.colDescripcion]}>Descripción</Text>
+                            <Text style={[styles.tableCell, styles.colMesesTranscurridos]}>Meses Transcurridos</Text>
+                            <Text style={[styles.tableCell, styles.colVidaUtil]}>Vida Útil</Text>
+                            <Text style={[styles.tableCell, styles.colMesVidaUtil]}>Mes Vida Útil</Text>
+                            <Text style={[styles.tableCell, styles.colMesesRestantes]}>Meses Restantes</Text>
+                            <Text style={[styles.tableCell, styles.colMontoInicial]}>Monto Inicial</Text>
+                            <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
+                            <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>Depreciación por Mes</Text>
+                            <Text style={[styles.tableCell, styles.colDepAcumulada]}>Depreciación Acumulada Actualizada</Text>
+                            <Text style={[styles.tableCell, styles.colValorResidual]}>Valor Residual</Text>
+                            {/* <Text style={[styles.tableCell, styles.colDepSIGFE]}>Depreciación SIGFE</Text> */}
+                            {/* <Text style={[styles.tableCell, styles.colDepAcumuladaSIGFE]}>Depreciacion Acumulada SIGFE</Text> */}
+
+                        </View>
+                        {/* Fila de datos */}
+                        {rows.map((lista, idx) => (
+                            <View style={styles.tableRow} key={idx}>
+                                {/* <Text style={styles.tableCell}>{lista.aF_CLAVE}</Text> */}
+                                <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
+                                <Text style={[styles.tableCell, styles.colEspecie]}>{lista.especie}</Text>
+                                <Text style={[styles.tableCell, styles.colEspecie]}>{lista.marca}</Text>
+                                <Text style={[styles.tableCell, styles.colMarca]}>{lista.modelo}</Text>
+                                <Text style={[styles.tableCell, styles.colSerie]}>{lista.serie}</Text>
+                                <Text style={[styles.tableCell, styles.colPrecio]}>{(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                {/* <Text style={styles.tableCell}>{lista.aF_CODIGO_LARGO}</Text>
                         <Text style={styles.tableCell}>{lista.deP_CORR}</Text>
                         <Text style={styles.tableCell}>{lista.esP_CODIGO}</Text>
                         <Text style={styles.tableCell}>{lista.aF_SECUENCIA}</Text>
@@ -254,23 +308,39 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                         <Text style={styles.tableCell}>{lista.idprograma}</Text>
                         <Text style={styles.tableCell}>{lista.idmodalidadcompra}</Text>
                         <Text style={styles.tableCell}>{lista.idpropiedad}</Text>*/}
-                        < Text style={[styles.tableCell, styles.colDescripcion]} > {lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</Text>
-                        <Text style={[styles.tableCell, styles.colMesesTranscurridos]}>{lista.mesesTranscurridos}</Text>
-                        <Text style={[styles.tableCell, styles.colVidaUtil]}>{lista.vidaUtil}</Text>
-                        <Text style={[styles.tableCell, styles.colMesVidaUtil]}>{lista.mesVidaUtil}</Text>
-                        <Text style={[styles.tableCell, styles.colMesesRestantes]}>{lista.mesesRestantes}</Text>
-                        <Text style={[styles.tableCell, styles.colMontoInicial]}>{(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>{(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                        <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                < Text style={[styles.tableCell, styles.colDescripcion]} > {lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</Text>
+                                <Text style={[styles.tableCell, styles.colMesesTranscurridos]}>{lista.mesesTranscurridos}</Text>
+                                <Text style={[styles.tableCell, styles.colVidaUtil]}>{lista.vidaUtil}</Text>
+                                <Text style={[styles.tableCell, styles.colMesVidaUtil]}>{lista.mesVidaUtil}</Text>
+                                <Text style={[styles.tableCell, styles.colMesesRestantes]}>{lista.mesesRestantes}</Text>
+                                <Text style={[styles.tableCell, styles.colMontoInicial]}>{(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>{(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                {/* <Text style={[styles.tableCell, styles.colDepSIGFE]}>{(lista.depreciacioN_ACUMULADA_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text> */}
+                                {/* <Text style={[styles.tableCell, styles.colDepAcumuladaSIGFE]}>{(lista.depreciacioN_ACUMULADA_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text> */}
+                            </View>
+                        ))}
                     </View>
-                ))}
-            </View>
-            {/* <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text> */}
-        </Page >
-    </Document >
 
-);
+                    {/* <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text> */}
+
+                    <View style={styles.footer} fixed>
+                        <Text style={styles.footerLeft}>{fechaHoy}</Text>
+
+                        <Text
+                            style={styles.footerRight}
+                            render={({ pageNumber, totalPages }) =>
+                                `Página ${pageNumber} de ${totalPages}`
+                            }
+                        />
+                    </View>
+
+                </Page >
+            ))}
+        </Document >
+    );
+};
 
 export default DocumentoPDF;

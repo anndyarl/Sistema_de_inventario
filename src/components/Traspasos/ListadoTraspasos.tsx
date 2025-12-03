@@ -11,11 +11,11 @@ import { Helmet } from "react-helmet-async";
 import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
-import { recibeTraspasoActions } from "../../redux/actions/Trapasos/recibeTraspasoActions.tsx";
-import { listadoTraspasosRecibidosActions } from "../../redux/actions/Trapasos/listadoTraspasosRecibidosActions.tsx";
+import { recibeTraspasoActions } from "../../redux/actions/Traspasos/recibeTraspasoActions.tsx";
+import { listadoTraspasosRecibidosActions } from "../../redux/actions/Traspasos/listadoTraspasosRecibidosActions.tsx";
 import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions.tsx";
-import { listadoTraspasosEnviadosActions } from "../../redux/actions/Trapasos/listadoTraspasosEnviadosActions.tsx";
-import { obtenerAdjuntosActions } from "../../redux/actions/Trapasos/obtenerAdjuntosActions.tsx";
+import { listadoTraspasosEnviadosActions } from "../../redux/actions/Traspasos/listadoTraspasosEnviadosActions.tsx";
+import { obtenerAdjuntosActions } from "../../redux/actions/Traspasos/obtenerAdjuntosActions.tsx";
 interface FechasProps {
   fDesde: string;
   fHasta: string;
@@ -607,8 +607,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
   };
 
-
-
   return (
     <Layout>
       <Helmet>
@@ -797,121 +795,123 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                   </Col>
                 </Row>
 
-                {listadoTraspasos.length > 0 ? (
+
+                {loadingEnviados ? (
                   <>
-                    {loadingEnviados ? (
+                    <SkeletonLoader rowCount={elementosPorPagina} />
+                  </>
+                ) : (
+                  <>
+                    {listadoTraspasos.length > 0 ? (
                       <>
-                        <SkeletonLoader rowCount={elementosPorPagina} />
-                      </>
-                    ) : (
-                      <div className='table-responsive'>
-                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                          <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                            <tr>
-                              <th scope="col" className="text-nowrap">Estado</th>
-                              <th scope="col" className="text-nowrap">N° Inventario</th>
-                              <th scope="col" className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>N° Traspaso</th>
-                              <th scope="col" className="text-nowrap">Fecha Traspaso</th>
-                              <th scope="col" className="text-nowrap">Nombre Especie</th>
-                              <th scope="col" className="text-nowrap">Entregado por</th>
-                              <th scope="col" className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>Ubicación Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                              <th scope="col" className="text-nowrap sticky-col-right-0 rounded-top">
-                                <b>Acción</b>
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {elementosActuales.map((Lista, index) => {
-                              let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                              return (
-                                <tr key={indexReal}>
-                                  {/* <td>
+                        <div className='table-responsive'>
+                          <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                              <tr>
+                                <th scope="col" className="text-nowrap">Estado</th>
+                                <th scope="col" className="text-nowrap">N° Inventario</th>
+                                <th scope="col" className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>N° Traspaso</th>
+                                <th scope="col" className="text-nowrap">Fecha Traspaso</th>
+                                <th scope="col" className="text-nowrap">Nombre Especie</th>
+                                <th scope="col" className="text-nowrap">Entregado por</th>
+                                <th scope="col" className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>Ubicación Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
+                                <th scope="col" className="text-nowrap sticky-col-right-0 rounded-top">
+                                  <b>Acción</b>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {elementosActuales.map((Lista, index) => {
+                                let indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                return (
+                                  <tr key={indexReal}>
+                                    {/* <td>
                         <Form.Check
                           type="checkbox"
                           onChange={() => setSeleccionaFila(indexReal)}
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
-                                  <td className="text-nowrap">
-                                    {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
-                                      : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
-                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
-                                  </td>
-                                  <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                  <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
-                                  <td className="text-nowrap">{Lista.paS_FECHA}</td>
-                                  <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                  <td className="text-nowrap">{
-                                    Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
-                                      Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
-                                        Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
-                                          Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                            Lista.usuariO_CREA === 1234567 || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
-                                              Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
-                                                Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
-                                                  Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
-                                  }
-                                  </td>
-                                  <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_DESTINO} {Lista.deP_NOMBRE_DESTINO}</td>
-                                  <td className="text-nowrap sticky-col-right-0 rounded">
-                                    <Button
-                                      variant="outline-primary"
-                                      className="fw-semibold  ps-3 pe-3"
-                                      onClick={() => handleVerEnviados(index, Lista)}
-                                    >
-                                      Ver
-                                    </Button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                                    <td className="text-nowrap">
+                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
+                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
+                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
+                                    </td>
+                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                    <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
+                                    <td className="text-nowrap">{Lista.paS_FECHA}</td>
+                                    <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
+                                    <td className="text-nowrap">{
+                                      Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
+                                        Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
+                                          Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
+                                            Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
+                                              Lista.usuariO_CREA === 1234567 || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
+                                                Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
+                                                  Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
+                                                    Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
+                                    }
+                                    </td>
+                                    <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_DESTINO} {Lista.deP_NOMBRE_DESTINO}</td>
+                                    <td className="text-nowrap sticky-col-right-0 rounded">
+                                      <Button
+                                        variant="outline-primary"
+                                        className="fw-semibold  ps-3 pe-3"
+                                        onClick={() => handleVerEnviados(index, Lista)}
+                                      >
+                                        Ver
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                        {/* Paginador */}
+                        <div className="paginador-container position-relative z-0">
+                          <Pagination className="paginador-scroll ">
+                            <Pagination.First
+                              onClick={() => paginar(1)}
+                              disabled={paginaActual === 1}
+
+                            />
+                            <Pagination.Prev
+                              onClick={() => paginar(paginaActual - 1)}
+                              disabled={paginaActual === 1}
+                            />
+
+                            {Array.from({ length: totalPaginas }, (_, i) => (
+                              <Pagination.Item
+                                key={i + 1}
+                                active={i + 1 === paginaActual}
+                                onClick={() => paginar(i + 1)}
+
+                              >
+                                {i + 1} {/* adentro de aqui esta page-link */}
+                              </Pagination.Item>
+                            ))}
+                            <Pagination.Next
+                              onClick={() => paginar(paginaActual + 1)}
+                              disabled={paginaActual === totalPaginas}
+
+                            />
+                            <Pagination.Last
+                              onClick={() => paginar(totalPaginas)}
+                              disabled={paginaActual === totalPaginas}
+
+                            />
+                          </Pagination>
+                        </div>
+                      </>
+                    ) : (
+                      <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        No hay resultados para mostrar.
+                      </p>
                     )}
-                    {/* Paginador */}
-                    <div className="paginador-container position-relative z-0">
-                      <Pagination className="paginador-scroll ">
-                        <Pagination.First
-                          onClick={() => paginar(1)}
-                          disabled={paginaActual === 1}
-
-                        />
-                        <Pagination.Prev
-                          onClick={() => paginar(paginaActual - 1)}
-                          disabled={paginaActual === 1}
-                        />
-
-                        {Array.from({ length: totalPaginas }, (_, i) => (
-                          <Pagination.Item
-                            key={i + 1}
-                            active={i + 1 === paginaActual}
-                            onClick={() => paginar(i + 1)}
-
-                          >
-                            {i + 1} {/* adentro de aqui esta page-link */}
-                          </Pagination.Item>
-                        ))}
-                        <Pagination.Next
-                          onClick={() => paginar(paginaActual + 1)}
-                          disabled={paginaActual === totalPaginas}
-
-                        />
-                        <Pagination.Last
-                          onClick={() => paginar(totalPaginas)}
-                          disabled={paginaActual === totalPaginas}
-
-                        />
-                      </Pagination>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      No hay resultados para mostrar.
-                    </p>
                   </>
                 )}
+
               </Col>
               {/*Traspasos recibidos */}
               <Col className={`border border-1 rounded ${expandedColumn === "recibidos" ? "col-12" : ""} ${expandedColumn === "enviados" ? "d-none" : ""}`}>
@@ -1075,667 +1075,673 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                   </Col>
                 </Row>
 
-                {listadoTraspasosRecibidos.length > 0 ? (
+
+                {loadingRecibidos ? (
                   <>
-                    {loadingRecibidos ? (
-                      <>
-                        <SkeletonLoader rowCount={elementosPorPagina1} />
-                      </>
-                    ) : (
-                      <div className='table-responsive'>
-                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                          <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`} >
-                            <tr >
-                              <th scope="col" className="text-nowrap">Estado</th>
-                              <th scope="col" className="text-nowrap">N° Inventario</th>
-                              <th scope="col" className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>N° Traspaso</th>
-                              <th scope="col" className="text-nowrap">Fecha Traspaso</th>
-                              <th scope="col" className="text-nowrap">Nombre Especie</th>
-                              <th scope="col" className="text-nowrap">Entregado por</th>
-                              <th scope="col" className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                              <th scope="col" className="text-nowrap sticky-col-right-0 rounded-top">
-                                <b>Acción</b>
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {elementosActuales1.map((Lista, index) => {
-                              let indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
-                              return (
-                                <tr key={indexReal}>
-                                  <td className="text-nowrap">
-                                    {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
-                                      : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
-                                        : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
-                                  </td>
-                                  <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                  <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
-                                  <td className="text-nowrap">{Lista.paS_FECHA}</td>
-                                  <td className="text-nowrap" >{Lista.esP_NOMBRE}</td>
-                                  <td className="text-nowrap">{
-                                    Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
-                                      Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
-                                        Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
-                                          Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                            Lista.usuariO_CREA === 1234567 || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
-                                              Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
-                                                Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
-                                                  Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
-                                  }
-                                  </td>
-                                  <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_ORIGEN} {Lista.deP_NOMBRE_ORIGEN}</td>
-                                  <td className="text-nowrap sticky-col-right-0 rounded">
-                                    <Button
-                                      variant="outline-success"
-                                      className="fw-semibold  ps-3 pe-3"
-                                      onClick={() => handleVerRecibidos(index, Lista)}
-                                    >
-                                      Validar
-                                    </Button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                    {/* Paginador */}
-                    <div className="paginador-container position-relative z-0">
-                      <Pagination className="paginador-scroll ">
-                        <Pagination.First
-                          onClick={() => paginar1(1)}
-                          disabled={paginaActual1 === 1}
-
-                        />
-                        <Pagination.Prev
-                          onClick={() => paginar1(paginaActual1 - 1)}
-                          disabled={paginaActual1 === 1}
-                        />
-
-                        {Array.from({ length: totalPaginas1 }, (_, i) => (
-                          <Pagination.Item
-                            key={i + 1}
-                            active={i + 1 === paginaActual1}
-                            onClick={() => paginar1(i + 1)}
-
-                          >
-                            {i + 1} {/* adentro de aqui esta page-link */}
-                          </Pagination.Item>
-                        ))}
-                        <Pagination.Next
-                          onClick={() => paginar1(paginaActual1 + 1)}
-                          disabled={paginaActual1 === totalPaginas1}
-
-                        />
-                        <Pagination.Last
-                          onClick={() => paginar1(totalPaginas1)}
-                          disabled={paginaActual1 === totalPaginas1}
-
-                        />
-                      </Pagination>
-                    </div>
+                    <SkeletonLoader rowCount={elementosPorPagina1} />
                   </>
                 ) : (
                   <>
-                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      No hay resultados para mostrar.
-                    </p>
+                    {listadoTraspasosRecibidos.length > 0 ? (
+                      <>
+                        <div className='table-responsive'>
+                          <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`} >
+                              <tr >
+                                <th scope="col" className="text-nowrap">Estado</th>
+                                <th scope="col" className="text-nowrap">N° Inventario</th>
+                                <th scope="col" className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>N° Traspaso</th>
+                                <th scope="col" className="text-nowrap">Fecha Traspaso</th>
+                                <th scope="col" className="text-nowrap">Nombre Especie</th>
+                                <th scope="col" className="text-nowrap">Entregado por</th>
+                                <th scope="col" className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
+                                <th scope="col" className="text-nowrap sticky-col-right-0 rounded-top">
+                                  <b>Acción</b>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {elementosActuales1.map((Lista, index) => {
+                                let indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
+                                return (
+                                  <tr key={indexReal}>
+                                    <td className="text-nowrap">
+                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
+                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
+                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
+                                    </td>
+                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
+                                    <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
+                                    <td className="text-nowrap">{Lista.paS_FECHA}</td>
+                                    <td className="text-nowrap" >{Lista.esP_NOMBRE}</td>
+                                    <td className="text-nowrap">{
+                                      Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
+                                        Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
+                                          Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
+                                            Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
+                                              Lista.usuariO_CREA === 1234567 || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
+                                                Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
+                                                  Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
+                                                    Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
+                                    }
+                                    </td>
+                                    <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_ORIGEN} {Lista.deP_NOMBRE_ORIGEN}</td>
+                                    <td className="text-nowrap sticky-col-right-0 rounded">
+                                      <Button
+                                        variant="outline-success"
+                                        className="fw-semibold  ps-3 pe-3"
+                                        onClick={() => handleVerRecibidos(index, Lista)}
+                                      >
+                                        Validar
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                        {/* Paginador */}
+                        <div className="paginador-container position-relative z-0">
+                          <Pagination className="paginador-scroll ">
+                            <Pagination.First
+                              onClick={() => paginar1(1)}
+                              disabled={paginaActual1 === 1}
+
+                            />
+                            <Pagination.Prev
+                              onClick={() => paginar1(paginaActual1 - 1)}
+                              disabled={paginaActual1 === 1}
+                            />
+
+                            {Array.from({ length: totalPaginas1 }, (_, i) => (
+                              <Pagination.Item
+                                key={i + 1}
+                                active={i + 1 === paginaActual1}
+                                onClick={() => paginar1(i + 1)}
+
+                              >
+                                {i + 1} {/* adentro de aqui esta page-link */}
+                              </Pagination.Item>
+                            ))}
+                            <Pagination.Next
+                              onClick={() => paginar1(paginaActual1 + 1)}
+                              disabled={paginaActual1 === totalPaginas1}
+
+                            />
+                            <Pagination.Last
+                              onClick={() => paginar1(totalPaginas1)}
+                              disabled={paginaActual1 === totalPaginas1}
+
+                            />
+                          </Pagination>
+                        </div>
+                      </>
+                    ) : (
+                      <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        No hay resultados para mostrar.
+                      </p>
+                    )}
                   </>
                 )}
+
               </Col>
             </Row>
           </div>
         </div >
       </div >
       {/* Detalle de traspasos enviados */}
-      {elementosActuales.map((fila, index) => (
-        <Modal
-          key={index}
-          show={mostrarModalEnviados === index}
-          onHide={() => handleCerrarModalEnviados(index)}
-          size="xl"
-          centered
-        >
-          <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
-            <Modal.Title className="fw-semibold">Detalle del Traspaso</Modal.Title>
-          </Modal.Header>
+      {
+        elementosActuales.map((fila, index) => (
+          <Modal
+            key={index}
+            show={mostrarModalEnviados === index}
+            onHide={() => handleCerrarModalEnviados(index)}
+            size="xl"
+            centered
+          >
+            <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
+              <Modal.Title className="fw-semibold">Detalle del Traspaso</Modal.Title>
+            </Modal.Header>
 
-          <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
-            <Row className="g-1">
-              {/* Información General del Traspaso */}
-              <Col lg={6}>
-                <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
-                  <Row className="g-1">
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Nº Inventario</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.aF_CODIGO_GENERICO || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Nº Traspaso</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.n_TRASPASO || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Fecha Traspaso</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_FECHA || "No definida"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Fecha del Memo</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_FECHA_MEMO || "No definida"}
-                      </div>
-                    </Col>
-                    <Col md={12}>
-                      <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_MEMO_REF || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Especie</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.esP_NOMBRE || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Codigo Especie</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.esP_CODIGO || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={12}>
-                      <label className="fw-semibold small text-muted">Estado</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_ESTADO_AF || "No definida"}
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              </Col>
-
-              {/* Origen y Destino */}
-              <Col lg={6}>
-                <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
-                  <Row className="g-1">
-                    <Col md={12}>
-                      <div className="mb-3">
-                        <label className="fw-semibold small d-flex align-items-center">
-                          <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
-                          Establecimiento Origen
-                        </label>
+            <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+              <Row className="g-1">
+                {/* Información General del Traspaso */}
+                <Col lg={6}>
+                  <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
+                    <Row className="g-1">
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Nº Inventario</label>
                         <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                         >
-                          {fila.establecimientO_ORIGEN || "Sin Información"}
+                          {fila.aF_CODIGO_GENERICO || "Sin Información"}
                         </div>
-                      </div>
-                      <div>
-                        <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Nº Traspaso</label>
                         <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                         >
-                          {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
+                          {fila.n_TRASPASO || "Sin Información"}
                         </div>
-                      </div>
-                    </Col>
-                    <Col md={12}>
-                      <div className="mb-3">
-                        <label className="fw-semibold small d-flex align-items-center">
-                          <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
-                          Establecimiento Destino
-                        </label>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Fecha Traspaso</label>
                         <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                         >
-                          {fila.establecimientO_DESTINO || "Sin Información"}
+                          {fila.paS_FECHA || "No definida"}
                         </div>
-                      </div>
-                      <div>
-                        <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Fecha del Memo</label>
                         <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                         >
-                          {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
+                          {fila.paS_FECHA_MEMO || "No definida"}
                         </div>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              </Col>
-
-              {/* Observaciones */}
-              <Col lg={12}>
-                <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <label className="fw-semibold mb-2">Observaciones</label>
-                  <div
-                    className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                    style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
-                  >
-                    {fila.paS_OBS || "Sin observaciones"}
+                      </Col>
+                      <Col md={12}>
+                        <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.paS_MEMO_REF || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Especie</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.esP_NOMBRE || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Codigo Especie</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.esP_CODIGO || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={12}>
+                        <label className="fw-semibold small text-muted">Estado</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.paS_ESTADO_AF || "No definida"}
+                        </div>
+                      </Col>
+                    </Row>
                   </div>
-                </div>
-              </Col>
+                </Col>
 
-              {/* Despacho y Estado */}
-              <Col lg={6}>
-                <Row className="g-1">
-                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Despacho</h5>
-                    <div className="mb-3">
-                      <label className="fw-semibold small text-muted">Entregado Por</label>
-                      <p className="d-flex align-items-center mb-0">
-                        {fila.paS_NOM_ENTREGA ? (
-                          <>
-                            {fila.paS_NOM_ENTREGA}
-                            <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                          </>
-                        ) : (
-                          "Sin Información"
-                        )}
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="fw-semibold small text-muted">Recibido Por</label>
-                      <p className="d-flex align-items-center mb-0">
-                        {fila.paS_NOM_RECIBE ? (
-                          <>
-                            {fila.paS_NOM_RECIBE}
-                            <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                          </>
-                        ) : (
-                          <>
-                            Pendiente
-                            <Clock className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
-                          </>
-                        )}
-                      </p>
-                    </div>
-                    <div className="mb-1">
-                      <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
-                      <p className="d-flex align-items-center mb-0">
-                        {fila.paS_NOM_AUTORIZA ? (
-                          <>
-                            {fila.paS_NOM_AUTORIZA}
-                            <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                          </>
-                        ) : (
-                          "Sin Información"
-                        )}
-                      </p>
-                    </div>
+                {/* Origen y Destino */}
+                <Col lg={6}>
+                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
+                    <Row className="g-1">
+                      <Col md={12}>
+                        <div className="mb-3">
+                          <label className="fw-semibold small d-flex align-items-center">
+                            <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
+                            Establecimiento Origen
+                          </label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.establecimientO_ORIGEN || "Sin Información"}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={12}>
+                        <div className="mb-3">
+                          <label className="fw-semibold small d-flex align-items-center">
+                            <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
+                            Establecimiento Destino
+                          </label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.establecimientO_DESTINO || "Sin Información"}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
                   </div>
-                </Row>
-              </Col>
+                </Col>
 
-              {/* Documentos */}
-              <Col lg={6}>
-                {listadoTraspasosAdjuntos.length > 0 ? (
-                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
-                    <div className="table-responsive">
-                      <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
-                        <thead className={isDarkMode ? "table-dark" : "table-light"}>
-                          <tr>
-                            <th scope="col">Nombre</th>
-                            <th scope="col" className="text-center" style={{ width: "100px" }}>
-                              Descargar
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {elementosActualesAdj.map((Lista, index) => {
-                            const indexReal = indicePrimerElementoAdj + index
-                            return (
-                              <tr key={indexReal}>
-                                <td>{Lista.nombre}</td>
-                                <td className="text-center">
-                                  <Button
-                                    size="sm"
-                                    variant={isDarkMode ? "outline-light" : "outline-primary"}
-                                    onClick={() => handleDescargarAdjunto(Lista)}
-                                  >
-                                    <Download className="h-4 w-4" aria-hidden="true" />
-                                  </Button>
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      Sin documentos adjuntos
-                    </p>
-                  </>
-                )}
-              </Col>
-              {/*  Estado */}
-              <Col lg={6}>
-                <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Estado Solicitud</h5>
-                  {estadoEnviado === 0 ? (
+                {/* Observaciones */}
+                <Col lg={12}>
+                  <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <label className="fw-semibold mb-2">Observaciones</label>
                     <div
-                      className="alert alert-primary d-flex align-items-center justify-content-center m-0 px-4 py-3"
-                      role="alert"
+                      className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
                     >
-                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                      <span className="fw-semibold">Esperando Validación</span>
+                      {fila.paS_OBS || "Sin observaciones"}
                     </div>
-                  ) : estadoEnviado === 1 ? (
-                    <div
-                      className="alert alert-success d-flex align-items-center justify-content-center m-0 px-4 py-3"
-                      role="alert"
-                    >
-                      <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                      <span className="fw-semibold">Marcado como recibido</span>
+                  </div>
+                </Col>
+
+                {/* Despacho y Estado */}
+                <Col lg={6}>
+                  <Row className="g-1">
+                    <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                      <h5 className="fw-semibold mb-3 pb-1 border-bottom">Despacho</h5>
+                      <div className="mb-3">
+                        <label className="fw-semibold small text-muted">Entregado Por</label>
+                        <p className="d-flex align-items-center mb-0">
+                          {fila.paS_NOM_ENTREGA ? (
+                            <>
+                              {fila.paS_NOM_ENTREGA}
+                              <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                            </>
+                          ) : (
+                            "Sin Información"
+                          )}
+                        </p>
+                      </div>
+                      <div className="mb-3">
+                        <label className="fw-semibold small text-muted">Recibido Por</label>
+                        <p className="d-flex align-items-center mb-0">
+                          {fila.paS_NOM_RECIBE ? (
+                            <>
+                              {fila.paS_NOM_RECIBE}
+                              <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                            </>
+                          ) : (
+                            <>
+                              Pendiente
+                              <Clock className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
+                            </>
+                          )}
+                        </p>
+                      </div>
+                      <div className="mb-1">
+                        <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
+                        <p className="d-flex align-items-center mb-0">
+                          {fila.paS_NOM_AUTORIZA ? (
+                            <>
+                              {fila.paS_NOM_AUTORIZA}
+                              <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                            </>
+                          ) : (
+                            "Sin Información"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </Row>
+                </Col>
+
+                {/* Documentos */}
+                <Col lg={6}>
+                  {listadoTraspasosAdjuntos.length > 0 ? (
+                    <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                      <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
+                      <div className="table-responsive">
+                        <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                          <thead className={isDarkMode ? "table-dark" : "table-light"}>
+                            <tr>
+                              <th scope="col">Nombre</th>
+                              <th scope="col" className="text-center" style={{ width: "100px" }}>
+                                Descargar
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {elementosActualesAdj.map((Lista, index) => {
+                              const indexReal = indicePrimerElementoAdj + index
+                              return (
+                                <tr key={indexReal}>
+                                  <td>{Lista.nombre}</td>
+                                  <td className="text-center">
+                                    <Button
+                                      size="sm"
+                                      variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                      onClick={() => handleDescargarAdjunto(Lista)}
+                                    >
+                                      <Download className="h-4 w-4" aria-hidden="true" />
+                                    </Button>
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   ) : (
-                    <div
-                      className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-4 py-3"
-                      role="alert"
-                    >
-                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                      <span className="fw-semibold">Marcado como rechazado</span>
-                    </div>
+                    <>
+                      <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        Sin documentos adjuntos
+                      </p>
+                    </>
                   )}
-                </div>
-              </Col>
-            </Row>
-          </Modal.Body>
-        </Modal>
-      ))}
-
-      {/* Detalle de traspasos recibidos */}
-      {elementosActuales1.map((fila, index) => (
-        <Modal
-          key={index}
-          show={mostrarModalRecibidos === index}
-          onHide={() => handleCerrarModalRecibidos(index)}
-          size="xl"
-          centered
-        >
-          <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
-            <Modal.Title className="fw-semibold">Detalle del Traspaso</Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
-            <Row className="g-1">
-              {/* Información General del Traspaso */}
-              <Col lg={6}>
-                <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
-                  <Row className="g-1">
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Nº Inventario</label>
+                </Col>
+                {/*  Estado */}
+                <Col lg={6}>
+                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Estado Solicitud</h5>
+                    {estadoEnviado === 0 ? (
                       <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        className="alert alert-primary d-flex align-items-center justify-content-center m-0 px-4 py-3"
+                        role="alert"
                       >
-                        {fila.aF_CODIGO_GENERICO || "Sin Información"}
+                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                        <span className="fw-semibold">Esperando Validación</span>
                       </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Nº Traspaso</label>
+                    ) : estadoEnviado === 1 ? (
                       <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        className="alert alert-success d-flex align-items-center justify-content-center m-0 px-4 py-3"
+                        role="alert"
                       >
-                        {fila.n_TRASPASO || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Fecha Traspaso</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_FECHA || "No definida"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Fecha del Memo</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_FECHA_MEMO || "No definida"}
-                      </div>
-                    </Col>
-                    <Col md={12}>
-                      <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_MEMO_REF || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Especie</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.esP_NOMBRE || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <label className="fw-semibold small text-muted">Codigo Especie</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.esP_CODIGO || "Sin Información"}
-                      </div>
-                    </Col>
-                    <Col md={12}>
-                      <label className="fw-semibold small text-muted">Estado</label>
-                      <div
-                        className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        {fila.paS_ESTADO_AF || "No definida"}
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              </Col>
-
-              {/* Origen y Destino */}
-              <Col lg={6}>
-                <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
-                  <Row className="g-1">
-                    <Col md={12}>
-                      <div className="mb-3">
-                        <label className="fw-semibold small d-flex align-items-center">
-                          <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
-                          Establecimiento Origen
-                        </label>
-                        <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                        >
-                          {fila.establecimientO_ORIGEN || "Sin Información"}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
-                        <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                        >
-                          {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
-                        </div>
-                      </div>
-                    </Col>
-                    <Col md={12}>
-                      <div className="mb-3">
-                        <label className="fw-semibold small d-flex align-items-center">
-                          <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
-                          Establecimiento Destino
-                        </label>
-                        <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                        >
-                          {fila.establecimientO_DESTINO || "Sin Información"}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
-                        <div
-                          className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                        >
-                          {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              </Col>
-
-              {/* Observaciones */}
-              <Col lg={12}>
-                <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <label className="fw-semibold mb-2">Observaciones</label>
-                  <div
-                    className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                    style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
-                  >
-                    {fila.paS_OBS || "Sin observaciones"}
-                  </div>
-                </div>
-              </Col>
-
-              {/* Recepción y Validación */}
-              <Col lg={6}>
-                <div className={`border rounded-3 p-3 ${isDarkMode ? "border-secondary" : ""}`}>
-                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Recepción</h5>
-                  <div className="mb-1">
-                    <label className="fw-semibold small text-muted">Entregado Por</label>
-                    <p className="d-flex align-items-center mb-0">
-                      {fila.paS_NOM_ENTREGA || "Sin Información"}
-                      <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                    </p>
-
-                  </div>
-                  <div className="mb-1">
-                    <label className="fw-semibold small text-muted">Recibido Por</label>
-                    <p className="d-flex align-items-center mb-0">
-                      {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)}{" "}
-                      {objeto?.Apellido1 && PrimeraMayuscula(objeto.Apellido1)}
-                      <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                    </p>
-                  </div>
-                  <div>
-                    <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
-                    <p className="d-flex align-items-center mb-0">
-                      {fila.paS_NOM_AUTORIZA || "Sin Información"}
-                      <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                    </p>
-                  </div>
-                </div>
-
-                {/* Validación */}
-                <div className={`border rounded-3 p-3 mt-1 ${isDarkMode ? "border-secondary" : ""}`}>
-                  {estadoRecibido === 0 ? (
-                    <>
-                      <h6 className="fw-semibold mb-3 text-center">¿Ha recibido el bien en su establecimiento?</h6>
-                      <div className="d-flex gap-2">
-                        <Button variant="success" className="w-100" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
-                          Sí, recibido
-                        </Button>
-                        <Button variant="danger" className="w-100" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
-                          No, rechazar
-                        </Button>
-                      </div>
-                    </>
-                  ) : estadoRecibido === 1 ? (
-                    <>
-                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
-                      <div className="alert alert-success d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
                         <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold ">Marcado como recibido</span>
+                        <span className="fw-semibold">Marcado como recibido</span>
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
-                      <div className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
+                    ) : (
+                      <div
+                        className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-4 py-3"
+                        role="alert"
+                      >
                         <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
                         <span className="fw-semibold">Marcado como rechazado</span>
                       </div>
-                    </>
-                  )}
-                </div>
-              </Col>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+            </Modal.Body>
+          </Modal>
+        ))
+      }
 
-              {/* Documentos */}
-              <Col lg={6}>
-                {listadoTraspasosAdjuntos.length > 0 ? (
-                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
-                    <div className="table-responsive">
-                      <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
-                        <thead className={isDarkMode ? "table-dark" : "table-light"}>
-                          <tr>
-                            <th scope="col">Nombre</th>
-                            <th scope="col" className="text-center" style={{ width: "100px" }}>
-                              Descargar
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {elementosActualesAdj.map((Lista, index) => {
-                            const indexReal = indicePrimerElementoAdj + index
-                            return (
-                              <tr key={indexReal}>
-                                <td>{Lista.nombre}</td>
-                                <td className="text-center">
-                                  <Button
-                                    size="sm"
-                                    variant={isDarkMode ? "outline-light" : "outline-primary"}
-                                    onClick={() => handleDescargarAdjunto(Lista)}
-                                  >
-                                    <Download className="h-4 w-4" aria-hidden="true" />
-                                  </Button>
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                      </table>
+      {/* Detalle de traspasos recibidos */}
+      {
+        elementosActuales1.map((fila, index) => (
+          <Modal
+            key={index}
+            show={mostrarModalRecibidos === index}
+            onHide={() => handleCerrarModalRecibidos(index)}
+            size="xl"
+            centered
+          >
+            <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
+              <Modal.Title className="fw-semibold">Detalle del Traspaso</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+              <Row className="g-1">
+                {/* Información General del Traspaso */}
+                <Col lg={6}>
+                  <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
+                    <Row className="g-1">
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Nº Inventario</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.aF_CODIGO_GENERICO || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Nº Traspaso</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.n_TRASPASO || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Fecha Traspaso</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.paS_FECHA || "No definida"}
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Fecha del Memo</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.paS_FECHA_MEMO || "No definida"}
+                        </div>
+                      </Col>
+                      <Col md={12}>
+                        <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.paS_MEMO_REF || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Especie</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.esP_NOMBRE || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Codigo Especie</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.esP_CODIGO || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={12}>
+                        <label className="fw-semibold small text-muted">Estado</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.paS_ESTADO_AF || "No definida"}
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                </Col>
+
+                {/* Origen y Destino */}
+                <Col lg={6}>
+                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
+                    <Row className="g-1">
+                      <Col md={12}>
+                        <div className="mb-3">
+                          <label className="fw-semibold small d-flex align-items-center">
+                            <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
+                            Establecimiento Origen
+                          </label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.establecimientO_ORIGEN || "Sin Información"}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={12}>
+                        <div className="mb-3">
+                          <label className="fw-semibold small d-flex align-items-center">
+                            <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
+                            Establecimiento Destino
+                          </label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.establecimientO_DESTINO || "Sin Información"}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                </Col>
+
+                {/* Observaciones */}
+                <Col lg={12}>
+                  <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <label className="fw-semibold mb-2">Observaciones</label>
+                    <div
+                      className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
+                    >
+                      {fila.paS_OBS || "Sin observaciones"}
                     </div>
                   </div>
-                ) : (
-                  <>
-                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      Sin documentos adjuntos
-                    </p>
-                  </>
-                )}
-              </Col>
-            </Row>
-          </Modal.Body>
-        </Modal>
-      ))}
+                </Col>
+
+                {/* Recepción y Validación */}
+                <Col lg={6}>
+                  <div className={`border rounded-3 p-3 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Recepción</h5>
+                    <div className="mb-1">
+                      <label className="fw-semibold small text-muted">Entregado Por</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {fila.paS_NOM_ENTREGA || "Sin Información"}
+                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                      </p>
+
+                    </div>
+                    <div className="mb-1">
+                      <label className="fw-semibold small text-muted">Recibido Por</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)}{" "}
+                        {objeto?.Apellido1 && PrimeraMayuscula(objeto.Apellido1)}
+                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                      </p>
+                    </div>
+                    <div>
+                      <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {fila.paS_NOM_AUTORIZA || "Sin Información"}
+                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Validación */}
+                  <div className={`border rounded-3 p-3 mt-1 ${isDarkMode ? "border-secondary" : ""}`}>
+                    {estadoRecibido === 0 ? (
+                      <>
+                        <h6 className="fw-semibold mb-3 text-center">¿Ha recibido el bien en su establecimiento?</h6>
+                        <div className="d-flex gap-2">
+                          <Button variant="success" className="w-100" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
+                            Sí, recibido
+                          </Button>
+                          <Button variant="danger" className="w-100" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
+                            No, rechazar
+                          </Button>
+                        </div>
+                      </>
+                    ) : estadoRecibido === 1 ? (
+                      <>
+                        <h6 className="fw-semibold mb-3">Estado solicitud</h6>
+                        <div className="alert alert-success d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
+                          <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
+                          <span className="fw-semibold ">Marcado como recibido</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <h6 className="fw-semibold mb-3">Estado solicitud</h6>
+                        <div className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
+                          <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                          <span className="fw-semibold">Marcado como rechazado</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </Col>
+
+                {/* Documentos */}
+                <Col lg={6}>
+                  {listadoTraspasosAdjuntos.length > 0 ? (
+                    <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                      <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
+                      <div className="table-responsive">
+                        <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                          <thead className={isDarkMode ? "table-dark" : "table-light"}>
+                            <tr>
+                              <th scope="col">Nombre</th>
+                              <th scope="col" className="text-center" style={{ width: "100px" }}>
+                                Descargar
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {elementosActualesAdj.map((Lista, index) => {
+                              const indexReal = indicePrimerElementoAdj + index
+                              return (
+                                <tr key={indexReal}>
+                                  <td>{Lista.nombre}</td>
+                                  <td className="text-center">
+                                    <Button
+                                      size="sm"
+                                      variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                      onClick={() => handleDescargarAdjunto(Lista)}
+                                    >
+                                      <Download className="h-4 w-4" aria-hidden="true" />
+                                    </Button>
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        Sin documentos adjuntos
+                      </p>
+                    </>
+                  )}
+                </Col>
+              </Row>
+            </Modal.Body>
+          </Modal>
+        ))
+      }
 
     </Layout >
   );

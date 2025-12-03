@@ -13,8 +13,8 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaInventarioAnularActions } from "../../redux/actions/Inventario/AnularInventario/listaInventarioAnularActions.tsx";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
-interface InventarioCompleto {
-    aF_CLAVE: string;
+export interface InventarioCompleto {
+    aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
     seR_NOMBRE: string;
     deP_NOMBRE: string;
@@ -53,7 +53,7 @@ interface InventarioCompleto {
 interface ListaInventarioProps {
     listaInventarioAnular: InventarioCompleto[];
     listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
-    anularInventarioActions: (aF_CLAVE: string) => Promise<boolean>;
+    anularInventarioActions: (aF_CLAVE: number) => Promise<boolean>;
     listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -178,7 +178,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
         }));
     };
 
-    const handleAnular = async (index: number, aF_CLAVE: string, aF_CODIGO_GENERICO: string) => {
+    const handleAnular = async (index: number, aF_CLAVE: number, aF_CODIGO_GENERICO: string) => {
         setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
         const item = listaInventarioAnular.find((i) => i.aF_CLAVE === aF_CLAVE);
         // const selectedIndices = filasSeleccionadas.map(Number);
@@ -409,18 +409,20 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                 </Col>
                             </Row>
                             {/* Tabla*/}
-
                             {loading ? (
                                 <>
                                     <SkeletonLoader rowCount={elementosPorPagina} />
                                 </>
                             ) : (
-                                <div className='skeleton-table table-responsive'>
-                                    {elementosActuales.length > 0 && (
-                                        <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                            <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                                <tr>
-                                                    {/* <th style={{
+                                <>
+                                    {listaInventarioAnular.length > 0 ? (
+                                        <>
+                                            <div className='skeleton-table table-responsive'>
+                                                {elementosActuales.length > 0 && (
+                                                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
+                                                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                                                            <tr>
+                                                                {/* <th style={{
                                                 position: 'sticky',
                                                 left: 0,
                                                 zIndex: 2
@@ -432,128 +434,136 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                                 />
                                             </th> */}
-                                                    <th scope="col" className="text-nowrap">Estado</th>
-                                                    <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                                    <th scope="col" className="text-nowrap">Descripción</th>
-                                                    <th scope="col" className="text-nowrap">Fecha</th>
-                                                    <th scope="col" className="text-nowrap">Servicio</th>
-                                                    <th scope="col" className="text-nowrap">Dependencia</th>
-                                                    <th scope="col" className="text-nowrap">Especie</th>
-                                                    <th scope="col" className="text-nowrap">Precio</th>
-                                                    <th scope="col" className="text-nowrap">Vida Útil</th>
-                                                    <th scope="col" className="text-nowrap">Origen</th>
-                                                    <th scope="col" className="text-nowrap">Nº Recepción</th>
-                                                    <th scope="col" className="text-nowrap">Nº Cta</th>
-                                                    <th scope="col" className="text-nowrap">Orden de Compra</th>
-                                                    <th scope="col" className="text-nowrap">Marca</th>
-                                                    <th scope="col" className="text-nowrap">Modelo</th>
-                                                    <th scope="col" className="text-nowrap">Serie</th>
-                                                    <th scope="col" className="text-nowrap" style={{
-                                                        position: 'sticky',
-                                                        right: 0,
-                                                    }}>Acción</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {elementosActuales.map((lista, index) => {
-                                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                    return (
-                                                        <tr key={index}>
-                                                            {/* <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
+                                                                <th scope="col" className="text-nowrap">Estado</th>
+                                                                <th scope="col" className="text-nowrap">Nº Inventario</th>
+                                                                <th scope="col" className="text-nowrap">Descripción</th>
+                                                                <th scope="col" className="text-nowrap">Fecha</th>
+                                                                <th scope="col" className="text-nowrap">Servicio</th>
+                                                                <th scope="col" className="text-nowrap">Dependencia</th>
+                                                                <th scope="col" className="text-nowrap">Especie</th>
+                                                                <th scope="col" className="text-nowrap">Precio</th>
+                                                                <th scope="col" className="text-nowrap">Vida Útil</th>
+                                                                <th scope="col" className="text-nowrap">Origen</th>
+                                                                <th scope="col" className="text-nowrap">Nº Recepción</th>
+                                                                <th scope="col" className="text-nowrap">Nº Cta</th>
+                                                                <th scope="col" className="text-nowrap">Orden de Compra</th>
+                                                                <th scope="col" className="text-nowrap">Marca</th>
+                                                                <th scope="col" className="text-nowrap">Modelo</th>
+                                                                <th scope="col" className="text-nowrap">Serie</th>
+                                                                <th scope="col" className="text-nowrap" style={{
+                                                                    position: 'sticky',
+                                                                    right: 0,
+                                                                }}>Acción</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {elementosActuales.map((lista, index) => {
+                                                                // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                                return (
+                                                                    <tr key={index}>
+                                                                        {/* <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
                                                         <Form.Check
                                                             type="checkbox"
                                                             onChange={() => setSeleccionaFilas(indexReal)}
                                                             checked={filasSeleccionadas.includes(indexReal.toString())}
                                                         />
                                                     </td> */}
-                                                            <td className="text-nowrap">
-                                                                {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
-                                                                    : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
-                                                                        : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
-                                                            </td>
-                                                            <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
-                                                            <td className="text-start">{lista.aF_DESCRIPCION}</td>
-                                                            <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
-                                                            <td className="text-start">{lista.seR_NOMBRE}</td>
-                                                            <td className="text-start">{lista.deP_NOMBRE}</td>
-                                                            <td className="text-start">{lista.esP_NOMBRE}</td>
-                                                            <td className="text-start">
-                                                                ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
-                                                            <td className="text-start">{lista.aF_VIDAUTIL}</td>
+                                                                        <td className="text-nowrap">
+                                                                            {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
+                                                                                : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
+                                                                                    : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
+                                                                        </td>
+                                                                        <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
+                                                                        <td className="text-start">{lista.aF_DESCRIPCION}</td>
+                                                                        <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
+                                                                        <td className="text-start">{lista.seR_NOMBRE}</td>
+                                                                        <td className="text-start">{lista.deP_NOMBRE}</td>
+                                                                        <td className="text-start">{lista.esP_NOMBRE}</td>
+                                                                        <td className="text-start">
+                                                                            ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                                                                        <td className="text-start">{lista.aF_VIDAUTIL}</td>
 
-                                                            <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "S/N  "}</td>
-                                                            <td className="text-start">{lista.nrecepcion || "S/N"}</td>
-                                                            <td className="text-start">{lista.ctA_COD}</td>
-                                                            <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
-                                                            <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
-                                                            <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
-                                                            <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                                                            <td style={{
-                                                                position: 'sticky',
-                                                                right: 0
-                                                            }}>
-                                                                {lista.aF_ESTADO_INV != 1 ? (
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="fw-semibold"
-                                                                        size="sm"
-                                                                        disabled
-                                                                    >
-                                                                        Anular
-                                                                    </Button>
-                                                                ) : (
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="fw-semibold"
-                                                                        size="sm"
-                                                                        onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
-                                                                    >
-                                                                        Anular
-                                                                    </Button>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
+                                                                        <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "S/N  "}</td>
+                                                                        <td className="text-start">{lista.nrecepcion || "S/N"}</td>
+                                                                        <td className="text-start">{lista.ctA_COD}</td>
+                                                                        <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
+                                                                        <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
+                                                                        <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
+                                                                        <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
+                                                                        <td style={{
+                                                                            position: 'sticky',
+                                                                            right: 0
+                                                                        }}>
+                                                                            {lista.aF_ESTADO_INV != 1 ? (
+                                                                                <Button
+                                                                                    variant="outline-danger"
+                                                                                    className="fw-semibold"
+                                                                                    size="sm"
+                                                                                    disabled
+                                                                                >
+                                                                                    Anular
+                                                                                </Button>
+                                                                            ) : (
+                                                                                <Button
+                                                                                    variant="outline-danger"
+                                                                                    className="fw-semibold"
+                                                                                    size="sm"
+                                                                                    onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
+                                                                                >
+                                                                                    Anular
+                                                                                </Button>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+                                                )}
+                                            </div>
+
+                                            {/* Paginador */}
+                                            {elementosActuales.length > 0 && (
+                                                <div className="paginador-container position-relative z-0">
+                                                    <Pagination className="paginador-scroll">
+                                                        <Pagination.First
+                                                            onClick={() => paginar(1)}
+                                                            disabled={paginaActual === 1}
+                                                        />
+                                                        <Pagination.Prev
+                                                            onClick={() => paginar(paginaActual - 1)}
+                                                            disabled={paginaActual === 1}
+                                                        />
+
+                                                        {Array.from({ length: totalPaginas }, (_, i) => (
+                                                            <Pagination.Item
+                                                                key={i + 1}
+                                                                active={i + 1 === paginaActual}
+                                                                onClick={() => paginar(i + 1)}
+                                                            >
+                                                                {i + 1}
+                                                            </Pagination.Item>
+                                                        ))}
+                                                        <Pagination.Next
+                                                            onClick={() => paginar(paginaActual + 1)}
+                                                            disabled={paginaActual === totalPaginas}
+                                                        />
+                                                        <Pagination.Last
+                                                            onClick={() => paginar(totalPaginas)}
+                                                            disabled={paginaActual === totalPaginas}
+                                                        />
+                                                    </Pagination>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                            No hay resultados para mostrar.
+                                        </p>
                                     )}
-                                </div>
+                                </>
                             )}
 
-                            {/* Paginador */}
-                            {elementosActuales.length > 0 && (
-                                <div className="paginador-container position-relative z-0">
-                                    <Pagination className="paginador-scroll">
-                                        <Pagination.First
-                                            onClick={() => paginar(1)}
-                                            disabled={paginaActual === 1}
-                                        />
-                                        <Pagination.Prev
-                                            onClick={() => paginar(paginaActual - 1)}
-                                            disabled={paginaActual === 1}
-                                        />
-
-                                        {Array.from({ length: totalPaginas }, (_, i) => (
-                                            <Pagination.Item
-                                                key={i + 1}
-                                                active={i + 1 === paginaActual}
-                                                onClick={() => paginar(i + 1)}
-                                            >
-                                                {i + 1}
-                                            </Pagination.Item>
-                                        ))}
-                                        <Pagination.Next
-                                            onClick={() => paginar(paginaActual + 1)}
-                                            disabled={paginaActual === totalPaginas}
-                                        />
-                                        <Pagination.Last
-                                            onClick={() => paginar(totalPaginas)}
-                                            disabled={paginaActual === totalPaginas}
-                                        />
-                                    </Pagination>
-                                </div>
-                            )}
                         </div>
                     </form>
                 </div>

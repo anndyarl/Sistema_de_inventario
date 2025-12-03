@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Form, Pagination, Button, Spinner, Modal } from "react-bootstrap";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Row, Col, Form, Pagination, Button, Spinner, Modal, Collapse } from "react-bootstrap";
 import { RootState } from "../../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../../containers/hocs/layout/Layout";
@@ -24,6 +24,7 @@ import { comboTrasladoServicioActions } from "../../../../redux/actions/Traslado
 import { registroTrasladoMultipleActions } from "../../../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import DocumentoPDFServicioDependencia from "./DocumentoPDFServicioDependencia";
 import { comboSerDepActions } from "../../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+import { listadoTrasladosActions } from "../../../../redux/actions/Traslados/listadoTrasladosActions";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -90,13 +91,14 @@ interface DatosAltas {
     obtenerfirmasAltasActions: () => Promise<boolean>;
     // comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
     comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
+    listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario
     datosFirmas: DatosFirmas[];
 }
 
-const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, comboSerDepActions, listaFolioServicioDependencia, comboSerDep, objeto, token, isDarkMode, datosFirmas }) => {
+const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, comboSerDepActions, listadoTrasladosActions, listaFolioServicioDependencia, comboSerDep, objeto, token, isDarkMode, datosFirmas }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarTodoModal, setMostrarTodoModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
@@ -104,6 +106,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const [loading, setLoading] = useState(false); // Estado para controlar la carga busqueda 
     const [paginaActual, setPaginaActual] = useState(1);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    const [isExpanded, setIsExpanded] = useState(false);
     const [Paginacion, setPaginacion] = useState({
         nPaginacion: 10
     });
@@ -144,6 +147,13 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         traS_NOM_AUTORIZA: ""
     });
 
+    const [Firma, setFirma] = useState({
+        ajustarFirma: false,
+        encargadoInventario: "",
+        jefe: "",
+        jefeInventario: ""
+    });
+
     const servicioOptions = comboSerDep.map((item) => ({
         value: item.deP_CORR,
         label: item.descripcion,
@@ -163,6 +173,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         const value = selectedOption ? selectedOption.value : 0;
         setTraslados((prevInventario) => ({ ...prevInventario, deP_CORR_DESTINO: value }));
     };
+
     // const listaAuto = async () => {
     //     if (listaFolioServicioDependencia.length === 0) {
     //         setLoading(true);
@@ -224,14 +235,52 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             [name]: newValue,
         }));
 
-        if (name === "seR_CORR") {
-            comboDependenciaDestinoActions(value);
-        }
         setPaginacion((prevState) => ({
             ...prevState,
             [name]: newValue,
         }));
+
+        setFirma((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+        }));
+
+        if (name === "seR_CORR") {
+            comboDependenciaDestinoActions(value);
+        }
     };
+
+    const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+
+        // Copia del estado actual
+        const prev = structuredClone(Firma);
+        const updatedState = { ...prev, [name]: checked };
+        //Limpia Todo al deshabilitar check
+        if (name === "ajustarFirma") {
+            if (!checked) {
+                const cleanedState = {
+                    ...updatedState,
+                    //texto
+                    encargadoInventario: "",
+                    jefe: "",
+                    jefeInventario: ""
+                };
+
+                setIsExpanded(false);
+                setFirma(cleanedState);
+            } else {
+                setIsExpanded(true);
+                setFirma(updatedState);
+            }
+            return;
+        }
+        let encargadoInventario = prev.encargadoInventario || "";
+
+        updatedState.encargadoInventario = encargadoInventario;
+        setFirma(updatedState);
+    }, [Firma, datosFirmas, objeto]);
+
 
     const handleBuscar = async () => {
         let resultado = false;
@@ -287,6 +336,20 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         }));
     };
 
+    const handleLimpiarFormulario = () => {
+        setTraslados((prev) => ({
+            ...prev,
+            deP_CORR_DESTINO: 0, //Dependencia destino
+            traS_DET_CORR: 0,
+            traS_CO_REAL: 0,
+            traS_MEMO_REF: "",
+            traS_FECHA_MEMO: "",
+            traS_OBS: "",
+            traS_NOM_ENTREGA: "",
+            traS_NOM_RECIBE: "",
+            traS_NOM_AUTORIZA: ""
+        }));
+    }
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
             if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
@@ -309,8 +372,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         );
     };
 
-    const handleSubmitTraslado = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSubmitTraslado = async () => {
         if (validateForm()) {
             const result = await Swal.fire({
                 icon: "info",
@@ -362,6 +424,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     // Limpiar
                     setFilasSeleccionadas([]);
                     setMostrarModalTraslado(false);
+                    listaFolioServicioDependenciaActions(Buscar.servicio, Buscar.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento); //Actualiza lisa de folio servicio dependencia
+                    listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento); //actualixza listado de traslados
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -438,7 +502,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             item.altaS_CORR ?? "",
             item.traS_ESTADO_AF ?? "",
             item.ntraslado ?? "",
-            item.aF_PRECIO_REF ?? "",
+            item.aF_PRECIO ?? "",
             item.ctA_COD ?? ""
         ]);
 
@@ -487,6 +551,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const handleAgregar = () => {
         navigate("/Inventario/FormInventario");
     };
+
 
     // 📂 Función para exportar a Word
     // const exportarWord = () => {
@@ -903,7 +968,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                                 <td className="text-nowrap">{Lista.altaS_CORR}</td>
                                                                 <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
                                                                 <td className="text-nowrap">{Lista.ntraslado}</td>
-                                                                <td className="text-nowrap"> ${(Lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
+                                                                <td className="text-nowrap"> ${(Lista.aF_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
                                                                 <td className="text-nowrap">{Lista.ctA_COD}</td>
                                                             </tr>
                                                         );
@@ -966,10 +1031,76 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form >
 
+                        <Row>
+                            <Col md={2}>
+                                <Form.Check
+                                    onChange={handleCheck}
+                                    name="ajustarFirma"
+                                    type="checkbox"
+                                    label="Ajustar firma"
+                                    style={{ transform: 'scale(1)' }}
+                                    className="form-switch mx-2 "
+                                    checked={Firma.ajustarFirma}
+                                /></Col>
+                        </Row>
+
+                        <Collapse in={isExpanded} dimension="height">
+                            <Row className="m-1 p-3 rounded rounded-4 border">
+                                <p className="border-bottom mb-2">Ingrese los nombres de cada firmante</p>
+
+                                {/* Unidad Inventario */}
+                                <Col md={4}>
+
+                                    <input
+                                        aria-label="encargadoInventario"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        maxLength={30}
+                                        name="encargadoInventario"
+                                        placeholder="Escriba un nombre..."
+                                        onChange={handleChange}
+                                        value={Firma.encargadoInventario}
+                                    />
+                                    <p className="fw-semibold text-center">Encargado</p>
+                                </Col>
+
+                                {/* Finanzas */}
+                                <Col md={4}>
+                                    <input
+                                        aria-label="jefe"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        maxLength={30}
+                                        name="jefe"
+                                        placeholder="Escriba un nombre..."
+                                        onChange={handleChange}
+                                        value={Firma.jefe}
+                                    />
+                                    <p className="fw-semibold text-center">Jefe</p>
+                                </Col>
+
+                                {/* Unidades específicas */}
+                                <Col md={4}>
+                                    <input
+                                        aria-label="jefeInventario"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        maxLength={30}
+                                        name="jefeInventario"
+                                        placeholder="Escriba un nombre..."
+                                        onChange={handleChange}
+                                        value={Firma.jefeInventario}
+
+                                    />
+                                    <p className="fw-semibold text-center">Jefe Inventario</p>
+                                </Col>
+                            </Row>
+                        </Collapse>
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={
                             <DocumentoPDFServicioDependencia
                                 row={listaFolioServicioDependencia}
+                                Firma={Firma}
                             />
                         }>
                             {({ url, loading }) =>
@@ -1017,12 +1148,13 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form >
+                    <form>
 
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={
                             <DocumentoPDFServicioDependencia
                                 row={filasSeleccionadasPDF}
+                                Firma={Firma}
                             />
                         }>
                             {({ url, loading }) =>
@@ -1064,99 +1196,65 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     </form>
                 </Modal.Body>
             </Modal >
-            {/* Modal formulario traslado*/}
-            < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)} size="lg" dialogClassName="modal-right" backdrop="static"
-            //  keyboard={false}     // Evita el cierre al presionar la tecla Esc
+            {/* Formulario de traslados */}
+            < Modal show={mostrarModalTraslado} onHide={() => setMostrarModalTraslado(false)}
+                size="lg"
+                dialogClassName="modal-right"
+                backdrop="static"
+            //  keyboard={false}  // Evita el cierre al presionar la tecla Esc
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                    <Modal.Title className="fw-semibold">Inventarios a Trasladar: {filasSeleccionadasPDF.length}</Modal.Title>
+                    <Modal.Title className="fw-semibold">
+                        Bienes a Trasladar: {filasSeleccionadasPDF.length}
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form onSubmit={handleSubmitTraslado}>
-                        <div className="d-flex justify-content-end">
-                            <Button
-                                variant="primary"
-                                type="submit"
-                                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                                disabled={loading}  // Desactiva el botón mientras carga
-                            >
-                                {loading ? (
-                                    <>
-                                        {" Trasladar "}
-                                        <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                            className="me-2"
-                                        />
+                    <h5 className="fw-semibold">Ubicación del centro de destino</h5>
+                    <p className={`text-start  pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        (Escoga su propio centro para traslados internos)
+                    </p>
+                    <form>
+                        <Col >
+                            <div className="d-flex flex-column flex-sm-row justify-content-end align-items-stretch">
+                                {/* Botón Trasladar */}
+                                <Button
+                                    variant="warning"
+                                    onClick={handleSubmitTraslado}
+                                    className="p-2 mb-2 mb-sm-0 mx-sm-1"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            Trasladar
+                                            <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                                className="me-2"
+                                            />
 
-                                    </>
-                                ) : (
-                                    <>
-                                        Trasladar
-                                        <ArrowLeftRight
-                                            className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
-                                            aria-hidden="true"
-                                        />
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-                        {/* <div className="mb-1">
-                            <label htmlFor="seR_CORR" className="fw-semibold fw-semibold">Servicio Destino</label>
-                            <select
-                                aria-label="seR_CORR"
-                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_CORR ? "is-invalid" : ""}`}
-                                name="seR_CORR"
-                                onChange={handleChange}
-                            >
-                                <option value="">Seleccionar</option>
-                                {comboTrasladoServicio.map((traeServicio) => (
-                                    <option
-                                        key={traeServicio.codigo}
-                                        value={traeServicio.codigo}
-                                    >
-                                        {traeServicio.descripcion}
-                                    </option>
-                                ))}
-                            </select>
-                            {error.seR_CORR && (
-                                <div className="invalid-feedback fw-semibold d-block">
-                                    {error.seR_CORR}
-                                </div>
-                            )}
-                        </div> */}
-                        {/* Dependencia */}
-                        {/* <div className="mb-1">
-                            <label htmlFor="deP_CORR_DESTINO" className="fw-semibold">Dependencia Destino</label>
-                            <select
-                                aria-label="deP_CORR_DESTINO"
-                                className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.deP_CORR_DESTINO ? "is-invalid" : ""}`}
-                                name="deP_CORR_DESTINO"
-                                disabled={!Traslados.seR_CORR}
-                                onChange={handleChange}
-                                value={Traslados.deP_CORR_DESTINO}
-                            >
-                                <option value="">Seleccionar</option>
-                                {comboDependenciaDestino.map((traeDependencia) => (
-                                    <option
-                                        key={traeDependencia.codigo}
-                                        value={traeDependencia.codigo}
-                                    >
-                                        {traeDependencia.descripcion}
-                                    </option>
-                                ))}
-                            </select>
-                            {error.deP_CORR_DESTINO && (
-                                <div className="invalid-feedback fw-semibold d-block">
-                                    {error.deP_CORR_DESTINO}
-                                </div>
-                            )}
-                        </div> */}
+                                        </>
+                                    ) : (
+                                        <>
+                                            Trasladar
+                                            <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                                        </>
+                                    )}
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    onClick={handleLimpiarFormulario}
+                                    className="p-2 mb-2 mb-sm-0 mx-sm-1"
+                                >
+                                    Limpiar
+                                    <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
+                                </Button>
+                            </div>
+                        </Col>
                         <Row>
-                            <Col>
+                            <Col md={6}>
                                 <div className="mb-1 position-relative z-1">
                                     <label className="fw-semibold">
                                         Servicio / Dependencia Destino
@@ -1186,6 +1284,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                                 ...base,
                                                 backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
                                                 color: isDarkMode ? "white" : "#212529",
+                                                height: 100
                                             }),
                                             option: (base, { isFocused, isSelected }) => ({
                                                 ...base,
@@ -1198,64 +1297,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         <div className="invalid-feedback">{error.deP_CORR_DESTINO}</div>
                                     )}
                                 </div>
-                                {/* Radios Pendiente Implementación */}
-                                {/* <div className="mb-1">
-                                    <label htmlFor="deP_CORR" className="fw-semibold">Tipo Traslado</label>
-                                    <div className="mb-1 p-2 d-flex justify-content-center border rounded">
-                                        <div className="form-check">
-                                            <input
-                                                aria-label="traS_CO_REAL"
-                                                className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
-                                                onChange={handleChange}
-                                                type="radio"
-                                                name="traS_CO_REAL"
-                                                value="1"
-
-                                            />
-                                            <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
-                                                En Comodato
-                                            </label>
-                                        </div>
-                                        <div className="form-check">
-                                            <input
-                                                aria-label="traS_CO_REAL"
-                                                className={`form-check-input ${isDarkMode ? "bg-dark border-secondary" : ""} m-1`}
-                                                onChange={handleChange}
-                                                type="radio"
-                                                name="traS_CO_REAL"
-                                                value="2"
-                                            />
-                                            <label className={`form-check-label fw-semibold ${isDarkMode ? "text-light" : "text-muted"}`}>
-                                                Traspaso Real
-                                            </label>
-                                        </div>
-                                    </div>
-                                    {error.traS_CO_REAL && (
-                                        <div className="invalid-feedback fw-semibold d-block">{error.traS_CO_REAL}</div>
-                                    )}
-                                </div> */}
-                                {/* Observaciones */}
-                                <div className="mb-1">
-                                    <label className="fw-semibold">
-                                        Observaciones
-                                    </label>
-                                    <textarea
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_OBS ? "is-invalid" : ""}`}
-                                        aria-label="traS_OBS"
-                                        name="traS_OBS"
-                                        rows={6}
-                                        maxLength={500}
-                                        style={{ minHeight: "8px", resize: "none" }}
-                                        onChange={handleChange}
-                                        value={Traslados.traS_OBS}
-                                    />
-                                    {error.traS_OBS && (
-                                        <div className="invalid-feedback">{error.traS_OBS}</div>
-                                    )}
-                                </div>
-
-                            </Col>
-                            <Col>
                                 {/* N° Memo Ref */}
                                 <div className="mb-1">
                                     <label className="fw-semibold">
@@ -1292,66 +1333,88 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         <div className="invalid-feedback">{error.traS_FECHA_MEMO}</div>
                                     )}
                                 </div>
-
-                                {/* Entregado Por */}
+                                {/* Observaciones */}
                                 <div className="mb-1">
                                     <label className="fw-semibold">
-                                        Entregado Por
+                                        Observaciones
                                     </label>
-                                    <input
-                                        aria-label="traS_NOM_ENTREGA"
-                                        type="text"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                                            } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
-                                        maxLength={50}
-                                        name="traS_NOM_ENTREGA"
+                                    <textarea
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_OBS ? "is-invalid" : ""}`}
+                                        aria-label="traS_OBS"
+                                        name="traS_OBS"
+                                        rows={6}
+                                        maxLength={500}
+                                        style={{ minHeight: "8px", resize: "none" }}
                                         onChange={handleChange}
-                                        value={Traslados.traS_NOM_ENTREGA}
+                                        value={Traslados.traS_OBS}
                                     />
-                                    {error.traS_NOM_ENTREGA && (
-                                        <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
-                                    )}
-                                </div>
-                                {/* Recibido Por */}
-                                <div className="mb-1">
-                                    <label className="fw-semibold">
-                                        Recibido Por
-                                    </label>
-                                    <input
-                                        aria-label="traS_NOM_RECIBE"
-                                        type="text"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                                            } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
-                                        maxLength={50}
-                                        name="traS_NOM_RECIBE"
-                                        onChange={handleChange}
-                                        value={Traslados.traS_NOM_RECIBE}
-                                    />
-                                    {error.traS_NOM_RECIBE && (
-                                        <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
-                                    )}
-                                </div>
-                                {/* Jefe que Autoriza */}
-                                <div className="mb-1">
-                                    <label className="fw-semibold">
-                                        Jefe que Autoriza
-                                    </label>
-                                    <input
-                                        aria-label="traS_NOM_AUTORIZA"
-                                        type="text"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
-                                        maxLength={50}
-                                        name="traS_NOM_AUTORIZA"
-                                        onChange={handleChange}
-                                        value={Traslados.traS_NOM_AUTORIZA}
-                                    />
-                                    {error.traS_NOM_AUTORIZA && (
-                                        <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
+                                    {error.traS_OBS && (
+                                        <div className="invalid-feedback">{error.traS_OBS}</div>
                                     )}
                                 </div>
                             </Col>
+                            <Col md={6}>
+                                <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
+                                    <h5 className="fw-semibold mb-4">Datos de Recepción</h5>
+                                    {/* Entregado Por */}
+                                    <div className="mb-1">
+                                        <label className="fw-semibold">
+                                            Entregado Por
+                                        </label>
+                                        <input
+                                            aria-label="traS_NOM_ENTREGA"
+                                            type="text"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                                } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
+                                            maxLength={50}
+                                            name="traS_NOM_ENTREGA"
+                                            onChange={handleChange}
+                                            value={Traslados.traS_NOM_ENTREGA}
+                                        />
+                                        {error.traS_NOM_ENTREGA && (
+                                            <div className="invalid-feedback">{error.traS_NOM_ENTREGA}</div>
+                                        )}
+                                    </div>
+                                    {/* Recibido Por */}
+                                    <div className="mb-1">
+                                        <label className="fw-semibold">
+                                            Recibido Por
+                                        </label>
+                                        <input
+                                            aria-label="traS_NOM_RECIBE"
+                                            type="text"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                                } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
+                                            maxLength={50}
+                                            name="traS_NOM_RECIBE"
+                                            onChange={handleChange}
+                                            value={Traslados.traS_NOM_RECIBE}
+                                        />
+                                        {error.traS_NOM_RECIBE && (
+                                            <div className="invalid-feedback">{error.traS_NOM_RECIBE}</div>
+                                        )}
+                                    </div>
+                                    {/* Jefe que Autoriza */}
+                                    <div className="mb-1">
+                                        <label className="fw-semibold">
+                                            Jefe que Autoriza
+                                        </label>
+                                        <input
+                                            aria-label="traS_NOM_AUTORIZA"
+                                            type="text"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
+                                            maxLength={50}
+                                            name="traS_NOM_AUTORIZA"
+                                            onChange={handleChange}
+                                            value={Traslados.traS_NOM_AUTORIZA}
+                                        />
+                                        {error.traS_NOM_AUTORIZA && (
+                                            <div className="invalid-feedback">{error.traS_NOM_AUTORIZA}</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </Col>
                         </Row>
-
                     </form>
                 </Modal.Body>
             </Modal >
@@ -1378,5 +1441,6 @@ export default connect(mapStateToProps, {
     // comboServicioInformeActions,
     comboTrasladoServicioActions,
     comboDependenciaDestinoActions,
-    comboSerDepActions
+    comboSerDepActions,
+    listadoTrasladosActions
 })(FolioPorServicioDependencia);

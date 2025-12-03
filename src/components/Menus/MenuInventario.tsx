@@ -47,7 +47,13 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
         {
             name: 'Bienes de Funcionarios',
             description: 'Registre los bienes asignados a funcionarios.',
-            href: '/Inventario/FormBienesFuncionarios',
+            href: '/Inventario/RegistroBienesFuncionarios',
+            icon: Arrows
+        },
+        {
+            name: 'Listado Bienes Funcionarios',
+            description: 'Listado de bienes asignados a funcionarios.',
+            href: '/Inventario/ListadoBienesFuncionarios',
             icon: Arrows
         },
         // {
