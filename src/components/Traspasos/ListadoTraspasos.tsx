@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, Search } from "react-bootstrap-icons";
+import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, GeoFill, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { recibeTraspasoActions } from "../../redux/actions/Traspasos/recibeTraspasoActions.tsx";
@@ -66,7 +66,7 @@ interface GeneralProps {
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   recibeTraspasoActions: (RecibeTraspaso: Record<string, any>) => Promise<boolean>;
   limpiarDataActions: () => Promise<boolean>;
-  obtenerAdjuntosActions: (pas_corr: number) => Promise<boolean>;
+  obtenerAdjuntosActions: (numTraspaso: number) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
@@ -279,7 +279,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     }));
   };
 
-  const handleBuscarEnviados = async () => {
+  const handleBuscarEnviados = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoadingEnviados(true);
     resultado = await listadoTraspasosEnviadosActions(ListaEnviados.fDesde, ListaEnviados.fHasta, ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
@@ -315,7 +316,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   };
 
-  const handleBuscarRecibidos = async () => {
+  const handleBuscarRecibidos = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoadingRecibidos(true);
     resultado = await listadoTraspasosRecibidosActions(ListaRecibidos.fDesde, ListaRecibidos.fHasta, ListaRecibidos.af_codigo_generico, ListaRecibidos.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaRecibidos.paS_ESTADO_RECIBE);
@@ -376,8 +378,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     const estadoEnviado = parseInt(lista.paS_ESTADO_RECIBE);
     setEstadoEnviado(estadoEnviado);
 
-    const pasCORR = parseInt(lista.paS_CORR);
-    obtenerAdjuntosActions(pasCORR);
+    const numTraspaso = parseInt(lista.n_TRASPASO);
+    obtenerAdjuntosActions(numTraspaso);
 
   };
 
@@ -388,8 +390,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     const estadoRecibido = parseInt(lista.paS_ESTADO_RECIBE);
     setEstadoRecibido(estadoRecibido);
 
-    const pasCORR = parseInt(lista.paS_CORR);
-    obtenerAdjuntosActions(pasCORR);
+    const numTraspaso = parseInt(lista.n_TRASPASO);
+    obtenerAdjuntosActions(numTraspaso);
   };
 
   const handleCerrarModalEnviados = (index: number) => {
@@ -636,8 +638,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
               {/*Traspasos enviados */}
               <Col className={`border border-1 rounded ${expandedColumn === "enviados" ? "col-12" : ""}${expandedColumn === "recibidos" ? "d-none" : ""} `}>
                 <div className="d-flex justify-content-between pt-2">
-                  <h5 className="p-2 fs-5 border-start border-4 border-primary bg-light rounded fw-semibold">
-                    Enviados
+                  <h5 className={`p-2 fs-5 border-start border-4 border-primary ${isDarkMode ? "bg-dark text-light" : "bg-light"} rounded fw-semibold`}>
+                    Enviados {listadoTraspasos.length > 0 && (<span className="badge bg-primary ms-2">{listadoTraspasos.length}</span>
+                    )}
                   </h5>
                   {expandedColumn ? (
                     <ArrowsCollapseVertical
@@ -669,6 +672,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                             name="fDesde"
                             onChange={handleChangeEnviados}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleBuscarEnviados(e);
+                              }
+                            }}
                             value={ListaEnviados.fDesde}
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
@@ -685,6 +693,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
                             name="fHasta"
                             onChange={handleChangeEnviados}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleBuscarEnviados(e);
+                              }
+                            }}
                             value={ListaEnviados.fHasta}
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
@@ -706,6 +719,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         name="af_codigo_generico"
                         placeholder="Ej: 1000000008"
                         onChange={handleChangeEnviados}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscarEnviados(e);
+                          }
+                        }}
                         maxLength={12}
                         value={ListaEnviados.af_codigo_generico}
                       />
@@ -720,6 +738,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         size={10}
                         placeholder="Eje: 1000000008"
                         onChange={handleChangeEnviados}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscarEnviados(e);
+                          }
+                        }}
                         maxLength={12}
                         value={ListaEnviados.tras_corr}
                       />
@@ -832,11 +855,30 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
-                                    <td className="text-nowrap">
-                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
-                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
-                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
+                                    <td className="text-nowrap text-center">
+                                      {Lista.paS_ESTADO_RECIBE === "0" && (
+                                        <span className="badge bg-danger bg-opacity-10 text-danger px-3 py-1 w-100">
+                                          Sin validación
+                                        </span>
+                                      )}
+
+                                      {Lista.paS_ESTADO_RECIBE === "1" && (
+                                        <span className="badge bg-success bg-opacity-10 text-success px-3 py-1 w-100">
+                                          Recibido
+                                        </span>
+                                      )}
+
+                                      {Lista.paS_ESTADO_RECIBE === "2" && (
+                                        <span className="badge bg-danger bg-opacity-10 text-danger px-3 py-1 w-100">
+                                          Rechazado
+                                        </span>
+                                      )}
+
+                                      {!["0", "1", "2"].includes(Lista.paS_ESTADO_RECIBE) && (
+                                        <span className="text-muted">-</span>
+                                      )}
                                     </td>
+
                                     <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                     <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
                                     <td className="text-nowrap">{Lista.paS_FECHA}</td>
@@ -916,8 +958,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
               {/*Traspasos recibidos */}
               <Col className={`border border-1 rounded ${expandedColumn === "recibidos" ? "col-12" : ""} ${expandedColumn === "enviados" ? "d-none" : ""}`}>
                 <div className="d-flex justify-content-between pt-2">
-                  <h5 className="p-2 fs-5 border-start border-4 border-success bg-light rounded fw-semibold">
-                    Recibidos
+                  <h5 className={`p-2 fs-5 border-start border-4 border-success ${isDarkMode ? "bg-dark text-light" : "bg-light"} rounded fw-semibold`}>
+                    Recibidos {listadoTraspasosRecibidos.length > 0 && (<span className="badge bg-success ms-2">{listadoTraspasosRecibidos.length}</span>
+                    )}
                   </h5>
 
                   {expandedColumn ? (
@@ -950,6 +993,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                             name="fDesde"
                             onChange={handleChangeRecibidos}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleBuscarRecibidos(e);
+                              }
+                            }}
                             value={ListaRecibidos.fDesde}
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
@@ -966,6 +1014,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
                             name="fHasta"
                             onChange={handleChangeRecibidos}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleBuscarRecibidos(e);
+                              }
+                            }}
                             value={ListaRecibidos.fHasta}
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
@@ -987,6 +1040,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         name="af_codigo_generico"
                         placeholder="Ej: 1000000008"
                         onChange={handleChangeRecibidos}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscarRecibidos(e);
+                          }
+                        }}
                         maxLength={12}
                         value={ListaRecibidos.af_codigo_generico}
                       />
@@ -1001,6 +1059,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         size={10}
                         placeholder="Eje: 1000000008"
                         onChange={handleChangeRecibidos}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscarRecibidos(e);
+                          }
+                        }}
                         maxLength={12}
                         value={ListaRecibidos.tras_corr}
                       />
@@ -1207,8 +1270,30 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
               <Row className="g-1">
                 {/* Información General del Traspaso */}
+
+                {/*  Estado */}
+                <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+
+                  {estadoEnviado === 0 ? (
+                    <div className="d-flex gap-2 w-50 justify-content-center mx-auto alert alert-primary" role="alert">
+                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                      <span className="fw-semibold">Esperando Validación</span>
+                    </div>
+                  ) : estadoEnviado === 1 ? (
+                    <div className="d-flex gap-2 w-50 justify-content-center mx-auto alert alert-success" role="alert">
+                      <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
+                      <span className="fw-semibold">Marcado como recibido</span>
+                    </div>
+                  ) : (
+                    <div className="d-flex gap-2 w-50 justify-content-center mx-auto alert alert-danger" role="alert">
+                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                      <span className="fw-semibold">Marcado como rechazado</span>
+                    </div>
+                  )}
+                </div>
+                {/* Información General del Traspaso */}
                 <Col lg={6}>
-                  <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
                     <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
                     <Row className="g-1">
                       <Col md={6}>
@@ -1243,7 +1328,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           {fila.paS_FECHA_MEMO || "No definida"}
                         </div>
                       </Col>
-                      <Col md={12}>
+                      <Col md={6}>
                         <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
                         <div
                           className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
@@ -1251,20 +1336,21 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           {fila.paS_MEMO_REF || "Sin Información"}
                         </div>
                       </Col>
-                      <Col md={6}>
-                        <label className="fw-semibold small text-muted">Especie</label>
-                        <div
-                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                        >
-                          {fila.esP_NOMBRE || "Sin Información"}
-                        </div>
-                      </Col>
+
                       <Col md={6}>
                         <label className="fw-semibold small text-muted">Codigo Especie</label>
                         <div
                           className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                         >
                           {fila.esP_CODIGO || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={12}>
+                        <label className="fw-semibold small text-muted">Especie</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.esP_NOMBRE || "Sin Información"}
                         </div>
                       </Col>
                       <Col md={12}>
@@ -1282,39 +1368,41 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                 {/* Origen y Destino */}
                 <Col lg={6}>
                   <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Establecimiento</h5>
                     <Row className="g-1">
-                      <Col md={12}>
+                      <Col md={12} className="mb-1 border-bottom p-1">
                         <div className="mb-3">
-                          <label className="fw-semibold small d-flex align-items-center">
-                            <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
-                            Establecimiento Origen
+                          <label className="fw-semibold small d-flex align-items-center mb-1">
+                            <GeoFill className="me-2 text-warning" width={15} height={15} aria-hidden="true" />
+                            Origen
                           </label>
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            {fila.establecimientO_ORIGEN || "Sin Información"}
+                            <p className="fs-05em text-start">   {fila.establecimientO_ORIGEN || "Sin Información"}</p>
                           </div>
                         </div>
                         <div>
                           <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+
                           >
-                            {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
+                            <p className="fs-05em text-start"> {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>
-                      <Col md={12}>
+
+                      <Col md={12} className="mb-1 p-1">
                         <div className="mb-3">
-                          <label className="fw-semibold small d-flex align-items-center">
-                            <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
-                            Establecimiento Destino
+                          <label className="fw-semibold small d-flex align-items-center mb-1">
+                            <GeoFill className="me-2 text-success" width={15} height={15} aria-hidden="true" />
+                            Destino
                           </label>
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            {fila.establecimientO_DESTINO || "Sin Información"}
+                            <p className="fs-05em text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                         <div>
@@ -1322,7 +1410,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
+                            <p className="fs-05em text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>
@@ -1343,62 +1431,40 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                   </div>
                 </Col>
 
-                {/* Despacho y Estado */}
+                {/* Recepción y Validación */}
                 <Col lg={6}>
-                  <Row className="g-1">
-                    <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                      <h5 className="fw-semibold mb-3 pb-1 border-bottom">Despacho</h5>
-                      <div className="mb-3">
-                        <label className="fw-semibold small text-muted">Entregado Por</label>
-                        <p className="d-flex align-items-center mb-0">
-                          {fila.paS_NOM_ENTREGA ? (
-                            <>
-                              {fila.paS_NOM_ENTREGA}
-                              <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                            </>
-                          ) : (
-                            "Sin Información"
-                          )}
-                        </p>
-                      </div>
-                      <div className="mb-3">
-                        <label className="fw-semibold small text-muted">Recibido Por</label>
-                        <p className="d-flex align-items-center mb-0">
-                          {fila.paS_NOM_RECIBE ? (
-                            <>
-                              {fila.paS_NOM_RECIBE}
-                              <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                            </>
-                          ) : (
-                            <>
-                              Pendiente
-                              <Clock className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
-                            </>
-                          )}
-                        </p>
-                      </div>
-                      <div className="mb-1">
-                        <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
-                        <p className="d-flex align-items-center mb-0">
-                          {fila.paS_NOM_AUTORIZA ? (
-                            <>
-                              {fila.paS_NOM_AUTORIZA}
-                              <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
-                            </>
-                          ) : (
-                            "Sin Información"
-                          )}
-                        </p>
-                      </div>
+                  <div className={`border rounded-3 p-3 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Despacho</h5>
+                    <div className="mb-1">
+                      <label className="fw-semibold small">Entregado Por</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {fila.paS_NOM_ENTREGA || "Sin Información"}
+                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                      </p>
+
                     </div>
-                  </Row>
+                    <div className="mb-1">
+                      <label className="fw-semibold small">Recibido Por</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)}{" "}{objeto?.Apellido1 && PrimeraMayuscula(objeto.Apellido1)}
+                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                      </p>
+                    </div>
+                    <div>
+                      <label className="fw-semibold small">Jefe que Autoriza</label>
+                      <p className="d-flex align-items-center mb-0">
+                        {fila.paS_NOM_AUTORIZA || "Sin Información"}
+                        <Check2Circle className="mx-1 text-success flex-shrink-0 fs-bold" aria-hidden="true" />
+                      </p>
+                    </div>
+                  </div>
                 </Col>
 
                 {/* Documentos */}
                 <Col lg={6}>
                   {listadoTraspasosAdjuntos.length > 0 ? (
                     <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                      <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
+                      <h5 className="fw-semibold mb-3 pb-1 border-bottom">Documentos</h5>
                       <div className="table-responsive">
                         <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
                           <thead className={isDarkMode ? "table-dark" : "table-light"}>
@@ -1439,37 +1505,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                     </>
                   )}
                 </Col>
-                {/*  Estado */}
-                <Col lg={6}>
-                  <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Estado Solicitud</h5>
-                    {estadoEnviado === 0 ? (
-                      <div
-                        className="alert alert-primary d-flex align-items-center justify-content-center m-0 px-4 py-3"
-                        role="alert"
-                      >
-                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold">Esperando Validación</span>
-                      </div>
-                    ) : estadoEnviado === 1 ? (
-                      <div
-                        className="alert alert-success d-flex align-items-center justify-content-center m-0 px-4 py-3"
-                        role="alert"
-                      >
-                        <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold">Marcado como recibido</span>
-                      </div>
-                    ) : (
-                      <div
-                        className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-4 py-3"
-                        role="alert"
-                      >
-                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold">Marcado como rechazado</span>
-                      </div>
-                    )}
-                  </div>
-                </Col>
               </Row>
             </Modal.Body>
           </Modal>
@@ -1491,10 +1526,44 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             </Modal.Header>
 
             <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+              {/* Validación */}
+
               <Row className="g-1">
+                {/*  Validación */}
+                <div className={`border rounded-3 p-3 mt-1 ${isDarkMode ? "border-secondary" : ""}`}>
+                  {estadoRecibido === 0 ? (
+                    <>
+                      <h6 className="fw-semibold mb-3 text-center">¿Ha recibido el bien en su establecimiento?</h6>
+                      <div className="d-flex gap-2 w-50 justify-content-center mx-auto">
+                        <Button variant="success" className="w-50" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
+                          Sí, recibido
+                        </Button>
+                        <Button variant="danger" className="w-50" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
+                          No, rechazar
+                        </Button>
+                      </div>
+                    </>
+                  ) : estadoRecibido === 1 ? (
+                    <>
+                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
+                      <div className="alert alert-success d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
+                        <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
+                        <span className="fw-semibold ">Marcado como recibido</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
+                      <div className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
+                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                        <span className="fw-semibold">Marcado como rechazado</span>
+                      </div>
+                    </>
+                  )}
+                </div>
                 {/* Información General del Traspaso */}
                 <Col lg={6}>
-                  <div className={`border rounded-3 p-2 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
                     <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
                     <Row className="g-1">
                       <Col md={6}>
@@ -1529,7 +1598,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           {fila.paS_FECHA_MEMO || "No definida"}
                         </div>
                       </Col>
-                      <Col md={12}>
+
+                      <Col md={6}>
                         <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
                         <div
                           className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
@@ -1537,20 +1607,21 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           {fila.paS_MEMO_REF || "Sin Información"}
                         </div>
                       </Col>
-                      <Col md={6}>
-                        <label className="fw-semibold small text-muted">Especie</label>
-                        <div
-                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                        >
-                          {fila.esP_NOMBRE || "Sin Información"}
-                        </div>
-                      </Col>
+
                       <Col md={6}>
                         <label className="fw-semibold small text-muted">Codigo Especie</label>
                         <div
                           className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                         >
                           {fila.esP_CODIGO || "Sin Información"}
+                        </div>
+                      </Col>
+                      <Col md={12}>
+                        <label className="fw-semibold small text-muted">Especie</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.esP_NOMBRE || "Sin Información"}
                         </div>
                       </Col>
                       <Col md={12}>
@@ -1568,39 +1639,18 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                 {/* Origen y Destino */}
                 <Col lg={6}>
                   <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                    <h5 className="fw-semibold mb-3 pb-2 border-bottom">Origen y Destino</h5>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Establecimiento</h5>
                     <Row className="g-1">
-                      <Col md={12}>
+                      <Col md={12} className="mb-1 border-bottom p-1">
                         <div className="mb-3">
-                          <label className="fw-semibold small d-flex align-items-center">
-                            <CircleFill className="me-2 text-warning" width={10} height={10} aria-hidden="true" />
-                            Establecimiento Origen
+                          <label className="fw-semibold small d-flex align-items-center mb-1">
+                            <GeoFill className="me-2 text-success" width={15} height={15} aria-hidden="true" />
+                            Destino
                           </label>
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            {fila.establecimientO_ORIGEN || "Sin Información"}
-                          </div>
-                        </div>
-                        <div>
-                          <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
-                          <div
-                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                          >
-                            {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}
-                          </div>
-                        </div>
-                      </Col>
-                      <Col md={12}>
-                        <div className="mb-3">
-                          <label className="fw-semibold small d-flex align-items-center">
-                            <CircleFill className="me-2 text-success" width={10} height={10} aria-hidden="true" />
-                            Establecimiento Destino
-                          </label>
-                          <div
-                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                          >
-                            {fila.establecimientO_DESTINO || "Sin Información"}
+                            <p className="fs-05em text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                         <div>
@@ -1608,7 +1658,28 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}
+                            <p className="fs-05em text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={12} className="mb-1 p-1">
+                        <div className="mb-3">
+                          <label className="fw-semibold small d-flex align-items-center mb-1">
+                            <GeoFill className="me-2 text-warning" width={15} height={15} aria-hidden="true" />
+                            Origen
+                          </label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            <p className="fs-05em text-start">  {fila.establecimientO_ORIGEN || "Sin Información"}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            <p className="fs-05em text-start">  {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>
@@ -1634,7 +1705,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                   <div className={`border rounded-3 p-3 ${isDarkMode ? "border-secondary" : ""}`}>
                     <h5 className="fw-semibold mb-3 pb-1 border-bottom">Recepción</h5>
                     <div className="mb-1">
-                      <label className="fw-semibold small text-muted">Entregado Por</label>
+                      <label className="fw-semibold small">Entregado Por</label>
                       <p className="d-flex align-items-center mb-0">
                         {fila.paS_NOM_ENTREGA || "Sin Información"}
                         <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
@@ -1642,61 +1713,29 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
                     </div>
                     <div className="mb-1">
-                      <label className="fw-semibold small text-muted">Recibido Por</label>
+                      <label className="fw-semibold small">Recibido Por</label>
                       <p className="d-flex align-items-center mb-0">
-                        {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)}{" "}
-                        {objeto?.Apellido1 && PrimeraMayuscula(objeto.Apellido1)}
+                        {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)}{" "}{objeto?.Apellido1 && PrimeraMayuscula(objeto.Apellido1)}
                         <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
                       </p>
                     </div>
                     <div>
-                      <label className="fw-semibold small text-muted">Jefe que Autoriza</label>
+                      <label className="fw-semibold small">Jefe que Autoriza</label>
                       <p className="d-flex align-items-center mb-0">
                         {fila.paS_NOM_AUTORIZA || "Sin Información"}
-                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                        <Check2Circle className="mx-1 text-success flex-shrink-0 fs-bold" aria-hidden="true" />
                       </p>
                     </div>
                   </div>
 
-                  {/* Validación */}
-                  <div className={`border rounded-3 p-3 mt-1 ${isDarkMode ? "border-secondary" : ""}`}>
-                    {estadoRecibido === 0 ? (
-                      <>
-                        <h6 className="fw-semibold mb-3 text-center">¿Ha recibido el bien en su establecimiento?</h6>
-                        <div className="d-flex gap-2">
-                          <Button variant="success" className="w-100" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
-                            Sí, recibido
-                          </Button>
-                          <Button variant="danger" className="w-100" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
-                            No, rechazar
-                          </Button>
-                        </div>
-                      </>
-                    ) : estadoRecibido === 1 ? (
-                      <>
-                        <h6 className="fw-semibold mb-3">Estado solicitud</h6>
-                        <div className="alert alert-success d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
-                          <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                          <span className="fw-semibold ">Marcado como recibido</span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <h6 className="fw-semibold mb-3">Estado solicitud</h6>
-                        <div className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
-                          <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                          <span className="fw-semibold">Marcado como rechazado</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
+
                 </Col>
 
                 {/* Documentos */}
                 <Col lg={6}>
                   {listadoTraspasosAdjuntos.length > 0 ? (
                     <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                      <h5 className="fw-semibold mb-3 pb-2 border-bottom">Documentos</h5>
+                      <h5 className="fw-semibold mb-3 pb-1 border-bottom">Documentos</h5>
                       <div className="table-responsive">
                         <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
                           <thead className={isDarkMode ? "table-dark" : "table-light"}>

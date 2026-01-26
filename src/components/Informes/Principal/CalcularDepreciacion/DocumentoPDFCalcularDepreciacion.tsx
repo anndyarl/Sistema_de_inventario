@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     colModelo: { width: "10%", fontSize: 5 },
     colSerie: { width: "10%" },
     colPrecio: { width: "10%" },
+    colCuenta: { width: "10%" },
     colDescripcion: { width: "10%", fontSize: 5 },
     colMesesTranscurridos: { width: "7%" },
     colVidaUtil: { width: "6%" },
@@ -129,7 +130,6 @@ const styles = StyleSheet.create({
 });
 
 
-
 // Formatear la fecha actual en español (Chile)
 const fechaHoy = new Date()
     .toLocaleDateString('es-CL', {
@@ -148,6 +148,16 @@ const arreglo = (array: any[], size: number) => {
     return result;
 };
 
+// Inserta saltos de línea 
+function insertNewLinesDigits(value: any, every = 10) {
+    if (value === null || value === undefined) return "";
+    const s = String(value);
+    // Si ya tiene saltos, procesamos cada línea por separado para no romperlos
+    return s
+        .split('\n')
+        .map(line => line.replace(new RegExp(`(.{${every}})`, 'g'), '$1\n'))
+        .join('\n');
+}
 
 const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number }) => {
 
@@ -204,6 +214,7 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                             <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
                             <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
                             <Text style={[styles.tableCell, styles.colPrecio]}>Precio</Text>
+                            {/* <Text style={[styles.tableCell, styles.colCuenta]}>Cuenta</Text> */}
                             {/* <Text style={styles.tableCellHeader}>Código Largo</Text>
                     <Text style={styles.tableCellHeader}>Departamento Corr</Text>
                     <Text style={styles.tableCellHeader}>Código Específico</Text>
@@ -250,10 +261,10 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                             <Text style={[styles.tableCell, styles.colMesVidaUtil]}>Mes Vida Útil</Text>
                             <Text style={[styles.tableCell, styles.colMesesRestantes]}>Meses Restantes</Text>
                             <Text style={[styles.tableCell, styles.colMontoInicial]}>Monto Inicial</Text>
-                            <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
                             <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>Depreciación por Mes</Text>
                             <Text style={[styles.tableCell, styles.colDepAcumulada]}>Depreciación Acumulada Actualizada</Text>
                             <Text style={[styles.tableCell, styles.colValorResidual]}>Valor Residual</Text>
+                            <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
                             {/* <Text style={[styles.tableCell, styles.colDepSIGFE]}>Depreciación SIGFE</Text> */}
                             {/* <Text style={[styles.tableCell, styles.colDepAcumuladaSIGFE]}>Depreciacion Acumulada SIGFE</Text> */}
 
@@ -266,8 +277,9 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                                 <Text style={[styles.tableCell, styles.colEspecie]}>{lista.especie}</Text>
                                 <Text style={[styles.tableCell, styles.colEspecie]}>{lista.marca}</Text>
                                 <Text style={[styles.tableCell, styles.colMarca]}>{lista.modelo}</Text>
-                                <Text style={[styles.tableCell, styles.colSerie]}>{lista.serie}</Text>
+                                <Text style={[styles.tableCell, styles.colSerie]}>{insertNewLinesDigits(lista.serie, 10)}</Text>
                                 <Text style={[styles.tableCell, styles.colPrecio]}>{(lista.precio ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                {/* <Text style={[styles.tableCell, styles.colCuenta]}>{insertNewLinesDigits(lista.ctA_COD, 10)}</Text> */}
                                 {/* <Text style={styles.tableCell}>{lista.aF_CODIGO_LARGO}</Text>
                         <Text style={styles.tableCell}>{lista.deP_CORR}</Text>
                         <Text style={styles.tableCell}>{lista.esP_CODIGO}</Text>
@@ -314,10 +326,10 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                                 <Text style={[styles.tableCell, styles.colMesVidaUtil]}>{lista.mesVidaUtil}</Text>
                                 <Text style={[styles.tableCell, styles.colMesesRestantes]}>{lista.mesesRestantes}</Text>
                                 <Text style={[styles.tableCell, styles.colMontoInicial]}>{(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                                 <Text style={[styles.tableCell, styles.colDepreciacionMensual]}>{(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada === 0 ? "-" : lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
+                                <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual === 0 ? "-" : lista.valorResidual).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno === 0 ? "-" : lista.depreciacionPorAno).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                                 {/* <Text style={[styles.tableCell, styles.colDepSIGFE]}>{(lista.depreciacioN_ACUMULADA_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text> */}
                                 {/* <Text style={[styles.tableCell, styles.colDepAcumuladaSIGFE]}>{(lista.depreciacioN_ACUMULADA_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text> */}
                             </View>

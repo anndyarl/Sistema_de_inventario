@@ -13,9 +13,9 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import Select from "react-select";
 import { obtenerMaxServicioActions } from "../../redux/actions/Mantenedores/Servicios/obtenerMaxServicioActions.tsx";
 import { listadoMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/listadoMantenedorEspeciesActions.tsx";
-import { comboCuentaMantenedorActions } from "../../redux/actions/Mantenedores/Especies/comboCuentaMantenedorActions.tsx";
 import { registrarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/registrarMantenedorEspeciesActions.tsx";
 import { actualizarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/actualizarMantenedorEspeciesActions.tsx";
+import { comboCuentaInicialActions } from "../../redux/actions/Inventario/Combos/comboCuentaInicialActions.tsx";
 
 export interface ListadoMantenedor {
     esP_CODIGO: string;
@@ -32,14 +32,15 @@ export interface ListadoMantenedor {
 }
 
 interface ComboCuentas {
-    codigo: string;
+    codigo: number;
     descripcion: string;
 }
 interface GeneralProps {
     listadoMantenedor: ListadoMantenedor[];
     obtenerMaxServicioActions: () => void;
     listadoMantenedorEspeciesActions: (establ_corr: number) => Promise<boolean>;
-    comboCuentaMantenedorActions: () => Promise<boolean>;
+    // comboCuentaInicialActions: () => Promise<boolean>;
+    comboCuentaInicialActions: () => void;
     registrarMantenedorEspeciesActions: (formModal: Record<string, any>) => Promise<boolean>;
     actualizarMantenedorEspeciesActions: (formModal: Record<string, any>) => Promise<boolean>;
     comboCuentas: ComboCuentas[];
@@ -50,7 +51,7 @@ interface GeneralProps {
 
 }
 
-const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaMantenedorActions, registrarMantenedorEspeciesActions, actualizarMantenedorEspeciesActions, seR_CORR, listadoMantenedor, comboCuentas, objeto, token, isDarkMode }) => {
+const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorEspeciesActions, comboCuentaInicialActions, registrarMantenedorEspeciesActions, actualizarMantenedorEspeciesActions, seR_CORR, listadoMantenedor, comboCuentas, objeto, token, isDarkMode }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
@@ -147,7 +148,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         //     ...prev,
         //     seR_CORR: seR_CORR + 1,
         // }));
-        comboCuentaMantenedorActions();
+        comboCuentaInicialActions();
         listadoMantenedorAuto();
 
     }, [listadoMantenedorEspeciesActions, obtenerMaxServicioActions, token, listadoMantenedor.length, seR_CORR]); // Asegúrate de incluir dependencias relevantes
@@ -780,7 +781,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
 const mapStateToProps = (state: RootState) => ({
     seR_CORR: state.obtenerMaxServicioReducers.seR_CORR,//Obtiene el max correletivo para insertarlo en el formualario
     listadoMantenedor: state.listadoMantenedorEspeciesReducers.listadoMantenedor,
-    comboCuentas: state.comboCuentaMantenedorReducers.comboCuentaMantenedor,
+    comboCuentas: state.comboCuentaReducer.comboCuenta,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     objeto: state.validaApiLoginReducers,
@@ -792,5 +793,5 @@ export default connect(mapStateToProps, {
     listadoMantenedorEspeciesActions,
     registrarMantenedorEspeciesActions,
     actualizarMantenedorEspeciesActions,
-    comboCuentaMantenedorActions
+    comboCuentaInicialActions
 })(Especies);

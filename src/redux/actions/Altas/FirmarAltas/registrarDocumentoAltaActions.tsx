@@ -1,13 +1,13 @@
 import { Dispatch } from "redux";
 import axios from "axios";
 import {
-  REGISTRAR_ALTAS_REQUEST,
-  REGISTRAR_ALTAS_SUCCESS,
-  REGISTRAR_ALTAS_FAIL,
+  VISADO_ALTAS_REQUEST,
+  VISADO_ALTAS_SUCCESS,
+  VISADO_ALTAS_FAIL,
 } from "../types";
 
 // Acción para obtener la recepción por número
-export const registrarDocumentoAltaActions = (documento: any) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registrarDocumentoAltaActions = (documento: any) => async (dispatch: Dispatch, getState: any): Promise<number | null> => {
   const token = getState().loginReducer.token;
   if (token) {
     const config = {
@@ -18,38 +18,49 @@ export const registrarDocumentoAltaActions = (documento: any) => async (dispatch
     };
     const body = JSON.stringify(documento);
 
-    dispatch({ type: REGISTRAR_ALTAS_REQUEST });
+    dispatch({ type: VISADO_ALTAS_REQUEST });
 
     try {
       const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CreaDocumentoAlta`, body, config);
       // console.log("Se ha registrado", res);
       if (res.status === 200) {
-        dispatch({
-          type: REGISTRAR_ALTAS_SUCCESS,
-          payload: res.data
-        });
-        return true;
-      } else {
-        dispatch({
-          type: REGISTRAR_ALTAS_FAIL,
-          error:
-            "No se pudo anular la alta seleccionada. Por favor, intente nuevamente.",
-        });
-        return false;
+        if (res.data != -1) {
+          dispatch({
+            type: VISADO_ALTAS_SUCCESS,
+            payload: res.data
+          });
+          return res.data;
+        } else {
+          dispatch({
+            type: VISADO_ALTAS_FAIL,
+            error:
+              "Hubo un error en el servidor",
+          });
+          return null;
+        }
       }
+      else {
+        dispatch({
+          type: VISADO_ALTAS_FAIL,
+          error:
+            "No se pudo enviar la solicitud de visado. Por favor, intente nuevamente.",
+        });
+        return null;
+      }
+
     } catch (err: any) {
       dispatch({
-        type: REGISTRAR_ALTAS_FAIL,
+        type: VISADO_ALTAS_FAIL,
         error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
-      return false;
+      return null;
     }
   } else {
     dispatch({
-      type: REGISTRAR_ALTAS_FAIL,
+      type: VISADO_ALTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    return false;
+    return null;
   }
 };

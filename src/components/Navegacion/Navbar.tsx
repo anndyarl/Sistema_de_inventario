@@ -101,8 +101,8 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
                 <Search className={classNames("mx-2 flex-shrink-0", "h-5 w-5")} aria-hidden="true" />
                 {search && (
                     <ul
-                        className="position-absolute  mx-5 mt-4 top-50 z-3 rounded shadow list-group list-group-flush overflow-auto"
-                        style={{ maxHeight: '250px', width: "290px" }}>
+                        className="position-absolute z-3 left-sm-0 left-3 rounded shadow list-group list-group-flush overflow-auto"
+                        style={{ maxHeight: '250px', width: "290px", top: "4rem" }}>
                         {filteredRoutes.map((route) => (
                             <li
                                 key={route.path}

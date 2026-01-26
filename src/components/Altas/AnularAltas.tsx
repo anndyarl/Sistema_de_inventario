@@ -37,7 +37,7 @@ export interface ListaAltas {
 
 interface DatosAltas {
   listaAltasRegistradas: ListaAltas[];
-  listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -67,7 +67,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     if (token) {
       if (listaAltasRegistradas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+        const resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
         if (!resultado) {
           Swal.fire({
             icon: "warning",
@@ -126,11 +126,11 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     setLoading(true);
     if (Inventario.fDesde != "" || Inventario.fHasta != "") {
       if (validate()) {
-        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+      resultado = await listaAltasRegistradasActions("", "", Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
     }
 
     if (!resultado) {
@@ -146,7 +146,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+      resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -158,7 +158,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
 
   const handleRefrescar = async () => {
     setLoadingRefresh(true); //Finaliza estado de carga
-    const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+    const resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
     if (!resultado) {
       setLoadingRefresh(false);
     } else {
@@ -255,7 +255,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         });
 
         setLoadingAnular(false);
-        listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+        listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({

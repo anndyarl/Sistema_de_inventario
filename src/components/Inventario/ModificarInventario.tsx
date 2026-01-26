@@ -7,7 +7,7 @@ import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
 import { BIEN, CUENTA, DETALLE, ListaEspecie } from "./RegistrarInventario/DatosCuenta";
-import { Check2Circle, Eye, Pencil, Search } from "react-bootstrap-icons";
+import { Check2Circle, Eye, Pencil, Search, Trash } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
@@ -85,6 +85,8 @@ export interface InventarioCompleto {
   DET_SERIE: string;
   DET_PRECIO: number;
   DET_OBS: string;
+  //indica si el activo esta de alta o no
+  esalta?: number;
 }
 interface InventarioCompletoProps extends InventarioCompleto {
   comboOrigen: ORIGEN[];
@@ -151,11 +153,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   DET_SERIE,
   DET_PRECIO,
   DET_OBS,
+  esalta,
   isDarkMode,
   objeto,
   comboSerDepActions,
   obtenerInventarioActions,
-  obtenerInventarioxAltasActions,
+  // obtenerInventarioxAltasActions,
   comboDetalleActions,
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,
@@ -194,7 +197,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [showInput, setShowInput] = useState(false);
   const [loadingBuscarInventario, setLoadingBuscarInventario] = useState(false);
-  const [loadingBuscarAlta, setLoadingBuscarAlta] = useState(false);
+  // const [loadingBuscarAlta, setLoadingBuscarAlta] = useState(false);
 
   const [Especies, setEspecies] = useState({
     estableEspecie: 0,
@@ -766,53 +769,54 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   };
 
-  const handleBuscarAlta = async (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
-    let resultado = false;
-    e.preventDefault();
-    setLoadingBuscarAlta(true);
+  // const handleBuscarAlta = async (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+  //   let resultado = false;
+  //   e.preventDefault();
+  //   setLoadingBuscarAlta(true);
 
-    if (!BuscarInventario.altaS_CORR || BuscarInventario.altaS_CORR === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Campo requerido",
-        text: "Por favor ingrese un número de Alta.",
-        confirmButtonText: "Ok",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-        customClass: {
-          popup: "custom-border",
-        }
-      });
-      setLoadingBuscarAlta(false);
-      return;
-    }
-    resultado = await obtenerInventarioxAltasActions(BuscarInventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
-    if (!resultado) {
-      Swal.fire({
-        icon: "warning",
-        title: "Sin Resultados",
-        text: "Inventarios no encontrados",
-        confirmButtonText: "Ok",
-        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-        color: `${isDarkMode ? "#ffffff" : "000000"}`,
-        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-        customClass: {
-          popup: "custom-border",
-        }
-      });
-      setIsDisabled(true);
-      setLoadingBuscarAlta(false);
+  //   if (!BuscarInventario.altaS_CORR || BuscarInventario.altaS_CORR === 0) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Campo requerido",
+  //       text: "Por favor ingrese un número de Alta.",
+  //       confirmButtonText: "Ok",
+  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //       confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+  //       customClass: {
+  //         popup: "custom-border",
+  //       }
+  //     });
+  //     setLoadingBuscarAlta(false);
+  //     return;
+  //   }
+  //   resultado = await obtenerInventarioxAltasActions(BuscarInventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
+  //   if (!resultado) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Sin Resultados",
+  //       text: "Inventarios no encontrados",
+  //       confirmButtonText: "Ok",
+  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
+  //       confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+  //       customClass: {
+  //         popup: "custom-border",
+  //       }
+  //     });
+  //     setIsDisabled(true);
+  //     setLoadingBuscarAlta(false);
 
-      // return;
-    } else {
-      setFilasSeleccionadasAltas([]);
-      setMostrarModalAltas(true);
-      setIsDisabled(false);
-      setLoadingBuscarAlta(false);
-    }
-  };
+  //     // return;
+  //   } else {
+  //     setFilasSeleccionadasAltas([]);
+  //     setMostrarModalAltas(true);
+  //     setIsDisabled(false);
+  //     setLoadingBuscarAlta(false);
+  //   }
+  // };
   //Busca Especies
+
   const handleBuscar = async () => {
     setLoading(true);
     let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
@@ -962,7 +966,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
 
                 </Col>
-                <Col md={3}>
+                {/* <Col md={3}>
                   <div className="mb-1">
                     <label className="fw-semibold">
                       Nº Alta
@@ -1012,7 +1016,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       </OverlayTrigger>
                     </div>
                   </div>
-                </Col>
+                </Col> */}
               </Row>
               <div className={`border-bottom mt-4 mb-2`}>
                 <h5 className="fw-semibold">RESULTADO DE LA BUSQUEDA</h5>
@@ -1149,7 +1153,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       value={Inventario.AF_MONTOFACTURA.toLocaleString("es-ES", {
                         minimumFractionDigits: 0,
                       })}
-                      disabled
+                      disabled={AF_MONTOFACTURA == 0 ? isDisabled : true}
                     />
                     {error.AF_MONTOFACTURA && (
                       <div className="invalid-feedback fw-semibold">{error.AF_MONTOFACTURA}</div>
@@ -1476,20 +1480,55 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                 </Col>
               </Row>
-              <div className="rounded d-flex justify-content-end m-2">
+              <div className="d-flex justify-content-end align-items-center gap-2 m-2 p-2 rounded">
+
+                {/* Botón Limpiar */}
                 <Button
                   disabled={isDisabled}
                   onClick={handleLimpiarTodo}
-                  className="btn btn-danger m-1">
+                  variant="danger"
+                  className="px-3 py-2 d-flex align-items-center"
+                >
+                  <Trash className="h-5 w-5 me-2" aria-hidden="true" />
                   Limpiar todo
                 </Button>
 
-                <Button disabled={isDisabled}
-                  onClick={handleValidar}
-                  className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
-                  Validar
-                </Button>
+                {/* Validación / Estado */}
+                {(
+                  (esalta === 0 && Inventario.AF_FINGRESO > '2025-06-02') ||
+                  (esalta === 1 && Inventario.AF_FINGRESO < '2025-06-02')
+                ) ? (
+                  <Button
+                    onClick={handleValidar}
+                    variant={isDarkMode ? "secondary" : "primary"}
+                    className="px-3 py-2 d-flex align-items-center"
+                    disabled={isDisabled}
+                  >
+                    Validar
+                  </Button>
+                ) : (
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip id="tooltip-alta">
+                        Este activo tiene un alta asociada. Solo es posible modificar activos que aún no han sido dados de alta.
+                      </Tooltip>
+                    }
+                  >
+                    <Button
+                      variant="success"
+                      className="px-3 py-2 d-flex align-items-center"
+                    >
+                      <Check2Circle className="h-5 w-5 me-2" aria-hidden="true" />
+                      Activo dado de alta
+                    </Button>
+                  </OverlayTrigger>
+                )}
+
+
               </div>
+
+
             </div>
           </form>
         </div>
@@ -2067,6 +2106,7 @@ const mapStateToProps = (state: RootState) => ({
   ESP_CODIGO: state.obtenerInventarioReducers.esP_CODIGO,
   esP_NOMBRE: state.obtenerInventarioReducers.esP_NOMBRE,
   CTA_COD: state.obtenerInventarioReducers.ctA_COD,
+
   //-------Detalles Activo fijo---------//
   AF_VIDAUTIL: state.obtenerInventarioReducers.aF_VIDAUTIL,
   AF_FINGRESO: state.obtenerInventarioReducers.aF_FINGRESO,
@@ -2075,6 +2115,9 @@ const mapStateToProps = (state: RootState) => ({
   DET_SERIE: state.obtenerInventarioReducers.deT_SERIE,
   DET_PRECIO: state.obtenerInventarioReducers.deT_PRECIO,
   DET_OBS: state.obtenerInventarioReducers.deT_OBS,
+
+  //indica si el activo esta de alta o no
+  esalta: state.obtenerInventarioReducers.esalta,
 });
 
 export default connect(mapStateToProps, {

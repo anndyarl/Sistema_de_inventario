@@ -22,11 +22,14 @@ import { FileSignatureIcon } from "lucide-react";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { listaEstadoFirmasActions } from "../../../redux/actions/Altas/FirmarAltas/listaEstadoFirmasActions";
 import { useLocation } from "react-router-dom";
+import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
+import { setSeguimientoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
+
 // import { anularAltasActions } from "../../../redux/actions/Altas/AnularAltas/anularAltasActions";
 
 interface FechasProps {
-    fDesde: string;
-    fHasta: string;
+    fDesde?: string;
+    fHasta?: string;
 }
 export interface ListaAltas {
     aF_CLAVE: number,
@@ -74,26 +77,29 @@ export interface Unidades {
 
 export interface ListaEstadoFirmas {
     idocumento: number;
-    altaS_CORR: number;
+    altaS_CORR?: number;
     estado: number;
 }
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
     comboUnidades: Unidades[];
-    listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
+    listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
     listaEstadoFirmasActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     obtenerUnidadesActions: () => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
-    registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
+    registrarDocumentoAltaActions: (documento: any) => Promise<number | null>;
+    listaEstadoActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
+    setSeguimientoFirmasActions: (dataSeguimientoEstadoFirma: any) => void;
     // anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
     datosFirmas: DatosFirmas[];
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
     listaEstadoFirmas: ListaEstadoFirmas[];
+    idocumentoAlta: number;
 }
 
-const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerUnidadesActions, obtenerfirmasAltasActions, registrarDocumentoAltaActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, objeto }) => {
+const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, listaEstadoFirmasActions, obtenerUnidadesActions, obtenerfirmasAltasActions, registrarDocumentoAltaActions, listaEstadoActions, setSeguimientoFirmasActions, listaAltasRegistradas, listaEstadoFirmas, comboUnidades, token, isDarkMode, datosFirmas, objeto, idocumentoAlta }) => {
     const [loading, setLoading] = useState(false);
     // const [loadingAnular, setLoadingAnular] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
@@ -121,6 +127,12 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const location = useLocation();
     const afaltaS_CORR = location.state?.prop_altaS_CORR ?? 0;
     const [loadingEnvio, setLoadingEnvio] = useState(false);
+    // type SeguimientoFirmasState = {
+    //     altas: number;
+    //     establecimiento: number;
+    // } | null
+    // const [seguimientoFirmas, setSeguimientoFirmas] = useState<SeguimientoFirmasState>(null);
+
     // adjuntar archivos modal
     const [anexos, setAnexos] = useState<File[]>([]);
 
@@ -140,6 +152,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const [nombreTitularRFisico, setNombreTitularRFisico] = useState<string>("");
     const [nombreSubRFisico, setNombreSubRFisico] = useState<string>("");
 
+
+    //Este permiteadjuntar archivos y convertirlos a base64
     const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
         const resultado: { nombre: string, contenido: string }[] = [];
 
@@ -181,14 +195,15 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         fDesde: "",
         fHasta: "",
         altaS_CORR: afaltaS_CORR,
-        af_codigo_generico: ""
+        af_codigo_generico: "",
+        idocumentoAlta: idocumentoAlta //Se inicializa con el valor de redux luego de registrar el documento.
     });
 
     const [AltaInventario, setAltaInventario] = useState({
         ajustarFirma: false,//General
         chkFinanzas: false,//Opcional
         chkAbastecimiento: false,//Opcional
-        chkUnidad: false,//Opcional        
+        chkUnidad: false,//Opcional
 
         titularInventario: false,
         subroganteInventario: false,
@@ -224,7 +239,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         if (token) {
             if (listaAltasRegistradas.length === 0) {
                 setLoading(true);
-                const resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+                const resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
                 if (!resultado) {
                     Swal.fire({
                         icon: "warning",
@@ -247,6 +262,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     };
 
     useEffect(() => {
+
         if (listaEstadoFirmas.length === 0) listaEstadoFirmasActions(altaSeleccionada, 0, objeto.Roles[0]?.codigoEstablecimiento);
         listaAuto();
         Unidad
@@ -391,6 +407,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     };
 
+    //Detecta el tipo de imagen para el PDF
     function detectarTipo(base64: string): string {
         if (base64.startsWith("/9j/")) return "jpeg";
         if (base64.startsWith("iVBOR")) return "png";
@@ -429,6 +446,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         });
     };
 
+    //Check de firmantes
     const handleCheck = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
 
@@ -736,16 +754,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         setAltaInventario(updatedState);
     }, [AltaInventario, datosFirmas, objeto]);
 
-    const handleBuscar = async () => {
+    const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
         let resultado = false;
         setLoading(true);
         if (Inventario.fDesde != "" || Inventario.fHasta != "") {
             if (validate()) {
-                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
             }
         }
         else {
-            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, Inventario.altaS_CORR, Inventario.af_codigo_generico);
+            resultado = await listaAltasRegistradasActions("", "", Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
         }
 
         if (!resultado) {
@@ -761,7 +780,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, 0, "");
+            resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
             setLoading(false); //Finaliza estado de carga
             return;
         } else {
@@ -773,217 +792,249 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
-        const result = await Swal.fire({
-            icon: "info",
-            title: "Solicitar Visado",
-            text: `Confirme para enviar su solicitud`,
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Enviar",
-            background: isDarkMode ? "#1e1e1e" : "#ffffff",
-            color: isDarkMode ? "#ffffff" : "#000000",
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: { popup: "custom-border" }
-        });
+        const maxBytes = 11 * 1024 * 1024; // 20 MB
+        if (anexos && anexos.some((f) => f.size > maxBytes)) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Archivo demasiado grande',
+                text: 'No se permiten archivos mayores a 20 MB. Elimine o reemplace el archivo y vuelva a intentarlo.',
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+            });
+            setLoadingSolicitarVisado(false);
+            return;
+        }
+        else {
+            const result = await Swal.fire({
+                icon: "info",
+                title: "Solicitud de Visado",
+                text: "Por favor confirme si desea enviar su solicitud de visado.",
+                showCancelButton: true,
+                confirmButtonText: "Confirmar y Enviar",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: { popup: "custom-border" }
+            });
 
-        // Genera el PDF
-        const base64 = await generarPDFBase64();
-        // Obtiene firmas según jerarquía activada
-        const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number; rut: string, correo: string }[] => {
-            const firmasSeleccionadas: { jerarquia: number; idcargo: number; rut: string, correo: string }[] = [];
-            const establecimiento = objeto.Roles[0].codigoEstablecimiento.toString();
+            // Genera el PDF
+            const base64 = await generarPDFBase64();
+            // Obtiene firmas según jerarquía activada
+            const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number; rut: string, correo: string }[] => {
+                const firmasSeleccionadas: { jerarquia: number; idcargo: number; rut: string, correo: string }[] = [];
+                const establecimiento = objeto.Roles[0].codigoEstablecimiento.toString();
 
-            // Jerarquía 1 → ajustarFirma
-            if (AltaInventario.ajustarFirma) {
-                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 1);
+                // Jerarquía 1 → ajustarFirma
+                if (AltaInventario.ajustarFirma) {
+                    const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 1);
 
-                if (AltaInventario.titularInventario) {
-                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteInventario) {
-                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
-
-            // Jerarquía 2 → chkFinanzas
-            if (AltaInventario.chkFinanzas) {
-                const firmasUnidad2 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
-
-                if (AltaInventario.titularFinanzas) {
-                    const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteFinanzas) {
-                    const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
-
-            // Jerarquía 3 → chkAbastecimiento
-            if (AltaInventario.chkAbastecimiento) {
-                const firmasUnidad3 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
-
-                if (AltaInventario.titularAbastecimiento) {
-                    const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteAbastecimiento) {
-                    const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
-
-            // Jerarquía 3 extendida → chkUnidad (con combo)
-            if (AltaInventario.chkUnidad) {
-                // Abastecimiento (Unidad 3)
-                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
-                if (AltaInventario.titularAbastecimiento) {
-                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteAbastecimiento) {
-                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                    if (AltaInventario.titularInventario) {
+                        const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 1, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteInventario) {
+                        const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 1, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
                     }
                 }
 
-                // Informática (Unidad 4)
-                const firmasUnidad2 = datosFirmas.filter(f => f.iD_UNIDAD === 4);
-                if (AltaInventario.titularInformatica) {
-                    const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteInformatica) {
-                    const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                // Jerarquía 2 → chkFinanzas
+                if (AltaInventario.chkFinanzas) {
+                    const firmasUnidad2 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
+
+                    if (AltaInventario.titularFinanzas) {
+                        const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteFinanzas) {
+                        const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
                     }
                 }
 
-                // Compras (Unidad 5)
-                const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 5);
-                if (AltaInventario.titularCompra) {
-                    const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteCompra) {
-                    const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                // Jerarquía 3 → chkAbastecimiento
+                if (AltaInventario.chkAbastecimiento) {
+                    const firmasUnidad3 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
+
+                    if (AltaInventario.titularAbastecimiento) {
+                        const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteAbastecimiento) {
+                        const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
                     }
                 }
-                // Convenio (Unidad 6)
-                const firmasUnidad4 = datosFirmas.filter(f => f.iD_UNIDAD === 6);
-                if (AltaInventario.titularConvenio) {
-                    const titular = firmasUnidad4.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+
+                // Jerarquía 3 extendida → chkUnidad (con combo)
+                if (AltaInventario.chkUnidad) {
+                    // Abastecimiento (Unidad 3)
+                    const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
+                    if (AltaInventario.titularAbastecimiento) {
+                        const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteAbastecimiento) {
+                        const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
                     }
-                } else if (AltaInventario.subroganteConvenio) {
-                    const subrogante = firmasUnidad4.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+
+                    // Informática (Unidad 4)
+                    const firmasUnidad2 = datosFirmas.filter(f => f.iD_UNIDAD === 4);
+                    if (AltaInventario.titularInformatica) {
+                        const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteInformatica) {
+                        const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+
+                    // Compras (Unidad 5)
+                    const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 5);
+                    if (AltaInventario.titularCompra) {
+                        const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteCompra) {
+                        const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                    // Convenio (Unidad 6)
+                    const firmasUnidad4 = datosFirmas.filter(f => f.iD_UNIDAD === 6);
+                    if (AltaInventario.titularConvenio) {
+                        const titular = firmasUnidad4.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteConvenio) {
+                        const subrogante = firmasUnidad4.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                    // Recursos Fisicos (Unidad 7)
+                    const firmasUnidad5 = datosFirmas.filter(f => f.iD_UNIDAD === 7);
+                    if (AltaInventario.titularConvenio) {
+                        const titular = firmasUnidad5.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteConvenio) {
+                        const subrogante = firmasUnidad5.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
                     }
                 }
-                // Recursos Fisicos (Unidad 7)
-                const firmasUnidad5 = datosFirmas.filter(f => f.iD_UNIDAD === 7);
-                if (AltaInventario.titularConvenio) {
-                    const titular = firmasUnidad5.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteConvenio) {
-                    const subrogante = firmasUnidad5.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
 
-            return firmasSeleccionadas;
-        };
+                return firmasSeleccionadas;
+            };
 
-        const selectedIndices = filasSeleccionadas.map(Number);
-        const FirmaAlta = selectedIndices.flatMap(index => {
-            const item = listaAltasRegistradas[index];
-            return obtenerFirmasJerarquia().map(({ jerarquia, idcargo, correo }) => ({
-                ALTAS_CORR: item.altaS_CORR,
-                JERARQUIA: jerarquia,
-                IDCARGO: idcargo,
-                FIRMADO: 0,
-                CORREO: correo
-            }));
-        });
+            const selectedIndices = filasSeleccionadas.map(Number);
+            const FirmaAlta = selectedIndices.flatMap(index => {
+                const item = listaAltasRegistradas[index];
+                return obtenerFirmasJerarquia().map(({ jerarquia, idcargo, correo }) => ({
+                    ALTAS_CORR: item.altaS_CORR,
+                    JERARQUIA: jerarquia,
+                    IDCARGO: idcargo,
+                    FIRMADO: 0,
+                    CORREO: correo
+                }));
+            });
 
-        // const documento = {
-        //     DescripcionDocumento: "Visado de altas de inventario",
-        //     CuerpoDocumento: base64,
-        //     UsuarioCreador: objeto.IdCredencial,
-        //     FirmaAlta: FirmaAlta,
-        //     ListaDistribucion: [],
-        //     ListaAnexos: []
-        // };
-        const anexosBase64 = await convertirArchivosABase64(anexos);
+            // const documento = {
+            //     DescripcionDocumento: "Visado de altas de inventario",
+            //     CuerpoDocumento: base64,
+            //     UsuarioCreador: objeto.IdCredencial,
+            //     FirmaAlta: FirmaAlta,
+            //     ListaDistribucion: [],
+            //     ListaAnexos: []
+            // };
+            const anexosBase64 = await convertirArchivosABase64(anexos);
 
-        const documento = {
-            DescripcionDocumento: "Visado de altas de inventario",
-            CuerpoDocumento: base64,
-            UsuarioCreador: objeto.IdCredencial,
-            RUT: objeto.usr_run,
-            ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
-            FirmaAlta: FirmaAlta,
-            ListaDistribucion: [],
-            ListaAnexos: anexosBase64
-        };
-        // console.log("documento", documento);
-        if (result.isConfirmed) {
-            setLoadingEnvio(true);
-            setMostrarModal(false);
-            const resultado = await registrarDocumentoAltaActions(documento);
-
-            if (!resultado) {
-                await Swal.fire({
-                    icon: "warning",
-                    title: "No se pudo enviar la solicitud",
-                    text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
-                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: { popup: "custom-border" }
-                });
-                setLoadingEnvio(false);
-            }
-            else {
-                await Swal.fire({
-                    icon: "success",
-                    title: "Solicitud enviada",
-                    text: "Su solicitud de visado ha sido enviada con exito",
-                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: { popup: "custom-border" }
-                });
-                setLoadingEnvio(false);
-                listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
-                setFilasSeleccionadas([]);
-                handleBuscar();
+            const documento = {
+                DescripcionDocumento: "Visado de altas de inventario",
+                CuerpoDocumento: base64,
+                UsuarioCreador: objeto.IdCredencial,
+                RUT: objeto.usr_run,
+                ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
+                FirmaAlta: FirmaAlta,
+                ListaDistribucion: [],
+                ListaAnexos: anexosBase64
+            };
+            // console.log("documento", documento);
+            if (result.isConfirmed) {
+                setLoadingEnvio(true);
                 setMostrarModal(false);
-                setLoadingSolicitarVisado(false);
-                setAnexos([]);
+                const resultado = await registrarDocumentoAltaActions(documento);
+
+                if (!resultado) {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Error al enviar su solicitud",
+                        text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
+                        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                        color: isDarkMode ? "#ffffff" : "#000000",
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: { popup: "custom-border" }
+                    });
+                    setLoadingEnvio(false);
+                }
+                else {
+
+                    setInventario({
+                        ...Inventario,
+                        idocumentoAlta: idocumentoAlta
+                    });
+
+                    await Swal.fire({
+                        icon: "success",
+                        title: "Solicitud enviada con exito",
+                        html: `Número de documento <strong>${resultado}</strong>.<br> Puede realizar el seguimiento en el módulo estado de firmas.`,
+                        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                        color: isDarkMode ? "#ffffff" : "#000000",
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: { popup: "custom-border" }
+                    });
+                    setLoadingEnvio(false);
+                    listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento); // Actualiza estado de firmas del módulo FirmaAltas
+                    listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);// Actualiza estado de firmas del módulo EstadoFirmas
+                    setFilasSeleccionadas([]);
+                    setMostrarModal(false);
+                    setLoadingSolicitarVisado(false);
+                    setAnexos([]);
+
+                    // const altasSeguimiento = filasSeleccionadas.map(index =>
+                    //     listaAltasRegistradas[parseInt(index)].idocumento
+                    // );
+
+                    // Se conserva el numero de alta a ser visado para luego consultar en componente estado de firmas constantemente hasta que existan todas las firmas
+                    // Aqui se envia a redux para conservar los datos en caso de actualizacion de página
+
+
+                    setSeguimientoFirmasActions({ idocumento: resultado }); // Se guarda en el estado de redux para consultarlo en la funcion de estado de firmas
+
+                }
             }
         }
     };
@@ -1206,7 +1257,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     //         // const elemento = listaAltas[index].aF_CLAVE;
     //         // console.log("despues del confirm elemento", elemento);
 
-    //         // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);      
+    //         // const clavesSeleccionadas: number[] = selectedIndices.map((index) => listaAltas[index].aF_CLAVE);
     //         // console.log("Claves seleccionadas para registrar:", clavesSeleccionadas);
     //         // Crear un array de objetos con aF_CLAVE y nombre
 
@@ -1252,8 +1303,8 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     // const setSeleccionaFila = (index: number) => {
     //     setMostrarModal(index); //Abre modal del indice seleccionado
-    //     if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
-    //     if (comboUnidades.length === 0) { obtenerUnidadesActions(); }
+    //     if (datosFirmas.length === 0) {obtenerfirmasAltasActions(); }
+    //     if (comboUnidades.length === 0) {obtenerUnidadesActions(); }
     //     setFilasSeleccionadas(prev =>
     //         prev.includes(index.toString())
     //             ? prev.filter(rowIndex => rowIndex !== index.toString())
@@ -1359,6 +1410,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                 className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                                                 name="fDesde"
                                                 onChange={handleChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
                                                 value={Inventario.fDesde}
                                                 max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                             />
@@ -1375,6 +1431,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                                 className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
                                                 name="fHasta"
                                                 onChange={handleChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
                                                 value={Inventario.fHasta}
                                                 max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                             />
@@ -1397,6 +1458,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             name="af_codigo_generico"
                                             placeholder="Ej: 1000000008"
                                             onChange={handleChange}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleBuscar(e);
+                                                }
+                                            }}
                                             maxLength={12}
                                             value={Inventario.af_codigo_generico}
                                         />
@@ -1411,6 +1477,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             placeholder="Ej: 0"
                                             maxLength={12}
                                             onChange={handleChange}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleBuscar(e);
+                                                }
+                                            }}
                                             value={Inventario.altaS_CORR}
                                         />
                                     </div>
@@ -2326,7 +2397,8 @@ const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboUnidades: state.obtenerUnidadesReducers.comboUnidades,
-    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas
+    datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
+    idocumentoAlta: state.registrarDocumentoAltasReducers.idocumentoAlta //Pendiente
 });
 
 
@@ -2337,5 +2409,7 @@ export default connect(mapStateToProps, {
     obtenerUnidadesActions,
     registrarDocumentoAltaActions,
     // anularAltasActions,
-    listaEstadoFirmasActions
+    listaEstadoFirmasActions,
+    listaEstadoActions,
+    setSeguimientoFirmasActions
 })(FirmarAltas);

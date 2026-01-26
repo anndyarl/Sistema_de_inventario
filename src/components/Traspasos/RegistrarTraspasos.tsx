@@ -24,6 +24,7 @@ import { registroTraspasoMultipleActions } from "../../redux/actions/Traspasos/r
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { listadoTraspasosRecibidosActions } from "../../redux/actions/Traspasos/listadoTraspasosRecibidosActions";
 import { listadoTraspasosEnviadosActions } from "../../redux/actions/Traspasos/listadoTraspasosEnviadosActions";
+import { useNavigate } from "react-router-dom";
 
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
@@ -89,9 +90,13 @@ interface SERVICIO_DEPENDENCIA {
     deP_CORR: number;
     descripcion: string;
 }
+export interface TraspasoConAdjuntos {
+    Entidad: any[];
+    Adjuntos: any[];
+}
 
 interface TrasladosProps {
-    registroTraspasoMultipleActions: (FormularioTraspaso: Record<string, any>) => Promise<boolean>
+    registroTraspasoMultipleActions: (FormularioTraspaso: TraspasoConAdjuntos) => Promise<boolean>
     comboTrasladoServicio: TRASLADOSERVICIO[];
     comboTrasladoServicioActions: (establ_corr: number) => void;
     comboEstablecimiento: ESTABLECIMIENTO[];
@@ -140,17 +145,19 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     objeto,
     token,
     isDarkMode }) => {
-    const [loading, setLoadingBuscar] = useState(false); // Estado para controlar la carga
-    const [loadingBuscar, setLoading] = useState(false); // Estado para controlar la carga
+    const [loading, setLoading] = useState(false); // Estado para controlar la carga
+    const [loadingBuscar, setLoadingBuscar] = useState(false); // Estado para controlar la carga
     const [error, setError] = useState<Partial<FormularioTraspaso> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
     const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
     const [paginaActual1, setPaginaActual1] = useState(1);
+    const [paginaActual2, setPaginaActual2] = useState(1);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [filasSeleccionadasTraslados, setFilasSeleccionadasTraslados] = useState<string[]>([]);
     const [activosFijos, setActivosFijos] = useState<ListaATraspasar[]>([]);
+    const navigate = useNavigate();
     const [Paginacion, setPaginacion] = useState({
         nPaginacion: 10
     });
@@ -160,6 +167,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         nPaginacion1: 10
     });
     const elementosPorPagina1 = Paginacion1.nPaginacion1;
+
+    const [Paginacion2, setPaginacion2] = useState({
+        nPaginacion2: 10
+    });
+    const elementosPorPagina2 = Paginacion2.nPaginacion2;
 
     const [Buscar, setBuscar] = useState({
         aF_CODIGO_GENERICO: "",
@@ -278,6 +290,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     }, [comboTrasladoServicioActions,
         comboEstablecimientoActions,
         comboTrasladoEspecieActions,
+        // comboEspeciesBienActions,
         listaTrasladoSeleccion,
         comboEspecies]);
 
@@ -285,7 +298,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         const { name, value } = e.target;
 
         // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "aF_CODIGO_GENERICO" && !/^[0-9]*$/.test(value)) {
+        if (name === "aF_CODIGO_GENERICO" && !/^[0-9]*$/.test(value) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
             return; // Salir si contiene caracteres no numéricos
         }
         // Convierte `value` a número
@@ -313,6 +326,12 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             [name]: value,
         }));
 
+        setPaginacion2((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+
+
         if (name === "nPaginacion") {
             paginar1(1);
         }
@@ -320,6 +339,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         if (name === "nPaginacion1") {
             paginar1(1);
         }
+
+        if (name === "nPaginacion2") {
+            paginar1(1);
+        }
+
 
         if (name === "seR_CORR") {
             comboDependenciaOrigenActions(value);
@@ -376,7 +400,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         }));
     }
 
-    const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
         let resultado = false;
         e.preventDefault();
         setLoadingBuscar(true); // Inicia el estado de carga
@@ -603,10 +627,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             });
 
             if (result.isConfirmed) {
+                setMostrarModalTraslado(false);
                 setLoading(true);
-
                 const anexosBase64 = await convertirArchivosABase64(anexos);
-                const activosSeleccionados = activosFijos.map((item) => ({
+
+                const Entidad = activosFijos.map((item) => ({
                     aF_CLAVE: item.aF_CLAVE,
                     aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
                     paS_OBS: Traspasos.paS_OBS,
@@ -621,11 +646,20 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     paS_NOM_AUTORIZA: Traspasos.paS_NOM_AUTORIZA,
                     estabL_CORR_ORIGEN: objeto.Roles[0].codigoEstablecimiento,
                     estabL_CORR: Traspasos.estabL_CORR,
-                    Adjuntos: anexosBase64
+
                 }));
 
+                const Adjuntos = anexosBase64.map((anexo) => ({
+                    nombre: anexo.nombre,
+                    contenido: anexo.contenido
+                }));
 
-                const resultado = await registroTraspasoMultipleActions(activosSeleccionados);
+                const TraspasoConAdjuntos = {
+                    Entidad,
+                    Adjuntos
+                };
+                // console.log("TraspasoconAdjuntos", TraspasoConAdjuntos);
+                const resultado = await registroTraspasoMultipleActions(TraspasoConAdjuntos);
                 if (resultado) {
                     mostrarAlerta();
                     listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
@@ -635,7 +669,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     setFilasSeleccionadas([]);
                     setFilasSeleccionadasTraslados([]);
                     setActivosFijos([]);
-                    setMostrarModalTraslado(false);
+                    anexos.splice(0, anexos.length);
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -713,6 +747,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         }
     }
 
+
     /*-----------------------Tabla Resultado de busqueda----------------------*/
     // Lógica de Paginación actualizada 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -738,7 +773,18 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         ? Math.ceil(activosFijos.length / elementosPorPagina1) : 0;
     const paginar1 = (numeroPagina1: number) => setPaginaActual1(numeroPagina1);
 
+    /*-----------------------Tabla resumen----------------------*/
 
+    // Lógica de Paginación actualizada 
+    const indiceUltimoElemento2 = paginaActual2 * elementosPorPagina2;
+    const indicePrimerElemento2 = indiceUltimoElemento2 - elementosPorPagina2;
+    const elementosActuales2 = useMemo(
+        () => listaSalidaTraspasos.slice(indicePrimerElemento2, indiceUltimoElemento2),
+        [listaSalidaTraspasos, indicePrimerElemento2, indiceUltimoElemento2]);
+
+    const totalPaginas2 = Array.isArray(listaSalidaTraspasos)
+        ? Math.ceil(listaSalidaTraspasos.length / elementosPorPagina2) : 0;
+    const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
     return (
         <Layout>
             <Helmet>
@@ -777,6 +823,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                     name="aF_CODIGO_GENERICO"
                                                     placeholder="Eje: 1000000008"
                                                     onChange={handleChange}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") {
+                                                            handleBuscar(e);
+                                                        }
+                                                    }}
                                                     value={Buscar.aF_CODIGO_GENERICO}
                                                 />
                                                 <OverlayTrigger
@@ -830,8 +881,13 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                 className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                                                 maxLength={10}
                                                 name="altaS_CORR"
-                                                placeholder="Introduzca marca o parte de él"
+                                                placeholder="0"
                                                 onChange={handleChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
                                                 value={Buscar.altaS_CORR}
                                             />
                                         </div>
@@ -940,6 +996,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                 name="marca"
                                                 placeholder="Introduzca marca o parte de él"
                                                 onChange={handleChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
                                                 value={Buscar.marca}
                                             />
                                         </div>
@@ -956,6 +1017,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                 name="modelo"
                                                 placeholder="Introduzca modelo o parte de él"
                                                 onChange={handleChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
                                                 value={Buscar.modelo}
                                             />
                                         </div>
@@ -972,6 +1038,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                                 name="serie"
                                                 placeholder="Ingrese serie o parte del número"
                                                 onChange={handleChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
                                                 value={Buscar.serie}
                                             />
                                         </div>
@@ -1136,8 +1207,9 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                             // scrollable={false}
                             backdrop="static" // Evita que se cierre al hacer clic afuera
                             keyboard={false}
+
                         >
-                            <Modal.Header className={`modal-header`}>
+                            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                                 <div className="d-flex justify-content-between w-100">
                                     <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
                                     <Button
@@ -1154,7 +1226,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                             </Modal.Header>
                             <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                                 <div className="bg-white shadow-sm sticky-top">
-                                    <Row>
+                                    <Row className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                                         <Col md={6}>
                                             {listaTrasladoSeleccion.length > 10 && (
                                                 <div className="d-flex align-items-center me-2">
@@ -1302,9 +1374,10 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 backdrop="static"
                 keyboard={false}  // Evita el cierre al presionar la tecla Esc
             >
-                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                <Modal.Header className={`bg-warning text-muted`} closeButton>
                     <Modal.Title className="fw-semibold">
-                        Bienes a Traspasar: {activosFijos.length}
+                        <Send className={"flex-shrink-0 h-5 w-5 me-2 mb-1"} aria-hidden="true" />
+                        Bienes a Traspasar
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -1328,7 +1401,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                 >
                                     {loading ? (
                                         <>
-                                            Traspasar
+                                            {`Un momento... `}
                                             <Spinner
                                                 as="span"
                                                 animation="border"
@@ -1343,7 +1416,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                         <>
                                             <Send className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
                                             Traspasar
-
+                                            <p className="badge bg-light text-muted ms-2 ">{activosFijos.length}</p>
                                         </>
                                     )}
                                 </Button>
@@ -1352,8 +1425,8 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                     onClick={handleLimpiarFormulario}
                                     className="p-2 mb-2 mb-sm-0 mx-sm-1"
                                 >
-                                    Limpiar
                                     <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
+                                    Limpiar
                                 </Button>
                             </div>
                         </Col>
@@ -1631,31 +1704,70 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     </form>
                 </Modal.Body>
             </Modal>
-            {/* Lista de traspasar */}
-            <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="lg">
+            {/* Lista de resumen traspasados */}
+            <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                    <Modal.Title className="fw-semibold">Inventario asociado a Nº de Traspaso</Modal.Title>
+                    <Modal.Title className="fw-semibold">Código de traspaso: {listaSalidaTraspasos[0]?.n_TRASPASO || 'N/A'}</Modal.Title>
                 </Modal.Header>
-                {/* <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
-                  Exportar a PDF
-                </Button>
-              </div> */}
+
                 <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <div className="table-responsive">
+
+                    <Col className="row align-items-center justify-content-center gap-2 px-2">
+
+                        {/* Mensaje */}
+                        <div
+                            className={`py-2 rounded fw-semibold fs-09em        ${isDarkMode
+                                ? "bg-success text-light border border-secondary"
+                                : "bg-success bg-opacity-10 text-success border border-success"
+                                }`}
+                        >
+                            Se han traspasado <strong>{listaSalidaTraspasos.length}</strong> bienes correctamente.
+                        </div>
+
+                        {/* Botón */}
+                        <Button
+                            className={`px-4 py-2 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                            onClick={() => {
+                                navigate("/traspasos/ListadoTraspasos");
+                            }}
+                        >
+                            Ir a Listado de Traspasos
+                        </Button>
+
+                        {listaSalidaTraspasos.length > 10 && (
+                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                                    Tamaño de página:
+                                </label>
+                                <select
+                                    aria-label="Seleccionar tamaño de página"
+                                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                    name="nPaginacion2"
+                                    onChange={handleChange}
+                                    value={Paginacion2.nPaginacion2}
+                                >
+                                    {[10, 15, 20, 25, 50, 100].map((val) => (
+                                        <option key={val} value={val}>{val}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </Col>
+
+                    <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead>
                                 <tr>
-                                    <th>Nº Inventario</th>
-                                    <th>N" Traspaso</th>
+                                    <th className="text-center">Nº Inventario</th>
+                                    {/* <th>N" Traspaso</th> */}
                                 </tr>
                             </thead>
                             <tbody>
-                                {listaSalidaTraspasos.length > 0 ? (
-                                    listaSalidaTraspasos.map((item, index) => (
+                                {elementosActuales2.length > 0 ? (
+                                    elementosActuales2.map((item, index) => (
                                         <tr key={index}>
-                                            <td>{item.aF_CODIGO_GENERICO || 'N/A'}</td>
-                                            <td>{item.n_TRASPASO || 'N/A'}</td>
+                                            <td className="text-center">{item.aF_CODIGO_GENERICO || 'N/A'}</td>
+                                            {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}
                                         </tr>
                                     ))
                                 ) : (
@@ -1666,9 +1778,55 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                             </tbody>
                         </table>
                     </div>
+                    {/* Paginador */}
+                    {listaSalidaTraspasos.length > 10 && (
+                        <div className="paginador-container mt-3">
+                            <Pagination className="paginador-scroll justify-content-center">
+                                <Pagination.First onClick={() => paginar2(1)} disabled={paginaActual2 === 1} />
+                                <Pagination.Prev
+                                    onClick={() => paginar2(paginaActual2 - 1)}
+                                    disabled={paginaActual2 === 1}
+                                />
+                                {Array.from({ length: totalPaginas2 }, (_, i) => (
+                                    <Pagination.Item
+                                        key={i + 1}
+                                        active={i + 1 === paginaActual2}
+                                        onClick={() => paginar2(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Next
+                                    onClick={() => paginar2(paginaActual2 + 1)}
+                                    disabled={paginaActual2 === totalPaginas2}
+                                />
+                                <Pagination.Last
+                                    onClick={() => paginar2(totalPaginas2)}
+                                    disabled={paginaActual2 === totalPaginas2}
+                                />
+                            </Pagination>
+                        </div>
+                    )}
                 </Modal.Body>
             </Modal>
+            {
+                loading && (
+                    <div
+                        className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
+                        style={{
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            // zIndex: 1050,
+                        }}
+                    >
+                        <div className="text-center">
+                            <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                            <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+                        </div>
+                    </div>
+                )
+            }
         </Layout >
+
     );
 };
 

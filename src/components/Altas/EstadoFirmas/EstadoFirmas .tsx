@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { Pagination, Modal, Col, Row, Button, Spinner, OverlayTrigger, Tooltip, Form, Collapse } from "react-bootstrap";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
-import { RootState } from "../../../store";
+import { AppDispatch, RootState } from "../../../store";
 import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
@@ -19,7 +19,7 @@ import ModificarInventario, { InventarioCompleto, SERVICIO_DEPENDENCIA } from ".
 import { BIEN, CUENTA, DETALLE, ListaEspecie } from "../../Inventario/RegistrarInventario/DatosCuenta";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
-import { listaEstadoVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
+import { listaEstadoVisadoresActions, setSeguimientoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
 import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
@@ -33,6 +33,8 @@ import { comboDetalleActions } from "../../../redux/actions/Inventario/Combos/co
 import { comboCuentaModificarActions } from "../../../redux/actions/Inventario/Combos/comboCuentaModificarActions";
 import { comboSerDepActions } from "../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
+import { consultaFirmaVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/consultaFirmaVisadoresActions";
+
 export interface ListaEstadoFirmas {
     idocumento: number;
     altaS_CORR: number;
@@ -40,7 +42,7 @@ export interface ListaEstadoFirmas {
     fecha: string;
 }
 
-interface ListaEstadoVisadores {
+export interface ListaEstadoVisadores {
     id: number;
     idcargo: number;
     nombrecargo: string;
@@ -82,12 +84,18 @@ interface DatosBajas {
     comboEspecies: ListaEspecie[];
     comboCuenta: CUENTA[];
     comboSerDep: SERVICIO_DEPENDENCIA[];
-    listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
-    listadoDeEspeciesBienActions: (establ_corr: number, IDBIEN: number, esP_CODIGO: string) => Promise<boolean>;
-    listaEstadoActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
-    listaEstadoVisadoresActions: (idocumento: number) => Promise<boolean>;
+    listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+    listadoDeEspeciesBienActions: (establ_corr: number, IDBIEN: number, esP_CODIGO: string, esp_NOMBRE: string) => Promise<boolean>;
+    listaEstadoActions: (
+        altasCorr: number,
+        idocumento: number,
+        establ_corr: number,
+        onSuccess?: (data: any[]) => void
+    ) => Promise<boolean>;
+    listaEstadoVisadoresActions: (idocumento: number) => Promise<Array<ListaEstadoVisadores> | null>;
+    consultaFirmaVisadoresActions: (idocumento: number) => Promise<Array<ListaEstadoVisadores> | null>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
-    registrarDocumentoAltaActions: (documento: any) => Promise<boolean>;
+    registrarDocumentoAltaActions: (documento: any) => Promise<number | null>;
     modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<{ success: boolean; error?: string }>;
     rechazarAltaActions: (documento: number) => Promise<boolean>;
     limpiarDataActions: () => Promise<boolean>;
@@ -105,10 +113,12 @@ interface DatosBajas {
     listaEstadoVisadores: ListaEstadoVisadores[];
     datosFirmas: DatosFirmas[];
     comboUnidades: Unidades[];
-
+    dataSeguimientoEstadoFirma: any;
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, comboCuentaModificarActions, comboSerDepActions, anularInventarioActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, comboCuenta, comboSerDep, token, isDarkMode, documentoByte64, objeto, datosFirmas }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, comboCuentaModificarActions, comboSerDepActions, anularInventarioActions, consultaFirmaVisadoresActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, comboCuenta, comboSerDep, token, isDarkMode, documentoByte64, objeto, datosFirmas, dataSeguimientoEstadoFirma }) => {
+
+    const dispatch = useDispatch<AppDispatch>();
     const [loading, setLoading] = useState(false);
     const [loadingRefresh, setLoadingRefresh] = useState(false);
     const [_, setLoadingSolicitarVisado] = useState(false);
@@ -366,11 +376,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         }
 
         if (name === "detalles") {
-            listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, parseInt(value), "");
+            listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, parseInt(value), "", "");
         }
     };
-
-    const handleBuscar = async () => {
+    const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
         let resultado = false;
         setLoading(true);
 
@@ -433,6 +443,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         }
     };
 
+    // Efecto para cargar datos inciales combos en modificar inventario
     useEffect(() => {
         if (comboBien.length === 0) {
             comboDetalleActions("0");
@@ -480,6 +491,51 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         listaEstadoVisadores.length,
         listaAltasRegistradas // <-- solo escucha cambios en estos
     ]);
+
+    // Efecto para el seguimiento automático del estado de firmas una vez se ha enviado a visar el documento
+    useEffect(() => {
+        if (!dataSeguimientoEstadoFirma?.idocumento) return;
+
+        let interval: NodeJS.Timeout;
+        let activo = true;
+
+        const consultarEstado = async () => {
+            if (!activo) return;
+
+            const resultado = await consultaFirmaVisadoresActions(dataSeguimientoEstadoFirma.idocumento);
+
+            if (!resultado || resultado.length === 0) {
+                // console.log("Sin resultados aún");
+                return; // espera al próximo tick (5s)
+            }
+
+            // Verifica que TODAS las jerarquías estén firmadas
+            const todasFirmadas = resultado.every((f) => Number(f.firmado) === 1);
+
+            if (todasFirmadas) {
+                // console.log("Todas las firmas completadas");
+
+                clearInterval(interval);
+
+                // refresca listado general paraactualzar estados de firmas
+                listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
+
+                // detiene el seguimiento
+                dispatch(setSeguimientoFirmasActions(null));
+            } else {
+                // console.log("Firmas pendientes, se reintenta en 5s", resultado);
+            }
+        };
+
+        // el intervalo SE CREA SOLO UNA VEZ
+        interval = setInterval(consultarEstado, 5000);
+
+        return () => {
+            activo = false;
+            clearInterval(interval);
+        };
+    }, [dataSeguimientoEstadoFirma?.idocumento]);
+
 
     const handleLimpiar = () => {
         setBuscar((prevInventario) => ({
@@ -939,7 +995,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setHabilitarModificar(true); //deshabilita boton modificar
         setHabilitarVisado(true); //deshabilita boton visado
         setEstadoRechazado(false); //quita mensaje de rechazo idocumento
-        await listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, altaS_CORR, ""); // Consulta data y en useEffect actualiza la tabla nueva
+        await listaAltasRegistradasActions("", "", "", altaS_CORR, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
         paginarModificar(1); //muestra la primera pagina
         setLoadingModificar(false); //para la carga de Skeletor
     };
@@ -950,7 +1006,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     };
 
     const handleModificarSubmit = async () => {
-
         let mensajeHtml = "";
         if (InventarioModificar[0]?.estadO_FIRMA === 0 || InventarioModificar[0]?.estadO_FIRMA === 1) {
             mensajeHtml = `Al modificar el documento <b>Nº ${InventarioModificar[0]?.idocumento}</b>, este será <b>rechazado de forma automática</b>. Posteriormente, deberá reiniciar el proceso de visado correspondiente manteniendo el número de alta <b>Nº ${InventarioModificar[0]?.altaS_CORR}</b>.`;
@@ -1017,263 +1072,310 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     const handleSolicitarVisado = async () => {
         setLoadingSolicitarVisado(true);
-        const result = await Swal.fire({
-            icon: "info",
-            title: "Solicitar Visado",
-            text: `Confirme para enviar su solicitud`,
-            showCancelButton: true,
-            confirmButtonText: "Confirmar y Enviar",
-            background: isDarkMode ? "#1e1e1e" : "#ffffff",
-            color: isDarkMode ? "#ffffff" : "#000000",
-            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: { popup: "custom-border" }
-        });
 
-        const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
-            const resultado: { nombre: string, contenido: string }[] = [];
-
-            for (const archivo of archivos) {
-                const contenido = await new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve((reader.result as string).split(",")[1]);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(archivo);
-                });
-
-                resultado.push({
-                    nombre: archivo.name,
-                    contenido
-                });
-            }
-
-            return resultado;
-        };
-
-        const generarPDFBase64 = async (): Promise<string> => {
-            // 1. Genera un Blob real de tu componente PDF
-            const blob = await pdf(
-                <DocumentoPDF
-                    row={filasSeleccionadasPDF}
-                    totalSum={totalSum}
-                // AltaInventario={AltaInventario}
-                // objeto={objeto}
-                // UnidadNombre={UnidadNombre}
-                // Unidad={Unidad}
-                />
-            ).toBlob();
-
-            // 2. Léelo como Data URL
-            return new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (typeof reader.result === 'string') {
-                        const dataUrl = reader.result;
-                        const base64 = dataUrl.split(',')[1];
-                        resolve(base64);
-                    } else {
-                        reject(new Error('FileReader no es un string'));
-                    }
-                };
-                reader.onerror = () => reject(reader.error);
-                reader.readAsDataURL(blob);
-
+        const maxBytes = 11 * 1024 * 1024; // 20 MB
+        if (anexos && anexos.some((f) => f.size > maxBytes)) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Archivo demasiado grande',
+                text: 'No se permiten archivos mayores a 20 MB. Elimine o reemplace el archivo y vuelva a intentarlo.',
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "#000000"}`,
             });
-        };
+            setLoadingSolicitarVisado(false);
+            return;
+        }
+        else {
+            const result = await Swal.fire({
+                icon: "info",
+                title: "Solicitar Visado",
+                text: `Confirme para enviar su solicitud`,
+                showCancelButton: true,
+                confirmButtonText: "Confirmar y Enviar",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: { popup: "custom-border" }
+            });
 
-        // Genera el PDF
-        const base64 = await generarPDFBase64();
-        // Obtiene firmas según jerarquía activada
-        const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number; rut: string, correo: string }[] => {
-            const firmasSeleccionadas: { jerarquia: number; idcargo: number; rut: string, correo: string }[] = [];
-            const establecimiento = objeto.Roles[0].codigoEstablecimiento.toString();
+            const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
+                const resultado: { nombre: string, contenido: string }[] = [];
 
-            // Jerarquía 1 → ajustarFirma
-            if (AltaInventario.ajustarFirma) {
-                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 1);
+                for (const archivo of archivos) {
+                    const contenido = await new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve((reader.result as string).split(",")[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(archivo);
+                    });
 
-                if (AltaInventario.titularInventario) {
-                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteInventario) {
-                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 1, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
-
-            // Jerarquía 2 → chkFinanzas
-            if (AltaInventario.chkFinanzas) {
-                const firmasUnidad2 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
-
-                if (AltaInventario.titularFinanzas) {
-                    const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteFinanzas) {
-                    const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
-
-            // Jerarquía 3 → chkAbastecimiento
-            if (AltaInventario.chkAbastecimiento) {
-                const firmasUnidad3 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
-
-                if (AltaInventario.titularAbastecimiento) {
-                    const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteAbastecimiento) {
-                    const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
-
-            // Jerarquía 3 extendida → chkUnidad (con combo)
-            if (AltaInventario.chkUnidad) {
-                // Abastecimiento (Unidad 3)
-                const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
-                if (AltaInventario.titularAbastecimiento) {
-                    const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteAbastecimiento) {
-                    const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
+                    resultado.push({
+                        nombre: archivo.name,
+                        contenido
+                    });
                 }
 
-                // Informática (Unidad 4)
-                const firmasUnidad2 = datosFirmas.filter(f => f.iD_UNIDAD === 4);
-                if (AltaInventario.titularInformatica) {
-                    const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteInformatica) {
-                    const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
+                return resultado;
+            };
 
-                // Compras (Unidad 5)
-                const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 5);
-                if (AltaInventario.titularCompra) {
-                    const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteCompra) {
-                    const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-                // Convenio (Unidad 6)
-                const firmasUnidad4 = datosFirmas.filter(f => f.iD_UNIDAD === 6);
-                if (AltaInventario.titularConvenio) {
-                    const titular = firmasUnidad4.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteConvenio) {
-                    const subrogante = firmasUnidad4.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-                // Recursos Fisicos (Unidad 7)
-                const firmasUnidad5 = datosFirmas.filter(f => f.iD_UNIDAD === 7);
-                if (AltaInventario.titularConvenio) {
-                    const titular = firmasUnidad5.find(f => f.rol === "TITULAR");
-                    if (titular) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
-                    }
-                } else if (AltaInventario.subroganteConvenio) {
-                    const subrogante = firmasUnidad5.find(f => f.rol === "SUBROGANTE");
-                    if (subrogante) {
-                        firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
-                    }
-                }
-            }
+            const generarPDFBase64 = async (): Promise<string> => {
+                // 1. Genera un Blob real de tu componente PDF
+                const blob = await pdf(
+                    <DocumentoPDF
+                        row={filasSeleccionadasPDF}
+                        totalSum={totalSum}
+                    // AltaInventario={AltaInventario}
+                    // objeto={objeto}
+                    // UnidadNombre={UnidadNombre}
+                    // Unidad={Unidad}
+                    />
+                ).toBlob();
 
-            return firmasSeleccionadas;
-        };
+                // 2. Léelo como Data URL
+                return new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        if (typeof reader.result === 'string') {
+                            const dataUrl = reader.result;
+                            const base64 = dataUrl.split(',')[1];
+                            resolve(base64);
+                        } else {
+                            reject(new Error('FileReader no es un string'));
+                        }
+                    };
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsDataURL(blob);
 
-        const FirmaAlta = obtenerFirmasJerarquia().map(({ jerarquia, idcargo, correo }) => ({
-            ALTAS_CORR: InventarioModificar[0]?.altaS_CORR,
-            JERARQUIA: jerarquia,
-            IDCARGO: idcargo,
-            FIRMADO: 0,
-            CORREO: correo
-        }));
-
-        const anexosBase64 = await convertirArchivosABase64(anexos);
-
-        const documento = {
-            DescripcionDocumento: "Visado de altas de inventario",
-            CuerpoDocumento: base64,
-            UsuarioCreador: objeto.IdCredencial,
-            RUT: objeto.usr_run,
-            ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
-            FirmaAlta: FirmaAlta,
-            ListaDistribucion: [],
-            ListaAnexos: anexosBase64
-        };
-
-
-        if (result.isConfirmed) {
-            setLoadingEnvio(true);
-            setMostrarModalVisadores(false);
-            const resultado = await registrarDocumentoAltaActions(documento);
-
-            if (!resultado) {
-                await Swal.fire({
-                    icon: "warning",
-                    title: "No se pudo enviar la solicitud",
-                    text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
-                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: { popup: "custom-border" }
                 });
-                setMostrarModalModificar(false);
-                setLoadingEnvio(false);
-            }
-            else {
-                await Swal.fire({
-                    icon: "success",
-                    title: "Solicitud enviada",
-                    text: "Su solicitud de visado ha sido enviada con exito",
-                    background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                    customClass: { popup: "custom-border" }
-                });
-                setMostrarModalModificar(false);
-                setLoadingEnvio(false);
-                // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
-                // setFilasSeleccionadas([]);
-                handleBuscar();
+            };
+
+            // Genera el PDF
+            const base64 = await generarPDFBase64();
+            // Obtiene firmas según jerarquía activada
+            const obtenerFirmasJerarquia = (): { jerarquia: number; idcargo: number; rut: string, correo: string }[] => {
+                const firmasSeleccionadas: { jerarquia: number; idcargo: number; rut: string, correo: string }[] = [];
+                const establecimiento = objeto.Roles[0].codigoEstablecimiento.toString();
+
+                // Jerarquía 1 → ajustarFirma
+                if (AltaInventario.ajustarFirma) {
+                    const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 1);
+
+                    if (AltaInventario.titularInventario) {
+                        const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 1, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteInventario) {
+                        const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 1, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                }
+
+                // Jerarquía 2 → chkFinanzas
+                if (AltaInventario.chkFinanzas) {
+                    const firmasUnidad2 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 2);
+
+                    if (AltaInventario.titularFinanzas) {
+                        const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 2, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteFinanzas) {
+                        const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 2, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                }
+
+                // Jerarquía 3 → chkAbastecimiento
+                if (AltaInventario.chkAbastecimiento) {
+                    const firmasUnidad3 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
+
+                    if (AltaInventario.titularAbastecimiento) {
+                        const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteAbastecimiento) {
+                        const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                }
+
+                // Jerarquía 3 extendida → chkUnidad (con combo)
+                if (AltaInventario.chkUnidad) {
+                    // Abastecimiento (Unidad 3)
+                    const firmasUnidad1 = datosFirmas.filter(f => f.estabL_CORR === establecimiento && f.iD_UNIDAD === 3);
+                    if (AltaInventario.titularAbastecimiento) {
+                        const titular = firmasUnidad1.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteAbastecimiento) {
+                        const subrogante = firmasUnidad1.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+
+                    // Informática (Unidad 4)
+                    const firmasUnidad2 = datosFirmas.filter(f => f.iD_UNIDAD === 4);
+                    if (AltaInventario.titularInformatica) {
+                        const titular = firmasUnidad2.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteInformatica) {
+                        const subrogante = firmasUnidad2.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+
+                    // Compras (Unidad 5)
+                    const firmasUnidad3 = datosFirmas.filter(f => f.iD_UNIDAD === 5);
+                    if (AltaInventario.titularCompra) {
+                        const titular = firmasUnidad3.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteCompra) {
+                        const subrogante = firmasUnidad3.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                    // Convenio (Unidad 6)
+                    const firmasUnidad4 = datosFirmas.filter(f => f.iD_UNIDAD === 6);
+                    if (AltaInventario.titularConvenio) {
+                        const titular = firmasUnidad4.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteConvenio) {
+                        const subrogante = firmasUnidad4.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                    // Recursos Fisicos (Unidad 7)
+                    const firmasUnidad5 = datosFirmas.filter(f => f.iD_UNIDAD === 7);
+                    if (AltaInventario.titularConvenio) {
+                        const titular = firmasUnidad5.find(f => f.rol === "TITULAR");
+                        if (titular) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: titular.idcargo, rut: titular.rut, correo: titular.correo });
+                        }
+                    } else if (AltaInventario.subroganteConvenio) {
+                        const subrogante = firmasUnidad5.find(f => f.rol === "SUBROGANTE");
+                        if (subrogante) {
+                            firmasSeleccionadas.push({ jerarquia: 3, idcargo: subrogante.idcargo, rut: subrogante.rut, correo: subrogante.correo });
+                        }
+                    }
+                }
+
+                return firmasSeleccionadas;
+            };
+
+            const FirmaAlta = obtenerFirmasJerarquia().map(({ jerarquia, idcargo, correo }) => ({
+                ALTAS_CORR: InventarioModificar[0]?.altaS_CORR,
+                JERARQUIA: jerarquia,
+                IDCARGO: idcargo,
+                FIRMADO: 0,
+                CORREO: correo
+            }));
+
+            const anexosBase64 = await convertirArchivosABase64(anexos);
+
+            const documento = {
+                DescripcionDocumento: "Visado de altas de inventario",
+                CuerpoDocumento: base64,
+                UsuarioCreador: objeto.IdCredencial,
+                RUT: objeto.usr_run,
+                ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
+                FirmaAlta: FirmaAlta,
+                ListaDistribucion: [],
+                ListaAnexos: anexosBase64
+            };
+
+            if (result.isConfirmed) {
+                setLoadingEnvio(true);
                 setMostrarModalVisadores(false);
-                setLoadingSolicitarVisado(false);
-                // setAnexos([]);
+                const resultado = await registrarDocumentoAltaActions(documento);
+                console.log("documento", documento);
+
+                if (!resultado) {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Error al enviar su solicitud",
+                        text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
+                        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                        color: isDarkMode ? "#ffffff" : "#000000",
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: { popup: "custom-border" }
+                    });
+                    setMostrarModalModificar(false);
+                    setLoadingEnvio(false);
+                    setFilasSeleccionadas([]);
+                    setMostrarModal(false);
+                    setLoadingSolicitarVisado(false);
+                    setAnexos([]);
+
+                }
+                else {
+                    await Swal.fire({
+                        icon: "success",
+                        title: "Solicitud enviada",
+                        html: `La solicitud de visado fue enviada exitosamente con el número de documento <strong>${resultado}</strong>.<br> Puede realizar el seguimiento en el estado de firmas.`,
+                        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                        color: isDarkMode ? "#ffffff" : "#000000",
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: { popup: "custom-border" }
+                    });
+                    setMostrarModalModificar(false);
+                    setLoadingEnvio(false);
+                    // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
+                    // setFilasSeleccionadas([]);      
+                    setMostrarModalVisadores(false);
+                    setLoadingSolicitarVisado(false);
+                    // setAnexos([]);
+                }
             }
         }
     };
 
+    const handleAbrirModalVisado = () => {
+
+        setAltaInventario((prev) => ({
+            ...prev,
+            ajustarFirma: false,//General
+            chkFinanzas: false,//Opcional
+            chkAbastecimiento: false,//Opcional
+            chkUnidad: false,//Opcional
+            titularInventario: false,
+            subroganteInventario: false,
+            titularFinanzas: false,
+            subroganteFinanzas: false,
+            unidad: 0, //Combo Unidad
+            titularAbastecimiento: false,
+            subroganteAbastecimiento: false,
+            titularInformatica: false,
+            subroganteInformatica: false,
+            titularCompra: false,
+            subroganteCompra: false,
+            titularConvenio: false,
+            subroganteConvenio: false,
+            titularRFisico: false,
+            subroganteRFisico: false,
+
+        }))
+        setMostrarModalVisadores(true);
+    };
     {/*---------------------- Logica Especies--------------------*/ }
 
     const especieOptions = comboEspecies.map((item) => ({
@@ -1337,12 +1439,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         let resultado = false;
         if (BuscarEspecie.esP_CODIGO && BuscarEspecie.esP_CODIGO.includes("-")) {
             // Seleccionó del combo: usar código
-            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, BuscarEspecie.esP_CODIGO);
+            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, BuscarEspecie.esP_CODIGO, "");
             // } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
             //   // Escribió manualmente: usar nombre   
             //   resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
         } else {
-            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "");
+            resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", BuscarEspecie.esp_NOMBRE);
             setLoadingEspecie(false);
             return;
         }
@@ -1404,7 +1506,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 // Anular todos en serie
                 for (const i of FormularioBajas) {
                     await anularInventarioActions(i.aF_CLAVE);
-                    listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, i.altaS_CORR, "");
+                    listaAltasRegistradasActions("", "", "", i.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
                     setFilasSeleccionadas([]);
                     setHabilitarVisado(false);
                     handleRefrescar();
@@ -1542,6 +1644,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             name="altaS_CORR"
                                             placeholder="0"
                                             onChange={handleChange}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleBuscar(e);
+                                                }
+                                            }}
                                             maxLength={8}
                                             value={Buscar.altaS_CORR}
                                         />
@@ -1557,6 +1664,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             name="idDocumento"
                                             placeholder="0"
                                             onChange={handleChange}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleBuscar(e);
+                                                }
+                                            }}
                                             maxLength={8}
                                             value={Buscar.idDocumento}
                                         />
@@ -1963,7 +2075,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         </Button>
 
                                         <Button
-                                            onClick={() => setMostrarModalVisadores(true)}
+                                            onClick={(handleAbrirModalVisado)}
                                             disabled={habilitarVisado}
                                             variant={isDarkMode ? "secondary" : "primary"}
                                             className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
@@ -2045,47 +2157,54 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             </span>
                                                         </OverlayTrigger>
                                                     </td> */}
-                                                    <td className="mb-1 position-relative z-1000">
-                                                        <Select
-                                                            options={servicioOptions}
-                                                            onChange={(option) => handleCambiaServicioDependencia(index, option ? option.value : 0)}
-                                                            value={servicioOptions.find((option) => option.value === Lista.deP_CORR) || null}
-                                                            onBlur={handleBlur}
-                                                            className="form-select-container"
-                                                            classNamePrefix="react-select"
-                                                            data-index={indexReal}
-                                                            autoFocus
-                                                            isClearable
-                                                            isSearchable
-                                                            styles={{
-                                                                control: (baseStyles) => ({
-                                                                    ...baseStyles,
-                                                                    // background: !isDarkMode ? "#e9ecef" : "",//Color que indica deshabilitado
-                                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                                                                    color: isDarkMode ? "white" : "#dc3545", // Texto blanco
-                                                                    borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                                                                    fontSize: "0.875rem",
-                                                                    minHeight: "31px", // altura del input sm (~31px)
-                                                                    height: "31px",
-                                                                }),
-                                                                singleValue: (base) => ({
-                                                                    ...base,
-                                                                    color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                                                                }),
-                                                                menu: (base) => ({
-                                                                    ...base,
-                                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                                                                    color: isDarkMode ? "white" : "#212529",
-                                                                }),
-                                                                option: (base, { isFocused, isSelected }) => ({
-                                                                    ...base,
-                                                                    backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                                                                    color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                                                                    fontSize: "0.875rem",
-                                                                }),
-                                                            }}
-                                                        />
-                                                    </td>
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.serv + " " + Lista.dep}</Tooltip>}
+                                                    >
+                                                        <td className="mb-1 position-relative z-1000" >
+                                                            <Select
+                                                                options={servicioOptions}
+                                                                onChange={(option) => handleCambiaServicioDependencia(index, option ? option.value : 0)}
+                                                                value={servicioOptions.find((option) => option.value === Lista.deP_CORR) || null}
+                                                                onBlur={handleBlur}
+                                                                className="form-select-container"
+                                                                classNamePrefix="react-select"
+                                                                data-index={indexReal}
+                                                                autoFocus
+                                                                isClearable
+                                                                isSearchable
+                                                                styles={{
+                                                                    control: (baseStyles) => ({
+                                                                        ...baseStyles,
+                                                                        // background: !isDarkMode ? "#e9ecef" : "",//Color que indica deshabilitado
+                                                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                                                        color: isDarkMode ? "white" : "#dc3545", // Texto blanco
+                                                                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                                                        fontSize: "0.875rem",
+                                                                        minHeight: "31px", // altura del input sm (~31px)
+                                                                        height: "31px",
+                                                                        width: "300px"
+                                                                    }),
+                                                                    singleValue: (base) => ({
+                                                                        ...base,
+                                                                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                                                    }),
+                                                                    menu: (base) => ({
+                                                                        ...base,
+                                                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                                                        color: isDarkMode ? "white" : "#212529",
+                                                                    }),
+                                                                    option: (base, { isFocused, isSelected }) => ({
+                                                                        ...base,
+                                                                        backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                                                        color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                                                        fontSize: "0.875rem",
+                                                                    }),
+                                                                }}
+                                                            />
+                                                        </td>
+                                                    </OverlayTrigger>
+
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
@@ -2102,12 +2221,17 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             />
                                                         </div>
                                                     </td>
-                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                        <OverlayTrigger
-                                                            placement="top"
-                                                            overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.esP_NOMBRE}</Tooltip>}
+
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.esP_NOMBRE}</Tooltip>}
+                                                    >
+                                                        <td
+                                                            className={`${isDarkMode ? "text-light" : "text-dark"}`}
+                                                            onClick={() => setEditarCampo(indexReal.toString())}
                                                         >
-                                                            <dd className="d-flex align-items-center">
+                                                            <div className="d-flex align-items-center gap-2">
+
                                                                 <Form.Control
                                                                     size="sm"
                                                                     aria-label="especie"
@@ -2120,42 +2244,58 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                     pattern="\d*"
                                                                     disabled
                                                                     data-index={indexReal}
-
+                                                                    style={{ height: "31px", width: "150px" }}
                                                                 />
+
                                                                 <Button
                                                                     size="sm"
-                                                                    variant="primary"
+                                                                    variant={isDarkMode ? "secondary" : "primary"}
                                                                     onClick={() => {
                                                                         setIndiceEditar(indexReal);
                                                                         setMostrarModalEspecie(true);
                                                                     }}
-                                                                    className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
-                                                                    <Search className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
+                                                                    className="d-flex align-items-center justify-content-center"
+                                                                    style={{ height: "31px", width: "31px", padding: 0 }}
+                                                                >
+                                                                    <Search className="h-5 w-5" aria-hidden="true" />
                                                                 </Button>
 
-                                                            </dd>
-                                                        </OverlayTrigger>
-                                                    </td>
-                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
-                                                        <select
-                                                            aria-label="CTA_COD"
-                                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                            name="CTA_COD"
-                                                            onChange={(e) => handleCambiaCuenta(index, e.target.value)}
-                                                            onBlur={handleBlur}
-                                                            value={Lista.ctA_COD}
-                                                            autoFocus
-                                                            data-index={indexReal}
-                                                        // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
-                                                        >
-                                                            <option value="">Selecciona una opción</option>
-                                                            {comboCuenta.map((traeCuentas) => (
-                                                                <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                                                                    {traeCuentas.descripcion}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </td>
+                                                            </div>
+                                                        </td>
+                                                    </OverlayTrigger>
+
+
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.ctA_NOMBRE}</Tooltip>}
+                                                    >
+                                                        <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
+
+                                                            <select
+                                                                aria-label="CTA_COD"
+                                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                                name="CTA_COD"
+                                                                onChange={(e) => handleCambiaCuenta(index, e.target.value)}
+                                                                onBlur={handleBlur}
+                                                                value={Lista.ctA_COD}
+                                                                autoFocus
+                                                                data-index={indexReal}
+                                                                style={{ height: "31px", width: "300px" }}
+                                                            // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                                                            >
+                                                                <option value="">Selecciona una opción</option>
+
+                                                                {comboCuenta.map((traeCuentas) => (
+
+                                                                    <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                                                                        {traeCuentas.descripcion}
+                                                                    </option>
+
+                                                                ))}
+
+                                                            </select>
+                                                        </td>
+                                                    </OverlayTrigger>
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
@@ -2249,7 +2389,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </Modal.Body>
             </Modal >
 
-            {/*Modal Firma visadores */}
+            {/*Modal Firma Visadores */}
             <Modal show={mostrarModalVisadores} onHide={() => setMostrarModalVisadores(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
@@ -3048,6 +3188,7 @@ const mapStateToProps = (state: RootState) => ({
     comboCuenta: state.comboCuentaModificarReducers.comboCuenta,
     comboSerDep: state.comboServDepReducers.comboSerDep,
     listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
+    dataSeguimientoEstadoFirma: state.listaEstadoVisadoresReducers.dataSeguimientoEstadoFirma
 });
 
 
@@ -3067,6 +3208,7 @@ export default connect(mapStateToProps, {
     comboDetalleActions,
     comboCuentaModificarActions,
     comboSerDepActions,
-    anularInventarioActions
+    anularInventarioActions,
+    consultaFirmaVisadoresActions
 })(EstadoFirmas);
 

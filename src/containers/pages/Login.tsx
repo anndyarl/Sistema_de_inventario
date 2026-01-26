@@ -6,44 +6,48 @@ import { RootState } from "../../redux/reducers";
 import "../../styles/Login.css";
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
+import { loginPruebaActions } from "../../redux/actions/auth/loginPruebaActions";
 
-interface NavItem {
+export interface ListadoUsuarios {
   rut: string;
   nombre: string;
-  id: number;
+  iD_CREDENCIAL: number;
   establecimiento: number;
 }
-
 interface Props {
   login: (usuario: string, password: string) => Promise<boolean>;
   validaApiloginActions: (rut: string) => Promise<number>;
   logout: () => void;
+  loginPruebaActions: () => void;
   isAuthenticated: boolean | null;
   error: string | null;
   isDarkMode: boolean;
+  listadoUsuarios: ListadoUsuarios[];
 }
 
-const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated, isDarkMode, logout }) => {
+const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPruebaActions, isAuthenticated, isDarkMode, listadoUsuarios }) => {
   const [formData, setFormData] = useState({ usuario: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [mostrarListado, setMostrarListado] = useState(false);
 
   const navigate = useNavigate();
 
-  const Usuarios: NavItem[] = [
-    { rut: '15621643', nombre: 'Rodrigo Toledo', id: 18124, establecimiento: 1 },
-    { rut: '16739610', nombre: 'Jonathan Vargas', id: 6405, establecimiento: 1 },
-    { rut: '10399886', nombre: 'Gabriela Farias', id: 888, establecimiento: 1 },
-    { rut: '11149879', nombre: 'Nelson Quiroz', id: 21479, establecimiento: 1 },
-    { rut: '18250588', nombre: 'Andy Riquelme', id: 62511, establecimiento: 2 },
-    { rut: '15693379', nombre: 'Felipe Almonte', id: 18667, establecimiento: 2 },
-    { rut: '17849831', nombre: 'Katherine Reyes', id: 66099, establecimiento: 2 },
-    { rut: '19704000', nombre: 'Daniel Rojas', id: 66098, establecimiento: 2 },
-    { rut: '20834661', nombre: 'Ademir Piñeda ', id: 67404, establecimiento: 2 },
-    { rut: '15533835', nombre: 'Jaime Castillo', id: 1770, establecimiento: 3 },
-    { rut: '21067565', nombre: 'Benjamin Bulboa', id: 6601, establecimiento: 3 }
+  // const Usuarios: ListadoUsuarios[] = [
+  //   { rut: '15621643', nombre: 'Rodrigo Toledo', id: 18124, establecimiento: 1 },
+  //   { rut: '13552858', nombre: 'Ivan Acevedo', id: 68321, establecimiento: 1 },
+  //   { rut: '16739610', nombre: 'Jonathan Vargas', id: 6405, establecimiento: 1 },
+  //   { rut: '10399886', nombre: 'Gabriela Farias', id: 888, establecimiento: 1 },
+  //   { rut: '11149879', nombre: 'Nelson Quiroz', id: 21479, establecimiento: 1 },
+  //   { rut: '18250588', nombre: 'Andy Riquelme', id: 62511, establecimiento: 2 },
+  //   { rut: '15693379', nombre: 'Felipe Almonte', id: 18667, establecimiento: 2 },
+  //   { rut: '17849831', nombre: 'Katherine Reyes', id: 66099, establecimiento: 2 },
+  //   { rut: '19704000', nombre: 'Daniel Rojas', id: 66098, establecimiento: 2 },
+  //   { rut: '20834661', nombre: 'Ademir Piñeda ', id: 67404, establecimiento: 2 },
+  //   { rut: '20277985', nombre: 'Ignacio Aviles', id: 67234, establecimiento: 2 },
+  //   { rut: '15533835', nombre: 'Jaime Castillo', id: 1770, establecimiento: 3 },
+  //   { rut: '21067565', nombre: 'Benjamin Bulboa', id: 6601, establecimiento: 3 }
 
-  ];
+  // ];
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -53,10 +57,15 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
     setLoading(true);
     try {
       const resultado = await login(formData.usuario, formData.password);
-      setLoading(false);
-      setMostrarListado(resultado);
+      if (!resultado) {
+        setLoading(false);
+        return;
+      } else {
+        loginPruebaActions();
+        setLoading(false);
+        setMostrarListado(resultado);
+      }
     } catch (error) {
-      // console.error("Error al intentar iniciar sesión:", error);
       setLoading(false);
     }
   };
@@ -148,12 +157,12 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, isAuthenticated,
                 </tr>
               </thead>
               <tbody>
-                {Usuarios.length > 0 ? (
-                  Usuarios.map((item, index) => (
+                {listadoUsuarios.length > 0 ? (
+                  listadoUsuarios.map((item, index) => (
                     <tr key={index}>
                       <td>{item.rut || 'N/A'}</td>
                       <td>{item.nombre || 'N/A'}</td>
-                      <td>{item.id || 'N/A'}</td>
+                      <td>{item.iD_CREDENCIAL || 'N/A'}</td>
                       <td>{item.establecimiento === 1 ? "SSMSO"
                         : item.establecimiento === 2 ? "CASR"
                           : item.establecimiento === 3 ? "HSJM" : "Sin Información"}</td>
@@ -187,10 +196,12 @@ const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   error: state.loginReducer.error,
   isDarkMode: state.darkModeReducer.isDarkMode,
+  listadoUsuarios: state.loginPruebaReducers.listadoUsuarios
 });
 
 export default connect(mapStateToProps, {
   login,
   validaApiloginActions,
-  logout
+  logout,
+  loginPruebaActions
 })(Login);

@@ -38,6 +38,7 @@ export interface ListaAltas {
   aF_ESTADO_INV: number;
   nrecep: string;
   usuariO_CREA: string;
+  estabL_CORR: number;
 }
 
 export interface ListaSalidaAltas {
@@ -47,8 +48,8 @@ export interface ListaSalidaAltas {
 interface DatosAltas {
   listaAltas: ListaAltas[];
   listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
-  listaAltasRegistradasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string) => Promise<boolean>;
-  registrarAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+  registrarAltasActions: (activos: { AF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
@@ -104,7 +105,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     }
   };
 
-  const handleBuscar = async () => {
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoading(true);
 
@@ -195,17 +197,17 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
-        aF_CLAVE: listaAltas[index].aF_CLAVE,
-        aF_CODIGO_GENERICO: listaAltas[index].aF_CODIGO_GENERICO,
-        USUARIO_MOD: objeto.IdCredencial,
+        AF_CLAVE: listaAltas[index].aF_CLAVE,
+        AF_CODIGO_GENERICO: listaAltas[index].aF_CODIGO_GENERICO.toString(),
+        USUARIO_MOD: objeto.IdCredencial.toString(),
         ESTABL_CORR: objeto.Roles[0].codigoEstablecimiento,
       };
 
     });
     const result = await Swal.fire({
       icon: "info",
-      title: "Registrar Altas",
-      text: `Confirme para registrar las Altas seleccionadas`,
+      title: "Registro de Altas",
+      text: "Por favor confirme si desea registrar las altas seleccionadas.",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Registrar",
@@ -228,7 +230,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       // Crear un array de objetos con aF_CLAVE y nombre
       // console.log("Activos seleccionados para registrar:", activosSeleccionados);
       // console.log("listaSalidaAltas", listaSalidaAltas);
-      if (activosSeleccionados[0].aF_CODIGO_GENERICO.toString() != "1") {
+      if (activosSeleccionados[0].AF_CODIGO_GENERICO != "1") {
         const resultado = await registrarAltasActions(activosSeleccionados);
         if (resultado) {
           mostrarAlerta();
@@ -292,7 +294,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   };
 
   const HandleFirmarAltas = () => {
-    listaAltasRegistradasActions("", "", objeto.Roles[0].codigoEstablecimiento, listaSalidaAltas[0].altaS_CORR, "");
+    listaAltasRegistradasActions("", "", "", listaSalidaAltas[0].altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
     navigate("/Altas/FirmarAltas", {
       state: { prop_altaS_CORR: listaSalidaAltas[0].altaS_CORR }
     });
@@ -335,6 +337,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                           className={`form-control  ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                           name="fDesde"
                           onChange={handleChange}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleBuscar(e);
+                            }
+                          }}
                           value={Inventario.fDesde}
                           max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                         />
@@ -351,6 +358,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                           className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
                           name="fHasta"
                           onChange={handleChange}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleBuscar(e);
+                            }
+                          }}
                           value={Inventario.fHasta}
                           max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                         />
@@ -372,6 +384,11 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                       size={10}
                       placeholder="Eje: 1000000008"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       maxLength={12}
                       value={Inventario.af_codigo_generico}
                     />

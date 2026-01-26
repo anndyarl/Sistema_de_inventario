@@ -183,7 +183,8 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
     }
   };
 
-  const handleBuscar = async () => {
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoading(true);
     //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
@@ -434,6 +435,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="af_codigo_generico"
                       placeholder="Ej: 1000000008"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       maxLength={12}
                       value={Inventario.af_codigo_generico}
                     />
@@ -454,6 +460,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="marca"
                       placeholder="Introduzca marca"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       value={Inventario.marca}
                     />
                   </div>
@@ -470,6 +481,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="modelo"
                       placeholder="Introduzca modelo"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       value={Inventario.modelo}
                     />
                   </div>
@@ -486,6 +502,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="serie"
                       placeholder="Ingrese serie"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       value={Inventario.serie}
                     />
                   </div>
@@ -505,6 +526,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="nrecepcion"
                       placeholder="0"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       value={Inventario.nrecepcion}
                     />
                   </div>
@@ -521,6 +547,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="aF_OCO_NUMERO_REF"
                       placeholder="-"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       value={Inventario.aF_OCO_NUMERO_REF}
                     />
                   </div>
@@ -536,6 +567,11 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       name="altaS_CORR"
                       placeholder="Ej: 0"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       maxLength={12}
                       value={Inventario.altaS_CORR}
                     />

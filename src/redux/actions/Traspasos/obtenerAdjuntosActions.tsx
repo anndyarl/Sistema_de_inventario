@@ -7,7 +7,7 @@ import {
 } from "./types";
 
 // Acción para obtener la recepción por número
-export const obtenerAdjuntosActions = (pas_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const obtenerAdjuntosActions = (numTraspaso: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -21,7 +21,7 @@ export const obtenerAdjuntosActions = (pas_corr: number) => async (dispatch: Dis
     dispatch({ type: LISTA_TRASPASOS_ADJUNTOS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeTraspasoAdjuntos?pas_corr=${pas_corr}`, config);
+      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeTraspasoAdjuntos?numTraspaso=${numTraspaso}`, config);
 
       if (res.status === 200) {
         if (res.data?.length) {

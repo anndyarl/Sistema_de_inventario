@@ -827,7 +827,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         <Row className="g-2">
           <Col lg={2} sm={2}  >
             {/*Indicadores */}
-            <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2">
+            <div className={`${isDarkMode ? "bg-dark border-start border-4 border-primary shadow-sm p-3 rounded mb-2" : "bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2"}`}>
               <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
                 Monto Recepción
               </p>
@@ -837,7 +837,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
             </div>
           </Col>
           <Col lg={2} sm={2} >
-            <div className="bg-light border-start border-4 border-warning shadow-sm p-3 rounded mb-2">
+            <div className={`${isDarkMode ? "bg-dark border-start border-4 border-primary shadow-sm p-3 rounded mb-2" : "bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2"}`}>
               <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
                 Monto Pendiente
               </p>
@@ -1136,7 +1136,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                 <Col lg={6} md={6} sm={12}>
                   <Row>
                     <Col lg={6} md={6} sm={6}>
-                      <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2">
+                      <div className={`${isDarkMode ? "bg-dark border-start border-4 border-primary shadow-sm p-3 rounded mb-2" : "bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2"}`}>
                         <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
                           Monto Recepción
                         </p>
@@ -1146,7 +1146,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
                       </div>
                     </Col>
                     <Col lg={6} md={6} sm={6}>
-                      <div className="bg-light border-start border-4 border-warning shadow-sm p-3 rounded mb-2">
+                      <div className={`${isDarkMode ? "bg-dark border-start border-4 border-primary shadow-sm p-3 rounded mb-2" : "bg-light border-start border-4 border-primary shadow-sm p-3 rounded mb-2"}`}>
                         <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
                           Monto Pendiente
                         </p>

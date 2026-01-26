@@ -1,14 +1,9 @@
 import { Dispatch } from "redux";
 import axios from "axios";
-import {
-  LISTA_ESTADO_VISADORES_REQUEST,
-  LISTA_ESTADO_VISADORES_SUCCESS,
-  LISTA_ESTADO_VISADORES_FAIL,
-} from "../types";
 import { ListaEstadoVisadores } from "../../../../components/Altas/EstadoFirmas/EstadoFirmas ";
 
 // Acción para obtener la recepción por número
-export const listaEstadoVisadoresActions = (idocumento: number) => async (dispatch: Dispatch, getState: any): Promise<Array<ListaEstadoVisadores> | null> => {
+export const consultaFirmaVisadoresActions = (idocumento: number) => async (dispatch: Dispatch, getState: any): Promise<Array<ListaEstadoVisadores> | null> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {
@@ -19,20 +14,18 @@ export const listaEstadoVisadoresActions = (idocumento: number) => async (dispat
       },
     };
 
-    dispatch({ type: LISTA_ESTADO_VISADORES_REQUEST });
-
     try {
       const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEstadoVisadores?idocumento=${idocumento}`, config);
       if (res.status === 200) {
         if (res.data?.length) {
           dispatch({
-            type: LISTA_ESTADO_VISADORES_SUCCESS,
+            type: null,
             payload: res.data,
           });
           return res.data;
         } else {
           dispatch({
-            type: LISTA_ESTADO_VISADORES_FAIL,
+            type: null,
             error:
               "Status 200, pero con arreglo de datos vacío",
           });
@@ -40,30 +33,24 @@ export const listaEstadoVisadoresActions = (idocumento: number) => async (dispat
         }
       } else {
         dispatch({
-          type: LISTA_ESTADO_VISADORES_FAIL,
+          type: null,
           error:
-            "No se pudo obtener el listado. Por favor, intente nuevamente.",
+            "No se pudo obtener el estado de la firma Por favor, intente nuevamente.",
         });
         return null;
       }
     } catch (err: any) {
       dispatch({
-        type: LISTA_ESTADO_VISADORES_FAIL,
+        type: null,
         error: "Error en la solicitud:", err,
       });
       return null;
     }
   } else {
     dispatch({
-      type: LISTA_ESTADO_VISADORES_FAIL,
+      type: null,
       error: "No se encontró un token de autenticación válido.",
     });
     return null;
   }
 };
-
-//Excepcion para firms Altas
-export const setSeguimientoFirmasActions = (dataSeguimientoEstadoFirma: any) => ({
-  type: 'SEGUIMIENTO_FIRMAS_ALTAS',
-  payload: dataSeguimientoEstadoFirma,
-});

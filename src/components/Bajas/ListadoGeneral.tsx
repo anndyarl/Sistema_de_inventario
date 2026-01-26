@@ -9,7 +9,7 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, Search, XCircle } from "react-bootstrap-icons";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
 import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
 import { ListaAltas } from "../Altas/RegistrarAltas.tsx";
@@ -69,13 +69,14 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     af_codigo_generico: ""
   });
 
-  const datosFiltrados = listadoGeneralBajas
-    .filter(item =>
-      item.aF_CODIGO_GENERICO.toString().includes(Buscar.af_codigo_generico.toString())
-    )
-    .filter(item =>
-      item.altaS_CORR.toString().includes(Buscar.altaS_CORR.toString())
-    );
+  const datosFiltrados = listadoGeneralBajas.filter(item => {
+
+    const coincideCodigo = !Buscar.af_codigo_generico || item.aF_CODIGO_GENERICO?.toString().toLowerCase().includes(Buscar.af_codigo_generico.toString().toLowerCase());
+    const coincideAlta = !Buscar.altaS_CORR || item.altaS_CORR?.toString().toLowerCase().includes(Buscar.altaS_CORR.toString().toLowerCase());
+
+    return coincideCodigo && coincideAlta;
+  });
+
 
 
   useEffect(() => {
@@ -126,9 +127,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     // Validación numérica
@@ -169,7 +168,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
   };
 
-
+  //Seleccion normal
   // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   if (e.target.checked) {
   //     setFilasSeleccionadas(
@@ -182,6 +181,82 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   //   }
   // };
 
+  //Seleccion con omiciones de establecimientos distintos
+  // const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  //   const filasValidas: string[] = [];
+
+  //   elementosActuales.forEach((elemento, index) => {
+  //     const lista = listadoGeneralBajas.find(
+  //       f => f.estabL_CORR === elemento.estabL_CORR
+  //     );
+  //     const estableActual = lista?.estabL_CORR;
+
+  //     if (estableActual === objeto.Roles[0].codigoEstablecimiento) {
+  //       filasValidas.push((indicePrimerElemento + index).toString());
+  //     }
+  //   });
+
+  //   //SI EL CHECKBOX SE MARCA → SELECCIONA LOS VÁLIDOS
+  //   if (e.target.checked) {
+
+  //     setFilasSeleccionadas(filasValidas);
+
+  //     if (filasValidas.length < elementosActuales.length) {
+  //       Swal.fire({
+  //         icon: "info",
+  //         title: "Información",
+  //         text: "Hay bienes que pertenecen a otros establecimientos. Revise antes de seleccionar.",
+  //         background: isDarkMode ? "#1e1e1e" : "#ffffff",
+  //         color: isDarkMode ? "#ffffff" : "#000000",
+  //         confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+  //         customClass: { popup: "custom-border" },
+  //       });
+  //     }
+
+  //     // ⬇ SI EL CHECKBOX SE DESMARCA → DESELECCIONA TODO
+  //   } else {
+  //     setFilasSeleccionadas([]);
+  //   }
+  // };
+
+  //Seleccion de todos los bienes pero con notificacion que existen bienes de otros establecimientos
+  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    if (!e.target.checked) {
+      setFilasSeleccionadas([]);
+      return;
+    }
+
+    // Seleccionar todos normalmente
+    const todasLasFilas: string[] = elementosActuales.map(
+      (_, index) => (indicePrimerElemento + index).toString()
+    );
+
+    setFilasSeleccionadas(todasLasFilas);
+
+    // Verificar si hay establecimientos distintos
+    const existeEstablecimientoDistinto = elementosActuales.some((elemento) => {
+      const lista = listadoGeneralBajas.find(
+        f => f.estabL_CORR === elemento.estabL_CORR
+      );
+      const estableActual = lista?.estabL_CORR;
+      return estableActual !== objeto.Roles[0].codigoEstablecimiento;
+    });
+
+    if (existeEstablecimientoDistinto) {
+      Swal.fire({
+        icon: "warning",
+        title: "Revisión necesaria",
+        text: "Algunos bienes no corresponden a su establecimiento. Revise los bienes seleccionados antes de continuar.",
+        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+        customClass: { popup: "custom-border" },
+      });
+    }
+  };
+
   // const setSeleccionaFilas = (index: number) => {
   //   const indexReal = indicePrimerElemento + index;
   //   setFilasSeleccionadas((prev) =>
@@ -191,26 +266,72 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   //   );
   //   // console.log("indices seleccionmados", indexReal);
   // };
-  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setFilasSeleccionadas(
-        elementosActuales.map(item => item.aF_CLAVE.toString())
+
+  const setSeleccionaFilas = (aF_CLAVE: number, aF_CODIGO_GENERICO: string, altaS_CORR: number, estabL_CORR: number) => {
+
+    const lista = listadoGeneralBajas.find((f) => f.estabL_CORR === estabL_CORR);
+    const estableActual = lista?.estabL_CORR ?? null;
+
+    if (estableActual == objeto.Roles[0].codigoEstablecimiento) {
+      // Selección/deselección normal
+      setFilasSeleccionadas(prev =>
+        prev.includes(aF_CLAVE.toString())
+          ? prev.filter(v => v !== aF_CLAVE.toString())
+          : [...prev, aF_CLAVE.toString()]
       );
-    } else {
-      setFilasSeleccionadas([]);
+      console.log(filasSeleccionadas);
     }
-  };
 
-  const setSeleccionaFilas = (item: any) => {
-    const clave = item.aF_CLAVE.toString();
+    else {
 
-    setFilasSeleccionadas((prev) =>
-      prev.includes(clave)
-        ? prev.filter((id) => id !== clave)
-        : [...prev, clave]
-    );
-  };
+      if (estableActual === 1) {
+        Swal.fire({
+          icon: "warning",
+          title: "Revisión necesaria",
+          html: `El bien seleccionado <b>${aF_CODIGO_GENERICO}</b> con código de Alta <b>${altaS_CORR}</b> pertenece al establecimiento <b>SSMSO</b>.`,
+          background: isDarkMode ? "#1e1e1e" : "#ffffff",
+          color: isDarkMode ? "#ffffff" : "#000000",
+          confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+          customClass: { popup: "custom-border" },
+        });
+        // return;
+      }
 
+      if (estableActual === 2) {
+        Swal.fire({
+          icon: "warning",
+          title: "Revisión necesaria",
+          html: `El bien seleccionado <b>${aF_CODIGO_GENERICO}</b> con código de Alta <b>${altaS_CORR}</b> pertenece al establecimiento <b>CASR</b>.`,
+          background: isDarkMode ? "#1e1e1e" : "#ffffff",
+          color: isDarkMode ? "#ffffff" : "#000000",
+          confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+          customClass: { popup: "custom-border" },
+        });
+        // return;
+      }
+
+      if (estableActual === 3) {
+        Swal.fire({
+          icon: "warning",
+          title: "Revisión necesaria",
+          html: `El bien seleccionado <b>${aF_CODIGO_GENERICO}</b> con código de Alta <b>${altaS_CORR}</b> pertenece al establecimiento <b>HSJM</b>.`,
+          background: isDarkMode ? "#1e1e1e" : "#ffffff",
+          color: isDarkMode ? "#ffffff" : "#000000",
+          confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+          customClass: { popup: "custom-border" },
+        });
+        // return;
+      }
+
+      // Selección/deselección normal
+      setFilasSeleccionadas(prev =>
+        prev.includes(aF_CLAVE.toString())
+          ? prev.filter(v => v !== aF_CLAVE.toString())
+          : [...prev, aF_CLAVE.toString()]
+      );
+      console.log(filasSeleccionadas);
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -222,8 +343,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
       const result = await Swal.fire({
         icon: "info",
-        title: "Enviar a Bodega de Excluidos",
-        text: "Confirme para enviar",
+        title: "Confirmación de Envío",
+        text: "Por favor confirme si desea enviar los bienes a la Bodega de Excluidos.",
         showDenyButton: false,
         showCancelButton: true,
         confirmButtonText: "Confirmar y Enviar",
@@ -247,6 +368,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           establ_corr: objeto.Roles[0].codigoEstablecimiento
         }));
 
+        console.log("FORMULARIO", FormularioBajas);
+
         const resultado = await registrarBienesBajasActions(FormularioBajas);
         if (resultado) {
           mostrarAlerta();
@@ -257,8 +380,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         } else {
           Swal.fire({
             icon: "error",
-            title: ":'(",
-            text: "Hubo un problema al registrar",
+            title: "No se pudo enviar la solicitud",
+            text: "Por favor, intente nuevamente. Si el problema persiste, comuníquese con la Unidad de Desarrollo.",
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -271,7 +394,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       }
     }
   }
-
 
   const mostrarAlerta = () => {
     document.body.style.overflow = "hidden"; // Evita que el fondo se desplace
@@ -296,7 +418,8 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     });
   };
 
-  const handleBuscar = async () => {
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoading(true);
     if (Buscar.fDesde != "" || Buscar.fHasta != "") {
@@ -338,6 +461,10 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     setBusquedaCodigoGenerico("");
   };
 
+  const handleLimpiarFilasSeleccionadas = () => {
+    setFilasSeleccionadas([]);
+  };
+
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -366,13 +493,19 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 <div className="mb-2">
                   <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>
                   <div className="position-relative">
-                    <Form.Control
+                    <input
+                      aria-label="Nº Alta"
                       type="text"
                       placeholder="0"
                       value={busquedaAltas}
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       name="altaS_CORR"
-                      className={` ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       style={{ maxWidth: "400px" }}
                       maxLength={5}
                     />
@@ -396,13 +529,19 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 <div className="mb-1">
                   <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>
                   <div className="position-relative">
-                    <Form.Control
+                    <input
+                      aria-label="Nº Inventario"
                       type="text"
                       placeholder="Eje: 1000000008"
                       value={busquedaCodigoGenerico}
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       name="af_codigo_generico"
-                      className={` ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       style={{ maxWidth: "400px" }}
                       maxLength={12}
                     />
@@ -479,14 +618,30 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
               </Col>
               {listadoGeneralBajas.length > 0 && (
                 <>
-                  {/* Botón o mensaje */}
-                  <Col xs={12} lg={2}>
-                    <div className="d-flex justify-content-center justify-content-lg-end">
-                      {filasSeleccionadas.length > 0 ? (
+                  {filasSeleccionadas.length > 0 ? (
+                    // 🟦 CUANDO HAY FILAS SELECCIONADAS → Mostrar botones
+                    <Col xs={12} lg={4}>
+                      <div className="d-flex justify-content-center justify-content-lg-end w-100">
+
+                        {/* Botón Deseleccionar Todo */}
                         <Button
-                          variant={`${isDarkMode ? "secondary" : "primary"}`}
+                          onClick={handleLimpiarFilasSeleccionadas}
+                          disabled={listadoGeneralBajas.length === 0}
+                          variant="warning"
+                          className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center"
+                        >
+                          <XCircle className="h-5 w-5 mx-2" aria-hidden="true" />
+                          Deseleccionar todo
+                          <span className="badge bg-light text-muted ms-2">
+                            {filasSeleccionadas.length}
+                          </span>
+                        </Button>
+
+                        {/* Botón Enviar a Bodega */}
+                        <Button
+                          variant={isDarkMode ? "secondary" : "primary"}
                           onClick={() => setMostrarModal(true)}
-                          className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                          className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto d-flex align-items-center justify-content-center"
                           disabled={loading}
                         >
                           {loading ? (
@@ -498,29 +653,33 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                                 size="sm"
                                 role="status"
                                 aria-hidden="true"
-                                className="mx-2"
+                                className="ms-2"
                               />
                             </>
                           ) : (
                             <>
                               Enviar a Bodega
-                              <span className="badge bg-light text-dark mx-1 mt-1">
+                              <span className="badge bg-light text-dark ms-2">
                                 {filasSeleccionadas.length}
                               </span>
                             </>
                           )}
                         </Button>
-                      ) : (
-                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                          <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
-                            No hay filas seleccionadas
-                          </strong>
-                        </div>
-                      )}
-                    </div>
-                  </Col>
+
+                      </div>
+                    </Col>
+                  ) : (
+                    <Col xs={12} lg={2}>
+                      <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                        <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
+                          No hay filas seleccionadas
+                        </strong>
+                      </div>
+                    </Col>
+                  )}
                 </>
               )}
+
             </Row>
 
             <div className="mb-2">
@@ -556,11 +715,15 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
                             <th className="text-nowrap text-center">N° Inventario</th>
                             <th className="text-nowrap text-center">N° Alta</th>
+                            {/* {(objeto.IdCredencial === 6405 || objeto.IdCredencial === 888) && (
+                              <th className="text-nowrap text-center">Establecimiento</th>
+                            )} */}
                             <th className="text-nowrap text-center">Servicio</th>
                             <th className="text-nowrap text-center">Dependencia</th>
                             <th className="text-nowrap text-center">Fecha Ingreso</th>
                             <th className="text-nowrap text-center">Especie</th>
                             <th className="text-nowrap text-center">N° Cuenta</th>
+                            <th className="text-nowrap text-center">Usuario Crea</th>
                             <th className="text-nowrap text-center">Marca</th>
                             <th className="text-nowrap text-center">Modelo</th>
                             <th className="text-nowrap text-center">Serie</th>
@@ -579,18 +742,34 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                                 <td style={{ position: "sticky", left: 0 }}>
                                   <Form.Check
                                     type="checkbox"
+                                    onChange={() => setSeleccionaFilas(Lista.aF_CLAVE, Lista.aF_CODIGO_GENERICO, Lista.altaS_CORR, Lista.estabL_CORR)}
                                     checked={filasSeleccionadas.includes(Lista.aF_CLAVE.toString())}
-                                    onChange={() => setSeleccionaFilas(Lista)}
                                   />
                                 </td>
 
                                 <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
                                 <td className="text-nowrap">{Lista.altaS_CORR}</td>
+                                {/* {(objeto.IdCredencial === 6405 || objeto.IdCredencial === 888) && (
+                                  <td className="text-nowrap">{Lista.estabL_CORR === 1 ? <p className="badge bg-primary w-100 p-1">SSMSO</p> :
+                                    Lista.estabL_CORR === 2 ? <p className="badge bg-warning w-100 p-1">CASR</p> :
+                                      Lista.estabL_CORR === 3 ? <p className="badge bg-success w-100 p-1">HSJM</p> : ""}</td>
+                                )} */}
                                 <td className="text-nowrap">{Lista.serv}</td>
                                 <td className="text-nowrap">{Lista.dep}</td>
                                 <td className="text-nowrap">{Lista.aF_FINGRESO}</td>
                                 <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
                                 <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                <td className="text-nowrap">{
+                                  Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                                    Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                      Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
+                                        Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
+                                          Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                            Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
+                                              Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
+                                                Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+
+                                }</td>
                                 <td className="text-nowrap">{Lista.deT_MARCA}</td>
                                 <td className="text-nowrap">{Lista.deT_MODELO}</td>
                                 <td className="text-nowrap">{Lista.deT_SERIE}</td>
@@ -655,8 +834,9 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       </div>
       {/* Modal formulario*/}
       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" backdrop="static">
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Enviar a Bodega de Excluidos</Modal.Title>
+        <Modal.Header className={`bg-secondary text-white `} closeButton>
+          <Modal.Title className="fw-semibold">Enviar a Bodega de Excluidos
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <form onSubmit={handleSubmit}>
@@ -682,7 +862,11 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                   </>
                 ) : (
                   <>
+
                     Enviar
+                    <span className="badge bg-light text-dark mx-1 mt-1">
+                      {filasSeleccionadas.length}
+                    </span>
                     {/* <Down
                       className={classNames("flex-shrink-0", "h-5 w-5 ms-1")}
                       aria-hidden="true"
@@ -730,10 +914,12 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 Observaciones
               </label>
               <textarea
-                className={`form-select ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                className={`form-control ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                 aria-label="observaciones"
                 name="observaciones"
-                rows={4}
+                rows={3}
+                maxLength={300}
+                style={{ maxHeight: "10rem" }}
                 onChange={handleChange}
                 value={Bajas.observaciones}
               />

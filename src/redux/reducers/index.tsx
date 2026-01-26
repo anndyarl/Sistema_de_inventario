@@ -50,7 +50,7 @@ import darkModeReducer from "./Otros/darkModeReducer";
 import comboTrasladoServicioReducer from "./Traslados/Combos/comboTrasladoServicioReducers";
 import comboEstablecimientoReducer from "./Traslados/Combos/comboEstablecimientoReducer";
 import comboTrasladoEspecieReducer from "./Traslados/Combos/comboTrasladoEspecieReducers";
-import comboEstablecimientosProfileReducers from "./auth/comboEstablecimientosProfileReducers";
+import comboEstablecimientosProfileReducers from "./auth/loginPruebaReducers";
 import comboDependenciaOrigenReducer from "./Traslados/Combos/comboDependenciaOrigenReducers";
 import comboDependenciaDestinoReducer from "./Traslados/Combos/comboDependenciaDestinoReducers";
 import listadoTrasladosReducers from "./Traslados/listadoTrasladosReducers";
@@ -106,11 +106,14 @@ import listadoTraspasosAdjuntosReducers from "./Traspasos/listadoTraspasosAdjunt
 import maxBienesFuncionariosReducers from "./Inventario/BienesFuncionario/maxBienesFuncionariosReducers";
 import listadoBienesFuncionariosReducers from "./Inventario/BienesFuncionario/listadoBienesFuncionariosReducers";
 import buscarBienesFuncionariosReducers from "./Inventario/BienesFuncionario/buscarBienesFuncionariosReducers";
+import registrarDocumentoAltasReducers from "./Altas/FirmarAltas/registrarDocumentoAltasReducers";
+import loginPruebaReducers from "./auth/loginPruebaReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
   // Autenticación
   loginReducer,
+  loginPruebaReducers,
   validaApiLoginReducers,
   //-------------- Registro de Inventario----------------//
   // Formulario 1
@@ -163,6 +166,7 @@ const appReducer = combineReducers({
   listaEstadoReducers,
   obtieneVisadoCompletoReducers,
   listaEstadoVisadoresReducers,
+  registrarDocumentoAltasReducers,
 
   // Bajas
   datosListadoGeneralBajasReducers,

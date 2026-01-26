@@ -553,7 +553,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     };
 
 
-    // 📂 Función para exportar a Word
+    // Función para exportar a Word
     // const exportarWord = () => {
     //     setLoading(true);
     //     const doc = new Document({
@@ -1029,8 +1029,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <form >
-
+                    <form>
                         <Row>
                             <Col md={2}>
                                 <Form.Check
@@ -1043,11 +1042,11 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                     checked={Firma.ajustarFirma}
                                 /></Col>
                         </Row>
-
                         <Collapse in={isExpanded} dimension="height">
                             <Row className="m-1 p-3 rounded rounded-4 border">
-                                <p className="border-bottom mb-2">Ingrese los nombres de cada firmante</p>
-
+                                <p className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                    Ingrese los nombres de cada firmante
+                                </p>
                                 {/* Unidad Inventario */}
                                 <Col md={4}>
 
@@ -1149,7 +1148,71 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form>
+                        <Row>
+                            <Col md={2}>
+                                <Form.Check
+                                    onChange={handleCheck}
+                                    name="ajustarFirma"
+                                    type="checkbox"
+                                    label="Ajustar firma"
+                                    style={{ transform: 'scale(1)' }}
+                                    className="form-switch mx-2 "
+                                    checked={Firma.ajustarFirma}
+                                /></Col>
+                        </Row>
+                        <Collapse in={isExpanded} dimension="height">
+                            <Row className="m-1 p-3 rounded rounded-4 border">
+                                <p className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                                    Ingrese los nombres de cada firmante
+                                </p>
+                                {/* Unidad Inventario */}
+                                <Col md={4}>
 
+                                    <input
+                                        aria-label="encargadoInventario"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        maxLength={30}
+                                        name="encargadoInventario"
+                                        placeholder="Escriba un nombre..."
+                                        onChange={handleChange}
+                                        value={Firma.encargadoInventario}
+                                    />
+                                    <p className="fw-semibold text-center">Encargado</p>
+                                </Col>
+
+                                {/* Finanzas */}
+                                <Col md={4}>
+                                    <input
+                                        aria-label="jefe"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        maxLength={30}
+                                        name="jefe"
+                                        placeholder="Escriba un nombre..."
+                                        onChange={handleChange}
+                                        value={Firma.jefe}
+                                    />
+                                    <p className="fw-semibold text-center">Jefe</p>
+                                </Col>
+
+                                {/* Unidades específicas */}
+                                <Col md={4}>
+                                    <input
+                                        aria-label="jefeInventario"
+                                        type="text"
+                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                        maxLength={30}
+                                        name="jefeInventario"
+                                        placeholder="Escriba un nombre..."
+                                        onChange={handleChange}
+                                        value={Firma.jefeInventario}
+
+                                    />
+                                    <p className="fw-semibold text-center">Jefe Inventario</p>
+                                </Col>
+                            </Row>
+                        </Collapse>
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={
                             <DocumentoPDFServicioDependencia

@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Pagination, Button, Spinner, Modal } from "react-bootstrap";
+import { Row, Col, Pagination, Button, Spinner, Modal, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import { Calculator, CheckCircle, Eraser, ExclamationDiamond, FileEarmarkExcel, FiletypePdf, Search } from "react-bootstrap-icons";
@@ -119,7 +119,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const [loading, setLoading] = useState(false);
     const [loadingBuscarCasr, setloadingBuscarCasr] = useState(false);
     const [loadingExportar, setLoadingExportar] = useState(false);
-    const [_, setFilasSeleccionadas] = useState<string[]>([]);
+    const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
     const [paginaActual2, setPaginaActual2] = useState(1);
     const [paginaActual3, setPaginaActual3] = useState(1);
@@ -310,7 +310,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         setFilasSeleccionadas([]);
     };
 
-    const handleCalcular = async () => {
+    const handleCalcularSeleccion = async () => {
         setLoading(true);
 
         // Limpiar los activos seleccionados antes de enviar los nuevos datos
@@ -318,7 +318,134 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         await listaActivosCalculadosActions([]); // Envía un array vacío para eliminar datos previos
 
         // Seleccionar los nuevos activos
-        // const selectedIndices = filasSeleccionadas.map(Number);
+        const selectedIndices = filasSeleccionadas.map(Number);
+        const activosSeleccionados = selectedIndices.map((item) => {
+            return {
+                aF_CLAVE: listaActivosFijos[item].aF_CLAVE,
+                altaS_CORR: listaActivosFijos[item].altaS_CORR,
+                aF_CODIGO_GENERICO: listaActivosFijos[item].aF_CODIGO_GENERICO,
+                aF_CODIGO_LARGO: listaActivosFijos[item].aF_CODIGO_LARGO,
+                deP_CORR: listaActivosFijos[item].deP_CORR,
+                itE_CLAVE: listaActivosFijos[item].itE_CLAVE,
+                aF_DESCRIPCION: listaActivosFijos[item].aF_DESCRIPCION,
+                aF_FINGRESO: listaActivosFijos[item].aF_FINGRESO,
+                fechA_ALTA: listaActivosFijos[item].fechA_ALTA,
+                aF_CODIGO: listaActivosFijos[item].aF_CODIGO,
+                aF_TIPO: listaActivosFijos[item].aF_TIPO,
+                aF_ALTA: listaActivosFijos[item].aF_ALTA,
+                aF_PRECIO_REF: listaActivosFijos[item].aF_PRECIO_REF,
+                aF_CANTIDAD: listaActivosFijos[item].aF_CANTIDAD,
+                origen: listaActivosFijos[item].origen,
+                aF_RESOLUCION: listaActivosFijos[item].aF_RESOLUCION,
+                aF_OCO_NUMERO_REF: listaActivosFijos[item].aF_OCO_NUMERO_REF,
+                usuariO_CREA: listaActivosFijos[item].usuariO_CREA,
+                f_CREA: listaActivosFijos[item].f_CREA,
+                iP_CREA: listaActivosFijos[item].iP_CREA,
+                usuariO_MOD: listaActivosFijos[item].usuariO_MOD,
+                // f_MOD: item.f_MOD,
+                aF_TIPO_DOC: listaActivosFijos[item].aF_TIPO_DOC,
+                proV_RUN: listaActivosFijos[item].proV_RUN,
+                reG_EQM: listaActivosFijos[item].reG_EQM,
+                aF_NUM_FAC: listaActivosFijos[item].aF_NUM_FAC,
+                aF_FECHAFAC: listaActivosFijos[item].aF_FECHAFAC,
+                aF_3UTM: listaActivosFijos[item].aF_3UTM,
+                iD_GRUPO: listaActivosFijos[item].iD_GRUPO,
+                ctA_COD: listaActivosFijos[item].ctA_COD,
+                transitoria: listaActivosFijos[item].transitoria,
+                aF_MONTOFACTURA: listaActivosFijos[item].aF_MONTOFACTURA,
+                esP_DESCOMPONE: listaActivosFijos[item].esP_DESCOMPONE,
+                aF_ETIQUETA: listaActivosFijos[item].aF_ETIQUETA,
+                aF_VIDAUTIL: listaActivosFijos[item].aF_VIDAUTIL,
+                aF_VIGENTE: listaActivosFijos[item].aF_VIGENTE,
+                idprograma: listaActivosFijos[item].idprograma,
+                modalidad: listaActivosFijos[item].modalidad,
+                idpropiedad: listaActivosFijos[item].idpropiedad,
+                especie: listaActivosFijos[item].especie,
+                marca: listaActivosFijos[item].marca,
+                modelo: listaActivosFijos[item].modelo,
+                serie: listaActivosFijos[item].serie,
+                precio: listaActivosFijos[item].precio
+            };
+
+        });
+        //     aF_CLAVE: item.aF_CLAVE,
+        //     altaS_CORR: item.altaS_CORR,
+        //     aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+        //     aF_CODIGO_LARGO: item.aF_CODIGO_LARGO,
+        //     deP_CORR: item.deP_CORR,
+        //     itE_CLAVE: item.itE_CLAVE,
+        //     aF_DESCRIPCION: item.aF_DESCRIPCION,
+        //     aF_FINGRESO: item.aF_FINGRESO,
+        //     fechA_ALTA: item.fechA_ALTA,
+        //     aF_CODIGO: item.aF_CODIGO,
+        //     aF_TIPO: item.aF_TIPO,
+        //     aF_ALTA: item.aF_ALTA,
+        //     aF_PRECIO_REF: item.aF_PRECIO_REF,
+        //     aF_CANTIDAD: item.aF_CANTIDAD,
+        //     origen: item.origen,
+        //     aF_RESOLUCION: item.aF_RESOLUCION,
+        //     aF_OCO_NUMERO_REF: item.aF_OCO_NUMERO_REF,
+        //     usuariO_CREA: item.usuariO_CREA,
+        //     f_CREA: item.f_CREA,
+        //     iP_CREA: item.iP_CREA,
+        //     usuariO_MOD: item.usuariO_MOD,
+        //     // f_MOD: item.f_MOD,
+        //     aF_TIPO_DOC: item.aF_TIPO_DOC,
+        //     proV_RUN: item.proV_RUN,
+        //     reG_EQM: item.reG_EQM,
+        //     aF_NUM_FAC: item.aF_NUM_FAC,
+        //     aF_FECHAFAC: item.aF_FECHAFAC,
+        //     aF_3UTM: item.aF_3UTM,
+        //     iD_GRUPO: item.iD_GRUPO,
+        //     ctA_COD: item.ctA_COD,
+        //     transitoria: item.transitoria,
+        //     aF_MONTOFACTURA: item.aF_MONTOFACTURA,
+        //     esP_DESCOMPONE: item.esP_DESCOMPONE,
+        //     aF_ETIQUETA: item.aF_ETIQUETA,
+        //     aF_VIDAUTIL: item.aF_VIDAUTIL,
+        //     aF_VIGENTE: item.aF_VIGENTE,
+        //     idprograma: item.idprograma,
+        //     modalidad: item.modalidad,
+        //     idpropiedad: item.idpropiedad,
+        //     especie: item.especie,
+        //     marca: item.marca,
+        //     modelo: item.modelo,
+        //     serie: item.serie,
+        //     precio: item.precio
+        // }));
+
+        // Se envian los datos al metodo
+        const resultado = await listaActivosCalculadosActions(activosSeleccionados);
+
+        // Muestra mensaje de error si no hay resultados
+        if (!resultado) {
+            Swal.fire({
+                icon: "error",
+                title: ":'(",
+                text: "No se encontraron resultados, inténte otro registro.",
+                confirmButtonText: "Ok",
+                background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: { popup: "custom-border" }
+            });
+            setLoading(false);
+            return;
+        }
+        paginar2(1);
+        paginar3(1);
+        // Muestra modal y finaliza la carga
+        setMostrarModalCalcular(true);
+        setLoading(false);
+    };
+
+    const handleCalcular = async () => {
+        setLoading(true);
+
+        // Limpiar los activos seleccionados antes de enviar los nuevos datos
+        setlistaActivosCalculados([]);
+        await listaActivosCalculadosActions([]); // Envía un array vacío para eliminar datos previos
+
         const activosSeleccionados = listaActivosFijos.map((item) => ({
             aF_CLAVE: item.aF_CLAVE,
             altaS_CORR: item.altaS_CORR,
@@ -407,13 +534,27 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     };
 
 
-    // const setSeleccionaFilas = (index: number) => {
-    //     setFilasSeleccionadas((prev) =>
-    //         prev.includes(index.toString())
-    //             ? prev.filter((rowIndex) => rowIndex !== index.toString())
-    //             : [...prev, index.toString()]
-    //     );
-    // };
+    const setSeleccionaFilas = (index: number) => {
+        setFilasSeleccionadas((prev) =>
+            prev.includes(index.toString())
+                ? prev.filter((rowIndex) => rowIndex !== index.toString())
+                : [...prev, index.toString()]
+        );
+    };
+
+    //Funcion para seleccion multiple(Todos)
+    const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setFilasSeleccionadas(
+                elementosActuales.map((_, index) =>
+                    (indicePrimerElemento + index).toString()
+                )
+            );
+        } else {
+            setFilasSeleccionadas([]);
+        }
+    };
+
 
 
     //------------------------------Tabla Principal(Activos Fijos)--------------------------------------//
@@ -524,9 +665,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 "Meses Restantes",
                 "Monto Inicial",
                 "Depreciación Mensual",
-                "Depreciación Anual",
                 "Depreciación Acumulada",
                 "Valor Residual",
+                "Depreciación Anual",
                 // "Depreciación SIGFE",
                 // "Depreciación Acumulada SIGFE"
 
@@ -561,15 +702,15 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             item.aF_MONTOFACTURA?.toString() ?? "",
             item.aF_VIGENTE ?? "",
             item.modalidad ?? "",
-            item.mesesTranscurridos ?? "",
-            item.vidaUtil ?? "",
-            item.mesVidaUtil ?? "",
-            item.mesesRestantes ?? "",
-            item.montoInicial ?? "",
-            item.depreciacionPorMes ?? "",
-            item.depreciacionPorAno ?? "",
-            item.depreciacionAcumuladaActualizada ?? "",
-            item.valorResidual ?? "",
+            item.mesesTranscurridos ?? 0,
+            item.vidaUtil ?? 0,
+            item.mesVidaUtil ?? 0,
+            item.mesesRestantes ?? 0,
+            item.montoInicial ?? 0,
+            item.depreciacionPorMes ?? 0,
+            item.depreciacionAcumuladaActualizada ?? 0,
+            item.valorResidual ?? 0,
+            item.depreciacionPorAno ?? 0,
             // item.depreciacioN_SIGFE ?? "",
             // item.depreciacioN_ACUMULADA_SIGFE ?? ""
         ]);
@@ -578,9 +719,38 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         const worksheet = XLSX.utils.aoa_to_sheet([...encabezados, ...datos]);
 
         worksheet["!cols"] = [
-
-            { wch: 12 }, // Código Genérico
-
+            { wch: 15 }, // Código Genérico
+            { wch: 18 }, // Especie
+            { wch: 15 }, // Marca
+            { wch: 15 }, // Modelo
+            { wch: 18 }, // Serie
+            { wch: 35 }, // Descripción
+            { wch: 15 }, // Fecha Alta
+            { wch: 12 }, // Tipo
+            { wch: 15 }, // Alta
+            { wch: 15 }, // Precio Ref
+            { wch: 15 }, // Origen
+            { wch: 18 }, // Resolución
+            { wch: 18 }, // Usuario Crea
+            { wch: 20 }, // Fecha Crea
+            { wch: 15 }, // Tipo Doc
+            { wch: 15 }, // Proveedor RUN
+            { wch: 15 }, // N° Factura
+            { wch: 15 }, // Fecha Factura
+            { wch: 12 }, // 3 UTM
+            { wch: 12 }, // CTA Cod
+            { wch: 18 }, // Monto Factura
+            { wch: 10 }, // Vigente
+            { wch: 15 }, // Modalidad
+            { wch: 18 }, // Meses Transcurridos
+            { wch: 12 }, // Vida Útil
+            { wch: 12 }, // Mes Vida Útil
+            { wch: 18 }, // Meses Restantes
+            { wch: 18 }, // Monto Inicial
+            { wch: 18 }, // Depreciación / Mes
+            { wch: 22 }, // Depreciación Acumulada
+            { wch: 18 }, // Valor Residual
+            { wch: 18 }, // Depreciación / Año
         ];
 
         // Aplicar color de fondo y color de texto a los encabezados
@@ -989,70 +1159,81 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 )}
                             </Col>
                             {/* Botón Calcular */}
-                            <Col xs={12} lg={2}>
+                            <Col xs={12} lg={4}>
                                 <div className="d-flex justify-content-center justify-content-lg-end">
-                                    {listaActivosFijos[0]?.ctA_COD != "5320906" && listaActivosFijos[0]?.ctA_COD != "5320413" && listaActivosFijos[0]?.ctA_COD !== "5321001" && listaActivosFijos.length > 0 ? (
-                                        <Button
-                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                            onClick={handleCalcular}
-                                            className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                                            disabled={loading}
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    Calculando...
-                                                    <Spinner
-                                                        as="span"
-                                                        animation="border"
-                                                        size="sm"
-                                                        role="status"
-                                                        aria-hidden="true"
-                                                        className="ms-2"
-                                                    />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Calculator className={classNames("flex-shrink-0", "h-5 w-5 mx-1")} aria-hidden="true" />
-                                                    Calcular
-                                                    <span className="badge bg-light text-dark mx-1 mt-1">
-                                                        {listaActivosFijos.length}
-                                                    </span>
-                                                </>
-                                            )}
-                                        </Button>
-                                    ) :
-                                        (
-                                            <>
-                                                {/* Botón Exportar Calculados */}
-                                                {listaActivosFijos.length > 0 && (
 
-                                                    <Button
-                                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                        onClick={handleAbrirModalCalcular}
-                                                        disabled={listaActivosFijos.length === 0 || loadingExportar}
-                                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
-                                                    >
-                                                        {loadingExportar ? (
-                                                            <>
-                                                                Un Momento...
-                                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <FiletypePdf
-                                                                    className="flex-shrink-0 h-5 w-5 mx-2"
-                                                                    aria-hidden="true"
-                                                                />
-                                                                Exportar
-                                                                <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                    {listaActivosFijos.length}
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                    </Button>
+                                    {listaActivosFijos.length != 0 && (
+                                        <>
+                                            {filasSeleccionadas.length > 0 ? (
+                                                <Button
+                                                    variant="warning"
+                                                    onClick={handleCalcularSeleccion}
+                                                    className="w-100 px-2 mx-1  d-flex align-items-center justify-content-center"
+                                                    disabled={loading}
+                                                >
+                                                    {loading ? (
+                                                        <>
+                                                            Calculando...
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                aria-hidden="true"
+                                                                className="ms-2"
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Calculator className={classNames("flex-shrink-0", "h-5 w-5 mx-1")} aria-hidden="true" />
+                                                            Calcular Selección
+                                                            <span className="badge bg-light text-dark ms-1">
+                                                                {filasSeleccionadas.length}
+                                                            </span>
+                                                        </>
+                                                    )}
+
+
+
+                                                </Button>
+                                            ) : (
+                                                <div className="d-flex justify-content-center justify-content-lg-end w-100 ">
+                                                    <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-lg-auto text-center">
+                                                        No hay filas seleccionadas
+                                                    </strong>
+                                                </div>
+                                            )}
+                                            <Button
+                                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                onClick={handleCalcular}
+                                                className="w-100 p-2 ms-1 d-flex align-items-center justify-content-center"
+                                                disabled={loading}
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        Calculando...
+                                                        <Spinner
+                                                            as="span"
+                                                            animation="border"
+                                                            size="sm"
+                                                            role="status"
+                                                            aria-hidden="true"
+                                                            className="ms-2"
+                                                        />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Calculator className={classNames("flex-shrink-0", "h-5 w-5 mx-1")} aria-hidden="true" />
+                                                        Calcular Todo
+                                                        <span className="badge bg-light text-dark mt-1 ms-1">
+                                                            {listaActivosFijos.length}
+                                                        </span>
+                                                    </>
                                                 )}
-                                            </>
-                                        )}
+                                            </Button>
+                                        </>
+
+                                    )}
                                 </div>
                             </Col>
                         </Row>
@@ -1070,19 +1251,18 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                         <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                             <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                                 <tr>
-                                                    {/* <th style={{
-                                        position: 'sticky',
-                                        left: 0,                                      
+                                                    <th style={{
+                                                        position: 'sticky',
+                                                        left: 0,
 
-                                    }}>
-                                        <Form.Check
-                                            className="check-danger"
-                                            type="checkbox"
-                                            onChange={handleSeleccionaTodos}
-                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                        />
-                                    </th> */}
-                                                    {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
+                                                    }}>
+                                                        <Form.Check
+                                                            className="check-danger"
+                                                            type="checkbox"
+                                                            onChange={handleSeleccionaTodos}
+                                                            checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
+                                                        />
+                                                    </th>
                                                     {/* <th scope="col" className="text-nowrap text-center">Nº Inventario</th> */}
                                                     <th
                                                         className="text-nowrap"
@@ -1144,19 +1324,21 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             </thead>
                                             <tbody>
                                                 {elementosActuales.map((Lista, index) => {
-                                                    // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                                                    const indexReal = indicePrimerElemento + index; // Índice real basado en la página
                                                     return (
                                                         <tr key={index}>
-                                                            {/* <td style={{
-                                                position: 'sticky',
-                                                left: 0                                            
-                                            }}>
-                                                <Form.Check
-                                                    type="checkbox"
-                                                    onChange={() => setSeleccionaFilas(indexReal)}
-                                                    checked={filasSeleccionadas.includes(indexReal.toString())}
-                                                />
-                                            </td> */}
+                                                            <td style={{
+                                                                position: 'sticky',
+                                                                left: 0
+                                                            }}>
+                                                                <Form.Check
+                                                                    type="checkbox"
+                                                                    onChange={() => setSeleccionaFilas(indexReal)}
+                                                                    checked={filasSeleccionadas.includes(indexReal.toString())}
+                                                                // onChange={() => setSeleccionaFilas(Lista.aF_CLAVE)}
+                                                                // checked={filasSeleccionadas.includes(Lista.aF_CLAVE.toString())}
+                                                                />
+                                                            </td>
                                                             {/* <td className="text-nowrap">{Lista.aF_CLAVE}</td> */}
                                                             <td
                                                                 className="text-nowrap"
@@ -1285,10 +1467,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         </Modal.Header>
                         <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <div
-                                className="bg-white shadow-sm sticky-top p-3">
+                                className={`shadow-sm sticky-top p-3 ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
                                 <Row >
                                     <Col sm={6} md={6} lg={3}>
-                                        <div className="bg-light border-start border-4 border-primary shadow-sm p-3 rounded m-2">
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-primary shadow-sm p-3 rounded m-2`}>
                                             <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
                                                 Total Depreciación Acumulada
                                             </p>
@@ -1299,7 +1481,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     </Col>
 
                                     <Col sm={6} md={6} lg={3}>
-                                        <div className="bg-light border-start border-4 border-success shadow-sm p-3 rounded m-2">
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-3 rounded m-2`}>
                                             <p className="text-uppercase text-success fw-semibold small mb-1 text-center">
                                                 Total Valor Residual
                                             </p>
@@ -1310,7 +1492,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     </Col>
 
                                     <Col sm={8} md={6} lg={3}>
-                                        <div className="bg-light border-start border-4 border-warning shadow-sm p-3 rounded m-2">
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-warning shadow-sm p-3 rounded m-2`}>
                                             <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
                                                 Total Depreciación Anual
                                             </p>
@@ -1575,21 +1757,21 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
-                                                                ${lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                                {lista.depreciacionAcumuladaActualizada === 0 ? "-" : "$" + lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
 
                                                             <td className="text-nowrap text-center fw-bold sticky-col-right-1" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
-                                                                ${lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                                {lista.valorResidual === 0 ? "-" : "$" + lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
 
                                                             <td className="text-nowrap text-center fw-bold sticky-col-right-0" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
-                                                                ${lista.depreciacionPorAno === 0 ? 1 : lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                                {lista.depreciacionPorAno === 0 ? "-" : "$" + lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
 
                                                         </tr>
@@ -1771,7 +1953,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                     <BlobProvider
                         document={
                             <DocumentoPDF
-                                row={listaActivosFijos.length > 0 ? listaActivosFijos : listaActivosCalculados}
+                                row={listaActivosCalculados}
                                 totalRes={totalRes}
                                 totalDep={totalDep}
                             />
@@ -1791,7 +1973,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <>
                                     <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
-                                            onClick={() => exportarExcel(listaActivosFijos.length > 0 ? listaActivosFijos : listaActivosCalculados)}
+                                            onClick={() => exportarExcel(listaActivosCalculados)}
                                             variant="success"
                                         >
                                             Descargar Excel

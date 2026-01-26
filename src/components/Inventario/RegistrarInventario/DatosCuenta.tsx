@@ -83,7 +83,7 @@ interface DatosCuentaProps extends CuentaProps {
   descripcionEspecie: string; // se utiliza solo para guardar la descripcion completa en el input de especie  
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   setVidaUtilActions: (vidaUtil: string) => void;
-  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string /* esP_NOMBRE: string*/) => Promise<boolean>; //Lista Especies en tabla
+  listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>; //Lista Especies en tabla
   comboEspecies: ListaEspecie[];
   isDarkMode: boolean;
   objeto: Objeto;
@@ -220,7 +220,6 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
-
   useEffect(() => {
     setCuenta({
       servicio,
@@ -271,12 +270,12 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     let resultado = false;
     if (Buscar.esP_CODIGO && Buscar.esP_CODIGO.includes("-")) {
       // Seleccionó del combo: usar código
-      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO);
-      // } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
+    } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
       //   // Escribió manualmente: usar nombre   
-      //   resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
     } else {
-      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, detalleSeleccionado ?? 0, "",);
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, detalleSeleccionado ?? 0, "", "");
       setLoading(false);
       return;
     }

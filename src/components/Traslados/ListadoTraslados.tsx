@@ -156,7 +156,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     }));
   };
 
-  const handleBuscar = async () => {
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoading(true);
     resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
@@ -283,6 +284,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
                     name="fDesde"
                     onChange={handleChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleBuscar(e);
+                      }
+                    }}
                     value={ListadoTraslado.fDesde}
                     max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                   />
@@ -299,6 +305,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
                     name="fHasta"
                     onChange={handleChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleBuscar(e);
+                      }
+                    }}
                     value={ListadoTraslado.fHasta}
                     max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                   />
@@ -320,6 +331,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                 name="af_codigo_generico"
                 placeholder="Ej: 1000000008"
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleBuscar(e);
+                  }
+                }}
                 maxLength={12}
                 value={ListadoTraslado.af_codigo_generico}
               />
@@ -335,6 +351,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
                 placeholder="Eje: 1000000008"
                 maxLength={12}
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleBuscar(e);
+                  }
+                }}
                 value={ListadoTraslado.tras_corr}
               />
             </div>

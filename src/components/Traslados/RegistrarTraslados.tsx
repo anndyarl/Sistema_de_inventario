@@ -226,7 +226,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     const { name, value } = e.target;
 
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "aF_CODIGO_GENERICO" && !/^[0-9]*$/.test(value)) {
+    if (name === "aF_CODIGO_GENERICO" && !/^[0-9]*$/.test(value) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
       return; // Salir si contiene caracteres no numéricos
     }
     // Convierte `value` a número
@@ -318,7 +318,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }));
   }
 
-  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     let resultado = false;
     e.preventDefault();
     setLoadingBuscar(true);
@@ -725,6 +725,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                           name="aF_CODIGO_GENERICO"
                           placeholder="Eje: 1000000008"
                           onChange={handleChange}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleBuscar(e);
+                            }
+                          }}
                           value={Buscar.aF_CODIGO_GENERICO}
                         />
                         <OverlayTrigger
@@ -780,6 +785,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         name="altaS_CORR"
                         placeholder="0"
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscar(e);
+                          }
+                        }}
                         value={Buscar.altaS_CORR}
                       />
                     </div>
@@ -884,6 +894,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         name="marca"
                         placeholder="Introduzca marca o parte de él"
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscar(e);
+                          }
+                        }}
                         value={Buscar.marca}
                       />
                     </div>
@@ -900,6 +915,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         name="modelo"
                         placeholder="Introduzca modelo o parte de él"
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscar(e);
+                          }
+                        }}
                         value={Buscar.modelo}
                       />
                     </div>
@@ -916,6 +936,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         name="serie"
                         placeholder="Ingrese serie o parte del número"
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleBuscar(e);
+                          }
+                        }}
                         value={Buscar.serie}
                       />
                     </div>
@@ -981,7 +1006,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
 
                         {/* Botón Trasladar */}
                         <Button
-                          variant="warning"
+                          variant="primary"
                           onClick={() => setMostrarModalTraslado(true)}
                           className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                         >
@@ -1246,9 +1271,10 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         backdrop="static"
       //  keyboard={false}  // Evita el cierre al presionar la tecla Esc
       >
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+        <Modal.Header className={`bg-primary text-white`} closeButton>
           <Modal.Title className="fw-semibold">
-            Bienes a Trasladar: {activosFijos.length}
+            <ArrowLeftRight className={"flex-shrink-0 h-5 w-5 me-2 mb-1"} aria-hidden="true" />
+            Bienes a Trasladar
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -1261,7 +1287,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               <div className="d-flex flex-column flex-sm-row justify-content-end align-items-stretch">
                 {/* Botón Trasladar */}
                 <Button
-                  variant="warning"
+                  variant="primary"
                   onClick={handleSubmitTraslado}
                   className="p-2 mb-2 mb-sm-0 mx-sm-1"
                   disabled={loading}
@@ -1281,8 +1307,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     </>
                   ) : (
                     <>
-                      Trasladar
                       <ArrowLeftRight className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                      Trasladar
+                      <p className="badge bg-light text-muted ms-2">{activosFijos.length}</p>
                     </>
                   )}
                 </Button>
@@ -1291,8 +1318,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   onClick={handleLimpiarFormulario}
                   className="p-2 mb-2 mb-sm-0 mx-sm-1"
                 >
-                  Limpiar
                   <Eraser className={"flex-shrink-0 h-5 w-5 mx-1"} aria-hidden="true" />
+                  Limpiar
+
                 </Button>
               </div>
             </Col>

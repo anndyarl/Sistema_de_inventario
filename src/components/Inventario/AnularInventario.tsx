@@ -135,7 +135,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
 
     };
 
-    const handleBuscar = async () => {
+    const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
         let resultado = false;
         setLoading(true);
         //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
@@ -219,7 +220,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                         }
                     });
                     listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-                    handleBuscar();
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -311,6 +311,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
                                                     name="fechaInicio"
                                                     onChange={handleChange}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") {
+                                                            handleBuscar(e);
+                                                        }
+                                                    }}
                                                     value={Inventario.fechaInicio}
                                                     max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                                 />
@@ -327,6 +332,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
                                                     name="fechaTermino"
                                                     onChange={handleChange}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") {
+                                                            handleBuscar(e);
+                                                        }
+                                                    }}
                                                     value={Inventario.fechaTermino}
                                                     max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                                 />
@@ -349,6 +359,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                                 name="af_codigo_generico"
                                                 placeholder="Ej: 1000000008"
                                                 onChange={handleChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
                                                 maxLength={12}
                                                 value={Inventario.af_codigo_generico}
                                             />

@@ -23,7 +23,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 // Acción para enviar el formulario
-export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_CORR: number, SER_CORR: number, IMAGEN_COMPROBANTE_PAGO: File, IMAGEN_AUTORIZACION: File, AF_CODIGO_GENERICO: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, SER_CORR: number, DEP_CORR: number, IMAGEN_COMPROBANTE_PAGO: File, IMAGEN_AUTORIZACION: File, AF_CODIGO_GENERICO: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token;
 
     if (token) {
@@ -44,8 +44,8 @@ export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, DEP_COR
 
             const formBienesFormulario = new FormData();
             formBienesFormulario.append("RUT_FUNCIONARIO", RUT_FUNCIONARIO);
-            formBienesFormulario.append("DEP_CORR", DEP_CORR.toString());
             formBienesFormulario.append("SER_CORR", SER_CORR.toString());
+            formBienesFormulario.append("DEP_CORR", DEP_CORR.toString());
             formBienesFormulario.append("COMPROBANTE_PAGO", COMPROBANTE_PAGO);
             formBienesFormulario.append("AUTORIZACION", AUTORIZACION);
             formBienesFormulario.append("AF_CODIGO_GENERICO", AF_CODIGO_GENERICO);

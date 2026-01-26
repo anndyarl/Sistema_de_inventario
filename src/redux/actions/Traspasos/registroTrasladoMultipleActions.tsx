@@ -5,9 +5,10 @@ import {
     POST_FORMULARIO_TRASPASO_SUCCESS,
     POST_FORMULARIO_TRASPASO_FAIL,
 } from "../Traspasos/types";
+import { TraspasoConAdjuntos } from "../../../components/Traspasos/RegistrarTraspasos";
 
 // Acción para enviar el formulario
-export const registroTraspasoMultipleActions = (FormularioTraspaso: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registroTraspasoMultipleActions = (FormularioTraspaso: TraspasoConAdjuntos) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; // Token está en el estado de autenticación
     if (token) {
         const config = {
@@ -26,28 +27,20 @@ export const registroTraspasoMultipleActions = (FormularioTraspaso: Record<strin
         dispatch({ type: POST_FORMULARIO_TRASPASO_REQUEST });
 
         try {
+            console.log("Enviando datos de traspaso:", body);
             const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearTraspasos`, body, config);
 
             if (response.status === 200) {
-                if (response.data?.length) {
-                    dispatch({
-                        type: POST_FORMULARIO_TRASPASO_SUCCESS,
-                        payload: response.data
-                    });
-                    return true;
-                }
-                else {
-                    dispatch({
-                        type: POST_FORMULARIO_TRASPASO_FAIL,
-                        error: "No se pudo registrar. Por favor, intente nuevamente.",
-                    });
-                    return false;
-                }
+                dispatch({
+                    type: POST_FORMULARIO_TRASPASO_SUCCESS,
+                    payload: response.data
+                });
+                return true;
             }
             else {
                 dispatch({
                     type: POST_FORMULARIO_TRASPASO_FAIL,
-                    error: "No se pudo obtener registrar. Por favor, intente nuevamente.",
+                    error: "No se pudo registrar. Por favor, intente nuevamente.",
                 });
                 return false;
             }

@@ -1,3 +1,5 @@
+// src/redux/actions/listaEstadoActions.ts
+
 import { Dispatch } from "redux";
 import {
   LISTA_ESTADO_REQUEST,
@@ -6,58 +8,44 @@ import {
 } from "../types";
 import axiosInstance from "../../auth/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const listaEstadoActions = (altas_corr: number, idDocumento: number, establ_corr: number, showLoading: boolean = true) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token;
+export const listaEstadoActions =
+  (
+    altas_corr: number,
+    idDocumento: number,
+    establ_corr: number,
+    onSuccess?: (data: any[]) => void
+  ) =>
+    async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
-
-    if (showLoading) {
       dispatch({ type: LISTA_ESTADO_REQUEST });
-    }
 
-    try {
-      const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmaAltas?altas_corr=${altas_corr}&idDocumento=${idDocumento}&establ_corr=${establ_corr}`, config);
+      try {
+        const res = await axiosInstance.get(`/TraeFirmaAltas?altas_corr=${altas_corr}&idDocumento=${idDocumento}&establ_corr=${establ_corr}`);
 
-      if (res.status === 200) {
-        if (res.data?.length) {
+        if (res.status === 200) {
           dispatch({
             type: LISTA_ESTADO_SUCCESS,
             payload: res.data,
           });
+
+          // 🔥 callback para usar datos actualizados inmediatamente
+          if (onSuccess) {
+            onSuccess(res.data);
+          }
+
           return true;
         } else {
           dispatch({
             type: LISTA_ESTADO_FAIL,
-            error: "Status 200, pero con arreglo de datos vacío",
+            error: "Respuesta sin datos",
           });
           return false;
         }
-      } else {
+      } catch (error) {
         dispatch({
           type: LISTA_ESTADO_FAIL,
-          error: "No se pudo obtener el listado. Por favor, intente nuevamente.",
+          error: "Error en la solicitud",
         });
         return false;
       }
-    } catch (err: any) {
-      dispatch({
-        type: LISTA_ESTADO_FAIL,
-        error: "Error en la solicitud:" + err,
-      });
-      return false;
-    }
-  } else {
-    dispatch({
-      type: LISTA_ESTADO_FAIL,
-      error: "No se encontró un token de autenticación válido.",
-    });
-    return false;
-  }
-};
+    };

@@ -6,42 +6,48 @@ import { LOGOUT } from "../auth/types";
 // Crear instancia
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_CSRF_API_URL,
+    timeout: 20000,
     headers: {
         Accept: "application/json",
     },
 });
 
-// Interceptor para respuestas (maneja errores 401)
-axiosInstance.interceptors.response.use(response => response, async error => {
-    const originalRequest = error.config;
 
-    // Si es error 401 y no hemos reintentado aún
-    if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const state = store.getState();
+        const token = state.loginReducer?.token;
 
-        const refreshToken = localStorage.getItem("refreshToken");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
 
-        if (!refreshToken) {
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// ----------------------------------
+//   INTERCEPTOR DE RESPUESTA
+// ----------------------------------
+axiosInstance.interceptors.response.use(
+    response => response,
+    async (error) => {
+
+        // Si el backend devuelve 401 → token expirado
+        if (error.response?.status === 401) {
+            console.warn("⚠ TOKEN EXPIRADO O INVÁLIDO");
+
             store.dispatch({ type: LOGOUT });
+
+            // Redirige al login
+            window.location.href = "/login";
+
             return Promise.reject(error);
         }
 
-        try {
-            const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/api/data/Refresh2`, { refreshToken });
-            const { accessToken } = res.data;
-
-            localStorage.setItem("token", accessToken);
-            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
-            return axiosInstance(originalRequest); // Reintenta con nuevo token
-        } catch (refreshError) {
-            store.dispatch({ type: LOGOUT });
-            return Promise.reject(refreshError);
-        }
+        return Promise.reject(error);
     }
-
-    return Promise.reject(error);
-}
 );
 
 export default axiosInstance;

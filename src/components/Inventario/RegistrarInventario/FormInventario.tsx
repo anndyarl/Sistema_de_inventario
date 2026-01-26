@@ -127,7 +127,6 @@ const FormInventario: React.FC<FormInventarioProps> = ({
   const handleBienSeleccionado = (codigoBien: string) => {
     setBienSeleccionado(codigoBien);
     comboDetalleActions(codigoBien); // aqui le paso codigo de bien
-
   };
 
   // Función para manejar la selección de detalles en el componente `DatosCuenta`

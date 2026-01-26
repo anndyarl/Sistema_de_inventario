@@ -32,6 +32,7 @@ interface DataTableProps<T> {
     }
 }
 
+
 export function DataTable<T extends Record<string, any>>({
     data,
     columns,
@@ -58,18 +59,68 @@ export function DataTable<T extends Record<string, any>>({
     const [searchTerm, setSearchTerm] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(pageSize)
+    const [sortColumn, setSortColumn] = useState<keyof T | null>(null);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
 
     // Filter data based on search term
+    // FILTER + SORT
     const filteredData = useMemo(() => {
-        if (!enableSearch || !searchTerm) return data
+        let result = data;
 
-        return data.filter((item) =>
-            columns.some((column) => {
-                const value = item[column.key]
-                return value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-            })
-        )
-    }, [data, searchTerm, columns, enableSearch])
+        // SEARCH
+        if (enableSearch && searchTerm) {
+            result = result.filter(item =>
+                columns.some(column => {
+                    const value = item[column.key];
+                    return value?.toString().toLowerCase().includes(searchTerm.toLowerCase());
+                })
+            );
+        }
+
+        // SORT
+        if (sortColumn) {
+            result = [...result].sort((a, b) => {
+                const valueA = a[sortColumn];
+                const valueB = b[sortColumn];
+
+                // Números
+                if (!isNaN(Number(valueA)) && !isNaN(Number(valueB))) {
+                    return sortDirection === 'asc'
+                        ? Number(valueA) - Number(valueB)
+                        : Number(valueB) - Number(valueA);
+                }
+
+                // Strings
+                return sortDirection === 'asc'
+                    ? valueA?.toString().localeCompare(valueB?.toString())
+                    : valueB?.toString().localeCompare(valueA?.toString());
+            });
+        }
+
+        return result;
+    }, [data, searchTerm, sortColumn, sortDirection]);
+
+    // const filteredData = useMemo(() => {
+
+    const handleSort = (columnKey: keyof T) => {
+        if (sortColumn === columnKey) {
+            setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+        } else {
+            setSortColumn(columnKey);
+            setSortDirection('asc');
+        }
+    };
+
+    //     if (!enableSearch || !searchTerm) return data
+
+    //     return data.filter((item) =>
+    //         columns.some((column) => {
+    //             const value = item[column.key]
+    //             return value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    //         })
+    //     )
+    // }, [data, searchTerm, columns, enableSearch])
 
     // Calculate pagination
     const totalItems = filteredData.length
@@ -146,7 +197,7 @@ export function DataTable<T extends Record<string, any>>({
                     className={`table w-full ${isDarkMode ? 'table-dark' : 'table-hover table-striped'
                         }`}
                 >
-                    <thead
+                    {/* <thead
                         className={`sticky-top z-0 ${isDarkMode ? 'table-dark' : 'text-dark table-light'
                             }`}
                     >
@@ -154,6 +205,28 @@ export function DataTable<T extends Record<string, any>>({
                             {columns.map((column, index) => (
                                 <th key={index} scope="col" className="text-nowrap">
                                     {column.header}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead> */}
+                    <thead className={`sticky-top z-0 ${isDarkMode ? 'table-dark' : 'text-dark table-light'}`}>
+                        <tr>
+                            {columns.map((column, index) => (
+                                <th
+                                    key={index}
+                                    scope="col"
+                                    className="text-nowrap"
+                                    style={{ cursor: "pointer", userSelect: "none" }}
+                                    onClick={() => handleSort(column.key)}
+                                >
+                                    {column.header}
+
+                                    {/* Icono de ordenación */}
+                                    {sortColumn === column.key && (
+                                        <span className="ms-1">
+                                            {sortDirection === 'asc' ? '▲' : '▼'}
+                                        </span>
+                                    )}
                                 </th>
                             ))}
                         </tr>
