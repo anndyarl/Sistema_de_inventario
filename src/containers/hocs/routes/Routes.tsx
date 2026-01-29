@@ -59,6 +59,7 @@ import Especies from '../../../components/Mantenedores/Especies';
 import ListadoTraspasos from '../../../components/Traspasos/ListadoTraspasos';
 import ListadoBienesFuncionarios from '../../../components/Inventario/BienesFuncionario/ListadoBienesFuncionarios';
 import RegistroBienesFuncionarios from '../../../components/Inventario/BienesFuncionario/RegistroBienesFuncionarios';
+import CalcularDepreciacionPorCuentas from '../../../components/Informes/Principal/CalcularDepreciacion/CalcularDepreciacionPorCuentas';
 
 // import useAnalytics from '../../../hooks/useAnalytics';
 
@@ -135,6 +136,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/Informes/FolioPorServicioDependencia" element={<FolioPorServicioDependencia />} />{/* Prioridad */}
                 <Route path="/Informes/ExcelFolioPorServicios" element={<ExcelFolioPorServicios />} />
                 <Route path="/Informes/CalcularDepreciacion" element={<CalcularDepreciacion />} />
+                <Route path="/Informes/CalcularDepreciacionPorCuentas" element={<CalcularDepreciacionPorCuentas />} />
                 {/*Fin Menu Informes */}
 
                 {/* Sub menu Listados */}

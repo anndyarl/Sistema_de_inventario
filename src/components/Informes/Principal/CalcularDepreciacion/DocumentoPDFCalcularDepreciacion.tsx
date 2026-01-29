@@ -159,7 +159,7 @@ function insertNewLinesDigits(value: any, every = 10) {
         .join('\n');
 }
 
-const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number }) => {
+const DocumentoPDF = ({ row, totalRes, totalDep, totalDepAnual }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number, totalDepAnual: number }) => {
 
     const filasPorPagina = 12;
     const paginas = arreglo(row, filasPorPagina);
@@ -196,6 +196,13 @@ const DocumentoPDF = ({ row, totalRes, totalDep }: { row: ListaActivosFijos[]; t
                             {totalRes > 0 && (
                                 <p className="fw-semibold text-center">
                                     <Text style={styles.p}>Total Valor Residual: $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                                </p>
+                            )}
+                        </View>
+                        <View style={styles.headerContent}>
+                            {totalDepAnual > 0 && (
+                                <p className="fw-semibold text-center">
+                                    <Text style={styles.p}>Total Depreciación Anual: $ {(totalDepAnual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
                                 </p>
                             )}
                         </View>

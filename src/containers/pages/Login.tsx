@@ -7,6 +7,7 @@ import "../../styles/Login.css";
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { validaApiloginActions } from "../../redux/actions/auth/validaApiloginActions";
 import { loginPruebaActions } from "../../redux/actions/auth/loginPruebaActions";
+import Swal from "sweetalert2";
 
 export interface ListadoUsuarios {
   rut: string;
@@ -18,7 +19,7 @@ interface Props {
   login: (usuario: string, password: string) => Promise<boolean>;
   validaApiloginActions: (rut: string) => Promise<number>;
   logout: () => void;
-  loginPruebaActions: () => void;
+  loginPruebaActions: () => Promise<boolean>;
   isAuthenticated: boolean | null;
   error: string | null;
   isDarkMode: boolean;
@@ -56,14 +57,45 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
     e.preventDefault();
     setLoading(true);
     try {
+      //Acceso para obtener token
       const resultado = await login(formData.usuario, formData.password);
-      if (!resultado) {
+      if (resultado) {
+        //Lista usuario de prueba
+        const ListaLogin = await loginPruebaActions();
+        if (ListaLogin) {
+          setLoading(false);
+          setMostrarListado(resultado);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error al cargar",
+            text: "No se pudo obtener el listado de usuarios",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+          setLoading(false);
+          setMostrarListado(false);
+          return;
+        }
+      }
+      else {
+        Swal.fire({
+          icon: "error",
+          title: "Error de acceso",
+          text: "EL usuario o la contraseña son incorrectos. / o el servidor no responde",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
         setLoading(false);
         return;
-      } else {
-        loginPruebaActions();
-        setLoading(false);
-        setMostrarListado(resultado);
       }
     } catch (error) {
       setLoading(false);
@@ -91,21 +123,36 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
   }
 
   return (
-    <div className={`d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
-      <div className={`border p-3 rounded-0  ${isDarkMode ? "text-white bg-color-dark" : "bg-light border-dark"}`} style={{ width: '100%', maxWidth: '450px', height: '40%', maxHeight: '600px', minHeight: "200px" }}>
-
+    <div
+      className={`d-flex justify-content-center align-items-center min-vh-100 px-2 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}
+    >
+      <div
+        className={`border p-3 p-md-4 rounded-0 w-100 
+    ${isDarkMode ? "text-white bg-color-dark" : "bg-light border-dark"}`}
+        style={{
+          maxWidth: "450px"
+        }}
+      >
         {/* Elemento decorativo */}
-        <div className="d-flex position-relative mb-3" style={{ width: "116px", left: "0px", bottom: "16px" }}>
-          <div className="text-bg-primary flex-grow-1" style={{ padding: "3px" }}></div>
-          <div className="text-bg-danger flex-grow-1 w-25" style={{ padding: "3px" }}></div>
+        <div className="d-flex position-relative mb-3" style={{ width: "116px" }}>
+          <div className="text-bg-primary flex-grow-1" style={{ padding: "3px" }} />
+          <div className="text-bg-danger flex-grow-1 w-25" style={{ padding: "3px" }} />
         </div>
-        <h1 className="fw-bold text-center" style={{ color: "#575757", fontSize: "1.6rem" }}>SSMSO</h1>
+
+        <h1
+          className="fw-bold text-center mb-3"
+          style={{ color: "#575757", fontSize: "1.6rem" }}
+        >
+          SSMSO
+        </h1>
 
         <form id="Login" className="text-start" onSubmit={onSubmit}>
-          <label htmlFor="usuario" style={{ fontSize: "12px" }}>Ingresar usuario</label>
+          <label htmlFor="usuario" className="small">
+            Ingresar usuario
+          </label>
           <input
             type="text"
-            className="form-control w-100 mx-auto m-1 border-dark rounded-0"
+            className="form-control w-100 mx-auto mb-2 border-dark rounded-0"
             id="usuario"
             name="usuario"
             value={formData.usuario}
@@ -114,10 +161,12 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
             required
           />
 
-          <label htmlFor="password" style={{ fontSize: "12px" }}>Ingresar Contraseña</label>
+          <label htmlFor="password" className="small">
+            Ingresar contraseña
+          </label>
           <input
             type="password"
-            className="form-control w-100 mx-auto m-1 border-dark rounded-0"
+            className="form-control w-100 mx-auto mb-3 border-dark rounded-0"
             id="password"
             name="password"
             value={formData.password}
@@ -126,11 +175,22 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
             required
           />
 
-          <div className="form-group text-center">
-            <button type="submit" className="btn btn-primary w-100 m-1 rounded-0" disabled={loading}>
+          <div className="text-center">
+            <button
+              type="submit"
+              className="btn btn-primary w-100 rounded-0 py-2"
+              disabled={loading}
+            >
               {loading ? (
                 <>
-                  <u>INGRESANDO...</u> <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                  <u>INGRESANDO...</u>{" "}
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
                 </>
               ) : (
                 <u>INGRESA</u>
@@ -140,10 +200,12 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
         </form>
       </div>
 
-      <Modal show={mostrarListado} onHide={() => setMostrarListado(false)} size="lg">
+      {/* Modal usuarios */}
+      <Modal show={mostrarListado} onHide={() => setMostrarListado(false)} size="lg" centered>
         <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
           <Modal.Title className="fw-semibold">Seleccione un usuario</Modal.Title>
         </Modal.Header>
+
         <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
           <div className="table-responsive">
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
@@ -151,25 +213,30 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
                 <tr>
                   <th>RUT</th>
                   <th>Nombre</th>
-                  <th>Id Credencial</th>
+                  <th>ID</th>
                   <th>Establecimiento</th>
-                  <th></th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
                 {listadoUsuarios.length > 0 ? (
                   listadoUsuarios.map((item, index) => (
                     <tr key={index}>
-                      <td>{item.rut || 'N/A'}</td>
-                      <td>{item.nombre || 'N/A'}</td>
-                      <td>{item.iD_CREDENCIAL || 'N/A'}</td>
-                      <td>{item.establecimiento === 1 ? "SSMSO"
-                        : item.establecimiento === 2 ? "CASR"
-                          : item.establecimiento === 3 ? "HSJM" : "Sin Información"}</td>
+                      <td>{item.rut || "N/A"}</td>
+                      <td>{item.nombre || "N/A"}</td>
+                      <td>{item.iD_CREDENCIAL || "N/A"}</td>
                       <td>
+                        {item.establecimiento === 1
+                          ? "SSMSO"
+                          : item.establecimiento === 2
+                            ? "CASR"
+                            : item.establecimiento === 3
+                              ? "HSJM"
+                              : "Sin información"}
+                      </td>
+                      <td className="text-end">
                         <Button
                           variant="outline-primary"
-                          className="fw-semibold"
                           size="sm"
                           onClick={() => handleIngresar(item.rut)}
                         >
@@ -180,7 +247,9 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={3} className="text-center">No hay registros</td>
+                    <td colSpan={5} className="text-center">
+                      No hay registros
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -189,6 +258,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
         </Modal.Body>
       </Modal>
     </div>
+
   );
 };
 

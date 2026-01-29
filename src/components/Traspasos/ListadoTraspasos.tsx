@@ -855,28 +855,10 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
-                                    <td className="text-nowrap text-center">
-                                      {Lista.paS_ESTADO_RECIBE === "0" && (
-                                        <span className="badge bg-danger bg-opacity-10 text-danger px-3 py-1 w-100">
-                                          Sin validación
-                                        </span>
-                                      )}
-
-                                      {Lista.paS_ESTADO_RECIBE === "1" && (
-                                        <span className="badge bg-success bg-opacity-10 text-success px-3 py-1 w-100">
-                                          Recibido
-                                        </span>
-                                      )}
-
-                                      {Lista.paS_ESTADO_RECIBE === "2" && (
-                                        <span className="badge bg-danger bg-opacity-10 text-danger px-3 py-1 w-100">
-                                          Rechazado
-                                        </span>
-                                      )}
-
-                                      {!["0", "1", "2"].includes(Lista.paS_ESTADO_RECIBE) && (
-                                        <span className="text-muted">-</span>
-                                      )}
+                                    <td className="text-nowrap">
+                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
+                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
+                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
                                     </td>
 
                                     <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>

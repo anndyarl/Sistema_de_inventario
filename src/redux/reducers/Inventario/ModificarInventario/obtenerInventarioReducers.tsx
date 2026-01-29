@@ -34,7 +34,7 @@ interface obtenerInventarioState {
     deT_PRECIO: number;
     deT_OBS: string;
     //indica si el activo esta de alta o no
-    esalta: number;
+    estadO_VISADO: number;
 }
 
 // Estado inicial tipado
@@ -64,8 +64,8 @@ const initialState: obtenerInventarioState = {
     deT_SERIE: "",
     deT_PRECIO: 0,
     deT_OBS: "",
+    estadO_VISADO: 0,
 
-    esalta: 0
 };
 
 
@@ -114,6 +114,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
         case 'SET_OBS_MOD':
             return { ...state, deT_OBS: action.payload };
 
+
         case OBTENER_INVENTARIO_REQUEST:
             return {
                 ...state,
@@ -146,7 +147,7 @@ const obtenerInventarioReducers = (state = initialState, action: any): obtenerIn
                 deT_SERIE: action.payload.deT_SERIE,
                 deT_PRECIO: action.payload.deT_PRECIO,
                 deT_OBS: action.payload.deT_OBS,
-                esalta: action.payload.esalta,
+                estadO_VISADO: action.payload.estadO_VISADO,
             };
         case OBTENER_INVENTARIO_FAIL:
             return {

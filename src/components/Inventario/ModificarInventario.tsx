@@ -12,7 +12,7 @@ import MenuInventario from "../Menus/MenuInventario";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import Select from "react-select";
-import SkeletonLoader from "../Utils/SkeletonLoader";
+// import SkeletonLoader from "../Utils/SkeletonLoader";
 import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
 import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
@@ -58,7 +58,6 @@ export interface listaAltas {
   deT_SERIE: string;
   deT_PRECIO: number;
   deT_OBS: string;
-  estadO_VISADO: number;
 }
 
 //Se usan estas props para llamar a la busqueda de inventario por af_codigo_generico
@@ -85,8 +84,7 @@ export interface InventarioCompleto {
   DET_SERIE: string;
   DET_PRECIO: number;
   DET_OBS: string;
-  //indica si el activo esta de alta o no
-  esalta?: number;
+
 }
 interface InventarioCompletoProps extends InventarioCompleto {
   comboOrigen: ORIGEN[];
@@ -113,6 +111,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<{ success: boolean; error?: string }>;
   limpiarDataActions: () => Promise<boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
+  estadO_VISADO: number;
   isDarkMode: boolean;
   objeto: Objeto;
 }
@@ -129,7 +128,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboProveedor,
   comboEspecies,
   listaEspecie,
-  listaAltas,
+  // listaAltas,
   AF_CLAVE,
   AF_CODIGO_GENERICO, // nRecepcion
   AF_FECHA_SOLICITUD,// fechaRecepcion 
@@ -153,7 +152,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   DET_SERIE,
   DET_PRECIO,
   DET_OBS,
-  esalta,
+  estadO_VISADO,
   isDarkMode,
   objeto,
   comboSerDepActions,
@@ -170,7 +169,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalDetalles, setMostrarModalDetalles] = useState(false);
-  const [mostrarModalAltas, setMostrarModalAltas] = useState(false);
+  // const [mostrarModalAltas, setMostrarModalAltas] = useState(false);
 
   //--------------Paginación Especies--------------------//
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
@@ -181,13 +180,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   });
   const elementosPorPagina = Paginacion.nPaginacion;
   //--------------Paginación Altas--------------------//
-  const [filasSeleccionadasAltas, setFilasSeleccionadasAltas] = useState<string[]>([]);
-  const [elementoSeleccionadoAltas, setElementoSeleccionadoAltas] = useState<listaAltas>();
-  const [paginaActual1, setPaginaActual1] = useState(1);
-  const [Paginacion1, setPaginacion1] = useState({
-    nPaginacion1: 10
-  });
-  const elementosPorPagina1 = Paginacion1.nPaginacion1;
+  // const [filasSeleccionadasAltas, setFilasSeleccionadasAltas] = useState<string[]>([]);
+  // const [elementoSeleccionadoAltas, setElementoSeleccionadoAltas] = useState<listaAltas>();
+  // const [paginaActual1, setPaginaActual1] = useState(1);
+  // const [Paginacion1, setPaginacion1] = useState({
+  //   nPaginacion1: 10
+  // });
+  // const elementosPorPagina1 = Paginacion1.nPaginacion1;
 
   const [isDisabled, setIsDisabled] = useState(true);
   const [error, setError] = useState<Partial<InventarioCompleto> & {}>({});
@@ -418,18 +417,18 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       [name]: value,
     }));
 
-    setPaginacion1((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    // setPaginacion1((prevState) => ({
+    //   ...prevState,
+    //   [name]: value,
+    // }));
 
-    if (name === "nPaginacion") {
-      paginar1(1);
-    }
+    // if (name === "nPaginacion") {
+    //   paginar1(1);
+    // }
 
-    if (name === "nPaginacion1") {
-      paginar1(1);
-    }
+    // if (name === "nPaginacion1") {
+    //   paginar1(1);
+    // }
 
     if (name === "idprograma") { //servicio
       comboDependenciaModificarActions(value);
@@ -504,46 +503,46 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
 
   //Selecciona fila del listado de Altas
-  const handleSeleccionFilaAltas = (index: number, altaS_CORR: number) => {
-    const item = listaAltas[index];
+  // const handleSeleccionFilaAltas = (index: number, altaS_CORR: number) => {
+  //   const item = listaAltas[index];
 
-    const registro = listaAltas.find((f) => f.altaS_CORR === altaS_CORR);
-    const estado = registro?.estadO_VISADO ?? null;
+  //   const registro = listaAltas.find((f) => f.altaS_CORR === altaS_CORR);
+  //   const estado = registro?.estadO_VISADO ?? null;
 
-    // Validaciones según el estado
-    if (estado === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Visado en curso",
-        text: "Este inventario se encuentra en proceso de visado. No es posible realizar modificaciones.",
-        background: isDarkMode ? "#1e1e1e" : "#ffffff",
-        color: isDarkMode ? "#ffffff" : "#000000",
-        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
-        customClass: { popup: "custom-border" },
-      });
+  //   // Validaciones según el estado
+  //   if (estado === 0) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Visado en curso",
+  //       text: "Este inventario se encuentra en proceso de visado. No es posible realizar modificaciones.",
+  //       background: isDarkMode ? "#1e1e1e" : "#ffffff",
+  //       color: isDarkMode ? "#ffffff" : "#000000",
+  //       confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+  //       customClass: { popup: "custom-border" },
+  //     });
 
-      setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
-      return;
-    }
+  //     setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
+  //     return;
+  //   }
 
-    if (estado === 1) {
-      Swal.fire({
-        icon: "info",
-        title: "Inventario visado",
-        text: "Este inventario ya cuenta con todas las firmas o visados correspondientes, por lo que no puede ser modificado.",
-        background: isDarkMode ? "#1e1e1e" : "#ffffff",
-        color: isDarkMode ? "#ffffff" : "#000000",
-        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
-        customClass: { popup: "custom-border" },
-      });
+  //   if (estado === 1) {
+  //     Swal.fire({
+  //       icon: "info",
+  //       title: "Inventario visado",
+  //       text: "Este inventario ya cuenta con todas las firmas o visados correspondientes, por lo que no puede ser modificado.",
+  //       background: isDarkMode ? "#1e1e1e" : "#ffffff",
+  //       color: isDarkMode ? "#ffffff" : "#000000",
+  //       confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+  //       customClass: { popup: "custom-border" },
+  //     });
 
-      setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
-      return;
-    }
+  //     setFilasSeleccionadas((prev) => prev.filter((rowIndex) => rowIndex !== index.toString()));
+  //     return;
+  //   }
 
-    setFilasSeleccionadasAltas([index.toString()]);
-    setElementoSeleccionadoAltas(item);
-  };
+  //   setFilasSeleccionadasAltas([index.toString()]);
+  //   setElementoSeleccionadoAltas(item);
+  // };
 
   const handleSubmitSeleccionado = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -576,58 +575,58 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   };
 
-  const handleInventarioSeleccionado = () => {
-    if (typeof elementoSeleccionadoAltas === "object" && elementoSeleccionadoAltas !== null) {
-      const af_clave = (elementoSeleccionadoAltas as listaAltas).aF_CLAVE;
-      const af_codigo_generico = (elementoSeleccionadoAltas as listaAltas).aF_CODIGO_GENERICO;
-      const af_origen = (elementoSeleccionadoAltas as listaAltas).aF_ORIGEN;
-      const dep_corr = (elementoSeleccionadoAltas as listaAltas).deP_CORR;
-      const cta_cod = (elementoSeleccionadoAltas as listaAltas).ctA_COD;
-      const af_fecha_solicitud = (elementoSeleccionadoAltas as listaAltas).aF_FECHA_SOLICITUD;
-      const af_montofactura = (elementoSeleccionadoAltas as listaAltas).aF_MONTOFACTURA;
-      const idmodalidadcompra = (elementoSeleccionadoAltas as listaAltas).idmodalidadcompra;
-      const af_fechafac = (elementoSeleccionadoAltas as listaAltas).aF_FECHAFAC;
-      const af_oco_numero_ref = (elementoSeleccionadoAltas as listaAltas).aF_OCO_NUMERO_REF;
-      const af_num_fac = (elementoSeleccionadoAltas as listaAltas).aF_NUM_FAC;
-      const descripcionEspecie = (elementoSeleccionadoAltas as listaAltas).esP_CODIGO + " | " + `${(elementoSeleccionadoAltas as listaAltas).esP_NOMBRE}`;
-      const prov_run = (elementoSeleccionadoAltas as listaAltas).proV_RUN;
+  // const handleInventarioSeleccionado = () => {
+  //   if (typeof elementoSeleccionadoAltas === "object" && elementoSeleccionadoAltas !== null) {
+  //     const af_clave = (elementoSeleccionadoAltas as listaAltas).aF_CLAVE;
+  //     const af_codigo_generico = (elementoSeleccionadoAltas as listaAltas).aF_CODIGO_GENERICO;
+  //     const af_origen = (elementoSeleccionadoAltas as listaAltas).aF_ORIGEN;
+  //     const dep_corr = (elementoSeleccionadoAltas as listaAltas).deP_CORR;
+  //     const cta_cod = (elementoSeleccionadoAltas as listaAltas).ctA_COD;
+  //     const af_fecha_solicitud = (elementoSeleccionadoAltas as listaAltas).aF_FECHA_SOLICITUD;
+  //     const af_montofactura = (elementoSeleccionadoAltas as listaAltas).aF_MONTOFACTURA;
+  //     const idmodalidadcompra = (elementoSeleccionadoAltas as listaAltas).idmodalidadcompra;
+  //     const af_fechafac = (elementoSeleccionadoAltas as listaAltas).aF_FECHAFAC;
+  //     const af_oco_numero_ref = (elementoSeleccionadoAltas as listaAltas).aF_OCO_NUMERO_REF;
+  //     const af_num_fac = (elementoSeleccionadoAltas as listaAltas).aF_NUM_FAC;
+  //     const descripcionEspecie = (elementoSeleccionadoAltas as listaAltas).esP_CODIGO + " | " + `${(elementoSeleccionadoAltas as listaAltas).esP_NOMBRE}`;
+  //     const prov_run = (elementoSeleccionadoAltas as listaAltas).proV_RUN;
 
-      const af_vidautil = (elementoSeleccionadoAltas as listaAltas).aF_VIDAUTIL;
-      const af_fingreso = (elementoSeleccionadoAltas as listaAltas).aF_FINGRESO;
-      const det_marca = (elementoSeleccionadoAltas as listaAltas).deT_MARCA;
-      const det_modelo = (elementoSeleccionadoAltas as listaAltas).deT_MODELO;
-      const det_serie = (elementoSeleccionadoAltas as listaAltas).deT_SERIE;
-      const det_precio = (elementoSeleccionadoAltas as listaAltas).deT_PRECIO;
-      const det_obs = (elementoSeleccionadoAltas as listaAltas).deT_OBS;
+  //     const af_vidautil = (elementoSeleccionadoAltas as listaAltas).aF_VIDAUTIL;
+  //     const af_fingreso = (elementoSeleccionadoAltas as listaAltas).aF_FINGRESO;
+  //     const det_marca = (elementoSeleccionadoAltas as listaAltas).deT_MARCA;
+  //     const det_modelo = (elementoSeleccionadoAltas as listaAltas).deT_MODELO;
+  //     const det_serie = (elementoSeleccionadoAltas as listaAltas).deT_SERIE;
+  //     const det_precio = (elementoSeleccionadoAltas as listaAltas).deT_PRECIO;
+  //     const det_obs = (elementoSeleccionadoAltas as listaAltas).deT_OBS;
 
 
-      // Actualiza el estado según la seleccion
-      setInventario((Prev) => ({
-        ...Prev,
-        aF_CLAVE: af_clave,
-        AF_CODIGO_GENERICO: af_codigo_generico,
-        AF_ORIGEN: af_origen,
-        DEP_CORR: dep_corr,
-        CTA_COD: cta_cod,
-        AF_FECHA_SOLICITUD: af_fecha_solicitud,
-        AF_MONTOFACTURA: af_montofactura,
-        IDMODALIDADCOMPRA: idmodalidadcompra,
-        AF_FECHAFAC: af_fechafac,
-        AF_OCO_NUMERO_REF: af_oco_numero_ref,
-        AF_NUM_FAC: af_num_fac,
-        ESP_CODIGO: descripcionEspecie.toString(),
-        PROV_RUN: prov_run,
-        AF_VIDAUTIL: af_vidautil,
-        AF_FINGRESO: af_fingreso,
-        DET_MARCA: det_marca,
-        DET_MODELO: det_modelo,
-        DET_SERIE: det_serie,
-        DET_PRECIO: det_precio,
-        DET_OBS: det_obs
-      }));
-      setMostrarModalAltas(false);
-    }
-  };
+  //     // Actualiza el estado según la seleccion
+  //     setInventario((Prev) => ({
+  //       ...Prev,
+  //       aF_CLAVE: af_clave,
+  //       AF_CODIGO_GENERICO: af_codigo_generico,
+  //       AF_ORIGEN: af_origen,
+  //       DEP_CORR: dep_corr,
+  //       CTA_COD: cta_cod,
+  //       AF_FECHA_SOLICITUD: af_fecha_solicitud,
+  //       AF_MONTOFACTURA: af_montofactura,
+  //       IDMODALIDADCOMPRA: idmodalidadcompra,
+  //       AF_FECHAFAC: af_fechafac,
+  //       AF_OCO_NUMERO_REF: af_oco_numero_ref,
+  //       AF_NUM_FAC: af_num_fac,
+  //       ESP_CODIGO: descripcionEspecie.toString(),
+  //       PROV_RUN: prov_run,
+  //       AF_VIDAUTIL: af_vidautil,
+  //       AF_FINGRESO: af_fingreso,
+  //       DET_MARCA: det_marca,
+  //       DET_MODELO: det_modelo,
+  //       DET_SERIE: det_serie,
+  //       DET_PRECIO: det_precio,
+  //       DET_OBS: det_obs
+  //     }));
+  //     setMostrarModalAltas(false);
+  //   }
+  // };
 
   const handleValidar = () => {
     // console.log("campos", JSON.stringify(Inventario, null, 2));
@@ -884,14 +883,14 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
   // Lógica de paginación para lista altas
-  const indiceUltimoElemento1 = paginaActual1 * elementosPorPagina1;
-  const indicePrimerElemento1 = indiceUltimoElemento1 - elementosPorPagina1;
-  const elementosActuales1 = useMemo(
-    () => listaAltas.slice(indicePrimerElemento1, indiceUltimoElemento1),
-    [listaAltas, indicePrimerElemento1, indiceUltimoElemento1]
-  );
-  const totalPaginas1 = Math.ceil(listaAltas.length / elementosPorPagina1);
-  const paginar1 = (numeroPagina: number) => setPaginaActual1(numeroPagina);
+  // const indiceUltimoElemento1 = paginaActual1 * elementosPorPagina1;
+  // const indicePrimerElemento1 = indiceUltimoElemento1 - elementosPorPagina1;
+  // const elementosActuales1 = useMemo(
+  //   () => listaAltas.slice(indicePrimerElemento1, indiceUltimoElemento1),
+  //   [listaAltas, indicePrimerElemento1, indiceUltimoElemento1]
+  // );
+  // const totalPaginas1 = Math.ceil(listaAltas.length / elementosPorPagina1);
+  // const paginar1 = (numeroPagina: number) => setPaginaActual1(numeroPagina);
 
   return (
     <Layout>
@@ -1495,8 +1494,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
                 {/* Validación / Estado */}
                 {(
-                  (esalta === 0 && Inventario.AF_FINGRESO > '2025-06-02') ||
-                  (esalta === 1 && Inventario.AF_FINGRESO < '2025-06-02')
+                  (estadO_VISADO === 0 && Inventario.AF_FINGRESO > '2025-06-02') ||
+                  (estadO_VISADO === 1 && Inventario.AF_FINGRESO < '2025-06-02')
                 ) ? (
                   <Button
                     onClick={handleValidar}
@@ -1907,12 +1906,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       </Modal >
 
       {/* Modal lista seleccion Altas */}
-      <Modal show={mostrarModalAltas} onHide={() => setMostrarModalAltas(false)}
+      {/* <Modal show={mostrarModalAltas} onHide={() => setMostrarModalAltas(false)}
         size="xl"
         dialogClassName="draggable-modal"
-      // scrollable={false}
-      // backdrop="static" // Evita que se cierre al hacer clic afuera
-      // keyboard={false}
+        scrollable={false}
+        backdrop="static" 
+        keyboard={false}
       >
         <Modal.Header className={`modal-header`} closeButton>
           <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
@@ -1956,12 +1955,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </Col>
             </Row>
           </div>
-          {/* Tabla activos*/}
           <div style={{ maxHeight: "50vh", overflowY: "auto" }} className="mt-2">
-            {/* Tabla*/}
             {loading ? (
               <>
-                {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
                 <SkeletonLoader rowCount={10} columnCount={10} />
               </>
             ) : (
@@ -1969,14 +1965,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                   <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                     <tr>
-                      {/* <th style={{ position: 'sticky', left: 0 }}>
+                      <th style={{ position: 'sticky', left: 0 }}>
                         <Form.Check
                           className="check-danger"
                           type="checkbox"
-                          // onChange={handleSeleccionaTodos}
                           checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                         />
-                      </th> */}
+                      </th>
                       <th scope="col" className="text-nowrap"></th>
                       <th scope="col" className="text-nowrap">Estado</th>
                       <th scope="col" className="text-nowrap">Nº Inventario</th>
@@ -2033,7 +2028,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </div>
             )}
           </div>
-          {/* Paginador */}
           <div className="paginador-container position-relative z-0">
             <Pagination className="paginador-scroll">
               <Pagination.First
@@ -2065,7 +2059,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             </Pagination>
           </div>
         </Modal.Body>
-      </Modal>
+      </Modal> */}
 
     </Layout >
   );
@@ -2117,7 +2111,7 @@ const mapStateToProps = (state: RootState) => ({
   DET_OBS: state.obtenerInventarioReducers.deT_OBS,
 
   //indica si el activo esta de alta o no
-  esalta: state.obtenerInventarioReducers.esalta,
+  estadO_VISADO: state.obtenerInventarioReducers.estadO_VISADO,
 });
 
 export default connect(mapStateToProps, {

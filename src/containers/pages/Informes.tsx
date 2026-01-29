@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card, Col, Row } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { FileText } from "react-bootstrap-icons";
+import { Calculator, FileText } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 
@@ -40,7 +40,9 @@ const Informes: React.FC<GeneralProps> = ({ isDarkMode }) => {
     { descripcion: '', name: 'FolioPorServicioDependencia', title: 'Folios por Servicio-Dependencia', href: '/Informes/FolioPorServicioDependencia', icon: FileText },
     // { descripcion: '', name: 'ExcelFolioPorServicios', title: 'Excel-Folios por Servicios *', href: '/Informes/ExcelFolioPorServicios', icon: FileText },
     { descripcion: '', name: 'ConsultaInventarioEspecies', title: 'Consulta Inventario - Especies', href: '/Informes/ConsultaInventarioEspecies', icon: FileText },
-    { descripcion: '', name: 'CalcularDepreciacion', title: 'Calcular Depreciación', href: '/Informes/CalcularDepreciacion', icon: FileText },
+    { descripcion: '', name: 'CalcularDepreciacion', title: 'Calcular Depreciación', href: '/Informes/CalcularDepreciacion', icon: Calculator },
+    // { descripcion: '', name: 'CalcularDepreciacionPorCuentas', title: 'Calcular Depreciación por Cuentas', href: '/Informes/CalcularDepreciacionPorCuentas', icon: CalculatorFill },
+
   ];
 
   return (

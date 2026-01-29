@@ -8,18 +8,16 @@ import { Helmet } from "react-helmet-async";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 // import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
-import Select from "react-select";
 import { BlobProvider } from "@react-pdf/renderer";
 import Layout from "../../../../containers/hocs/layout/Layout";
 import MenuInformes from "../../../Menus/MenuInformes";
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { RootState } from "../../../../store";
-import DocumentoPDF from "./DocumentoPDFCalcularDepreciacion";
-import { listaActivosCalculadosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosActions";
-import { listaActivosFijosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosActions";
-import { comboCuentasInformeActions } from "../../../../redux/actions/Informes/Listados/CuentasFechas/comboCuentasInformeActions";
 import { Objeto } from "../../../Navegacion/Profile";
 import { listaActivosCasrActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCasrActions";
+import { listaActivosCalculadosPorCuentasActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosPorCuentasActions";
+import { listaActivosFijosPorCuentasActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosPorCuentasActions";
+import DocumentoCuentasPDF from "./DocumentoPDFCalcularCuentasDepreciacion";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -78,6 +76,7 @@ export interface ListaActivosFijos {
     modelo?: string;
     serie?: string;
     precio?: number;
+    ctA_NOMBRE?: string;
     aF_ESTADO_INV?: number;
 
     mesesTranscurridos?: number;
@@ -92,26 +91,21 @@ export interface ListaActivosFijos {
     depreciacioN_ACUMULADA_SIGFE: number;
     depreciacioN_SIGFE: number;
 }
-interface ComboCuentas {
-    codigo: string;
-    descripcion: string;
-}
+
 interface DatosAltas {
-    listaActivosFijos: ListaActivosFijos[];
-    listaActivosCalculados: ListaActivosFijos[];
-    listaActivosNoCalculados: ListaActivosFijos[];
-    listaActivosFijosActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
+    listaActivosPorCuentasFijos: ListaActivosFijos[];
+    listaActivosCalculadosPorCuentas: ListaActivosFijos[];
+    listaActivosNoCalculadosPorCuentas: ListaActivosFijos[];
+    listaActivosFijosPorCuentasActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
     listaActivosCasrActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
-    listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
+    listaActivosCalculadosPorCuentasActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
-    comboCuentasInformeActions: () => void;
-    comboCuentasInforme: ComboCuentas[];
     objeto: Objeto;
 
 }
 
-const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, listaActivosCasrActions, listaActivosCalculadosActions, comboCuentasInformeActions, listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, comboCuentasInforme, token, isDarkMode, objeto }) => {
+const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijosPorCuentasActions, listaActivosCasrActions, listaActivosCalculadosPorCuentasActions, listaActivosPorCuentasFijos, listaActivosCalculadosPorCuentas, listaActivosNoCalculadosPorCuentas, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<ListaActivosFijos> & Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalNoCalculados, setMostrarModalNoCalculados] = useState(false);
@@ -134,29 +128,12 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const [Paginacion3, setPaginacion3] = useState({ nPaginacion3: 10 });
     const elementosPorPagina3 = Paginacion3.nPaginacion3;
 
+    const [__, setlistaActivosCalculados] = useState<ListaActivosFijos[]>(listaActivosCalculadosPorCuentas);
 
-
-    const [__, setlistaActivosCalculados] = useState<ListaActivosFijos[]>(listaActivosCalculados);
-
-    const cuentasOptions = comboCuentasInforme.map((item) => ({
-        value: item.codigo.toString(),
-        label: item.descripcion,
-    }));
     const [Inventario, setInventario] = useState({
         fDesde: "",
-        fHasta: "",
-        cta_cod: '',
-        af_codigo_generico: ""
+        fHasta: ""
     });
-
-    useEffect(() => {
-        if (token) {
-            setlistaActivosCalculados(listaActivosCalculados);
-            if (comboCuentasInforme.length === 0) { comboCuentasInformeActions() }
-
-        }
-
-    }, [listaActivosFijosActions, comboCuentasInformeActions, token, listaActivosFijos.length, listaActivosNoCalculados.length, listaActivosCalculados]); // Asegúrate de incluir dependencias relevantes
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
@@ -171,10 +148,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
-            return; // Salir si contiene caracteres no numéricos
-        }
-
         setInventario((prevState) => ({
             ...prevState,
             [name]: value,
@@ -201,21 +174,15 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         }
     };
 
-    const handleCuentasChange = (selectedOption: any) => {
-        const value = selectedOption ? selectedOption.value : "";
-        setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
-    };
 
     const handleBuscar = async () => {
         setLoadingBuscar(true);
         // Limpiar los activos seleccionados antes de enviar los nuevos datos
 
         const tieneFechas = Inventario.fDesde !== "" && Inventario.fHasta !== "";
-        const tieneCuenta = Inventario.cta_cod && Inventario.cta_cod !== "";
-        const tieneCodigoGenerico = Inventario.af_codigo_generico && Inventario.af_codigo_generico !== "";
 
         // Caso 1: no hay ningún filtro
-        if (!tieneFechas && !tieneCuenta && !tieneCodigoGenerico) {
+        if (!tieneFechas) {
             Swal.fire({
                 icon: "warning",
                 title: "Por favor, filtre por alguna opción",
@@ -240,11 +207,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         }
 
         // Llama al backend
-        const resultado = await listaActivosFijosActions(
-            Inventario.cta_cod,
+        const resultado = await listaActivosFijosPorCuentasActions(
+            "",
             Inventario.fDesde,
             Inventario.fHasta,
-            Inventario.af_codigo_generico,
+            "",
             objeto.Roles[0].codigoEstablecimiento
         );
 
@@ -273,10 +240,10 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
         // Llama al backend
         const resultado = await listaActivosCasrActions(
-            Inventario.cta_cod,
+            "",
             Inventario.fDesde,
             Inventario.fHasta,
-            Inventario.af_codigo_generico,
+            "",
             objeto.Roles[0].codigoEstablecimiento
         );
 
@@ -316,56 +283,59 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
         // Limpiar los activos seleccionados antes de enviar los nuevos datos
         setlistaActivosCalculados([]);
-        await listaActivosCalculadosActions([]); // Envía un array vacío para eliminar datos previos
+        await listaActivosCalculadosPorCuentasActions([]); // Envía un array vacío para eliminar datos previos
 
         // Seleccionar los nuevos activos
         const selectedIndices = filasSeleccionadas.map(Number);
         const activosSeleccionados = selectedIndices.map((item) => {
             return {
-                aF_CLAVE: listaActivosFijos[item].aF_CLAVE,
-                altaS_CORR: listaActivosFijos[item].altaS_CORR,
-                aF_CODIGO_GENERICO: listaActivosFijos[item].aF_CODIGO_GENERICO,
-                aF_CODIGO_LARGO: listaActivosFijos[item].aF_CODIGO_LARGO,
-                deP_CORR: listaActivosFijos[item].deP_CORR,
-                itE_CLAVE: listaActivosFijos[item].itE_CLAVE,
-                aF_DESCRIPCION: listaActivosFijos[item].aF_DESCRIPCION,
-                aF_FINGRESO: listaActivosFijos[item].aF_FINGRESO,
-                fechA_ALTA: listaActivosFijos[item].fechA_ALTA,
-                aF_CODIGO: listaActivosFijos[item].aF_CODIGO,
-                aF_TIPO: listaActivosFijos[item].aF_TIPO,
-                aF_ALTA: listaActivosFijos[item].aF_ALTA,
-                aF_PRECIO_REF: listaActivosFijos[item].aF_PRECIO_REF,
-                aF_CANTIDAD: listaActivosFijos[item].aF_CANTIDAD,
-                origen: listaActivosFijos[item].origen,
-                aF_RESOLUCION: listaActivosFijos[item].aF_RESOLUCION,
-                aF_OCO_NUMERO_REF: listaActivosFijos[item].aF_OCO_NUMERO_REF,
-                usuariO_CREA: listaActivosFijos[item].usuariO_CREA,
-                f_CREA: listaActivosFijos[item].f_CREA,
-                iP_CREA: listaActivosFijos[item].iP_CREA,
-                usuariO_MOD: listaActivosFijos[item].usuariO_MOD,
+                aF_CLAVE: listaActivosPorCuentasFijos[item].aF_CLAVE,
+                altaS_CORR: listaActivosPorCuentasFijos[item].altaS_CORR,
+                aF_CODIGO_GENERICO: listaActivosPorCuentasFijos[item].aF_CODIGO_GENERICO,
+                aF_CODIGO_LARGO: listaActivosPorCuentasFijos[item].aF_CODIGO_LARGO,
+                deP_CORR: listaActivosPorCuentasFijos[item].deP_CORR,
+                itE_CLAVE: listaActivosPorCuentasFijos[item].itE_CLAVE,
+                aF_DESCRIPCION: listaActivosPorCuentasFijos[item].aF_DESCRIPCION,
+                aF_FINGRESO: listaActivosPorCuentasFijos[item].aF_FINGRESO,
+                fechA_ALTA: listaActivosPorCuentasFijos[item].fechA_ALTA,
+                aF_CODIGO: listaActivosPorCuentasFijos[item].aF_CODIGO,
+                aF_TIPO: listaActivosPorCuentasFijos[item].aF_TIPO,
+                aF_ALTA: listaActivosPorCuentasFijos[item].aF_ALTA,
+                aF_PRECIO_REF: listaActivosPorCuentasFijos[item].aF_PRECIO_REF,
+                aF_CANTIDAD: listaActivosPorCuentasFijos[item].aF_CANTIDAD,
+                origen: listaActivosPorCuentasFijos[item].origen,
+                aF_RESOLUCION: listaActivosPorCuentasFijos[item].aF_RESOLUCION,
+                aF_OCO_NUMERO_REF: listaActivosPorCuentasFijos[item].aF_OCO_NUMERO_REF,
+                usuariO_CREA: listaActivosPorCuentasFijos[item].usuariO_CREA,
+                f_CREA: listaActivosPorCuentasFijos[item].f_CREA,
+                iP_CREA: listaActivosPorCuentasFijos[item].iP_CREA,
+                usuariO_MOD: listaActivosPorCuentasFijos[item].usuariO_MOD,
                 // f_MOD: item.f_MOD,
-                aF_TIPO_DOC: listaActivosFijos[item].aF_TIPO_DOC,
-                proV_RUN: listaActivosFijos[item].proV_RUN,
-                reG_EQM: listaActivosFijos[item].reG_EQM,
-                aF_NUM_FAC: listaActivosFijos[item].aF_NUM_FAC,
-                aF_FECHAFAC: listaActivosFijos[item].aF_FECHAFAC,
-                aF_3UTM: listaActivosFijos[item].aF_3UTM,
-                iD_GRUPO: listaActivosFijos[item].iD_GRUPO,
-                ctA_COD: listaActivosFijos[item].ctA_COD,
-                transitoria: listaActivosFijos[item].transitoria,
-                aF_MONTOFACTURA: listaActivosFijos[item].aF_MONTOFACTURA,
-                esP_DESCOMPONE: listaActivosFijos[item].esP_DESCOMPONE,
-                aF_ETIQUETA: listaActivosFijos[item].aF_ETIQUETA,
-                aF_VIDAUTIL: listaActivosFijos[item].aF_VIDAUTIL,
-                aF_VIGENTE: listaActivosFijos[item].aF_VIGENTE,
-                idprograma: listaActivosFijos[item].idprograma,
-                modalidad: listaActivosFijos[item].modalidad,
-                idpropiedad: listaActivosFijos[item].idpropiedad,
-                especie: listaActivosFijos[item].especie,
-                marca: listaActivosFijos[item].marca,
-                modelo: listaActivosFijos[item].modelo,
-                serie: listaActivosFijos[item].serie,
-                precio: listaActivosFijos[item].precio
+                aF_TIPO_DOC: listaActivosPorCuentasFijos[item].aF_TIPO_DOC,
+                proV_RUN: listaActivosPorCuentasFijos[item].proV_RUN,
+                reG_EQM: listaActivosPorCuentasFijos[item].reG_EQM,
+                aF_NUM_FAC: listaActivosPorCuentasFijos[item].aF_NUM_FAC,
+                aF_FECHAFAC: listaActivosPorCuentasFijos[item].aF_FECHAFAC,
+                aF_3UTM: listaActivosPorCuentasFijos[item].aF_3UTM,
+                iD_GRUPO: listaActivosPorCuentasFijos[item].iD_GRUPO,
+                ctA_COD: listaActivosPorCuentasFijos[item].ctA_COD,
+                transitoria: listaActivosPorCuentasFijos[item].transitoria,
+                aF_MONTOFACTURA: listaActivosPorCuentasFijos[item].aF_MONTOFACTURA,
+                esP_DESCOMPONE: listaActivosPorCuentasFijos[item].esP_DESCOMPONE,
+                aF_ETIQUETA: listaActivosPorCuentasFijos[item].aF_ETIQUETA,
+                aF_VIDAUTIL: listaActivosPorCuentasFijos[item].aF_VIDAUTIL,
+                aF_VIGENTE: listaActivosPorCuentasFijos[item].aF_VIGENTE,
+                idprograma: listaActivosPorCuentasFijos[item].idprograma,
+                modalidad: listaActivosPorCuentasFijos[item].modalidad,
+                idpropiedad: listaActivosPorCuentasFijos[item].idpropiedad,
+                especie: listaActivosPorCuentasFijos[item].especie,
+                marca: listaActivosPorCuentasFijos[item].marca,
+                modelo: listaActivosPorCuentasFijos[item].modelo,
+                serie: listaActivosPorCuentasFijos[item].serie,
+                precio: listaActivosPorCuentasFijos[item].precio,
+                ctA_NOMBRE: listaActivosPorCuentasFijos[item].ctA_NOMBRE,
+                aF_ESTADO_INV: listaActivosPorCuentasFijos[item].aF_ESTADO_INV
+
             };
 
         });
@@ -416,7 +386,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         // }));
 
         // Se envian los datos al metodo
-        const resultado = await listaActivosCalculadosActions(activosSeleccionados);
+        const resultado = await listaActivosCalculadosPorCuentasActions(activosSeleccionados);
 
         // Muestra mensaje de error si no hay resultados
         if (!resultado) {
@@ -445,9 +415,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
         // Limpiar los activos seleccionados antes de enviar los nuevos datos
         setlistaActivosCalculados([]);
-        await listaActivosCalculadosActions([]); // Envía un array vacío para eliminar datos previos
+        await listaActivosCalculadosPorCuentasActions([]); // Envía un array vacío para eliminar datos previos
 
-        const activosSeleccionados = listaActivosFijos.map((item) => ({
+        const activosSeleccionados = listaActivosPorCuentasFijos.map((item) => ({
             aF_CLAVE: item.aF_CLAVE,
             altaS_CORR: item.altaS_CORR,
             aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
@@ -492,11 +462,12 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             modelo: item.modelo,
             serie: item.serie,
             precio: item.precio,
+            ctA_NOMBRE: item.ctA_NOMBRE,
             aF_ESTADO_INV: item.aF_ESTADO_INV
         }));
 
         // Se envian los datos al metodo
-        const resultado = await listaActivosCalculadosActions(activosSeleccionados);
+        const resultado = await listaActivosCalculadosPorCuentasActions(activosSeleccionados);
 
         // Muestra mensaje de error si no hay resultados
         if (!resultado) {
@@ -566,11 +537,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
         () =>
-            listaActivosFijos.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listaActivosFijos, indicePrimerElemento, indiceUltimoElemento]
+            listaActivosPorCuentasFijos.slice(indicePrimerElemento, indiceUltimoElemento),
+        [listaActivosPorCuentasFijos, indicePrimerElemento, indiceUltimoElemento]
     );
-    const totalPaginas = Array.isArray(listaActivosFijos)
-        ? Math.ceil(listaActivosFijos.length / elementosPorPagina)
+    const totalPaginas = Array.isArray(listaActivosPorCuentasFijos)
+        ? Math.ceil(listaActivosPorCuentasFijos.length / elementosPorPagina)
         : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
@@ -580,11 +551,13 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const indicePrimerElemento2 = indiceUltimoElemento2 - elementosPorPagina2;
     const elementosActuales2 = useMemo(
         () =>
-            listaActivosCalculados.slice(indicePrimerElemento2, indiceUltimoElemento2),
-        [listaActivosCalculados, indicePrimerElemento2, indiceUltimoElemento2]
+            listaActivosCalculadosPorCuentas.slice(indicePrimerElemento2, indiceUltimoElemento2),
+        [listaActivosCalculadosPorCuentas.slice(indicePrimerElemento2, indiceUltimoElemento2),
+            , indicePrimerElemento2, indiceUltimoElemento2]
     );
-    const totalPaginas2 = Array.isArray(listaActivosCalculados)
-        ? Math.ceil(listaActivosCalculados.length / elementosPorPagina2)
+    const totalPaginas2 = Array.isArray(listaActivosCalculadosPorCuentas.slice(indicePrimerElemento2, indiceUltimoElemento2),
+    )
+        ? Math.ceil(listaActivosCalculadosPorCuentas.length / elementosPorPagina2)
         : 0;
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
     const [totalRes, setTotalRes] = useState(0);
@@ -593,17 +566,17 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
     useEffect(() => {
         // Calcula el total del valor residual de la tabla
-        const sumaResidual = listaActivosCalculados.reduce(
+        const sumaResidual = listaActivosCalculadosPorCuentas.reduce(
             (sum, activo) => sum + (activo.valorResidual ?? 0),
             0
         );
         // Calcula el total de la depreciación de la tabla
-        const sumaDep = listaActivosCalculados.reduce(
+        const sumaDep = listaActivosCalculadosPorCuentas.reduce(
             (sum, activo) => sum + (activo.depreciacionAcumuladaActualizada ?? 0),
             0
         );
         // Calcula el total de la depreciación de la tabla
-        const sumaDepAnual = listaActivosCalculados.reduce(
+        const sumaDepAnual = listaActivosCalculadosPorCuentas.reduce(
             (sum, activo) => sum + (activo.depreciacionPorAno ?? 0),
             0
         );
@@ -612,7 +585,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         setTotalDep(sumaDep);
         setTotalDepAnual(sumaDepAnual);
 
-    }, [listaActivosCalculados]);
+    }, [listaActivosCalculadosPorCuentas]);
 
 
     //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
@@ -623,11 +596,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     const indicePrimerElemento3 = indiceUltimoElemento3 - elementosPorPagina3;
     const elementosActuales3 = useMemo(
         () =>
-            listaActivosNoCalculados.slice(indicePrimerElemento3, indiceUltimoElemento3),
-        [listaActivosNoCalculados, indicePrimerElemento3, indiceUltimoElemento3]
+            listaActivosNoCalculadosPorCuentas.slice(indicePrimerElemento3, indiceUltimoElemento3),
+        [listaActivosNoCalculadosPorCuentas, indicePrimerElemento3, indiceUltimoElemento3]
     );
-    const totalPaginas3 = Array.isArray(listaActivosNoCalculados)
-        ? Math.ceil(listaActivosNoCalculados.length / elementosPorPagina3)
+    const totalPaginas3 = Array.isArray(listaActivosNoCalculadosPorCuentas)
+        ? Math.ceil(listaActivosNoCalculadosPorCuentas.length / elementosPorPagina3)
         : 0;
     const paginar3 = (numeroPagina3: number) => setPaginaActual3(numeroPagina3);
     //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
@@ -638,121 +611,32 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         // Definir los encabezados
         const encabezados = [
             [
-                "Nº Inventario",
-                "Especie",
-                "Marca",
-                "Modelo",
-                "Serie",
-                "Descripción",
-                "Fecha Alta",
-                "Tipo",
-                "Alta",
-                "Valor Inicial",
-                "Origen",
-                "Resolución",
-                "Usuario Crea",
-                "Fecha Creación",
-                "Tipo Documento",
-                "RUN Proveedor",
-                "Número Factura",
-                "Fecha Factura",
-                "3 UTM",
                 "Cuenta",
-                "Monto Factura",
-                "Vigente",
-                "Modalidad Compra",
-                "Meses transcurrido",
-                "Vida Útil",
-                "Mes Vida Útil",
-                "Meses Restantes",
-                "Monto Inicial",
-                "Depreciación Mensual",
+                "Descripción",
                 "Depreciación Acumulada",
                 "Valor Residual",
-                "Depreciación Anual",
-                // "Depreciación SIGFE",
-                // "Depreciación Acumulada SIGFE"
-
+                "Depreciación Anual"
             ]
         ];
 
         // Convertir datos a array de arrays
         const datos = listaActivosCalculados.map((item) => [
-
-            item.aF_CODIGO_GENERICO ?? "",
-            item.especie ?? "",
-            item.marca ?? "",
-            item.modelo ?? "",
-            item.serie ?? "",
-            item.aF_DESCRIPCION ?? "",
-            // item.aF_FINGRESO ?? "",
-            item.fechA_ALTA ?? "",
-            // item.alt
-            item.aF_TIPO ?? "",
-            item.aF_ALTA ?? "",
-            item.aF_PRECIO_REF?.toString() ?? "",
-            item.origen ?? "",
-            item.aF_RESOLUCION ?? "",
-            item.usuariO_CREA ?? "",
-            item.f_CREA ?? "",
-            item.aF_TIPO_DOC?.toString() ?? "",
-            item.proV_RUN ?? "",
-            item.aF_NUM_FAC ?? "",
-            item.aF_FECHAFAC ?? "",
-            item.aF_3UTM ?? "",
             item.ctA_COD ?? "",
-            item.aF_MONTOFACTURA?.toString() ?? "",
-            item.aF_VIGENTE ?? "",
-            item.modalidad ?? "",
-            item.mesesTranscurridos ?? 0,
-            item.vidaUtil ?? 0,
-            item.mesVidaUtil ?? 0,
-            item.mesesRestantes ?? 0,
-            item.montoInicial ?? 0,
-            item.depreciacionPorMes ?? 0,
+            item.ctA_NOMBRE ?? "",
             item.depreciacionAcumuladaActualizada ?? 0,
             item.valorResidual ?? 0,
-            item.depreciacionPorAno ?? 0,
-            // item.depreciacioN_SIGFE ?? "",
-            // item.depreciacioN_ACUMULADA_SIGFE ?? ""
+            item.depreciacionPorAno ?? 0
         ]);
 
         // Crear hoja de cálculo
         const worksheet = XLSX.utils.aoa_to_sheet([...encabezados, ...datos]);
 
         worksheet["!cols"] = [
-            { wch: 15 }, // Código Genérico
-            { wch: 18 }, // Especie
-            { wch: 15 }, // Marca
-            { wch: 15 }, // Modelo
-            { wch: 18 }, // Serie
-            { wch: 35 }, // Descripción
-            { wch: 15 }, // Fecha Alta
-            { wch: 12 }, // Tipo
-            { wch: 15 }, // Alta
-            { wch: 15 }, // Precio Ref
-            { wch: 15 }, // Origen
-            { wch: 18 }, // Resolución
-            { wch: 18 }, // Usuario Crea
-            { wch: 20 }, // Fecha Crea
-            { wch: 15 }, // Tipo Doc
-            { wch: 15 }, // Proveedor RUN
-            { wch: 15 }, // N° Factura
-            { wch: 15 }, // Fecha Factura
-            { wch: 12 }, // 3 UTM
             { wch: 12 }, // CTA Cod
-            { wch: 18 }, // Monto Factura
-            { wch: 10 }, // Vigente
-            { wch: 15 }, // Modalidad
-            { wch: 18 }, // Meses Transcurridos
-            { wch: 12 }, // Vida Útil
-            { wch: 12 }, // Mes Vida Útil
-            { wch: 18 }, // Meses Restantes
-            { wch: 18 }, // Monto Inicial
-            { wch: 18 }, // Depreciación / Mes
-            { wch: 22 }, // Depreciación Acumulada
-            { wch: 18 }, // Valor Residual
-            { wch: 18 }, // Depreciación / Año
+            { wch: 80 }, // Descripción
+            { wch: 25 }, // Depreciación Acumulada
+            { wch: 25 }, // Valor Residual
+            { wch: 25 }, // Depreciación / Año
         ];
 
         // Aplicar color de fondo y color de texto a los encabezados
@@ -975,7 +859,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
     // };
 
     //Este ancho de la columna se aplica para que los botones no se expandan en su totalidad segun el ancho
-    const lgSize = listaActivosNoCalculados.length > 0 ? 4 : 2;
+    const lgSize = listaActivosNoCalculadosPorCuentas.length > 0 ? 4 : 2;
+
     return (
         <Layout>
             <Helmet>
@@ -985,7 +870,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
                     <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                        <h3 className="form-title fw-semibold border-bottom p-1">Calcular Depreciación</h3>
+                        <h3 className="form-title fw-semibold border-bottom p-1">Calcular Depreciación por Cuentas</h3>
                         <Row className="border rounded p-2 m-2">
                             <Col lg={3} md={4}>
                                 <div className="mb-2">
@@ -1025,60 +910,6 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 </div>
                             </Col>
 
-                            <Col lg={3} md={4}>
-                                <div className="mb-1 z-1000">
-                                    <label className="fw-semibold">
-                                        Seleccione una cuenta
-                                    </label>
-                                    <Select
-                                        options={cuentasOptions}
-                                        onChange={handleCuentasChange}
-                                        name="cta_cod"
-                                        value={cuentasOptions.find((option) => option.value === Inventario.cta_cod) || null}
-                                        placeholder="Buscar"
-                                        classNamePrefix="react-select"
-                                        isClearable
-                                        isSearchable
-                                        styles={{
-                                            control: (baseStyles) => ({
-                                                ...baseStyles,
-                                                backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                                                color: isDarkMode ? "white" : "#212529", // Texto blanco
-                                                borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                                            }),
-                                            singleValue: (base) => ({
-                                                ...base,
-                                                color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                                            }),
-                                            menu: (base) => ({
-                                                ...base,
-                                                backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                                                color: isDarkMode ? "white" : "#212529",
-                                                height: 100
-                                            }),
-                                            option: (base, { isFocused, isSelected }) => ({
-                                                ...base,
-                                                backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                                                color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                                            }),
-                                        }}
-                                    />
-                                </div>
-
-                                <div className="mb-2">
-                                    <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
-                                    <input
-                                        aria-label="af_codigo_generico"
-                                        type="text"
-                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                        name="af_codigo_generico"
-                                        placeholder="Ej: 1000000008"
-                                        onChange={handleChange}
-                                        maxLength={12}
-                                        value={Inventario.af_codigo_generico}
-                                    />
-                                </div>
-                            </Col>
 
                             {/* Columna 5: Botones de Acción */}
                             <Col lg={1} md={4}>
@@ -1139,7 +970,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                             {/* Tamaño Paginación */}
                             <Col xs={12} lg="auto">
-                                {listaActivosFijos.length > 10 && (
+                                {listaActivosPorCuentasFijos.length > 10 && (
                                     <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                                         <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                                             Tamaño de página:
@@ -1164,7 +995,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             <Col xs={12} lg={4}>
                                 <div className="d-flex justify-content-center justify-content-lg-end">
 
-                                    {listaActivosFijos.length != 0 && (
+                                    {listaActivosPorCuentasFijos.length != 0 && (
                                         <>
                                             {filasSeleccionadas.length > 0 ? (
                                                 <Button
@@ -1228,7 +1059,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         <Calculator className={classNames("flex-shrink-0", "h-5 w-5 mx-1")} aria-hidden="true" />
                                                         Calcular Todo
                                                         <span className="badge bg-light text-dark mt-1 ms-1">
-                                                            {listaActivosFijos.length}
+                                                            {listaActivosPorCuentasFijos.length}
                                                         </span>
                                                     </>
                                                 )}
@@ -1240,7 +1071,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </Col>
                         </Row>
 
-                        {listaActivosFijos.length > 0 ? (
+                        {listaActivosPorCuentasFijos.length > 0 ? (
                             <>
                                 {/* Tabla principal activos fijos*/}
                                 {loading ? (
@@ -1312,6 +1143,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     <th scope="col" className="text-nowrap text-center">3 UTM</th>
                                                     {/* <th scope="col" className="text-nowrap text-center">ID Grupo</th> */}
                                                     <th scope="col" className="text-nowrap text-center">Cuenta</th>
+                                                    <th scope="col" className="text-nowrap text-center">Nombre Cuenta</th>
                                                     {/* <th scope="col" className="text-nowrap text-center">Transitoria</th> */}
                                                     <th scope="col" className="text-nowrap text-center">Monto Factura</th>
                                                     {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
@@ -1389,6 +1221,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                             <td className="text-nowrap">{Lista.aF_3UTM}</td>
                                                             {/* <td className="text-nowrap">{Lista.iD_GRUPO}</td> */}
                                                             <td className="text-nowrap">{Lista.ctA_COD}</td>
+                                                            <td className="text-nowrap">{Lista.ctA_NOMBRE}</td>
                                                             {/* <td className="text-nowrap">{Lista.transitoria}</td> */}
                                                             <td className="text-nowrap">
                                                                 ${(Lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
@@ -1456,7 +1289,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             </div>
             {/* Modal Activos Calculados */}
             {
-                listaActivosCalculados.length > 0 && (
+                listaActivosCalculadosPorCuentas.length > 0 && (
                     < Modal show={mostrarModalCalcular} onHide={handleCerrarModal}
                         dialogClassName="draggable-modal"
                         // scrollable={false}
@@ -1465,7 +1298,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
                         <Modal.Header className={`modal-header text-white bg-success`} style={{ paddingRight: "3%" }} closeButton>
                             <Modal.Title className="fw-semibold">
-                                <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
+                                <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Total Calculada (Agrupada por Cuenta)</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <div
@@ -1508,7 +1341,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                                     {/* Tamaño de página */}
                                     <Col xs={12} lg="auto">
-                                        {listaActivosFijos.length > 10 && (
+                                        {listaActivosPorCuentasFijos.length > 10 && (
                                             <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                                                 <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
                                                     Tamaño de página:
@@ -1533,31 +1366,31 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     {/* Botones y mensajes */}
                                     <Col xs={12} lg={lgSize}>
                                         <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                                            {listaActivosNoCalculados.length > 0 && (
+                                            {listaActivosNoCalculadosPorCuentas.length > 0 && (
                                                 <>
                                                     {/* Botón No calculados */}
                                                     <Button
                                                         variant='warning'
                                                         onClick={() => setMostrarModalNoCalculados(true)}
-                                                        disabled={listaActivosNoCalculados.length === 0}
+                                                        disabled={listaActivosNoCalculadosPorCuentas.length === 0}
                                                         className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                                                     >
                                                         <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1  text-danger")} aria-hidden="true" />
                                                         No Calculados
                                                         <span className="badge bg-light text-dark mx-1 mt-1">
-                                                            {listaActivosNoCalculados.length}
+                                                            {listaActivosNoCalculadosPorCuentas.length}
                                                         </span>
 
                                                     </Button>
                                                 </>
                                             )}
-                                            {listaActivosFijos.length > 0 && (
+                                            {listaActivosPorCuentasFijos.length > 0 && (
                                                 <>
                                                     {/* Botón Exportar Calculados */}
                                                     <Button
                                                         variant={`${isDarkMode ? "secondary" : "primary"}`}
                                                         onClick={handleAbrirModalCalcular}
-                                                        disabled={listaActivosFijos.length === 0 || loadingExportar}
+                                                        disabled={listaActivosPorCuentasFijos.length === 0 || loadingExportar}
                                                         className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                                                     >
                                                         {loadingExportar ? (
@@ -1573,7 +1406,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                                 />
                                                                 Exportar
                                                                 <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                    {listaActivosFijos.length}
+                                                                    {listaActivosCalculadosPorCuentas.length}
                                                                 </span>
                                                             </>
                                                         )}
@@ -1600,78 +1433,22 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                                                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                                     <tr>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                                        <th
-                                                            scope="col"
-                                                            className="text-nowrap text-center sticky-col-left">
-                                                            Nº Inventario
-                                                        </th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Código Largo</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">Dependencia</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">ESP Código</th>
-                                        <th scope="col" className="text-nowrap text-center">Secuencia</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">ITE Clave</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Nº Altas</th>
-                                                        <th scope="col" className="text-nowrap text-center">Especie</th>
-                                                        <th scope="col" className="text-nowrap text-center">Marca</th>
-                                                        <th scope="col" className="text-nowrap text-center">Modelo</th>
-                                                        <th scope="col" className="text-nowrap text-center">Serie</th>
-                                                        <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
-                                                        <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                                        <th scope="col" className="text-nowrap text-center">Fecha Alta</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Estado</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">Código</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Tipo</th>
-                                                        <th scope="col" className="text-nowrap text-center">Alta</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Origen</th>
-                                                        <th scope="col" className="text-nowrap text-center">Resolución</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Fecha Solicitud</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">N° Orden de compra</th>
-                                                        <th scope="col" className="text-nowrap text-center">Usuario Crea</th>
-                                                        <th scope="col" className="text-nowrap text-center">Fecha Creación</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">IP Creación</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">Usuario Modificador</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">Fecha Modificación</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">IP Modificación</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Tipo Documento</th>
-                                                        <th scope="col" className="text-nowrap text-center">RUN Proveedor</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Reg EQM</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Número Factura</th>
-                                                        <th scope="col" className="text-nowrap text-center">Fecha Factura</th>
-                                                        <th scope="col" className="text-nowrap text-center">3 UTM</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">ID Grupo</th> */}
                                                         <th scope="col" className="text-nowrap text-center">Cuenta</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Transitoria</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Monto Factura</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">ESP Descompone</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">Etiqueta</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Vigente</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">ID Programa</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Modalidad Compra</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">ID Propiedad</th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">Especie</th> */}
-                                                        <th scope="col" className="text-nowrap text-center">Meses Transcurrido</th>
-                                                        <th scope="col" className="text-nowrap text-center">Vida Útil</th>
-                                                        <th scope="col" className="text-nowrap text-center">Mes Vida Útil</th>
-                                                        <th scope="col" className="text-nowrap text-center">Meses Restantes</th>
-                                                        <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
-                                                        <th scope="col" className="text-nowrap text-center">Depreciación Mensual</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Depreciación Sigfe </th> */}
-                                                        {/* <th scope="col" className="text-nowrap text-center">Depreciación Acumulada Sigfe</th> */}
+                                                        {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
+                                                        <th scope="col" className="text-nowrap text-center">Descripción</th>
                                                         <td
                                                             scope="col"
-                                                            className="text-nowrap text-center bg-primary text-white sticky-col-right-2 rounded-top">
+                                                            className="text-nowrap text-center bg-primary text-white">
                                                             <b>Depreciación Acumulada</b>
                                                         </td>
                                                         <td
                                                             scope="col"
-                                                            className="text-nowrap text-center bg-success text-white sticky-col-right-1 rounded-top">
+                                                            className="text-nowrap text-center bg-success text-white">
                                                             <b>Valor Residual</b>
                                                         </td>
                                                         <td
                                                             scope="col"
-                                                            className="text-nowrap text-center bg-warning text-white sticky-col-right-0 rounded-top">
+                                                            className="text-nowrap text-center bg-warning text-white">
                                                             <b> Depreciación Anual</b>
                                                         </td>
                                                     </tr>
@@ -1680,96 +1457,24 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                     {elementosActuales2.map((lista, index) =>
 
                                                         <tr key={index}>
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_CLAVE}</td> */}
-                                                            <td
-                                                                className="text-nowrap text-center sticky-col-left">
-                                                                {lista.aF_CODIGO_GENERICO}
-                                                            </td>
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_CODIGO_LARGO}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.deP_CORR}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.esP_CODIGO}</td>
-                                                          <td className="text-nowrap text-center">{lista.aF_SECUENCIA}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.altaS_CORR}</td>
-                                                            <td className="text-nowrap text-center">{lista.especie}</td>
-                                                            <td className="text-nowrap text-center">{lista.marca}</td>
-                                                            <td className="text-nowrap text-center">{lista.modelo}</td>
-                                                            <td className="text-nowrap text-center">{lista.serie}</td>
-                                                            <td className="text-nowrap text-center">
-                                                                ${(lista.aF_PRECIO_REF ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-                                                            <td className="text-nowrap text-center">{lista.aF_DESCRIPCION == "0" ? "Sin Descripción" : lista.aF_DESCRIPCION}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_FINGRESO}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.fechA_ALTA}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_ESTADO}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_CODIGO}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.aF_TIPO}</td>
-                                                            <td className="text-nowrap text-center">{lista.aF_ALTA}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.origen}</td>
-                                                            <td className="text-nowrap text-center">{lista.aF_RESOLUCION}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_FECHA_SOLICITUD}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.aF_OCO_NUMERO_REF}</td>
-                                                            <td className="text-nowrap text-center">{lista.usuariO_CREA}</td>
-                                                            <td className="text-nowrap text-center">{lista.f_CREA}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.iP_CREA}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.usuariO_MOD}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.f_MOD}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.iP_MODt}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.aF_TIPO_DOC}</td>
-                                                            <td className="text-nowrap text-center">{lista.proV_RUN}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.reG_EQM}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.aF_NUM_FAC}</td>
-                                                            <td className="text-nowrap text-center">{lista.aF_FECHAFAC}</td>
-                                                            <td className="text-nowrap text-center">{lista.aF_3UTM}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.iD_GRUPO}</td> */}
                                                             <td className="text-nowrap text-center">{lista.ctA_COD}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.transitoria}</td> */}
-                                                            <td className="text-nowrap text-center">
-                                                                ${(lista.aF_MONTOFACTURA ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-                                                            {/* <td className="text-nowrap text-center">{lista.esP_DESCOMPONE}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_ETIQUETA}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.aF_VIGENTE}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.idprograma}</td> */}
-                                                            <td className="text-nowrap text-center">{lista.modalidad}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.idpropiedad}</td> */}
-                                                            {/* <td className="text-nowrap text-center">{lista.especie}</td> */}
-
-                                                            {/* valores calculados */}
-                                                            <td className="text-nowrap text-center">{lista.mesesTranscurridos}</td>
-                                                            <td className="text-nowrap text-center">{lista.vidaUtil}</td>
-                                                            <td className="text-nowrap text-center">{lista.mesVidaUtil}</td>
-                                                            <td className="text-nowrap text-center">{lista.mesesRestantes}</td>
-
-                                                            <td className="text-nowrap text-center">
-                                                                ${(lista.montoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-
-                                                            <td className="text-nowrap text-center">
-                                                                ${(lista.depreciacionPorMes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-                                                            {/* <td className="text-nowrap text-center"> */}
-                                                            {/* ${(lista.depreciacioN_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })} */}
-
-                                                            {/* </td> */}
-                                                            {/* <td className="text-nowrap text-center"> */}
-                                                            {/* ${(lista.depreciacioN_ACUMULADA_SIGFE ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })} */}
-                                                            {/* </td> */}
-                                                            <td className="text-nowrap text-center fw-bold sticky-col-right-2" style={{
+                                                            {/* <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td> */}
+                                                            <td className="text-nowrap">{lista.ctA_NOMBRE == "0" ? "Sin Descripción" : lista.ctA_NOMBRE}</td>
+                                                            <td className="text-nowrap fw-bold" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
                                                                 {lista.depreciacionAcumuladaActualizada === 0 ? "-" : "$" + lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
 
-                                                            <td className="text-nowrap text-center fw-bold sticky-col-right-1" style={{
+                                                            <td className="text-nowrap text-center fw-bold" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
                                                                 {lista.valorResidual === 0 ? "-" : "$" + lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
 
-                                                            <td className="text-nowrap text-center fw-bold sticky-col-right-0" style={{
+                                                            <td className="text-nowrap text-center fw-bold" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
@@ -1948,14 +1653,14 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             {/* Modal PDF Excel Word */}
             < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl" >
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Reporte Depreciación</Modal.Title>
+                    <Modal.Title className="fw-semibold">Reporte Depreciación(Agrupada por Cuenta)</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                     <BlobProvider
                         document={
-                            <DocumentoPDF
-                                row={listaActivosCalculados}
+                            <DocumentoCuentasPDF
+                                row={listaActivosCalculadosPorCuentas}
                                 totalRes={totalRes}
                                 totalDep={totalDep}
                                 totalDepAnual={totalDepAnual}
@@ -1976,7 +1681,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <>
                                     <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
-                                            onClick={() => exportarExcel(listaActivosCalculados)}
+                                            onClick={() => exportarExcel(listaActivosCalculadosPorCuentas)}
                                             variant="success"
                                         >
                                             Descargar Excel
@@ -2004,19 +1709,17 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 };
 
 const mapStateToProps = (state: RootState) => ({
-    listaActivosFijos: state.listaActivosFijosReducers.listaActivosFijos,
-    listaActivosCalculados: state.listaActivosCalculadosReducers.listaActivosCalculados,
-    listaActivosNoCalculados: state.listaActivosNoCalculadosReducers.listaActivosNoCalculados,
+    listaActivosPorCuentasFijos: state.listaActivosFijosPorCuentasReducers.listaActivosPorCuentasFijos,
+    listaActivosCalculadosPorCuentas: state.listaActivosCalculadosPorCuentasReducers.listaActivosCalculadosPorCuentas,
+    listaActivosNoCalculadosPorCuentas: state.listaActivosNoCalculadosPorCuentasReducers.listaActivosNoCalculadosPorCuentas,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    comboCuentasInforme: state.comboCuentasInformeReducers.comboCuentasInforme,
     nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
     objeto: state.validaApiLoginReducers
 });
 
 export default connect(mapStateToProps, {
-    listaActivosFijosActions,
+    listaActivosFijosPorCuentasActions,
     listaActivosCasrActions,
-    listaActivosCalculadosActions,
-    comboCuentasInformeActions
-})(CalcularDepreciacion);
+    listaActivosCalculadosPorCuentasActions,
+})(CalcularDepreciacionPorCuentas);

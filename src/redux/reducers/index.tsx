@@ -108,6 +108,9 @@ import listadoBienesFuncionariosReducers from "./Inventario/BienesFuncionario/li
 import buscarBienesFuncionariosReducers from "./Inventario/BienesFuncionario/buscarBienesFuncionariosReducers";
 import registrarDocumentoAltasReducers from "./Altas/FirmarAltas/registrarDocumentoAltasReducers";
 import loginPruebaReducers from "./auth/loginPruebaReducers";
+import listaActivosCalculadosPorCuentasReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosCalculadosPorCuentasReducers";
+import listaActivosNoCalculadosPorCuentasReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosNoCalculadosPorCuentasReducers";
+import listaActivosFijosPorCuentasReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosFijosPorCuentasReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -215,8 +218,11 @@ const appReducer = combineReducers({
   listaFolioServicioDependenciaReducers,
   listaCuentaFechasReducers,
   listaActivosFijosReducers,
+  listaActivosFijosPorCuentasReducers,
   listaActivosCalculadosReducers,
   listaActivosNoCalculadosReducers,
+  listaActivosCalculadosPorCuentasReducers,
+  listaActivosNoCalculadosPorCuentasReducers,
   listaConsultaInventarioEspeciesReducers,
 
   //Mantenedores

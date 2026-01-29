@@ -1794,7 +1794,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                     </>
                                 )}
                             </Button>
-                            {(objeto.IdCredencial === 18667 || objeto.IdCredencial === 66099 || objeto.IdCredencial === 66098 || objeto.IdCredencial === 62511) &&
+                            {(objeto.Roles[0].codigoEstablecimiento == 2) &&
                                 <OverlayTrigger
                                     placement="top"
                                     overlay={<Tooltip id="tooltip-adjuntar">Puede adjuntar hasta 2 documentos</Tooltip>}
