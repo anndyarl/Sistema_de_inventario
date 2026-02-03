@@ -62,11 +62,14 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
+  const [paginaActual2, setPaginaActual2] = useState(1);
   const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
+  const [Paginacion2, setPaginacion2] = useState({ nPaginacion2: 10 });
+  const elementosPorPagina2 = Paginacion2.nPaginacion2;
   const afCodigoGenerico = location.state?.prop_codigo_origen ?? "";
 
   const [Inventario, setInventario] = useState({
@@ -159,6 +162,19 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       ...prevState,
       [name]: value,
     }));
+
+    setPaginacion2((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    if (name === "nPaginacion") {
+      paginar(1); // Reiniciar a la primera página al cambiar el tamaño de página
+    }
+    if (name === "nPaginacion2") {
+      paginar2(1); // Reiniciar a la primera página al cambiar el tamaño de página
+    }
+
   };
 
   const handleLimpiar = () => {
@@ -300,6 +316,8 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     });
   }
 
+
+  //------------------------------Tabla Principal--------------------------------------//
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -313,6 +331,23 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     ? Math.ceil(listaAltas.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+  //------------------------------ Fin Tabla Principal--------------------------------------//
+
+  //------------------------------Tabla Modal(Resumen)--------------------------------------//
+  // Lógica de Paginación actualizada
+  const indiceUltimoElemento2 = paginaActual2 * elementosPorPagina2;
+  const indicePrimerElemento2 = indiceUltimoElemento2 - elementosPorPagina2;
+  const elementosActuales2 = useMemo(
+    () =>
+      listaSalidaAltas.slice(indicePrimerElemento2, indiceUltimoElemento2),
+    [listaSalidaAltas, indicePrimerElemento2, indiceUltimoElemento2]
+  );
+  // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
+  const totalPaginas2 = Array.isArray(listaSalidaAltas)
+    ? Math.ceil(listaSalidaAltas.length / elementosPorPagina2)
+    : 0;
+  const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
+  //------------------------------ Fin Tabla Modal(Resumen)--------------------------------------//
 
   return (
     <Layout>
@@ -439,7 +474,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                         onChange={handleChange}
                         value={Paginacion.nPaginacion}
                       >
-                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                        {[10, 15, 20, 25, 50, 100, 200].map((val) => (
                           <option key={val} value={val}>{val}</option>
                         ))}
                       </select>
@@ -568,6 +603,78 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                           </tbody>
                         </table>
                       </div>
+                      {/* Botón o mensaje */}
+                      {Paginacion.nPaginacion > 10 && (
+                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                          {/* Tamaño de página */}
+                          <Col xs={12} lg="auto">
+                            {listaAltas.length > 10 && (
+                              <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                                  Tamaño de página:
+                                </label>
+                                <select
+                                  aria-label="Seleccionar tamaño de página"
+                                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                  name="nPaginacion"
+                                  onChange={handleChange}
+                                  value={Paginacion.nPaginacion}
+                                >
+                                  {[10, 15, 20, 25, 50, 100, 200].map((val) => (
+                                    <option key={val} value={val}>{val}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                          </Col>
+
+                          {/* Botón o mensaje */}
+                          {listaAltas.length > 0 && (
+                            <>
+                              <Col xs={12} lg={2}>
+                                <div className="d-flex justify-content-center justify-content-lg-end">
+                                  {filasSeleccionadas.length > 0 ? (
+                                    <Button
+                                      variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                      onClick={handleAgrearSeleccionados}
+                                      className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                      disabled={loadingRegistro}
+                                    >
+                                      {loadingRegistro ? (
+                                        <>
+                                          Registrando...
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-2"
+                                          />
+                                        </>
+                                      ) : (
+                                        <>
+                                          Registrar
+                                          <span className="badge bg-light text-dark mx-1 mt-1">
+                                            {filasSeleccionadas.length}
+                                          </span>
+                                          {filasSeleccionadas.length === 1 ? "Alta" : "Altas"}
+                                        </>
+                                      )}
+                                    </Button>
+                                  ) : (
+                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                      <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
+                                        No hay filas seleccionadas
+                                      </strong>
+                                    </div>
+                                  )}
+                                </div>
+                              </Col>
+                            </>
+                          )}
+                        </Row>
+                      )}
                       {/* Paginador */}
                       <div className="paginador-container position-relative z-0">
                         <Pagination className="paginador-scroll">
@@ -629,30 +736,89 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
               Ir a Firmar Altas
             </Button>
           </div>
-          <div className="table-responsive">
-            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-              <thead>
-                <tr>
-                  <th>Nº Inventario</th>
-                  <th>N" Alta</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listaSalidaAltas.length > 0 ? (
-                  listaSalidaAltas.map((item, index) => (
+          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+            {/* Tamaño Paginación */}
+            <Col xs={12} lg="auto">
+              {listaSalidaAltas.length > 10 && (
+                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                  <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                    Tamaño de página:
+                  </label>
+                  <select
+                    aria-label="Seleccionar tamaño de página"
+                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nPaginacion2"
+                    onChange={handleChange}
+                    value={Paginacion2.nPaginacion2}
+                  >
+                    {[10, 15, 20, 25, 50].map((val) => (
+                      <option key={val} value={val}>
+                        {val}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </Col>
+          </Row>
+          {elementosActuales2.length > 0 ? (
+            <div className="table-responsive">
+              <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                <thead>
+                  <tr>
+                    <th>Nº Inventario</th>
+                    <th>N" Alta</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {elementosActuales2.map((item, index) => (
                     <tr key={index}>
                       <td>{item.aF_CLAVE || 'N/A'}</td>
                       <td>{item.altaS_CORR || 'N/A'}</td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="text-center">No hay registros</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className={`text-center m-2 p-2 rounded fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+              No Hay Registros.
+            </p>
+          )}
+          {/* Paginador */}
+          {listaSalidaAltas.length > 0 && (
+            <div className="paginador-container position-relative z-0">
+              <Pagination className="paginador-scroll">
+                <Pagination.First
+                  onClick={() => paginar2(1)}
+                  disabled={paginaActual2 === 1}
+                />
+                <Pagination.Prev
+                  onClick={() => paginar2(paginaActual2 - 1)}
+                  disabled={paginaActual2 === 1}
+                />
+
+                {Array.from({ length: totalPaginas2 }, (_, i) => (
+                  <Pagination.Item
+                    key={i + 1}
+                    active={i + 1 === paginaActual2}
+                    onClick={() => paginar2(i + 1)}
+                  >
+                    {i + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next
+                  onClick={() => paginar2(paginaActual2 + 1)}
+                  disabled={paginaActual2 === totalPaginas2}
+                />
+                <Pagination.Last
+                  onClick={() => paginar2(totalPaginas2)}
+                  disabled={paginaActual2 === totalPaginas2}
+                />
+              </Pagination>
+            </div>
+          )}
+
         </Modal.Body>
       </Modal>
 

@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, GeoFill, Search } from "react-bootstrap-icons";
+import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, ExclamationCircle, GeoFill, Search } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { recibeTraspasoActions } from "../../redux/actions/Traspasos/recibeTraspasoActions.tsx";
@@ -129,7 +129,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   const elementosActualesAdj = useMemo(() => listadoTraspasosAdjuntos.slice(indicePrimerElementoAdj, indiceUltimoElementoAdj),
     [listadoTraspasosAdjuntos, indicePrimerElementoAdj, indiceUltimoElementoAdj]
   );
-
+  // En la sección de estados, agrega:
+  const [loadingAdjuntos, setLoadingAdjuntos] = useState(false);
+  const [adjuntosCargados, setAdjuntosCargados] = useState<number | null>(null);
   // const totalPaginasAdj = Array.isArray(listadoTraspasosAdjuntos)
   //   ? Math.ceil(listadoTraspasosAdjuntos.length / elementosPorPaginaAdj)
   //   : 0;
@@ -379,8 +381,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     setEstadoEnviado(estadoEnviado);
 
     const numTraspaso = parseInt(lista.n_TRASPASO);
-    obtenerAdjuntosActions(numTraspaso);
 
+    // Verificar si los adjuntos ya están cargados para este traspaso
+    if (adjuntosCargados !== numTraspaso) {
+      setLoadingAdjuntos(true);
+      await obtenerAdjuntosActions(numTraspaso);
+      setAdjuntosCargados(numTraspaso);
+      setLoadingAdjuntos(false);
+    }
   };
 
   const handleVerRecibidos = async (index: number, lista: any) => {
@@ -391,7 +399,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     setEstadoRecibido(estadoRecibido);
 
     const numTraspaso = parseInt(lista.n_TRASPASO);
-    obtenerAdjuntosActions(numTraspaso);
+
+    // Verificar si los adjuntos ya están cargados para este traspaso
+    if (adjuntosCargados !== numTraspaso) {
+      setLoadingAdjuntos(true);
+      await obtenerAdjuntosActions(numTraspaso);
+      setAdjuntosCargados(numTraspaso);
+      setLoadingAdjuntos(false);
+    }
   };
 
   const handleCerrarModalEnviados = (index: number) => {
@@ -399,6 +414,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       prevSeleccionadas.filter((fila) => fila !== index.toString())
     );
     setMostrarModalEnviados(null); //Cierra modal del indice seleccionado 
+
   };
 
   const handleCerrarModalRecibidos = (index: number) => {
@@ -433,7 +449,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       const RecibeTraspaso = {
         aF_CLAVE,
         pas_estado_recibe: "1",
-        paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre) + "" + PrimeraMayuscula(objeto.Apellido1)
+        paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre) + " " + PrimeraMayuscula(objeto.Apellido1)
       };
 
       const resultado = await recibeTraspasoActions(RecibeTraspaso);
@@ -1428,8 +1444,19 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                     <div className="mb-1">
                       <label className="fw-semibold small">Recibido Por</label>
                       <p className="d-flex align-items-center mb-0">
-                        {objeto?.Nombre && PrimeraMayuscula(objeto.Nombre)}{" "}{objeto?.Apellido1 && PrimeraMayuscula(objeto.Apellido1)}
-                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                        {fila.paS_NOM_RECIBE === "X" ? (
+                          <>
+                            Pendiente de Validación
+                            <ExclamationCircle className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
+                          </>
+                        ) : fila.paS_NOM_RECIBE ? (
+                          <>
+                            {fila.paS_NOM_RECIBE}
+                            <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                          </>
+                        ) : (
+                          "Sin Información"
+                        )}
                       </p>
                     </div>
                     <div>
@@ -1447,37 +1474,51 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                   {listadoTraspasosAdjuntos.length > 0 ? (
                     <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
                       <h5 className="fw-semibold mb-3 pb-1 border-bottom">Documentos</h5>
-                      <div className="table-responsive">
-                        <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
-                          <thead className={isDarkMode ? "table-dark" : "table-light"}>
-                            <tr>
-                              <th scope="col">Nombre</th>
-                              <th scope="col" className="text-center" style={{ width: "100px" }}>
-                                Descargar
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {elementosActualesAdj.map((Lista, index) => {
-                              const indexReal = indicePrimerElementoAdj + index
-                              return (
-                                <tr key={indexReal}>
-                                  <td>{Lista.nombre}</td>
-                                  <td className="text-center">
-                                    <Button
-                                      size="sm"
-                                      variant={isDarkMode ? "outline-light" : "outline-primary"}
-                                      onClick={() => handleDescargarAdjunto(Lista)}
-                                    >
-                                      <Download className="h-4 w-4" aria-hidden="true" />
-                                    </Button>
-                                  </td>
-                                </tr>
-                              )
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                      {loadingAdjuntos ? (
+                        <>
+                          Cargando documentos...
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="ms-2"
+                          />
+                        </>
+                      ) : (
+                        <div className="table-responsive">
+                          <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                            <thead className={isDarkMode ? "table-dark" : "table-light"}>
+                              <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col" className="text-center" style={{ width: "100px" }}>
+                                  Descargar
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {elementosActualesAdj.map((Lista, index) => {
+                                const indexReal = indicePrimerElementoAdj + index
+                                return (
+                                  <tr key={indexReal}>
+                                    <td>{Lista.nombre}</td>
+                                    <td className="text-center">
+                                      <Button
+                                        size="sm"
+                                        variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                        onClick={() => handleDescargarAdjunto(Lista)}
+                                      >
+                                        <Download className="h-4 w-4" aria-hidden="true" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                )
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <>
@@ -1718,37 +1759,51 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                   {listadoTraspasosAdjuntos.length > 0 ? (
                     <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
                       <h5 className="fw-semibold mb-3 pb-1 border-bottom">Documentos</h5>
-                      <div className="table-responsive">
-                        <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
-                          <thead className={isDarkMode ? "table-dark" : "table-light"}>
-                            <tr>
-                              <th scope="col">Nombre</th>
-                              <th scope="col" className="text-center" style={{ width: "100px" }}>
-                                Descargar
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {elementosActualesAdj.map((Lista, index) => {
-                              const indexReal = indicePrimerElementoAdj + index
-                              return (
-                                <tr key={indexReal}>
-                                  <td>{Lista.nombre}</td>
-                                  <td className="text-center">
-                                    <Button
-                                      size="sm"
-                                      variant={isDarkMode ? "outline-light" : "outline-primary"}
-                                      onClick={() => handleDescargarAdjunto(Lista)}
-                                    >
-                                      <Download className="h-4 w-4" aria-hidden="true" />
-                                    </Button>
-                                  </td>
-                                </tr>
-                              )
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                      {loadingAdjuntos ? (
+                        <>
+                          Cargando documentos...
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="ms-2"
+                          />
+                        </>
+                      ) : (
+                        <div className="table-responsive">
+                          <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                            <thead className={isDarkMode ? "table-dark" : "table-light"}>
+                              <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col" className="text-center" style={{ width: "100px" }}>
+                                  Descargar
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {elementosActualesAdj.map((Lista, index) => {
+                                const indexReal = indicePrimerElementoAdj + index
+                                return (
+                                  <tr key={indexReal}>
+                                    <td>{Lista.nombre}</td>
+                                    <td className="text-center">
+                                      <Button
+                                        size="sm"
+                                        variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                        onClick={() => handleDescargarAdjunto(Lista)}
+                                      >
+                                        <Download className="h-4 w-4" aria-hidden="true" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                )
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <>

@@ -1,12 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Col, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
-import React, { useState, useEffect } from "react";
+import { Button, Col, Modal, OverlayTrigger, Pagination, Row, Spinner, Tooltip } from "react-bootstrap";
+import React, { useState, useEffect, useMemo } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import Swal from "sweetalert2";
 import Select from "react-select";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+// import jsPDF from "jspdf";
+// import html2canvas from "html2canvas";
 //importacion de objetos desde actions de redux
 import {
   setNRecepcionActions,
@@ -37,6 +37,8 @@ import { Eraser, EraserFill, FiletypePdf, Info } from "react-bootstrap-icons";
 import { Objeto } from "../../Navegacion/Profile";
 import { DEPENDENCIA } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
+import { BlobProvider } from "@react-pdf/renderer";
+import DocumentoPDFResumen from "./DocumentoPDFResumen";
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
@@ -74,7 +76,7 @@ export interface InventarioProps {
 }
 
 /*-----Se definen nuevas props para no tener conflictos------*/
-interface FormulariosCombinados {
+export interface FormulariosCombinados {
   fechaFacturaR: string;
   fechaRecepcionR: string;
   modalidadDeCompraR: number;
@@ -91,7 +93,7 @@ interface FormulariosCombinados {
   especieR: string;
 }
 
-interface ActijosFijos {
+export interface ActijosFijos {
   id: string;
   vidaUtil: string;
   fechaIngreso: string;
@@ -194,9 +196,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [_, setShowInput] = useState(false);
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
-  const classNames = (...classes: (string | boolean | undefined)[]): string => { return classes.filter(Boolean).join(" "); };
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
+  const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
+  const [loadingExportar, setLoadingExportar] = useState(false);
+  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
+  const [paginaActual, setPaginaActual] = useState(1);
+  const elementosPorPagina = Paginacion.nPaginacion;
 
   const proveedorOptions = comboProveedor.map((item) => ({
     value: item.proV_RUN,
@@ -269,6 +275,15 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       ...prevInventario,
       [name]: newValue,
     }));
+
+    setPaginacion((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (name === "nPaginacion") {
+      paginar(1);
+    }
 
 
     // Ejecuta los dispatch correspondientes
@@ -560,19 +575,41 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
 
 
-  const handleExportPDF = () => {
-    const input: any = document.getElementById("pdf-content");
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 190;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  // const handleExportPDF = () => {
+  //   const input: any = document.getElementById("pdf-content");
+  //   html2canvas(input, { scale: 2 }).then((canvas) => {
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const pdf = new jsPDF("p", "mm", "a4");
+  //     const imgWidth = 190;
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-      pdf.save("Resumen_Inventario.pdf");
-    });
+  //     pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+  //     pdf.save("Resumen_Inventario.pdf");
+  //   });
+  // };
+
+  const handleAbrirModalExportar = () => {
+    setLoadingExportar(true);
+    // Espera un ciclo de evento para mostrar el modal
+    setTimeout(() => {
+      setModalMostrarExportar(true);
+    }, 50); //se ajusta este tiempo para que cargue de inmediato
   };
 
+  //------------------------------Tabla Modal(Resumen)--------------------------------------//
+  // Lógica de Paginación actualizada 
+  const indiceUltimoElemento = paginaActual * elementosPorPagina;
+  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
+  const elementosActuales = useMemo(
+    () =>
+      activosFijos.slice(indicePrimerElemento, indiceUltimoElemento),
+    [activosFijos, indicePrimerElemento, indiceUltimoElemento]
+  );
+  const totalPaginas = Array.isArray(activosFijos)
+    ? Math.ceil(activosFijos.length / elementosPorPagina)
+    : 0;
+  const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+  //------------------------------ Fin Tabla Modal(Resumen)--------------------------------------//
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -934,9 +971,33 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
         </Modal.Header>
 
         <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
+          {/* <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
             Exportar
             <FiletypePdf className={classNames("flex-shrink-0", "h-1 w-1 ms-1")} aria-hidden="true" />
+          </Button> */}
+
+          <Button
+            variant={`${isDarkMode ? "secondary" : "primary"}`}
+            onClick={handleAbrirModalExportar}
+            disabled={activosFijos.length === 0 || loadingExportar}
+          >
+            {loadingExportar ? (
+              <>
+                Un Momento...
+                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+              </>
+            ) : (
+              <>
+                <FiletypePdf
+                  className="flex-shrink-0 h-5 w-5 mx-2"
+                  aria-hidden="true"
+                />
+                Exportar
+                <span className="badge bg-light text-dark mx-1 mt-1">
+                  {activosFijos.length}
+                </span>
+              </>
+            )}
           </Button>
         </div>
 
@@ -1000,6 +1061,15 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 return <p>{nombreModalidad}</p>;
               })()}
             </Col>
+            <Col>
+              <p><strong>Fecha Ingreso:</strong></p>
+              {activosFijos.length > 0 && activosFijos[0]?.fechaIngreso ? (
+                <p>{activosFijos[0].fechaIngreso.split('-').reverse().join('/')}</p>
+              ) : (
+                <p>N/A</p>
+              )}
+
+            </Col>
           </Row>
           <Row>
             {/* <Col md={4}>
@@ -1026,17 +1096,35 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 return <p>{nombreDependencia}</p>;
               })()}
             </Col> */}
-            <Col>
-              <p><strong>Fecha Ingreso:</strong></p>
-              {activosFijos.length > 0 && activosFijos[0]?.fechaIngreso ? (
-                <p>{activosFijos[0].fechaIngreso.split('-').reverse().join('/')}</p>
-              ) : (
-                <p>N/A</p>
-              )}
 
-            </Col>
+
           </Row>
 
+          <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+            {/* Tamaño Paginación */}
+            <Col xs={12} lg="auto">
+              {activosFijos.length > 10 && (
+                <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                    Tamaño de página:
+                  </label>
+                  <select
+                    aria-label="Seleccionar tamaño de página"
+                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nPaginacion"
+                    onChange={handleChange}
+                    value={Paginacion.nPaginacion}
+                  >
+                    {[10, 15, 20, 25, 50, 100, activosFijos.length].map((val) => (
+                      <option key={val} value={val}>
+                        {val}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </Col>
+          </Row>
           <div className="table-responsive">
             <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
               <thead>
@@ -1054,8 +1142,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {activosFijos?.length > 0 ? (
-                  activosFijos.map((item, index) => (
+                {elementosActuales?.length > 0 ? (
+                  elementosActuales.map((item, index) => (
                     <tr key={index}>
                       <td className="text-center">{item.id || 'N/A'}</td>
                       {(() => {
@@ -1091,6 +1179,80 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
               </tbody>
             </table>
           </div>
+          {/* Paginador */}
+          <div className="paginador-container position-relative z-0">
+            <Pagination className="paginador-scroll">
+              <Pagination.First
+                onClick={() => paginar(1)}
+                disabled={paginaActual === 1}
+              />
+              <Pagination.Prev
+                onClick={() => paginar(paginaActual - 1)}
+                disabled={paginaActual === 1}
+              />
+
+              {Array.from({ length: totalPaginas }, (_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === paginaActual}
+                  onClick={() => paginar(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() => paginar(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+              />
+              <Pagination.Last
+                onClick={() => paginar(totalPaginas)}
+                disabled={paginaActual === totalPaginas}
+              />
+            </Pagination>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* Modal PDF Excel Word */}
+      < Modal show={modalMostrarExportar} onHide={() => setModalMostrarExportar(false)} dialogClassName="modal-right" size="xl" >
+        <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+          <Modal.Title className="fw-semibold">Resumen de Registro de Activos Fijos</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+          {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+          <BlobProvider
+            document={
+              <DocumentoPDFResumen
+                row={activosFijos}
+                formulariosCombinados={formulariosCombinados}
+              />
+            }
+          >
+            {({ url, loading }) => {
+              // Cuando el PDF termina de cargarse, apagamos el spinner
+              useEffect(() => {
+                if (!loading) {
+                  setLoadingExportar(false);
+                }
+              }, [loading]);
+
+              return loading ? (
+                <p>Generando vista previa...</p>
+              ) : (
+                <>
+                  <iframe
+                    src={url ?? ""}
+                    title="Vista Previa del PDF"
+                    style={{
+                      width: "100%",
+                      height: "900px",
+                      border: "none"
+                    }}
+                  ></iframe>
+                </>
+              );
+            }}
+          </BlobProvider>
         </Modal.Body>
       </Modal>
     </>

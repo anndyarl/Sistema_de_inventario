@@ -13,7 +13,7 @@ import {
 import { Dispatch } from 'redux';
 
 // Acción para obtener LISTA_ACTIVOS_CALCULADOS_POR_CUENTAS
-export const listaActivosCalculadosPorCuentasActions = (activosSeleccionados: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const listaActivosCalculadosPorCuentasActions = (activosSeleccionados: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<{ success: boolean; error?: string }> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -24,7 +24,7 @@ export const listaActivosCalculadosPorCuentasActions = (activosSeleccionados: Re
     };
     if (!activosSeleccionados || Object.keys(activosSeleccionados).length === 0) {
       // console.error("El objeto datosInventario está vacío.");
-      return false;
+      return { success: false, error: "No hay activos seleccionados para calcular." };
     }
     const body = JSON.stringify(activosSeleccionados);
     dispatch({ type: LISTA_ACTIVOS_CALCULADOS_POR_CUENTAS_REQUEST });
@@ -34,17 +34,10 @@ export const listaActivosCalculadosPorCuentasActions = (activosSeleccionados: Re
       const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CalculoDeCuentas`, body, config);
 
       if (res.status === 200) {
-        if (res.data?.resumenPorCuenta?.length > 0) {
-          dispatch({
-            type: LISTA_ACTIVOS_CALCULADOS_POR_CUENTAS_SUCCESS,
-            payload: res.data?.resumenPorCuenta ?? []
-          });
-        } else {
-          dispatch({
-            type: LISTA_ACTIVOS_CALCULADOS_POR_CUENTAS_SUCCESS,
-            payload: []
-          });
-        }
+        dispatch({
+          type: LISTA_ACTIVOS_CALCULADOS_POR_CUENTAS_SUCCESS,
+          payload: res.data?.resumenPorCuenta ?? []
+        });
 
         if (res.data?.vidaUtilCero?.length > 0) {
           dispatch({
@@ -57,12 +50,12 @@ export const listaActivosCalculadosPorCuentasActions = (activosSeleccionados: Re
             payload: []
           });
         }
-        return true;
+        return { success: true };
 
       } else {
         dispatch({ type: LISTA_ACTIVOS_CALCULADOS_POR_CUENTAS_FAIL });
         dispatch({ type: LISTA_ACTIVOS_NO_CALCULADOS_POR_CUENTAS_FAIL });
-        return false;
+        return { success: false, error: "Error al calcular la depreciación." };
       }
     } catch (err: any) {
       dispatch({
@@ -70,7 +63,7 @@ export const listaActivosCalculadosPorCuentasActions = (activosSeleccionados: Re
         error: "Error en la solicitud:", err,
       });
       // dispatch({ type: LOGOUT });
-      return false;
+      return { success: false, error: err.response?.data.mensaje && err.response?.data.detalle || "Error desconocido en el servidor." };
     }
   }
   else {
@@ -78,7 +71,7 @@ export const listaActivosCalculadosPorCuentasActions = (activosSeleccionados: Re
       type: LISTA_ACTIVOS_CALCULADOS_POR_CUENTAS_FAIL,
       error: "No se encontró un token de autenticación válido.",
     });
-    return false;
+    return { success: false, error: "No se encontró un token de autenticación válido." };
   }
 }
 

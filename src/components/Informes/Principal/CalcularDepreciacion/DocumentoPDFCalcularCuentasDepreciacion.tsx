@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     },
     center: {
         textAlign: 'center',
-        marginBottom: 5
+        marginBottom: 10
     },
     p: {
         fontSize: 8,
@@ -161,7 +161,8 @@ const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual }: { row: 
                     </Container>
                     {/* Encabezado */}
                     <Container style={styles.containerHeader}>
-                        <Text style={styles.center}>Reporte Depreciación(Agrupada por Cuenta)</Text>
+                        <Text style={styles.center}>Informe de Cálculo de Depreciación por Cuenta</Text>
+
                         <View style={styles.headerContent}>
                             {totalDep > 0 && (
                                 <p className="fw-semibold text-center">

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { List, FileText, Calculator } from "react-bootstrap-icons";
+import { List, FileText, Calculator, CalculatorFill } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -54,11 +54,11 @@ const MenuInformes: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Informes/CalcularDepreciacion',
             icon: Calculator
         },
-        // {
-        //     name: 'Calcular Depreciación por Cuentas',
-        //     href: '/Informes/CalcularDepreciacionPorCuentas',
-        //     icon: CalculatorFill
-        // },
+        {
+            name: 'Calcular Depreciación por Cuentas',
+            href: '/Informes/CalcularDepreciacionPorCuentas',
+            icon: CalculatorFill
+        },
 
     ];
 

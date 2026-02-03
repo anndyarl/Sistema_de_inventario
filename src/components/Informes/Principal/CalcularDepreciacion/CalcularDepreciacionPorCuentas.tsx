@@ -98,7 +98,7 @@ interface DatosAltas {
     listaActivosNoCalculadosPorCuentas: ListaActivosFijos[];
     listaActivosFijosPorCuentasActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
     listaActivosCasrActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
-    listaActivosCalculadosPorCuentasActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
+    listaActivosCalculadosPorCuentasActions: (activosSeleccionados: Record<string, any>[]) => Promise<{ success: boolean; error?: string }>;
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
@@ -207,13 +207,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         }
 
         // Llama al backend
-        const resultado = await listaActivosFijosPorCuentasActions(
-            "",
-            Inventario.fDesde,
-            Inventario.fHasta,
-            "",
-            objeto.Roles[0].codigoEstablecimiento
-        );
+        const resultado = await listaActivosFijosPorCuentasActions("", Inventario.fDesde, Inventario.fHasta, "", objeto.Roles[0].codigoEstablecimiento);
 
         if (!resultado) {
             Swal.fire({
@@ -389,11 +383,11 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         const resultado = await listaActivosCalculadosPorCuentasActions(activosSeleccionados);
 
         // Muestra mensaje de error si no hay resultados
-        if (!resultado) {
+        if (!resultado.success) {
             Swal.fire({
                 icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                title: "Error al calcular depreciación",
+                text: resultado.error == "String '0' was not recognized as a valid DateTime." ? "La fecha de alta no puede ser cero y debe tener un formato válido." : resultado.error ?? "Error inesperado",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "#000000"}`,
@@ -870,7 +864,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
                     <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                        <h3 className="form-title fw-semibold border-bottom p-1">Calcular Depreciación por Cuentas</h3>
+                        <h3 className="form-title fw-semibold border-bottom p-1">Calcular Depreciación por Cuenta</h3>
                         <Row className="border rounded p-2 m-2">
                             <Col lg={3} md={4}>
                                 <div className="mb-2">
@@ -1298,7 +1292,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                         fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
                         <Modal.Header className={`modal-header text-white bg-success`} style={{ paddingRight: "3%" }} closeButton>
                             <Modal.Title className="fw-semibold">
-                                <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Total Calculada (Agrupada por Cuenta)</Modal.Title>
+                                <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada por Cuenta</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <div
@@ -1653,7 +1647,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
             {/* Modal PDF Excel Word */}
             < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl" >
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Reporte Depreciación(Agrupada por Cuenta)</Modal.Title>
+                    <Modal.Title className="fw-semibold">Reporte depreciación por cuentas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
@@ -1701,7 +1695,6 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                             );
                         }}
                     </BlobProvider>
-
                 </Modal.Body>
             </Modal>
         </Layout >

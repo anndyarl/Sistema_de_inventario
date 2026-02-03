@@ -1532,7 +1532,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             onChange={handleChange}
                                             value={Paginacion.nPaginacion}
                                         >
-                                            {[10, 15, 20, 25, 50, 100].map((val) => (
+                                            {[10, 15, 20, 25, 50, 100, 200].map((val) => (
                                                 <option key={val} value={val}>
                                                     {val}
                                                 </option>

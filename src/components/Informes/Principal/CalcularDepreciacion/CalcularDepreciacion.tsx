@@ -15,10 +15,10 @@ import MenuInformes from "../../../Menus/MenuInformes";
 import SkeletonLoader from "../../../Utils/SkeletonLoader";
 import { RootState } from "../../../../store";
 import DocumentoPDF from "./DocumentoPDFCalcularDepreciacion";
+import { Objeto } from "../../../Navegacion/Profile";
 import { listaActivosCalculadosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosActions";
 import { listaActivosFijosActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosActions";
 import { comboCuentasInformeActions } from "../../../../redux/actions/Informes/Listados/CuentasFechas/comboCuentasInformeActions";
-import { Objeto } from "../../../Navegacion/Profile";
 import { listaActivosCasrActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCasrActions";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -102,7 +102,7 @@ interface DatosAltas {
     listaActivosNoCalculados: ListaActivosFijos[];
     listaActivosFijosActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
     listaActivosCasrActions: (cta_cod: string, fDesde: string, fHasta: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
-    listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<boolean>;
+    listaActivosCalculadosActions: (activosSeleccionados: Record<string, any>[]) => Promise<{ success: boolean; error?: string }>;
     token: string | null;
     isDarkMode: boolean;
     comboCuentasInformeActions: () => void;
@@ -419,11 +419,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         const resultado = await listaActivosCalculadosActions(activosSeleccionados);
 
         // Muestra mensaje de error si no hay resultados
-        if (!resultado) {
+        if (!resultado.success) {
             Swal.fire({
                 icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                title: "Error al calcular depreciación",
+                text: resultado.error == "String '0' was not recognized as a valid DateTime." ? "La fecha de alta no puede ser cero y debe tener un formato válido." : resultado.error ?? "Error inesperado",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "#000000"}`,
@@ -498,12 +498,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         // Se envian los datos al metodo
         const resultado = await listaActivosCalculadosActions(activosSeleccionados);
 
-        // Muestra mensaje de error si no hay resultados
-        if (!resultado) {
+        if (!resultado.success) {
             Swal.fire({
                 icon: "error",
-                title: ":'(",
-                text: "No se encontraron resultados, inténte otro registro.",
+                title: "Error al calcular depreciación",
+                text: resultado.error == "String '0' was not recognized as a valid DateTime." ? "La fecha de alta no puede ser cero y debe tener un formato válido." : resultado.error ?? "Error inesperado",
                 confirmButtonText: "Ok",
                 background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
                 color: `${isDarkMode ? "#ffffff" : "#000000"}`,
@@ -1045,6 +1044,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                 backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
                                                 color: isDarkMode ? "white" : "#212529", // Texto blanco
                                                 borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                                fontSize: "0.875rem",
                                             }),
                                             singleValue: (base) => ({
                                                 ...base,
@@ -1060,6 +1060,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                 ...base,
                                                 backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
                                                 color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                                fontSize: "0.875rem",
                                             }),
                                         }}
                                     />

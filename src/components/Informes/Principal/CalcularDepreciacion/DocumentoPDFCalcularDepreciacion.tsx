@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     },
     headerContent: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'row'
         // justifyContent: 'space-between'
     },
 
@@ -49,6 +49,10 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         fontWeight: 'bold',
         textAlign: 'right',
+    },
+    center: {
+        textAlign: 'center',
+        marginBottom: 10
     },
     p: {
         fontSize: 8,
@@ -183,8 +187,8 @@ const DocumentoPDF = ({ row, totalRes, totalDep, totalDepAnual }: { row: ListaAc
                     </Container>
                     {/* Encabezado */}
                     <Container style={styles.containerHeader}>
+                        <Text style={styles.center}>Informe de Cálculo de Depreciación</Text>
                         <View style={styles.headerContent}>
-
                             {totalDep > 0 && (
                                 <p className="fw-semibold text-center">
                                     <Text style={styles.p}>Total Depreciación Acumulada: $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
