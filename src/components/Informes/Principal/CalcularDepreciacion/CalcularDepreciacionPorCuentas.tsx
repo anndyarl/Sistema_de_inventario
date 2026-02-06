@@ -557,6 +557,8 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
     const [totalRes, setTotalRes] = useState(0);
     const [totalDep, setTotalDep] = useState(0);
     const [totalDepAnual, setTotalDepAnual] = useState(0);
+    const [totalMontoInicial, setTotalMontoInicial] = useState(0);
+
 
     useEffect(() => {
         // Calcula el total del valor residual de la tabla
@@ -575,9 +577,16 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
             0
         );
 
+        // Calcula el total de la depreciación de la tabla
+        const sumaMontoInicial = listaActivosCalculadosPorCuentas.reduce(
+            (sum, activo) => sum + (activo.montoInicial ?? 0),
+            0
+        );
+
         setTotalRes(sumaResidual);
         setTotalDep(sumaDep);
         setTotalDepAnual(sumaDepAnual);
+        setTotalMontoInicial(sumaMontoInicial);
 
     }, [listaActivosCalculadosPorCuentas]);
 
@@ -607,9 +616,10 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
             [
                 "Cuenta",
                 "Descripción",
+                "Monto Inicial",
+                "Depreciación Anual",
                 "Depreciación Acumulada",
-                "Valor Residual",
-                "Depreciación Anual"
+                "Valor Residual"
             ]
         ];
 
@@ -617,9 +627,10 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         const datos = listaActivosCalculados.map((item) => [
             item.ctA_COD ?? "",
             item.ctA_NOMBRE ?? "",
+            item.montoInicial ?? 0,
+            item.depreciacionPorAno ?? 0,
             item.depreciacionAcumuladaActualizada ?? 0,
-            item.valorResidual ?? 0,
-            item.depreciacionPorAno ?? 0
+            item.valorResidual ?? 0
         ]);
 
         // Crear hoja de cálculo
@@ -628,9 +639,11 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         worksheet["!cols"] = [
             { wch: 12 }, // CTA Cod
             { wch: 80 }, // Descripción
+            { wch: 25 }, // Monto Inicial
+            { wch: 25 }, // Depreciación / Año
             { wch: 25 }, // Depreciación Acumulada
             { wch: 25 }, // Valor Residual
-            { wch: 25 }, // Depreciación / Año
+
         ];
 
         // Aplicar color de fondo y color de texto a los encabezados
@@ -987,7 +1000,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                             </Col>
                             {/* Botón Calcular */}
                             <Col xs={12} lg={4}>
-                                <div className="d-flex justify-content-center justify-content-lg-end">
+                                <div className="d-lg-flex justify-content-center justify-content-lg-end">
 
                                     {listaActivosPorCuentasFijos.length != 0 && (
                                         <>
@@ -1294,42 +1307,52 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                             <Modal.Title className="fw-semibold">
                                 <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada por Cuenta</Modal.Title>
                         </Modal.Header>
-                        <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                        <Modal.Body className={`me-lg-5 me-sm-none p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <div
-                                className={`shadow-sm sticky-top p-3 ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
-                                <Row >
+                                className={`shadow-sm sticky-lg-top p-3 ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
+                                <Row className="mb-4">
+                                    <Col sm={8} md={6} lg={3}>
+                                        <div className={`${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-secondary shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                            <p className={`text-uppercase text-secondary fw-semibold small mb-1 text-center ${isDarkMode ? "text-light" : ""}`}>
+                                                Total Monto Inicial
+                                            </p>
+                                            <h4 className={`fw-bold ${isDarkMode ? "text-light" : "text-secondary"} text-center m-0`}>
+                                                $ {totalMontoInicial.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                            </h4>
+                                        </div>
+                                    </Col>
+                                    <Col sm={8} md={6} lg={3}>
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
+                                                Total Depreciación Anual
+                                            </p>
+                                            <h4 className={`fw-bold text-success text-center m-0`}>
+                                                $ {totalDepAnual.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                            </h4>
+                                        </div>
+                                    </Col>
                                     <Col sm={6} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-primary shadow-sm p-3 rounded m-2`}>
-                                            <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1  rounded m-2`}>
+                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
                                                 Total Depreciación Acumulada
                                             </p>
-                                            <h4 className="fw-bold text-primary text-center m-0">
+                                            <h4 className={`fw-bold text-success text-center m-0`}>
                                                 $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                             </h4>
                                         </div>
                                     </Col>
 
                                     <Col sm={6} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-3 rounded m-2`}>
-                                            <p className="text-uppercase text-success fw-semibold small mb-1 text-center">
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
                                                 Total Valor Residual
                                             </p>
-                                            <h4 className="fw-bold text-success text-center m-0">
+                                            <h4 className={`fw-bold text-success text-center m-0`}>
                                                 $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                             </h4>
                                         </div>
                                     </Col>
 
-                                    <Col sm={8} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-warning shadow-sm p-3 rounded m-2`}>
-                                            <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
-                                                Total Depreciación Anual
-                                            </p>
-                                            <h4 className="fw-bold text-warning text-center m-0">
-                                                $ {totalDepAnual.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                            </h4>
-                                        </div>
-                                    </Col>
                                 </Row>
 
                                 <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
@@ -1428,22 +1451,22 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                                 <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                                                     <tr>
                                                         <th scope="col" className="text-nowrap text-center">Cuenta</th>
-                                                        {/* <th scope="col" className="text-nowrap text-center">Cantidad</th> */}
                                                         <th scope="col" className="text-nowrap text-center">Descripción</th>
+                                                        <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
                                                         <td
                                                             scope="col"
-                                                            className="text-nowrap text-center bg-primary text-white">
+                                                            className="text-nowrap text-center bg-success text-white">
+                                                            <b> Depreciación Anual</b>
+                                                        </td>
+                                                        <td
+                                                            scope="col"
+                                                            className="text-nowrap text-center bg-success text-white">
                                                             <b>Depreciación Acumulada</b>
                                                         </td>
                                                         <td
                                                             scope="col"
                                                             className="text-nowrap text-center bg-success text-white">
                                                             <b>Valor Residual</b>
-                                                        </td>
-                                                        <td
-                                                            scope="col"
-                                                            className="text-nowrap text-center bg-warning text-white">
-                                                            <b> Depreciación Anual</b>
                                                         </td>
                                                     </tr>
                                                 </thead>
@@ -1454,25 +1477,26 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                                             <td className="text-nowrap text-center">{lista.ctA_COD}</td>
                                                             {/* <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td> */}
                                                             <td className="text-nowrap">{lista.ctA_NOMBRE == "0" ? "Sin Descripción" : lista.ctA_NOMBRE}</td>
+                                                            <td className="text-nowrap text-center">
+                                                                {lista.montoInicial?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                            </td>
+                                                            <td className="text-nowrap text-center fw-bold" style={{
+                                                                color: isDarkMode ? '#ffffff' : '#2f3e78',
+                                                                background: 'rgb(25 135 84 / 14%)'
+                                                            }}>
+                                                                {lista.depreciacionPorAno === 0 ? "-" : "$" + lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                            </td>
                                                             <td className="text-nowrap fw-bold" style={{
-                                                                color: '#2f3e78',
-                                                                background: '#a4d1ff'
+                                                                color: isDarkMode ? '#ffffff' : '#2f3e78',
+                                                                background: 'rgb(25 135 84 / 14%)'
                                                             }}>
                                                                 {lista.depreciacionAcumuladaActualizada === 0 ? "-" : "$" + lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
-
                                                             <td className="text-nowrap text-center fw-bold" style={{
-                                                                color: '#2f3e78',
-                                                                background: '#a4d1ff'
+                                                                color: isDarkMode ? '#ffffff' : '#2f3e78',
+                                                                background: 'rgb(25 135 84 / 14%)'
                                                             }}>
                                                                 {lista.valorResidual === 0 ? "-" : "$" + lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-
-                                                            <td className="text-nowrap text-center fw-bold" style={{
-                                                                color: '#2f3e78',
-                                                                background: '#a4d1ff'
-                                                            }}>
-                                                                {lista.depreciacionPorAno === 0 ? "-" : "$" + lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
 
                                                         </tr>
@@ -1658,6 +1682,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                 totalRes={totalRes}
                                 totalDep={totalDep}
                                 totalDepAnual={totalDepAnual}
+                                totalMontoInicial={totalMontoInicial}
                             />
                         }
                     >

@@ -302,7 +302,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                                                         </td>
                                                         <td className="text-nowrap">{fila.ctA_COD}</td>
                                                         <td className="text-nowrap">{fila.aF_CODIGO_GENERICO}</td>
-                                                        <td className="text-nowrap">{fila.id}</td>
+                                                        <td className="text-nowrap">{fila.traS_CORR ? fila.traS_CORR : "s/n"}</td>
                                                         <td className="text-nowrap">{fila.altaS_CORR}</td>
                                                         <td className="text-nowrap">{fila.especie.split('/')[0]}</td>
                                                         <td className="text-nowrap">{fila.deT_MARCA}</td>

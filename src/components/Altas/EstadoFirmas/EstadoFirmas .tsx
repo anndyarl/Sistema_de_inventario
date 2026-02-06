@@ -2571,7 +2571,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
                                 {/* Unidades específicas */}
                                 <Col md={4}>
-                                    {objeto.IdCredencial === 888 || objeto.IdCredencial === 62511 || objeto.IdCredencial === 6405 ? (
+                                    {objeto.Roles[0].codigoEstablecimiento == 1 ? (
                                         <>
                                             <p className="border-bottom fw-semibold text-center">Seleccione una Unidad</p>
 

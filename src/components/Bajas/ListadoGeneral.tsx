@@ -767,7 +767,14 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                                           Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
                                             Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
                                               Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
-                                                Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+                                                Lista.usuariO_CREA === '61870' ? 'Elena Navarro' :
+                                                  Lista.usuariO_CREA === '68321' ? 'Ivan Acevedo' :
+                                                    Lista.usuariO_CREA === '67234' ? 'Ignacio Avilés' :
+                                                      Lista.usuariO_CREA === '6601' ? 'Benjamin Bulboa' :
+                                                        Lista.usuariO_CREA === '67404' ? 'Ademir Pindea' :
+                                                          Lista.usuariO_CREA === '21479' ? 'Nelsn Quiroz' :
+                                                            Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+
 
                                 }</td>
                                 <td className="text-nowrap">{Lista.deT_MARCA}</td>

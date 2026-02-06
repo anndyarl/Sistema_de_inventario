@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     },
     center: {
         textAlign: 'center',
-        marginBottom: 10
+        marginBottom: 20
     },
     p: {
         fontSize: 8,
@@ -91,6 +91,21 @@ const styles = StyleSheet.create({
     colDepAcumulada: { width: "10%" },
     colValorResidual: { width: "10%" },
     colDepreciacionAnual: { width: "10%" },
+    colMontoInicial: { width: "10%" },
+    tableTotalRow: {
+        flexDirection: "row",
+        borderBottom: "1px solid #000",
+        borderTop: "1px solid #000",
+        alignItems: "center",
+        backgroundColor: '#f0f0f0',
+    },
+    totalLabel: {
+        padding: 3,
+        fontSize: 6,
+        fontWeight: 'bold',
+        borderRight: "1px solid #ccc",
+        width: "27%",
+    },
     fechaHoy: {
         padding: 2,
     },
@@ -137,7 +152,7 @@ const arreglo = (array: any[], size: number) => {
     return result;
 };
 
-const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number, totalDepAnual: number }) => {
+const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual, totalMontoInicial }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number, totalDepAnual: number, totalMontoInicial: number }) => {
 
     const filasPorPagina = 12;
     const paginas = arreglo(row, filasPorPagina);
@@ -149,7 +164,7 @@ const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual }: { row: 
                     <Container style={styles.containerHeader}>
                         <View style={styles.headerContainer}>
                             {/* Logo a la izquierda */}
-                            <Image src={ssmso_logo} style={styles.logo} />
+                            <Image src={ssmso_logo || "/placeholder.svg"} style={styles.logo} />
                             {/* Textos a la derecha */}
                             <View style={styles.textContainer}>
                                 <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
@@ -164,29 +179,7 @@ const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual }: { row: 
                         <Text style={styles.center}>Informe de Cálculo de Depreciación por Cuenta</Text>
 
                         <View style={styles.headerContent}>
-                            {totalDep > 0 && (
-                                <p className="fw-semibold text-center">
-                                    <Text style={styles.p}>Total Depreciación Acumulada: $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                </p>
-                            )}
-
-                        </View>
-                        <View style={styles.headerContent}>
-                            {totalRes > 0 && (
-                                <p className="fw-semibold text-center">
-                                    <Text style={styles.p}>Total Valor Residual: $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                </p>
-                            )}
-                        </View>
-                        <View style={styles.headerContent}>
-                            {totalDepAnual > 0 && (
-                                <p className="fw-semibold text-center">
-                                    <Text style={styles.p}>Total Depreciación Anual: $ {(totalDepAnual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                </p>
-                            )}
-                        </View>
-                        <View style={styles.headerContent}>
-                            <Text style={styles.p}>Cantidad: {row.length}</Text>
+                            <Text style={[styles.p, { textAlign: 'right' }]}>Cantidad: {row.length}</Text>
                         </View>
                     </Container>
                     {/* Tabla */}
@@ -195,23 +188,40 @@ const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual }: { row: 
                         <View style={styles.tableHeader}>
                             <Text style={[styles.tableCell, styles.colCuenta]}>Cuenta</Text>
                             <Text style={[styles.tableCell, styles.colDescripcion]}>Descripción</Text>
+                            <Text style={[styles.tableCell, styles.colMontoInicial]}>Monto Inicial</Text>
+                            <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
                             <Text style={[styles.tableCell, styles.colDepAcumulada]}>Depreciación Acumulada Actualizada</Text>
                             <Text style={[styles.tableCell, styles.colValorResidual]}>Valor Residual</Text>
-                            <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
-
-
                         </View>
                         {/* Fila de datos */}
                         {rows.map((lista, idx) => (
                             <View style={styles.tableRow} key={idx}>
                                 < Text style={[styles.tableCell, styles.colCuenta]} > {lista.ctA_COD}</Text>
                                 < Text style={[styles.tableCell, styles.colDescripcion]} > {lista.ctA_NOMBRE == "0" ? "Sin Descripción" : lista.ctA_NOMBRE}</Text>
+                                <Text style={[styles.tableCell, styles.colMontoInicial]}>{(lista.montoInicial === 0 ? "-" : lista.montoInicial?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
+                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno === 0 ? "-" : lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
                                 <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada === 0 ? "-" : lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
                                 <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual === 0 ? "-" : lista.valorResidual).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno === 0 ? "-" : lista.depreciacionPorAno).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-
                             </View>
                         ))}
+                        {/* Fila de totales - solo en la última página */}
+                        {indicePagina === paginas.length - 1 && (
+                            <View style={styles.tableTotalRow}>
+                                <Text style={[styles.tableCell, styles.totalLabel]}>TOTALES</Text>
+                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>
+                                    $ {(totalMontoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                </Text>
+                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>
+                                    $ {(totalDepAnual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                </Text>
+                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>
+                                    $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                </Text>
+                                <Text style={[styles.tableCell, styles.colValorResidual]}>
+                                    $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                </Text>
+                            </View>
+                        )}
                     </View>
 
                     {/* <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text> */}

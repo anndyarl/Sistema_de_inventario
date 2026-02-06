@@ -666,9 +666,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                 "Meses Restantes",
                 "Monto Inicial",
                 "Depreciación Mensual",
+                "Depreciación Anual",
                 "Depreciación Acumulada",
                 "Valor Residual",
-                "Depreciación Anual",
                 // "Depreciación SIGFE",
                 // "Depreciación Acumulada SIGFE"
 
@@ -709,9 +709,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             item.mesesRestantes ?? 0,
             item.montoInicial ?? 0,
             item.depreciacionPorMes ?? 0,
+            item.depreciacionPorAno ?? 0,
             item.depreciacionAcumuladaActualizada ?? 0,
             item.valorResidual ?? 0,
-            item.depreciacionPorAno ?? 0,
             // item.depreciacioN_SIGFE ?? "",
             // item.depreciacioN_ACUMULADA_SIGFE ?? ""
         ]);
@@ -749,9 +749,9 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
             { wch: 18 }, // Meses Restantes
             { wch: 18 }, // Monto Inicial
             { wch: 18 }, // Depreciación / Mes
+            { wch: 18 }, // Depreciación / Año
             { wch: 22 }, // Depreciación Acumulada
             { wch: 18 }, // Valor Residual
-            { wch: 18 }, // Depreciación / Año
         ];
 
         // Aplicar color de fondo y color de texto a los encabezados
@@ -1152,7 +1152,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             onChange={handleChange}
                                             value={Paginacion.nPaginacion}
                                         >
-                                            {[10, 15, 20, 25, 50, 100].map((val) => (
+                                            {[10, 15, 20, 25, 50, 100, listaActivosFijos.length].map((val) => (
                                                 <option key={val} value={val}>
                                                     {val}
                                                 </option>
@@ -1163,7 +1163,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             </Col>
                             {/* Botón Calcular */}
                             <Col xs={12} lg={4}>
-                                <div className="d-flex justify-content-center justify-content-lg-end">
+                                <div className="d-lg-flex justify-content-center justify-content-lg-end">
 
                                     {listaActivosFijos.length != 0 && (
                                         <>
@@ -1468,13 +1468,23 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                             <Modal.Title className="fw-semibold">
                                 <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
                         </Modal.Header>
-                        <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                        <Modal.Body className={`me-lg-5 me-sm-none p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <div
-                                className={`shadow-sm sticky-top p-3 ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
-                                <Row >
+                                className={`shadow-sm sticky-lg-top p-3 ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
+                                <Row className="mb-4">
+                                    <Col sm={8} md={6} lg={3}>
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-primary shadow-sm p-lg-3 p-sm-1rounded m-2`}>
+                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-primary" : "text-secondary"}`}>
+                                                Total Depreciación Anual
+                                            </p>
+                                            <h4 className="fw-bold text-primary text-center m-0">
+                                                $ {totalDepAnual.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                            </h4>
+                                        </div>
+                                    </Col>
                                     <Col sm={6} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-primary shadow-sm p-3 rounded m-2`}>
-                                            <p className="text-uppercase text-primary fw-semibold small mb-1 text-center">
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-primary shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-primary" : "text-secondary"}`}>
                                                 Total Depreciación Acumulada
                                             </p>
                                             <h4 className="fw-bold text-primary text-center m-0">
@@ -1484,23 +1494,12 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     </Col>
 
                                     <Col sm={6} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-3 rounded m-2`}>
-                                            <p className="text-uppercase text-success fw-semibold small mb-1 text-center">
+                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-primary shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-primary" : "text-secondary"}`}>
                                                 Total Valor Residual
                                             </p>
-                                            <h4 className="fw-bold text-success text-center m-0">
+                                            <h4 className="fw-bold text-primary text-center m-0">
                                                 $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                            </h4>
-                                        </div>
-                                    </Col>
-
-                                    <Col sm={8} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-warning shadow-sm p-3 rounded m-2`}>
-                                            <p className="text-uppercase text-warning fw-semibold small mb-1 text-center">
-                                                Total Depreciación Anual
-                                            </p>
-                                            <h4 className="fw-bold text-warning text-center m-0">
-                                                $ {totalDepAnual.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                             </h4>
                                         </div>
                                     </Col>
@@ -1533,7 +1532,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
                                     {/* Botones y mensajes */}
                                     <Col xs={12} lg={lgSize}>
-                                        <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                        <div className="d-lg-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
                                             {listaActivosNoCalculados.length > 0 && (
                                                 <>
                                                     {/* Botón No calculados */}
@@ -1663,17 +1662,17 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                         <td
                                                             scope="col"
                                                             className="text-nowrap text-center bg-primary text-white sticky-col-right-2 rounded-top">
+                                                            <b> Depreciación Anual</b>
+                                                        </td>
+                                                        <td
+                                                            scope="col"
+                                                            className="text-nowrap text-center bg-primary text-white sticky-col-right-1 rounded-top">
                                                             <b>Depreciación Acumulada</b>
                                                         </td>
                                                         <td
                                                             scope="col"
-                                                            className="text-nowrap text-center bg-success text-white sticky-col-right-1 rounded-top">
+                                                            className="text-nowrap text-center bg-primary text-white sticky-col-right-0 rounded-top">
                                                             <b>Valor Residual</b>
-                                                        </td>
-                                                        <td
-                                                            scope="col"
-                                                            className="text-nowrap text-center bg-warning text-white sticky-col-right-0 rounded-top">
-                                                            <b> Depreciación Anual</b>
                                                         </td>
                                                     </tr>
                                                 </thead>
@@ -1760,21 +1759,19 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
-                                                                {lista.depreciacionAcumuladaActualizada === 0 ? "-" : "$" + lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                                {lista.depreciacionPorAno === 0 ? "-" : "$" + lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
-
                                                             <td className="text-nowrap text-center fw-bold sticky-col-right-1" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
-                                                                {lista.valorResidual === 0 ? "-" : "$" + lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                                {lista.depreciacionAcumuladaActualizada === 0 ? "-" : "$" + lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
-
                                                             <td className="text-nowrap text-center fw-bold sticky-col-right-0" style={{
                                                                 color: '#2f3e78',
                                                                 background: '#a4d1ff'
                                                             }}>
-                                                                {lista.depreciacionPorAno === 0 ? "-" : "$" + lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                                                {lista.valorResidual === 0 ? "-" : "$" + lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
                                                             </td>
 
                                                         </tr>

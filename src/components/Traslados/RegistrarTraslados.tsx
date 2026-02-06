@@ -546,7 +546,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       const result = await Swal.fire({
         icon: "info",
         title: "Confirmar Traslado",
-        text: "¿Confirma que desea trasladar los artículos seleccionados con los datos proporcionados?",
+        text: "¿Confirma que desea trasladar los bienes seleccionados con los datos proporcionados?",
         showCancelButton: true,
         confirmButtonText: "Confirmar y Trasladar",
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,

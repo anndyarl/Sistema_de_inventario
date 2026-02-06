@@ -42,7 +42,7 @@ export interface listadoTraspasos {
   paS_ESTADO_AF: string;
   establecimientO_ORIGEN: number;
   establecimientO_DESTINO: number;
-  usuariO_CREA: number;
+  usuariO_CREA: number | string;
   estabL_CORR_ORIGEN: number;
   estabL_CORR: number;
   deP_CORR_ORIGEN: number;
@@ -118,6 +118,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     ? Math.ceil(listadoTraspasosRecibidos.length / elementosPorPagina1)
     : 0;
   const paginar1 = (numeroPagina: number) => setPaginaActual1(numeroPagina);
+  const [contadorEnviados, setContadorEnviados] = useState(0);
+  const [contadorRecibidos, setContadorRecibidos] = useState(0);
 
   //------------------------------ Fin ------------------------------------//
 
@@ -167,6 +169,16 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     af_codigo_generico: "",
     paS_ESTADO_RECIBE: ""
   });
+
+  //Se actualiza el contador que indica el total de traspasos enviados y recibidos
+  useEffect(() => {
+    if (listadoTraspasos.length > contadorEnviados) {
+      setContadorEnviados(listadoTraspasos.length);
+    }
+    if (listadoTraspasosRecibidos.length > contadorRecibidos) {
+      setContadorRecibidos(listadoTraspasosRecibidos.length);
+    }
+  }, [listadoTraspasos.length, listadoTraspasosRecibidos.length]);
 
   useEffect(() => {
     listaAutoEnviados();
@@ -637,25 +649,31 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
           <div className="border-bottom shadow-sm p-2 rounded">
             <div className="d-flex justify-content-between">
               <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traspasos</h3>
-              <button
-                onClick={handleActualizar}
-                className="btn btn-outline-primary m-1 border-0"
-                title="Actualizar"
-              >
-                <ArrowRepeat
-                  className="cursor-pointer"
-                  aria-hidden="true"
-                  width={35}
-                  height={35}
-                />
-              </button>
+              <div className="d-flex align-items-center text-warning">
+                <p className="fw-bold bg-success text-white px-2 small rounded-2 ">Actualizar Enviados y Recibidos</p>
+                <button
+                  type="button"
+                  onClick={handleActualizar}
+                  className="btn btn-success d-flex align-items-center justify-content-center m-1 p-2 rounded-circle"
+                  title="Actualizar"
+                  aria-label="Actualizar información"
+                >
+                  <ArrowRepeat
+                    aria-hidden="true"
+                    width={25}
+                    height={25}
+                  />
+                </button>
+
+
+              </div>
             </div>
             <Row>
               {/*Traspasos enviados */}
-              <Col className={`border border-1 rounded ${expandedColumn === "enviados" ? "col-12" : ""}${expandedColumn === "recibidos" ? "d-none" : ""} `}>
+              <Col className={`border border-1 rounded ${expandedColumn === "enviados" ? "col-12" : ""} ${expandedColumn === "recibidos" ? "d-none" : ""} `}>
                 <div className="d-flex justify-content-between pt-2">
                   <h5 className={`p-2 fs-5 border-start border-4 border-primary ${isDarkMode ? "bg-dark text-light" : "bg-light"} rounded fw-semibold`}>
-                    Enviados {listadoTraspasos.length > 0 && (<span className="badge bg-primary ms-2">{listadoTraspasos.length}</span>
+                    Enviados {contadorEnviados > 0 && (<span className="badge bg-primary ms-2">{contadorEnviados}</span>
                     )}
                   </h5>
                   {expandedColumn ? (
@@ -779,7 +797,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         <option value="">Selecccionar</option>
                         <option value="0">Sin Validación</option>
                         <option value="1">Recibidos</option>
-                        <option value="2">Pendiente</option>
+                        <option value="2">Rechazado</option>
                       </select>
                     </div>
                     <div className="d-flex gap-2 mt-4">
@@ -882,16 +900,24 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                     <td className="text-nowrap">{Lista.paS_FECHA}</td>
                                     <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
                                     <td className="text-nowrap">{
-                                      Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
-                                        Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
-                                          Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
-                                            Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                              Lista.usuariO_CREA === 1234567 || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
-                                                Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
-                                                  Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
-                                                    Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
-                                    }
-                                    </td>
+                                      Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                                        Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                          Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
+                                            Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
+                                              Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                                Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
+                                                  Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
+                                                    Lista.usuariO_CREA === 61870 ? 'Elena Navarro' :
+                                                      Lista.usuariO_CREA === 68321 ? 'Ivan Acevedo' :
+                                                        Lista.usuariO_CREA === 67234 ? 'Ignacio Avilés' :
+                                                          Lista.usuariO_CREA === 6601 ? 'Benjamin Bulboa' :
+                                                            Lista.usuariO_CREA === 67404 ? 'Ademir Pindea' :
+                                                              Lista.usuariO_CREA === 21479 ? 'Nelsn Quiroz' :
+                                                                Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
+                                                                  Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+
+
+                                    }</td>
                                     <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_DESTINO} {Lista.deP_NOMBRE_DESTINO}</td>
                                     <td className="text-nowrap sticky-col-right-0 rounded">
                                       <Button
@@ -957,7 +983,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
               <Col className={`border border-1 rounded ${expandedColumn === "recibidos" ? "col-12" : ""} ${expandedColumn === "enviados" ? "d-none" : ""}`}>
                 <div className="d-flex justify-content-between pt-2">
                   <h5 className={`p-2 fs-5 border-start border-4 border-success ${isDarkMode ? "bg-dark text-light" : "bg-light"} rounded fw-semibold`}>
-                    Recibidos {listadoTraspasosRecibidos.length > 0 && (<span className="badge bg-success ms-2">{listadoTraspasosRecibidos.length}</span>
+                    Recibidos {contadorRecibidos > 0 && (<span className="badge bg-success ms-2">{contadorRecibidos}</span>
                     )}
                   </h5>
 
@@ -1082,7 +1108,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         <option value="">Selecccionar</option>
                         <option value="0">Sin Validación</option>
                         <option value="1">Recibidos</option>
-                        <option value="2">Pendiente</option>
+                        <option value="2">Rechazado</option>
                       </select>
                     </div>
                     <div className="d-flex gap-2 mt-4">
@@ -1176,16 +1202,24 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                     <td className="text-nowrap">{Lista.paS_FECHA}</td>
                                     <td className="text-nowrap" >{Lista.esP_NOMBRE}</td>
                                     <td className="text-nowrap">{
-                                      Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
-                                        Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
-                                          Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
-                                            Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                              Lista.usuariO_CREA === 1234567 || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
-                                                Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
-                                                  Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
-                                                    Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
-                                    }
-                                    </td>
+                                      Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
+                                        Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                          Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
+                                            Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
+                                              Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                                Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
+                                                  Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
+                                                    Lista.usuariO_CREA === 61870 ? 'Elena Navarro' :
+                                                      Lista.usuariO_CREA === 68321 ? 'Ivan Acevedo' :
+                                                        Lista.usuariO_CREA === 67234 ? 'Ignacio Avilés' :
+                                                          Lista.usuariO_CREA === 6601 ? 'Benjamin Bulboa' :
+                                                            Lista.usuariO_CREA === 67404 ? 'Ademir Pindea' :
+                                                              Lista.usuariO_CREA === 21479 ? 'Nelsn Quiroz' :
+                                                                Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
+                                                                  Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+
+
+                                    }</td>
                                     <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_ORIGEN} {Lista.deP_NOMBRE_ORIGEN}</td>
                                     <td className="text-nowrap sticky-col-right-0 rounded">
                                       <Button

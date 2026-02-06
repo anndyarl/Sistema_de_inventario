@@ -271,17 +271,18 @@ padding: 2px;
     left: 0;
     z-index: 1; 
   }
+    .sticky-col-right-1 {
+    position: sticky;
+    right: 122px;
+    z-index: 1;    
+  }
   .sticky-col-right-2 {
     position: sticky;
-    right: 286px;
+    right: 325px;
     z-index: 1; 
   }
 
-  .sticky-col-right-1 {
-    position: sticky;
-    right: 163px;
-    z-index: 1;    
-  }
+
 
   .sticky-col-right-0 {
     position: sticky;
