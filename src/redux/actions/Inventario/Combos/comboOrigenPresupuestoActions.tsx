@@ -3,7 +3,7 @@ import { ORIGEN_REQUEST, ORIGEN_SUCCESS, ORIGEN_FAIL } from "../types";
 import { Dispatch } from "redux";
 
 // Acción para obtener origen
-export const comboOrigenPresupuestosActions = () => async (dispatch: Dispatch, getState: any) => {
+export const comboOrigenPresupuestosActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -23,14 +23,18 @@ export const comboOrigenPresupuestosActions = () => async (dispatch: Dispatch, g
           type: ORIGEN_SUCCESS,
           payload: res.data,
         });
+        return true;
       } else {
         dispatch({ type: ORIGEN_FAIL });
+        return false;
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
       dispatch({ type: ORIGEN_FAIL });
+      return false;
     }
   } else {
     dispatch({ type: ORIGEN_FAIL });
+    return false;
   }
 };

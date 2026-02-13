@@ -1,80 +1,97 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import ssmso_logo from "../../../../assets/img/SSMSO-LOGO.png"
-import ago from "../../../../assets/img/logo_red.jpg"
-import { Container } from 'react-bootstrap';
 import { ListaFolioServicioDependencia } from './FolioPorServicioDependencia';
+
+const FONT_SIZES = {
+    xs: 5.5,
+    sm: 6.5,
+    md: 7.5,
+    base: 8,
+    lg: 9,
+    xl: 10,
+    xxl: 13,
+};
+
+const COLORS = {
+    primary: "#004485",
+    primaryLight: "#e8f0f8",
+    white: "#ffffff",
+    black: "#000000",
+    grayDark: "#333333",
+    grayMedium: "#666666",
+    grayLight: "#e0e0e0",
+    grayLighter: "#f5f7fa",
+    border: "#cccccc",
+};
 
 const styles = StyleSheet.create({
     page: {
         padding: 20,
         fontSize: 12,
     },
+    /* ----- Cabecera con logo ----- */
+    logoSection: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 14,
+        paddingBottom: 10,
+        // borderBottomWidth: 2,
+        // borderBottomColor: COLORS.primary,
+    },
     logo: {
-        width: 80, // Ajusta el tamaño del logo
-        height: 'auto',
-        textAlign: 'left',
-    },
-    logo_red: {
         width: 70,
-        height: 25,                // opcional: controla el alto para mejor proporción
-        marginBottom: 2,           // separa un poco del texto
+        marginRight: 12,
     },
-    containerHeader: {
-        marginBottom: 10,
+    orgInfo: {
+        flexDirection: "column",
+        gap: 1,
     },
-    textContainer: {
-        marginLeft: 5
+    orgName: {
+        fontSize: FONT_SIZES.lg,
+        fontWeight: "bold",
+        color: COLORS.primary,
+        marginBottom: 2,
     },
-    headerContainer: {
-        display: 'flex',
-        flexDirection: 'row',
+    orgDetail: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.grayMedium,
+        marginBottom: 1,
     },
-    headerContent: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between'
+
+    /* ----- Titulo del documento ----- */
+    tituloDocumento: {
+        fontSize: FONT_SIZES.xxl,
+        fontWeight: "bold",
+        textAlign: "center",
+        // color: COLORS.primary,
+        marginBottom: 12,
+        paddingBottom: 6,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.grayLight,
     },
-    header: {
-        flex: 1,
-        fontSize: 6,
+    /* ===== GRID INFORMACIÓN ===== */
+    headerGrid: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+
+    column: {
+        width: "32%",
+    },
+
+    label: {
+        fontSize: 8,
+        fontWeight: "bold",
+        color: "#000",
+        margin: 1,
+    },
+
+    value: {
+        fontSize: 8,
+        color: "#555",
         marginBottom: 5,
-        fontWeight: 'bold',
-        textAlign: 'right',
     },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    centerText: {
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-    },
-    title: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#000',
-        textAlign: 'center',
-    },
-    titleRed: {
-        fontSize: 6,
-        fontWeight: 900,
-        textAlign: 'center',
-    },
-    subTitle: {
-        fontSize: 10,
-        fontWeight: 'bold',
-        paddingTop: 3,
-        borderTop: '1px black solid',
-        textAlign: 'center'
-    },
-    p: {
-        fontSize: 10,
-        marginBottom: 5,
-        fontWeight: 'semibold',
-        textAlign: 'left',
-    },
+
     table: {
         display: 'flex',
         flexDirection: 'column',
@@ -107,19 +124,19 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         flexGrow: 1,
     },
-    colInventario: { width: "13%" },
-    colInventarioGris: { width: "13%", backgroundColor: '#c7c7c7ff' },
-    colEspecie: { width: "13%" },
-    colMarca: { width: "10%" },
-    colModelo: { width: "10%" },
-    colSerie: { width: "12%" },
-    colObs: { width: "18%" },
-    colFIngreso: { width: "14%" },
-    colAlta: { width: "8%" },
-    colEstado: { width: "7%" },
-    colTraslado: { width: "8%" },
-    colPrecio: { width: "12%" },
-    colCuenta: { width: "9%" },
+    colInventario: { width: "13%", fontSize: 5 },
+    colInventarioGris: { width: "13%", backgroundColor: '#c7c7c7ff', fontSize: 5 },
+    colEspecie: { width: "13%", fontSize: 5 },
+    colMarca: { width: "10%", fontSize: 5 },
+    colModelo: { width: "10%", fontSize: 5 },
+    colSerie: { width: "12%", fontSize: 5 },
+    colObs: { width: "18%", fontSize: 5 },
+    colFIngreso: { width: "14%", fontSize: 5 },
+    colAlta: { width: "8%", fontSize: 5 },
+    colEstado: { width: "7%", fontSize: 5 },
+    colTraslado: { width: "8%", fontSize: 5 },
+    colPrecio: { width: "12%", fontSize: 5 },
+    colCuenta: { width: "9%", fontSize: 5 },
 
     firmaContainer: {
         flexDirection: 'row',
@@ -141,34 +158,23 @@ const styles = StyleSheet.create({
         width: "30%",
         position: 'absolute'
     },
-    containerFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        position: 'absolute',
-        fontSize: 9,
-        bottom: 20,
-        left: 20,
-        right: 20,
-        borderTop: '1px black solid'
-    },
     fechaHoy: {
         padding: 2,
     },
     footer: {
         position: 'absolute',
-        bottom: 20,          // distancia del borde inferior
+        bottom: 3,
         left: 40,
         right: 40,
-        height: 20,
         flexDirection: 'row',
-        justifyContent: 'space-between',  // separa fecha y numeración
+        justifyContent: 'space-between',
         alignItems: 'center',
-        fontSize: 9,
-        color: '#000',
-        borderTopWidth: 1,                // línea separadora superior
+        fontSize: 6,
+        borderTopWidth: 1,
         borderTopColor: '#ccc',
         paddingTop: 4,
     },
+
     footerLeft: {
         textAlign: 'left',
     },
@@ -188,13 +194,6 @@ const fechaHoy = new Date()
     .replace(/-/g, '/');
 
 
-const arreglo = (array: any[], size: number) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-        result.push(array.slice(i, i + size));
-    }
-    return result;
-};
 
 // Inserta saltos de línea 
 function insertNewLinesDigits(value: any, every = 10) {
@@ -210,119 +209,123 @@ function insertNewLinesDigits(value: any, every = 10) {
 
 
 const DocumentoPDFServicioDependencia = ({ row, Firma }: { row: ListaFolioServicioDependencia[]; Firma: any }) => {
-    const filasPorPagina = 10;
-    const paginas = arreglo(row, filasPorPagina);
 
     return (
         <Document>
-            {paginas.map((rows, indicePagina) => (
-                <Page key={indicePagina} style={styles.page}>
-                    {/* Encabezado */}
-                    <Container style={styles.containerHeader}>
-                        <View style={styles.headerRow}>
-                            <View style={styles.centerText}>
-                                <Image src={ssmso_logo} style={styles.logo} />
-                            </View>
-
-                            <View style={styles.centerText}>
-                                <Text style={styles.title}>SISTEMA DE ACTIVO FIJO</Text>
-                                <Text style={styles.title}>UNIDAD DE INVENTARIO</Text>
-                            </View>
-                            <View style={styles.centerText}>
-                                <Image src={ago} style={styles.logo_red} />
-                                <Text style={styles.titleRed}>RED PUBLICA</Text>
-                                <Text style={styles.titleRed}>SALUD SUR ORIENTE</Text>
-                            </View>
-
-                        </View>
-                    </Container>
-
-                    <Container style={styles.containerHeader}>
-                        <Text style={styles.subTitle}>INVENTARIO</Text>
-                        <View style={styles.headerContent}>
-                            <Text style={styles.p}>Servicio: {row[0]?.servicio}</Text>
-                            <Text style={styles.p}>Folio: {row[0]?.aF_FOLIO}</Text>
-                        </View>
-                        <View style={styles.headerContent}>
-                            <Text style={styles.p}>Dependencia: {row[0]?.dependencia}</Text>
-                            <Text style={styles.p}>Fecha: {fechaHoy}</Text>
-
-                        </View>
-                        <View style={styles.headerContent}>
-                            <Text style={styles.p}>Cantidad: {row.length}</Text>
-                        </View>
-                    </Container>
-                    {/* Tabla */}
-                    <View style={styles.table}>
-                        <View style={styles.tableHeader}>
-                            <Text style={[styles.tableCellHeader, styles.colInventario]}>N° Inventario</Text>
-                            <Text style={[styles.tableCellHeader, styles.colEspecie]}>Especie</Text>
-                            <Text style={[styles.tableCellHeader, styles.colMarca]}>Marca</Text>
-                            <Text style={[styles.tableCellHeader, styles.colModelo]}>Modelo</Text>
-                            <Text style={[styles.tableCellHeader, styles.colSerie]}>Serie</Text>
-                            <Text style={[styles.tableCellHeader, styles.colObs]}>Observación</Text>
-                            <Text style={[styles.tableCellHeader, styles.colFIngreso]}>Fecha Ingreso</Text>
-                            <Text style={[styles.tableCellHeader, styles.colAlta]}>N° Alta</Text>
-                            <Text style={[styles.tableCellHeader, styles.colEstado]}>Estado</Text>
-                            <Text style={[styles.tableCellHeader, styles.colTraslado]}>N° Traslado</Text>
-                            <Text style={[styles.tableCellHeader, styles.colPrecio]}>Valor Inicial</Text>
-                            <Text style={[styles.tableCellHeader, styles.colCuenta]}>Cuenta Contable</Text>
-                        </View>
-
-                        {rows.map((lista, idx) => (
-                            <View style={styles.tableRow} key={idx}>
-                                <Text style={[styles.tableCell, styles.colInventarioGris]}>{lista.aF_CODIGO_GENERICO}</Text>
-                                <Text style={[styles.tableCell, styles.colEspecie]}>{lista.aF_ESPECIE}</Text>
-                                <Text style={[styles.tableCell, styles.colMarca]}>{lista.aF_MARCA}</Text>
-                                <Text style={[styles.tableCell, styles.colModelo]}>{lista.aF_MODELO}</Text>
-                                <Text style={[styles.tableCell, styles.colSerie]}>{insertNewLinesDigits(lista.aF_SERIE, 10)}</Text>
-                                <Text style={[styles.tableCell, styles.colObs]}>{lista.aF_OBS}</Text>
-                                <Text style={[styles.tableCell, styles.colFIngreso]}>{lista.aF_FINGRESO}</Text>
-                                <Text style={[styles.tableCell, styles.colAlta]}>{lista.altaS_CORR}</Text>
-                                <Text style={[styles.tableCell, styles.colEstado]}>{lista.traS_ESTADO_AF}</Text>
-                                <Text style={[styles.tableCell, styles.colTraslado]}>{lista.ntraslado === 0 ? "" : lista.ntraslado}</Text>
-                                <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.aF_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                                <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ctA_COD}</Text>
-                            </View>
-                        ))}
+            <Page size="LETTER" style={styles.page} wrap>
+                {/* HEADER */}
+                <View style={styles.logoSection}>
+                    <Image src={ssmso_logo} style={styles.logo} />
+                    <View style={styles.orgInfo}>
+                        <Text style={styles.orgName}>
+                            Servicio de Salud Metropolitano Sur Oriente
+                        </Text>
+                        <Text style={styles.orgDetail}>
+                            Subdireccion Administrativa
+                        </Text>
+                        <Text style={styles.orgDetail}>
+                            Departamento de Finanzas
+                        </Text>
+                        <Text style={styles.orgDetail}>Unidad de Inventarios</Text>
                     </View>
-                    {indicePagina === paginas.length - 1 && (
-                        <>
-                            <View style={styles.firmaContainer}>
-                                <View style={styles.firmaBox}>
-                                    <Text style={styles.firmaBox}>{Firma.encargadoInventario}</Text>
-                                    <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>Encargado</Text>
-                                </View>
-                                <View style={styles.firmaBox}>
-                                    <Text style={styles.firmaBox}>{Firma.jefe}</Text>
-                                    <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>Jefe</Text>
-                                </View>
-                                <View style={styles.firmaBox}>
-                                    <Text style={styles.firmaBox}>{Firma.jefeInventario}</Text>
-                                    <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>Jefe de Inventario</Text>
-                                </View>
-                            </View>
+                </View>
+                <Text style={styles.tituloDocumento}>INVENTARIO</Text>
+                {/* ===== GRID DATOS ===== */}
+                <View style={styles.headerGrid}>
+                    {/* Columna izquierda */}
+                    <View style={styles.column}>
+                        <Text style={styles.label}>Servicio:</Text>
+                        <Text style={styles.value}>{row[0]?.servicio}</Text>
 
-                        </>
-                    )}
-                    {/* Pie de página para otras páginas */}
-                    {/* Footer fijo en todas las páginas */}
-                    <View style={styles.footer} fixed>
-                        <Text style={styles.footerLeft}>{fechaHoy}</Text>
+                        <Text style={styles.label}>Folio:</Text>
+                        <Text style={styles.value}>{row[0]?.aF_FOLIO}</Text>
 
-                        <Text
-                            style={styles.footerRight}
-                            render={({ pageNumber, totalPages }) =>
-                                `Página ${pageNumber} de ${totalPages}`
-                            }
-                        />
                     </View>
 
-                </Page>
-            ))}
+                    {/* Columna derecha */}
+                    <View style={styles.column}>
+                        <Text style={styles.label}>Dependencia:</Text>
+                        <Text style={styles.value}>{row[0]?.dependencia}</Text>
+
+                        <Text style={styles.label}>Fecha:</Text>
+                        <Text style={styles.value}>{row[0]?.dependencia}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.headerGrid}>
+                    {/* Columna  */}
+                    <View style={styles.column}>
+                        <Text style={styles.label}>Cantidad: {row.length}</Text>
+
+                    </View>
+                </View>
+                {/* Tabla */}
+                <View style={styles.table}>
+                    {/* HEADER TABLA */}
+                    <View style={styles.tableHeader} fixed>
+                        <Text style={[styles.tableCellHeader, styles.colInventario]}>N° Inventario</Text>
+                        <Text style={[styles.tableCellHeader, styles.colEspecie]}>Especie</Text>
+                        <Text style={[styles.tableCellHeader, styles.colMarca]}>Marca</Text>
+                        <Text style={[styles.tableCellHeader, styles.colModelo]}>Modelo</Text>
+                        <Text style={[styles.tableCellHeader, styles.colSerie]}>Serie</Text>
+                        <Text style={[styles.tableCellHeader, styles.colObs]}>Observación</Text>
+                        <Text style={[styles.tableCellHeader, styles.colFIngreso]}>Fecha Ingreso</Text>
+                        <Text style={[styles.tableCellHeader, styles.colAlta]}>N° Alta</Text>
+                        <Text style={[styles.tableCellHeader, styles.colEstado]}>Estado</Text>
+                        <Text style={[styles.tableCellHeader, styles.colTraslado]}>N° Traslado</Text>
+                        <Text style={[styles.tableCellHeader, styles.colPrecio]}>Valor Inicial</Text>
+                        <Text style={[styles.tableCellHeader, styles.colCuenta]}>Cuenta Contable</Text>
+                    </View>
+
+                    {row.map((lista, idx) => (
+                        <View style={styles.tableRow} key={idx}>
+                            <Text style={[styles.tableCell, styles.colInventarioGris]}>{lista.aF_CODIGO_GENERICO}</Text>
+                            <Text style={[styles.tableCell, styles.colEspecie]}>{lista.aF_ESPECIE}</Text>
+                            <Text style={[styles.tableCell, styles.colMarca]}>{lista.aF_MARCA}</Text>
+                            <Text style={[styles.tableCell, styles.colModelo]}>{lista.aF_MODELO}</Text>
+                            <Text style={[styles.tableCell, styles.colSerie]}>{insertNewLinesDigits(lista.aF_SERIE, 10)}</Text>
+                            <Text style={[styles.tableCell, styles.colObs]}>{lista.aF_OBS}</Text>
+                            <Text style={[styles.tableCell, styles.colFIngreso]}>{lista.aF_FINGRESO}</Text>
+                            <Text style={[styles.tableCell, styles.colAlta]}>{lista.altaS_CORR}</Text>
+                            <Text style={[styles.tableCell, styles.colEstado]}>{lista.traS_ESTADO_AF}</Text>
+                            <Text style={[styles.tableCell, styles.colTraslado]}>{lista.ntraslado === 0 ? "" : lista.ntraslado}</Text>
+                            <Text style={[styles.tableCell, styles.colPrecio]}>$ {(lista.aF_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                            <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ctA_COD}</Text>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={styles.firmaContainer} wrap={false}>
+                    <View style={styles.firmaBox}>
+                        <Text style={styles.firmaBox}>{Firma.encargadoInventario}</Text>
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>Encargado</Text>
+                    </View>
+                    <View style={styles.firmaBox}>
+                        <Text style={styles.firmaBox}>{Firma.jefe}</Text>
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>Jefe</Text>
+                    </View>
+                    <View style={styles.firmaBox}>
+                        <Text style={styles.firmaBox}>{Firma.jefeInventario}</Text>
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>Jefe de Inventario</Text>
+                    </View>
+                </View>
+
+                {/* FOOTER */}
+                <View style={styles.footer} fixed>
+                    <Text style={styles.footerLeft}>{fechaHoy}</Text>
+                    <Text
+                        style={styles.footerRight}
+                        render={({ pageNumber, totalPages }) =>
+                            `Página ${pageNumber} de ${totalPages}`
+                        }
+                    />
+                </View>
+
+            </Page>
+
         </Document>
     );
 };

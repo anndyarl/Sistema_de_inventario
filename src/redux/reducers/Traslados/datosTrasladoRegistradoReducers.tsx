@@ -1,5 +1,5 @@
 
-import { ListaSalidaTraslados } from '../../../components/Traslados/RegistrarTraslados';
+import { PropsTraslados } from '../../../components/Traslados/RegistrarTraslados';
 import {
   POST_FORMULARIO_TRASLADO_REQUEST,
   POST_FORMULARIO_TRASLADO_SUCCESS,
@@ -8,14 +8,14 @@ import {
 
 // Define el tipo para el estado inicial
 interface DatosInventarioState {
-  listaSalidaTraslados: ListaSalidaTraslados[];
+  listaSalidaTraslados: PropsTraslados[];
 }// Estado inicial tipado
 const initialState: DatosInventarioState = {
   listaSalidaTraslados: []
 };
 
 // Reducer con tipos definidos
-const datosTrasladoRegistradoReducers = (state = initialState, action: any) => {
+const listaSalidaTrasladosReducers = (state = initialState, action: any) => {
   switch (action.type) {
     case POST_FORMULARIO_TRASLADO_REQUEST:
       return { ...state, loading: true };
@@ -35,4 +35,4 @@ const datosTrasladoRegistradoReducers = (state = initialState, action: any) => {
   }
 };
 
-export default datosTrasladoRegistradoReducers;
+export default listaSalidaTrasladosReducers;

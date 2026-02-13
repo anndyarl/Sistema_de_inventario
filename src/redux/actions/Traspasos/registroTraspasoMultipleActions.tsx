@@ -4,7 +4,7 @@ import {
     POST_FORMULARIO_TRASPASO_REQUEST,
     POST_FORMULARIO_TRASPASO_SUCCESS,
     POST_FORMULARIO_TRASPASO_FAIL,
-} from "../Traspasos/types";
+} from "./types";
 import { TraspasoConAdjuntos } from "../../../components/Traspasos/RegistrarTraspasos";
 
 // Acción para enviar el formulario

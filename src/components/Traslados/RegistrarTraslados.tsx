@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form, CloseButton } from "react-bootstrap";
+import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form, CloseButton, ModalDialog } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { ArrowLeftRight, CaretDown, CaretUpFill, Eraser, Search } from "react-bootstrap-icons";
+import { ArrowLeftRight, CaretDown, CaretUpFill, Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -12,6 +12,10 @@ import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados";
 import Select from "react-select";
 import SkeletonLoader from "../Utils/SkeletonLoader";
+import { useNavigate } from "react-router-dom";
+import { BlobProvider } from "@react-pdf/renderer";
+import DocumentoPDFResumenTraslados from "./DocumentoPDFResumenTraslados";
+import Draggable from "react-draggable";
 import { registroTrasladoMultipleActions } from "../../redux/actions/Informes/Principal/FolioPorServicioDependencia/registroTrasladoMultipleActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
@@ -22,6 +26,7 @@ import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
+
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
   codigo: number;
@@ -37,32 +42,21 @@ interface TRASLADOESPECIE {
   codigo: number;
   descripcion: string;
 }
-
-/*-----Tabla principal------*/
-interface ListaATrasladar {
+export interface PropsTraslados {
   aF_CLAVE: number;
   aF_CODIGO_GENERICO: string;
-  deT_OBS: string;
-  esP_NOMBRE: string;
-  deP_CORR_ORIGEN: number;
-}
-
-/*----Tabla Modal---*/
-export interface ListaTrasladoSeleccion {
-  aF_CLAVE: string;
-  aF_CODIGO_GENERICO: string;
+  n_TRASLADO: number;
   altaS_CORR: number;
   deT_OBS: string;
   serviciO_DEPENDENCIA: string;
+  serviciO_DEPENDENCIA_DESTINO?: string;
   esP_NOMBRE: string;
   deT_MARCA: string;
   deT_MODELO: string;
   deT_SERIE: string;
   deP_CORR_ORIGEN: number;
-}
-/*------Formulario Modal--------*/
-interface FormularioTraslado {
   deP_CORR_DESTINO: number;
+  traS_FECHA: string;
   traS_MEMO_REF: string;
   traS_FECHA_MEMO: string;
   traS_OBS: string;
@@ -70,16 +64,10 @@ interface FormularioTraslado {
   traS_NOM_RECIBE: string;
   traS_NOM_AUTORIZA: string;
 }
-
 interface ListaEspecie {
   estabL_CORR: number;
   esP_CODIGO: string;
   nombrE_ESP: string;
-}
-
-export interface ListaSalidaTraslados {
-  aF_CODIGO_GENERICO: number;
-  n_TRASLADO: number;
 }
 
 interface SERVICIO_DEPENDENCIA {
@@ -98,7 +86,7 @@ interface TrasladosProps {
   comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
   comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado 
   obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string, estabL_CORR: number) => Promise<boolean>
-  listaTrasladoSeleccion: ListaTrasladoSeleccion[];
+  listaTrasladoSeleccion: PropsTraslados[];
   comboEspecies: ListaEspecie[];
   comboSerDepActions: (establ_corr: number) => void;//En buscador  
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
@@ -107,7 +95,7 @@ interface TrasladosProps {
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
-  listaSalidaTraslados: ListaSalidaTraslados[];
+  listaSalidaTraslados: PropsTraslados[];
 }
 
 
@@ -133,15 +121,19 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   isDarkMode }) => {
   const [loading, setLoading] = useState(false);
   const [loadingBuscar, setLoadingBuscar] = useState(false);
-  const [error, setError] = useState<Partial<FormularioTraslado> & {}>({});
+  const [error, setError] = useState<Partial<PropsTraslados> & {}>({});
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
-  const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
+  const [mostrarModalResumen, setMostrarModalResumen] = useState(true);
+  const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
+  const [loadingExportar, setLoadingExportar] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [paginaActual1, setPaginaActual1] = useState(1);
+  const [paginaActual2, setPaginaActual2] = useState(1);
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [filasSeleccionadasTraslados, setFilasSeleccionadasTraslados] = useState<string[]>([]);
-  const [activosFijos, setActivosFijos] = useState<ListaATrasladar[]>([]);
+  const [activosFijos, setActivosFijos] = useState<PropsTraslados[]>([]);
+  const navigate = useNavigate();
   const [Paginacion, setPaginacion] = useState({
     nPaginacion: 10
   });
@@ -150,7 +142,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   const [Paginacion1, setPaginacion1] = useState({
     nPaginacion1: 10
   });
+
   const elementosPorPagina1 = Paginacion1.nPaginacion1;
+
+  const [Paginacion2, setPaginacion2] = useState({
+    nPaginacion2: 10
+  });
+  const elementosPorPagina2 = Paginacion2.nPaginacion2;
+
 
   const [Buscar, setBuscar] = useState({
     aF_CODIGO_GENERICO: "",
@@ -218,7 +217,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
   }, [comboTrasladoServicioActions,
     comboTrasladoEspecieActions,
-    listaTrasladoSeleccion,
     comboSerDep,
     comboEspecies]);
 
@@ -250,6 +248,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }));
 
     setPaginacion1((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    setPaginacion2((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -419,11 +422,26 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
       return {
-        aF_CLAVE: parseInt(listaTrasladoSeleccion[index].aF_CLAVE),
+        aF_CLAVE: listaTrasladoSeleccion[index].aF_CLAVE,
         aF_CODIGO_GENERICO: listaTrasladoSeleccion[index].aF_CODIGO_GENERICO,
-        deT_OBS: listaTrasladoSeleccion[index].deT_OBS,
+        altaS_CORR: listaTrasladoSeleccion[index].altaS_CORR,
+        n_TRASLADO: listaTrasladoSeleccion[index].n_TRASLADO,
         esP_NOMBRE: listaTrasladoSeleccion[index].esP_NOMBRE,
-        deP_CORR_ORIGEN: listaTrasladoSeleccion[index].deP_CORR_ORIGEN
+        deP_CORR_ORIGEN: listaTrasladoSeleccion[index].deP_CORR_ORIGEN,
+        deP_CORR_DESTINO: listaTrasladoSeleccion[index].deP_CORR_DESTINO,
+        serviciO_DEPENDENCIA: listaTrasladoSeleccion[index].serviciO_DEPENDENCIA,
+        deT_SERIE: listaTrasladoSeleccion[index].deT_SERIE,
+        deT_MODELO: listaTrasladoSeleccion[index].deT_MODELO,
+        deT_MARCA: listaTrasladoSeleccion[index].deT_MARCA,
+        deT_OBS: listaTrasladoSeleccion[index].deT_OBS,
+        traS_MEMO_REF: listaTrasladoSeleccion[index].traS_MEMO_REF,
+        traS_FECHA_MEMO: listaTrasladoSeleccion[index].traS_FECHA_MEMO,
+        traS_OBS: listaTrasladoSeleccion[index].traS_OBS,
+        traS_NOM_ENTREGA: listaTrasladoSeleccion[index].traS_NOM_ENTREGA,
+        traS_NOM_RECIBE: listaTrasladoSeleccion[index].traS_NOM_RECIBE,
+        traS_NOM_AUTORIZA: listaTrasladoSeleccion[index].traS_NOM_AUTORIZA,
+        traS_FECHA: listaTrasladoSeleccion[index].traS_FECHA
+
       };
     });
 
@@ -441,7 +459,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         popup: "custom-border", // Clase personalizada para el borde
       }
     });
-
+    console.log(activosSeleccionados);
     // Verificar duplicados antes de mostrar la confirmación
     const duplicados = activosSeleccionados.filter(activo =>
       activosFijos.some(existente => existente.aF_CLAVE === activo.aF_CLAVE)
@@ -572,7 +590,14 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           traS_OBS: Traslados.traS_OBS,
           traS_NOM_ENTREGA: Traslados.traS_NOM_ENTREGA,
           traS_NOM_RECIBE: Traslados.traS_NOM_RECIBE,
-          traS_NOM_AUTORIZA: Traslados.traS_NOM_AUTORIZA
+          traS_NOM_AUTORIZA: Traslados.traS_NOM_AUTORIZA,
+          deT_MARCA: item.deT_MARCA,
+          deT_MODELO: item.deT_MODELO,
+          deT_SERIE: item.deT_SERIE,
+          esP_NOMBRE: item.esP_NOMBRE,
+          deT_OBS: item.deT_OBS,
+          serviciO_DEPENDENCIA: item.serviciO_DEPENDENCIA, //Servicio dependencia Origen
+          serviciO_DEPENDENCIA_DESTINO: comboSerDep.find(item => item.deP_CORR === Traslados.deP_CORR)?.descripcion || "",
         }));
 
         const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
@@ -660,6 +685,20 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
   }
 
+  const handleAbrirModalExportar = () => {
+    setLoadingExportar(true);
+    // Espera un ciclo de evento para mostrar el modal
+    setTimeout(() => {
+      setModalMostrarExportar(true);
+    }, 50); //se ajusta este tiempo para que cargue de inmediato
+  };
+
+  const formatearFecha = (fecha: string) => {
+    if (!fecha) return "";
+    const [anio, mes, dia] = fecha.split("T")[0].split("-");
+    return `${dia}/${mes}/${anio}`;
+  };
+
   /*-----------------------Tabla Resultado de busqueda----------------------*/
   // Lógica de Paginación actualizada 
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -685,7 +724,18 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     ? Math.ceil(activosFijos.length / elementosPorPagina1) : 0;
   const paginar1 = (numeroPagina1: number) => setPaginaActual1(numeroPagina1);
 
+  /*-----------------------Tabla resumen----------------------*/
 
+  // Lógica de Paginación actualizada 
+  const indiceUltimoElemento2 = paginaActual2 * elementosPorPagina2;
+  const indicePrimerElemento2 = indiceUltimoElemento2 - elementosPorPagina2;
+  const elementosActuales2 = useMemo(
+    () => listaSalidaTraslados.slice(indicePrimerElemento2, indiceUltimoElemento2),
+    [listaSalidaTraslados, indicePrimerElemento2, indiceUltimoElemento2]);
+
+  const totalPaginas2 = Array.isArray(listaSalidaTraslados)
+    ? Math.ceil(listaSalidaTraslados.length / elementosPorPagina2) : 0;
+  const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
   return (
     <Layout>
       <Helmet>
@@ -1490,41 +1540,245 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         </Modal.Body>
       </Modal >
 
-      {/* Resumen registro*/}
-      <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="lg">
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Inventario asociado a Nº de Traslado</Modal.Title>
-        </Modal.Header>
-        {/* <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
-                  Exportar a PDF
-                </Button>
-              </div> */}
-        <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <div className="table-responsive">
-            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-              <thead>
-                <tr>
-                  <th>Nº Inventario</th>
-                  <th>N" Traslado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listaSalidaTraslados.length > 0 ? (
-                  listaSalidaTraslados.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.aF_CODIGO_GENERICO || 'N/A'}</td>
-                      <td>{item.n_TRASLADO || 'N/A'}</td>
-                    </tr>
-                  ))
+
+      {/* Resumen traspasos */}
+      {listaSalidaTraslados.length > 0 && (
+        <>
+          <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+              <Modal.Title className="fw-semibold">Resumen de Traslados</Modal.Title>
+            </Modal.Header>
+            <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+              <Button
+                className={`px-4 py-2 mx-1 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                onClick={() => {
+                  navigate("/traslados/ListadoTraslados");
+                }}
+              >
+                Ir a Listado de Traslados
+              </Button>
+              <Button
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                onClick={handleAbrirModalExportar}
+                disabled={listaSalidaTraslados.length === 0 || loadingExportar}
+              >
+                {loadingExportar ? (
+                  <>
+                    Un Momento...
+                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                  </>
                 ) : (
-                  <tr>
-                    <td className="text-center">No hay registros</td>
-                  </tr>
+                  <>
+                    <FiletypePdf
+                      className="flex-shrink-0 h-5 w-5 mx-2"
+                      aria-hidden="true"
+                    />
+                    Exportar
+                    <span className="badge bg-light text-dark mx-1 mt-1">
+                      {listaSalidaTraslados.length}
+                    </span>
+                  </>
                 )}
-              </tbody>
-            </table>
-          </div>
+              </Button>
+            </div>
+            <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+              {/* Mensaje */}
+              <div className={`py-2 rounded fw-semibold fs-09em
+                                        ${isDarkMode
+                  ? "bg-success text-light border border-secondary"
+                  : "bg-success bg-opacity-10 text-success border-none"
+                }`}
+              >
+                Se han trasladado <strong>{listaSalidaTraslados.length}</strong> bienes correctamente.
+              </div>
+              <Row className="mb-4 d-flex justify-content-between">
+                <Col md={4}>
+                  <p><strong>Traslado N° </strong> {listaSalidaTraslados[0]?.n_TRASLADO}</p>
+                </Col>
+                <Col md={4}>
+                  <p><span className="fw-semibold">Fecha Traslado: </span>{listaSalidaTraslados[0]?.traS_FECHA_MEMO}</p>
+                  <p><span className="fw-semibold">Nº Memorandum: </span>{listaSalidaTraslados[0]?.traS_MEMO_REF}</p>
+                  <p ><span className="fw-semibold">Fecha Memo: </span>{formatearFecha(listaSalidaTraslados[0]?.traS_FECHA_MEMO)}</p>
+                </Col>
+              </Row>
+              <Row className="mb-4">
+                <Col md={4}>
+                  <p className="fw-semibold">Origen</p>
+                  <p>{listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}</p>
+                </Col>
+                <Col md={4}>
+                  <p className="fw-semibold">Destino</p>
+                  <p> {listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}
+                  </p>
+                </Col>
+              </Row>
+              <Col className="row align-items-center justify-content-center gap-2 px-2">
+
+                {listaSalidaTraslados.length > 10 && (
+                  <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                    <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                      Tamaño de página:
+                    </label>
+                    <select
+                      aria-label="Seleccionar tamaño de página"
+                      className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="nPaginacion2"
+                      onChange={handleChange}
+                      value={Paginacion2.nPaginacion2}
+                    >
+                      {[10, 15, 20, 25, 50, 100].map((val) => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </Col>
+
+              <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                  <thead>
+                    <tr>
+                      <th className="text-center">Nº Inventario</th>
+                      <th className="text-center">Especie</th>
+                      <th className="text-center">Marca</th>
+                      <th className="text-center">Modelo</th>
+                      <th className="text-center">Serie</th>
+                      <th className="text-center">Observación</th>
+                      {/* <th className="text-center">Estado</th> */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {elementosActuales2.length > 0 ? (
+                      elementosActuales2.map((item, index) => (
+                        <tr key={index}>
+                          <td className="text-center">{item.aF_CODIGO_GENERICO || 'N/A'}</td>
+                          <td className="text-center">{item.esP_NOMBRE || 'N/A'}</td>
+                          <td className="text-center">{item.deT_MARCA || 'N/A'}</td>
+                          <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
+                          <td className="text-center">{item.deT_SERIE || 'N/A'}</td>
+                          <td className="text-center">{item.deT_OBS || 'N/A'}</td>
+                          {/* <td className="text-center">{item.paS_ESTADO_AF || 'N/A'}</td> */}
+                          {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="text-center">No hay registros</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {/* Paginador */}
+              {listaSalidaTraslados.length > 10 && (
+                <div className="paginador-container mt-3">
+                  <Pagination className="paginador-scroll justify-content-center">
+                    <Pagination.First onClick={() => paginar2(1)} disabled={paginaActual2 === 1} />
+                    <Pagination.Prev
+                      onClick={() => paginar2(paginaActual2 - 1)}
+                      disabled={paginaActual2 === 1}
+                    />
+                    {Array.from({ length: totalPaginas2 }, (_, i) => (
+                      <Pagination.Item
+                        key={i + 1}
+                        active={i + 1 === paginaActual2}
+                        onClick={() => paginar2(i + 1)}
+                      >
+                        {i + 1}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                      onClick={() => paginar2(paginaActual2 + 1)}
+                      disabled={paginaActual2 === totalPaginas2}
+                    />
+                    <Pagination.Last
+                      onClick={() => paginar2(totalPaginas2)}
+                      disabled={paginaActual2 === totalPaginas2}
+                    />
+                  </Pagination>
+                </div>
+              )}
+            </Modal.Body>
+          </Modal>
+          {
+            loading && (
+              <div
+                className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
+                style={{
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  // zIndex: 1050,
+                }}
+              >
+                <div className="text-center">
+                  <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                  <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+                </div>
+              </div>
+            )
+          }
+        </>
+      )}
+
+      {/* Modal PDF Excel Word */}
+      <Modal
+        show={modalMostrarExportar}
+        onHide={() => setModalMostrarExportar(false)}
+        size="xl"
+        centered={false}
+        animation={false}
+        handle=".modal-header"
+        cancel=".modal-body"
+        dialogAs={(props) => (
+          <Draggable
+            handle=".modal-header"
+            cancel=".modal-body"
+          >
+            <ModalDialog {...props} />
+          </Draggable>
+        )}
+      >
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton
+          style={{
+            cursor: "move",
+            userSelect: "none"
+          }}
+        >
+          <Modal.Title className="fw-semibold">Exportar</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+          {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+          <BlobProvider
+            document={
+              <DocumentoPDFResumenTraslados
+                listaSalidaTraslados={listaSalidaTraslados}
+              />
+            }
+          >
+            {({ url, loading }) => {
+              // Cuando el PDF termina de cargarse, apagamos el spinner
+              useEffect(() => {
+                if (!loading) {
+                  setLoadingExportar(false);
+                }
+              }, [loading]);
+
+              return loading ? (
+                <p>Generando vista previa...</p>
+              ) : (
+                <>
+                  <iframe
+                    src={url ?? ""}
+                    title="Vista Previa del PDF"
+                    style={{
+                      width: "100%",
+                      height: "900px",
+                      border: "none"
+                    }}
+                  ></iframe>
+                </>
+              );
+            }}
+          </BlobProvider>
         </Modal.Body>
       </Modal>
     </Layout >
@@ -1533,17 +1787,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
 
 const mapStateToProps = (state: RootState) => ({
   token: state.loginReducer.token,
-  comboTrasladoServicio: state.comboTrasladoServicioReducer.comboTrasladoServicio,
-  comboEstablecimiento: state.comboEstablecimientoReducer.comboEstablecimiento,
-  comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie,
-  comboDependenciaOrigen: state.comboDependenciaOrigenReducer.comboDependenciaOrigen,
-  comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
-  listaTrasladoSeleccion: state.obtenerInventarioTrasladoReducers.listaTrasladoSeleccion,
+  comboTrasladoServicio: state.comboTrasladoServicioReducer.comboTrasladoServicio || [],
+  comboEstablecimiento: state.comboEstablecimientoReducer.comboEstablecimiento || [],
+  comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie || [],
+  comboDependenciaOrigen: state.comboDependenciaOrigenReducer.comboDependenciaOrigen || [],
+  comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino || [],
+  listaTrasladoSeleccion: state.obtenerInventarioTrasladoReducers.listaTrasladoSeleccion || [],
   objeto: state.validaApiLoginReducers,
   isDarkMode: state.darkModeReducer.isDarkMode,
-  comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
-  comboSerDep: state.comboServDepReducers.comboSerDep,
-  listaSalidaTraslados: state.datosTrasladoRegistradoReducers.listaSalidaTraslados
+  comboEspecies: state.comboEspeciesBienReducers.comboEspecies || [],
+  comboSerDep: state.comboServDepReducers.comboSerDep || [],
+  listaSalidaTraslados: state.listaSalidaTrasladosReducers.listaSalidaTraslados || []
 });
 
 export default connect(mapStateToProps, {

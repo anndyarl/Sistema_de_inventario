@@ -1,17 +1,16 @@
-
-import { PropsTraslados } from '../../../components/Traslados/RegistrarTraslados';
+import { PropsTraspasos } from '../../../components/Traspasos/RegistrarTraspasos';
 import {
-    OBTIENE_INV_TRASLADOS_REQUEST,
-    OBTIENE_INV_TRASLADOS_SUCCESS,
-    OBTIENE_INV_TRASLADOS_FAIL,
-} from '../../actions/Traslados/types';
+    OBTIENE_INV_TRASPASOS_REQUEST,
+    OBTIENE_INV_TRASPASOS_SUCCESS,
+    OBTIENE_INV_TRASPASOS_FAIL,
+} from '../../actions/Traspasos/types';
 
 
 // Define el tipo para el estado inicial
 interface obtenerInventarioState {
     loading: boolean;
     error: string | null;
-    listaTrasladoSeleccion: PropsTraslados[];
+    listaTrapasoSeleccion: PropsTraspasos[];
 
 }
 
@@ -19,27 +18,27 @@ interface obtenerInventarioState {
 const initialState: obtenerInventarioState = {
     loading: false,
     error: null,
-    listaTrasladoSeleccion: [],
+    listaTrapasoSeleccion: [],
 };
 
 
 // Reducer con tipos definidos
-const obtenerInventarioTrasladoReducers = (state = initialState, action: any): obtenerInventarioState => {
+const obtenerInventarioTraspasoReducers = (state = initialState, action: any): obtenerInventarioState => {
     switch (action.type) {
 
-        case OBTIENE_INV_TRASLADOS_REQUEST:
+        case OBTIENE_INV_TRASPASOS_REQUEST:
             return {
                 ...state,
                 loading: true,
                 error: null
             };
-        case OBTIENE_INV_TRASLADOS_SUCCESS:
+        case OBTIENE_INV_TRASPASOS_SUCCESS:
             return {
                 ...state,
                 loading: false,
-                listaTrasladoSeleccion: action.payload,
+                listaTrapasoSeleccion: action.payload,
             };
-        case OBTIENE_INV_TRASLADOS_FAIL:
+        case OBTIENE_INV_TRASPASOS_FAIL:
             return {
                 ...state,
                 loading: false,
@@ -50,4 +49,4 @@ const obtenerInventarioTrasladoReducers = (state = initialState, action: any): o
     }
 };
 
-export default obtenerInventarioTrasladoReducers;
+export default obtenerInventarioTraspasoReducers;

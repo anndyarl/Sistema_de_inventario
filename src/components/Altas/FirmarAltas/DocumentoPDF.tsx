@@ -141,21 +141,28 @@ const styles = StyleSheet.create({
         position: 'absolute'
     },
     footer: {
-        marginTop: 20,
-        borderTop: "1px solid black",
+        marginTop: 10,
         paddingTop: 5,
         fontSize: 9,
         flexDirection: "column",
+        alignItems: "flex-end",
     },
-    footerRow: {
+    datosGrid: {
         flexDirection: "row",
         justifyContent: "space-between",
+        marginBottom: 1,
     },
-    fechaHoy: {
-        padding: 2,
+    datosColumnaIzquierda: {
+        width: "20%",
     },
-
-
+    datosColumnaDerecha: {
+        width: "80%",
+    },
+    fakeGradient: {
+        height: 1,
+        width: "100%",
+        backgroundColor: "rgba(0,0,0,0.15)", // simulación
+    },
 });
 
 // Formatear la fecha actual en español (Chile)
@@ -378,13 +385,19 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
 
 
                     </View>
+                    <View style={styles.datosGrid}>
+                        <View style={styles.datosColumnaIzquierda}>
+                        </View>
+                        <View style={styles.datosColumnaDerecha}>
 
-                    <View style={styles.footer}>
-                        <View style={styles.footerRow}>
-                            <Text style={styles.fechaHoy}>{fechaHoy}</Text>
-                            <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
+                            <View style={styles.footer}>
+                                <Text>{fechaHoy}</Text>
+                                <View style={styles.fakeGradient} />
+                                <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
+                            </View>
                         </View>
                     </View>
+
                 </Page>
             ))
             }

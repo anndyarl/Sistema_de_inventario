@@ -1,13 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Pagination, Button, Spinner, Modal, Form } from "react-bootstrap";
+import { Row, Col, Pagination, Button, Spinner, Modal, Form, ModalDialog } from "react-bootstrap";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import { Calculator, CheckCircle, Eraser, ExclamationDiamond, FileEarmarkExcel, FiletypePdf, Search } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-// import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from "docx";
 import { BlobProvider } from "@react-pdf/renderer";
 import Layout from "../../../../containers/hocs/layout/Layout";
 import MenuInformes from "../../../Menus/MenuInformes";
@@ -18,6 +17,8 @@ import { listaActivosCasrActions } from "../../../../redux/actions/Informes/Prin
 import { listaActivosCalculadosPorCuentasActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosCalculadosPorCuentasActions";
 import { listaActivosFijosPorCuentasActions } from "../../../../redux/actions/Informes/Principal/CalcularDepreciacion/listaActivosFijosPorCuentasActions";
 import DocumentoCuentasPDF from "./DocumentoPDFCalcularCuentasDepreciacion";
+import { ListaActivosFijos } from "./CalcularDepreciacion";
+import Draggable from "react-draggable";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -26,72 +27,6 @@ interface FechasProps {
     fDesde: string;
     fHasta: string;
 }
-export interface ListaActivosFijos {
-    aF_CLAVE: number;
-    altaS_CORR: number;
-    aF_CODIGO_GENERICO: string;
-    aF_CODIGO_LARGO: string;
-    deP_CORR: number;
-    // esP_CODIGO: number;
-    // aF_SECUENCIA: number;
-    itE_CLAVE: number;
-    aF_DESCRIPCION: string;
-    aF_FINGRESO: string;
-    fechA_ALTA: string;
-    // aF_ESTADO: string;
-    aF_CODIGO: string;
-    aF_TIPO: string;
-    aF_ALTA: string;
-    aF_PRECIO_REF: number;
-    aF_CANTIDAD: number;
-    origen: string;
-    aF_RESOLUCION: string;
-    // aF_FECHA_SOLICITUD: string;
-    aF_OCO_NUMERO_REF: string;
-    usuariO_CREA: string;
-    f_CREA: string;
-    iP_CREA: string;
-    usuariO_MOD: string;
-    // f_MOD: string;
-    // iP_MODt: string;
-    aF_TIPO_DOC: number;
-    proV_RUN: string;
-    reG_EQM: string;
-    aF_NUM_FAC: string;
-    aF_FECHAFAC: string;
-    aF_3UTM: string;
-    iD_GRUPO: number;
-    ctA_COD: string;
-    transitoria: string;
-    aF_MONTOFACTURA: number;
-    esP_DESCOMPONE: string;
-    aF_ETIQUETA: string;
-    aF_VIDAUTIL: number;
-    aF_VIGENTE: string;
-    idprograma: number;
-    modalidad: string;
-    idpropiedad: number;
-    especie: string;
-    marca?: string;
-    modelo?: string;
-    serie?: string;
-    precio?: number;
-    ctA_NOMBRE?: string;
-    aF_ESTADO_INV?: number;
-
-    mesesTranscurridos?: number;
-    vidaUtil?: number;
-    mesVidaUtil?: number;
-    mesesRestantes?: number;
-    montoInicial?: number;
-    depreciacionPorAno?: number;
-    depreciacionPorMes?: number;
-    depreciacionAcumuladaActualizada?: number;
-    valorResidual?: number;
-    depreciacioN_ACUMULADA_SIGFE: number;
-    depreciacioN_SIGFE: number;
-}
-
 interface DatosAltas {
     listaActivosPorCuentasFijos: ListaActivosFijos[];
     listaActivosCalculadosPorCuentas: ListaActivosFijos[];
@@ -1669,9 +1604,26 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
             </Modal>
 
             {/* Modal PDF Excel Word */}
-            < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl" >
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Reporte depreciación por cuentas</Modal.Title>
+            < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl"
+                centered={false}
+                animation={false}
+                handle=".modal-header"
+                cancel=".modal-body"
+                dialogAs={(props) => (
+                    <Draggable
+                        handle=".modal-header"
+                        cancel=".modal-body"
+                    >
+                        <ModalDialog {...props} />
+                    </Draggable>
+                )} >
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""}
+                    style={{
+                        cursor: "move",
+                        userSelect: "none"
+                    }}
+                    closeButton>
+                    <Modal.Title className="fw-semibold">Exportar</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {/*Aqui se renderiza las propiedades de la tabla en el pdf */}

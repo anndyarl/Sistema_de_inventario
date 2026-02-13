@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Row, Col, Form, Pagination, Button, Spinner, Modal, Collapse } from "react-bootstrap";
+import { Row, Col, Form, Pagination, Button, Spinner, Modal, Collapse, ModalDialog } from "react-bootstrap";
 import { RootState } from "../../../../store";
 import { connect } from "react-redux";
 import Layout from "../../../../containers/hocs/layout/Layout";
@@ -25,6 +25,7 @@ import { registroTrasladoMultipleActions } from "../../../../redux/actions/Infor
 import DocumentoPDFServicioDependencia from "./DocumentoPDFServicioDependencia";
 import { comboSerDepActions } from "../../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { listadoTrasladosActions } from "../../../../redux/actions/Traslados/listadoTrasladosActions";
+import Draggable from "react-draggable";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -1024,9 +1025,26 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 </div>
             </div >
             {/* Modal selecciona todo*/}
-            < Modal show={mostrarTodoModal} onHide={() => setMostrarTodoModal(false)} dialogClassName="modal-right" size="xl" >
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
+            < Modal show={mostrarTodoModal} onHide={() => setMostrarTodoModal(false)} dialogClassName="modal-right" size="xl"
+                centered={false}
+                animation={false}
+                handle=".modal-header"
+                cancel=".modal-body"
+                dialogAs={(props) => (
+                    <Draggable
+                        handle=".modal-header"
+                        cancel=".modal-body"
+                    >
+                        <ModalDialog {...props} />
+                    </Draggable>
+                )} >
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""}
+                    style={{
+                        cursor: "move",
+                        userSelect: "none"
+                    }}
+                    closeButton>
+                    <Modal.Title className="fw-semibold">Firmar / Exportar</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form>
@@ -1142,8 +1160,26 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                 </Modal.Body>
             </Modal >
             {/*Modal para seleccion*/}
-            < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl" >
-                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+
+            < Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl"
+                centered={false}
+                animation={false}
+                handle=".modal-header"
+                cancel=".modal-body"
+                dialogAs={(props) => (
+                    <Draggable
+                        handle=".modal-header"
+                        cancel=".modal-body"
+                    >
+                        <ModalDialog {...props} />
+                    </Draggable>
+                )}>
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""}
+                    style={{
+                        cursor: "move",
+                        userSelect: "none"
+                    }}
+                    closeButton>
                     <Modal.Title className="fw-semibold">Folio por Servicio Dependencia</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>

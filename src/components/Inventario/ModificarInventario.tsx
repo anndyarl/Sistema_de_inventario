@@ -25,6 +25,8 @@ import { comboCuentaModificarActions } from "../../redux/actions/Inventario/Comb
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { obtenerInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioActions";
 import { obtenerInventarioxAltasActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioxAltasActions";
+import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
+import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
 
 export interface SERVICIO_DEPENDENCIA {
   deP_CORR: number;
@@ -71,9 +73,10 @@ export interface InventarioCompleto {
   AF_MONTOFACTURA: number; //montoRecepcion
   AF_FECHAFAC: string; //fechaFactura
   PROV_RUN: number; // rutProveedor
-  // SER_CORR: number; //servicio
+  // SER_CORR: number; //servicio 
   DEP_CORR: number; //dependencia
   IDMODALIDADCOMPRA: number; // modalidadDeCompra
+  OTRA_MODALIDAD?: string; // otraModalidad
   ESP_CODIGO: string; //ESP_CODIGO
   CTA_COD: string;
   //-------Tabla---------//
@@ -99,14 +102,16 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboSerDep: SERVICIO_DEPENDENCIA[];
   listaEspecie: ListaEspecie[];
   listaAltas: listaAltas[];
-  comboSerDepActions: (establ_corr: number) => void;//En buscador   
+  comboSerDepActions: (establ_corr: number) => Promise<boolean>;//En buscador   
   // comboDependenciaModificarActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
   obtenerInventarioActions: (af_codigo_generico: string, estabL_CORR: number) => Promise<boolean>;
   obtenerInventarioxAltasActions: (altas_corr: number, estabL_CORR: number) => Promise<boolean>;
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   comboCuentaModificarActions: (nombreEspecie: string) => Promise<boolean>;
-  comboProveedorActions: (rutProveedor: string) => void;
+  comboProveedorActions: (rutProveedor: string) => Promise<boolean>;
+  comboModalidadesActions: () => Promise<boolean>;
+  comboOrigenPresupuestosActions: () => Promise<boolean>;
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
   modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<{ success: boolean; error?: string }>;
   limpiarDataActions: () => Promise<boolean>;
@@ -141,6 +146,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   // SER_CORR, //servicio
   DEP_CORR, //dependencia
   IDMODALIDADCOMPRA, // modalidadDeCompra
+  OTRA_MODALIDAD,
   ESP_CODIGO,// descripcion ESP_CODIGO
   esP_NOMBRE,
   CTA_COD,
@@ -162,6 +168,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,
   comboCuentaModificarActions,
+  comboModalidadesActions,
+  comboOrigenPresupuestosActions,
   comboProveedorActions,
   modificarFormInventarioActions,
   limpiarDataActions
@@ -193,7 +201,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
   };
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [loading, setLoading] = useState(false);
+  const [loadingModalidadCompra, setLoadingModalidadCompra] = useState(false);
+  const [loadingOrigen, setLoadingOrigen] = useState(false);
+  const [loadingProveedor, setLoadingProveedor] = useState(false);
+  const [loadingCuenta, setLoadingCuenta] = useState(false);
+  const [loadingServicio, setLoadingServicio] = useState(false);
   const [showInput, setShowInput] = useState(false);
   const [loadingBuscarInventario, setLoadingBuscarInventario] = useState(false);
   // const [loadingBuscarAlta, setLoadingBuscarAlta] = useState(false);
@@ -218,6 +231,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     // SER_CORR: 0, //servicio
     DEP_CORR: 0, //dependencia
     IDMODALIDADCOMPRA: 0, // modalidadDeCompra
+    OTRA_MODALIDAD: "", // otraModalidad
     ESP_CODIGO: "", //ESP_CODIGO
     CTA_COD: "",
     //-------Tabla---------//
@@ -246,7 +260,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   });
   //Buscar Especie
   const [Buscar, setBuscar] = useState({
-    esP_CODIGO: ""
+    esP_CODIGO: "",
+    esp_NOMBRE: ""
   });
 
   const handleComboEspecieChange = (selectedOption: any) => {
@@ -274,7 +289,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     if (!Inventario.DEP_CORR) tempErrors.DEP_CORR = "Campo obligatorio";
     if (!Inventario.CTA_COD || Inventario.CTA_COD === "") tempErrors.CTA_COD = "Campo obligatorio";
     if (!Inventario.ESP_CODIGO) tempErrors.ESP_CODIGO = "Campo obligatorio";
-
     if (!Inventario.AF_VIDAUTIL) tempErrors.AF_VIDAUTIL = "Campo obligatorio";
     if (!Inventario.AF_FINGRESO || Inventario.AF_FINGRESO === "0") tempErrors.AF_FINGRESO = "Campo obligatorio";
     if (!Inventario.DET_MARCA) tempErrors.DET_MARCA = "Campo obligatorio";
@@ -313,7 +327,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
     }
     if (comboSerDep.length === 0) { comboSerDepActions(objeto.Roles[0].codigoEstablecimiento) }
-
+    if (comboModalidad.length === 0) comboModalidadesActions();
+    if (comboProveedor.length === 0) comboProveedorActions("");
+    if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
     setInventario({
       AF_CLAVE,
       AF_CODIGO_GENERICO, // nRecepcion
@@ -328,6 +344,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       // SER_CORR, //servicio
       DEP_CORR, //dependencia
       IDMODALIDADCOMPRA, // modalidadDeCompra
+      OTRA_MODALIDAD: OTRA_MODALIDAD ?? "", // otraModalidad
       ESP_CODIGO: ESP_CODIGO ? ESP_CODIGO + " | " + esP_NOMBRE : "",//ESP_CODIGO
       CTA_COD,
       //-------Tabla---------//
@@ -353,6 +370,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   }, [
     // comboDependencia.length,
     comboSerDep,
+    comboModalidad,
+    comboProveedor,
     AF_CODIGO_GENERICO, // nRecepcion
     AF_FECHA_SOLICITUD,//fechaRecepcion 
     AF_OCO_NUMERO_REF, //nOrdenCompra
@@ -364,6 +383,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     // SER_CORR, //servicio
     DEP_CORR, //dependencia
     IDMODALIDADCOMPRA, // modalidadDeCompra
+    OTRA_MODALIDAD,
     ESP_CODIGO,//ESP_CODIGO
     CTA_COD, //cuenta
     //-------Tabla---------//
@@ -374,9 +394,63 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     DET_SERIE,
     DET_PRECIO,
     DET_OBS,
-    comboCuentaModificarActions
+    comboCuentaModificarActions,
+    comboModalidadesActions,
+    comboProveedorActions,
     // Especies.codigoEspecie,
   ]);
+
+  const handleCargarMCompra = async () => {
+    if (comboModalidad.length === 0) {
+      setLoadingModalidadCompra(true);
+      const resultado = await comboModalidadesActions();
+      if (resultado) {
+        setLoadingModalidadCompra(false);
+      }
+    }
+  }
+
+  const handleCargarProveedor = async () => {
+    if (comboProveedor.length === 0) {
+      setLoadingProveedor(true);
+      const resultado = await comboProveedorActions("");
+      if (resultado) {
+        setLoadingProveedor(false);
+      }
+    }
+  }
+
+  const handleCargarOrigenPresupuesto = async () => {
+    if (comboOrigen.length === 0) {
+      setLoadingOrigen(true);
+      const resultado = await comboOrigenPresupuestosActions();
+      if (resultado) {
+        setLoadingOrigen(false);
+      }
+    }
+  }
+
+  const handleCargarCuenta = async () => {
+    if (comboCuenta.length === 0) {
+      setLoadingCuenta(true);
+      const resultado = await comboCuentaModificarActions("");
+      if (resultado) {
+        setLoadingCuenta(false);
+      }
+    }
+  }
+
+  const handleCargarServicio = async () => {
+    if (comboSerDep.length === 0) {
+      setLoadingServicio(true);
+      const resultado = await comboSerDepActions(objeto.Roles[0].codigoEstablecimiento);
+      if (resultado) {
+        setLoadingServicio(false);
+      }
+    }
+  }
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -441,10 +515,23 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
     if (name === "detalles") {
       listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, newValue as number, "", "");
+      setFilasSeleccionadas([]);
     }
-    if (name === "PROV_RUN") { //rutProveedor
-      comboProveedorActions(value);
+    // if (name === "PROV_RUN") { //rutProveedor
+    //   comboProveedorActions(value);
+    // }
+    if (name === "IDMODALIDADCOMPRA") { //modalidadDeCompra
+      if (value === "7") {
+        newValue = parseFloat(value) || 0;
+        dispatch(setModalidadCompraActions(newValue as number));
+        setShowInput(true);
+      } else {
+        newValue = parseFloat(value) || 0;
+        dispatch(setModalidadCompraActions(newValue as number));
+        setShowInput(false);
+      }
     }
+
     if (name === "IDMODALIDADCOMPRA") { //modalidadDeCompra
       if (value === "7") {
         newValue = parseFloat(value) || 0;
@@ -480,6 +567,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       SER_CORR: 0, //servicio
       DEP_CORR: 0, //dependencia
       IDMODALIDADCOMPRA: 0, // modalidadDeCompra
+      OTRA_MODALIDAD: "", //otraModalidad
       ESP_CODIGO: "", //ESP_CODIGO
       CTA_COD: "",
       //-------Tabla---------//
@@ -629,7 +717,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   // };
 
   const handleValidar = () => {
-    // console.log("campos", JSON.stringify(Inventario, null, 2));
+    console.log("campos", JSON.stringify(Inventario, null, 2));
 
     if (objeto.IdCredencial != 18667) {
       if (validate()) {
@@ -721,7 +809,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       });
     }
   };
-
 
   const handleBuscarInventario = async (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
     let resultado = false;
@@ -818,8 +905,18 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleBuscar = async () => {
     setLoading(true);
-    let resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
-
+    let resultado = false;
+    if (Buscar.esP_CODIGO && Buscar.esP_CODIGO.includes("-")) {
+      // Seleccionó del combo: usar código
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, Buscar.esP_CODIGO, "");
+    } else if (Buscar.esp_NOMBRE && Buscar.esp_NOMBRE.trim() !== "") {
+      //   // Escribió manualmente: usar nombre   
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", Buscar.esp_NOMBRE);
+    } else {
+      resultado = await listadoDeEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0, "", "");
+      setLoading(false);
+      return;
+    }
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -827,14 +924,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         text: "La especie consultado no ha sido encontrada",
         confirmButtonText: "Ok",
       });
-
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
       paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
-
+    setLoading(false);
   };
 
   const handleCerrarModal = () => {
@@ -871,6 +967,22 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       setMostrarModalDetalles(false);
     }
   }
+
+  // Si escribe a mano
+  const handleInputEspecieChange = (input: string) => {
+    setBuscar((prev) => ({ ...prev, esp_NOMBRE: input }));
+    handleBuscar();
+  };
+
+
+  const fechaCorte = new Date("2025-06-02");
+  const fechaIngreso = new Date(Inventario.AF_FINGRESO);
+
+  const puedeValidar =
+    (estadO_VISADO === 0 && fechaIngreso > fechaCorte) ||
+    (estadO_VISADO === 1 && fechaIngreso < fechaCorte);
+
+  const tieneAlta = estadO_VISADO === 1;
 
   // Lógica de paginación para lista especies
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -1116,28 +1228,65 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
                 </Col>
                 <Col md={3}>
-                  <div className="mb-1">
-                    <label className="fw-semibold">
-                      Origen Presupuesto</label>
-                    <select
-                      aria-label="AF_ORIGEN"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.AF_ORIGEN ? "is-invalid" : ""}`}
-                      name="AF_ORIGEN"
-                      onChange={handleChange}
-                      value={Inventario.AF_ORIGEN}
-                      disabled={isDisabled}
-                    >
-                      <option value="">Seleccione un origen</option>
-                      {comboOrigen.map((traeOrigen) => (
-                        <option key={traeOrigen.codigo} value={traeOrigen.codigo}>
-                          {traeOrigen.descripcion}
+                  <div className="mb-2">
+                    <label className="fw-semibold mb-1">
+                      Origen Presupuesto
+                    </label>
+
+                    <div className="input-group">
+                      <select
+                        aria-label="AF_ORIGEN"
+                        className={`${loadingOrigen
+                          ? "form-control border-end-0"
+                          : "form-select"
+                          }
+                        ${isDarkMode ? "bg-dark text-light border-secondary" : ""}
+                        ${error.AF_ORIGEN ? "is-invalid" : ""}`}
+                        name="AF_ORIGEN"
+                        value={Inventario.AF_ORIGEN}
+                        onChange={handleChange}
+                        onClick={handleCargarOrigenPresupuesto}
+                        disabled={loadingOrigen || isDisabled}
+                      >
+                        <option value="">
+                          {loadingOrigen
+                            ? "Cargando orígen presupuesto…"
+                            : "Seleccione un origen"}
                         </option>
-                      ))}
-                    </select>
-                    {error.AF_ORIGEN && (<div className="invalid-feedback fw-semibold">{error.AF_ORIGEN}
+
+                        {comboOrigen.map(o => (
+                          <option key={o.codigo} value={o.codigo}>
+                            {o.descripcion}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Spinner integrado */}
+                      {loadingOrigen && (
+                        <span
+                          className="input-group-text border-start-0"
+                          style={{
+                            backgroundColor: isDarkMode ? "#212529" : "rgb(233, 236, 239)",
+                            border: "1px solid",
+                            borderColor: isDarkMode ? "#6c757d" : "#dee2e6",
+                          }}
+                        >
+                          <Spinner
+                            animation="border"
+                            size="sm"
+                            variant={isDarkMode ? "light" : "primary"}
+                          />
+                        </span>
+                      )}
                     </div>
+
+                    {error.AF_ORIGEN && (
+                      <div className="invalid-feedback d-block fw-semibold">
+                        {error.AF_ORIGEN}
+                      </div>
                     )}
                   </div>
+
                   <div className="mb-1">
                     <label className="fw-semibold">
                       Monto Recepción
@@ -1149,6 +1298,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       maxLength={12}
                       name="AF_MONTOFACTURA"
                       onChange={handleChange}
+                      onClick={handleCargarOrigenPresupuesto}
                       value={Inventario.AF_MONTOFACTURA.toLocaleString("es-ES", {
                         minimumFractionDigits: 0,
                       })}
@@ -1175,28 +1325,57 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       <div className="invalid-feedback fw-semibold">{error.AF_FECHAFAC}</div>
                     )}
                   </div>
-                  <div className="mb-1">
-                    <label className="fw-semibold">
-                      Proveedor</label>
-                    <select
-                      aria-label="PROV_RUN"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.PROV_RUN ? "is-invalid" : ""}`}
-                      name="PROV_RUN"
-                      onChange={handleChange}
-                      value={Inventario.PROV_RUN}
-                      disabled={isDisabled}
-                    >
-                      <option value="0">Seleccione un Proveedor</option>
-                      {comboProveedor.map((traeProveedor) => (
-                        <option key={traeProveedor.proV_RUN} value={traeProveedor.proV_RUN}>
-                          {traeProveedor.proV_NOMBRE}
+                  <div className="mb-2">
+                    <label className="fw-semibold mb-1">
+                      Proveedor
+                    </label>
+                    <div className="input-group">
+                      <select
+                        aria-label="PROV_RUN"
+                        className={` ${loadingProveedor ? "form-control border-end-0" : "form-select"} ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.PROV_RUN ? "is-invalid" : ""}`}
+                        name="PROV_RUN"
+                        value={Inventario.PROV_RUN}
+                        onChange={handleChange}
+                        onClick={handleCargarProveedor}
+                        disabled={loadingProveedor || isDisabled}
+                      >
+                        <option value="0">
+                          {loadingProveedor
+                            ? "Cargando proveedores…"
+                            : "Seleccione un proveedor"}
                         </option>
-                      ))}
-                    </select>
-                    {error.PROV_RUN && (<div className="invalid-feedback fw-semibold d-block">{error.PROV_RUN}
+
+                        {comboProveedor.map(p => (
+                          <option key={p.proV_RUN} value={p.proV_RUN}>
+                            {p.proV_NOMBRE}
+                          </option>
+                        ))}
+
+                      </select>
+
+                      {/* Spinner integrado */}
+                      {loadingProveedor && (
+                        <span className="input-group-text border-start-0 "
+                          style={{
+                            'backgroundColor': isDarkMode ? "#212529" : "rgb(233, 236, 239)",
+                            border: "1px solid",
+                            borderColor: isDarkMode ? "#6c757d" : "#dee2e6"
+                          }}>
+                          <Spinner
+                            animation="border"
+                            size="sm"
+                            variant={isDarkMode ? "light" : "primary"}
+                          />
+                        </span>
+                      )}
                     </div>
+                    {error.PROV_RUN && (
+                      <div className="invalid-feedback d-block fw-semibold">
+                        {error.PROV_RUN}
+                      </div>
                     )}
                   </div>
+
                 </Col>
                 <Col md={3}>
                   {/* <div className="mb-1">
@@ -1253,102 +1432,166 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </div> */}
 
                   {/* Servicio/Dependencia */}
-                  <div className="mb-1 position-relative z-1">
-                    <label className="fw-semibold">
+                  <div className="mb-2 position-relative z-1">
+                    <label className="fw-semibold mb-1">
                       Servicio / Dependencia
                     </label>
+
                     <Select
                       options={servicioOptions}
                       onChange={handleServicioChange}
+                      onMenuOpen={handleCargarServicio}
                       name="DEP_CORR"
-                      value={servicioOptions.find((option) => option.value === Inventario.DEP_CORR) || null}
-                      placeholder="Buscar"
-                      className={`form-select-container ${error.DEP_CORR ? "is-invalid border border-danger rounded" : ""}`}
+                      value={
+                        servicioOptions.find(
+                          option => option.value === Inventario.DEP_CORR
+                        ) || null
+                      }
+                      placeholder="Buscar servicio o dependencia…"
+                      className={`form-select-container ${error.DEP_CORR ? "is-invalid border border-danger rounded" : ""
+                        }`}
                       classNamePrefix="react-select"
-                      isDisabled={isDisabled}
+                      isDisabled={loadingServicio || isDisabled}
                       isClearable
                       isSearchable
+
+                      /*LOADING NATIVO */
+                      isLoading={loadingServicio}
+                      loadingMessage={() => "Cargando servicios…"}
+                      noOptionsMessage={() =>
+                        loadingServicio
+                          ? "Cargando servicios…"
+                          : "No se encontraron resultados"
+                      }
+
                       styles={{
-                        control: (baseStyles) => ({
-                          ...baseStyles,
-                          background: isDisabled && !isDarkMode ? "#e9ecef" : "",//Color que indica deshabilitado
-                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                          color: isDarkMode ? "white" : "#dc3545", // Texto blanco
-                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                        control: (base) => ({
+                          ...base,
+                          backgroundColor: isDarkMode ? "#212529" : "white",
+                          borderColor: isDarkMode ? "#6c757d" : "#a6a6a66e",
+                          minHeight: "38px",
+                          opacity: loadingServicio ? 0.9 : 1,
+                          cursor: loadingServicio ? "not-allowed" : "default",
                         }),
                         singleValue: (base) => ({
                           ...base,
-                          color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                          color: isDarkMode ? "white" : "#212529",
                         }),
                         menu: (base) => ({
                           ...base,
-                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                          backgroundColor: isDarkMode ? "#212529" : "white",
                           color: isDarkMode ? "white" : "#212529",
                         }),
                         option: (base, { isFocused, isSelected }) => ({
                           ...base,
-                          backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                          color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                          backgroundColor: isSelected
+                            ? "#6c757d"
+                            : isFocused
+                              ? "#6c757d"
+                              : isDarkMode
+                                ? "#212529"
+                                : "white",
+                          color: isSelected || isFocused
+                            ? "white"
+                            : isDarkMode
+                              ? "white"
+                              : "#212529",
+                        }),
+                        indicatorSeparator: () => ({
+                          display: "none",
                         }),
                       }}
                     />
+
                     {error.DEP_CORR && (
                       <div className="invalid-feedback fw-semibold d-block">
                         {error.DEP_CORR}
                       </div>
                     )}
                   </div>
-                  <div className="mb-1">
-                    <label className="fw-semibold">
+
+                  {/* Modalidad de compra */}
+                  <div className="mb-2">
+                    <label className="fw-semibold mb-1">
                       Modalidad de Compra
                     </label>
-                    <select
-                      aria-label="IDMODALIDADCOMPRA"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
-                      name="IDMODALIDADCOMPRA"
-                      onChange={handleChange}
-                      value={Inventario.IDMODALIDADCOMPRA}
-                      disabled={isDisabled}
-                    >
-                      <option value="">Seleccione una modalidad</option>
-                      {comboModalidad.map((traeModalidad) => (
-                        <option
-                          key={traeModalidad.codigo}
-                          value={traeModalidad.codigo}
-                        >
-                          {traeModalidad.descripcion}
-                        </option>
-                      ))}
-                    </select>
-                    {error.IDMODALIDADCOMPRA && (<div className="invalid-feedback fw-semibold">{error.IDMODALIDADCOMPRA}
-                    </div>
-                    )}
-                  </div>
-                  {showInput && (
-                    <div className="mb-1">
-                      {/* <label className="fw-semibold">
-                    Modalidad de Compra
-                  </label> */}
-                      <input
+
+                    <div className="input-group">
+                      <select
                         aria-label="IDMODALIDADCOMPRA"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
+                        className={`${loadingModalidadCompra ? "form-control border-end-0" : "form-select"}
+                       ${isDarkMode ? "bg-dark text-light border-secondary" : ""}
+                       ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
                         name="IDMODALIDADCOMPRA"
-                        placeholder="Especifique otro"
-                        onChange={(e) =>
-                          setInventario({
-                            ...Inventario,
-                            IDMODALIDADCOMPRA: parseInt(e.target.value),
-                          })
-                        }
-                      />
-                      {error.IDMODALIDADCOMPRA && (
-                        <div className="invalid-feedback fw-semibold">
-                          {error.IDMODALIDADCOMPRA}
-                        </div>
+                        onChange={handleChange}          // 🔹 MISMA lógica
+                        onClick={handleCargarMCompra}
+                        value={Inventario.IDMODALIDADCOMPRA}
+                        disabled={loadingModalidadCompra || isDisabled}
+                      >
+                        <option value="">
+                          {loadingModalidadCompra
+                            ? "Cargando modalidades…"
+                            : "Seleccione una modalidad"}
+                        </option>
+
+                        {comboModalidad.map(m => (
+                          <option key={m.codigo} value={m.codigo}>
+                            {m.descripcion}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* SPINNER INTEGRADO */}
+                      {loadingModalidadCompra && (
+                        <span
+                          className="input-group-text border-start-0"
+                          style={{
+                            backgroundColor: isDarkMode ? "#212529" : "rgb(233, 236, 239)",
+                            border: "1px solid",
+                            borderColor: isDarkMode ? "#6c757d" : "#dee2e6",
+                          }}
+                        >
+                          <Spinner
+                            animation="border"
+                            size="sm"
+                            variant={isDarkMode ? "light" : "primary"}
+                          />
+                        </span>
                       )}
                     </div>
-                  )}
+
+                    {error.IDMODALIDADCOMPRA && (
+                      <div className="invalid-feedback d-block fw-semibold">
+                        {error.IDMODALIDADCOMPRA}
+                      </div>
+                    )}
+
+                    {/* INPUT "OTRO" — MISMA LÓGICA ANTERIOR */}
+                    {showInput && (
+                      <div className="mt-2">
+                        <input
+                          aria-label="OTRA_MODALIDAD"
+                          type="text"
+                          className={`form-control
+                          ${isDarkMode ? "bg-secondary text-light border-secondary" : ""}
+                          ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
+                          placeholder="Especifique otro"
+                          onChange={(e) =>
+                            setInventario({
+                              ...Inventario,
+                              OTRA_MODALIDAD: e.target.value.toString(),
+                            })
+                          }
+                        />
+
+                        {error.IDMODALIDADCOMPRA && (
+                          <div className="invalid-feedback fw-semibold">
+                            {error.IDMODALIDADCOMPRA}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <div className="mb-1">
                     <label className="fw-semibold">
                       Especie
@@ -1384,29 +1627,65 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                   </div>
                 </Col>
                 <Col md={3}>
-                  <div className="mb-1">
-                    <label className="fw-semibold">
-                      Cuenta</label>
-                    <select
-                      aria-label="CTA_COD"
-                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.CTA_COD ? "is-invalid" : ""}`}
-                      name="CTA_COD"
-                      onChange={handleChange}
-                      value={Inventario.CTA_COD}
-                      disabled={isDisabled}
-                    // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
-                    >
-                      <option value="">Selecciona una opción</option>
-                      {comboCuenta.map((traeCuentas) => (
-                        <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                          {traeCuentas.descripcion}
+                  <div className="mb-2">
+                    <label className="fw-semibold mb-1">
+                      Cuenta
+                    </label>
+
+                    <div className="input-group">
+                      <select
+                        aria-label="CTA_COD"
+                        className={`${loadingCuenta
+                          ? "form-control border-end-0"
+                          : "form-select"
+                          }
+                          ${isDarkMode ? "bg-dark text-light border-secondary" : ""}
+                          ${error.CTA_COD ? "is-invalid" : ""}`}
+                        name="CTA_COD"
+                        onChange={handleChange}
+                        onClick={handleCargarCuenta}
+                        value={Inventario.CTA_COD}
+                        disabled={loadingCuenta || isDisabled}
+                      >
+                        <option value="">
+                          {loadingCuenta
+                            ? "Cargando cuentas…"
+                            : "Seleccione una cuenta"}
                         </option>
-                      ))}
-                    </select>
+
+                        {comboCuenta.map(c => (
+                          <option key={c.codigo} value={c.codigo}>
+                            {c.descripcion}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Spinner integrado */}
+                      {loadingCuenta && (
+                        <span
+                          className="input-group-text border-start-0"
+                          style={{
+                            backgroundColor: isDarkMode ? "#212529" : "rgb(233, 236, 239)",
+                            border: "1px solid",
+                            borderColor: isDarkMode ? "#6c757d" : "#dee2e6",
+                          }}
+                        >
+                          <Spinner
+                            animation="border"
+                            size="sm"
+                            variant={isDarkMode ? "light" : "primary"}
+                          />
+                        </span>
+                      )}
+                    </div>
+
                     {error.CTA_COD && (
-                      <div className="invalid-feedback fw-semibold d-block">{error.CTA_COD}</div>
+                      <div className="invalid-feedback d-block fw-semibold">
+                        {error.CTA_COD}
+                      </div>
                     )}
                   </div>
+
                   {/* <div className="mb-1">
                 <label className="fw-semibold">
                   Cuenta
@@ -1481,49 +1760,49 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </Row>
               <div className="d-flex justify-content-end align-items-center gap-2 m-2 p-2 rounded">
 
-                {/* Botón Limpiar */}
-                <Button
-                  disabled={isDisabled}
-                  onClick={handleLimpiarTodo}
-                  variant="danger"
-                  className="px-3 py-2 d-flex align-items-center"
-                >
-                  <Trash className="h-5 w-5 me-2" aria-hidden="true" />
-                  Limpiar todo
-                </Button>
 
                 {/* Validación / Estado */}
-                {(
-                  (estadO_VISADO === 0 && Inventario.AF_FINGRESO > '2025-06-02') ||
-                  (estadO_VISADO === 1 && Inventario.AF_FINGRESO < '2025-06-02')
-                ) ? (
-                  <Button
-                    onClick={handleValidar}
-                    variant={isDarkMode ? "secondary" : "primary"}
-                    className="px-3 py-2 d-flex align-items-center"
-                    disabled={isDisabled}
-                  >
-                    Validar
-                  </Button>
-                ) : (
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={
-                      <Tooltip id="tooltip-alta">
-                        Este activo tiene un alta asociada. Solo es posible modificar activos que aún no han sido dados de alta.
-                      </Tooltip>
-                    }
-                  >
-                    <Button
-                      variant="success"
-                      className="px-3 py-2 d-flex align-items-center"
+                {/* // permitira modificar los activo igresados antes del 2 de junio de 2025(fecha de paso a producción) y los ingresados despues de esa fecha que esten en estado no visado */}
+                {
+                  puedeValidar ? (
+                    <>
+                      < Button
+                        disabled={isDisabled}
+                        onClick={handleLimpiarTodo}
+                        variant="danger"
+                        className="px-3 py-2 d-flex align-items-center"
+                      >
+                        <Trash className="h-5 w-5 me-2" aria-hidden="true" />
+                        Limpiar todo
+                      </Button>
+                      <Button
+                        onClick={handleValidar}
+                        variant={isDarkMode ? "secondary" : "primary"}
+                        className="px-3 py-2 d-flex align-items-center"
+                        disabled={isDisabled}
+                      >
+                        Validar
+                      </Button>
+                    </>
+                  ) : tieneAlta ? (
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={
+                        <Tooltip id="tooltip-alta">
+                          Este activo tiene un alta asociada. Solo es posible modificar activos que aún no han sido dados de alta.
+                        </Tooltip>
+                      }
                     >
-                      <Check2Circle className="h-5 w-5 me-2" aria-hidden="true" />
-                      Activo dado de alta
-                    </Button>
-                  </OverlayTrigger>
-                )}
-
+                      <Button
+                        variant="success"
+                        className="px-3 py-2 d-flex align-items-center"
+                      >
+                        <Check2Circle className="h-5 w-5 me-2" aria-hidden="true" />
+                        Activo dado de alta
+                      </Button>
+                    </OverlayTrigger>
+                  ) : null
+                }
 
               </div>
 
@@ -1537,113 +1816,113 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         show={mostrarModal}
         onHide={() => setMostrarModal(false)}
         size="lg"
+        className="modal-fullscreen-sm-down"
       >
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Listado de Especies</Modal.Title>
+          <Modal.Title>Listado de Especies</Modal.Title>
         </Modal.Header>
+
         <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <form onSubmit={handleSubmitSeleccionado}>
-            <Row>
-              <Col md={12}>
-                <div className="d-flex justify-content-between">
-                  <div className="mb-1 w-50">
-                    <label className="fw-semibold">Bien</label>
-                    <div className="d-flex align-items-center">
-                      <select
-                        aria-label="bien"
-                        name="bien"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                        onChange={handleChange}
-                      >
-                        {comboBien.map((traeBien) => (
-                          <option key={traeBien.codigo} value={traeBien.codigo}>
-                            {traeBien.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="d-flex justify-content-end p-4">
-                    <Button type="submit" variant={`${isDarkMode ? "secondary" : "primary "}`}>
-                      Seleccionar{" "}
-                      <Check2Circle
-                        className={classNames("flex-shrink-0", "h-5 w-5")}
-                        aria-hidden="true"
-                      />
-                    </Button>
-                  </div>
+            <Row className="mb-2">
+              {/* Bien / Detalles */}
+              <Col xs={12} md={6}>
+                <div className="mb-1">
+                  <label aria-label="bien" className="fw-semibold">Bien</label>
+                  <select
+                    aria-label="bien"
+                    name="bien"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    onChange={handleChange}
+                  >
+                    <option value="">Seleccionar</option>
+                    {comboBien.map((traeBien) => (
+                      <option key={traeBien.codigo} value={traeBien.codigo}>
+                        {traeBien.descripcion}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div className="mb-1 w-50">
+                <div className="mb-1">
                   <label className="fw-semibold">Detalles</label>
-                  <div className="d-flex align-items-center">
-                    <select
-                      aria-label="detalles"
-                      name="detalles"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      onChange={handleChange}
-                    >
-                      <option value="">Selecciona una opción</option>
-                      {comboDetalle.map((traeDetalles) => (
-                        <option
-                          key={traeDetalles.codigo}
-                          value={traeDetalles.codigo}
-                        >
-                          {traeDetalles.descripcion}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <select
+                    aria-label="detalles"
+                    name="detalles"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    onChange={handleChange}
+                  // disabled={!Cuenta.bien}
+                  >
+                    <option value="">Seleccionar</option>
+                    {comboDetalle.map((traeDetalles) => (
+                      <option key={traeDetalles.codigo} value={traeDetalles.codigo}>
+                        {traeDetalles.descripcion}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div className="d-flex">
-                  <div className="mb-1 w-50">
-                    <label className="fw-semibold">
-                      Buscar Especie
-                    </label>
+              </Col>
+
+              <Col xs={12} md={6}>
+                {/* Especie */}
+                <div className="mb-1">
+                  <label className="fw-semibold">
+                    Buscar Especie
+                  </label>
+                  <div className="d-flex align-items-center">
                     <Select
                       options={especieOptions}
-                      onChange={(selectedOption) => { handleComboEspecieChange(selectedOption) }}
+                      onChange={(selectedOption) => handleComboEspecieChange(selectedOption)}
+                      onInputChange={(inputValue) => handleInputEspecieChange(inputValue)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleBuscar();
+                        }
+                      }}
                       name="esP_CODIGO"
                       placeholder="Buscar"
-                      className={`form-select-container `}
-                      classNamePrefix="react-select"
                       isClearable
-                      // isSearchable
+                      classNamePrefix="react-select"
+                      className="w-100 mx-1"
                       styles={{
-                        control: (baseStyles) => ({
-                          ...baseStyles,
-                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                          color: isDarkMode ? "white" : "#212529", // Texto blanco
-                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                        control: (base) => ({
+                          ...base,
+                          backgroundColor: isDarkMode ? "#212529" : "white",
+                          color: isDarkMode ? "white" : "#212529",
+                          borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
+
                         }),
                         singleValue: (base) => ({
                           ...base,
-                          color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                          color: isDarkMode ? "white" : "#212529",
                         }),
                         menu: (base) => ({
                           ...base,
-                          backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                          backgroundColor: isDarkMode ? "#212529" : "white",
                           color: isDarkMode ? "white" : "#212529",
+
                         }),
                         option: (base, { isFocused, isSelected }) => ({
                           ...base,
-                          backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                          color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                          backgroundColor:
+                            isSelected || isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                          color:
+                            isSelected || isFocused ? "white" : isDarkMode ? "white" : "#212529",
                         }),
                       }}
                     />
-                  </div>
-                  <div className="mb-1 mt-4">
                     <OverlayTrigger
                       placement="top"
-                      overlay={<Tooltip id="tooltip-limpiar">Editar Especie</Tooltip>}
+                      overlay={<Tooltip id="tooltip-limpiar">Buscar</Tooltip>}
                     >
-                      <Button onClick={handleBuscar}
-                        variant={`${isDarkMode ? "secondary" : "primary"}`}
-                        className="mx-1 mb-1"
-                        disabled={loading}>
+                      <Button
+                        onClick={handleBuscar}
+                        variant={isDarkMode ? "secondary" : "primary"}
+                        className="w-md-auto"
+                        disabled={loading}
+                      >
                         {loading ? (
                           <>
-                            {" Buscar"}
                             <Spinner
                               as="span"
                               animation="border"
@@ -1655,112 +1934,103 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           </>
                         ) : (
                           <>
-                            {" Buscar"}
-                            < Search className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
+                            <Search className="ms-1" />
                           </>
                         )}
                       </Button>
                     </OverlayTrigger>
-                    {/* <Button onClick={handleLimpiar}
-                    variant={`${isDarkMode ? "secondary" : "primary"}`}
-                    className="mx-1 mb-1">
-                    Limpiar
-                    <Eraser className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                  </Button> */}
                   </div>
                 </div>
               </Col>
             </Row>
-          </form>
-          <div className="bg-white shadow-sm sticky-top">
-            <Row>
-              <Col md={6}>
-                {/* {listaTrasladoSeleccion.length > 10 && ( */}
-                <div className="d-flex align-items-center me-2">
-                  <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                    Tamaño de página:
-                  </label>
-                  <select
-                    aria-label="Seleccionar tamaño de página"
-                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nPaginacion"
-                    onChange={handleChange}
-                    value={Paginacion.nPaginacion}
-                  >
-                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                      <option key={val} value={val}>{val}</option>
-                    ))}
-                  </select>
-                </div>
-                {/* )} */}
-              </Col>
-            </Row>
-          </div>
-          {/* Tabla*/}
-          <div className='table-responsive position-relative z-0'>
-            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-              <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                <tr>
-                  <th></th>
-                  {/* <th>Establecimiento</th> */}
-                  <th>Nombre</th>
-                  <th>Especie</th>
-                </tr>
-              </thead>
-              <tbody>
-                {elementosActuales.map((listadoEspecies, index) => (
-                  <tr key={index}>
-                    <td>
-                      <Form.Check
-                        type="checkbox"
-                        onChange={() =>
-                          handleSeleccionFila(indicePrimerElemento + index)
-                        }
-                        checked={filasSeleccionadas.includes(
-                          (indicePrimerElemento + index).toString()
-                        )}
-                      />
-                    </td>
-                    {/* <td>{listadoEspecies.estabL_CORR}</td> */}
-                    <td>{listadoEspecies.esP_CODIGO}</td>
-                    <td>{listadoEspecies.nombrE_ESP}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
 
-          {/* Paginador */}
-          <div className="paginador-container position-relative z-0">
-            <Pagination className="paginador-scroll">
-              <Pagination.First
-                onClick={() => paginar(1)}
-                disabled={paginaActual === 1}
-              />
-              <Pagination.Prev
-                onClick={() => paginar(paginaActual - 1)}
-                disabled={paginaActual === 1}
-              />
-
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === paginaActual}
-                  onClick={() => paginar(i + 1)}
+            {listaEspecie.length > 0 && (
+              <Col xs={12} className="d-flex justify-content-end ">
+                <Button
+                  variant={isDarkMode ? "secondary" : "primary"}
+                  type="submit"
+                  className="mb-1"
+                  disabled={!filasSeleccionadas.length}
                 >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => paginar(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-              />
-              <Pagination.Last
-                onClick={() => paginar(totalPaginas)}
-                disabled={paginaActual === totalPaginas}
-              />
-            </Pagination>
-          </div>
+                  Seleccionar <Check2Circle className="ms-1" />
+                </Button>
+              </Col>
+            )}
+
+          </form>
+          {/* Tabla responsive */}
+          {listaEspecie.length != 0 ? (
+            <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+              <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "table-light"}`}>
+                  <tr>
+                    <th></th>
+                    <th className={isDarkMode ? "text-light" : "text-dark"}>Código</th>
+                    <th className={isDarkMode ? "text-light" : "text-dark"}>Especie</th>
+                    {/* <th className={isDarkMode ? "text-light" : "text-dark"}>Vida Útil</th> */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {elementosActuales.map((listadoEspecies, index) => (
+                    <tr key={index}>
+                      <td>
+                        <Form.Check
+                          type="checkbox"
+                          onChange={() => handleSeleccionFila(indicePrimerElemento + index)}
+                          checked={filasSeleccionadas.includes(
+                            (indicePrimerElemento + index).toString()
+                          )}
+                        />
+                      </td>
+                      <td className={isDarkMode ? "text-light" : "text-dark"}>
+                        {listadoEspecies.esP_CODIGO}
+                      </td>
+                      <td className={isDarkMode ? "text-light" : "text-dark"}>
+                        {listadoEspecies.nombrE_ESP}
+                      </td>
+                      {/* <td className={isDarkMode ? "text-light" : "text-dark"}>
+                        {listadoEspecies.vidA_UTIL}
+                      </td> */}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className={`text-center m-2 p-2 rounded fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+              Aplique un filtro para visualizar los detalles de cada especie aquí.
+            </p>
+
+          )}
+          {/* Paginador */}
+          {listaEspecie.length > 10 && (
+            <div className="paginador-container mt-3">
+              <Pagination className="paginador-scroll justify-content-center">
+                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
+                <Pagination.Prev
+                  onClick={() => paginar(paginaActual - 1)}
+                  disabled={paginaActual === 1}
+                />
+                {Array.from({ length: totalPaginas }, (_, i) => (
+                  <Pagination.Item
+                    key={i + 1}
+                    active={i + 1 === paginaActual}
+                    onClick={() => paginar(i + 1)}
+                  >
+                    {i + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next
+                  onClick={() => paginar(paginaActual + 1)}
+                  disabled={paginaActual === totalPaginas}
+                />
+                <Pagination.Last
+                  onClick={() => paginar(totalPaginas)}
+                  disabled={paginaActual === totalPaginas}
+                />
+              </Pagination>
+            </div>
+          )}
         </Modal.Body>
       </Modal >
 
@@ -2079,6 +2349,7 @@ const mapStateToProps = (state: RootState) => ({
   comboDetalle: state.detallesReducer.comboDetalle,
   comboProveedor: state.comboProveedorReducers.comboProveedor,
   comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
+
   //-------Lista especies(Modal)---------//
   descripcionEspecie: state.datosActivoFijoReducers.descripcionEspecie,
   listaEspecie: state.listadoDeEspeciesBienReducers.listadoDeEspecies,
@@ -2123,7 +2394,9 @@ export default connect(mapStateToProps, {
   comboEspeciesBienActions,
   listadoDeEspeciesBienActions,
   comboCuentaModificarActions,
+  comboModalidadesActions,
   comboProveedorActions,
+  comboOrigenPresupuestosActions,
   modificarFormInventarioActions,
   limpiarDataActions
 })(ModificarInventario);

@@ -12,7 +12,7 @@ interface ResumenRegistroState {
   fechaFacturaR: string;
   fechaRecepcionR: string;
   modalidadDeCompraR: number;
-  otraModalidadR: number | null;
+  otraModalidadR: string | null;
   montoRecepcionR: number;
   nFacturaR: string;
   nOrdenCompraR: string;
@@ -47,7 +47,7 @@ const initialState: ResumenRegistroState = {
   fechaFacturaR: '',
   fechaRecepcionR: '',
   modalidadDeCompraR: 0,
-  otraModalidadR: 0,
+  otraModalidadR: '',
   montoRecepcionR: 0,
   nFacturaR: '',
   nOrdenCompraR: '',

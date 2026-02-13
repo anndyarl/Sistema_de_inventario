@@ -7,7 +7,7 @@ import {
 import { Dispatch } from "redux";
 
 // Acción para obtener servicio
-export const comboModalidadesActions = () => async (dispatch: Dispatch, getState: any) => {
+export const comboModalidadesActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
   if (token) {
     const config = {
@@ -27,14 +27,18 @@ export const comboModalidadesActions = () => async (dispatch: Dispatch, getState
           type: MODALIDAD_COMPRA_SUCCESS,
           payload: res.data,
         });
+        return true;
       } else {
         dispatch({ type: MODALIDAD_COMPRA_FAIL });
+        return false;
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
       dispatch({ type: MODALIDAD_COMPRA_FAIL });
+      return false;
     }
   } else {
     dispatch({ type: MODALIDAD_COMPRA_FAIL });
+    return false;
   }
 };

@@ -4,61 +4,97 @@ import ssmso_logo from "../../../../assets/img/SSMSO-LOGO.png"
 import { Container } from 'react-bootstrap';
 import { ListaActivosFijos } from './CalcularDepreciacion';
 
-
-// Formatear la fecha actual en español (Chile)
-// const fechaHoy = new Date().toLocaleDateString('es-CL', {
-//     day: '2-digit',
-//     month: 'long',
-//     year: 'numeric',
-// });
+const FONT_SIZES = {
+    xs: 5.5,
+    sm: 6.5,
+    md: 7.5,
+    base: 8,
+    lg: 9,
+    xl: 10,
+    xxl: 13,
+};
+const COLORS = {
+    primary: "#004485",
+    primaryLight: "#e8f0f8",
+    white: "#ffffff",
+    black: "#000000",
+    grayDark: "#333333",
+    grayMedium: "#666666",
+    grayLight: "#e0e0e0",
+    grayLighter: "#f5f7fa",
+    border: "#cccccc",
+};
 
 const styles = StyleSheet.create({
     page: {
         padding: 20,
         fontSize: 12,
     },
-    logoContainer: {
-        display: 'flex',
-        alignItems: 'flex-start',
-        marginBottom: 20,
+    /* ----- Cabecera con logo ----- */
+    logoSection: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 14,
+        paddingBottom: 10,
+        // borderBottomWidth: 2,
+        // borderBottomColor: COLORS.primary,
     },
     logo: {
-        width: 100, // Ajusta el tamaño del logo
-        height: 'auto',
+        width: 70,
+        marginRight: 12,
     },
-    containerHeader: {
-        marginTop: 15,
-        marginBottom: 5,
+    orgInfo: {
+        flexDirection: "column",
+        gap: 1,
     },
-    textContainer: {
-        marginLeft: 5
-    },
-    headerContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-    },
-    headerContent: {
-        display: 'flex',
-        flexDirection: 'row',
-        // justifyContent: 'space-between'
-    },
-    header: {
-        flex: 1,
-        fontSize: 6,
-        marginBottom: 5,
-        fontWeight: 'bold',
-        textAlign: 'right',
-    },
-    center: {
-        textAlign: 'center',
-        marginBottom: 20
-    },
-    p: {
-        fontSize: 8,
+    orgName: {
+        fontSize: FONT_SIZES.lg,
+        fontWeight: "bold",
+        color: COLORS.primary,
         marginBottom: 2,
-        fontWeight: 'semibold',
-        textAlign: 'center',
     },
+    orgDetail: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.grayMedium,
+        marginBottom: 1,
+    },
+
+    /* ----- Titulo del documento ----- */
+    tituloDocumento: {
+        fontSize: FONT_SIZES.xl,
+        fontWeight: "bold",
+        textAlign: "center",
+        // color: COLORS.primary,
+        marginBottom: 12,
+        paddingBottom: 6,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.grayLight,
+    },
+
+
+    /* ===== GRID INFORMACIÓN ===== */
+    headerGrid: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+
+    column: {
+        width: "32%",
+    },
+
+    label: {
+        fontSize: 8,
+        fontWeight: "bold",
+        color: "#000",
+        margin: 1,
+    },
+
+    value: {
+        fontSize: 8,
+        color: "#555",
+        marginBottom: 5,
+    },
+    /* ===== TABLE (NO TOCAR) ===== */
     table: {
         display: 'flex',
         flexDirection: 'column',
@@ -109,19 +145,16 @@ const styles = StyleSheet.create({
     fechaHoy: {
         padding: 2,
     },
-
     footer: {
         position: 'absolute',
-        bottom: 20,          // distancia del borde inferior
+        bottom: 3,
         left: 40,
         right: 40,
-        height: 20,
         flexDirection: 'row',
-        justifyContent: 'space-between',  // separa fecha y numeración
+        justifyContent: 'space-between',
         alignItems: 'center',
-        fontSize: 9,
-        color: '#000',
-        borderTopWidth: 1,                // línea separadora superior
+        fontSize: 6,
+        borderTopWidth: 1,
         borderTopColor: '#ccc',
         paddingTop: 4,
     },
@@ -143,102 +176,92 @@ const fechaHoy = new Date()
     })
     .replace(/-/g, '/');
 
-
-const arreglo = (array: any[], size: number) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-        result.push(array.slice(i, i + size));
-    }
-    return result;
-};
-
 const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual, totalMontoInicial }: { row: ListaActivosFijos[]; totalRes: number, totalDep: number, totalDepAnual: number, totalMontoInicial: number }) => {
 
-    const filasPorPagina = 12;
-    const paginas = arreglo(row, filasPorPagina);
     return (
         <Document>
-            {paginas.map((rows, indicePagina) => (
-                <Page key={indicePagina} style={styles.page}>
-                    {/* Logo */}
-                    <Container style={styles.containerHeader}>
-                        <View style={styles.headerContainer}>
-                            {/* Logo a la izquierda */}
-                            <Image src={ssmso_logo || "/placeholder.svg"} style={styles.logo} />
-                            {/* Textos a la derecha */}
-                            <View style={styles.textContainer}>
-                                <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
-                                <Text style={styles.p}>Subdirección Administrativa</Text>
-                                <Text style={styles.p}>Departamento de Finanzas</Text>
-                                {/* <Text style={styles.p}>Unidad de Inventarios</Text> */}
-                            </View>
-                        </View>
-                    </Container>
-                    {/* Encabezado */}
-                    <Container style={styles.containerHeader}>
-                        <Text style={styles.center}>Informe de Cálculo de Depreciación por Cuenta</Text>
-
-                        <View style={styles.headerContent}>
-                            <Text style={[styles.p, { textAlign: 'right' }]}>Cantidad: {row.length}</Text>
-                        </View>
-                    </Container>
-                    {/* Tabla */}
-                    <View style={styles.table}>
-                        {/* Cabecera de la tabla */}
-                        <View style={styles.tableHeader}>
-                            <Text style={[styles.tableCell, styles.colCuenta]}>Cuenta</Text>
-                            <Text style={[styles.tableCell, styles.colDescripcion]}>Descripción</Text>
-                            <Text style={[styles.tableCell, styles.colMontoInicial]}>Monto Inicial</Text>
-                            <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
-                            <Text style={[styles.tableCell, styles.colDepAcumulada]}>Depreciación Acumulada Actualizada</Text>
-                            <Text style={[styles.tableCell, styles.colValorResidual]}>Valor Residual</Text>
-                        </View>
-                        {/* Fila de datos */}
-                        {rows.map((lista, idx) => (
-                            <View style={styles.tableRow} key={idx}>
-                                < Text style={[styles.tableCell, styles.colCuenta]} > {lista.ctA_COD}</Text>
-                                < Text style={[styles.tableCell, styles.colDescripcion]} > {lista.ctA_NOMBRE == "0" ? "Sin Descripción" : lista.ctA_NOMBRE}</Text>
-                                <Text style={[styles.tableCell, styles.colMontoInicial]}>{(lista.montoInicial === 0 ? "-" : lista.montoInicial?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
-                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno === 0 ? "-" : lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
-                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada === 0 ? "-" : lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
-                                <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual === 0 ? "-" : lista.valorResidual).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
-                            </View>
-                        ))}
-                        {/* Fila de totales - solo en la última página */}
-                        {indicePagina === paginas.length - 1 && (
-                            <View style={styles.tableTotalRow}>
-                                <Text style={[styles.tableCell, styles.totalLabel]}>TOTALES</Text>
-                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>
-                                    $ {(totalMontoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                </Text>
-                                <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>
-                                    $ {(totalDepAnual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                </Text>
-                                <Text style={[styles.tableCell, styles.colDepAcumulada]}>
-                                    $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                </Text>
-                                <Text style={[styles.tableCell, styles.colValorResidual]}>
-                                    $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                </Text>
-                            </View>
-                        )}
+            <Page style={styles.page} wrap>
+                {/* HEADER */}
+                <View style={styles.logoSection}>
+                    <Image src={ssmso_logo} style={styles.logo} />
+                    <View style={styles.orgInfo}>
+                        <Text style={styles.orgName}>
+                            Servicio de Salud Metropolitano Sur Oriente
+                        </Text>
+                        <Text style={styles.orgDetail}>
+                            Subdireccion Administrativa
+                        </Text>
+                        <Text style={styles.orgDetail}>
+                            Departamento de Finanzas
+                        </Text>
+                        <Text style={styles.orgDetail}>Unidad de Inventarios</Text>
                     </View>
+                </View>
+                <Text style={styles.tituloDocumento}>Informe de Cálculo de Depreciación por Cuentas</Text>
 
-                    {/* <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text> */}
+                <View style={styles.headerGrid}>
+                    {/* Columna  */}
+                    <View style={styles.column}>
+                        <Text style={styles.label}>Cantidad: {row.length}</Text>
 
-                    <View style={styles.footer} fixed>
-                        <Text style={styles.footerLeft}>{fechaHoy}</Text>
-
-                        <Text
-                            style={styles.footerRight}
-                            render={({ pageNumber, totalPages }) =>
-                                `Página ${pageNumber} de ${totalPages}`
-                            }
-                        />
                     </View>
+                </View>
 
-                </Page >
-            ))}
+                {/* Tabla */}
+                <View style={styles.table}>
+                    {/* HEADER TABLA */}
+                    <View style={styles.tableHeader} fixed>
+                        <Text style={[styles.tableCell, styles.colCuenta]}>Cuenta</Text>
+                        <Text style={[styles.tableCell, styles.colDescripcion]}>Descripción</Text>
+                        <Text style={[styles.tableCell, styles.colMontoInicial]}>Monto Inicial</Text>
+                        <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>Depreciación por Año</Text>
+                        <Text style={[styles.tableCell, styles.colDepAcumulada]}>Depreciación Acumulada Actualizada</Text>
+                        <Text style={[styles.tableCell, styles.colValorResidual]}>Valor Residual</Text>
+                    </View>
+                    {/* Fila de datos */}
+                    {row.map((lista, idx) => (
+                        <View style={styles.tableRow} key={idx} wrap={false}>
+                            < Text style={[styles.tableCell, styles.colCuenta]} > {lista.ctA_COD}</Text>
+                            < Text style={[styles.tableCell, styles.colDescripcion]} > {lista.ctA_NOMBRE == "0" ? "Sin Descripción" : lista.ctA_NOMBRE}</Text>
+                            <Text style={[styles.tableCell, styles.colMontoInicial]}>{(lista.montoInicial === 0 ? "-" : lista.montoInicial?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
+                            <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>{(lista.depreciacionPorAno === 0 ? "-" : lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
+                            <Text style={[styles.tableCell, styles.colDepAcumulada]}>{(lista.depreciacionAcumuladaActualizada === 0 ? "-" : lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 }))}</Text>
+                            <Text style={[styles.tableCell, styles.colValorResidual]}>{(lista.valorResidual === 0 ? "-" : lista.valorResidual).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</Text>
+                        </View>
+                    ))}
+                    {/* Fila de totales - solo en la última página */}
+                    <View style={styles.tableTotalRow} >
+                        <Text style={[styles.tableCell, styles.totalLabel]}>TOTALES</Text>
+                        <Text style={[styles.tableCell, styles.colDepAcumulada]}>
+                            $ {(totalMontoInicial ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.colDepreciacionAnual]}>
+                            $ {(totalDepAnual ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.colDepAcumulada]}>
+                            $ {(totalDep ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.colValorResidual]}>
+                            $ {(totalRes ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* <Text style={styles.printLabel}>Impreso el {fechaDescarga}</Text> */}
+
+                {/* FOOTER */}
+                <View style={styles.footer} fixed>
+                    <Text style={styles.footerLeft}>{fechaHoy}</Text>
+                    <Text
+                        style={styles.footerRight}
+                        render={({ pageNumber, totalPages }) =>
+                            `Página ${pageNumber} de ${totalPages}`
+                        }
+                    />
+                </View>
+
+            </Page >
+
         </Document >
     );
 };

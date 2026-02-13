@@ -80,7 +80,7 @@ export interface FormulariosCombinados {
   fechaFacturaR: string;
   fechaRecepcionR: string;
   modalidadDeCompraR: number;
-  otraModalidadR: number | null;
+  otraModalidadR: string | null;
   montoRecepcionR: number;
   nFacturaR: string;
   nOrdenCompraR: string;
@@ -197,7 +197,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
+  const [modalMostrarResumen, setModalMostrarResumen] = useState(true);
   const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
   const [loadingExportar, setLoadingExportar] = useState(false);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
@@ -573,8 +573,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     }
   };
 
-
-
   // const handleExportPDF = () => {
   //   const input: any = document.getElementById("pdf-content");
   //   html2canvas(input, { scale: 2 }).then((canvas) => {
@@ -645,8 +643,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
             </div >
           )}
-
-
 
           <Row>
             <Col md={4}>
@@ -967,7 +963,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       </form>
       <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="xl">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Resumen</Modal.Title>
+          <Modal.Title className="fw-semibold">Resumen de Registro de Activos Fijos</Modal.Title>
         </Modal.Header>
 
         <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -1058,7 +1054,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                     break; // Salir del bucle una vez encontrado
                   }
                 }
-                return <p>{nombreModalidad}</p>;
+                return formulariosCombinados.modalidadDeCompraR === 7 ? <div className="d-flex"><p className="fw-semibold me-1">{nombreModalidad}</p> | <p className="ms-1">{formulariosCombinados.otraModalidadR}</p></div> : <p className="fw-normal">{nombreModalidad}</p>;
               })()}
             </Col>
             <Col>
@@ -1099,7 +1095,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
 
           </Row>
-
           <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
             {/* Tamaño Paginación */}
             <Col xs={12} lg="auto">
@@ -1216,7 +1211,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       {/* Modal PDF Excel Word */}
       < Modal show={modalMostrarExportar} onHide={() => setModalMostrarExportar(false)} dialogClassName="modal-right" size="xl" >
         <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-          <Modal.Title className="fw-semibold">Resumen de Registro de Activos Fijos</Modal.Title>
+          <Modal.Title className="fw-semibold">Exportar</Modal.Title>
         </Modal.Header>
         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
           {/*Aqui se renderiza las propiedades de la tabla en el pdf */}

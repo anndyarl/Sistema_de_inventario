@@ -22,6 +22,7 @@ qrcode.react@4.1.0
 rut.js
 @types/react-signature-canvas
 @react-pdf/renderer
+react-draggable
 --save-dev @types/file-saver --legacy-peer-deps // instalar esta version forzada para usar las exportaciones
 xlsx --legacy-peer-deps // instalar esta version forzada para usar las exportaciones excel
 docx --force

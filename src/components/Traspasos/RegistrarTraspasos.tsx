@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form, CloseButton } from "react-bootstrap";
+import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form, CloseButton, ModalDialog } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CaretDown, CaretUpFill, Eraser, Paperclip, Plus, Search, Send, Trash } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Eraser, FiletypePdf, Paperclip, Plus, Search, Send, Trash } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -12,19 +12,22 @@ import { Helmet } from "react-helmet-async";
 import Select from "react-select";
 import SkeletonLoader from "../Utils/SkeletonLoader";
 import MenuTraspasos from "../Menus/MenuTraspasos";
+import Draggable from "react-draggable";
+import { useNavigate } from "react-router-dom";
+import { BlobProvider } from "@react-pdf/renderer";
+import DocumentoPDFResumenTraspaso from "./DocumentoPDFResumenTraspaso";
 import { comboEstablecimientoActions } from "../../redux/actions/Traslados/Combos/comboEstablecimientoActions";
 import { comboTrasladoServicioActions } from "../../redux/actions/Traslados/Combos/comboTrasladoServicioActions";
 import { comboTrasladoEspecieActions } from "../../redux/actions/Traslados/Combos/comboTrasladoEspecieActions";
 import { comboDependenciaDestinoActions } from "../../redux/actions/Traslados/Combos/comboDependenciaDestinoActions";
-import { obtenerInventarioTrasladoActions } from "../../redux/actions/Traslados/obtenerInventarioTrasladoActions";
 import { listadoDeEspeciesBienActions } from "../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
 import { comboDependenciaOrigenActions } from "../../redux/actions/Traslados/Combos/comboDependenciaoOrigenActions";
-import { registroTraspasoMultipleActions } from "../../redux/actions/Traspasos/registroTrasladoMultipleActions";
+import { registroTraspasoMultipleActions } from "../../redux/actions/Traspasos/registroTraspasoMultipleActions";
 import { comboSerDepActions } from "../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { listadoTraspasosRecibidosActions } from "../../redux/actions/Traspasos/listadoTraspasosRecibidosActions";
 import { listadoTraspasosEnviadosActions } from "../../redux/actions/Traspasos/listadoTraspasosEnviadosActions";
-import { useNavigate } from "react-router-dom";
+import { obtenerInventarioTraspasoActions } from "../../redux/actions/Traspasos/obtenerInventarioTraspasoActions";
 
 // Define el tipo de los elementos del combo `Establecimiento`
 export interface ESTABLECIMIENTO {
@@ -42,38 +45,46 @@ interface TRASLADOESPECIE {
     descripcion: string;
 }
 
-/*-----Tabla principal------*/
-interface ListaATraspasar {
+/*----Props General---*/
+export interface PropsTraspasos {
+    // Activo
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
-    deT_OBS: string;
     esP_NOMBRE: string;
-    deP_CORR_ORIGEN: number;
-}
 
-/*----Tabla Modal---*/
-export interface listaTrasladoSeleccion {
-    aF_CLAVE: string;
-    aF_CODIGO_GENERICO: string;
-    altaS_CORR: number;
+    // Detalle Activo
     deT_OBS: string;
-    serviciO_DEPENDENCIA: string;
-    esP_NOMBRE: string;
     deT_MARCA: string;
     deT_MODELO: string;
     deT_SERIE: string;
-    deP_CORR_ORIGEN: number;
-}
-/*------Formulario Modal--------*/
-interface FormularioTraspaso {
-    deP_CORR_DESTINO: number;
+    altaS_CORR?: number;
+
+    // Traspaso
+    n_TRASPASO: number;
+    paS_FECHA: string;
     paS_MEMO_REF: string;
     paS_FECHA_MEMO: string;
     paS_OBS: string;
-    paS_NOM_ENTREGA: string;
-    paS_NOM_RECIBE: string;
-    paS_NOM_AUTORIZA: string;
-    estabL_CORR: number; //Establecimiento Destino
+    paS_NOM_ENTREGA?: string;
+    paS_NOM_RECIBE?: string;
+    paS_NOM_AUTORIZA?: string;
+    paS_ESTADO_AF: string;
+
+    // Ubicación Origen
+    estabL_CORR_ORIGEN?: number;
+    seR_NOMBRE_ORIGEN: string;
+    deP_CORR_ORIGEN: number;
+    deP_NOMBRE_ORIGEN: string;
+
+    // Ubicación Destino
+    estabL_CORR?: number;
+    seR_NOMBRE_DESTINO: string;
+    deP_CORR?: number;
+    deP_NOMBRE_DESTINO: string;
+
+    // Auxiliar
+    serviciO_DEPENDENCIA: string;
+    serviciO_DEPENDENCIA_DESTINO: string;
 }
 
 interface ListaEspecie {
@@ -81,10 +92,7 @@ interface ListaEspecie {
     esP_CODIGO: string;
     nombrE_ESP: string;
 }
-export interface ListaSalidaTraspasos {
-    aF_CODIGO_GENERICO: number;
-    n_TRASPASO: number;
-}
+
 
 interface SERVICIO_DEPENDENCIA {
     deP_CORR: number;
@@ -95,7 +103,7 @@ export interface TraspasoConAdjuntos {
     Adjuntos: any[];
 }
 
-interface TrasladosProps {
+interface PropsGeneral {
     registroTraspasoMultipleActions: (FormularioTraspaso: TraspasoConAdjuntos) => Promise<boolean>
     comboTrasladoServicio: TRASLADOSERVICIO[];
     comboTrasladoServicioActions: (establ_corr: number) => void;
@@ -107,10 +115,10 @@ interface TrasladosProps {
     comboDependenciaDestino: SERVICIO_DEPENDENCIA[];
     comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
     comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado 
-    obtenerInventarioTrasladoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string, estabL_CORR: number) => Promise<boolean>
+    obtenerInventarioTraspasoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string, estabL_CORR: number) => Promise<boolean>
     listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
     listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
-    listaTrasladoSeleccion: listaTrasladoSeleccion[];
+    listaTraspasoSeleccion: PropsTraspasos[];
     comboEspecies: ListaEspecie[];
     comboSerDepActions: (establ_corr: number) => void;//En buscador  
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
@@ -118,11 +126,11 @@ interface TrasladosProps {
     token: string | null;
     isDarkMode: boolean;
     objeto: Objeto;
-    listaSalidaTraspasos: ListaSalidaTraspasos[];
+    listaSalidaTraspasos: PropsTraspasos[];
 }
 
 
-const RegistrarTraspasos: React.FC<TrasladosProps> = ({
+const RegistrarTraspasos: React.FC<PropsGeneral> = ({
     registroTraspasoMultipleActions,
     comboSerDepActions,
     comboTrasladoServicioActions,
@@ -130,7 +138,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     comboTrasladoEspecieActions,
     comboDependenciaOrigenActions,
     comboDependenciaDestinoActions,
-    obtenerInventarioTrasladoActions,
+    obtenerInventarioTraspasoActions,
     comboEspeciesBienActions,
     listadoTraspasosEnviadosActions,
     listadoTraspasosRecibidosActions,
@@ -140,23 +148,25 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     comboDependenciaOrigen,
     comboEspecies,
     comboSerDep,
-    listaTrasladoSeleccion,
+    listaTraspasoSeleccion,
     listaSalidaTraspasos,
     objeto,
     token,
     isDarkMode }) => {
     const [loading, setLoading] = useState(false); // Estado para controlar la carga
     const [loadingBuscar, setLoadingBuscar] = useState(false); // Estado para controlar la carga
-    const [error, setError] = useState<Partial<FormularioTraspaso> & {}>({});
+    const [error, setError] = useState<Partial<PropsTraspasos> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
-    const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
+    const [mostrarModalResumen, setMostrarModalResumen] = useState(true);
+    const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
+    const [loadingExportar, setLoadingExportar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
     const [paginaActual1, setPaginaActual1] = useState(1);
     const [paginaActual2, setPaginaActual2] = useState(1);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
     const [filasSeleccionadasTraslados, setFilasSeleccionadasTraslados] = useState<string[]>([]);
-    const [activosFijos, setActivosFijos] = useState<ListaATraspasar[]>([]);
+    const [activosFijos, setActivosFijos] = useState<PropsTraspasos[]>([]);
     const navigate = useNavigate();
     const [Paginacion, setPaginacion] = useState({
         nPaginacion: 10
@@ -286,12 +296,11 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
             if (comboEstablecimiento.length === 0) comboEstablecimientoActions(objeto.Roles[0].codigoEstablecimiento);
             if (comboTrasladoEspecie.length === 0) comboTrasladoEspecieActions(objeto.Roles[0].codigoEstablecimiento);
             if (comboEspecies.length === 0) comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
+
         }
     }, [comboTrasladoServicioActions,
         comboEstablecimientoActions,
         comboTrasladoEspecieActions,
-        // comboEspeciesBienActions,
-        listaTrasladoSeleccion,
         comboEspecies]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -388,7 +397,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     const handleLimpiarFormulario = () => {
         setTraspasos((prev) => ({
             ...prev,
-            deP_CORR_DESTINO: 0,
+            deP_CORR: 0,
             traS_CO_REAL: 0,
             paS_MEMO_REF: "",
             paS_FECHA_MEMO: "",
@@ -428,7 +437,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         }
 
 
-        resultado = await obtenerInventarioTrasladoActions(Buscar.aF_CODIGO_GENERICO, Buscar.altaS_CORR, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN, Buscar.marca, Buscar.modelo, Buscar.serie, objeto.Roles[0].codigoEstablecimiento);
+        resultado = await obtenerInventarioTraspasoActions(Buscar.aF_CODIGO_GENERICO, Buscar.altaS_CORR, Buscar.esP_CODIGO, Buscar.deP_CORR_ORIGEN, Buscar.marca, Buscar.modelo, Buscar.serie, objeto.Roles[0].codigoEstablecimiento);
 
         if (!resultado) {
             Swal.fire({
@@ -497,16 +506,22 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         );
     };
 
+    //Se agrega datos especificos para luego pasar al envio (handleSubmitTraspaso)
     const handleAgregarSeleccionados = async () => {
         const selectedIndices = filasSeleccionadas.map(Number);
         const activosSeleccionados = selectedIndices.map((index) => {
+            const item = listaTraspasoSeleccion[index];
             return {
-                aF_CLAVE: parseInt(listaTrasladoSeleccion[index].aF_CLAVE),
-                aF_CODIGO_GENERICO: listaTrasladoSeleccion[index].aF_CODIGO_GENERICO,
-                deT_OBS: listaTrasladoSeleccion[index].deT_OBS,
-                esP_NOMBRE: listaTrasladoSeleccion[index].esP_NOMBRE,
-                deP_CORR_ORIGEN: listaTrasladoSeleccion[index].deP_CORR_ORIGEN
-            };
+                aF_CLAVE: item.aF_CLAVE,
+                aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+                esP_NOMBRE: item.esP_NOMBRE,
+                deT_MARCA: item.deT_MARCA,
+                deT_MODELO: item.deT_MODELO,
+                deT_SERIE: item.deT_SERIE,
+                deT_OBS: item.deT_OBS,
+                deP_CORR_ORIGEN: item.deP_CORR_ORIGEN,
+                serviciO_DEPENDENCIA: item.serviciO_DEPENDENCIA,
+            } as PropsTraspasos;
         });
 
         const result = await Swal.fire({
@@ -523,7 +538,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                 popup: "custom-border", // Clase personalizada para el borde
             }
         });
-
+        console.log(activosSeleccionados);
         // Verificar duplicados antes de mostrar la confirmación
         const duplicados = activosSeleccionados.filter(activo =>
             activosFijos.some(existente => existente.aF_CLAVE === activo.aF_CLAVE)
@@ -638,15 +653,21 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     deP_CORR_ORIGEN: item.deP_CORR_ORIGEN,//Dependencia Origen
                     deP_CORR: Traspasos.deP_CORR, //dependencia Destino 
                     usuariO_CREA: objeto.IdCredencial.toString(),
-                    traS_CO_REAL: Traspasos.traS_CO_REAL,
+                    // traS_CO_REAL: Traspasos.traS_CO_REAL,
                     paS_MEMO_REF: Traspasos.paS_MEMO_REF,
                     paS_FECHA_MEMO: Traspasos.paS_FECHA_MEMO,
                     paS_NOM_ENTREGA: Traspasos.paS_NOM_ENTREGA,
                     // paS_NOM_RECIBE: Traspasos.paS_NOM_RECIBE,
                     paS_NOM_AUTORIZA: Traspasos.paS_NOM_AUTORIZA,
-                    estabL_CORR_ORIGEN: objeto.Roles[0].codigoEstablecimiento,
-                    estabL_CORR: Traspasos.estabL_CORR,
-
+                    estabL_CORR_ORIGEN: objeto.Roles[0].codigoEstablecimiento, //establecimiento de origen
+                    estabL_CORR: Traspasos.estabL_CORR, //establecimiento de destino
+                    serviciO_DEPENDENCIA: item.serviciO_DEPENDENCIA.toUpperCase(), // nombre del servicio y la dependencia de origen
+                    serviciO_DEPENDENCIA_DESTINO: comboSerDep.find(item => item.deP_CORR === Traspasos.deP_CORR)?.descripcion || "",
+                    deT_MARCA: item.deT_MARCA,
+                    deT_MODELO: item.deT_MODELO,
+                    deT_SERIE: item.deT_SERIE,
+                    deT_OBS: item.deT_OBS,
+                    esP_NOMBRE: item.esP_NOMBRE
                 }));
 
                 const Adjuntos = anexosBase64.map((anexo) => ({
@@ -658,7 +679,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     Entidad,
                     Adjuntos
                 };
-                // console.log("TraspasoconAdjuntos", TraspasoConAdjuntos);
+                console.log("TraspasoconAdjuntos", TraspasoConAdjuntos.Entidad);
                 const resultado = await registroTraspasoMultipleActions(TraspasoConAdjuntos);
                 if (resultado) {
                     mostrarAlerta();
@@ -747,17 +768,35 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
         }
     }
 
+    const handleAbrirModalExportar = () => {
+        setLoadingExportar(true);
+        // Espera un ciclo de evento para mostrar el modal
+        setTimeout(() => {
+            setModalMostrarExportar(true);
+        }, 50); //se ajusta este tiempo para que cargue de inmediato
+    };
 
+    const formatearFecha = (fecha: string) => {
+        if (!fecha) return "";
+        const [anio, mes, dia] = fecha.split("T")[0].split("-");
+        return `${dia}/${mes}/${anio}`;
+    };
+
+    // const handleSeguimiento = () => {
+    //     navigate("/Traspaso/FirmarAltas", {
+    //         state: { prop_altaS_CORR: listaSalidaTraspasos[0]?.n_TRASPASO }
+    //     });
+    // }
     /*-----------------------Tabla Resultado de busqueda----------------------*/
     // Lógica de Paginación actualizada 
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
     const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
     const elementosActuales = useMemo(
-        () => listaTrasladoSeleccion.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listaTrasladoSeleccion, indicePrimerElemento, indiceUltimoElemento]);
+        () => listaTraspasoSeleccion.slice(indicePrimerElemento, indiceUltimoElemento),
+        [listaTraspasoSeleccion, indicePrimerElemento, indiceUltimoElemento]);
 
-    const totalPaginas = Array.isArray(listaTrasladoSeleccion)
-        ? Math.ceil(listaTrasladoSeleccion.length / elementosPorPagina) : 0;
+    const totalPaginas = Array.isArray(listaTraspasoSeleccion)
+        ? Math.ceil(listaTraspasoSeleccion.length / elementosPorPagina) : 0;
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     /*-----------------------Tabla Selecciones a Traspasar----------------------*/
@@ -785,6 +824,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
     const totalPaginas2 = Array.isArray(listaSalidaTraspasos)
         ? Math.ceil(listaSalidaTraspasos.length / elementosPorPagina2) : 0;
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
+
     return (
         <Layout>
             <Helmet>
@@ -1069,7 +1109,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                     <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                                         {/* Tamaño de página */}
                                         <Col xs={12} lg="auto">
-                                            {listaTrasladoSeleccion.length > 10 && (
+                                            {listaTraspasoSeleccion.length > 10 && (
                                                 <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
                                                     <label htmlFor="nPaginacion1" className="form-label fw-semibold mb-0 me-2">
                                                         Tamaño de página:
@@ -1200,7 +1240,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                         </div>
                     )}
                     {/* Modal lista seleccion traslados */}
-                    {listaTrasladoSeleccion.length > 0 && (
+                    {listaTraspasoSeleccion.length > 0 && (
                         <Modal show={mostrarModal} onHide={() => setMostrarModal(false)}
                             size="xl"
                             dialogClassName="draggable-modal"
@@ -1228,7 +1268,7 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                 <div className="bg-white shadow-sm sticky-top">
                                     <Row className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                                         <Col md={6}>
-                                            {listaTrasladoSeleccion.length > 10 && (
+                                            {listaTraspasoSeleccion.length > 10 && (
                                                 <div className="d-flex align-items-center me-2">
                                                     <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
                                                         Tamaño de página:
@@ -1491,8 +1531,8 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                                             }),
                                         }}
                                     />
-                                    {error.deP_CORR_DESTINO && (
-                                        <div className="invalid-feedback">{error.deP_CORR_DESTINO}</div>
+                                    {error.deP_CORR && (
+                                        <div className="invalid-feedback">{error.deP_CORR}</div>
                                     )}
                                 </div>
                                 {/* N° Memo Ref */}
@@ -1704,127 +1744,255 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
                     </form>
                 </Modal.Body>
             </Modal>
-            {/* Lista de resumen traspasados */}
-            <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} >
-                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                    <Modal.Title className="fw-semibold">Código de traspaso: {listaSalidaTraspasos[0]?.n_TRASPASO || 'N/A'}</Modal.Title>
-                </Modal.Header>
 
-                <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-
-                    <Col className="row align-items-center justify-content-center gap-2 px-2">
-
-                        {/* Mensaje */}
-                        <div
-                            className={`py-2 rounded fw-semibold fs-09em        ${isDarkMode
-                                ? "bg-success text-light border border-secondary"
-                                : "bg-success bg-opacity-10 text-success border border-success"
-                                }`}
-                        >
-                            Se han traspasado <strong>{listaSalidaTraspasos.length}</strong> bienes correctamente.
-                        </div>
-
-                        {/* Botón */}
-                        <Button
-                            className={`px-4 py-2 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
-                            onClick={() => {
-                                navigate("/traspasos/ListadoTraspasos");
-                            }}
-                        >
-                            Ir a Listado de Traspasos
-                        </Button>
-
-                        {listaSalidaTraspasos.length > 10 && (
-                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
-                                    Tamaño de página:
-                                </label>
-                                <select
-                                    aria-label="Seleccionar tamaño de página"
-                                    className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                    name="nPaginacion2"
-                                    onChange={handleChange}
-                                    value={Paginacion2.nPaginacion2}
-                                >
-                                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                                        <option key={val} value={val}>{val}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-                    </Col>
-
-                    <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
-                        <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                            <thead>
-                                <tr>
-                                    <th className="text-center">Nº Inventario</th>
-                                    {/* <th>N" Traspaso</th> */}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {elementosActuales2.length > 0 ? (
-                                    elementosActuales2.map((item, index) => (
-                                        <tr key={index}>
-                                            <td className="text-center">{item.aF_CODIGO_GENERICO || 'N/A'}</td>
-                                            {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}
-                                        </tr>
-                                    ))
+            {/* Resumen traspasos */}
+            {listaSalidaTraspasos.length > 0 && (
+                <>
+                    <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+                        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                            <Modal.Title className="fw-semibold">Resumen de Traspasos</Modal.Title>
+                        </Modal.Header>
+                        <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                            <Button
+                                className={`px-4 py-2 mx-1 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                                onClick={() => {
+                                    navigate("/traspasos/ListadoTraspasos");
+                                }}
+                            >
+                                Ir a Listado de Traspasos
+                            </Button>
+                            <Button
+                                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                onClick={handleAbrirModalExportar}
+                                disabled={listaSalidaTraspasos.length === 0 || loadingExportar}
+                            >
+                                {loadingExportar ? (
+                                    <>
+                                        Un Momento...
+                                        <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                    </>
                                 ) : (
-                                    <tr>
-                                        <td className="text-center">No hay registros</td>
-                                    </tr>
+                                    <>
+                                        <FiletypePdf
+                                            className="flex-shrink-0 h-5 w-5 mx-2"
+                                            aria-hidden="true"
+                                        />
+                                        Exportar
+                                        <span className="badge bg-light text-dark mx-1 mt-1">
+                                            {listaSalidaTraspasos.length}
+                                        </span>
+                                    </>
                                 )}
-                            </tbody>
-                        </table>
-                    </div>
-                    {/* Paginador */}
-                    {listaSalidaTraspasos.length > 10 && (
-                        <div className="paginador-container mt-3">
-                            <Pagination className="paginador-scroll justify-content-center">
-                                <Pagination.First onClick={() => paginar2(1)} disabled={paginaActual2 === 1} />
-                                <Pagination.Prev
-                                    onClick={() => paginar2(paginaActual2 - 1)}
-                                    disabled={paginaActual2 === 1}
-                                />
-                                {Array.from({ length: totalPaginas2 }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === paginaActual2}
-                                        onClick={() => paginar2(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                ))}
-                                <Pagination.Next
-                                    onClick={() => paginar2(paginaActual2 + 1)}
-                                    disabled={paginaActual2 === totalPaginas2}
-                                />
-                                <Pagination.Last
-                                    onClick={() => paginar2(totalPaginas2)}
-                                    disabled={paginaActual2 === totalPaginas2}
-                                />
-                            </Pagination>
+                            </Button>
                         </div>
-                    )}
+                        <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                            {/* Mensaje */}
+                            <div className={`py-2 rounded fw-semibold fs-09em
+                                  ${isDarkMode
+                                    ? "bg-success text-light border border-secondary"
+                                    : "bg-success bg-opacity-10 text-success border-none"
+                                }`}
+                            >
+                                Se han traspasado <strong>{listaSalidaTraspasos.length}</strong> bienes correctamente.
+                            </div>
+                            <Row className="mb-4 d-flex justify-content-between">
+                                <Col md={4}>
+                                    <p><strong>Traspaso N° </strong> {listaSalidaTraspasos[0]?.n_TRASPASO}</p>
+                                </Col>
+                                <Col md={4}>
+                                    <p><span className="fw-semibold">Fecha Traspaso: </span>{listaSalidaTraspasos[0]?.paS_FECHA}</p>
+                                    <p><span className="fw-semibold">Nº Memorandum: </span>{listaSalidaTraspasos[0]?.paS_MEMO_REF}</p>
+                                    <p ><span className="fw-semibold">Fecha Memo: </span>{formatearFecha(listaSalidaTraspasos[0]?.paS_FECHA_MEMO)}</p>
+                                </Col>
+                            </Row>
+                            <Row className="mb-4">
+                                <Col md={4}>
+                                    <p className="fw-semibold">Origen</p>
+                                    <p>        {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA}
+                                        ({listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 1 ? "SSMSO" :
+                                            listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 2 ? "CASR" :
+                                                listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 3 ? "HSJM" : "-"})</p>
+
+                                </Col>
+                                <Col md={4}>
+                                    <p className="fw-semibold">Destino</p>
+                                    <p> {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA_DESTINO}
+                                        ({listaSalidaTraspasos[0].estabL_CORR === 1 ? "SSMSO" :
+                                            listaSalidaTraspasos[0].estabL_CORR === 2 ? "CASR" :
+                                                listaSalidaTraspasos[0].estabL_CORR === 3 ? "HSJM" : "-"})</p>
+
+                                </Col>
+                            </Row>
+                            <Col className="row align-items-center justify-content-center gap-2 px-2">
+
+                                {listaSalidaTraspasos.length > 10 && (
+                                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                        <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                                            Tamaño de página:
+                                        </label>
+                                        <select
+                                            aria-label="Seleccionar tamaño de página"
+                                            className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="nPaginacion2"
+                                            onChange={handleChange}
+                                            value={Paginacion2.nPaginacion2}
+                                        >
+                                            {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                <option key={val} value={val}>{val}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                            </Col>
+
+                            <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                                    <thead>
+                                        <tr>
+                                            <th className="text-center">Nº Inventario</th>
+                                            <th className="text-center">Especie</th>
+                                            <th className="text-center">Marca</th>
+                                            <th className="text-center">Modelo</th>
+                                            <th className="text-center">Serie</th>
+                                            <th className="text-center">Observación</th>
+                                            <th className="text-center">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {elementosActuales2.length > 0 ? (
+                                            elementosActuales2.map((item, index) => (
+                                                <tr key={index}>
+                                                    <td className="text-center">{item.aF_CODIGO_GENERICO || 'N/A'}</td>
+                                                    <td className="text-center">{item.esP_NOMBRE || 'N/A'}</td>
+                                                    <td className="text-center">{item.deT_MARCA || 'N/A'}</td>
+                                                    <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
+                                                    <td className="text-center">{item.deT_SERIE || 'N/A'}</td>
+                                                    <td className="text-center">{item.deT_OBS || 'N/A'}</td>
+                                                    <td className="text-center">{item.paS_ESTADO_AF || 'N/A'}</td>
+                                                    {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td className="text-center">No hay registros</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {/* Paginador */}
+                            {listaSalidaTraspasos.length > 10 && (
+                                <div className="paginador-container mt-3">
+                                    <Pagination className="paginador-scroll justify-content-center">
+                                        <Pagination.First onClick={() => paginar2(1)} disabled={paginaActual2 === 1} />
+                                        <Pagination.Prev
+                                            onClick={() => paginar2(paginaActual2 - 1)}
+                                            disabled={paginaActual2 === 1}
+                                        />
+                                        {Array.from({ length: totalPaginas2 }, (_, i) => (
+                                            <Pagination.Item
+                                                key={i + 1}
+                                                active={i + 1 === paginaActual2}
+                                                onClick={() => paginar2(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </Pagination.Item>
+                                        ))}
+                                        <Pagination.Next
+                                            onClick={() => paginar2(paginaActual2 + 1)}
+                                            disabled={paginaActual2 === totalPaginas2}
+                                        />
+                                        <Pagination.Last
+                                            onClick={() => paginar2(totalPaginas2)}
+                                            disabled={paginaActual2 === totalPaginas2}
+                                        />
+                                    </Pagination>
+                                </div>
+                            )}
+                        </Modal.Body>
+                    </Modal>
+                    {
+                        loading && (
+                            <div
+                                className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
+                                style={{
+                                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                                    // zIndex: 1050,
+                                }}
+                            >
+                                <div className="text-center">
+                                    <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                                    <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+                                </div>
+                            </div>
+                        )
+                    }
+                </>
+            )
+            }
+
+            {/* Modal PDF Excel Word */}
+            <Modal
+                show={modalMostrarExportar}
+                onHide={() => setModalMostrarExportar(false)}
+                size="xl"
+                centered={false}
+                animation={false}
+                handle=".modal-header"
+                cancel=".modal-body"
+                dialogAs={(props) => (
+                    <Draggable
+                        handle=".modal-header"
+                        cancel=".modal-body"
+                    >
+                        <ModalDialog {...props} />
+                    </Draggable>
+                )}
+            >
+                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton
+                    style={{
+                        cursor: "move",
+                        userSelect: "none"
+                    }}
+                >
+                    <Modal.Title className="fw-semibold">Exportar</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+                    <BlobProvider
+                        document={
+                            <DocumentoPDFResumenTraspaso
+                                listaSalidaTraspasos={listaSalidaTraspasos}
+                            />
+                        }
+                    >
+                        {({ url, loading }) => {
+                            // Cuando el PDF termina de cargarse, apagamos el spinner
+                            useEffect(() => {
+                                if (!loading) {
+                                    setLoadingExportar(false);
+                                }
+                            }, [loading]);
+
+                            return loading ? (
+                                <p>Generando vista previa...</p>
+                            ) : (
+                                <>
+                                    <iframe
+                                        src={url ?? ""}
+                                        title="Vista Previa del PDF"
+                                        style={{
+                                            width: "100%",
+                                            height: "900px",
+                                            border: "none"
+                                        }}
+                                    ></iframe>
+                                </>
+                            );
+                        }}
+                    </BlobProvider>
                 </Modal.Body>
             </Modal>
-            {
-                loading && (
-                    <div
-                        className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
-                        style={{
-                            backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            // zIndex: 1050,
-                        }}
-                    >
-                        <div className="text-center">
-                            <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
-                            <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
-                        </div>
-                    </div>
-                )
-            }
         </Layout >
 
     );
@@ -1832,19 +2000,18 @@ const RegistrarTraspasos: React.FC<TrasladosProps> = ({
 
 const mapStateToProps = (state: RootState) => ({
     token: state.loginReducer.token,
-    comboTrasladoServicio: state.comboTrasladoServicioReducer.comboTrasladoServicio,
-    comboEstablecimiento: state.comboEstablecimientoReducer.comboEstablecimiento,
-    comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie,
-    comboDependenciaOrigen: state.comboDependenciaOrigenReducer.comboDependenciaOrigen,
-    comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
-    listaTrasladoSeleccion: state.obtenerInventarioTrasladoReducers.listaTrasladoSeleccion,
+    comboTrasladoServicio: state.comboTrasladoServicioReducer.comboTrasladoServicio || [],
+    comboEstablecimiento: state.comboEstablecimientoReducer.comboEstablecimiento || [],
+    comboTrasladoEspecie: state.comboTrasladoEspecieReducer.comboTrasladoEspecie || [],
+    comboDependenciaOrigen: state.comboDependenciaOrigenReducer.comboDependenciaOrigen || [],
+    comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino || [],
+    listaTraspasoSeleccion: state.obtenerInventarioTraspasoReducers.listaTrapasoSeleccion || [],
     objeto: state.validaApiLoginReducers,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
-    comboSerDep: state.comboServDepReducers.comboSerDep,
-    listaSalidaTraspasos: state.datosTraspasoRegistradoReducers.listaSalidaTraspasos
+    comboEspecies: state.comboEspeciesBienReducers.comboEspecies || [],
+    comboSerDep: state.comboServDepReducers.comboSerDep || [],
+    listaSalidaTraspasos: state.listaSalidaTraspasosReducers.listaSalidaTraspasos || []
 });
-
 export default connect(mapStateToProps, {
     registroTraspasoMultipleActions,
     comboTrasladoServicioActions,
@@ -1854,7 +2021,7 @@ export default connect(mapStateToProps, {
     comboDependenciaDestinoActions,
     comboSerDepActions,
     comboEspeciesBienActions,
-    obtenerInventarioTrasladoActions,
+    obtenerInventarioTraspasoActions,
     listadoDeEspeciesBienActions,
     listadoTraspasosRecibidosActions,
     listadoTraspasosEnviadosActions

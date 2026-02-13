@@ -721,6 +721,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
 
     if (handleValidar()) {
+      console.log(FormulariosCombinados);
       const confirmResult = await Swal.fire({
         icon: "info",
         title: "Confirmar registro",
@@ -735,7 +736,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
       });
 
       if (confirmResult.isConfirmed) {
-        console.log(FormulariosCombinados);
+
         setLoadingEnvio(true);
         try {
           const resultado = await registrarFormInventarioActions(FormulariosCombinados);

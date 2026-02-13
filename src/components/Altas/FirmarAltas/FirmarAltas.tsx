@@ -1027,11 +1027,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     // const altasSeguimiento = filasSeleccionadas.map(index =>
                     //     listaAltasRegistradas[parseInt(index)].idocumento
                     // );
-
-                    // Se conserva el numero de alta a ser visado para luego consultar en componente estado de firmas constantemente hasta que existan todas las firmas
-                    // Aqui se envia a redux para conservar los datos en caso de actualizacion de página
-
-
                     setSeguimientoFirmasActions({ idocumento: resultado }); // Se guarda en el estado de redux para consultarlo en la funcion de estado de firmas
 
                 }

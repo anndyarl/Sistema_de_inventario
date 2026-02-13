@@ -362,7 +362,7 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
                         onHide={() => handleCerrarModal(index)}
                         dialogClassName="modal-right" size="lg">
                         <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                            <Modal.Title className="fw-semibold">Consulta Inventario Especies</Modal.Title>
+                            <Modal.Title className="fw-semibold">Exportar</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <form>

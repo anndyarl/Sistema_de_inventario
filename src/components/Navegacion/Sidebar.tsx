@@ -17,6 +17,7 @@ import {
 import "../../styles/Sidebar.css"
 import { connect } from "react-redux"
 import type { RootState } from "../../store"
+// import { ChartArea } from "lucide-react"
 
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -43,6 +44,7 @@ const Sidebar: React.FC<GeneralProps> = ({ isCollapsed = false, onToggleCollapse
   // const [openSubMenus, setOpenSubMenus] = useState<{ [key: string]: boolean }>({})
 
   const navigation: NavItem[] = [
+    // { name: "Dashboard", href: "/DashBoard", icon: ChartArea },
     { name: "Inventario", href: "/Inventario", icon: Box },
     { name: "Altas", href: "/Altas", icon: PlusCircle },
     { name: "Traslados", href: "/Traslados", icon: ArrowLeftRight },

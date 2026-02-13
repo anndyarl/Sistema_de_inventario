@@ -60,6 +60,7 @@ import ListadoTraspasos from '../../../components/Traspasos/ListadoTraspasos';
 import ListadoBienesFuncionarios from '../../../components/Inventario/BienesFuncionario/ListadoBienesFuncionarios';
 import RegistroBienesFuncionarios from '../../../components/Inventario/BienesFuncionario/RegistroBienesFuncionarios';
 import CalcularDepreciacionPorCuentas from '../../../components/Informes/Principal/CalcularDepreciacion/CalcularDepreciacionPorCuentas';
+import Dashboard from '../../pages/Dashboard';
 
 // import useAnalytics from '../../../hooks/useAnalytics';
 
@@ -78,6 +79,7 @@ const AnimatedRoutes: React.FC = () => {
 
                 {/* Principal */}
                 <Route path="/Inicio" element={<Inicio />} />
+                <Route path="/DashBoard" element={<Dashboard />} />
                 <Route path="/" element={<ClaveUnica />} />
                 {/* Principal */}
 

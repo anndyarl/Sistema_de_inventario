@@ -14,7 +14,7 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
   dispatch({ type: LISTA_INDICADORES_REQUEST });
   try {
     const res = await axios.get(`https://mindicador.cl/api`);
-
+    // const res = await axios.get(`https://findic.cl/api`);
     const utm = res.data.utm;
     const uf = res.data.uf;
     const dolar = res.data.dolar;

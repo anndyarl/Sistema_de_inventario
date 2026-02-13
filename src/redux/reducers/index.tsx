@@ -99,7 +99,6 @@ import comboServicioMantenedorReducers from "./Mantenedores/Servicios/comboServi
 import obtenerReimpresionEtiquetasAltasReducers from "./Altas/ImprimirEtiquetas/obtenerReimpresionEtiquetasAltasReducers";
 import listadoTraspasosReducers from "./Traspasos/listadoTraspasosReducers";
 import comboServDepReducers from "./Inventario/Combos/comboServDepReducers";
-import datosTraspasoRegistradoReducers from "./Traspasos/datosTraspasoRegistradoReducers";
 import obtenerInventarioXAltasReducers from "./Inventario/ModificarInventario/obtenerInventarioXAltasReducers";
 import listadoTraspasosRecibidosReducers from "./Traspasos/listadoTraspasosRecibidosReducers";
 import listadoTraspasosAdjuntosReducers from "./Traspasos/listadoTraspasosAdjuntosReducers";
@@ -111,6 +110,9 @@ import loginPruebaReducers from "./auth/loginPruebaReducers";
 import listaActivosCalculadosPorCuentasReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosCalculadosPorCuentasReducers";
 import listaActivosNoCalculadosPorCuentasReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosNoCalculadosPorCuentasReducers";
 import listaActivosFijosPorCuentasReducers from "./Informes/Principal/CalcularDepreciacion/listaActivosFijosPorCuentasReducers";
+import obtenerInventarioTraspasoReducers from "./Traspasos/obtenerInventarioTraspasoReducers";
+import listaSalidaTraspasosReducers from "./Traspasos/listaSalidaTraspasosReducers";
+import listaSalidaTrasladosReducers from "./Traslados/datosTrasladoRegistradoReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -184,20 +186,21 @@ const appReducer = combineReducers({
   buscarBienesFuncionariosReducers,
 
   // Traslado
+  obtenerInventarioTrasladoReducers,
   comboEstablecimientoReducer,
   comboTrasladoServicioReducer,
   comboTrasladoEspecieReducer,
   comboDependenciaOrigenReducer,
   comboDependenciaDestinoReducer,
   listadoTrasladosReducers,
-  obtenerInventarioTrasladoReducers,
-  datosTrasladoRegistradoReducers,
+  listaSalidaTrasladosReducers,
 
   //Traspasos
+  obtenerInventarioTraspasoReducers,
   listadoTraspasosReducers,
   listadoTraspasosRecibidosReducers,
   listadoTraspasosAdjuntosReducers,
-  datosTraspasoRegistradoReducers,
+  listaSalidaTraspasosReducers,
   //-------Otros/Preferenicas---------------//
   // Indicadores
   indicadoresReducers,
