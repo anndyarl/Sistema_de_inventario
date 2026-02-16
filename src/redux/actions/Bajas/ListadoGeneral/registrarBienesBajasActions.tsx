@@ -7,7 +7,7 @@ import {
 } from "./../types";
 
 // Acción para obtener la recepción por número
-export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, especie: string, establ_corr: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, esP_NOMBRE: string, establ_corr: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {

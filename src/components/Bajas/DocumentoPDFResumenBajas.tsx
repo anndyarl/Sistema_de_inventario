@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import ssmso_logo from "../../../public/logoSSMSO.jpg";
-import { PropsTraspasos } from './RegistrarTraspasos';
+import { ListaBajas } from './ListadoGeneral';
 
 const FONT_SIZES = {
     xs: 5.5,
@@ -237,7 +237,6 @@ const fechaHoy = new Date()
     })
     .replace(/-/g, '/');
 
-
 // Inserta saltos de línea 
 function insertNewLinesDigits(value: any, every = 10) {
     if (value === null || value === undefined) return "";
@@ -255,7 +254,7 @@ const formatearFecha = (fecha: string) => {
     return `${dia}/${mes}/${anio}`;
 };
 
-const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTraspasos: PropsTraspasos[] }) => {
+const DocumentoPDFResumenBajas = ({ listaSalidaBajas }: { listaSalidaBajas: ListaBajas[] }) => {
     return (
         <Document>
             <Page style={styles.page} wrap>
@@ -275,72 +274,47 @@ const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTras
                         <Text style={styles.orgDetail}>Unidad de Inventarios</Text>
                     </View>
                 </View>
-                <Text style={styles.tituloDocumento}>Sistema de Activo Fijo</Text>
+                <Text style={styles.tituloDocumento}>Registro de Bajas de Activos Fijos</Text>
                 {/* ===== DATOS DEL TRASPASO ===== */}
                 <View style={styles.datosSection}>
                     {/* Fila superior: numero de traspaso + fechas/memo */}
                     <View style={styles.datosGrid}>
                         <View style={styles.datosColumnaIzquierda}>
                             <Text style={styles.datoNumeroTraspaso}>
-                                Traspaso Nº {listaSalidaTraspasos[0].n_TRASPASO}
+                                Certificado Nº {listaSalidaBajas[0].nresolucion}
                             </Text>
                         </View>
                         <View style={styles.datosColumnaDerecha}>
                             <View style={styles.datoInline}>
-                                <Text style={styles.datoLabel}>Fecha Traspaso: </Text>
+                                <Text style={styles.datoLabel}>Fecha de Baja: </Text>
                                 <Text style={styles.datoValor}>
-                                    {(listaSalidaTraspasos[0].paS_FECHA)}
-
+                                    {formatearFecha(listaSalidaBajas[0].fechA_BAJA)}
                                 </Text>
-                            </View>
-                            <View style={styles.datoInline}>
-                                <Text style={styles.datoLabel}>N Memorandum: </Text>
-                                <Text style={styles.datoValor}>
-                                    {listaSalidaTraspasos[0].paS_MEMO_REF}
-                                </Text>
-                            </View>
-                            <View style={styles.datoInline}>
-                                <Text style={styles.datoLabel}>Fecha Memorandum: </Text>
-                                <Text style={styles.datoValor}>
-                                    {formatearFecha(listaSalidaTraspasos[0].paS_FECHA_MEMO)}
-                                </Text>
-
                             </View>
                         </View>
                     </View>
+                </View>
 
-                    {/* Dependencias: Desde / Hasta */}
-                    <View style={styles.dependenciasSection}>
-                        <View style={styles.dependenciaBox}>
-                            <Text style={styles.dependenciaLabel}>Origen</Text>
-                            <Text style={styles.dependenciaValor}>
-                                {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA}
-                                ({listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 1 ? "SSMSO" :
-                                    listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 2 ? "CASR" :
-                                        listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 3 ? "HSJM" : "-"})
-                            </Text>
-                        </View>
-                        <View style={styles.dependenciaBox}>
-                            <Text style={styles.dependenciaLabel}>Destino</Text>
-                            <Text style={styles.dependenciaValor}>
-                                {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA_DESTINO}
-                                ({listaSalidaTraspasos[0].estabL_CORR === 1 ? "SSMSO" :
-                                    listaSalidaTraspasos[0].estabL_CORR === 2 ? "CASR" :
-                                        listaSalidaTraspasos[0].estabL_CORR === 3 ? "HSJM" : "-"})
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* Observacion */}
-                    <View style={styles.observacionSection}>
-                        <Text style={styles.observacionLabel}>
-                            Observacion:{" "}
-                            <Text style={styles.observacionValor}>
-                                {listaSalidaTraspasos[0].paS_OBS}
-                            </Text>
+                {/* Dependencias: Desde / Hasta */}
+                <View style={styles.dependenciasSection}>
+                    <View style={styles.dependenciaBox}>
+                        <Text style={styles.dependenciaLabel}>Destino</Text>
+                        <Text style={styles.dependenciaValor}>
+                            Bodega de excluidos
                         </Text>
                     </View>
                 </View>
+
+                {/* Observacion */}
+                <View style={styles.observacionSection}>
+                    <Text style={styles.observacionLabel}>
+                        Observacion:{" "}
+                        <Text style={styles.observacionValor}>
+                            {listaSalidaBajas[0].observaciones}
+                        </Text>
+                    </Text>
+                </View>
+
                 {/* Tabla */}
                 <View style={styles.table}>
                     {/* Cabecera de la tabla */}
@@ -351,19 +325,19 @@ const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTras
                         <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
                         <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
                         <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
-                        <Text style={[styles.tableCell, styles.colSerie]}>Obs</Text>
-                        <Text style={[styles.tableCell, styles.colSerie]}>Estado</Text>
+                        {/* <Text style={[styles.tableCell, styles.colSerie]}>Obs</Text> */}
+                        {/* <Text style={[styles.tableCell, styles.colSerie]}>Estado</Text> */}
                     </View>
                     {/* Fila de datos */}
-                    {listaSalidaTraspasos.map((lista, idx) => (
+                    {listaSalidaBajas.map((lista, idx) => (
                         <View style={styles.tableRow} key={idx}>
-                            <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
+                            <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CLAVE}</Text>
                             <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esP_NOMBRE}</Text>
                             <Text style={[styles.tableCell, styles.colMarca]}>{lista.deT_MARCA}</Text>
                             <Text style={[styles.tableCell, styles.colModelo]}>{lista.deT_MODELO}</Text>
                             <Text style={[styles.tableCell, styles.colSerie]}>{insertNewLinesDigits(lista.deT_SERIE, 10)}</Text>
-                            <Text style={[styles.tableCell, styles.colSerie]}>{lista.deT_OBS}</Text>
-                            <Text style={[styles.tableCell, styles.colSerie]}>{lista.paS_ESTADO_AF}</Text>
+                            {/* <Text style={[styles.tableCell, styles.colSerie]}>{lista.deT_OBS}</Text> */}
+                            {/* <Text style={[styles.tableCell, styles.colSerie]}>{lista.traS_ESTADO}</Text> */}
                         </View>
                     ))}
                 </View>
@@ -386,4 +360,4 @@ const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTras
     );
 };
 
-export default DocumentoPDFResumenTraspaso;
+export default DocumentoPDFResumenBajas;

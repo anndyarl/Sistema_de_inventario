@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Form, Modal, Row, Col } from "react-bootstrap";
+import { Pagination, Button, Spinner, Form, Modal, Row, Col, ModalDialog } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -9,10 +9,15 @@ import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
-import { Eraser, Search, XCircle } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, Search, XCircle } from "react-bootstrap-icons";
+import { ListaAltas } from "../Altas/RegistrarAltas.tsx";
+import { useNavigate } from "react-router-dom";
 import { registrarBienesBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/registrarBienesBajasActions.tsx";
 import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGeneral/listaAltasdesdeBajasActions.tsx";
-import { ListaAltas } from "../Altas/RegistrarAltas.tsx";
+import { BlobProvider } from "@react-pdf/renderer";
+import DocumentoPDFResumenBajas from "./DocumentoPDFResumenBajas.tsx";
+import Draggable from "react-draggable";
+
 export interface ListaBajas {
   bajaS_CORR: string;
   aF_CLAVE: number;
@@ -26,6 +31,9 @@ export interface ListaBajas {
   ctA_COD: string;
   iniciaL_VALOR: number;
   fechA_BAJA: string;
+  deT_MARCA: string;
+  deT_MODELO: string;
+  deT_SERIE: string;
   esP_NOMBRE: string;
   deP_ACUMULADA: number;
   aF_FINGRESO: string;
@@ -37,7 +45,7 @@ interface DatosBajas {
   listadoGeneralBajas: ListaAltas[];
   listaSalidaBajas: ListaBajas[];
   listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
-  registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, especie: string, establ_corr: number }[]) => Promise<boolean>;
+  registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, esP_NOMBRE: string, establ_corr: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
@@ -48,13 +56,24 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   const [__, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-  const [mostrarModal, setMostrarModal] = useState(false);
-  const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-  const elementosPorPagina = Paginacion.nPaginacion;
   const [busquedaCodigoGenerico, setBusquedaCodigoGenerico] = useState("");
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalResumen, setMostrarModalResumen] = useState(true);
+  const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
   const [busquedaAltas, setBusquedaAltas] = useState("");
+  const [loadingExportar, setLoadingExportar] = useState(false);
+  const navigate = useNavigate();
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [Paginacion, setPaginacion] = useState(
+    { nPaginacion: 10 }
+  );
+  const elementosPorPagina = Paginacion.nPaginacion;
+
+  const [paginaActual1, setPaginaActual1] = useState(1);
+  const [Paginacion1, setPaginacion1] = useState({
+    nPaginacion1: 10
+  });
+  const elementosPorPagina1 = Paginacion1.nPaginacion1;
 
   const [Bajas, setBajas] = useState({
     nresolucion: 0,
@@ -76,8 +95,6 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
     return coincideCodigo && coincideAlta;
   });
-
-
 
   useEffect(() => {
     setPaginaActual(1);
@@ -166,6 +183,10 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       [name]: newValue,
     }));
 
+    setPaginacion1((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
   };
 
   //Seleccion normal
@@ -279,7 +300,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           ? prev.filter(v => v !== aF_CLAVE.toString())
           : [...prev, aF_CLAVE.toString()]
       );
-      console.log(filasSeleccionadas);
+      // console.log(filasSeleccionadas);
     }
 
     else {
@@ -363,12 +384,15 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           aF_CLAVE: item.aF_CLAVE,
           usuariO_MOD: objeto.IdCredencial.toString(),
           ctA_COD: item.ctA_COD,
-          especie: item.esP_NOMBRE,
+          deT_MARCA: item.deT_MARCA,
+          deT_MODELO: item.deT_MODELO,
+          deT_SERIE: item.deT_SERIE,
+          esP_NOMBRE: item.esP_NOMBRE,
           ...Bajas,
           establ_corr: objeto.Roles[0].codigoEstablecimiento
         }));
 
-        console.log("FORMULARIO", FormularioBajas);
+        // console.log("FORMULARIO", FormularioBajas);
 
         const resultado = await registrarBienesBajasActions(FormularioBajas);
         if (resultado) {
@@ -413,7 +437,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        setModalMostrarResumen(true);
+        setMostrarModalResumen(true);
       }
     });
   };
@@ -466,6 +490,19 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
   };
 
 
+  const handleAbrirModalExportar = () => {
+    setLoadingExportar(true);
+    // Espera un ciclo de evento para mostrar el modal
+    setTimeout(() => {
+      setModalMostrarExportar(true);
+    }, 50); //se ajusta este tiempo para que cargue de inmediato
+  };
+
+  const formatearFecha = (fecha: string) => {
+    if (!fecha) return "";
+    const [anio, mes, dia] = fecha.split("T")[0].split("-");
+    return `${dia}/${mes}/${anio}`;
+  };
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -477,7 +514,18 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     ? Math.ceil(datosFiltrados.length / elementosPorPagina)
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+  /*-----------------------Tabla Resumen----------------------*/
 
+  // Lógica de Paginación actualizada 
+  const indiceUltimoElemento1 = paginaActual1 * elementosPorPagina1;
+  const indicePrimerElemento1 = indiceUltimoElemento1 - elementosPorPagina1;
+  const elementosActuales1 = useMemo(
+    () => listaSalidaBajas.slice(indicePrimerElemento1, indiceUltimoElemento1),
+    [listaSalidaBajas, indicePrimerElemento1, indiceUltimoElemento1]);
+
+  const totalPaginas1 = Array.isArray(listaSalidaBajas)
+    ? Math.ceil(listaSalidaBajas.length / elementosPorPagina1) : 0;
+  const paginar1 = (numeroPagina1: number) => setPaginaActual1(numeroPagina1);
   return (
     <Layout>
       <Helmet>
@@ -940,51 +988,245 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           </form>
         </Modal.Body>
       </Modal >
-      {/* Modal resumen*/}
-      <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="lg">
-        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-          <Modal.Title className="fw-semibold">Inventario asociado a Nº de Certificado</Modal.Title>
-        </Modal.Header>
-        {/* <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
-                  Exportar a PDF
-                </Button>
-              </div> */}
-        <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <div className="table-responsive">
-            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-              <thead>
-                <tr>
-                  <th>Nº Inventario</th>
-                  <th>N" Certificado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listaSalidaBajas.length > 0 ? (
-                  listaSalidaBajas.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.aF_CLAVE || 'N/A'}</td>
-                      <td>{item.nresolucion || 'N/A'}</td>
-                    </tr>
-                  ))
+
+      {/* Modal Resumen Bajas */}
+      {listaSalidaBajas.length > 0 && (
+        <>
+          <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+            {/* Mensaje */}
+            <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
+            >
+              Se han enviado a bodega de excluidos <strong>{listaSalidaBajas.length}</strong> {listaSalidaBajas.length === 1 ? "bien" : "bienes"} correctamente.
+            </div>
+            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+              <Modal.Title className="fw-semibold">Resumen de Bajas</Modal.Title>
+            </Modal.Header>
+
+            <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+              <Button
+                className={`px-4 py-2 mx-1 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                onClick={() => {
+                  navigate("/bajas/BodegaExcluidos");
+                }}
+              >
+                Ir a Listado de Excluidos
+              </Button>
+              <Button
+                variant={`${isDarkMode ? "secondary" : "primary"}`}
+                onClick={handleAbrirModalExportar}
+                disabled={listaSalidaBajas.length === 0 || loadingExportar}
+              >
+                {loadingExportar ? (
+                  <>
+                    Un Momento...
+                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                  </>
                 ) : (
-                  <tr>
-                    <td className="text-center">No hay registros</td>
-                  </tr>
+                  <>
+                    <FiletypePdf
+                      className="flex-shrink-0 h-5 w-5 mx-2"
+                      aria-hidden="true"
+                    />
+                    Exportar
+                    <span className="badge bg-light text-dark mx-1 mt-1">
+                      {/* {listaSalidaBajas.length} */}
+                    </span>
+                  </>
                 )}
-              </tbody>
-            </table>
-          </div>
+              </Button>
+            </div>
+            <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+              <Row className="mb-4 d-flex justify-content-between">
+                <Col md={4}>
+                  <p><strong>Certificado N° </strong> {listaSalidaBajas[0]?.nresolucion}</p>
+                </Col>
+                <Col md={4}>
+                  <p><span className="fw-semibold">Fecha Baja: </span>{formatearFecha(listaSalidaBajas[0]?.fechA_BAJA)}</p>
+                </Col>
+              </Row>
+              <Row className="mb-4">
+                <Col md={4}>
+                  <p className="fw-semibold">Destino</p>
+                  <p>
+                    Bodega de Excluidos
+                  </p>
+                </Col>
+              </Row>
+              <Col className="row align-items-center justify-content-center gap-2 px-2">
+
+                {listaSalidaBajas.length > 10 && (
+                  <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                    <label htmlFor="nPaginacion1" className="form-label fw-semibold mb-0 me-2">
+                      Tamaño de página:
+                    </label>
+                    <select
+                      aria-label="Seleccionar tamaño de página"
+                      className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                      name="nPaginacion1"
+                      onChange={handleChange}
+                      value={Paginacion1.nPaginacion1}
+                    >
+                      {[10, 15, 20, 25, 50, 100].map((val) => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </Col>
+
+              <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                  <thead>
+                    <tr>
+                      <th className="text-center">Nº Inventario</th>
+                      <th className="text-center">Especie</th>
+                      <th className="text-center">Marca</th>
+                      <th className="text-center">Modelo</th>
+                      <th className="text-center">Serie</th>
+                      {/* <th className="text-center">Observación</th>
+                      <th className="text-center">Estado</th> */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {elementosActuales1.length > 0 ? (
+                      elementosActuales1.map((item, index) => (
+                        <tr key={index}>
+                          <td className="text-center">{item.aF_CLAVE || 'N/A'}</td>
+                          <td className="text-center">{item.esP_NOMBRE || 'N/A'}</td>
+                          <td className="text-center">{item.deT_MARCA || 'N/A'}</td>
+                          <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
+                          <td className="text-center">{item.deT_SERIE || 'N/A'}</td>
+                          {/* <td className="text-center">{item.deT_OBS || 'N/A'}</td>
+                          <td className="text-center">{item.paS_ESTADO_AF || 'N/A'}</td> */}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="text-center">No hay registros</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {/* Paginador */}
+              {listaSalidaBajas.length > 10 && (
+                <div className="paginador-container mt-3">
+                  <Pagination className="paginador-scroll justify-content-center">
+                    <Pagination.First onClick={() => paginar1(1)} disabled={paginaActual1 === 1} />
+                    <Pagination.Prev
+                      onClick={() => paginar1(paginaActual1 - 1)}
+                      disabled={paginaActual1 === 1}
+                    />
+                    {Array.from({ length: totalPaginas1 }, (_, i) => (
+                      <Pagination.Item
+                        key={i + 1}
+                        active={i + 1 === paginaActual1}
+                        onClick={() => paginar1(i + 1)}
+                      >
+                        {i + 1}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                      onClick={() => paginar1(paginaActual1 + 1)}
+                      disabled={paginaActual1 === totalPaginas1}
+                    />
+                    <Pagination.Last
+                      onClick={() => paginar1(totalPaginas1)}
+                      disabled={paginaActual1 === totalPaginas1}
+                    />
+                  </Pagination>
+                </div>
+              )}
+            </Modal.Body>
+          </Modal>
+          {
+            loading && (
+              <div
+                className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
+                style={{
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  // zIndex: 1050,
+                }}
+              >
+                <div className="text-center">
+                  <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                  <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+                </div>
+              </div>
+            )
+          }
+        </>
+      )}
+
+      {/* Modal PDF Excel Word */}
+      <Modal
+        show={modalMostrarExportar}
+        onHide={() => setModalMostrarExportar(false)}
+        size="xl"
+        centered={false}
+        animation={false}
+        handle=".modal-header"
+        cancel=".modal-body"
+        dialogAs={(props) => (
+          <Draggable
+            handle=".modal-header"
+            cancel=".modal-body"
+          >
+            <ModalDialog {...props} />
+          </Draggable>
+        )}
+      >
+        <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton
+          style={{
+            cursor: "move",
+            userSelect: "none"
+          }}
+        >
+          <Modal.Title className="fw-semibold">Exportar</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+          {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+          <BlobProvider
+            document={
+              <DocumentoPDFResumenBajas
+                listaSalidaBajas={listaSalidaBajas}
+              />
+            }
+          >
+            {({ url, loading }) => {
+              // Cuando el PDF termina de cargarse, apagamos el spinner
+              useEffect(() => {
+                if (!loading) {
+                  setLoadingExportar(false);
+                }
+              }, [loading]);
+
+              return loading ? (
+                <p>Generando vista previa...</p>
+              ) : (
+                <>
+                  <iframe
+                    src={url ?? ""}
+                    title="Vista Previa del PDF"
+                    style={{
+                      width: "100%",
+                      height: "900px",
+                      border: "none"
+                    }}
+                  ></iframe>
+                </>
+              );
+            }}
+          </BlobProvider>
         </Modal.Body>
       </Modal>
-
     </Layout >
   );
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listadoGeneralBajas: state.datosListadoGeneralBajasReducers.listadoGeneralBajas,
-  listaSalidaBajas: state.datosBajasRegistradaReducers.listaSalidaBajas,
+  listadoGeneralBajas: state.datosListadoGeneralBajasReducers.listadoGeneralBajas || [],
+  listaSalidaBajas: state.datosBajasRegistradaReducers.listaSalidaBajas || [],
   token: state.loginReducer.token,
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers

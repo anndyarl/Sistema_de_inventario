@@ -124,7 +124,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   const [error, setError] = useState<Partial<PropsTraslados> & {}>({});
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
-  const [mostrarModalResumen, setMostrarModalResumen] = useState(true);
+  const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
   const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
   const [loadingExportar, setLoadingExportar] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -1156,6 +1156,16 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               backdrop="static" // Evita que se cierre al hacer clic afuera
               keyboard={false}
             >
+              {/* Mensaje */}
+              <div className={`py-2 rounded fw-semibold fs-09em
+                                  ${isDarkMode
+                  ? "bg-success text-light border border-secondary"
+                  : "bg-primary bg-opacity-10 text-primary border-none"
+                }`}
+              >
+                <p>Se han agregado <strong >{activosFijos.length}</strong> bienes. </p>
+
+              </div>
               <Modal.Header className={`modal-header`}>
                 <div className="d-flex justify-content-between w-100">
                   <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
@@ -1545,6 +1555,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       {listaSalidaTraslados.length > 0 && (
         <>
           <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+            {/* Mensaje */}
+            <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
+            >
+              Se han trasladado <strong>{listaSalidaTraslados.length}</strong> bienes correctamente.
+            </div>
             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
               <Modal.Title className="fw-semibold">Resumen de Traslados</Modal.Title>
             </Modal.Header>
@@ -1575,28 +1590,20 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     />
                     Exportar
                     <span className="badge bg-light text-dark mx-1 mt-1">
-                      {listaSalidaTraslados.length}
+                      {/* {listaSalidaTraslados.length} */}
                     </span>
                   </>
                 )}
               </Button>
             </div>
             <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-              {/* Mensaje */}
-              <div className={`py-2 rounded fw-semibold fs-09em
-                                        ${isDarkMode
-                  ? "bg-success text-light border border-secondary"
-                  : "bg-success bg-opacity-10 text-success border-none"
-                }`}
-              >
-                Se han trasladado <strong>{listaSalidaTraslados.length}</strong> bienes correctamente.
-              </div>
+
               <Row className="mb-4 d-flex justify-content-between">
                 <Col md={4}>
                   <p><strong>Traslado N° </strong> {listaSalidaTraslados[0]?.n_TRASLADO}</p>
                 </Col>
                 <Col md={4}>
-                  <p><span className="fw-semibold">Fecha Traslado: </span>{listaSalidaTraslados[0]?.traS_FECHA_MEMO}</p>
+                  <p><span className="fw-semibold">Fecha Traslado: </span>{listaSalidaTraslados[0]?.traS_FECHA}</p>
                   <p><span className="fw-semibold">Nº Memorandum: </span>{listaSalidaTraslados[0]?.traS_MEMO_REF}</p>
                   <p ><span className="fw-semibold">Fecha Memo: </span>{formatearFecha(listaSalidaTraslados[0]?.traS_FECHA_MEMO)}</p>
                 </Col>

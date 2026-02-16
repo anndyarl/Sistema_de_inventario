@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
     /* ----- Observacion ----- */
     observacionSection: {
         marginTop: 4,
+        marginBottom: 4,
     },
     observacionLabel: {
         fontSize: FONT_SIZES.md,

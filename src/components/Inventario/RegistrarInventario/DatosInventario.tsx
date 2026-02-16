@@ -990,7 +990,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 />
                 Exportar
                 <span className="badge bg-light text-dark mx-1 mt-1">
-                  {activosFijos.length}
+                  {/* {activosFijos.length} */}
                 </span>
               </>
             )}

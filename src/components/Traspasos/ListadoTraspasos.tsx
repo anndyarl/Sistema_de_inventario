@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
-import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, ExclamationCircle, GeoFill, Search } from "react-bootstrap-icons";
+import { ArrowBarLeft, ArrowBarRight, ArrowRepeat, ArrowsCollapseVertical, Check2Circle, CircleFill, Clock, Download, Eraser, ExclamationCircle, GeoFill, Search, XCircle } from "react-bootstrap-icons";
 import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { recibeTraspasoActions } from "../../redux/actions/Traspasos/recibeTraspasoActions.tsx";
@@ -1295,34 +1295,35 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             size="xl"
             centered
           >
+            {/* Estado */}
+            {estadoEnviado === 0 ? (
+              <>
+                <div className="py-2 rounded fw-semibold fs-09em bg-primary bg-opacity-10 text-primary border-none">
+                  <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
+                  Esperando Validación
+                </div>
+              </>
+            ) : (
+              estadoEnviado === 1 ? (
+                <>
+                  <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none">
+                    <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
+                    Marcado como recibido</div>
+                </>
+              ) : (
+                <>
+                  <div className="py-2 rounded fw-semibold fs-09em bg-danger bg-opacity-10 text-danger border-none">
+                    <XCircle className="me-2 flex-shrink-0" aria-hidden="true" />
+                    Marcado como rechazado</div>
+                </>
+              ))}
             <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
-              <Modal.Title className="fw-semibold">Detalle del Traspaso</Modal.Title>
+              <Modal.Title className="fw-semibold">Traspaso Enviado</Modal.Title>
             </Modal.Header>
 
             <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
               <Row className="g-1">
-                {/* Información General del Traspaso */}
 
-                {/*  Estado */}
-                <div className={`border rounded-3 p-3 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-
-                  {estadoEnviado === 0 ? (
-                    <div className="d-flex gap-2 w-50 justify-content-center mx-auto alert alert-primary" role="alert">
-                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                      <span className="fw-semibold">Esperando Validación</span>
-                    </div>
-                  ) : estadoEnviado === 1 ? (
-                    <div className="d-flex gap-2 w-50 justify-content-center mx-auto alert alert-success" role="alert">
-                      <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                      <span className="fw-semibold">Marcado como recibido</span>
-                    </div>
-                  ) : (
-                    <div className="d-flex gap-2 w-50 justify-content-center mx-auto alert alert-danger" role="alert">
-                      <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                      <span className="fw-semibold">Marcado como rechazado</span>
-                    </div>
-                  )}
-                </div>
                 {/* Información General del Traspaso */}
                 <Col lg={6}>
                   <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
@@ -1578,46 +1579,40 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             size="xl"
             centered
           >
+            {/* Validación */}
+            {estadoRecibido === 0 ? (
+              <>
+                <p className="py-2 mb-1 rounded fw-semibold fs-09em bg-secondary bg-opacity-10 text-secondary border-none">¿Ha recibido el bien en su establecimiento?</p >
+                <div className="d-flex gap-2 w-50 justify-content-center mx-auto">
+                  <Button variant="success" className="w-25" size="sm" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
+                    Sí, recibido
+                  </Button>
+                  <Button variant="danger" className="w-25" size="sm" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
+                    No, rechazar
+                  </Button>
+                </div>
+              </>
+            ) : (
+              estadoRecibido === 1 ? (
+                <>
+                  <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none">
+                    <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
+                    Marcado como recibido</div>
+                </>
+              ) : (
+                <>
+                  <div className="py-2 rounded fw-semibold fs-09em bg-danger bg-opacity-10 text-danger border-none">
+                    <XCircle className="me-2 flex-shrink-0" aria-hidden="true" />
+                    Marcado como rechazado</div>
+                </>
+              ))}
             <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
-              <Modal.Title className="fw-semibold">Detalle del Traspaso</Modal.Title>
+              <Modal.Title className="fw-semibold">Traspaso Recibido</Modal.Title>
             </Modal.Header>
 
             <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
-              {/* Validación */}
 
               <Row className="g-1">
-                {/*  Validación */}
-                <div className={`border rounded-3 p-3 mt-1 ${isDarkMode ? "border-secondary" : ""}`}>
-                  {estadoRecibido === 0 ? (
-                    <>
-                      <h6 className="fw-semibold mb-3 text-center">¿Ha recibido el bien en su establecimiento?</h6>
-                      <div className="d-flex gap-2 w-50 justify-content-center mx-auto">
-                        <Button variant="success" className="w-50" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
-                          Sí, recibido
-                        </Button>
-                        <Button variant="danger" className="w-50" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
-                          No, rechazar
-                        </Button>
-                      </div>
-                    </>
-                  ) : estadoRecibido === 1 ? (
-                    <>
-                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
-                      <div className="alert alert-success d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
-                        <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold ">Marcado como recibido</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <h6 className="fw-semibold mb-3">Estado solicitud</h6>
-                      <div className="alert alert-danger d-flex align-items-center justify-content-center m-0 px-3 py-2" role="alert">
-                        <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
-                        <span className="fw-semibold">Marcado como rechazado</span>
-                      </div>
-                    </>
-                  )}
-                </div>
                 {/* Información General del Traspaso */}
                 <Col lg={6}>
                   <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>

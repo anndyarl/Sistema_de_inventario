@@ -216,7 +216,7 @@ const DocumentoPDFResumen = ({ row, formulariosCombinados, }: { row: ActijosFijo
                     </View>
                 </View>
 
-                <Text style={styles.tituloDocumento}>Resumen de Registro de Activos Fijos</Text>
+                <Text style={styles.tituloDocumento}>Registro de Activos Fijos</Text>
 
                 {/* ===== GRID DATOS ===== */}
                 <View style={styles.headerGrid}>

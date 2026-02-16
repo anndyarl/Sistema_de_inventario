@@ -4,7 +4,7 @@ import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Paginatio
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CaretDown, CaretUpFill, Eraser, FiletypePdf, Paperclip, Plus, Search, Send, Trash } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Eraser, Eye, FiletypePdf, Paperclip, Plus, Search, Send, Trash } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -158,7 +158,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
     const [error, setError] = useState<Partial<PropsTraspasos> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
-    const [mostrarModalResumen, setMostrarModalResumen] = useState(true);
+    const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
     const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
     const [loadingExportar, setLoadingExportar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -1249,7 +1249,18 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                             keyboard={false}
 
                         >
+                            {/* Mensaje */}
+                            <div className={`py-2 rounded fw-semibold fs-09em
+                                  ${isDarkMode
+                                    ? "bg-success text-light border border-secondary"
+                                    : "bg-primary bg-opacity-10 text-primary border-none"
+                                }`}
+                            >
+                                <p>Se han agregado <strong >{activosFijos.length}</strong> bienes. </p>
+
+                            </div>
                             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+
                                 <div className="d-flex justify-content-between w-100">
                                     <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
                                     <Button
@@ -1745,13 +1756,19 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                 </Modal.Body>
             </Modal>
 
-            {/* Resumen traspasos */}
+            {/* Modal Resumen Traspasos */}
             {listaSalidaTraspasos.length > 0 && (
                 <>
                     <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+                        {/* Mensaje */}
+                        <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
+                        >
+                            Se han traspasado <strong>{listaSalidaTraspasos.length}</strong> bienes correctamente.
+                        </div>
                         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
                             <Modal.Title className="fw-semibold">Resumen de Traspasos</Modal.Title>
                         </Modal.Header>
+
                         <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
                             <Button
                                 className={`px-4 py-2 mx-1 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
@@ -1779,22 +1796,13 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                         />
                                         Exportar
                                         <span className="badge bg-light text-dark mx-1 mt-1">
-                                            {listaSalidaTraspasos.length}
+                                            {/* {listaSalidaTraspasos.length} */}
                                         </span>
                                     </>
                                 )}
                             </Button>
                         </div>
                         <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                            {/* Mensaje */}
-                            <div className={`py-2 rounded fw-semibold fs-09em
-                                  ${isDarkMode
-                                    ? "bg-success text-light border border-secondary"
-                                    : "bg-success bg-opacity-10 text-success border-none"
-                                }`}
-                            >
-                                Se han traspasado <strong>{listaSalidaTraspasos.length}</strong> bienes correctamente.
-                            </div>
                             <Row className="mb-4 d-flex justify-content-between">
                                 <Col md={4}>
                                     <p><strong>Traspaso N° </strong> {listaSalidaTraspasos[0]?.n_TRASPASO}</p>
@@ -1802,7 +1810,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                 <Col md={4}>
                                     <p><span className="fw-semibold">Fecha Traspaso: </span>{listaSalidaTraspasos[0]?.paS_FECHA}</p>
                                     <p><span className="fw-semibold">Nº Memorandum: </span>{listaSalidaTraspasos[0]?.paS_MEMO_REF}</p>
-                                    <p ><span className="fw-semibold">Fecha Memo: </span>{formatearFecha(listaSalidaTraspasos[0]?.paS_FECHA_MEMO)}</p>
+                                    <p ><span className="fw-semibold">Fecha Memorandum: </span>{formatearFecha(listaSalidaTraspasos[0]?.paS_FECHA_MEMO)}</p>
                                 </Col>
                             </Row>
                             <Row className="mb-4">
