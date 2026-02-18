@@ -4,7 +4,7 @@ import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Paginatio
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { CaretDown, CaretUpFill, Eraser, Eye, FiletypePdf, Paperclip, Plus, Search, Send, Trash } from "react-bootstrap-icons";
+import { CaretDown, CaretUpFill, Eraser, FiletypePdf, Paperclip, Plus, Search, Send, Trash } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -215,6 +215,8 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
     const [_, setNombreDocumento] = useState<string>("");
 
     const inputRef = useRef<HTMLInputElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+
 
     const handleFileInput = () => {
         inputRef.current?.click();
@@ -229,9 +231,37 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                 const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
                 return [...prev, ...archivosFiltrados];
             });
+
+            // Resetear el input para permitir seleccionar el mismo archivo nuevamente
+            e.target.value = "";
         }
     };
 
+    //Habilita el estado arrastrar
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    //Deshabilita el estado arrastrar al salir de la zona
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    //Adjuntar por arrastre (soporta multiples archivos)
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const archivosArrastrados = Array.from(e.dataTransfer.files);
+        if (archivosArrastrados.length > 0) {
+            setAnexos((prev) => {
+                const nombresPrevios = new Set(prev.map((file) => file.name));
+                const archivosFiltrados = archivosArrastrados.filter((file) => !nombresPrevios.has(file.name));
+                return [...prev, ...archivosFiltrados];
+            });
+        }
+    };
     const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
         const resultado: { nombre: string, contenido: string }[] = [];
 
@@ -254,6 +284,8 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
 
         return resultado;
     };
+    //----------------Fin Estado de archivo adjuntos ---------------//
+
 
     const especieOptions = comboEspecies.map((item) => ({
         value: item.esP_CODIGO,
@@ -392,6 +424,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
             modelo: "",
             serie: ""
         }));
+
     }
 
     const handleLimpiarFormulario = () => {
@@ -405,7 +438,8 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
             // paS_NOM_ENTREGA: "",
             // paS_NOM_RECIBE: "",
             paS_NOM_AUTORIZA: "",
-            estabL_CORR_D: 0
+            estabL_CORR: 0
+
         }));
     }
 
@@ -538,7 +572,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                 popup: "custom-border", // Clase personalizada para el borde
             }
         });
-        console.log(activosSeleccionados);
+        // console.log(activosSeleccionados);
         // Verificar duplicados antes de mostrar la confirmación
         const duplicados = activosSeleccionados.filter(activo =>
             activosFijos.some(existente => existente.aF_CLAVE === activo.aF_CLAVE)
@@ -679,7 +713,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                     Entidad,
                     Adjuntos
                 };
-                console.log("TraspasoconAdjuntos", TraspasoConAdjuntos.Entidad);
+                // console.log("TraspasoconAdjuntos", TraspasoConAdjuntos.Entidad);
                 const resultado = await registroTraspasoMultipleActions(TraspasoConAdjuntos);
                 if (resultado) {
                     mostrarAlerta();
@@ -1500,7 +1534,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                         ))}
                                     </select>
                                     {error.estabL_CORR && (
-                                        <div className="invalid-feedback fw-semibold">{error.estabL_CORR}</div>
+                                        <div className="invalid-feedback">{error.estabL_CORR}</div>
                                     )}
                                 </div>
                                 <div className="mb-1 position-relative z-1">
@@ -1514,7 +1548,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                         name="deP_CORR"
                                         value={servicioFormOptions.find((option) => option.value === Traspasos.deP_CORR) || null}
                                         placeholder="Buscar"
-                                        className={`form-select-container ${error.paS_OBS ? "is-invalid" : ""}`}
+                                        className={`form-select-container ${error.deP_CORR ? "is-invalid rounded" : ""}`}
                                         isDisabled={Traspasos.estabL_CORR === 0}
                                         classNamePrefix="react-select"
                                         isClearable
@@ -1524,7 +1558,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                                 ...baseStyles,
                                                 backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
                                                 color: isDarkMode ? "white" : "#212529", // Texto blanco
-                                                borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                                borderColor: error.deP_CORR ? "#dc3545" : isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
                                             }),
                                             singleValue: (base) => ({
                                                 ...base,
@@ -1670,83 +1704,80 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                         )}
                                     </div>
 
-                                    {anexos.length > 0 ? (
-                                        <div className='table-responsive'>
-                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover"}`}>
-                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
-                                                    <tr>
-                                                        <th className="fw-semibold text-center">Eliminar</th>
-                                                        <th className="fw-semibold text-center">Documentos</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {anexos.map((file, index) => (
-                                                        <tr key={index} >
-                                                            <td>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="danger"
-                                                                    className="rounded"
-                                                                    onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
-                                                                >
-                                                                    <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
-                                                                </Button>
-                                                            </td>
-                                                            <td className="text-center"> {file.name}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-
-                                            </table>
-                                            {anexos.length > 2 ? (
-                                                <></>
-                                            ) : (
-                                                <div className="ms-2">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="primary"
-                                                        className="rounded"
-                                                        onClick={handleFileInput}
-                                                    >
-                                                        <Plus width={18} height={18} aria-hidden="true" />
-                                                    </Button>
-                                                    <input
-                                                        aria-label="file"
-                                                        ref={inputRef}
-                                                        type="file"
-                                                        multiple
-                                                        accept=".pdf,.doc,.docx,.jpg,.png"
-                                                        style={{ display: "none" }}
-                                                        className={anexos.length >= 2 ? "disabled" : ""}
-                                                        onChange={handleChangeFiles}
-                                                    />
-                                                </div>
-                                            )}
+                                    {/* Zona de arrastre - siempre visible mientras no se alcance el limite */}
+                                    {anexos.length < 3 && (
+                                        <div
+                                            className={`text-center m-2 px-4 py-3 rounded border-2 border-dashed ${isDragging
+                                                ? "border-primary bg-primary bg-opacity-10"
+                                                : isDarkMode
+                                                    ? "bg-dark text-light border-secondary"
+                                                    : "bg-light text-muted border"
+                                                }`}
+                                            style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                                            onDrop={handleDrop}
+                                            onDragOver={handleDragOver}
+                                            onDragLeave={handleDragLeave}
+                                            onClick={handleFileInput}
+                                        >
+                                            <Paperclip width={24} height={24} aria-hidden="true" className="mb-1" />
+                                            <p className="file-name fw-semibold mb-0">
+                                                {isDragging
+                                                    ? "Suelta los archivos aqui"
+                                                    : "Arrastra y suelta archivos aqui, o haz clic para seleccionar"}
+                                            </p>
+                                            <small className="text-muted">Formatos: PDF, DOC, DOCX, JPG, PNG (max. 3 archivos)</small>
+                                            <input
+                                                aria-label="file"
+                                                ref={inputRef}
+                                                type="file"
+                                                multiple
+                                                accept=".pdf,.doc,.docx,.jpg,.png"
+                                                style={{ display: "none" }}
+                                                onChange={handleChangeFiles}
+                                            />
                                         </div>
-                                    ) : (
-                                        <>
-                                            <div className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                                                <a
+                                    )}
 
-                                                    className="mx-1 text-decoration-none text-muted"
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={handleFileInput}
-                                                >
-                                                    <Paperclip width={18} height={18} aria-hidden="true" />
-                                                    <span> Haga clic aquí para agregar documento</span>
-                                                </a>
-                                                <input
-                                                    aria-label="file"
-                                                    ref={inputRef}
-                                                    type="file"
-                                                    multiple
-                                                    accept=".pdf,.doc,.docx,.jpg,.png"
-                                                    style={{ display: "none" }}
-                                                    className={anexos.length >= 2 ? "disabled" : ""}
-                                                    onChange={handleChangeFiles}
-                                                />
-                                            </div>
-                                        </>
+                                    {/* Lista de archivos adjuntos */}
+                                    {anexos.length > 0 && (
+                                        <div className="m-2">
+                                            <label className="fw-semibold mb-1">Archivos adjuntos ({anexos.length}/3)</label>
+                                            <ul className="list-group">
+                                                {anexos.map((file, index) => (
+                                                    <li
+                                                        key={index}
+                                                        className={`list-group-item d-flex justify-content-between align-items-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                                            }`}
+                                                    >
+                                                        <div className="d-flex align-items-center text-truncate">
+                                                            <Paperclip width={14} height={14} aria-hidden="true" className="me-2 flex-shrink-0" />
+                                                            <span className="text-truncate">{file.name}</span>
+                                                            <small className="text-muted ms-2 flex-shrink-0">
+                                                                ({(file.size / 1024).toFixed(1)} KB)
+                                                            </small>
+                                                        </div>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline-danger"
+                                                            className="ms-2 flex-shrink-0"
+                                                            onClick={() => {
+                                                                setAnexos((prev) => prev.filter((_, i) => i !== index));
+                                                            }}
+                                                            title="Quitar archivo"
+                                                        >
+                                                            <Trash className="flex-shrink-0" width={14} height={14} aria-hidden="true" />
+                                                        </Button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {/* Mensaje cuando se alcanzo el limite */}
+                                    {anexos.length >= 3 && (
+                                        <div className="alert alert-warning m-2 py-2 mb-0">
+                                            <small className="fw-semibold">Se alcanzo el limite máximo de 3 archivos adjuntos.</small>
+                                        </div>
                                     )}
 
                                 </div>

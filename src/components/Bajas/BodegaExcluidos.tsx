@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pagination, Button, Spinner, Form, Modal, Row, Col } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, Paperclip, Plus, Search, Trash } from "react-bootstrap-icons";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/ListadoGeneral/obtenerListaExcluidosActions.tsx";
 import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaExcluidos/quitarBodegaExcluidosActions.tsx";
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
@@ -40,14 +40,17 @@ export interface ListaExcluidos {
   estado: number;
 }
 
-
+export interface RematesConAdjuntos {
+  Entidad: any[];
+  Adjuntos: any[];
+}
 interface DatosBajas {
   listaExcluidos: ListaExcluidos[];
   obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   obtenerListaRematesActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   // listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
   quitarBodegaExcluidosActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
-  excluirBajasActions: (listaExcluidos: Record<string, any>[]) => Promise<boolean>;
+  excluirBajasActions: (FormularioBodegaExcluido: RematesConAdjuntos) => Promise<boolean>
   // devolverBajasActions: (devolverBaja: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -61,15 +64,70 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]); //Estado para seleccion multiple
   const [filaSeleccionada, _] = useState<string[]>([]); //Estado para seleccion unica(Quitar)
   const [mostrarModal, setMostrarModal] = useState<number | null>(null);
+  const [mostrarModalAdjunto, setMostrarModalAdjunto] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
+  const [anexos, setAnexos] = useState<File[]>([]);
+  const [nombreDocumento, setNombreDocumento] = useState<string>("");
+
+  //----------------Estado de archivo adjuntos ---------------//
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+
+  const handleFileInput = () => {
+    inputRef.current?.click();
+  };
+
+  const handleChangeFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const nuevosArchivos = Array.from(e.target.files);
+
+      setAnexos((prev) => {
+        const nombresPrevios = new Set(prev.map((file) => file.name));
+        const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
+        return [...prev, ...archivosFiltrados];
+      });
+
+      // Resetear el input para permitir seleccionar el mismo archivo nuevamente
+      e.target.value = "";
+    }
+  };
+
+  //Habilita el estado arrastrar
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  //Deshabilita el estado arrastrar al salir de la zona
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  //Adjuntar por arrastre (soporta multiples archivos)
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const archivosArrastrados = Array.from(e.dataTransfer.files);
+    if (archivosArrastrados.length > 0) {
+      setAnexos((prev) => {
+        const nombresPrevios = new Set(prev.map((file) => file.name));
+        const archivosFiltrados = archivosArrastrados.filter((file) => !nombresPrevios.has(file.name));
+        return [...prev, ...archivosFiltrados];
+      });
+    }
+  };
+  //----------------Fin Estado de archivo adjuntos ---------------//
 
   const [Excluidos, setExcluidos] = useState({
     fDesde: "",
     fHasta: "",
     nresolucion: "",
-    af_codigo_generico: ""
+    af_codigo_generico: "",
+    observaciones: ""
   });
 
   const validate = () => {
@@ -118,7 +176,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     listaExcluidosAuto()
   }, [obtenerListaExcluidosActions, token, listaExcluidos.length]); // Asegúrate de incluir dependencias relevantes
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
     if ((name === "nresolucion" || name === "af_codigo_generico") && !/^[0-9]*$/.test(value)) {
@@ -163,13 +221,37 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     }
   };
 
-  const handleRematarSeleccionados = async () => {
+
+  const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
+    const resultado: { nombre: string, contenido: string }[] = [];
+
+    for (const archivo of archivos) {
+      const contenido = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(archivo);
+      });
+
+      resultado.push({
+        nombre: archivo.name,
+        contenido
+      });
+
+      setNombreDocumento(archivo.name);//Guardo el nombre del documento adjunto
+      // console.log("archivo.name", archivo.name);
+    }
+
+    return resultado;
+  };
+
+  const handlesubmit = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
 
     const result = await Swal.fire({
       icon: "info",
-      title: "Enviar a Bienes Rematados",
-      text: "Confirme para enviar",
+      title: "Confirmar Envio",
+      text: "¿Confirma que desea enviar los bienes seleccionados a bienes rematados?",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Confirmar y Enviar",
@@ -182,9 +264,24 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     });
 
     if (result.isConfirmed) {
-      // setLoadingRegistro(true);
+      setLoadingRegistro(false);
+      const anexosBase64 = await convertirArchivosABase64(anexos);
+      if (anexos.length > 2) {
+        Swal.fire({
+          icon: "warning",
+          title: "Máximo de archivos adjuntos",
+          text: "No puede adjuntar mas de dos documentos, quite algunos antes de continuar con su solicitud",
+          background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+          color: `${isDarkMode ? "#ffffff" : "000000"}`,
+          confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+          customClass: {
+            popup: "custom-border", // Clase personalizada para el borde
+          }
+        });
+        return;
+      }
       // Crear un array de objetos con aF_CLAVE y nombre
-      const Formulario = selectedIndices.map((activo) => ({
+      const Entidad = selectedIndices.map((activo) => ({
         aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
         bajaS_CORR: listaExcluidos[activo].bajaS_CORR,
         especie: listaExcluidos[activo].especie,
@@ -198,13 +295,23 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         // fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
 
       }));
+
+      const Adjuntos = anexosBase64.map((anexo) => ({
+        nombre: anexo.nombre,
+        contenido: anexo.contenido
+      }));
+
+      const RemateConAdjuntos = {
+        Entidad,
+        Adjuntos
+      };
       // console.log(Formulario);
-      const resultado = await excluirBajasActions(Formulario);
+      const resultado = await excluirBajasActions(RemateConAdjuntos);
       if (resultado) {
         Swal.fire({
           icon: "success",
           title: "Enviado a Bienes Rematados",
-          text: "Se ha enviado correctamente",
+          text: "Los bienes seleccionados se han enviado correctamente.",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -220,8 +327,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       } else {
         Swal.fire({
           icon: "error",
-          title: ":'(",
-          text: "Hubo un problema al registrar",
+          title: "Error",
+          text: "Ocurrió un problema al intentar enviar los bienes a remate.",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -231,9 +338,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         });
         setLoadingRegistro(false);
       }
-
     }
-
   };
 
   // const handleDevolverSeleccionados = async () => {
@@ -579,7 +684,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                         {filasSeleccionadas.length > 0 ? (
                           <Button
                             variant={`${isDarkMode ? "secondary" : "primary"}`}
-                            onClick={handleRematarSeleccionados}
+                            onClick={() => setMostrarModalAdjunto(true)}
                             className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
                             disabled={loadingRegistro}
                           >
@@ -759,7 +864,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           </form>
         </div>
       </div>
-      {/* Modal formulario*/}
+      {/* Modal formulario quitar*/}
       {elementosActuales.map((lista, index) => (
         <div key={index}>
           <Modal
@@ -830,6 +935,148 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           </Modal >
         </div>
       ))}
+
+      {/* Modal formulario adjuntar*/}
+      <Modal show={mostrarModalAdjunto} onHide={() => setMostrarModalAdjunto(false)} size="xl" dialogClassName="modal-right" backdrop="static">
+        <Modal.Header className={`bg-secondary text-white `} closeButton>
+          <Modal.Title className="fw-semibold">Enviar a Bienes Rematados
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+          <form >
+            <div className="d-flex justify-content-end">
+              <Button
+                variant="primary"
+                onClick={handlesubmit}
+                className="m-1 p-2 d-flex align-items-center"
+                disabled={loading || anexos.length > 2 || anexos.length == 0}
+              >
+                {loading ? (
+                  <>
+                    {" Enviar "}
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+
+                  </>
+                ) : (
+                  <>
+
+                    Enviar
+                    {/* <span className="badge bg-light text-dark mx-1 mt-1">
+                      {filasSeleccionadas.length}
+                    </span> */}
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="mb-1">
+              {/* <label htmlFor="observaciones" className="fw-semibold">
+                Observaciones
+              </label>
+              <textarea
+                className={`form-control ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                aria-label="observaciones"
+                name="observaciones"
+                rows={3}
+                maxLength={300}
+                style={{ maxHeight: "10rem" }}
+                onChange={handleChange}
+                value={Excluidos.observaciones}
+              />
+              {error.observaciones && (
+                <div className="invalid-feedback fw-semibold">
+                  {error.observaciones}
+                </div>
+              )} */}
+              <label htmlFor="observaciones" className="fw-semibold">
+                Adjuntar documentación
+              </label>
+              {/* Zona de arrastre - siempre visible mientras no se alcance el limite */}
+              {anexos.length < 2 && (
+                <div
+                  className={`text-center m-2 px-4 py-3 rounded border-2 border-dashed ${isDragging
+                    ? "border-primary bg-primary bg-opacity-10"
+                    : isDarkMode
+                      ? "bg-dark text-light border-secondary"
+                      : "bg-light text-muted border"
+                    }`}
+                  style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onClick={handleFileInput}
+                >
+                  <Paperclip width={24} height={24} aria-hidden="true" className="mb-1" />
+                  <p className="file-name fw-semibold mb-0">
+                    {isDragging
+                      ? "Suelta los archivos aqui"
+                      : "Arrastra y suelta archivos aqui, o haz clic para seleccionar"}
+                  </p>
+                  <small className="text-muted">Formatos: PDF, DOC, DOCX, JPG, PNG (max. 2 archivos)</small>
+                  <input
+                    aria-label="file"
+                    ref={inputRef}
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.jpg,.png"
+                    style={{ display: "none" }}
+                    onChange={handleChangeFiles}
+                  />
+                </div>
+              )}
+
+              {/* Lista de archivos adjuntos */}
+              {anexos.length > 0 && (
+                <div className="m-2">
+                  <label className="fw-semibold mb-1">Archivos adjuntos ({anexos.length}/2)</label>
+                  <ul className="list-group">
+                    {anexos.map((file, index) => (
+                      <li
+                        key={index}
+                        className={`list-group-item d-flex justify-content-between align-items-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                          }`}
+                      >
+                        <div className="d-flex align-items-center text-truncate">
+                          <Paperclip width={14} height={14} aria-hidden="true" className="me-2 flex-shrink-0" />
+                          <span className="text-truncate">{file.name}</span>
+                          <small className="text-muted ms-2 flex-shrink-0">
+                            ({(file.size / 1024).toFixed(1)} KB)
+                          </small>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline-danger"
+                          className="ms-2 flex-shrink-0"
+                          onClick={() => {
+                            setAnexos((prev) => prev.filter((_, i) => i !== index));
+                          }}
+                          title="Quitar archivo"
+                        >
+                          <Trash className="flex-shrink-0" width={14} height={14} aria-hidden="true" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Mensaje cuando se alcanzo el limite */}
+              {anexos.length > 2 && (
+                <div className="alert alert-warning m-2 py-2 mb-0">
+                  <small className="fw-semibold">Se alcanzo el limite maximo de 2 archivos adjuntos.</small>
+                </div>
+              )}
+            </div>
+
+          </form>
+        </Modal.Body>
+      </Modal>
     </Layout >
   );
 };

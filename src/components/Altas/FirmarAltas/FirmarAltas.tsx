@@ -266,20 +266,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         if (listaEstadoFirmas.length === 0) listaEstadoFirmasActions(altaSeleccionada, 0, objeto.Roles[0]?.codigoEstablecimiento);
         listaAuto();
         Unidad
-        if (anexos.length > 2) {
-            Swal.fire({
-                icon: "warning",
-                title: "Demasiados archivos adjuntos",
-                text: "Solo se permite adjuntar un máximo de 2 archivos.",
-                showCancelButton: true,
-                showConfirmButton: false,
-                cancelButtonText: "Cerrar",
-                background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                color: isDarkMode ? "#ffffff" : "#000000",
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: { popup: "custom-border" }
-            });
-        }
+
     }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length, anexos.length]);
 
 
@@ -1807,7 +1794,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                             variant={isDarkMode ? "secondary" : "primary"}
                                             className="mx-1 mb-1 d-flex align-items-center gap-2"
                                             onClick={handleFileInput}
-                                            disabled={anexos.length >= 2}
+                                            disabled={anexos.length > 2}
                                         >
                                             <Paperclip width={18} height={18} aria-hidden="true" />
                                             <span>Adjuntar documento</span>
@@ -2238,45 +2225,47 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 </Col>
                             </Row>
                         </Collapse>
-                        {anexos.length > 2 && (
-                            <div className="w-100 text-end">
-                                <span className="badge bg-danger p-2">
-                                    Elimine algunos archivos.
-                                </span>
-                            </div>
-                        )}
 
+                        {/* Lista de archivos adjuntos */}
                         {anexos.length > 0 && (
-                            <div className='table-responsive'>
-                                <table className={`table ${isDarkMode ? "table-dark" : "table-hover"}`}>
-                                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
-                                        <tr>
-                                            <th scope="col">Documentos adjuntos:</th>
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {anexos.map((file, index) => (
-                                            <tr key={index} >
-                                                <td> {file.name}</td>
-                                                <td className="text-end">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="danger"
-                                                        className="p-2  mx-2 rounded"
-                                                        onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
-                                                    >
-                                                        {" Eliminar "}
-                                                        <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                            <div className="m-2">
+                                <label className="fw-semibold mb-1">Archivos adjuntos ({anexos.length}/2)</label>
+                                <ul className="list-group">
+                                    {anexos.map((file, index) => (
+                                        <li
+                                            key={index}
+                                            className={`list-group-item d-flex justify-content-between align-items-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                                }`}
+                                        >
+                                            <div className="d-flex align-items-center text-truncate">
+                                                <Paperclip width={14} height={14} aria-hidden="true" className="me-2 flex-shrink-0" />
+                                                <span className="text-truncate">{file.name}</span>
+                                                <small className="text-muted ms-2 flex-shrink-0">
+                                                    ({(file.size / 1024).toFixed(1)} KB)
+                                                </small>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                variant="outline-danger"
+                                                className="ms-2 flex-shrink-0"
+                                                onClick={() => {
+                                                    setAnexos((prev) => prev.filter((_, i) => i !== index));
+                                                }}
+                                                title="Quitar archivo"
+                                            >
+                                                <Trash className="flex-shrink-0" width={14} height={14} aria-hidden="true" />
+                                            </Button>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         )}
-
+                        {/* Mensaje cuando se alcanzo el limite */}
+                        {anexos.length > 2 && (
+                            <div className="alert alert-warning m-2 py-2 mb-0">
+                                <small className="fw-semibold">Se alcanzo el limite maximo de 2 archivos adjuntos.</small>
+                            </div>
+                        )}
 
                         {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
                         <BlobProvider document={

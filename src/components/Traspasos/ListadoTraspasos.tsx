@@ -291,6 +291,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       ...prevState,
       [name]: newValue,
     }));
+
   };
 
   const handleBuscarEnviados = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
@@ -324,10 +325,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       setLoadingEnviados(false); //Finaliza estado de carga
       return;
     } else {
-      paginar(1);
       setLoadingEnviados(false); //Finaliza estado de carga
     }
-
+    paginar(1);
   };
 
   const handleBuscarRecibidos = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
@@ -361,10 +361,10 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       setLoadingRecibidos(false); //Finaliza estado de carga
       return;
     } else {
-      paginar(1);
+
       setLoadingRecibidos(false); //Finaliza estado de carga
     }
-
+    paginar1(1);
   };
 
   const handleActualizar = async () => {
@@ -1298,7 +1298,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             {/* Estado */}
             {estadoEnviado === 0 ? (
               <>
-                <div className="py-2 rounded fw-semibold fs-09em bg-primary bg-opacity-10 text-primary border-none">
+                <div className="py-2 rounded fw-semibold fs-09em bg-warning bg-opacity-10 text-warning border-none">
                   <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
                   Esperando Validación
                 </div>
@@ -1481,7 +1481,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                       <p className="d-flex align-items-center mb-0">
                         {fila.paS_NOM_RECIBE === "X" ? (
                           <>
-                            Pendiente de Validación
+                            Esperando Validación
                             <ExclamationCircle className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
                           </>
                         ) : fila.paS_NOM_RECIBE ? (

@@ -1448,8 +1448,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         ) || null
                       }
                       placeholder="Buscar servicio o dependencia…"
-                      className={`form-select-container ${error.DEP_CORR ? "is-invalid border border-danger rounded" : ""
-                        }`}
+                      className={`form-select-container ${error.DEP_CORR ? "is-invalid rounded" : ""}`}
                       classNamePrefix="react-select"
                       isDisabled={loadingServicio || isDisabled}
                       isClearable
@@ -1468,7 +1467,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                         control: (base) => ({
                           ...base,
                           backgroundColor: isDarkMode ? "#212529" : "white",
-                          borderColor: isDarkMode ? "#6c757d" : "#a6a6a66e",
+                          borderColor: error.DEP_CORR ? "#dc3545" : isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
                           minHeight: "38px",
                           opacity: loadingServicio ? 0.9 : 1,
                           cursor: loadingServicio ? "not-allowed" : "default",
@@ -1504,7 +1503,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                     />
 
                     {error.DEP_CORR && (
-                      <div className="invalid-feedback fw-semibold d-block">
+                      <div className="invalid-feedback d-block">
                         {error.DEP_CORR}
                       </div>
                     )}

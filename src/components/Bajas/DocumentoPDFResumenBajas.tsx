@@ -298,6 +298,12 @@ const DocumentoPDFResumenBajas = ({ listaSalidaBajas }: { listaSalidaBajas: List
                 {/* Dependencias: Desde / Hasta */}
                 <View style={styles.dependenciasSection}>
                     <View style={styles.dependenciaBox}>
+                        <Text style={styles.dependenciaLabel}>Origen</Text>
+                        <Text style={styles.dependenciaValor}>
+                            {listaSalidaBajas[0].serv + ' ' + listaSalidaBajas[0].dep}
+                        </Text>
+                    </View>
+                    <View style={styles.dependenciaBox}>
                         <Text style={styles.dependenciaLabel}>Destino</Text>
                         <Text style={styles.dependenciaValor}>
                             Bodega de excluidos

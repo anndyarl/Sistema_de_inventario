@@ -5,8 +5,10 @@ import {
   REGISTRAR_EXCLUIDOS_SUCCESS,
   REGISTRAR_EXCLUIDOS_FAIL,
 } from "./../types";
+import { RematesConAdjuntos } from "../../../../components/Bajas/BodegaExcluidos";
+
 // Acción para obtener la recepción por número
-export const excluirBajasActions = (listaExcluir: Record<string, any>[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const excluirBajasActions = (listaExcluir: RematesConAdjuntos) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 
   if (token) {

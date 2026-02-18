@@ -121,7 +121,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   isDarkMode }) => {
   const [loading, setLoading] = useState(false);
   const [loadingBuscar, setLoadingBuscar] = useState(false);
-  const [error, setError] = useState<Partial<PropsTraslados> & {}>({});
+  const [error, setError] = useState<Partial<PropsTraslados> & Partial<SERVICIO_DEPENDENCIA>>({});
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
   const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
@@ -1405,7 +1405,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         ...baseStyles,
                         backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
                         color: isDarkMode ? "white" : "#212529", // Texto blanco
-                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                        borderColor: error.deP_CORR ? "#dc3545" : isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
                       }),
                       singleValue: (base) => ({
                         ...base,
@@ -1424,8 +1424,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       }),
                     }}
                   />
-                  {error.deP_CORR_DESTINO && (
-                    <div className="invalid-feedback">{error.deP_CORR_DESTINO}</div>
+                  {error.deP_CORR && (
+                    <div className="invalid-feedback">{error.deP_CORR}</div>
                   )}
                 </div>
                 {/* N° Memo Ref */}

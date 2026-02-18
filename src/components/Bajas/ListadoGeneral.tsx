@@ -388,11 +388,13 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           deT_MODELO: item.deT_MODELO,
           deT_SERIE: item.deT_SERIE,
           esP_NOMBRE: item.esP_NOMBRE,
+          serv: item.serv,
+          dep: item.dep,
           ...Bajas,
           establ_corr: objeto.Roles[0].codigoEstablecimiento
         }));
 
-        // console.log("FORMULARIO", FormularioBajas);
+        console.log("FORMULARIO", FormularioBajas);
 
         const resultado = await registrarBienesBajasActions(FormularioBajas);
         if (resultado) {
@@ -887,6 +889,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           </div >
         </div>
       </div>
+
       {/* Modal formulario*/}
       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" backdrop="static">
         <Modal.Header className={`bg-secondary text-white `} closeButton>
@@ -987,7 +990,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
 
           </form>
         </Modal.Body>
-      </Modal >
+      </Modal>
 
       {/* Modal Resumen Bajas */}
       {listaSalidaBajas.length > 0 && (
@@ -1045,6 +1048,12 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 </Col>
               </Row>
               <Row className="mb-4">
+                <Col md={4}>
+                  <p className="fw-semibold">Origen</p>
+                  <p>
+                    {listaSalidaBajas[0].serv + ' ' + listaSalidaBajas[0].dep}
+                  </p>
+                </Col>
                 <Col md={4}>
                   <p className="fw-semibold">Destino</p>
                   <p>
@@ -1139,22 +1148,20 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
               )}
             </Modal.Body>
           </Modal>
-          {
-            loading && (
-              <div
-                className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
-                style={{
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  // zIndex: 1050,
-                }}
-              >
-                <div className="text-center">
-                  <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
-                  <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
-                </div>
+          {loading && (
+            <div
+              className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                // zIndex: 1050,
+              }}
+            >
+              <div className="text-center">
+                <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
               </div>
-            )
-          }
+            </div>
+          )}
         </>
       )}
 
