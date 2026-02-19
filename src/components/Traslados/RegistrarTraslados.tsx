@@ -322,8 +322,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   }
 
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
-    let resultado = false;
     e.preventDefault();
+    let resultado = false;
     setLoadingBuscar(true);
     if (Buscar.aF_CODIGO_GENERICO.trim() === "" &&
       Buscar.altaS_CORR === 0 &&

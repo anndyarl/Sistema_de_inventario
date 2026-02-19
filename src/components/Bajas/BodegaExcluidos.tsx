@@ -283,17 +283,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       // Crear un array de objetos con aF_CLAVE y nombre
       const Entidad = selectedIndices.map((activo) => ({
         aF_CLAVE: listaExcluidos[activo].aF_CLAVE,
-        bajaS_CORR: listaExcluidos[activo].bajaS_CORR,
         especie: listaExcluidos[activo].especie,
-        vutiL_RESTANTE: listaExcluidos[activo].vutiL_RESTANTE,
-        vutiL_AGNOS: listaExcluidos[activo].vutiL_AGNOS,
         nresolucion: listaExcluidos[activo].nresolucion,
-        observaciones: listaExcluidos[activo].observaciones,
-        deP_ACUMULADA: listaExcluidos[activo].deP_ACUMULADA,
+        observaciones: Excluidos.observaciones,
         ncuenta: listaExcluidos[activo].ncuenta,
         estado: listaExcluidos[activo].estado,
-        // fechA_REMATES: listaExcluidos[activo].fechA_REMATES,
-
       }));
 
       const Adjuntos = anexosBase64.map((anexo) => ({
@@ -491,7 +485,9 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
 
   };
 
-  const handleBuscar = async () => {
+
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoading(true);
     if (Excluidos.fDesde != "" || Excluidos.fHasta != "") {
@@ -519,7 +515,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     }
 
   };
-
 
   const handleLimpiar = () => {
     setExcluidos((prevInventario) => ({
@@ -606,6 +601,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       size={10}
                       placeholder="0"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       maxLength={12}
                       value={Excluidos.nresolucion}
                     />
@@ -619,6 +619,11 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                       name="af_codigo_generico"
                       placeholder="Ej: 1000000008"
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleBuscar(e);
+                        }
+                      }}
                       maxLength={12}
                       value={Excluidos.af_codigo_generico}
                     />
@@ -749,7 +754,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                                   checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                 />
                               </th>
-                              <th scope="col" className="text-nowrap text-center">Nº Baja</th>
+                              <th scope="col" className="text-nowrap text-center">Código</th>
                               <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
                               <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
                               <th scope="col" className="text-nowrap text-center">Observaciones</th>
@@ -937,7 +942,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       ))}
 
       {/* Modal formulario adjuntar*/}
-      <Modal show={mostrarModalAdjunto} onHide={() => setMostrarModalAdjunto(false)} size="xl" dialogClassName="modal-right" backdrop="static">
+      <Modal show={mostrarModalAdjunto} onHide={() => setMostrarModalAdjunto(false)} size="lg" dialogClassName="modal-right" backdrop="static">
         <Modal.Header className={`bg-secondary text-white `} closeButton>
           <Modal.Title className="fw-semibold">Enviar a Bienes Rematados
           </Modal.Title>
@@ -976,7 +981,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
               </Button>
             </div>
             <div className="mb-1">
-              {/* <label htmlFor="observaciones" className="fw-semibold">
+              <label htmlFor="observaciones" className="fw-semibold">
                 Observaciones
               </label>
               <textarea
@@ -993,7 +998,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                 <div className="invalid-feedback fw-semibold">
                   {error.observaciones}
                 </div>
-              )} */}
+              )}
               <label htmlFor="observaciones" className="fw-semibold">
                 Adjuntar documentación
               </label>

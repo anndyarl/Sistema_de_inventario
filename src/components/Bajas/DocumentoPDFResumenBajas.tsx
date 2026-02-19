@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         width: "100%",
         marginTop: 4,
     },
-    datoNumeroTraspaso: {
+    datoNumero: {
         fontSize: FONT_SIZES.xl,
         fontWeight: "bold",
         color: COLORS.black,
@@ -274,13 +274,13 @@ const DocumentoPDFResumenBajas = ({ listaSalidaBajas }: { listaSalidaBajas: List
                         <Text style={styles.orgDetail}>Unidad de Inventarios</Text>
                     </View>
                 </View>
-                <Text style={styles.tituloDocumento}>Registro de Bajas de Activos Fijos</Text>
+                <Text style={styles.tituloDocumento}>Registro de Bienes Dados de Baja</Text>
                 {/* ===== DATOS DEL TRASPASO ===== */}
                 <View style={styles.datosSection}>
                     {/* Fila superior: numero de traspaso + fechas/memo */}
                     <View style={styles.datosGrid}>
                         <View style={styles.datosColumnaIzquierda}>
-                            <Text style={styles.datoNumeroTraspaso}>
+                            <Text style={styles.datoNumero}>
                                 Certificado Nº {listaSalidaBajas[0].nresolucion}
                             </Text>
                         </View>

@@ -3,79 +3,169 @@ import { ListaRemates } from './BienesRematados';
 import { Container } from 'react-bootstrap';
 import ssmso_logo from "../../../assets/img/SSMSO-LOGO.png"
 
+const FONT_SIZES = {
+    xs: 5.5,
+    sm: 6.5,
+    md: 7.5,
+    base: 8,
+    lg: 9,
+    xl: 10,
+    xxl: 13,
+};
+const COLORS = {
+    primary: "#004485",
+    primaryLight: "#e8f0f8",
+    white: "#ffffff",
+    black: "#000000",
+    grayDark: "#333333",
+    grayMedium: "#666666",
+    grayLight: "#e0e0e0",
+    grayLighter: "#f5f7fa",
+    border: "#cccccc",
+};
 const styles = StyleSheet.create({
+    /* ----- Pagina ----- */
     page: {
-        padding: 20,
-        fontSize: 12,
-    },
-    logoContainer: {
-        display: 'flex',
-        alignItems: 'flex-start',
-        marginBottom: 20,
-    },
-    logo: {
-        width: 100, // Ajusta el tamaño del logo
-        height: 'auto',
-    },
-    containerHeader: {
-        marginBottom: 20,
-    },
-    textContainer: {
-        marginLeft: 5
-    },
-    headerContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-    },
-    headerContent: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-around'
+        padding: 30,
+        paddingBottom: 50,
+        fontSize: FONT_SIZES.base,
+        color: COLORS.grayDark,
     },
 
-    header: {
-        fontSize: 16,
-        marginBottom: 10,
-        fontWeight: 'bold',
-        textAlign: 'center',
+    /* ----- Cabecera con logo ----- */
+    logoSection: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 14,
+        paddingBottom: 10,
+        // borderBottomWidth: 2,
+        // borderBottomColor: COLORS.primary,
     },
-    p: {
-        fontSize: 10,
+    logo: {
+        width: 70,
+        marginRight: 12,
+    },
+    orgInfo: {
+        flexDirection: "column",
+        gap: 1,
+    },
+    orgName: {
+        fontSize: FONT_SIZES.lg,
+        fontWeight: "bold",
+        color: COLORS.primary,
         marginBottom: 2,
-        fontWeight: 'semibold',
-        textAlign: 'center',
+    },
+    orgDetail: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.grayMedium,
+        marginBottom: 1,
+    },
+
+    /* ----- Titulo del documento ----- */
+    tituloDocumento: {
+        fontSize: FONT_SIZES.xxl,
+        fontWeight: "bold",
+        textAlign: "center",
+        // color: COLORS.primary,
+        marginBottom: 12,
+        paddingBottom: 6,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.grayLight,
+    },
+
+    /* ----- Seccion de datos del traspaso ----- */
+    datosSection: {
+        marginBottom: 12,
+        // padding: 10,
+        // backgroundColor: COLORS.grayLighter,
+        // borderRadius: 4,
+        // borderWidth: 1,
+        // borderColor: COLORS.black,
+    },
+    datosGrid: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 8,
+    },
+    datosColumnaIzquierda: {
+        width: "70%",
+    },
+    datosColumnaDerecha: {
+        width: "30%",
+    },
+    datosFilaCompleta: {
+        width: "100%",
+        marginTop: 4,
+    },
+    datoNumero: {
+        fontSize: FONT_SIZES.xl,
+        fontWeight: "bold",
+        color: COLORS.black,
+        marginBottom: 6,
+    },
+    datoLabel: {
+        fontSize: FONT_SIZES.md,
+        fontWeight: "bold",
+        color: COLORS.grayDark,
+        marginBottom: 1,
+    },
+    datoValor: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.grayMedium,
+        marginBottom: 4,
+    },
+    datoInline: {
+        flexDirection: "row",
+        marginBottom: 3,
+    },
+    /* ----- Observacion ----- */
+    observacionSection: {
+        marginTop: 4,
+        marginBottom: 4,
+    },
+    observacionLabel: {
+        fontSize: FONT_SIZES.md,
+        fontWeight: "bold",
+        color: COLORS.grayDark,
+    },
+    observacionValor: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.grayMedium,
     },
     table: {
         display: 'flex',
         flexDirection: 'column',
 
     },
-    tableRow: {
-        flexDirection: 'row',
-    },
-    tableCellHeaderLong: {
-        fontSize: 8,
-        fontWeight: 'bold',
-        padding: 2,
-        border: '1px solid #b3b3b3',
+    tableHeader: {
+        fontSize: 6,
+        flexDirection: "row",
+        alignItems: "center",
+        fontWeight: "bold",
         backgroundColor: "rgb(0 68 133 / 80%)",
         color: "#fff",
-        flex: 2,
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
-        maxWidth: 120,
+        borderBottom: "1px solid #000",
     },
-    tableCellLong: {
-        fontSize: 8,
-        border: '1px solid #b3b3b3',
-        padding: 2,
-        flex: 2,
-        wordWrap: 'break-word',
-        overflow: 'hidden',
-        whiteSpace: 'wrap',
-        maxWidth: 120,
+    tableRow: {
+        flexDirection: "row",
+        borderBottom: "1px solid #ccc",
+        alignItems: "center",
     },
+
+    tableCell: {
+        padding: 3,
+        fontSize: 6,
+        borderRight: "1px solid #ccc",
+        overflow: "hidden",
+        flexGrow: 1,
+    },
+    colRemate: { width: "10%" },
+    colCertificado: { width: "10%", fontSize: 5 },
+    colInventario: { width: "5%", fontSize: 5 },
+    colEspecie: { width: "10%", fontSize: 5 },
+    colFechaIngreso: { width: "10%", fontSize: 5 },
+    colCuenta: { width: "10%" },
+
     firmaContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -109,6 +199,28 @@ const styles = StyleSheet.create({
     fechaHoy: {
         padding: 2,
     },
+    /* ===== FOOTER ===== */
+    footer: {
+        position: 'absolute',
+        bottom: 3,
+        left: 40,
+        right: 40,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        fontSize: 6,
+        borderTopWidth: 1,
+        borderTopColor: '#ccc',
+        paddingTop: 4,
+    },
+
+    footerLeft: {
+        textAlign: "left",
+    },
+
+    footerRight: {
+        textAlign: "right",
+    },
 
 });
 
@@ -121,96 +233,98 @@ const fechaHoy = new Date()
     })
     .replace(/-/g, '/');
 
-
-const arreglo = (array: any[], size: number) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-        result.push(array.slice(i, i + size));
-    }
-    return result;
-};
-
 const DocumentoRematesPDF = ({ row }: { row: ListaRemates[]; }) => {
-    const filasPorPagina = 12;
-    const paginas = arreglo(row, filasPorPagina);
 
     return (
         <Document>
-            {paginas.map((rows, indicePagina) => (
-                <Page key={indicePagina} style={styles.page}>
-                    {/* Logo */}
-                    <Container style={styles.containerHeader}>
-                        <View style={styles.headerContainer}>
-                            {/* Logo a la izquierda */}
-                            <Image src={ssmso_logo} style={styles.logo} />
-
-                            {/* Textos a la derecha */}
-                            <View style={styles.textContainer}>
-                                <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
-                                <Text style={styles.p}>Subdirección Administrativa</Text>
-                                <Text style={styles.p}>Departamento de Finanzas</Text>
-                                <Text style={styles.p}>Unidad de Inventario</Text>
-                            </View>
-                        </View>
-                    </Container>
-                    {/* Tabla */}
-                    <View style={styles.table}>
-                        {/* Cabecera de la tabla */}
-                        <View style={styles.tableRow}>
-                            <Text style={styles.tableCellHeaderLong}>N° Inventario</Text>
-                            <Text style={styles.tableCellHeaderLong}>N° Resolución</Text>
-                            <Text style={styles.tableCellHeaderLong}>Nº Alta</Text>
-                            <Text style={styles.tableCellHeaderLong}>Especie</Text>
-                            <Text style={styles.tableCellHeaderLong}>Fecha Ingreso</Text>
-                            <Text style={styles.tableCellHeaderLong}>Vida Útil Restante</Text>
-                            <Text style={styles.tableCellHeaderLong}>Vida Útil en Años</Text>
-                            <Text style={styles.tableCellHeaderLong}>Observaciones</Text>
-                            <Text style={styles.tableCellHeaderLong}>Depreciación Acumulada</Text>
-                            <Text style={styles.tableCellHeaderLong}>Nº Cuenta</Text>
-                            <Text style={styles.tableCellHeaderLong}>Estado</Text>
-                        </View>
-                        {rows.map((lista, idx) => (
-                            <View style={styles.tableRow} key={idx}>
-                                <Text style={styles.tableCellLong}>{lista.aF_CODIGO_GENERICO}</Text>
-                                <Text style={styles.tableCellLong}>{lista.nresolucion}</Text>
-                                <Text style={styles.tableCellLong}>{lista.bajaS_CORR}</Text>
-                                <Text style={styles.tableCellLong}>{lista.especie}</Text>
-                                <Text style={styles.tableCellLong}>{lista.fechA_INGRESO}</Text>
-                                <Text style={styles.tableCellLong}>{lista.vutiL_RESTANTE}</Text>
-                                <Text style={styles.tableCellLong}>{lista.vutiL_AGNOS}</Text>
-                                <Text style={styles.tableCellLong}>{lista.observaciones}</Text>
-                                <Text style={styles.tableCellLong}>{lista.deP_ACUMULADA}</Text>
-                                <Text style={styles.tableCellLong}>{lista.ncuenta}</Text>
-                                <Text style={styles.tableCellLong}>{lista.estado}</Text>
-                            </View>
-                        ))}
+            <Page style={styles.page} wrap>
+                {/* ===== CABECERA CON LOGO ===== */}
+                <View style={styles.logoSection}>
+                    <Image src={ssmso_logo} style={styles.logo} />
+                    <View style={styles.orgInfo}>
+                        <Text style={styles.orgName}>
+                            Servicio de Salud Metropolitano Sur Oriente
+                        </Text>
+                        <Text style={styles.orgDetail}>
+                            Subdireccion Administrativa
+                        </Text>
+                        <Text style={styles.orgDetail}>
+                            Departamento de Finanzas
+                        </Text>
+                        <Text style={styles.orgDetail}>Unidad de Inventarios</Text>
                     </View>
-                    {indicePagina === paginas.length - 1 && (
-                        <>
-                            <View style={styles.firmaContainer}>
-                                <View style={styles.firmaBox}>
-                                    <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>Jefe de Inventario</Text>
-                                </View>
+                </View>
+                <Text style={styles.tituloDocumento}>Acta de Bienes Rematados</Text>
+                {/* ===== DATOS DEL TRASPASO ===== */}
+                <View style={styles.datosSection}>
+                    {/* Fila superior: numero de traspaso + fechas/memo */}
+                    <View style={styles.datosGrid}>
+                        <View style={styles.datosColumnaIzquierda}>
+                            <Text style={styles.datoNumero}>
+                                Remate Nº {row[0].boD_CORR}
+                            </Text>
+                        </View>
+                        <View style={styles.datosColumnaDerecha}>
+                            <View style={styles.datoInline}>
+                                <Text style={styles.datoLabel}>Fecha Ingreso: </Text>
+                                <Text style={styles.datoValor}>
+                                    {row[0].fechA_INGRESO}
+                                </Text>
                             </View>
+                        </View>
+                    </View>
+                </View>
 
-                            <Container style={styles.containerFooter}>
-                                <Text style={styles.fechaHoy}>{fechaHoy}</Text>
-                                <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
-                            </Container>
-                        </>
-                    )}
-                    {/* Pie de página para otras páginas */}
-                    {indicePagina !== paginas.length - 1 && (
-                        <Container style={styles.containerFooter}>
-                            {/* <View style={styles.flex}> */}
-                            <Text style={styles.fechaHoy}>{fechaHoy}</Text>
-                            <Text>Pág {indicePagina + 1} de {paginas.length}</Text>
-                            {/* </View> */}
-                        </Container>
-                    )}
-                </Page>
-            ))}
+
+                {/* Observacion */}
+                <View style={styles.observacionSection}>
+                    <Text style={styles.observacionLabel}>
+                        Observacion:{" "}
+                        <Text style={styles.observacionValor}>
+                            {row[0].observaciones}
+                        </Text>
+                    </Text>
+                </View>
+                {/* Tabla */}
+                <View style={styles.table} >
+                    {/* Cabecera de la tabla */}
+                    <View style={styles.tableHeader} fixed>
+                        <Text style={styles.tableCell}>N° Inventario</Text>
+                        <Text style={styles.tableCell}>N° Certificado</Text>
+                        <Text style={styles.tableCell}>Especie</Text>
+                        <Text style={styles.tableCell}>Fecha Ingreso</Text>
+                        <Text style={styles.tableCell}>Nº Cuenta</Text>
+                    </View>
+                    {row.map((lista, idx) => (
+                        <View style={styles.tableRow} key={idx}>
+                            <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
+                            <Text style={styles.tableCell}>{lista.nresolucion}</Text>
+                            <Text style={styles.tableCell}>{lista.especie}</Text>
+                            <Text style={styles.tableCell}>{lista.fechA_INGRESO}</Text>
+                            <Text style={styles.tableCell}>{lista.ncuenta}</Text>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={styles.firmaContainer}>
+                    <View style={styles.firmaBox}>
+                        <Text>_______________________</Text>
+                        <Text style={styles.firmaLabel}>Jefe de Inventario</Text>
+                    </View>
+                </View>
+
+                <View style={styles.footer} fixed>
+                    <Text style={styles.footerLeft}>{fechaHoy}</Text>
+
+                    <Text
+                        style={styles.footerRight}
+                        render={({ pageNumber, totalPages }) =>
+                            `Página ${pageNumber} de ${totalPages}`
+                        }
+                    />
+                </View>
+            </Page>
+
         </Document >
     );
 };

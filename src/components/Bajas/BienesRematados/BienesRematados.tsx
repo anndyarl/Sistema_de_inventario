@@ -21,33 +21,19 @@ interface FechasProps {
 }
 export interface ListaRemates {
   aF_CODIGO_GENERICO: string;
-  boD_CORR: number;
+  boD_CORR: string;
   aF_CLAVE: number;
   bajaS_CORR: number;
   especie: string;
-  vutiL_RESTANTE: number;
-  vutiL_AGNOS: number;
-  nresolucion: number;
   observaciones: string;
-  deP_ACUMULADA: number;
   ncuenta: string;
   estado: number;
   fechA_INGRESO: string;
-  // aF_CLAVE: string;
-  // bajaS_CORR: string;
-  // especie: string;
-  // vutiL_RESTANTE: number;
-  // vutiL_AGNOS: number;
-  // nresolucion: string;
-  // observaciones: string;
-  // deP_ACUMULADA: number;
-  // ncuenta: string;
-  // estado: number;
-  // fechA_REMATES: string;
+  nresolucion: string;
 }
 interface DatosBajas {
   listaRemates: ListaRemates[];
-  obtenerListaRematesActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
+  obtenerListaRematesActions: (fDesde: string, fHasta: string, bod_corr: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   rematarBajasActions: (listaRemates: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -82,7 +68,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
     fDesde: "",
     fHasta: "",
     nresolucion: "",
-    af_codigo_generico: ""
+    af_codigo_generico: "",
+    boD_CORR: ""
   });
 
   // const validate = () => {
@@ -105,7 +92,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
     if (token) {
       if (listaRemates.length === 0) {
         setLoading(true);
-        const resultado = await obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+        const resultado = await obtenerListaRematesActions("", "", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         }
@@ -132,7 +119,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
   }, [obtenerListaRematesActions, token, listaRemates.length]); // Asegúrate de incluir dependencias relevantes
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
     if ((name === "nresolucion" || name === "af_codigo_generico") && !/^[0-9]*$/.test(value)) {
       return; // Salir si contiene caracteres no numéricos
@@ -147,6 +134,27 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
       ...prevState,
       [name]: value,
     }));
+
+    let numero = value.split("-")[0];
+    if (name === "boD_CORR") {
+      numero = numero.replace(/\D/g, "");
+      value = numero ? `${numero}-01` : "";
+    }
+
+    // Reposicionar el cursor después del número
+    setTimeout(() => {
+      const input = document.querySelector(
+        'input[name="boD_CORR"]'
+      ) as HTMLInputElement;
+
+      if (input) {
+        input.setSelectionRange(numero.length, numero.length);
+      }
+    }, 0);
+
+    return;
+
+
   };
 
 
@@ -179,17 +187,17 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
   //     nresolucion: "",
   //   }));
   // };
-
-  const handleBuscar = async () => {
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
     let resultado = false;
     setLoading(true);
     if (Rematados.fDesde != "" || Rematados.fHasta != "") {
       if (validateFechas()) {
-        resultado = await obtenerListaRematesActions(Rematados.fDesde, Rematados.fHasta, Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
+        resultado = await obtenerListaRematesActions(Rematados.fDesde, Rematados.fHasta, Rematados.boD_CORR, Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
       }
     }
     else {
-      resultado = await obtenerListaRematesActions("", "", Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
+      resultado = await obtenerListaRematesActions("", "", Rematados.boD_CORR, Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
     }
 
     if (!resultado) {
@@ -220,7 +228,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
       ...prevInventario,
       fDesde: "",
       fHasta: "",
-      nresolucion: "",
+      boD_CORR: "",
       af_codigo_generico: ""
     }));
   };
@@ -353,17 +361,22 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
 
               <Col lg={2} md={4}>
                 <div className="mb-1">
-                  <label htmlFor="nresolucion" className="fw-semibold">Nº Resolución</label>
+                  <label htmlFor="boD_CORR" className="fw-semibold">Nº Remate</label>
                   <input
-                    aria-label="nresolucion"
+                    aria-label="boD_CORR"
                     type="text"
                     className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nresolucion"
+                    name="boD_CORR"
                     size={10}
                     placeholder="0"
                     onChange={handleChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleBuscar(e);
+                      }
+                    }}
                     maxLength={12}
-                    value={Rematados.nresolucion}
+                    value={Rematados.boD_CORR}
                   />
                 </div>
                 <div className="mb-2">
@@ -375,11 +388,37 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                     name="af_codigo_generico"
                     placeholder="Ej: 1000000008"
                     onChange={handleChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleBuscar(e);
+                      }
+                    }}
                     maxLength={12}
                     value={Rematados.af_codigo_generico}
                   />
                 </div>
               </Col>
+              {/* <Col lg={2} md={4}>
+
+                <div className="mb-2">
+                  <label htmlFor="nresolucion" className="form-label fw-semibold">Nº Resolución</label>
+                  <input
+                    aria-label="nresolucion"
+                    type="text"
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    name="nresolucion"
+                    placeholder="0"
+                    onChange={handleChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleBuscar(e);
+                      }
+                    }}
+                    maxLength={12}
+                    value={Rematados.nresolucion}
+                  />
+                </div>
+              </Col> */}
 
               {/* Columna 5: Botones de Acción */}
               <Col lg={1} md={4}>
@@ -513,17 +552,13 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                                 checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
                               />
                             </th>
+                            <th scope="col" className="text-nowrap text-center">Nº Remate</th>
+                            {/* <th scope="col" className="text-nowrap text-center">Nº Resolución</th> */}
                             <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                            <th scope="col" className="text-nowrap text-center">Nº Resolución</th>
-                            <th scope="col" className="text-nowrap text-center">Nº Baja</th>
                             <th scope="col" className="text-nowrap text-center">Especie</th>
                             <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
-                            <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
-                            <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
                             <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                            <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
                             <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
-                            <th scope="col" className="text-nowrap text-center">Estado</th>
 
                           </tr>
                         </thead>
@@ -539,18 +574,13 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                                     checked={filaSeleccionada.includes(indexReal.toString())}
                                   />
                                 </td>
-                                {/* <td className="text-nowrap text-center">{Lista.boD_CORR}</td> */}
+                                <td className="text-nowrap text-center">{Lista.boD_CORR}</td>
+                                {/* <td className="text-nowrap">{Lista.nresolucion ? "s/n" : Lista.nresolucion}</td> */}
                                 <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                <td className="text-nowrap">{Lista.nresolucion}</td>
-                                <td className="text-nowrap">{Lista.bajaS_CORR}</td>
                                 <td className="text-nowrap">{Lista.especie}</td>
                                 <td className="text-nowrap">{Lista.fechA_INGRESO}</td>
-                                <td className="text-nowrap">{Lista.vutiL_RESTANTE}</td>
-                                <td className="text-nowrap">{Lista.vutiL_AGNOS}</td>
-                                <td className="text-nowrap">{Lista.observaciones}</td>
-                                <td className="text-nowrap">{Lista.deP_ACUMULADA}</td>
+                                <td className="text-nowrap">{Lista.observaciones == "" ? "s/n" : Lista.observaciones}</td>
                                 <td className="text-nowrap">{Lista.ncuenta}</td>
-                                <td className="text-nowrap">{Lista.estado}</td>
                               </tr>
                             );
                           })}
@@ -648,7 +678,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
           </form>
         </Modal.Body>
       </Modal >
-    </Layout>
+    </Layout >
 
   );
 };

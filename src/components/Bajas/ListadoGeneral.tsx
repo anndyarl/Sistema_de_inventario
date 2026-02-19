@@ -17,6 +17,7 @@ import { listaAltasdesdeBajasActions } from "../../redux/actions/Bajas/ListadoGe
 import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoPDFResumenBajas from "./DocumentoPDFResumenBajas.tsx";
 import Draggable from "react-draggable";
+import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerListaExcluidosActions.tsx";
 
 export interface ListaBajas {
   bajaS_CORR: string;
@@ -45,13 +46,14 @@ interface DatosBajas {
   listadoGeneralBajas: ListaAltas[];
   listaSalidaBajas: ListaBajas[];
   listaAltasdesdeBajasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+  obtenerListaExcluidosActions: (fDesde: string, fHasta: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   registrarBienesBajasActions: (baja: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, esP_NOMBRE: string, establ_corr: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, registrarBienesBajasActions, listadoGeneralBajas, listaSalidaBajas, token, isDarkMode, objeto }) => {
+const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, registrarBienesBajasActions, obtenerListaExcluidosActions, listadoGeneralBajas, listaSalidaBajas, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [__, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
@@ -394,12 +396,13 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
           establ_corr: objeto.Roles[0].codigoEstablecimiento
         }));
 
-        console.log("FORMULARIO", FormularioBajas);
+        // console.log("FORMULARIO", FormularioBajas);
 
         const resultado = await registrarBienesBajasActions(FormularioBajas);
         if (resultado) {
           mostrarAlerta();
           listaAltasdesdeBajasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento); //Carga la tabla nuevamente
+          obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
           setLoadingRegistro(false);//Detiene la carga
           setFilasSeleccionadas([]);//Limpia Formulario
           setMostrarModal(false);//Cierra modal formulario
@@ -1241,5 +1244,6 @@ const mapStateToProps = (state: RootState) => ({
 
 export default connect(mapStateToProps, {
   listaAltasdesdeBajasActions,
+  obtenerListaExcluidosActions,
   registrarBienesBajasActions
 })(ListadoGeneral);
