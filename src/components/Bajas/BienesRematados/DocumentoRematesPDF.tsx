@@ -164,6 +164,7 @@ const styles = StyleSheet.create({
     colInventario: { width: "5%", fontSize: 5 },
     colEspecie: { width: "10%", fontSize: 5 },
     colFechaIngreso: { width: "10%", fontSize: 5 },
+    colObservaciones: { width: "10%", fontSize: 5 },
     colCuenta: { width: "10%" },
 
     firmaContainer: {
@@ -277,31 +278,33 @@ const DocumentoRematesPDF = ({ row }: { row: ListaRemates[]; }) => {
 
 
                 {/* Observacion */}
-                <View style={styles.observacionSection}>
+                {/* <View style={styles.observacionSection}>
                     <Text style={styles.observacionLabel}>
                         Observacion:{" "}
                         <Text style={styles.observacionValor}>
-                            {row[0].observaciones}
+                            {row[0].observaciones == "" ? "Sin observaciones" : row[0].observaciones}
                         </Text>
                     </Text>
-                </View>
+                </View> */}
                 {/* Tabla */}
                 <View style={styles.table} >
                     {/* Cabecera de la tabla */}
                     <View style={styles.tableHeader} fixed>
-                        <Text style={styles.tableCell}>N° Inventario</Text>
-                        <Text style={styles.tableCell}>N° Certificado</Text>
-                        <Text style={styles.tableCell}>Especie</Text>
-                        <Text style={styles.tableCell}>Fecha Ingreso</Text>
-                        <Text style={styles.tableCell}>Nº Cuenta</Text>
+                        <Text style={[styles.tableCell, styles.colInventario]}>N° Inventario</Text>
+                        <Text style={[styles.tableCell, styles.colCertificado]}>N° Certificado</Text>
+                        <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
+                        <Text style={[styles.tableCell, styles.colFechaIngreso]}>Fecha Ingreso</Text>
+                        <Text style={[styles.tableCell, styles.colObservaciones]}>Observaciones</Text>
+                        <Text style={[styles.tableCell, styles.colCuenta]}>Nº Cuenta</Text>
                     </View>
                     {row.map((lista, idx) => (
                         <View style={styles.tableRow} key={idx}>
-                            <Text style={styles.tableCell}>{lista.aF_CODIGO_GENERICO}</Text>
-                            <Text style={styles.tableCell}>{lista.nresolucion}</Text>
-                            <Text style={styles.tableCell}>{lista.especie}</Text>
-                            <Text style={styles.tableCell}>{lista.fechA_INGRESO}</Text>
-                            <Text style={styles.tableCell}>{lista.ncuenta}</Text>
+                            <Text style={[styles.tableCell, styles.colInventario]}>{lista.aF_CODIGO_GENERICO}</Text>
+                            <Text style={[styles.tableCell, styles.colCertificado]}>{lista.nresolucion}</Text>
+                            <Text style={[styles.tableCell, styles.colEspecie]}>{lista.especie}</Text>
+                            <Text style={[styles.tableCell, styles.colFechaIngreso]}>{lista.fechA_INGRESO}</Text>
+                            <Text style={[styles.tableCell, styles.colObservaciones]}> {lista.observaciones == "" ? "Sin observaciones" : lista.observaciones}</Text>
+                            <Text style={[styles.tableCell, styles.colCuenta]}>{lista.ncuenta}</Text>
                         </View>
                     ))}
                 </View>
@@ -323,7 +326,7 @@ const DocumentoRematesPDF = ({ row }: { row: ListaRemates[]; }) => {
                         }
                     />
                 </View>
-            </Page>
+            </Page >
 
         </Document >
     );

@@ -7,7 +7,7 @@ import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
 import { BIEN, CUENTA, DETALLE, ListaEspecie } from "./RegistrarInventario/DatosCuenta";
-import { Check2Circle, Eye, Pencil, Search, Trash } from "react-bootstrap-icons";
+import { Check2Circle, Eye, Pencil, Plus, Search, Trash } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
@@ -27,6 +27,8 @@ import { obtenerInventarioActions } from "../../redux/actions/Inventario/Modific
 import { obtenerInventarioxAltasActions } from "../../redux/actions/Inventario/ModificarInventario/obtenerInventarioxAltasActions";
 import { comboModalidadesActions } from "../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { comboOrigenPresupuestosActions } from "../../redux/actions/Inventario/Combos/comboOrigenPresupuestoActions";
+import { registrarModalidadActions } from "../../redux/actions/Inventario/ModificarInventario/registrarModalidadActions";
+
 
 export interface SERVICIO_DEPENDENCIA {
   deP_CORR: number;
@@ -114,6 +116,7 @@ interface InventarioCompletoProps extends InventarioCompleto {
   comboOrigenPresupuestosActions: () => Promise<boolean>;
   listadoDeEspeciesBienActions: (EST: number, IDBIEN: number, esP_CODIGO: string, esP_NOMBRE: string) => Promise<boolean>;
   modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<{ success: boolean; error?: string }>;
+  registrarModalidadActions: (otra_modalidad: string) => Promise<number | null>;
   limpiarDataActions: () => Promise<boolean>;
   esP_NOMBRE: string; // se utiliza solo para guardar la descripcion completa en el input de ESP_CODIGO
   estadO_VISADO: number;
@@ -172,6 +175,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   comboOrigenPresupuestosActions,
   comboProveedorActions,
   modificarFormInventarioActions,
+  registrarModalidadActions,
   limpiarDataActions
 }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -274,7 +278,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   //   setInventario((prev) => ({ ...prev, CTA_COD: value || Inventario.CTA_COD }));
   // };
 
-  const validate = () => {
+  const valida = () => {
     let tempErrors: Partial<any> & {} = {};
     if (!Inventario.AF_FECHA_SOLICITUD || Inventario.AF_FECHA_SOLICITUD === "0") tempErrors.AF_FECHA_SOLICITUD = "Campo obligatorio";
     if (!Inventario.AF_OCO_NUMERO_REF || Inventario.AF_OCO_NUMERO_REF === "0") tempErrors.AF_OCO_NUMERO_REF = "Campo obligatorio";
@@ -297,7 +301,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
-  const validateDetalles = () => {
+  const validaDetalles = () => {
     let tempErrors: Partial<any> & {} = {};
     // Validación para N° de Recepción (debe ser un número)  
     if (!Inventario.AF_VIDAUTIL) tempErrors.AF_VIDAUTIL = "Campo obligatorio";
@@ -310,6 +314,12 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     return Object.keys(tempErrors).length === 0;
   };
 
+  const validaModalidad = () => {
+    let tempErrors: Partial<any> & {} = {};
+    if (!Inventario.OTRA_MODALIDAD) tempErrors.OTRA_MODALIDAD = "Ingrese un nueva modalidad";
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
   const servicioOptions = comboSerDep.map((item) => ({
     value: item.deP_CORR,
     label: item.descripcion,
@@ -491,19 +501,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       [name]: value,
     }));
 
-    // setPaginacion1((prevState) => ({
-    //   ...prevState,
-    //   [name]: value,
-    // }));
-
-    // if (name === "nPaginacion") {
-    //   paginar1(1);
-    // }
-
-    // if (name === "nPaginacion1") {
-    //   paginar1(1);
-    // }
-
     if (name === "idprograma") { //servicio
       comboDependenciaModificarActions(value);
     }
@@ -532,17 +529,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
       }
     }
 
-    if (name === "IDMODALIDADCOMPRA") { //modalidadDeCompra
-      if (value === "7") {
-        newValue = parseFloat(value) || 0;
-        dispatch(setModalidadCompraActions(newValue as number));
-        setShowInput(true);
-      } else {
-        newValue = parseFloat(value) || 0;
-        dispatch(setModalidadCompraActions(newValue as number));
-        setShowInput(false);
-      }
-    }
     if (name === "aF_CODIGO_GENERICO_B") {
       comboCuentaModificarActions("");
     }
@@ -717,10 +703,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   // };
 
   const handleValidar = () => {
-    console.log("campos", JSON.stringify(Inventario, null, 2));
-
+    // console.log("campos", JSON.stringify(Inventario, null, 2));
     if (objeto.IdCredencial != 18667) {
-      if (validate()) {
+      if (valida()) {
         Swal.fire({
           icon: "info",
           title: 'Confirmar cambios',
@@ -736,7 +721,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             popup: "custom-border", // Clase personalizada para el borde
           }
         }).then((result) => {
-          /* Read more about isConfirmed, isDenied below */
           if (result.isConfirmed) {
             handleSubmit();
           }
@@ -782,7 +766,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
 
   const handleSubmit = async () => {
     const { success, error } = await modificarFormInventarioActions([Inventario]);
-
     if (success) {
       Swal.fire({
         icon: "success",
@@ -934,9 +917,8 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   };
 
   const handleCerrarModal = () => {
-
     if (objeto.IdCredencial != 18667) {
-      if (!validateDetalles()) {
+      if (!validaDetalles()) {
         Swal.fire({
           icon: "warning",
           title: 'Campos obligatorios incompletos',
@@ -953,7 +935,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
             popup: "custom-border", // Clase personalizada para el borde
           }
         }).then((result) => {
-          /* Read more about isConfirmed, isDenied below */
           if (result.isDismissed) {
             setMostrarModalDetalles(false);
           }
@@ -974,6 +955,63 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     handleBuscar();
   };
 
+  const handleRegistrarModalidad = async () => {
+    if (validaModalidad()) {
+      const result = await Swal.fire({
+        icon: "info",
+        title: "Agregar Modalidad",
+        text: "Confirme para agregar una nueva modalidad.",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Confirmar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      if (result.isConfirmed) {
+        const ultimaModalidad = await registrarModalidadActions(Inventario.OTRA_MODALIDAD);
+
+        if (ultimaModalidad) {
+          Swal.fire({
+            icon: "success",
+            title: "Registro exitoso",
+            text: "Se ha registrado una nueva modalidad",
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+            customClass: { popup: "custom-border" },
+          });
+
+          // Esperar a que el combo tenga el nuevo registro
+          await comboModalidadesActions();
+
+          setShowInput(false);
+
+          setInventario((prev) => ({
+            ...prev,
+            IDMODALIDADCOMPRA: +ultimaModalidad
+          }));
+
+          dispatch(setModalidadCompraActions(+ultimaModalidad));
+
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            html: `Ocurrió un error al registrar la nueva modalidad.<br>
+                         <strong>Error:</strong> ${error}`,
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+            customClass: { popup: "custom-border" },
+          });
+        }
+      }
+    }
+  };
 
   const fechaCorte = new Date("2025-06-02");
   const fechaIngreso = new Date(Inventario.AF_FINGRESO);
@@ -1068,6 +1106,19 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                               aria-hidden="true"
                             />
                           )}
+                        </Button>
+                      </OverlayTrigger>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-limpiar">Limpiar Busqueda</Tooltip>}
+                      >
+                        < Button
+                          disabled={isDisabled}
+                          onClick={handleLimpiarTodo}
+                          variant="danger"
+                          className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
+                        >
+                          <Trash className="h-5 w-5" aria-hidden="true" />
                         </Button>
                       </OverlayTrigger>
                     </div>
@@ -1538,6 +1589,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                             {m.descripcion}
                           </option>
                         ))}
+                        <option value="7">Otros</option>
                       </select>
 
                       {/* SPINNER INTEGRADO */}
@@ -1565,29 +1617,49 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                       </div>
                     )}
 
-                    {/* INPUT "OTRO" — MISMA LÓGICA ANTERIOR */}
+                    {/* input otra modalidad */}
                     {showInput && (
-                      <div className="mt-2">
-                        <input
-                          aria-label="OTRA_MODALIDAD"
-                          type="text"
-                          className={`form-control
+                      <div className="d-flex">
+                        <div className="w-100">
+                          <input
+                            aria-label="OTRA_MODALIDAD"
+                            type="text"
+                            className={`form-control 
                           ${isDarkMode ? "bg-secondary text-light border-secondary" : ""}
                           ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
-                          placeholder="Especifique otro"
-                          onChange={(e) =>
-                            setInventario({
-                              ...Inventario,
-                              OTRA_MODALIDAD: e.target.value.toString(),
-                            })
-                          }
-                        />
+                            placeholder="Especifique otro"
+                            onChange={(e) =>
+                              setInventario({
+                                ...Inventario,
+                                OTRA_MODALIDAD: e.target.value.toString(),
+                              })
+                            }
+                          />
 
-                        {error.IDMODALIDADCOMPRA && (
-                          <div className="invalid-feedback fw-semibold">
-                            {error.IDMODALIDADCOMPRA}
-                          </div>
-                        )}
+                        </div>
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id="tooltip-limpiar">Agregar Nueva modalidad</Tooltip>}
+                        >
+                          <Button
+                            variant="primary"
+                            onClick={handleRegistrarModalidad}
+                            className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
+                            disabled={isDisabled}
+                          >
+                            <Plus
+                              className={classNames("flex-shrink-0", "h-5 w-5")}
+                              aria-hidden="true"
+                            />
+                          </Button>
+                        </OverlayTrigger>
+
+                      </div>
+
+                    )}
+                    {error.OTRA_MODALIDAD && (
+                      <div className="invalid-feedback fw-semibold d-block">
+                        {error.OTRA_MODALIDAD}
                       </div>
                     )}
                   </div>
@@ -1765,20 +1837,11 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 {
                   puedeValidar ? (
                     <>
-                      < Button
-                        disabled={isDisabled}
-                        onClick={handleLimpiarTodo}
-                        variant="danger"
-                        className="px-3 py-2 d-flex align-items-center"
-                      >
-                        <Trash className="h-5 w-5 me-2" aria-hidden="true" />
-                        Limpiar todo
-                      </Button>
                       <Button
                         onClick={handleValidar}
                         variant={isDarkMode ? "secondary" : "primary"}
                         className="px-3 py-2 d-flex align-items-center"
-                        disabled={isDisabled}
+                        disabled={isDisabled || showInput == true}
                       >
                         Validar
                       </Button>
@@ -2397,5 +2460,6 @@ export default connect(mapStateToProps, {
   comboProveedorActions,
   comboOrigenPresupuestosActions,
   modificarFormInventarioActions,
+  registrarModalidadActions,
   limpiarDataActions
 })(ModificarInventario);
