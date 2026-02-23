@@ -1466,7 +1466,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         // backdrop="static" // Evita que se cierre al hacer clic afuera
                         // keyboard={false}
                         fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
-                        <Modal.Header className={`modal-header text-white bg-success`} style={{ paddingRight: "3%" }} closeButton>
+                        <Modal.Header className={`modal-header text-white bg-success pe-lg-5 pe-sm-4`} closeButton>
                             <Modal.Title className="fw-semibold">
                                 <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
                         </Modal.Header>
@@ -1824,7 +1824,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
             {/* Modal Activos NO Calculados */}
             <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
-                <Modal.Header className={`modal-header bg-warning`} closeButton>
+                <Modal.Header className={`modal-header  bg-warning pe-lg-5 pe-sm-4`} closeButton>
                     <Modal.Title className="fw-semibold text-muted ">
                         <ExclamationDiamond className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 text-danger"} aria-hidden="true" />No Calculados</Modal.Title>
                 </Modal.Header>

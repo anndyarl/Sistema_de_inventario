@@ -554,11 +554,11 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                             </th>
                             <th scope="col" className="text-nowrap text-center">Nº Remate</th>
                             {/* <th scope="col" className="text-nowrap text-center">Nº Resolución</th> */}
-                            <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                            <th scope="col" className="text-nowrap text-center">Especie</th>
-                            <th scope="col" className="text-nowrap text-center">Fecha de Ingreso</th>
-                            <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                            <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
+                            <th scope="col" className="text-nowrap">Nº Inventario</th>
+                            <th scope="col" className="text-nowrap">Especie</th>
+                            <th scope="col" className="text-nowrap">Fecha de Ingreso</th>
+                            <th scope="col" className="text-nowrap">Observaciones</th>
+                            <th scope="col" className="text-nowrap">Nº Cuenta</th>
 
                           </tr>
                         </thead>

@@ -771,18 +771,18 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                             {/* {(objeto.IdCredencial === 6405 || objeto.IdCredencial === 888) && (
                               <th className="text-nowrap text-center">Establecimiento</th>
                             )} */}
-                            <th className="text-nowrap text-center">Servicio</th>
-                            <th className="text-nowrap text-center">Dependencia</th>
-                            <th className="text-nowrap text-center">Fecha Ingreso</th>
-                            <th className="text-nowrap text-center">Especie</th>
-                            <th className="text-nowrap text-center">N° Cuenta</th>
-                            <th className="text-nowrap text-center">Usuario Crea</th>
-                            <th className="text-nowrap text-center">Marca</th>
-                            <th className="text-nowrap text-center">Modelo</th>
-                            <th className="text-nowrap text-center">Serie</th>
-                            <th className="text-nowrap text-center">Estado</th>
-                            <th className="text-nowrap text-center">Precio</th>
-                            <th className="text-nowrap text-center">N° Recepción</th>
+                            <th className="text-nowrap">Servicio</th>
+                            <th className="text-nowrap">Dependencia</th>
+                            <th className="text-nowrap">Fecha Ingreso</th>
+                            <th className="text-nowrap">Especie</th>
+                            <th className="text-nowrap">N° Cuenta</th>
+                            <th className="text-nowrap">Usuario Crea</th>
+                            <th className="text-nowrap">Marca</th>
+                            <th className="text-nowrap">Modelo</th>
+                            <th className="text-nowrap">Serie</th>
+                            <th className="text-nowrap">Estado</th>
+                            <th className="text-nowrap">Precio</th>
+                            <th className="text-nowrap">N° Recepción</th>
                           </tr>
                         </thead>
 

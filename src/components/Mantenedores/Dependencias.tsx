@@ -14,6 +14,9 @@ import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { listadoMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/listadoMantenedorDependenciasActions.tsx";
 import { comboServicioActions } from "../../redux/actions/Mantenedores/Servicios/comboServicioMantenedorActions.tsx";
+import { PageSizeSelector } from "../Utils/PageSizeSelector.tsx";
+import { TablaGenerica } from "../Utils/TablaGenerica.tsx";
+import { BusquedaTabla } from "../Utils/BusquedaTabla.tsx";
 
 
 export interface ListadoMantenedor {
@@ -46,13 +49,10 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListadoMantenedor>>({});
   const [_, setFilaSeleccionada] = useState<string[]>([]);
-  const [mostrarModal, setMostrarModal] = useState<number | null>(null);
   const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-  const elementosPorPagina = Paginacion.nPaginacion;
+  const [pageSize, setPageSize] = useState(10);
   const [terminoBusqueda, setTerminoBusqueda] = useState("");
-
 
   const datosFiltrados = useMemo(() => {
     if (!terminoBusqueda.trim()) {
@@ -77,17 +77,20 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
     setPaginaActual(1);
   }, [terminoBusqueda]);
 
-  // Lógica de Paginación actualizada
-  const indiceUltimoElemento = paginaActual * elementosPorPagina;
-  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => datosFiltrados.slice(indicePrimerElemento, indiceUltimoElemento),
-    [datosFiltrados, indicePrimerElemento, indiceUltimoElemento]
-  );
-  // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(datosFiltrados)
-    ? Math.ceil(datosFiltrados.length / elementosPorPagina)
-    : 0;
-  const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+  //------------- Lógica de Paginación----------------//
+  // Totales
+  const totalRegistros = datosFiltrados.length;
+  const totalPaginas = Math.ceil(totalRegistros / pageSize);
+
+  // Índices
+  const indiceInicio = (paginaActual - 1) * pageSize;
+  const indiceFin = indiceInicio + pageSize;
+
+  // Datos paginados
+  const elementosActuales = useMemo(() => {
+    return datosFiltrados.slice(indiceInicio, indiceFin);
+  }, [datosFiltrados, indiceInicio, indiceFin]);
+  //-------------Fin Lógica de Paginación----------------//
 
 
   const [Mantenedor, setMantenedor] = useState({
@@ -151,27 +154,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
       [name]: newValue,
     }));
 
-    setPaginacion((preBajas) => ({
-      ...preBajas,
-      [name]: newValue,
-    }));
-
-  };
-
-  // const setSeleccionaFila = (index: number) => {
-  //   setMostrarModal(index); //Abre modal del indice seleccionado
-  //   setFilaSeleccionada((prev) =>
-  //     prev.includes(index.toString())
-  //       ? prev.filter((rowIndex) => rowIndex !== index.toString())
-  //       : [...prev, index.toString()]
-  //   );
-  // };
-
-  const handleCerrarModal = (index: number) => {
-    setFilaSeleccionada((prevSeleccionadas) =>
-      prevSeleccionadas.filter((fila) => fila !== index.toString())
-    );
-    setMostrarModal(null); //Cierra modal del indice seleccionado
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -231,6 +213,15 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
     }
   };
 
+
+  const columnas = [
+    { key: 'deP_CORR' as keyof ListadoMantenedor, header: 'Código' },
+    { key: 'deP_COD' as keyof ListadoMantenedor, header: 'Código Dependencia' },
+    { key: 'seR_COD' as keyof ListadoMantenedor, header: 'Código Servicio' },
+    { key: 'nombre' as keyof ListadoMantenedor, header: 'Nombre' },
+    { key: 'fechA_CREA' as keyof ListadoMantenedor, header: 'Fecha Creación' }
+  ];
+
   return (
     <Layout>
       <Helmet>
@@ -241,46 +232,14 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-4 rounded">
             <h3 className="form-title fw-semibold border-bottom p-1">Listado de Dependencias</h3>
-            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-2">
-              <Col xs={12} lg="auto" className="flex-grow-1">
-                <div className="position-relative">
-                  <Search
-                    className="position-absolute top-50 start-0 translate-middle-y ms-3"
-                    size={18}
-                    style={{ color: isDarkMode ? "#adb5bd" : "#6c757d" }}
-                  />
-                  <Form.Control
-                    type="text"
-                    placeholder="Buscar en todas las columnas..."
-                    value={terminoBusqueda}
-                    onChange={(e) => setTerminoBusqueda(e.target.value)}
-                    className={`ps-5 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    style={{ maxWidth: "400px" }}
-                  />
-                </div>
-              </Col>
-            </Row>
-            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
-              {/* Tamaño de página */}
-              <Col xs={12} lg="auto">
-                {listadoMantenedor.length > 10 && (
-                  <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                      Tamaño de página:
-                    </label>
-                    <select
-                      aria-label="Seleccionar tamaño de página"
-                      className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      name="nPaginacion"
-                      onChange={handleChange}
-                      value={Paginacion.nPaginacion}
-                    >
-                      {[10, 15, 20, 25, 50, 100].map((val) => (
-                        <option key={val} value={val}>{val}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+            <Row>
+              <Col xs={12} lg="auto" className="flex-grow-1 mb-lg-3 mb-1">
+
+                <BusquedaTabla
+                  value={terminoBusqueda}
+                  onChange={setTerminoBusqueda}
+                  isDarkMode={isDarkMode}
+                />
               </Col>
               {/* Boton Agregar */}
               <Col xs={12} lg={1}>
@@ -295,107 +254,67 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
                   </Button>
                 </div>
               </Col>
-            </Row>
 
-            <div className="mb-2">
-              <small className={`${isDarkMode ? "text-light" : "text-muted"}`}>
-                Mostrando {datosFiltrados.length} de {listadoMantenedor.length} registros
-              </small>
-            </div>
+              <PageSizeSelector
+                pageSize={pageSize}
+                total={listadoMantenedor.length}
+                totalFiltrados={totalRegistros}
+                onChange={(size) => setPageSize(size)}
+                isDarkMode={isDarkMode}
+              />
+            </Row>
 
             {/* Tabla */}
             {loading ? (
-              <>
-                <SkeletonLoader rowCount={elementosPorPagina} />
-              </>
+              <SkeletonLoader rowCount={10} />
             ) : (
-              <>
-                {listadoMantenedor.length > 0 ? (
-                  <>
-                    <div className='table-responsive'>
-                      <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                          <tr>
-                            {/* <th scope="col"></th> */}
-                            <th scope="col" className="text-nowrap">Codigo</th>
-                            <th scope="col" className="text-nowrap">Código Dependencia</th>
-                            <th scope="col" className="text-nowrap">Código Servicio</th>
-                            <th scope="col" className="text-nowrap">Nombre</th>
-                            {/* <th scope="col" className="text-nowrap text-center">Vigencia</th> */}
-                            {/* <th scope="col" className="text-nowrap text-center">IP</th> */}
-                            <th scope="col" className="text-nowrap">Fecha de Creación</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {elementosActuales.map((Lista, index) => {
-                            let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                            return (
-                              <tr key={indexReal}>
-                                {/* <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => setSeleccionaFila(indexReal)}
-                          checked={filasSeleccionada.includes((indexReal).toString())}
-                        />
-                      </td> */}
-                                <td scope="col" className="text-nowrap">{Lista.deP_CORR}</td>
-                                <td scope="col" className="text-nowrap">{Lista.deP_COD}</td>
-                                <td scope="col" className="text-nowrap">{Lista.seR_COD}</td>
-                                <td scope="col" className="text-nowrap">{Lista.nombre}</td>
-                                {/* <td scope="col" className="text-nowrap">{Lista.vig}</td> */}
-                                {/* <td scope="col" className="text-nowrap">{Lista.ip}</td> */}
-                                <td scope="col" className="text-nowrap">{Lista.fechA_CREA}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                    {/* Paginador */}
-                    <div className="paginador-container position-relative z-0">
-                      <Pagination className="paginador-scroll">
-                        <Pagination.First
-                          onClick={() => paginar(1)}
-                          disabled={paginaActual === 1}
-
-                        />
-                        <Pagination.Prev
-                          onClick={() => paginar(paginaActual - 1)}
-                          disabled={paginaActual === 1}
-                        />
-
-                        {Array.from({ length: totalPaginas }, (_, i) => (
-                          <Pagination.Item
-                            key={i + 1}
-                            active={i + 1 === paginaActual}
-                            onClick={() => paginar(i + 1)}
-
-                          >
-                            {i + 1} {/* adentro de aqui esta page-link */}
-                          </Pagination.Item>
-                        ))}
-                        <Pagination.Next
-                          onClick={() => paginar(paginaActual + 1)}
-                          disabled={paginaActual === totalPaginas}
-
-                        />
-                        <Pagination.Last
-                          onClick={() => paginar(totalPaginas)}
-                          disabled={paginaActual === totalPaginas}
-
-                        />
-                      </Pagination>
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
-                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                      No hay resultados para mostrar.
-                    </p>
-                  </div>
-                )}
-              </>
+              <TablaGenerica<ListadoMantenedor>
+                data={elementosActuales}
+                columns={columnas}
+                isDarkMode={isDarkMode}
+              // onEdit={(item) => handleSeleccion(item)}
+              />
             )}
+            {/* Paginador */}
+            <div className="paginador-scroll">
+              <ul className="pagination pagination-sm">
+
+                <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setPaginaActual(paginaActual - 1)}
+                  >
+                    Anterior
+                  </button>
+                </li>
+
+                {Array.from({ length: totalPaginas }, (_, i) => (
+                  <li
+                    key={i}
+                    className={`page-item ${paginaActual === i + 1 ? "active" : ""}`
+                    }
+                  >
+                    <button
+                      style={{ marginLeft: '2px' }}
+                      className="page-link"
+                      onClick={() => setPaginaActual(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  </li>
+                ))}
+
+                <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                  <button
+                    style={{ marginLeft: '2px' }}
+                    className="page-link"
+                    onClick={() => setPaginaActual(paginaActual + 1)}
+                  >
+                    Siguiente
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -481,93 +400,6 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
         </Modal.Body>
       </Modal >
 
-      {/* Modal formulario Actualizar*/}
-      {elementosActuales.map((Lista, index) => {
-        let indexReal = indicePrimerElemento + index;
-        return (
-          <div key={indexReal}>
-            <Modal
-              show={mostrarModal === indexReal}
-              onHide={() => handleCerrarModal(indexReal)}
-              dialogClassName="modal-right" // Clase personalizada
-            // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-            // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-            >
-              <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                <Modal.Title className="fw-semibold">Dependencia Nº {Lista.deP_CORR}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                <form onSubmit={handleSubmit}>
-                  {/* Boton actualizar filas seleccionadas */}
-                  <div className="d-flex justify-content-end">
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                      disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                    >
-                      {loadingRegistro ? (
-                        <>
-                          {"Un momento... "}
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="me-2"
-                          />
-
-                        </>
-                      ) : (
-                        <>
-                          Actualizar
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <div className="mt-1">
-                    <label className="fw-semibold">Servicio</label>
-                    <select
-                      aria-label="seR_COD"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.seR_COD ? "is-invalid" : ""}`}
-                      name="seR_COD"
-                      onChange={handleChange}
-                      value={Mantenedor.seR_COD}
-                    >
-                      <option value="">Seleccionar</option>
-                      {comboServicio.map((traeServicio) => (
-                        <option key={traeServicio.codigo} value={traeServicio.codigo}>
-                          {traeServicio.nombrE_ORD}
-                        </option>
-                      ))}
-                    </select>
-                    {error.seR_COD && (
-                      <div className="invalid-feedback fw-semibold">{error.seR_COD}</div>
-                    )}
-                  </div>
-
-                  <div className="mt-1">
-                    <label className="fw-semibold">Nombre Dependencia</label>
-                    <input
-                      aria-label="nombre"
-                      type="text"
-                      className={`form-control ${error.nombre ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      name="nombre"
-                      maxLength={100}
-                      onChange={handleChange}
-                      value={Mantenedor.nombre}
-                    />
-                    {error.deP_COD && (
-                      <div className="invalid-feedback fw-semibold">{error.deP_COD}</div>
-                    )}
-                  </div>
-                </form>
-              </Modal.Body>
-            </Modal >
-          </div>
-        )
-      })}
     </Layout >
   );
 };

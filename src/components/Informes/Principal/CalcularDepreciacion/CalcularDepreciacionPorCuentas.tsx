@@ -19,6 +19,9 @@ import { listaActivosFijosPorCuentasActions } from "../../../../redux/actions/In
 import DocumentoCuentasPDF from "./DocumentoPDFCalcularCuentasDepreciacion";
 import { ListaActivosFijos } from "./CalcularDepreciacion";
 import Draggable from "react-draggable";
+import { TablaGenerica } from "../../../Utils/TablaGenerica";
+import { PageSizeSelector } from "../../../Utils/PageSizeSelector";
+import { BusquedaTabla } from "../../../Utils/BusquedaTabla";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
@@ -50,18 +53,27 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
     const [loadingBuscarCasr, setloadingBuscarCasr] = useState(false);
     const [loadingExportar, setLoadingExportar] = useState(false);
     const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
-    const [paginaActual, setPaginaActual] = useState(1);
-    const [paginaActual2, setPaginaActual2] = useState(1);
-    const [paginaActual3, setPaginaActual3] = useState(1);
 
+    // Estados para ordenamiento
+    const [sortColumnCalculados, setSortColumnCalculados] = useState<keyof ListaActivosFijos | null>(null);
+    const [sortDirectionCalculados, setSortDirectionCalculados] = useState<'asc' | 'desc'>('asc');
+
+
+    //----------------Datos obtenidos----------------------//
+    const [paginaActual, setPaginaActual] = useState(1);
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
 
-    const [Paginacion2, setPaginacion2] = useState({ nPaginacion2: 10 });
-    const elementosPorPagina2 = Paginacion2.nPaginacion2;
+    //----------------Datos cálculados----------------------//
+    const [paginaActual2, setPaginaActual2] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [terminoBusqueda, setTerminoBusqueda] = useState("");
 
+    //----------------Datos No cálculados----------------------//
+    const [paginaActual3, setPaginaActual3] = useState(1);
     const [Paginacion3, setPaginacion3] = useState({ nPaginacion3: 10 });
     const elementosPorPagina3 = Paginacion3.nPaginacion3;
+
 
     const [__, setlistaActivosCalculados] = useState<ListaActivosFijos[]>(listaActivosCalculadosPorCuentas);
 
@@ -93,10 +105,10 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
             [name]: value,
         }));
 
-        setPaginacion2((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+        // setPaginacion2((prevState) => ({
+        //     ...prevState,
+        //     [name]: value,
+        // }));
 
         setPaginacion3((prevState) => ({
             ...prevState,
@@ -109,6 +121,36 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         }
     };
 
+    // Función para obtener datos ordenados (la misma que antes)
+    const getSortedData = useMemo(() => {
+        if (!sortColumnCalculados) return listaActivosCalculadosPorCuentas;
+
+        return [...listaActivosCalculadosPorCuentas].sort((a, b) => {
+            const aValue = a[sortColumnCalculados];
+            const bValue = b[sortColumnCalculados];
+
+            // Manejar valores numéricos
+            if (!isNaN(Number(aValue)) && !isNaN(Number(bValue))) {
+                return sortDirectionCalculados === 'asc'
+                    ? Number(aValue) - Number(bValue)
+                    : Number(bValue) - Number(aValue);
+            }
+
+            // Manejar valores de texto
+            const aString = aValue?.toString() || '';
+            const bString = bValue?.toString() || '';
+
+            return sortDirectionCalculados === 'asc'
+                ? aString.localeCompare(bString)
+                : bString.localeCompare(aString);
+        });
+    }, [listaActivosCalculadosPorCuentas, sortColumnCalculados, sortDirectionCalculados]);
+
+    // Función para manejar el ordenamiento desde la tabla
+    const handleSortCalculados = (column: keyof ListaActivosFijos, direction: 'asc' | 'desc') => {
+        setSortColumnCalculados(column);
+        setSortDirectionCalculados(direction);
+    };
 
     const handleBuscar = async () => {
         setLoadingBuscar(true);
@@ -420,7 +462,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         setLoading(false);
     };
 
-    const handleAbrirModalCalcular = () => {
+    const handleAbrirModalExportar = () => {
         setLoadingExportar(true);
         // Espera un ciclo de evento para mostrar el modal
         setTimeout(() => {
@@ -434,7 +476,6 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         setTotalDepAnual(0);
         setMostrarModalCalcular(false);
     };
-
 
     const setSeleccionaFilas = (index: number) => {
         setFilasSeleccionadas((prev) =>
@@ -475,19 +516,21 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
     const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     //------------------------------Tabla Modal(Activos calculados)--------------------------------------//
-    // Lógica de Paginación actualizada 
-    const indiceUltimoElemento2 = paginaActual2 * elementosPorPagina2;
-    const indicePrimerElemento2 = indiceUltimoElemento2 - elementosPorPagina2;
-    const elementosActuales2 = useMemo(
-        () =>
-            listaActivosCalculadosPorCuentas.slice(indicePrimerElemento2, indiceUltimoElemento2),
-        [listaActivosCalculadosPorCuentas.slice(indicePrimerElemento2, indiceUltimoElemento2),
-            , indicePrimerElemento2, indiceUltimoElemento2]
-    );
-    const totalPaginas2 = Array.isArray(listaActivosCalculadosPorCuentas.slice(indicePrimerElemento2, indiceUltimoElemento2),
-    )
-        ? Math.ceil(listaActivosCalculadosPorCuentas.length / elementosPorPagina2)
-        : 0;
+    //------------- Lógica de Paginación----------------//
+    // Totales
+    const totalRegistros = listaActivosCalculadosPorCuentas.length;
+    const totalPaginasCalculadas = Math.ceil(totalRegistros / pageSize);
+
+    // Índices
+    const indiceInicio = (paginaActual - 1) * pageSize;
+    const indiceFin = indiceInicio + pageSize;
+
+    // Datos paginados
+    const elementosActuales2 = useMemo(() => {
+        return listaActivosCalculadosPorCuentas.slice(indiceInicio, indiceFin);
+    }, [listaActivosCalculadosPorCuentas, indiceInicio, indiceFin]);
+    //-------------Fin Lógica de Paginación----------------//
+
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
     const [totalRes, setTotalRes] = useState(0);
     const [totalDep, setTotalDep] = useState(0);
@@ -800,8 +843,14 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
     //     });
     // };
 
-    //Este ancho de la columna se aplica para que los botones no se expandan en su totalidad segun el ancho
-    const lgSize = listaActivosNoCalculadosPorCuentas.length > 0 ? 4 : 2;
+
+    const columnas = [
+        { key: 'ctA_COD' as keyof ListaActivosFijos, header: 'Cuenta' },
+        { key: 'ctA_NOMBRE' as keyof ListaActivosFijos, header: 'Descripción' },
+        { key: 'depreciacionPorAno' as keyof ListaActivosFijos, header: 'Depreciación Anual' },
+        { key: 'depreciacionAcumuladaActualizada' as keyof ListaActivosFijos, header: 'Depreciación Acumulada' },
+        { key: 'valorResidual' as keyof ListaActivosFijos, header: 'Valor Residual' },
+    ]
 
     return (
         <Layout>
@@ -1238,8 +1287,8 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                         // backdrop="static" // Evita que se cierre al hacer clic afuera
                         // keyboard={false}
                         fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
-                        <Modal.Header className={`modal-header text-white bg-success`} style={{ paddingRight: "3%" }} closeButton>
-                            <Modal.Title className="fw-semibold">
+                        <Modal.Header className={`modal-header text-white bg-success pe-lg-5 pe-sm-4`} closeButton>
+                            <Modal.Title className="fw-semibold fs-5 fs-lg-1     ">
                                 <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada por Cuenta</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={`me-lg-5 me-sm-none p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -1276,7 +1325,6 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                             </h4>
                                         </div>
                                     </Col>
-
                                     <Col sm={6} md={6} lg={3}>
                                         <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
                                             <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
@@ -1287,192 +1335,123 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                             </h4>
                                         </div>
                                     </Col>
-
                                 </Row>
-
-                                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-                                    {/* Tamaño de página */}
-                                    <Col xs={12} lg="auto">
-                                        {listaActivosPorCuentasFijos.length > 10 && (
-                                            <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                                <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
-                                                    Tamaño de página:
-                                                </label>
-                                                <select
-                                                    aria-label="Seleccionar tamaño de página"
-                                                    className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                    name="nPaginacion2"
-                                                    onChange={handleChange}
-                                                    value={Paginacion2.nPaginacion2}
+                            </div>
+                            <Row className="row justify-content-end m-1">
+                                {/* Botones y mensajes */}
+                                <Col xs={12} lg={1}>
+                                    <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
+                                        {listaActivosNoCalculadosPorCuentas.length > 0 && (
+                                            <>
+                                                {/* Botón No calculados */}
+                                                <Button
+                                                    variant='warning'
+                                                    onClick={() => setMostrarModalNoCalculados(true)}
+                                                    disabled={listaActivosNoCalculadosPorCuentas.length === 0}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
                                                 >
-                                                    {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                        <option key={val} value={val}>
-                                                            {val}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
+                                                    <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1  text-danger")} aria-hidden="true" />
+                                                    No Calculados
+                                                    <span className="badge bg-light text-dark mx-1 mt-1">
+                                                        {listaActivosNoCalculadosPorCuentas.length}
+                                                    </span>
+
+                                                </Button>
+                                            </>
                                         )}
-                                    </Col>
-
-                                    {/* Botones y mensajes */}
-                                    <Col xs={12} lg={lgSize}>
-                                        <div className="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end align-items-stretch">
-                                            {listaActivosNoCalculadosPorCuentas.length > 0 && (
-                                                <>
-                                                    {/* Botón No calculados */}
-                                                    <Button
-                                                        variant='warning'
-                                                        onClick={() => setMostrarModalNoCalculados(true)}
-                                                        disabled={listaActivosNoCalculadosPorCuentas.length === 0}
-                                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
-                                                    >
-                                                        <ExclamationDiamond className={classNames("flex-shrink-0", "h-5 w-5 mx-1  text-danger")} aria-hidden="true" />
-                                                        No Calculados
-                                                        <span className="badge bg-light text-dark mx-1 mt-1">
-                                                            {listaActivosNoCalculadosPorCuentas.length}
-                                                        </span>
-
-                                                    </Button>
-                                                </>
-                                            )}
-                                            {listaActivosPorCuentasFijos.length > 0 && (
-                                                <>
-                                                    {/* Botón Exportar Calculados */}
-                                                    <Button
-                                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                                        onClick={handleAbrirModalCalcular}
-                                                        disabled={listaActivosPorCuentasFijos.length === 0 || loadingExportar}
-                                                        className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
-                                                    >
-                                                        {loadingExportar ? (
-                                                            <>
-                                                                Un Momento...
-                                                                <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <FiletypePdf
-                                                                    className="flex-shrink-0 h-5 w-5 mx-2"
-                                                                    aria-hidden="true"
-                                                                />
-                                                                Exportar
-                                                                <span className="badge bg-light text-dark mx-1 mt-1">
-                                                                    {listaActivosCalculadosPorCuentas.length}
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                    </Button>
-                                                </>
-                                            )}
-
-
-                                        </div>
-                                    </Col>
-                                </Row>
-
-                            </div>
-                            {/* Tabla activos calculados*/}
-                            <div style={{ maxHeight: "75vh", overflowY: "auto" }} className="mt-2">
-                                {loading ? (
-                                    <>
-                                        {/* <SkeletonLoader rowCount={elementosPorPagina} /> */}
-                                        <SkeletonLoader rowCount={10} columnCount={10} />
-                                    </>
-                                ) : (
-                                    <div className='table-responsive position-relative z-0'>
-                                        <div style={{ maxHeight: "70vh" }}>
-                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                                <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                                    <tr>
-                                                        <th scope="col" className="text-nowrap text-center">Cuenta</th>
-                                                        <th scope="col" className="text-nowrap text-center">Descripción</th>
-                                                        <th scope="col" className="text-nowrap text-center">Monto Inicial</th>
-                                                        <td
-                                                            scope="col"
-                                                            className="text-nowrap text-center bg-success text-white">
-                                                            <b> Depreciación Anual</b>
-                                                        </td>
-                                                        <td
-                                                            scope="col"
-                                                            className="text-nowrap text-center bg-success text-white">
-                                                            <b>Depreciación Acumulada</b>
-                                                        </td>
-                                                        <td
-                                                            scope="col"
-                                                            className="text-nowrap text-center bg-success text-white">
-                                                            <b>Valor Residual</b>
-                                                        </td>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {elementosActuales2.map((lista, index) =>
-
-                                                        <tr key={index}>
-                                                            <td className="text-nowrap text-center">{lista.ctA_COD}</td>
-                                                            {/* <td className="text-nowrap text-center">{lista.aF_CANTIDAD}</td> */}
-                                                            <td className="text-nowrap">{lista.ctA_NOMBRE == "0" ? "Sin Descripción" : lista.ctA_NOMBRE}</td>
-                                                            <td className="text-nowrap text-center">
-                                                                {lista.montoInicial?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-                                                            <td className="text-nowrap text-center fw-bold" style={{
-                                                                color: isDarkMode ? '#ffffff' : '#2f3e78',
-                                                                background: 'rgb(25 135 84 / 14%)'
-                                                            }}>
-                                                                {lista.depreciacionPorAno === 0 ? "-" : "$" + lista.depreciacionPorAno?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-                                                            <td className="text-nowrap fw-bold" style={{
-                                                                color: isDarkMode ? '#ffffff' : '#2f3e78',
-                                                                background: 'rgb(25 135 84 / 14%)'
-                                                            }}>
-                                                                {lista.depreciacionAcumuladaActualizada === 0 ? "-" : "$" + lista.depreciacionAcumuladaActualizada?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-                                                            <td className="text-nowrap text-center fw-bold" style={{
-                                                                color: isDarkMode ? '#ffffff' : '#2f3e78',
-                                                                background: 'rgb(25 135 84 / 14%)'
-                                                            }}>
-                                                                {lista.valorResidual === 0 ? "-" : "$" + lista.valorResidual?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                                            </td>
-
-                                                        </tr>
+                                        {listaActivosPorCuentasFijos.length > 0 && (
+                                            <>
+                                                {/* Botón Exportar Calculados */}
+                                                <Button
+                                                    variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                                    onClick={handleAbrirModalExportar}
+                                                    disabled={listaActivosPorCuentasFijos.length === 0 || loadingExportar}
+                                                    className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 d-flex align-items-center justify-content-center"
+                                                >
+                                                    {loadingExportar ? (
+                                                        <>
+                                                            Un Momento...
+                                                            <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FiletypePdf
+                                                                className="flex-shrink-0 h-5 w-5 mx-2"
+                                                                aria-hidden="true"
+                                                            />
+                                                            Exportar
+                                                            <span className="badge bg-light text-dark mx-1 mt-1">
+                                                                {listaActivosCalculadosPorCuentas.length}
+                                                            </span>
+                                                        </>
                                                     )}
-                                                </tbody>
+                                                </Button>
+                                            </>
+                                        )}
 
-                                            </table>
-                                        </div>
                                     </div>
-                                )}
-                            </div>
-                            {/* Paginador */}
-                            <div className="paginador-container position-relative z-0">
-                                <Pagination className="paginador-scroll">
-                                    <Pagination.First
-                                        onClick={() => paginar2(1)}
-                                        disabled={paginaActual2 === 1}
-                                    />
-                                    <Pagination.Prev
-                                        onClick={() => paginar2(paginaActual2 - 1)}
-                                        disabled={paginaActual2 === 1}
-                                    />
+                                </Col>
 
-                                    {Array.from({ length: totalPaginas2 }, (_, i) => (
-                                        <Pagination.Item
-                                            key={i + 1}
-                                            active={i + 1 === paginaActual2}
-                                            onClick={() => paginar2(i + 1)}
+                                <PageSizeSelector
+                                    pageSize={pageSize}
+                                    total={listaActivosCalculadosPorCuentas.length}
+                                    totalFiltrados={totalRegistros}
+                                    onChange={(size) => setPageSize(size)}
+                                    isDarkMode={isDarkMode}
+                                />
+                            </Row>
+                            {/* Tabla */}
+                            {loading ? (
+                                <SkeletonLoader rowCount={10} />
+                            ) : (
+                                <TablaGenerica<ListaActivosFijos>
+                                    data={elementosActuales2}
+                                    columns={columnas}
+                                    isDarkMode={isDarkMode}
+                                    onSortChange={handleSortCalculados}
+                                    sortColumn={sortColumnCalculados}
+                                    sortDirection={sortDirectionCalculados}
+                                />
+                            )}
+                            {/* Paginador */}
+                            <div className="paginador-scroll">
+                                <ul className="pagination pagination-sm">
+
+                                    <li className={`page-item ${paginaActual2 === 1 ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(paginaActual2 - 1)}
                                         >
-                                            {i + 1}
-                                        </Pagination.Item>
+                                            Anterior
+                                        </button>
+                                    </li>
+
+                                    {Array.from({ length: totalPaginasCalculadas }, (_, i) => (
+                                        <li
+                                            key={i}
+                                            className={`page-item ${paginaActual2 === i + 1 ? "active" : ""}`
+                                            }
+                                        >
+                                            <button
+                                                style={{ marginLeft: '2px' }}
+                                                className="page-link"
+                                                onClick={() => setPaginaActual(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </button>
+                                        </li>
                                     ))}
-                                    <Pagination.Next
-                                        onClick={() => paginar2(paginaActual2 + 1)}
-                                        disabled={paginaActual2 === totalPaginas2}
-                                    />
-                                    <Pagination.Last
-                                        onClick={() => paginar2(totalPaginas2)}
-                                        disabled={paginaActual2 === totalPaginas2}
-                                    />
-                                </Pagination>
+
+                                    <li className={`page-item ${paginaActual2 === totalPaginasCalculadas ? "disabled" : ""}`}>
+                                        <button
+                                            style={{ marginLeft: '2px' }}
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(paginaActual2 + 1)}
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </li>
+                                </ul>
                             </div>
                         </Modal.Body>
                     </Modal >
@@ -1482,7 +1461,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
 
             {/* Modal Activos NO Calculados */}
             <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
-                <Modal.Header className={`modal-header bg-warning`} closeButton>
+                <Modal.Header className={`modal-header bg-warning pe-lg-5 pe-sm-4`} closeButton>
                     <Modal.Title className="fw-semibold text-muted ">
                         <ExclamationDiamond className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 text-danger"} aria-hidden="true" />No Calculados</Modal.Title>
                 </Modal.Header>
@@ -1630,7 +1609,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                     <BlobProvider
                         document={
                             <DocumentoCuentasPDF
-                                row={listaActivosCalculadosPorCuentas}
+                                row={getSortedData}
                                 totalRes={totalRes}
                                 totalDep={totalDep}
                                 totalDepAnual={totalDepAnual}

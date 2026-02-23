@@ -264,7 +264,8 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
     });
 
     if (result.isConfirmed) {
-      setLoadingRegistro(false);
+      setMostrarModalAdjunto(false);
+      setLoadingRegistro(true);
       const anexosBase64 = await convertirArchivosABase64(anexos);
       if (anexos.length > 2) {
         Swal.fire({
@@ -314,10 +315,16 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           }
         });
 
-        setLoadingRegistro(false);
+
+        setExcluidos((prevState) => ({
+          ...prevState,
+          observaciones: "",
+        }));
+        setAnexos([]);
         obtenerListaExcluidosActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         setFilasSeleccionadas([]);
+        setLoadingRegistro(false);
       } else {
         Swal.fire({
           icon: "error",
@@ -330,6 +337,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
             popup: "custom-border", // Clase personalizada para el borde
           }
         });
+        setMostrarModalAdjunto(true);
         setLoadingRegistro(false);
       }
     }
@@ -754,20 +762,20 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
                                   checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                 />
                               </th>
-                              <th scope="col" className="text-nowrap text-center">Código</th>
-                              <th scope="col" className="text-nowrap text-center">Nº Inventario</th>
-                              <th scope="col" className="text-nowrap text-center">Nº Certificado</th>
-                              <th scope="col" className="text-nowrap text-center">Observaciones</th>
-                              <th scope="col" className="text-nowrap text-center">Usuario Modifica</th>
-                              <th scope="col" className="text-nowrap text-center">Fecha Baja</th>
-                              <th scope="col" className="text-nowrap text-center">Especie</th>
-                              <th scope="col" className="text-nowrap text-center">Nº Cuenta</th>
-                              <th scope="col" className="text-nowrap text-center">Vida Útil en Años</th>
-                              <th scope="col" className="text-nowrap text-center">Vida Útil Restante</th>
-                              <th scope="col" className="text-nowrap text-center">Depreciación Acumulada</th>
-                              <th scope="col" className="text-nowrap text-center">Valor Inicial</th>
-                              <th scope="col" className="text-nowrap text-center">Saldo Valor</th>
-                              <th scope="col" className="text-nowrap text-center">Estado</th>
+                              <th scope="col" className="text-nowrap">Código</th>
+                              <th scope="col" className="text-nowrap">Nº Inventario</th>
+                              <th scope="col" className="text-nowrap">Nº Certificado</th>
+                              <th scope="col" className="text-nowrap">Observaciones</th>
+                              <th scope="col" className="text-nowrap">Usuario Modifica</th>
+                              <th scope="col" className="text-nowrap">Fecha Baja</th>
+                              <th scope="col" className="text-nowrap">Especie</th>
+                              <th scope="col" className="text-nowrap">Nº Cuenta</th>
+                              <th scope="col" className="text-nowrap">Vida Útil en Años</th>
+                              <th scope="col" className="text-nowrap">Vida Útil Restante</th>
+                              <th scope="col" className="text-nowrap">Depreciación Acumulada</th>
+                              <th scope="col" className="text-nowrap">Valor Inicial</th>
+                              <th scope="col" className="text-nowrap">Saldo Valor</th>
+                              <th scope="col" className="text-nowrap">Estado</th>
                               {/* <th
                       className="text-nowrap text-center"
                       style={{
@@ -1082,7 +1090,24 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
           </form>
         </Modal.Body>
       </Modal>
+      {
+        loadingRegistro && (
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              // zIndex: 1050,
+            }}
+          >
+            <div className="text-center">
+              <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+              <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+            </div>
+          </div>
+        )
+      }
     </Layout >
+
   );
 };
 

@@ -33,6 +33,9 @@ const Dashboard: React.FC<Props> = ({
   objeto,
 }) => {
   const [periodo, setPeriodo] = useState<PeriodoIngreso>("dia");
+  const hoy = new Date().toISOString().split("T")[0];
+  const [fechaInicio, setFechaInicio] = useState(hoy);
+  const [fechaFin, setFechaFin] = useState(hoy);
 
   // 🔹 Carga inicial
   useEffect(() => {
@@ -64,73 +67,215 @@ const Dashboard: React.FC<Props> = ({
         >
           <div className="container mt-3">
 
-            {/* ===============================
-                🎛️ CONTROLES DE PERIODO
-            =============================== */}
-            <Card className="shadow-sm p-3 mb-3">
-              <Card.Title className="fw-bold text-center">
-                Ingresos de Inventario
-              </Card.Title>
-
-              <ButtonGroup className="d-flex justify-content-center">
-                <Button
-                  variant={periodo === "dia" ? "primary" : "outline-primary"}
-                  onClick={() => setPeriodo("dia")}
-                >
-                  Día
-                </Button>
-                <Button
-                  variant={periodo === "mes" ? "primary" : "outline-primary"}
-                  onClick={() => setPeriodo("mes")}
-                >
-                  Mes
-                </Button>
-                <Button
-                  variant={periodo === "anio" ? "primary" : "outline-primary"}
-                  onClick={() => setPeriodo("anio")}
-                >
-                  Año
-                </Button>
-              </ButtonGroup>
-            </Card>
-
-            {/* ===============================
-                📊 GRÁFICOS
-            =============================== */}
-            <Row className="g-3">
-
-              {/* Evolución */}
-              <Col lg={4}>
-                <Card className="shadow-sm p-3 h-100">
-                  <Card.Title className="fw-bold text-center">
-                    Evolución de Ingresos
-                  </Card.Title>
-                  <InventarioIngresosChart data={ingresos} type="line" />
+            {/* KPI */}
+            <Row className="g-3 mb-4">
+              <Col lg={2} md={4} sm={6}>
+                <Card className="shadow-sm text-center h-100 p-3">
+                  <div className="text-muted small">Total de Activos</div>
+                  <h3 className="text-primary mb-0">
+                    {listaInventarioAnular.length}
+                  </h3>
                 </Card>
               </Col>
 
-              {/* Distribución */}
-              <Col lg={4}>
-                <Card className="shadow-sm p-3 h-100">
-                  <Card.Title className="fw-bold text-center">
-                    Distribución
-                  </Card.Title>
-                  <InventarioIngresosChart data={ingresos} type="doughnut" />
+              <Col lg={2} md={4} sm={6}>
+                <Card className="shadow-sm text-center h-100 p-3">
+                  <div className="text-muted small">Valor Inventario</div>
+                  <h4 className="text-success mb-0">
+                    {ingresos.reduce((a, b) => a + b.total, 0)}
+                  </h4>
                 </Card>
               </Col>
 
-              {/* Comparación */}
-              <Col lg={4}>
-                <Card className="shadow-sm p-3 h-100">
-                  <Card.Title className="fw-bold text-center">
-                    Comparación por Periodo
-                  </Card.Title>
-                  <InventarioIngresosChart data={ingresos} type="bar" />
+              <Col lg={2} md={4} sm={6}>
+                <Card className="shadow-sm text-center h-100 p-3">
+                  <div className="text-muted small">Depreciación</div>
+                  <h5 className="mb-0 text-dark">--</h5>
                 </Card>
               </Col>
 
+              <Col lg={2} md={4} sm={6}>
+                <Card className="shadow-sm text-center h-100 p-3">
+                  <div className="text-muted small">Altas</div>
+                  <h4 className="text-primary mb-0">
+                    {ingresos[ingresos.length - 1]?.total || 0}
+                  </h4>
+                </Card>
+              </Col>
+
+              <Col lg={2} md={4} sm={6}>
+                <Card className="shadow-sm text-center h-100 p-3">
+                  <div className="text-muted small">Bajas</div>
+                  <h4 className="text-danger mb-0">--</h4>
+                </Card>
+              </Col>
+
+              <Col lg={2} md={4} sm={6}>
+                <Card className="shadow-sm text-center h-100 p-3">
+                  <div className="text-muted small">% En Uso</div>
+                  <h4 className="text-success mb-0">--%</h4>
+                </Card>
+              </Col>
             </Row>
 
+            {/* CONTROLES DE PERIODO */}
+            <Row className="mb-3 g-2 align-items-end">
+              {/* Título */}
+              <Col md={3}>
+                <h5 className="fw-bold mb-0">Ingresos de Inventario</h5>
+              </Col>
+
+              {/* Selector de periodo */}
+              <Col md="auto">
+                <ButtonGroup>
+                  <Button
+                    size="sm"
+                    variant={periodo === "dia" ? "primary" : "outline-primary"}
+                    onClick={() => setPeriodo("dia")}
+                  >
+                    Día
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={periodo === "mes" ? "primary" : "outline-primary"}
+                    onClick={() => setPeriodo("mes")}
+                  >
+                    Mes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={periodo === "anio" ? "primary" : "outline-primary"}
+                    onClick={() => setPeriodo("anio")}
+                  >
+                    Año
+                  </Button>
+                </ButtonGroup>
+              </Col>
+
+              {/* Fecha inicio */}
+              <Col md={2}>
+                <label className="form-label small text-muted mb-1">
+                  Desde
+                </label>
+                <input
+                  aria-label="date"
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                />
+              </Col>
+
+              {/* Fecha fin */}
+              <Col md={2}>
+                <label className="form-label small text-muted mb-1">
+                  Hasta
+                </label>
+                <input
+                  aria-label="date"
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                />
+              </Col>
+
+              {/* Botón aplicar */}
+              <Col md="auto">
+                <Button
+                  size="sm"
+                  variant="success"
+                  onClick={() =>
+                    listaInventarioAnularActions(
+                      "",
+                      fechaInicio,
+                      fechaFin,
+                      objeto.Roles[0].codigoEstablecimiento
+                    )
+                  }
+                >
+                  Aplicar
+                </Button>
+              </Col>
+            </Row>
+
+            {/* DASHBOARD */}
+            <Row className="g-3 mb-3">
+              {/* Principal */}
+              <Col lg={6}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      Evolución del Inventario
+                    </Card.Title>
+                    <InventarioIngresosChart data={ingresos} type="line" />
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              {/* Categorías */}
+              <Col lg={3}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      Distribución por Categoría
+                    </Card.Title>
+                    <InventarioIngresosChart data={ingresos} type="doughnut" />
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              {/* Ubicación */}
+              <Col lg={3}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      Activos por Ubicación
+                    </Card.Title>
+                    <InventarioIngresosChart data={ingresos} type="bar" />
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+
+            <Row className="g-3">
+              <Col lg={6}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      Movimientos del Inventario
+                    </Card.Title>
+                    <InventarioIngresosChart data={ingresos} type="bar" />
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              <Col lg={3}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      Depreciación
+                    </Card.Title>
+                    <InventarioIngresosChart data={ingresos} type="bar" />
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              <Col lg={3}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      Alertas
+                    </Card.Title>
+                    <ul className="mb-0 small">
+                      <li>Próximos a depreciación total</li>
+                      <li>Sin movimiento en 6 meses</li>
+                      <li>Sin responsable asignado</li>
+                    </ul>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
 
           </div>
         </motion.div>

@@ -1,13 +1,13 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal, Col, Row, Form } from "react-bootstrap";
+import { Button, Spinner, Modal, Col, Row } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuMantenedores from "../Menus/MenuMantenedores.tsx";
-import { Pencil, Plus, Search } from "react-bootstrap-icons";
+import { Plus } from "react-bootstrap-icons";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../Navegacion/Profile.tsx";
 import Select from "react-select";
@@ -16,6 +16,9 @@ import { listadoMantenedorEspeciesActions } from "../../redux/actions/Mantenedor
 import { registrarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/registrarMantenedorEspeciesActions.tsx";
 import { actualizarMantenedorEspeciesActions } from "../../redux/actions/Mantenedores/Especies/actualizarMantenedorEspeciesActions.tsx";
 import { comboCuentaInicialActions } from "../../redux/actions/Inventario/Combos/comboCuentaInicialActions.tsx";
+import { PageSizeSelector } from "../Utils/PageSizeSelector.tsx";
+import { BusquedaTabla } from "../Utils/BusquedaTabla.tsx";
+import { TablaGenerica } from "../Utils/TablaGenerica.tsx";
 
 export interface ListadoMantenedor {
     esP_CODIGO: string;
@@ -56,11 +59,10 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
     const [_, setFilaSeleccionada] = useState<any[]>([]);
-    const [mostrarModalEditar, setMostrarModalEditar] = useState<number | null>(null);
+    const [mostrarModalEditar, setMostrarModalEditar] = useState<ListadoMantenedor | null>(null);
     const [mostrarModalRegistrar, setMostrarModalRegistrar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
-    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-    const elementosPorPagina = Paginacion.nPaginacion;
+    const [pageSize, setPageSize] = useState(10);
     const [terminoBusqueda, setTerminoBusqueda] = useState("");
 
     const datosFiltrados = useMemo(() => {
@@ -80,16 +82,25 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
     }, [listadoMantenedor, terminoBusqueda]);
 
 
+
     useEffect(() => {
         setPaginaActual(1);
     }, [terminoBusqueda]);
 
-    // Lógica de Paginación actualizada
-    const indiceUltimoElemento = paginaActual * elementosPorPagina;
-    const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(() => datosFiltrados.slice(indicePrimerElemento, indiceUltimoElemento),
-        [datosFiltrados, indicePrimerElemento, indiceUltimoElemento]
-    );
+    //------------- Lógica de Paginación----------------//
+    // Totales
+    const totalRegistros = datosFiltrados.length;
+    const totalPaginas = Math.ceil(totalRegistros / pageSize);
+
+    // Índices
+    const indiceInicio = (paginaActual - 1) * pageSize;
+    const indiceFin = indiceInicio + pageSize;
+
+    // Datos paginados
+    const elementosActuales = useMemo(() => {
+        return datosFiltrados.slice(indiceInicio, indiceFin);
+    }, [datosFiltrados, indiceInicio, indiceFin]);
+    //-------------Fin Lógica de Paginación----------------//
 
     const cuentasOptions = comboCuentas.map((item) => ({
         value: item.codigo.toString(),
@@ -100,11 +111,6 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         const value = selectedOption ? selectedOption.value : "";
         setMantenedor((prevMantenedor) => ({ ...prevMantenedor, ctA_COD: value }));
     }
-    // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-    const totalPaginas = Array.isArray(datosFiltrados)
-        ? Math.ceil(datosFiltrados.length / elementosPorPagina)
-        : 0;
-    const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
     //Se lista automaticamente apenas entra al componente
     const listadoMantenedorAuto = async () => {
@@ -175,17 +181,10 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             [name]: newValue,
         }));
 
-        setPaginacion((prevPrev) => ({
-            ...prevPrev,
-            [name]: newValue,
-        }));
-
         if (name === "ctA_NOMBRE") {
             console.log("ctA_NOMBRE", newValue);
         }
     };
-
-
 
     const handleSubmiRegistrar = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -313,15 +312,14 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             }
         }
     };
-    const handleSeleccion = async (index: number, esP_CODIGO: string, esP_NOMBRE: string, ctA_COD: string) => {
-        let indexReal = indicePrimerElemento + index;
-        setMostrarModalEditar(indexReal);
-        setFilaSeleccionada((prev) => prev.filter((_, i) => i !== indexReal));
+
+    const handleSeleccion = (item: ListadoMantenedor) => {
+        setMostrarModalEditar(item)
         setMantenedor((prevMantenedor) => ({
             ...prevMantenedor,
-            esP_CODIGO: esP_CODIGO,
-            esP_NOMBRE: esP_NOMBRE,
-            ctA_COD: ctA_COD,
+            esP_CODIGO: item.esP_CODIGO,
+            esP_NOMBRE: item.esP_NOMBRE,
+            ctA_COD: item.ctA_COD,
         }));
     };
 
@@ -335,10 +333,12 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
         }));
     };
 
-    const handleCerrarModalEditar = (index: number) => {
-        setFilaSeleccionada((prevSeleccionadas) =>
-            prevSeleccionadas.filter((fila) => fila !== index.toString())
-        );
+    const handleCerrarModalEditar = (index?: number) => {
+        if (index !== undefined) {
+            setFilaSeleccionada((prevSeleccionadas) =>
+                prevSeleccionadas.filter((fila) => fila !== index.toString())
+            );
+        }
         setMostrarModalEditar(null); //Cierra modal del indice seleccionado
         setMantenedor((prevPrev) => ({
             ...prevPrev,
@@ -347,6 +347,39 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             ctA_COD: ''
         }));
     };
+
+    const nombreUsuario = (codigo: string) => {
+        const mapa: Record<string, string> = {
+            '62511': 'Andy Riquelme',
+            '18124': 'Rodrigo Toledo',
+            'JCASTILLO': 'Jaime Castillo', 'jcastillo': 'Jaime Castillo', '1770': 'Jaime Castillo',
+            'DROJASP': 'Daniel Rojas', 'drojasp': 'Daniel Rojas', '66098': 'Daniel Rojas',
+            '1234567': 'Felipe Almonte', '18667': 'Felipe Almonte',
+            'JVARGAS': 'Jonathan Vargas', 'jvargas': 'Jonathan Vargas', '6405': 'Jonathan Vargas',
+            'GFARIAS': 'Gabriela Farias', 'gfarias': 'Gabriela Farias', '888': 'Gabriela Farias',
+            'KREYESD': 'Katherine Reyes', 'kreyesd': 'Katherine Reyes', '66099': 'Katherine Reyes',
+        };
+        return mapa[codigo] || codigo;
+    };
+
+    const columnas = [
+        { key: 'esP_CODIGO' as keyof ListadoMantenedor, header: 'Codigo' },
+        { key: 'esP_NOMBRE' as keyof ListadoMantenedor, header: 'Nombre' },
+        { key: 'ctA_NOMBRE' as keyof ListadoMantenedor, header: 'Descripcion Cuenta' },
+        { key: 'esP_F_CREA' as keyof ListadoMantenedor, header: 'Fecha Creacion' },
+        { key: 'esP_F_MOD' as keyof ListadoMantenedor, header: 'Fecha Modificacion' },
+        {
+            key: 'esP_USER_CREA' as keyof ListadoMantenedor,
+            header: 'Creado por',
+            render: (value: string) => nombreUsuario(value),
+        },
+        {
+            key: 'esP_USER_MOD' as keyof ListadoMantenedor,
+            header: 'Modificado por',
+            render: (value: string) => nombreUsuario(value),
+        },
+    ];
+
     return (
         <Layout>
             <Helmet>
@@ -357,46 +390,15 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 <div style={{ maxHeight: "80vh" }}>
                     <div className="border-bottom shadow-sm p-4 rounded">
                         <h3 className="form-title fw-semibold border-bottom p-1">Listado de Especies</h3>
-                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-2">
-                            <Col xs={12} lg="auto" className="flex-grow-1">
-                                <div className="position-relative">
-                                    <Search
-                                        className="position-absolute top-50 start-0 translate-middle-y ms-3"
-                                        size={18}
-                                        style={{ color: isDarkMode ? "#adb5bd" : "#6c757d" }}
-                                    />
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Buscar en todas las columnas..."
-                                        value={terminoBusqueda}
-                                        onChange={(e) => setTerminoBusqueda(e.target.value)}
-                                        className={`ps-5 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                        style={{ maxWidth: "400px" }}
-                                    />
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
-                            {/* Tamaño de página */}
-                            <Col xs={12} lg="auto">
-                                {listadoMantenedor.length > 10 && (
-                                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                        <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                            Tamaño de página:
-                                        </label>
-                                        <select
-                                            aria-label="Seleccionar tamaño de página"
-                                            className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                            name="nPaginacion"
-                                            onChange={handleChange}
-                                            value={Paginacion.nPaginacion}
-                                        >
-                                            {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                <option key={val} value={val}>{val}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
+
+                        <Row>
+                            <Col xs={12} lg="auto" className="flex-grow-1 mb-lg-3 mb-1">
+
+                                <BusquedaTabla
+                                    value={terminoBusqueda}
+                                    onChange={setTerminoBusqueda}
+                                    isDarkMode={isDarkMode}
+                                />
                             </Col>
                             {/* Boton Agregar */}
                             <Col xs={12} lg={1}>
@@ -411,147 +413,69 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                                     </Button>
                                 </div>
                             </Col>
-                        </Row>
 
-                        <div className="mb-2">
-                            <small className={`${isDarkMode ? "text-light" : "text-muted"}`}>
-                                Mostrando {datosFiltrados.length} de {listadoMantenedor.length} registros
-                            </small>
-                        </div>
+                            <PageSizeSelector
+                                pageSize={pageSize}
+                                total={listadoMantenedor.length}
+                                totalFiltrados={totalRegistros}
+                                onChange={(size) => setPageSize(size)}
+                                isDarkMode={isDarkMode}
+                            />
+                        </Row>
 
                         {/* Tabla */}
                         {loading ? (
-                            <>
-                                <SkeletonLoader rowCount={elementosPorPagina} />
-                            </>
+                            <SkeletonLoader rowCount={10} />
                         ) : (
-                            <>
-                                {listadoMantenedor.length > 0 ? (
-                                    <>
-                                        <div className='table-responsive'>
-                                            <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                                    <tr>
-                                                        {/* <th scope="col"></th> */}
-                                                        <th scope="col" className="text-nowrap">Código</th>
-                                                        <th scope="col" className="text-nowrap">Nombre</th>
-                                                        <th scope="col" className="text-nowrap">Descripcion Cuenta</th>
-                                                        <th scope="col" className="text-nowrap">Fecha Creación</th>
-                                                        <th scope="col" className="text-nowrap">Fecha Modificación</th>
-                                                        <th scope="col" className="text-nowrap">Creado por</th>
-                                                        <th scope="col" className="text-nowrap">Modificado por</th>
-                                                        <th scope="col"
-                                                            className="text-nowrap  sticky-col-right-0 rounded-top">
-                                                            <b>Acción</b>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {elementosActuales.map((Lista, index) => {
-                                                        let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                        return (
-                                                            <tr key={indexReal}>
-                                                                {/* <td>
-                                                <Form.Check
-                                                    type="checkbox"
-                                                    onChange={() => setSeleccionaFila(indexReal)}
-                                                    checked={filasSeleccionada.includes((indexReal).toString())}
-                                                />
-                                            </td> */}
-                                                                <td scope="col" className="text-nowrap">{Lista.esP_CODIGO}</td>
-                                                                <td scope="col" className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                                                <td scope="col" className="text-nowrap">{Lista.ctA_NOMBRE}</td>
-                                                                <td scope="col" className="text-nowrap">{Lista.esP_F_CREA}</td>
-                                                                <td scope="col" className="text-nowrap">{Lista.esP_F_MOD}</td>
-                                                                <td className="text-nowrap">{
-                                                                    Lista.esP_USER_CREA === '62511' ? 'Andy Riquelme' :
-                                                                        Lista.esP_USER_CREA === '18124' ? 'Rodrigo Toledo' :
-                                                                            Lista.esP_USER_CREA === 'JCASTILLO' || Lista.esP_USER_CREA === 'jcastillo' || Lista.esP_USER_CREA === '1770' ? 'Jaime Castillo' :
-                                                                                Lista.esP_USER_CREA === 'DROJASP' || Lista.esP_USER_CREA === 'drojasp' || Lista.esP_USER_CREA === '66098' ? 'Daniel Rojas' :
-                                                                                    Lista.esP_USER_CREA === '1234567' || Lista.esP_USER_CREA === '18667' ? 'Felipe Almonte' :
-                                                                                        Lista.esP_USER_CREA === 'JVARGAS' || Lista.esP_USER_CREA === 'jvargas' || Lista.esP_USER_CREA === '6405' ? 'Jonathan Vargas' :
-                                                                                            Lista.esP_USER_CREA === 'GFARIAS' || Lista.esP_USER_CREA === 'gfarias' || Lista.esP_USER_CREA === '888' ? 'Gabriela Farias' :
-                                                                                                Lista.esP_USER_CREA === 'KREYESD' || Lista.esP_USER_CREA === 'kreyesd' || Lista.esP_USER_CREA === '66099' ? 'Katherine Reyes' : Lista.esP_USER_CREA
-
-                                                                }
-                                                                </td>
-                                                                <td className="text-nowrap">{
-                                                                    Lista.esP_USER_MOD === '62511' ? 'Andy Riquelme' :
-                                                                        Lista.esP_USER_MOD === '18124' ? 'Rodrigo Toledo' :
-                                                                            Lista.esP_USER_MOD === 'JCASTILLO' || Lista.esP_USER_MOD === 'jcastillo' || Lista.esP_USER_MOD === '1770' ? 'Jaime Castillo' :
-                                                                                Lista.esP_USER_MOD === 'DROJASP' || Lista.esP_USER_MOD === 'drojasp' || Lista.esP_USER_MOD === '66098' ? 'Daniel Rojas' :
-                                                                                    Lista.esP_USER_MOD === '1234567' || Lista.esP_USER_MOD === '18667' ? 'Felipe Almonte' :
-                                                                                        Lista.esP_USER_MOD === 'JVARGAS' || Lista.esP_USER_MOD === 'jvargas' || Lista.esP_USER_MOD === '6405' ? 'Jonathan Vargas' :
-                                                                                            Lista.esP_USER_MOD === 'GFARIAS' || Lista.esP_USER_MOD === 'gfarias' || Lista.esP_USER_MOD === '888' ? 'Gabriela Farias' :
-                                                                                                Lista.esP_USER_MOD === 'KREYESD' || Lista.esP_USER_MOD === 'kreyesd' || Lista.esP_USER_MOD === '66099' ? 'Katherine Reyes' : Lista.esP_USER_MOD
-
-                                                                }
-                                                                </td>
-                                                                <td scope="col" className="text-nowrap" style={{
-                                                                    position: 'sticky',
-                                                                    right: 0
-                                                                }}>
-                                                                    <Button
-                                                                        variant="outline-primary"
-                                                                        className="fw-semibold"
-                                                                        size="sm"
-                                                                        onClick={() => handleSeleccion(index, Lista.esP_CODIGO, Lista.esP_NOMBRE, Lista.ctA_COD)}
-                                                                    >
-                                                                        Editar
-                                                                        <Pencil className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                                                    </Button>
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        {/* Paginador */}
-                                        <div className="paginador-container position-relative z-0">
-                                            <Pagination className="paginador-scroll">
-                                                <Pagination.First
-                                                    onClick={() => paginar(1)}
-                                                    disabled={paginaActual === 1}
-
-                                                />
-                                                <Pagination.Prev
-                                                    onClick={() => paginar(paginaActual - 1)}
-                                                    disabled={paginaActual === 1}
-                                                />
-
-                                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                                    <Pagination.Item
-                                                        key={i + 1}
-                                                        active={i + 1 === paginaActual}
-                                                        onClick={() => paginar(i + 1)}
-                                                    >
-                                                        {i + 1}
-                                                    </Pagination.Item>
-                                                ))}
-                                                <Pagination.Next
-                                                    onClick={() => paginar(paginaActual + 1)}
-                                                    disabled={paginaActual === totalPaginas}
-
-                                                />
-                                                <Pagination.Last
-                                                    onClick={() => paginar(totalPaginas)}
-                                                    disabled={paginaActual === totalPaginas}
-
-                                                />
-                                            </Pagination>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div style={{ height: "50vh", overflowY: "auto" }} className="mt-2">
-                                        <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                                            No hay resultados para mostrar.
-                                        </p>
-                                    </div>
-                                )}
-                            </>
+                            <TablaGenerica<ListadoMantenedor>
+                                data={elementosActuales}
+                                columns={columnas}
+                                isDarkMode={isDarkMode}
+                                onEdit={(item) => handleSeleccion(item)}
+                            />
                         )}
 
+                        {/* Paginador */}
+                        <div className="paginador-scroll">
+                            <ul className="pagination pagination-sm">
+
+                                <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => setPaginaActual(paginaActual - 1)}
+                                    >
+                                        Anterior
+                                    </button>
+                                </li>
+
+                                {Array.from({ length: totalPaginas }, (_, i) => (
+                                    <li
+                                        key={i}
+                                        className={`page-item ${paginaActual === i + 1 ? "active" : ""}`
+                                        }
+                                    >
+                                        <button
+                                            style={{ marginLeft: '2px' }}
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    </li>
+                                ))}
+
+                                <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                                    <button
+                                        style={{ marginLeft: '2px' }}
+                                        className="page-link"
+                                        onClick={() => setPaginaActual(paginaActual + 1)}
+                                    >
+                                        Siguiente
+                                    </button>
+                                </li>
+
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -662,118 +586,111 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             </Modal >
 
             {/* Modal formulario Editar*/}
-            {elementosActuales.map((Lista, index) => {
-                let indexReal = indicePrimerElemento + index;
-                return (
-                    <div key={indexReal}>
-                        <Modal
-                            show={mostrarModalEditar === indexReal}
-                            onHide={() => handleCerrarModalEditar(indexReal)}
-                            dialogClassName="modal-right" // Clase personalizada
-                        // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
-                        // keyboard={false}     // Evita el cierre al presionar la tecla Esc
-                        >
-                            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                                <Modal.Title className="fw-semibold">Especie: {Lista.esP_CODIGO}</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                                <form onSubmit={handleSubmitEditar}>
-                                    {/* Boton actualizar filas seleccionadas */}
-                                    <div className="d-flex justify-content-end">
-                                        <Button
-                                            variant="primary"
-                                            type="submit"
-                                            className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
-                                            disabled={loadingRegistro}  // Desactiva el botón mientras carga
-                                        >
-                                            {loadingRegistro ? (
-                                                <>
-                                                    {"Un momento... "}
-                                                    <Spinner
-                                                        as="span"
-                                                        animation="border"
-                                                        size="sm"
-                                                        role="status"
-                                                        aria-hidden="true"
-                                                        className="me-2"
-                                                    />
-
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Guardar
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
-
-                                    <div className="mt-1">
-                                        <label className="fw-semibold">Nombre Especie</label>
-                                        <input
-                                            aria-label="esP_NOMBRE"
-                                            type="text"
-                                            className={`form-control ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                            name="esP_NOMBRE"
-                                            placeholder="Ingrese nueva especie"
-                                            maxLength={100}
-                                            onChange={handleChange}
-                                            value={Mantenedor.esP_NOMBRE}
+            <Modal
+                show={mostrarModalEditar !== null}
+                onHide={() => handleCerrarModalEditar()}
+                dialogClassName="modal-right" // Clase personalizada
+            // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+            // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+            >
+                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                    <Modal.Title className="fw-semibold">Especie: {Mantenedor.esP_CODIGO}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <form onSubmit={handleSubmitEditar}>
+                        {/* Boton actualizar filas seleccionadas */}
+                        <div className="d-flex justify-content-end">
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                                disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                            >
+                                {loadingRegistro ? (
+                                    <>
+                                        {"Un momento... "}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="me-2"
                                         />
-                                        {error.esP_NOMBRE && (
-                                            <div className="invalid-feedback fw-semibold">{error.esP_NOMBRE}</div>
-                                        )}
-                                    </div>
 
-                                    <div className="mb-1">
-                                        <label className="fw-semibold">
-                                            Asociar a cuenta
-                                        </label>
-                                        <Select
-                                            options={cuentasOptions}
-                                            onChange={handleCuentasChange}
-                                            name="ctA_COD"
-                                            value={cuentasOptions.find((option) => option.value === Mantenedor.ctA_COD) || null}
-                                            placeholder="Buscar"
-                                            className={`form-select-container ${error.ctA_COD ? "is-invalid border border-danger rounded" : ""}`}
-                                            classNamePrefix="react-select"
-                                            isClearable
-                                            isSearchable
-                                            styles={{
-                                                control: (baseStyles) => ({
-                                                    ...baseStyles,
-                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                                                    color: isDarkMode ? "white" : "#212529", // Texto blanco
-                                                    borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
-                                                }),
-                                                singleValue: (base) => ({
-                                                    ...base,
-                                                    color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
-                                                }),
-                                                menu: (base) => ({
-                                                    ...base,
-                                                    backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
-                                                    color: isDarkMode ? "white" : "#212529",
-                                                }),
-                                                option: (base, { isFocused, isSelected }) => ({
-                                                    ...base,
-                                                    backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
-                                                    color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
-                                                }),
-                                            }}
-                                        />
-                                        {error.ctA_COD && (
-                                            <div className="invalid-feedback fw-semibold">
-                                                {error.ctA_COD}
-                                            </div>
-                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        Guardar
+                                    </>
+                                )}
+                            </Button>
+                        </div>
 
-                                    </div>
-                                </form>
-                            </Modal.Body>
-                        </Modal >
-                    </div>
-                )
-            })}
+                        <div className="mt-1">
+                            <label className="fw-semibold">Nombre Especie</label>
+                            <input
+                                aria-label="esP_NOMBRE"
+                                type="text"
+                                className={`form-control ${error.esP_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="esP_NOMBRE"
+                                placeholder="Ingrese nueva especie"
+                                maxLength={100}
+                                onChange={handleChange}
+                                value={Mantenedor.esP_NOMBRE}
+                            />
+                            {error.esP_NOMBRE && (
+                                <div className="invalid-feedback fw-semibold">{error.esP_NOMBRE}</div>
+                            )}
+                        </div>
+
+                        <div className="mb-1">
+                            <label className="fw-semibold">
+                                Asociar a cuenta
+                            </label>
+                            <Select
+                                options={cuentasOptions}
+                                onChange={handleCuentasChange}
+                                name="ctA_COD"
+                                value={cuentasOptions.find((option) => option.value === Mantenedor.ctA_COD) || null}
+                                placeholder="Buscar"
+                                className={`form-select-container ${error.ctA_COD ? "is-invalid border border-danger rounded" : ""}`}
+                                classNamePrefix="react-select"
+                                isClearable
+                                isSearchable
+                                styles={{
+                                    control: (baseStyles) => ({
+                                        ...baseStyles,
+                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
+                                        color: isDarkMode ? "white" : "#212529", // Texto blanco
+                                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                    }),
+                                    singleValue: (base) => ({
+                                        ...base,
+                                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                    }),
+                                    menu: (base) => ({
+                                        ...base,
+                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                        color: isDarkMode ? "white" : "#212529",
+                                    }),
+                                    option: (base, { isFocused, isSelected }) => ({
+                                        ...base,
+                                        backgroundColor: isSelected ? "#6c757d" : isFocused ? "#6c757d" : isDarkMode ? "#212529" : "white",
+                                        color: isSelected ? "white" : isFocused ? "white" : isDarkMode ? "white" : "#212529",
+                                    }),
+                                }}
+                            />
+                            {error.ctA_COD && (
+                                <div className="invalid-feedback fw-semibold">
+                                    {error.ctA_COD}
+                                </div>
+                            )}
+
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal >
         </Layout >
     );
 };
