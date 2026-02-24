@@ -67,7 +67,6 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
     //----------------Datos cálculados----------------------//
     const [paginaActual2, setPaginaActual2] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [terminoBusqueda, setTerminoBusqueda] = useState("");
 
     //----------------Datos No cálculados----------------------//
     const [paginaActual3, setPaginaActual3] = useState(1);
@@ -587,8 +586,8 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
     //------------------------------ Fin Tabla Modal(Activos calculados)--------------------------------------//
 
     // 📂 Función para exportar a Excel
-    const exportarExcel = (listaActivosCalculados: any[], fileName: string = "Reporte.xlsx") => {
-
+    const exportarExcel = (fileName: string = "Reporte.xlsx") => {
+        const datosAExportar = getSortedData;
         // Definir los encabezados
         const encabezados = [
             [
@@ -602,7 +601,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         ];
 
         // Convertir datos a array de arrays
-        const datos = listaActivosCalculados.map((item) => [
+        const datos = datosAExportar.map((item) => [
             item.ctA_COD ?? "",
             item.ctA_NOMBRE ?? "",
             item.montoInicial ?? 0,
@@ -1287,56 +1286,55 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                         // backdrop="static" // Evita que se cierre al hacer clic afuera
                         // keyboard={false}
                         fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
-                        <Modal.Header className={`modal-header text-white bg-success pe-lg-5 pe-sm-4`} closeButton>
+                        <Modal.Header className={`modal-header text-white bg-success me-lg-3 pe-lg-5 me-2 pe-sm-4`} closeButton>
                             <Modal.Title className="fw-semibold fs-5 fs-lg-1     ">
                                 <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada por Cuenta</Modal.Title>
                         </Modal.Header>
                         <Modal.Body className={`me-lg-5 me-sm-none p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                            <div
-                                className={`shadow-sm sticky-lg-top p-3 ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
-                                <Row className="mb-4">
-                                    <Col sm={8} md={6} lg={3}>
-                                        <div className={`${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-secondary shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
-                                            <p className={`text-uppercase text-secondary fw-semibold small mb-1 text-center ${isDarkMode ? "text-light" : ""}`}>
-                                                Total Monto Inicial
-                                            </p>
-                                            <h4 className={`fw-bold ${isDarkMode ? "text-light" : "text-secondary"} text-center m-0`}>
-                                                $ {totalMontoInicial.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                            </h4>
-                                        </div>
-                                    </Col>
-                                    <Col sm={8} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
-                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
-                                                Total Depreciación Anual
-                                            </p>
-                                            <h4 className={`fw-bold text-success text-center m-0`}>
-                                                $ {totalDepAnual.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                            </h4>
-                                        </div>
-                                    </Col>
-                                    <Col sm={6} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1  rounded m-2`}>
-                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
-                                                Total Depreciación Acumulada
-                                            </p>
-                                            <h4 className={`fw-bold text-success text-center m-0`}>
-                                                $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                            </h4>
-                                        </div>
-                                    </Col>
-                                    <Col sm={6} md={6} lg={3}>
-                                        <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
-                                            <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
-                                                Total Valor Residual
-                                            </p>
-                                            <h4 className={`fw-bold text-success text-center m-0`}>
-                                                $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
-                                            </h4>
-                                        </div>
-                                    </Col>
-                                </Row>
-                            </div>
+
+                            <Row className={`shadow-sm sticky-lg-top p-3 mb-4 ${isDarkMode ? "darkModePrincipal" : "bg-white"}`}>
+                                <Col sm={8} md={6} lg={3}>
+                                    <div className={`${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-secondary shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                        <p className={`text-uppercase text-secondary fw-semibold small mb-1 text-center ${isDarkMode ? "text-light" : ""}`}>
+                                            Total Monto Inicial
+                                        </p>
+                                        <h4 className={`fw-bold ${isDarkMode ? "text-light" : "text-secondary"} text-center m-0`}>
+                                            $ {totalMontoInicial.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </h4>
+                                    </div>
+                                </Col>
+                                <Col sm={8} md={6} lg={3}>
+                                    <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                        <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
+                                            Total Depreciación Anual
+                                        </p>
+                                        <h4 className={`fw-bold text-success text-center m-0`}>
+                                            $ {totalDepAnual.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </h4>
+                                    </div>
+                                </Col>
+                                <Col sm={6} md={6} lg={3}>
+                                    <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1  rounded m-2`}>
+                                        <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
+                                            Total Depreciación Acumulada
+                                        </p>
+                                        <h4 className={`fw-bold text-success text-center m-0`}>
+                                            $ {totalDep.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </h4>
+                                    </div>
+                                </Col>
+                                <Col sm={6} md={6} lg={3}>
+                                    <div className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"} border-start border-4 border-success shadow-sm p-lg-3 p-sm-1 rounded m-2`}>
+                                        <p className={`text-uppercase fw-semibold small mb-1 text-center ${isDarkMode ? "text-success" : "text-secondary"}`}>
+                                            Total Valor Residual
+                                        </p>
+                                        <h4 className={`fw-bold text-success text-center m-0`}>
+                                            $ {totalRes.toLocaleString("es-ES", { minimumFractionDigits: 0 })}
+                                        </h4>
+                                    </div>
+                                </Col>
+                            </Row>
+
                             <Row className="row justify-content-end m-1">
                                 {/* Botones y mensajes */}
                                 <Col xs={12} lg={1}>
@@ -1414,45 +1412,72 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                 />
                             )}
                             {/* Paginador */}
-                            <div className="paginador-scroll">
-                                <ul className="pagination pagination-sm">
-
-                                    <li className={`page-item ${paginaActual2 === 1 ? "disabled" : ""}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => setPaginaActual(paginaActual2 - 1)}
-                                        >
-                                            Anterior
-                                        </button>
-                                    </li>
-
-                                    {Array.from({ length: totalPaginasCalculadas }, (_, i) => (
-                                        <li
-                                            key={i}
-                                            className={`page-item ${paginaActual2 === i + 1 ? "active" : ""}`
-                                            }
-                                        >
+                            {totalPaginasCalculadas > 1 && (
+                                <div className="paginador-scroll mt-3">
+                                    <ul className="pagination pagination-sm justify-content-center">
+                                        <li className={`page-item ${paginaActual2 === 1 ? "disabled" : ""}`}>
                                             <button
-                                                style={{ marginLeft: '2px' }}
                                                 className="page-link"
-                                                onClick={() => setPaginaActual(i + 1)}
+                                                onClick={() => setPaginaActual(1)}
                                             >
-                                                {i + 1}
+                                                Primera
                                             </button>
                                         </li>
-                                    ))}
+                                        <li className={`page-item ${paginaActual2 === 1 ? "disabled" : ""}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => setPaginaActual(paginaActual2 - 1)}
+                                            >
+                                                Anterior
+                                            </button>
+                                        </li>
 
-                                    <li className={`page-item ${paginaActual2 === totalPaginasCalculadas ? "disabled" : ""}`}>
-                                        <button
-                                            style={{ marginLeft: '2px' }}
-                                            className="page-link"
-                                            onClick={() => setPaginaActual(paginaActual2 + 1)}
-                                        >
-                                            Siguiente
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
+                                        {Array.from({ length: Math.min(5, totalPaginasCalculadas) }, (_, i) => {
+                                            let pageNum;
+                                            if (totalPaginasCalculadas <= 5) {
+                                                pageNum = i + 1;
+                                            } else if (paginaActual2 <= 3) {
+                                                pageNum = i + 1;
+                                            } else if (paginaActual2 >= totalPaginasCalculadas - 2) {
+                                                pageNum = totalPaginasCalculadas - 4 + i;
+                                            } else {
+                                                pageNum = paginaActual2 - 2 + i;
+                                            }
+
+                                            return (
+                                                <li
+                                                    key={pageNum}
+                                                    className={`page-item ${paginaActual2 === pageNum ? "active" : ""}`}
+                                                >
+                                                    <button
+                                                        className="page-link"
+                                                        onClick={() => setPaginaActual(pageNum)}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+
+                                        <li className={`page-item ${paginaActual2 === totalPaginasCalculadas ? "disabled" : ""}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => setPaginaActual(paginaActual2 + 1)}
+                                            >
+                                                Siguiente
+                                            </button>
+                                        </li>
+                                        <li className={`page-item ${paginaActual2 === totalPaginasCalculadas ? "disabled" : ""}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => setPaginaActual(totalPaginasCalculadas)}
+                                            >
+                                                Última
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            )}
                         </Modal.Body>
                     </Modal >
 
@@ -1461,7 +1486,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
 
             {/* Modal Activos NO Calculados */}
             <Modal show={mostrarModalNoCalculados} onHide={() => setMostrarModalNoCalculados(false)} /*dialogClassName="modal-fullscreen" */ size="xl">
-                <Modal.Header className={`modal-header bg-warning pe-lg-5 pe-sm-4`} closeButton>
+                <Modal.Header className={`modal-header text-white bg-success me-lg-3 pe-lg-5 me-2 pe-sm-4`} closeButton>
                     <Modal.Title className="fw-semibold text-muted ">
                         <ExclamationDiamond className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 text-danger"} aria-hidden="true" />No Calculados</Modal.Title>
                 </Modal.Header>
@@ -1631,7 +1656,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                 <>
                                     <div className="mt-3 d-flex justify-content-end gap-2 mb-1">
                                         <Button
-                                            onClick={() => exportarExcel(listaActivosCalculadosPorCuentas)}
+                                            onClick={() => exportarExcel()}
                                             variant="success"
                                         >
                                             Descargar Excel

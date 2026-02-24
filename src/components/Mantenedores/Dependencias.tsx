@@ -276,45 +276,73 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
               />
             )}
             {/* Paginador */}
-            <div className="paginador-scroll">
-              <ul className="pagination pagination-sm">
-
-                <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => setPaginaActual(paginaActual - 1)}
-                  >
-                    Anterior
-                  </button>
-                </li>
-
-                {Array.from({ length: totalPaginas }, (_, i) => (
-                  <li
-                    key={i}
-                    className={`page-item ${paginaActual === i + 1 ? "active" : ""}`
-                    }
-                  >
+            {/* Paginador */}
+            {totalPaginas > 1 && (
+              <div className="paginador-scroll mt-3">
+                <ul className="pagination pagination-sm justify-content-center">
+                  <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                     <button
-                      style={{ marginLeft: '2px' }}
                       className="page-link"
-                      onClick={() => setPaginaActual(i + 1)}
+                      onClick={() => setPaginaActual(1)}
                     >
-                      {i + 1}
+                      Primera
                     </button>
                   </li>
-                ))}
+                  <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(paginaActual - 1)}
+                    >
+                      Anterior
+                    </button>
+                  </li>
 
-                <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
-                  <button
-                    style={{ marginLeft: '2px' }}
-                    className="page-link"
-                    onClick={() => setPaginaActual(paginaActual + 1)}
-                  >
-                    Siguiente
-                  </button>
-                </li>
-              </ul>
-            </div>
+                  {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                    let pageNum;
+                    if (totalPaginas <= 5) {
+                      pageNum = i + 1;
+                    } else if (paginaActual <= 3) {
+                      pageNum = i + 1;
+                    } else if (paginaActual >= totalPaginas - 2) {
+                      pageNum = totalPaginas - 4 + i;
+                    } else {
+                      pageNum = paginaActual - 2 + i;
+                    }
+
+                    return (
+                      <li
+                        key={pageNum}
+                        className={`page-item ${paginaActual === pageNum ? "active" : ""}`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => setPaginaActual(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      </li>
+                    );
+                  })}
+
+                  <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(paginaActual + 1)}
+                    >
+                      Siguiente
+                    </button>
+                  </li>
+                  <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(totalPaginas)}
+                    >
+                      Última
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>

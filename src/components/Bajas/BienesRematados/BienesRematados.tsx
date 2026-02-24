@@ -8,17 +8,20 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
+import { Columns, Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
 import { rematarBajasActions } from "../../../redux/actions/Bajas/BienesRematados/rematarBajasActions.tsx";
 import { obtenerListaRematesActions } from "../../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
 import { Objeto } from "../../Navegacion/Profile.tsx";
 import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoRematesPDF from "./DocumentoRematesPDF.tsx";
+import { TablaGenerica } from "../../Utils/TablaGenerica.tsx";
+import { PageSizeSelector } from "../../Utils/PageSizeSelector.tsx";
 
 interface FechasProps {
   fDesde: string;
   fHasta: string;
 }
+
 export interface ListaRemates {
   aF_CODIGO_GENERICO: string;
   boD_CORR: string;
@@ -31,6 +34,7 @@ export interface ListaRemates {
   fechA_INGRESO: string;
   nresolucion: string;
 }
+
 interface DatosBajas {
   listaRemates: ListaRemates[];
   obtenerListaRematesActions: (fDesde: string, fHasta: string, bod_corr: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
@@ -40,29 +44,24 @@ interface DatosBajas {
   objeto: Objeto;
 }
 
-const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, listaRemates, token, isDarkMode, objeto }) => {
+const BienesRematados: React.FC<DatosBajas> = ({
+  obtenerListaRematesActions,
+  listaRemates,
+  token,
+  isDarkMode,
+  objeto
+}) => {
   const [loading, setLoading] = useState(false);
-  // const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaRemates> & Partial<FechasProps>>({});
   const [filaSeleccionada, setFilaSeleccionada] = useState<string[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
-  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-  const elementosPorPagina = Paginacion.nPaginacion;
-  // Lógica de Paginación actualizada
-  const indiceUltimoElemento = paginaActual * elementosPorPagina;
-  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => listaRemates.slice(indicePrimerElemento, indiceUltimoElemento),
-    [listaRemates, indicePrimerElemento, indiceUltimoElemento]
-  );
-  const filasSeleccionadasPDF = listaRemates.filter((_, index) =>
-    filaSeleccionada.includes(index.toString())
-  );
-  // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(listaRemates)
-    ? Math.ceil(listaRemates.length / elementosPorPagina)
-    : 0;
-  const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+  const [pageSize, setPageSize] = useState(10);
+
+
+  // Estados para ordenamiento
+  const [sortColumn, setSortColumn] = useState<keyof ListaRemates | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const [Rematados, setRematados] = useState({
     fDesde: "",
@@ -71,15 +70,6 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
     af_codigo_generico: "",
     boD_CORR: ""
   });
-
-  // const validate = () => {
-  //   let tempErrors: Partial<any> & {} = {};
-  //   // Validación para N° de Recepción (debe ser un número)
-  //   if (!Rematados.nresolucion || Rematados.nresolucion === "") tempErrors.nresolucion = "Campo obligatorio.";
-  //   if (Rematados.fDesde > Rematados.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
-  //   setError(tempErrors);
-  //   return Object.keys(tempErrors).length === 0;
-  // };
 
   const validateFechas = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -95,8 +85,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
         const resultado = await obtenerListaRematesActions("", "", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
-        }
-        else {
+        } else {
           Swal.fire({
             icon: "warning",
             title: "Sin resultados",
@@ -104,9 +93,7 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
             background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
             color: `${isDarkMode ? "#ffffff" : "000000"}`,
             confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-            customClass: {
-              popup: "custom-border", // Clase personalizada para el borde
-            }
+            customClass: { popup: "custom-border" }
           });
           setLoading(false);
         }
@@ -116,21 +103,16 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
 
   useEffect(() => {
     listaRematesAuto()
-  }, [obtenerListaRematesActions, token, listaRemates.length]); // Asegúrate de incluir dependencias relevantes
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     let { name, value } = e.target;
-    // Validación específica para af_codigo_generico: solo permitir números
-    if ((name === "nresolucion" || name === "af_codigo_generico") && !/^[0-9]*$/.test(value)) {
-      return; // Salir si contiene caracteres no numéricos
-    }
-    // Actualizar estado
-    setRematados((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
 
-    setPaginacion((prevState) => ({
+    if ((name === "nresolucion" || name === "af_codigo_generico") && !/^[0-9]*$/.test(value)) {
+      return;
+    }
+
+    setRematados((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -141,64 +123,26 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
       value = numero ? `${numero}-01` : "";
     }
 
-    // Reposicionar el cursor después del número
     setTimeout(() => {
-      const input = document.querySelector(
-        'input[name="boD_CORR"]'
-      ) as HTMLInputElement;
-
+      const input = document.querySelector('input[name="boD_CORR"]') as HTMLInputElement;
       if (input) {
         input.setSelectionRange(numero.length, numero.length);
       }
     }, 0);
-
-    return;
-
-
   };
 
-
-  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setFilaSeleccionada(
-        elementosActuales.map((_, index) =>
-          (indicePrimerElemento + index).toString()
-        )
-      );
-    } else {
-      setFilaSeleccionada([]);
-    }
-  };
-
-  const setSeleccionaFila = (index: number) => {
-    setFilaSeleccionada((prev) =>
-      prev.includes(index.toString())
-        ? prev.filter((rowIndex) => rowIndex !== index.toString())
-        : [...prev, index.toString()]
-    );
-  };
-
-  // const handleCerrarModal = (index: number) => {
-  //   setFilaSeleccionada((prevSeleccionadas) =>
-  //     prevSeleccionadas.filter((fila) => fila !== index.toString())
-  //   );
-  //   setRematados((prevState) => ({
-  //     ...prevState,
-  //     nresolucion: "",
-  //   }));
-  // };
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    let resultado = false;
     setLoading(true);
-    if (Rematados.fDesde != "" || Rematados.fHasta != "") {
-      if (validateFechas()) {
-        resultado = await obtenerListaRematesActions(Rematados.fDesde, Rematados.fHasta, Rematados.boD_CORR, Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
-      }
-    }
-    else {
-      resultado = await obtenerListaRematesActions("", "", Rematados.boD_CORR, Rematados.nresolucion, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
-    }
+
+    const resultado = await obtenerListaRematesActions(
+      Rematados.fDesde,
+      Rematados.fHasta,
+      Rematados.boD_CORR,
+      Rematados.nresolucion,
+      Rematados.af_codigo_generico,
+      objeto.Roles[0].codigoEstablecimiento
+    );
 
     if (!resultado) {
       Swal.fire({
@@ -209,106 +153,145 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-        customClass: {
-          popup: "custom-border", // Clase personalizada para el borde
-        }
+        customClass: { popup: "custom-border" }
       });
-      setLoading(false); //Finaliza estado de carga
-      return;
-    } else {
-      paginar(1);
-      setLoading(false); //Finaliza estado de carga
     }
-
+    setLoading(false);
+    setPaginaActual(1); // Reset a primera página
   };
 
-
   const handleLimpiar = () => {
-    setRematados((prevInventario) => ({
-      ...prevInventario,
+    setRematados({
       fDesde: "",
       fHasta: "",
       boD_CORR: "",
-      af_codigo_generico: ""
-    }));
+      af_codigo_generico: "",
+      nresolucion: ""
+    });
+    setFilaSeleccionada([]);
   };
 
-  // const handleQuitar = async () => {
-  //   if (validate()) {
-  //     const selectedIndices = filaSeleccionada.map(Number);
-  //     const result = await Swal.fire({
-  //       icon: "info",
-  //       title: "Quitar Bienes",
-  //       text: "Confirme para quitar el bien seleccionados",
-  //       showDenyButton: false,
-  //       showCancelButton: true,
-  //       confirmButtonText: "Confirmar y Quitar",
-  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //       confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-  //       customClass: {
-  //         popup: "custom-border", // Clase personalizada para el borde
-  //       }
-  //     });
-  //     if (result.isConfirmed) {
+  // Función para obtener el ID único de un item
+  const obtenerIdItem = (item: ListaRemates): string => {
+    return item.aF_CODIGO_GENERICO?.toString() || item.aF_CLAVE?.toString() || '';
+  };
 
-  //       setLoadingRegistro(true);
-  //       // Crear un array de objetos con aF_CLAVE y nombre
-  //       const Formulario = selectedIndices.map((activo) => ({
-  //         aF_CLAVE: listaRemates[activo].aF_CLAVE,
-  //         bajaS_CORR: listaRemates[activo].bajaS_CORR,
-  //         especie: listaRemates[activo].especie,
-  //         vutiL_RESTANTE: listaRemates[activo].vutiL_RESTANTE,
-  //         vutiL_AGNOS: listaRemates[activo].vutiL_AGNOS,
-  //         ...Rematados,// nresolucion
-  //         observaciones: listaRemates[activo].observaciones,
-  //         deP_ACUMULADA: listaRemates[activo].deP_ACUMULADA,
-  //         ncuenta: listaRemates[activo].ncuenta,
-  //         estado: listaRemates[activo].estado,
-  //         // fechA_REMATES: listaRemates[activo].fechA_REMATES,
+  // PASO 1: Primero ordenamos TODOS los datos según la columna seleccionada
+  const datosOrdenados = useMemo(() => {
+    if (!sortColumn) return listaRemates;
 
-  //       }));
-  //       // console.log(Formulario);
-  //       const resultado = await rematarBajasActions(Formulario);
+    return [...listaRemates].sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
 
-  //       if (resultado) {
-  //         Swal.fire({
-  //           icon: "success",
-  //           title: "Bienes Rematados",
-  //           text: "Se han quitdo del sistema correctamente",
-  //           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //           confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-  //           customClass: {
-  //             popup: "custom-border", // Clase personalizada para el borde
-  //           }
-  //         });
+      // Manejar valores numéricos
+      if (!isNaN(Number(aValue)) && !isNaN(Number(bValue))) {
+        return sortDirection === 'asc'
+          ? Number(aValue) - Number(bValue)
+          : Number(bValue) - Number(aValue);
+      }
 
-  //         setLoadingRegistro(false);
-  //         obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
-  //         setFilaSeleccionada([]);
-  //         setRematados((prevState) => ({
-  //           ...prevState,
-  //           nresolucion: "",
-  //         }));
-  //         setMostrarModal(false);
-  //       } else {
-  //         Swal.fire({
-  //           icon: "error",
-  //           title: ":'(",
-  //           text: "Hubo un problema al registrar",
-  //           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //           confirmButtonColor: `${isDarkMode ? "#6c757d" : "444"}`,
-  //           customClass: {
-  //             popup: "custom-border", // Clase personalizada para el borde
-  //           }
-  //         });
-  //         setLoadingRegistro(false);
-  //       }
-  //     }
-  //   }
-  // };
+      // Manejar valores de texto
+      const aString = aValue?.toString() || '';
+      const bString = bValue?.toString() || '';
+
+      return sortDirection === 'asc'
+        ? aString.localeCompare(bString)
+        : bString.localeCompare(aString);
+    });
+  }, [listaRemates, sortColumn, sortDirection]);
+
+  // PASO 2: Filtramos SOLO las filas seleccionadas, pero MANTENIENDO el orden
+  const filasSeleccionadasParaExportar = useMemo(() => {
+    // Filtramos los datos ordenados para quedarnos solo con los seleccionados
+    const seleccionadas = datosOrdenados.filter(item =>
+      filaSeleccionada.includes(obtenerIdItem(item))
+    );
+
+    // console.log('Filas seleccionadas para exportar:', seleccionadas.length);
+    return seleccionadas;
+  }, [datosOrdenados, filaSeleccionada]);
+
+  // PASO 3: Paginación (para la vista, NO para la exportación)
+  const totalRegistros = listaRemates.length;
+  const totalPaginas = Math.ceil(totalRegistros / pageSize);
+  const indiceInicio = (paginaActual - 1) * pageSize;
+  const indiceFin = indiceInicio + pageSize;
+
+  // Para la vista usamos los datos ordenados pero paginados
+  const elementosActuales = useMemo(() => {
+    return datosOrdenados.slice(indiceInicio, indiceFin);
+  }, [datosOrdenados, indiceInicio, indiceFin]);
+
+  // Funciones de selección usando IDs
+  const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      // Selecciona todas las filas de la página actual usando datos ordenados
+      const idsPaginaActual = elementosActuales.map(item => obtenerIdItem(item));
+      setFilaSeleccionada(idsPaginaActual);
+    } else {
+      setFilaSeleccionada([]);
+    }
+  };
+
+  const handleSeleccionaFila = (id: string) => {
+    setFilaSeleccionada((prev) =>
+      prev.includes(id)
+        ? prev.filter((rowId) => rowId !== id)
+        : [...prev, id]
+    );
+  };
+
+  // Función para manejar el ordenamiento
+  const handleSort = (column: keyof ListaRemates, direction: 'asc' | 'desc') => {
+    setSortColumn(column);
+    setSortDirection(direction);
+    // No reseteamos la selección al ordenar
+  };
+
+  // Definir las columnas de la tabla
+  const columnas = [
+    { key: 'boD_CORR' as keyof ListaRemates, header: 'Nº Remate' },
+    { key: 'aF_CODIGO_GENERICO' as keyof ListaRemates, header: 'Nº Inventario' },
+    { key: 'nresolucion' as keyof ListaRemates, header: 'Nº Resolución' },
+    { key: 'especie' as keyof ListaRemates, header: 'Especie' },
+    { key: 'observaciones' as keyof ListaRemates, header: 'Observaciones' },
+    { key: 'ncuenta' as keyof ListaRemates, header: 'Nº Cuenta' },
+    { key: 'estado' as keyof ListaRemates, header: 'Estado' },
+    { key: 'fechA_INGRESO' as keyof ListaRemates, header: 'Fecha Ingreso' },
+
+  ];
+
+  // Columnas de la tabla con checkbox
+  const columnasConCheckbox = [
+    {
+      key: 'checkbox' as keyof ListaRemates,
+      header: (
+        <Form.Check
+          type="checkbox"
+          onChange={handleSeleccionaTodos}
+          checked={
+            elementosActuales.length > 0 &&
+            elementosActuales.every(item =>
+              filaSeleccionada.includes(obtenerIdItem(item))
+            )
+          }
+        />
+      ),
+      render: (_: any, item: ListaRemates) => {
+        const id = obtenerIdItem(item);
+        return (
+          <Form.Check
+            type="checkbox"
+            onChange={() => handleSeleccionaFila(id)}
+            checked={filaSeleccionada.includes(id)}
+          />
+        );
+      },
+      disableSort: true // ¡Esto es clave! Deshabilita el ordenamiento para esta columna
+    },
+    ...columnas
+  ];
 
   return (
     <Layout>
@@ -316,10 +299,13 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
         <title>Bienes Rematados</title>
       </Helmet>
       <MenuBajas />
-      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+
+      <div className="table-responsive position-relative z-0 hide-scrollbar">
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-2 rounded">
             <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
+
+            {/* Filtros */}
             <Row className="border rounded p-2 m-2">
               <Col lg={3} md={4}>
                 <div className="mb-2">
@@ -353,7 +339,6 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                       />
                     </div>
                     {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
-
                   </div>
                   <small className="fw-semibold">Filtre los resultados por fecha de Ingreso.</small>
                 </div>
@@ -365,9 +350,8 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                   <input
                     aria-label="boD_CORR"
                     type="text"
-                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                     name="boD_CORR"
-                    size={10}
                     placeholder="0"
                     onChange={handleChange}
                     onKeyDown={(e) => {
@@ -398,36 +382,14 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                   />
                 </div>
               </Col>
-              {/* <Col lg={2} md={4}>
 
-                <div className="mb-2">
-                  <label htmlFor="nresolucion" className="form-label fw-semibold">Nº Resolución</label>
-                  <input
-                    aria-label="nresolucion"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                    name="nresolucion"
-                    placeholder="0"
-                    onChange={handleChange}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleBuscar(e);
-                      }
-                    }}
-                    maxLength={12}
-                    value={Rematados.nresolucion}
-                  />
-                </div>
-              </Col> */}
-
-              {/* Columna 5: Botones de Acción */}
+              {/* Botones de Acción */}
               <Col lg={1} md={4}>
                 <div className="d-flex flex-column gap-2 mt-4">
                   <Button
                     onClick={handleBuscar}
                     variant={`${isDarkMode ? "secondary" : "primary"}`}
                     className="w-100"
-                  // disabled={loading}
                   >
                     {loading ? (
                       <>
@@ -449,237 +411,165 @@ const BienesRematados: React.FC<DatosBajas> = ({ obtenerListaRematesActions, lis
                 </div>
               </Col>
             </Row>
+
+            {/* Controles de página y exportación */}
             <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-              {/* Tamaño de página */}
               <Col xs={12} lg="auto">
                 {listaRemates.length > 10 && (
-                  <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                    <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                      Tamaño de página:
-                    </label>
-                    <select
-                      aria-label="Seleccionar tamaño de página"
-                      className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      name="nPaginacion"
-                      onChange={handleChange}
-                      value={Paginacion.nPaginacion}
-                    >
-                      {[10, 15, 20, 25, 50, 100].map((val) => (
-                        <option key={val} value={val}>{val}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <PageSizeSelector
+                    pageSize={pageSize}
+                    total={listaRemates.length}
+                    totalFiltrados={totalRegistros}
+                    onChange={(size) => setPageSize(size)}
+                    isDarkMode={isDarkMode}
+                  />
                 )}
               </Col>
-              {listaRemates.length > 0 && (
-                <>
-                  {/* Botón o mensaje */}
-                  <Col xs={12} lg={2}>
-                    <div className="d-flex justify-content-center justify-content-lg-end">
-                      {filaSeleccionada.length > 0 ? (
-                        <Button
-                          variant={`${isDarkMode ? "secondary" : "primary"}`}
-                          onClick={() => setMostrarModal(true)}
-                          className="p-2 w-100 w-sm-auto d-flex align-items-center justify-content-center"
-                          disabled={loading}
-                        >
-                          {loading ? (
-                            <>
-                              <FiletypePdf
-                                className="flex-shrink-0 h-5 w-5 mx-2"
-                                aria-hidden="true"
-                              />
-                              Exportar
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                                className="mx-2"
-                              />
-                            </>
-                          ) : (
-                            <>
-                              <FiletypePdf
-                                className="flex-shrink-0 h-5 w-5 mx-1"
-                                aria-hidden="true"
-                              />
-                              Exportar
-                              <span className="badge bg-light text-dark mx-2 mt-1">
-                                {filaSeleccionada.length}
-                              </span>
-                            </>
-                          )}
-                        </Button>
-                      ) : (
-                        <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                          <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center ">
-                            No hay filas seleccionadas
-                          </strong>
-                        </div>
-                      )}
-                    </div>
-                  </Col>
-                </>
-              )}
 
+              {listaRemates.length > 0 && (
+                <Col xs={12} lg={2}>
+                  <div className="d-flex justify-content-center justify-content-lg-end">
+                    {filaSeleccionada.length > 0 ? (
+                      <Button
+                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                        onClick={() => setMostrarModal(true)}
+                        className="p-2 w-100 d-flex align-items-center justify-content-center"
+                      >
+                        <FiletypePdf className="flex-shrink-0 h-5 w-5 mx-1" aria-hidden="true" />
+                        Exportar
+                        <span className="badge bg-light text-dark mx-2 mt-1">
+                          {filasSeleccionadasParaExportar.length}
+                        </span>
+                      </Button>
+                    ) : (
+                      <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                        <strong className="alert alert-dark border p-2 mb-2 w-100 text-center">
+                          No hay filas seleccionadas
+                        </strong>
+                      </div>
+                    )}
+                  </div>
+                </Col>
+              )}
             </Row>
 
-            {/* Tabla*/}
+            {/* Tabla con selección */}
             {loading ? (
-              <>
-                <SkeletonLoader rowCount={elementosPorPagina} />
-              </>
+              <SkeletonLoader rowCount={10} />
             ) : (
-              <>
-                {listaRemates.length > 0 ? (
-                  <>
-                    <div className='table-responsive'>
-                      <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                          <tr>
-                            <th style={{
-                              position: 'sticky',
-                              left: 0,
-                              zIndex: 0,
+              <TablaGenerica<ListaRemates>
+                data={elementosActuales}
+                columns={columnasConCheckbox}
+                isDarkMode={isDarkMode}
+                onSortChange={handleSort}
+                sortColumn={sortColumn}
+                sortDirection={sortDirection}
+              />
+            )}
 
-                            }}>
-                              <Form.Check
-                                className="check-danger"
-                                type="checkbox"
-                                onChange={handleSeleccionaTodos}
-                                checked={filaSeleccionada.length === elementosActuales.length && elementosActuales.length > 0}
-                              />
-                            </th>
-                            <th scope="col" className="text-nowrap text-center">Nº Remate</th>
-                            {/* <th scope="col" className="text-nowrap text-center">Nº Resolución</th> */}
-                            <th scope="col" className="text-nowrap">Nº Inventario</th>
-                            <th scope="col" className="text-nowrap">Especie</th>
-                            <th scope="col" className="text-nowrap">Fecha de Ingreso</th>
-                            <th scope="col" className="text-nowrap">Observaciones</th>
-                            <th scope="col" className="text-nowrap">Nº Cuenta</th>
+            {/* Paginador */}
+            {totalPaginas > 1 && (
+              <div className="paginador-scroll mt-3">
+                <ul className="pagination pagination-sm justify-content-center">
+                  <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(1)}
+                    >
+                      Primera
+                    </button>
+                  </li>
+                  <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(paginaActual - 1)}
+                    >
+                      Anterior
+                    </button>
+                  </li>
 
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {elementosActuales.map((Lista, index) => {
-                            const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                            return (
-                              <tr key={indexReal}>
-                                <td>
-                                  <Form.Check
-                                    type="checkbox"
-                                    onChange={() => setSeleccionaFila(index)}
-                                    checked={filaSeleccionada.includes(indexReal.toString())}
-                                  />
-                                </td>
-                                <td className="text-nowrap text-center">{Lista.boD_CORR}</td>
-                                {/* <td className="text-nowrap">{Lista.nresolucion ? "s/n" : Lista.nresolucion}</td> */}
-                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                <td className="text-nowrap">{Lista.especie}</td>
-                                <td className="text-nowrap">{Lista.fechA_INGRESO}</td>
-                                <td className="text-nowrap">{Lista.observaciones == "" ? "s/n" : Lista.observaciones}</td>
-                                <td className="text-nowrap">{Lista.ncuenta}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                    {/* Paginador */}
-                    <div className="paginador-container position-relative z-0">
-                      <Pagination className="paginador-scroll">
-                        <Pagination.First
-                          onClick={() => paginar(1)}
-                          disabled={paginaActual === 1}
-                        />
-                        <Pagination.Prev
-                          onClick={() => paginar(paginaActual - 1)}
-                          disabled={paginaActual === 1}
-                        />
+                  {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                    let pageNum;
+                    if (totalPaginas <= 5) {
+                      pageNum = i + 1;
+                    } else if (paginaActual <= 3) {
+                      pageNum = i + 1;
+                    } else if (paginaActual >= totalPaginas - 2) {
+                      pageNum = totalPaginas - 4 + i;
+                    } else {
+                      pageNum = paginaActual - 2 + i;
+                    }
 
-                        {Array.from({ length: totalPaginas }, (_, i) => (
-                          <Pagination.Item
-                            key={i + 1}
-                            active={i + 1 === paginaActual}
-                            onClick={() => paginar(i + 1)}
-                          >
-                            {i + 1}
-                          </Pagination.Item>
-                        ))}
-                        <Pagination.Next
-                          onClick={() => paginar(paginaActual + 1)}
-                          disabled={paginaActual === totalPaginas}
-                        />
-                        <Pagination.Last
-                          onClick={() => paginar(totalPaginas)}
-                          disabled={paginaActual === totalPaginas}
-                        />
-                      </Pagination>
-                    </div>
-                  </>
-                ) : (
-                  <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                    No hay resultados para mostrar.
-                  </p>
-                )}
-              </>
+                    return (
+                      <li
+                        key={pageNum}
+                        className={`page-item ${paginaActual === pageNum ? "active" : ""}`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => setPaginaActual(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      </li>
+                    );
+                  })}
+
+                  <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(paginaActual + 1)}
+                    >
+                      Siguiente
+                    </button>
+                  </li>
+                  <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(totalPaginas)}
+                    >
+                      Última
+                    </button>
+                  </li>
+                </ul>
+              </div>
             )}
           </div>
         </div>
       </div>
-      {/* Modal exportar*/}
-      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
+
+      {/* Modal exportar PDF */}
+      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="xl">
         <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
           <Modal.Title className="fw-semibold">Bienes Rematados</Modal.Title>
         </Modal.Header>
-        <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-          <form >
-            {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
-            <BlobProvider document={
+        <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+          <BlobProvider
+            document={
               <DocumentoRematesPDF
-                row={filasSeleccionadasPDF}
-              // firmanteInventario={AltaInventario.firmanteInventario}
-              // firmanteFinanzas={AltaInventario.firmanteFinanzas}
-              // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
-              // visadoInventario={AltaInventario.visadoInventario}
-              // visadoFinanzas={AltaInventario.visadoFinanzas}
-              // visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
+                row={filasSeleccionadasParaExportar}
               />
-            }>
-              {({ url, loading }) =>
-                loading ? (
-                  <p>Generando vista previa...</p>
-                ) : (
-                  <iframe
-                    src={url ? `${url}` : ""}
-                    title="Vista Previa del PDF"
-                    style={{
-                      width: "100%",
-                      height: "900px",
-                      border: "none"
-                    }}
-                  ></iframe>
-                  // <iframe
-                  //     src={url ? `${url}${isFirefox ? "" : "#toolbar=0&navpanes=0&scrollbar=1"}` : ''}
-                  //     title="Vista Previa del PDF"
-                  //     style={{
-                  //         width: "100%",
-                  //         height: "900px",
-                  //         border: "none",
-                  //         pointerEvents: isFirefox ? "none" : "auto", // Deshabilita interacciones en Firefox
-                  //     }}
-                  // ></iframe>
-
-                )
-              }
-            </BlobProvider>
-          </form>
+            }
+          >
+            {({ url, loading }) =>
+              loading ? (
+                <p>Generando vista previa...</p>
+              ) : (
+                <iframe
+                  src={url || ""}
+                  title="Vista Previa del PDF"
+                  style={{
+                    width: "100%",
+                    height: "900px",
+                    border: "none"
+                  }}
+                />
+              )
+            }
+          </BlobProvider>
         </Modal.Body>
-      </Modal >
-    </Layout >
-
+      </Modal>
+    </Layout>
   );
 };
 

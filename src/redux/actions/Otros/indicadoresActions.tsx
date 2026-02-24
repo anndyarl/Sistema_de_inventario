@@ -12,51 +12,43 @@ import {
 
 export const indicadoresActions = () => async (dispatch: Dispatch): Promise<boolean> => {
   dispatch({ type: LISTA_INDICADORES_REQUEST });
+
+  let res;
+
   try {
-    const res = await axios.get(`https://mindicador.cl/api`);
-    // const res = await axios.get(`https://findic.cl/api`);
+    // 1️⃣ Intentar API principal
+    try {
+      res = await axios.get("https://mindicador.cl/api", { timeout: 5000 });
+      console.log("Datos obtenidos desde mindicador");
+    } catch (error) {
+      console.warn("mindicador no respondió, intentando con findic...");
+
+      // 2️⃣ Fallback a API secundaria
+      res = await axios.get("https://findic.cl/api", { timeout: 5000 });
+      console.log("Datos obtenidos desde findic");
+    }
+
     const utm = res.data.utm;
     const uf = res.data.uf;
     const dolar = res.data.dolar;
     const bitcoin = res.data.bitcoin;
     const ipc = res.data.ipc;
 
-    // console.log("Respuesta del servidor miidicador:", res.data);
     if (res.status === 200) {
-      dispatch({
-        type: LISTA_UTM_SUCCESS,
-        payload: utm,
-      });
-      dispatch({
-        type: LISTA_UF_SUCCESS,
-        payload: uf,
-      });
-      dispatch({
-        type: LISTA_DOLAR_SUCCESS,
-        payload: dolar,
-      });
-      dispatch({
-        type: LISTA_BITCOIN_SUCCESS,
-        payload: bitcoin,
-      });
-      dispatch({
-        type: LISTA_IPC_SUCCESS,
-        payload: ipc,
-      });
+      dispatch({ type: LISTA_UTM_SUCCESS, payload: utm });
+      dispatch({ type: LISTA_UF_SUCCESS, payload: uf });
+      dispatch({ type: LISTA_DOLAR_SUCCESS, payload: dolar });
+      dispatch({ type: LISTA_BITCOIN_SUCCESS, payload: bitcoin });
+      dispatch({ type: LISTA_IPC_SUCCESS, payload: ipc });
       return true;
     } else {
-      dispatch({
-        type: LISTA_INDICADORES_FAIL,
-        error:
-          "No se pudo obtener el listado del inventario. Por favor, intente nuevamente.",
-      });
-      return false;
+      throw new Error("Respuesta no válida");
     }
   } catch (err) {
-    console.error("Error en la solicitud:", err);
+    console.error("Error en ambas APIs:", err);
     dispatch({
       type: LISTA_INDICADORES_FAIL,
-      error: "Error en la solicitud. Por favor, intente nuevamente.",
+      error: "No se pudieron obtener los indicadores desde ninguna fuente.",
     });
     return false;
   }

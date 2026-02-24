@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
     },
     datoInline: {
         flexDirection: "row",
-        marginBottom: 3,
     },
     /* ----- Observacion ----- */
     observacionSection: {
@@ -256,11 +255,15 @@ const DocumentoRematesPDF = ({ row }: { row: ListaRemates[]; }) => {
                     </View>
                 </View>
                 <Text style={styles.tituloDocumento}>Acta de Bienes Rematados</Text>
-                {/* ===== DATOS DEL TRASPASO ===== */}
-                <View style={styles.datosSection}>
-                    {/* Fila superior: numero de traspaso + fechas/memo */}
+                {/* ===== DATOS DEL REMATE ===== */}
+                <View style={styles.datosSection} fixed>
                     <View style={styles.datosGrid}>
                         <View style={styles.datosColumnaIzquierda}>
+                            <Text style={styles.datoInline}>
+                                Cantidad {row.length}
+                            </Text>
+                        </View>
+                        {/* <View style={styles.datosColumnaIzquierda}>
                             <Text style={styles.datoNumero}>
                                 Remate Nº {row[0].boD_CORR}
                             </Text>
@@ -272,10 +275,9 @@ const DocumentoRematesPDF = ({ row }: { row: ListaRemates[]; }) => {
                                     {row[0].fechA_INGRESO}
                                 </Text>
                             </View>
-                        </View>
+                        </View> */}
                     </View>
                 </View>
-
 
                 {/* Observacion */}
                 {/* <View style={styles.observacionSection}>
@@ -290,6 +292,7 @@ const DocumentoRematesPDF = ({ row }: { row: ListaRemates[]; }) => {
                 <View style={styles.table} >
                     {/* Cabecera de la tabla */}
                     <View style={styles.tableHeader} fixed>
+                        <Text style={[styles.tableCell, styles.colRemate]}>N° Remate</Text>
                         <Text style={[styles.tableCell, styles.colInventario]}>N° Inventario</Text>
                         <Text style={[styles.tableCell, styles.colCertificado]}>N° Certificado</Text>
                         <Text style={[styles.tableCell, styles.colEspecie]}>Especie</Text>
@@ -299,6 +302,7 @@ const DocumentoRematesPDF = ({ row }: { row: ListaRemates[]; }) => {
                     </View>
                     {row.map((lista, idx) => (
                         <View style={styles.tableRow} key={idx}>
+                            <Text style={[styles.tableCell, styles.colRemate]}>{lista.boD_CORR}</Text>
                             <Text style={[styles.tableCell, styles.colInventario]}>{lista.aF_CODIGO_GENERICO}</Text>
                             <Text style={[styles.tableCell, styles.colCertificado]}>{lista.nresolucion}</Text>
                             <Text style={[styles.tableCell, styles.colEspecie]}>{lista.especie}</Text>

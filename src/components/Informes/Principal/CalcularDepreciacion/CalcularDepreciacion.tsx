@@ -1466,7 +1466,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                         // backdrop="static" // Evita que se cierre al hacer clic afuera
                         // keyboard={false}
                         fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
-                        <Modal.Header className={`modal-header text-white bg-success pe-lg-5 pe-sm-4`} closeButton>
+                        <Modal.Header className={`modal-header text-white bg-success me-lg-3 pe-lg-5 me-2 pe-sm-4`} closeButton>
                             <Modal.Title className="fw-semibold">
                                 <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Depreciación Calculada</Modal.Title>
                         </Modal.Header>
