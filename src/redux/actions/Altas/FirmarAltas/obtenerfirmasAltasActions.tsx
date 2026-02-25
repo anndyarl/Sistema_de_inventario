@@ -1,10 +1,10 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   OBTENER_FIRMAS_ALTAS_REQUEST,
   OBTENER_FIRMAS_ALTAS_SUCCESS,
   OBTENER_FIRMAS_ALTAS_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
 // Acción para obtener la recepción por número
 export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
@@ -21,7 +21,7 @@ export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getSta
     dispatch({ type: OBTENER_FIRMAS_ALTAS_REQUEST });
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmantes`, config);
+      const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmantes`, config);
       if (res.status === 200) {
         dispatch({
           type: OBTENER_FIRMAS_ALTAS_SUCCESS,

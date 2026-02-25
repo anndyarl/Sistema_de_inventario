@@ -6,15 +6,15 @@ import { BlobProvider } from '@react-pdf/renderer';
 import InfoActivoPDF from './InfoActivoPDF';
 
 import { obtenerReimpresionEtiquetasAltasActions } from '../../../redux/actions/Altas/ImprimirEtiquetas/obtenerReimpresionEtiquetasAltasActions';
-import { login } from '../../../redux/actions/auth/auth';
+import { authActions } from '../../../redux/actions/auth/authActions';
 
 
 interface Props {
-    login: (usuario: string, password: string) => Promise<boolean>;
+    authActions: (usuario: string, password: string) => Promise<boolean>;
     obtenerReimpresionEtiquetasAltasActions: (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => Promise<boolean>;
 }
 
-const InfoActivo: React.FC<Props> = ({ login, obtenerReimpresionEtiquetasAltasActions }) => {
+const InfoActivo: React.FC<Props> = ({ authActions, obtenerReimpresionEtiquetasAltasActions }) => {
 
     const listaReimpresionEtiquetas = useSelector((state: RootState) => state.obtenerReimpresionEtiquetasAltasReducers.listaReimpresionEtiquetas);
     // const objeto = useSelector((state: RootState) => state.validaApiLoginReducers);
@@ -34,7 +34,7 @@ const InfoActivo: React.FC<Props> = ({ login, obtenerReimpresionEtiquetasAltasAc
     const obtieneToken = async () => {
         setLoading(true);
         try {
-            const resultado = await login(usuario, password);
+            const resultado = await authActions(usuario, password);
             if (resultado) {
                 obtenerReimpresionEtiquetasAltasActions("", "", 0, 0, aF_CODIGO_GENERICO, 0);
                 setLoading(false);
@@ -134,7 +134,7 @@ const mapStateToProps = (_: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-    login,
+    authActions,
     obtenerReimpresionEtiquetasAltasActions
 })(InfoActivo);
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
-import { login, logout } from "../../redux/actions/auth/auth";
+import { authActions, logout } from "../../redux/actions/auth/authActions";
 import { RootState } from "../../redux/reducers";
 import "../../styles/Login.css";
 import { Button, Modal, Spinner } from "react-bootstrap";
@@ -16,7 +16,7 @@ export interface ListadoUsuarios {
   establecimiento: number;
 }
 interface Props {
-  login: (usuario: string, password: string) => Promise<boolean>;
+  authActions: (usuario: string, password: string) => Promise<boolean>;
   validaApiloginActions: (rut: string) => Promise<number>;
   logout: () => void;
   loginPruebaActions: () => Promise<boolean>;
@@ -26,7 +26,7 @@ interface Props {
   listadoUsuarios: ListadoUsuarios[];
 }
 
-const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPruebaActions, isAuthenticated, isDarkMode, listadoUsuarios }) => {
+const Login: React.FC<Props> = ({ authActions, validaApiloginActions, logout, loginPruebaActions, isAuthenticated, isDarkMode, listadoUsuarios }) => {
   const [formData, setFormData] = useState({ usuario: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [mostrarListado, setMostrarListado] = useState(false);
@@ -58,7 +58,7 @@ const Login: React.FC<Props> = ({ login, validaApiloginActions, logout, loginPru
     setLoading(true);
     try {
       //Acceso para obtener token
-      const resultado = await login(formData.usuario, formData.password);
+      const resultado = await authActions(formData.usuario, formData.password);
       if (resultado) {
         //Lista usuario de prueba
         const ListaLogin = await loginPruebaActions();
@@ -270,7 +270,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-  login,
+  authActions,
   validaApiloginActions,
   logout,
   loginPruebaActions

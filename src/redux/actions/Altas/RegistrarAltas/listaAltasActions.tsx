@@ -1,58 +1,48 @@
 import { Dispatch } from "redux";
-import axios from "axios";
+import axiosInstance from "../../../../services/axiosConfig";
 import {
   OBTENER_ALTAS_REQUEST,
   OBTENER_ALTAS_SUCCESS,
   OBTENER_ALTAS_FAIL,
 } from "../types";
 
-export const listaAltasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token;
+export const listaAltasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => async (dispatch: Dispatch, /*getState: any*/): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+  //Ver token antes de la petición / sólo para desarrollo
+  // const token = getState().loginReducer?.token;
+  // console.log("INICIANDO PETICIÓN - Hora:", new Date().toLocaleTimeString());
+  // console.log("Token actual:", token ? token.substring(0, 30) + "..." : "No hay token");
 
-    dispatch({ type: OBTENER_ALTAS_REQUEST });
+  // Ver cuándo expira el token
+  // if (token) {
+  //   try {
+  //     const payload = JSON.parse(atob(token.split('.')[1]));
+  //     console.log("Token expira:", new Date(payload.exp * 1000).toLocaleTimeString());
+  //   } catch (e) { }
+  // }
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAFAltas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altas_corr${altas_corr}&establ_corr=${establ_corr}`, config);
+  dispatch({ type: OBTENER_ALTAS_REQUEST });
 
-      if (res.status === 200) {
-        if (res.data.length > 0) {
-          dispatch({
-            type: OBTENER_ALTAS_SUCCESS,
-            payload: res.data,
-          });
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        dispatch({
-          type: OBTENER_ALTAS_FAIL,
-          error: "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
-        });
-        return false;
-      }
-    } catch (err: any) {
-      dispatch({
-        type: OBTENER_ALTAS_FAIL,
-        error: "Error en la solicitud:", err,
-      });
-      // dispatch({ type: LOGOUT });
-      return false;
-    }
-  } else {
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAFAltas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altas_corr${altas_corr}&establ_corr=${establ_corr}`);
+    console.log("RESPUESTA EXITOSA - Hora:", new Date().toLocaleTimeString());
+    console.log("Status:", res.status);
+
+    dispatch({
+      type: OBTENER_ALTAS_SUCCESS,
+      payload: res.data,
+    });
+    return true;
+
+  } catch (err: any) {
+    console.log("ERROR EN PETICIÓN - Hora:", new Date().toLocaleTimeString());
+    console.log("Status error:", err.response?.status);
+    console.log("Mensaje:", err.response?.data?.mensaje);
+
     dispatch({
       type: OBTENER_ALTAS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: err.response?.data?.mensaje || "Error en la solicitud",
     });
     return false;
   }
 };
-

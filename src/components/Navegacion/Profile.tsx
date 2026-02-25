@@ -12,7 +12,7 @@ import Firma from "../Configuracion/Firma";
 import Versionamiento from "../Configuracion/Versionamiento";
 import Indicadores from "../Configuracion/Indicadores";
 import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
-import { logout } from "../../redux/actions/auth/auth";
+import { logout } from "../../redux/actions/auth/authActions";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 

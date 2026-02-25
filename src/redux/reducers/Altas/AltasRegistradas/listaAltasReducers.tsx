@@ -30,7 +30,6 @@ const listaAltasReducers = (state = initialState, action: any) => {
       return {
         ...state, loading: false,
         error: action.error,
-        listaAltas: []
       };
     default:
       return state;

@@ -4,7 +4,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../../redux/actions/auth/auth";
+import { logout } from "../../redux/actions/auth/authActions";
 
 interface Props {
   logout: () => void;

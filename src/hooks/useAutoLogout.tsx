@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { login, logout } from "../redux/actions/auth/auth";
+import { authActions, logout } from "../redux/actions/auth/authActions";
 import { useSelector } from "react-redux";
 import { RootState } from "../store"; // Ajusta la ruta a tu store de Redux
 
@@ -78,7 +78,7 @@ const useAutoLogout = (warningTime: number, logoutTime: number) => {
                     // navigate(`/ValidaPortal`);
                     const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
                     const password = import.meta.env.VITE_PASSWORD_API_LOGIN;
-                    dispatch(login(usuario, password));
+                    dispatch(authActions(usuario, password));
                 }
                 // Si se presiona No, cerramos la sesión
                 else if (result.dismiss === Swal.DismissReason.cancel) {

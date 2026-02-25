@@ -22,7 +22,7 @@ export const registrarDocumentoAltaActions = (documento: any) => async (dispatch
 
     try {
       const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CreaDocumentoAlta`, body, config);
-      // console.log("Se ha registrado", res);
+
       if (res.status === 200) {
         if (res.data != -1) {
           dispatch({

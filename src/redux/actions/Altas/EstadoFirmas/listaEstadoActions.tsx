@@ -1,12 +1,10 @@
-// src/redux/actions/listaEstadoActions.ts
-
 import { Dispatch } from "redux";
 import {
   LISTA_ESTADO_REQUEST,
   LISTA_ESTADO_SUCCESS,
   LISTA_ESTADO_FAIL,
 } from "../types";
-import axiosInstance from "../../auth/axiosConfig";
+import axiosInstance from "../../../../services/axiosConfig";
 
 export const listaEstadoActions =
   (
@@ -28,7 +26,6 @@ export const listaEstadoActions =
             payload: res.data,
           });
 
-          // 🔥 callback para usar datos actualizados inmediatamente
           if (onSuccess) {
             onSuccess(res.data);
           }

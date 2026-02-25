@@ -4,7 +4,7 @@ import { darkModeActions } from "../../redux/actions/Otros/darkModeActions";
 import { motion } from "framer-motion";
 import { Moon, Sun } from "react-bootstrap-icons";
 import { RootState } from "../../store";
-import { logout } from "../../redux/actions/auth/auth";
+import { logout } from "../../redux/actions/auth/authActions";
 import { setMostrarNPaginacionActions } from "../../redux/actions/Otros/mostrarNPaginacionActions";
 import { Navigate } from "react-router-dom";
 

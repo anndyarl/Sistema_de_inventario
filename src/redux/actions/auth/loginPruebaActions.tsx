@@ -8,7 +8,7 @@ import {
 import { Dispatch } from 'redux';
 
 
-// Acción para obtener servicio
+// Acción para obtener usuario de prueba(tabla INV_T_USUARIOROLAPP)
 export const loginPruebaActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
     const token = getState().loginReducer.token; //token está en el estado de autenticación
     if (token) {

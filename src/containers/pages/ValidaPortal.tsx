@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { login, logout } from "../../redux/actions/auth/auth";
+import { authActions, logout } from "../../redux/actions/auth/authActions";
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { useNavigate } from "react-router-dom";
@@ -11,13 +11,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { setOrigenLoginActions } from "../../redux/actions/auth/setOrigenLoginActions";
 
 interface Props {
-  login: (usuario: string, password: string) => Promise<boolean>;
+  authActions: (usuario: string, password: string) => Promise<boolean>;
   validaApiloginActions: (rut: string) => Promise<number>;
   logout: () => void;
   isDarkMode: boolean;
 }
 
-const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, isDarkMode }) => {
+const ValidaPortal: React.FC<Props> = ({ authActions, logout, validaApiloginActions, isDarkMode }) => {
   const navigate = useNavigate();
   const [showButton, setShowButton] = useState(false);
   const usuario = import.meta.env.VITE_USUARIO_API_LOGIN;
@@ -54,7 +54,7 @@ const ValidaPortal: React.FC<Props> = ({ login, logout, validaApiloginActions, i
         const datos = JSON.parse(decodeURIComponent(datosPersona));
         const rutUsuario = datos.sub;
 
-        const obtieneToken = await login(usuario, password);
+        const obtieneToken = await authActions(usuario, password);
         if (obtieneToken) {
           const esValido = await validaApiloginActions(rutUsuario);
           if (esValido == 1) {
@@ -156,7 +156,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 export default connect(mapStateToProps, {
-  login,
+  authActions,
   logout,
   validaApiloginActions
 })(ValidaPortal);

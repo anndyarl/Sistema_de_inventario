@@ -1,7 +1,7 @@
 import { combineReducers } from "redux";
 
 //--------------------- Autenticación ---------------------//
-import loginReducer from "./auth/auth";
+import loginReducer from "./auth/loginReducer";
 import validaApiLoginReducers from "./auth/validaApiLoginReducers";
 
 //--------------------- Registro de Inventario ---------------------//

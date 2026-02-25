@@ -19,13 +19,13 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
     // 1️⃣ Intentar API principal
     try {
       res = await axios.get("https://mindicador.cl/api", { timeout: 5000 });
-      console.log("Datos obtenidos desde mindicador");
+      // console.log("Datos obtenidos desde mindicador");
     } catch (error) {
-      console.warn("mindicador no respondió, intentando con findic...");
+      // console.warn("mindicador no respondió, intentando con findic...");
 
       // 2️⃣ Fallback a API secundaria
       res = await axios.get("https://findic.cl/api", { timeout: 5000 });
-      console.log("Datos obtenidos desde findic");
+      // console.log("Datos obtenidos desde findic");
     }
 
     const utm = res.data.utm;
