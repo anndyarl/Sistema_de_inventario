@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Form, Button, Spinner, Modal, Row, Col } from "react-bootstrap";
+import { Form, Button, Spinner, Modal, Row, Col } from "react-bootstrap";
 import { RootState } from "../../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout.tsx";
@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Columns, Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
 import { rematarBajasActions } from "../../../redux/actions/Bajas/BienesRematados/rematarBajasActions.tsx";
 import { obtenerListaRematesActions } from "../../../redux/actions/Bajas/BodegaExcluidos/obtenerListaRematesActions.tsx";
 import { Objeto } from "../../Navegacion/Profile.tsx";
@@ -37,7 +37,7 @@ export interface ListaRemates {
 
 interface DatosBajas {
   listaRemates: ListaRemates[];
-  obtenerListaRematesActions: (fDesde: string, fHasta: string, bod_corr: string, nresolucion: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
+  obtenerListaRematesActions: (fDesde: string, fHasta: string, bod_corr: string, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
   rematarBajasActions: (listaRemates: Record<string, any>[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -68,7 +68,7 @@ const BienesRematados: React.FC<DatosBajas> = ({
     fHasta: "",
     nresolucion: "",
     af_codigo_generico: "",
-    boD_CORR: ""
+    boD_CORR: "",
   });
 
   const validateFechas = () => {
@@ -82,7 +82,7 @@ const BienesRematados: React.FC<DatosBajas> = ({
     if (token) {
       if (listaRemates.length === 0) {
         setLoading(true);
-        const resultado = await obtenerListaRematesActions("", "", "", "", "", objeto.Roles[0].codigoEstablecimiento);
+        const resultado = await obtenerListaRematesActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento);
         if (resultado) {
           setLoading(false);
         } else {
@@ -134,15 +134,17 @@ const BienesRematados: React.FC<DatosBajas> = ({
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     setLoading(true);
+    let resultado = false;
 
-    const resultado = await obtenerListaRematesActions(
-      Rematados.fDesde,
-      Rematados.fHasta,
-      Rematados.boD_CORR,
-      Rematados.nresolucion,
-      Rematados.af_codigo_generico,
-      objeto.Roles[0].codigoEstablecimiento
-    );
+    if (Rematados.fDesde != "" || Rematados.fHasta != "") {
+      if (validateFechas()) {
+        resultado = await obtenerListaRematesActions(Rematados.fDesde, Rematados.fHasta, Rematados.boD_CORR, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
+      }
+    }
+    else {
+      resultado = await obtenerListaRematesActions("", "", Rematados.boD_CORR, Rematados.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
+    }
+
 
     if (!resultado) {
       Swal.fire({
@@ -288,7 +290,7 @@ const BienesRematados: React.FC<DatosBajas> = ({
           />
         );
       },
-      disableSort: true // ¡Esto es clave! Deshabilita el ordenamiento para esta columna
+      disableSort: true // Deshabilita el ordenamiento para esta columna
     },
     ...columnas
   ];

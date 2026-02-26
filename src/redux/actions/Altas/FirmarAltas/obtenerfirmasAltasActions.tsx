@@ -6,47 +6,30 @@ import {
 } from "../types";
 import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const obtenerfirmasAltasActions = () => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+  dispatch({ type: OBTENER_FIRMAS_ALTAS_REQUEST });
 
-    dispatch({ type: OBTENER_FIRMAS_ALTAS_REQUEST });
-
-    try {
-      const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmantes`, config);
-      if (res.status === 200) {
-        dispatch({
-          type: OBTENER_FIRMAS_ALTAS_SUCCESS,
-          payload: res.data,
-        });
-        return true;
-      } else {
-        dispatch({
-          type: OBTENER_FIRMAS_ALTAS_FAIL,
-          error:
-            "No se pudo obtener los datos solicitados. Por favor, intente nuevamente.",
-        });
-        return false;
-      }
-    } catch (err: any) {
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeFirmantes`);
+    if (res.status === 200) {
+      dispatch({
+        type: OBTENER_FIRMAS_ALTAS_SUCCESS,
+        payload: res.data,
+      });
+      return true;
+    } else {
       dispatch({
         type: OBTENER_FIRMAS_ALTAS_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo obtener los datos solicitados. Por favor, intente nuevamente.",
       });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: OBTENER_FIRMAS_ALTAS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return false;
   }

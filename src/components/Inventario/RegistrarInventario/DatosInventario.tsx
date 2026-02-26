@@ -39,6 +39,8 @@ import { DEPENDENCIA } from "./DatosCuenta";
 import { obtenerServicioNombreActions } from "../../../redux/actions/Inventario/RegistrarInventario/obtenerServicioNombreActions";
 import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoPDFResumen from "./DocumentoPDFResumen";
+import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
+import { registrarModalidadActions } from "../../../redux/actions/Inventario/ModificarInventario/registrarModalidadActions";
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
@@ -69,7 +71,7 @@ export interface InventarioProps {
   rutProveedor: number;
   usuarioCrea?: string;
   modalidadDeCompra: number;
-  otraModalidad?: string;
+  otraModalidad: string;
   showInputReducer?: boolean;
   establecimiento?: number;
   tipoInventario: string;
@@ -132,6 +134,8 @@ interface DatosInventarioProps extends InventarioProps {
   // obtenerRecepcionActions: (nRecepcion: number) => Promise<Boolean>;
   obtenerServicioNombreActions: (dep_corr: number) => Promise<Boolean>;
   onOrigenSeleccionado: (codOrigen: number) => void;
+  comboModalidadesActions: () => Promise<boolean>;
+  registrarModalidadActions: (otraModalidad: string) => Promise<number | null>;
   // listaInventarioRegistradoActions: () => Promise<Boolean>;
   isDarkMode: boolean;
   objeto: Objeto;
@@ -146,6 +150,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   onNext,
   obtenerServicioNombreActions,
   onOrigenSeleccionado,
+  comboModalidadesActions,
+  registrarModalidadActions,
   // obtenerRecepcionActions,
   comboOrigen,
   comboModalidad,
@@ -193,7 +199,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   });
 
   const dispatch = useDispatch<AppDispatch>();
-  const [_, setShowInput] = useState(false);
+
+  const [showInput, setShowInput] = useState(false);
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
@@ -203,7 +210,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = Paginacion.nPaginacion;
-
+  const [loadingModalidadCompra, setLoadingModalidadCompra] = useState(false);
   const proveedorOptions = comboProveedor.map((item) => ({
     value: item.proV_RUN,
     label: item.proV_NOMBRE,
@@ -262,6 +269,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+  //Validaciones modalidad registra otra
+  const validaModalidad = () => {
+    let tempErrors: Partial<any> & {} = {};
+    if (!Inventario.otraModalidad) tempErrors.otraModalidad = "Ingrese un nueva modalidad";
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -285,7 +299,6 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       paginar(1);
     }
 
-
     // Ejecuta los dispatch correspondientes
     if (name === "fechaFactura") {
       dispatch(setFechaFacturaActions(newValue as string));
@@ -308,20 +321,21 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     }
     else if (name === "modalidadDeCompra") {
       newValue = parseFloat(value) || 0;
-      dispatch(setModalidadCompraActions(newValue as number)); // Convertido a número  
+      // dispatch(setModalidadCompraActions(newValue as number)); // Convertido a número  
       //Al seleccionar "Otros" es decir el valor 7 este habilitará el input text
-      if (value === "7") { // 7 es igual a Otros
+      if (value === "-1") { // cero es igual a Otros
         setShowInput(true); //estado de react para mostrar el input Otros
         dispatch(showInputActions(true)); //Se envia al estado de Otros a redux para guardarlo
+        dispatch(setModalidadCompraActions(newValue));
       } else {
         setShowInput(false);
         dispatch(showInputActions(false));
-        dispatch(setOtraModalidadActions(""));
+        dispatch(setModalidadCompraActions(newValue));
       }
     }
-    else if (name === "otraModalidad") {
-      dispatch(setOtraModalidadActions(newValue as string));
-    }
+    // else if (name === "otraModalidad") {
+    //   dispatch(setOtraModalidadActions(newValue as string));
+    // }
     else if (name === "rutProveedor") {
       newValue = parseFloat(value) || 0;
       dispatch(setRutProveedorActions(newValue as number));
@@ -440,7 +454,8 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
       fechaFactura,
       fechaRecepcion,
       modalidadDeCompra,
-      ...(showInputReducer ? { otraModalidad } : {}), // Permite pasar el estado del input otraModalidad solo si es seleccionado
+      otraModalidad,
+      // ...(showInputReducer ? { otraModalidad } : {}), // Permite pasar el estado del input otraModalidad solo si es seleccionado
       montoRecepcion,
       nFactura,
       nOrdenCompra,
@@ -570,6 +585,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     if (validate()) {
       dispatch(setMontoRecepcionActions(Inventario.montoRecepcion));
       onNext(Inventario);
+      console.log(Inventario);
     }
   };
 
@@ -594,6 +610,74 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     }, 50); //se ajusta este tiempo para que cargue de inmediato
   };
 
+  const handleCargarMCompra = async () => {
+    if (comboModalidad.length === 0) {
+      setLoadingModalidadCompra(true);
+      const resultado = await comboModalidadesActions();
+      if (resultado) {
+        setLoadingModalidadCompra(false);
+      }
+    }
+  }
+
+  const handleRegistrarModalidad = async () => {
+    if (validaModalidad()) {
+      const result = await Swal.fire({
+        icon: "info",
+        title: "Agregar Modalidad",
+        text: "Confirme para agregar una nueva modalidad.",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Confirmar",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+        customClass: {
+          popup: "custom-border", // Clase personalizada para el borde
+        }
+      });
+      if (result.isConfirmed) {
+        const ultimaModalidad = await registrarModalidadActions(Inventario.otraModalidad);
+
+        if (ultimaModalidad) {
+          Swal.fire({
+            icon: "success",
+            title: "Registro exitoso",
+            text: "Se ha registrado una nueva modalidad",
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+            customClass: { popup: "custom-border" },
+          });
+
+          // Esperar a que el combo tenga el nuevo registro
+          await comboModalidadesActions();
+
+          setShowInput(false);
+          dispatch(showInputActions(false));
+
+          setInventario((prev) => ({
+            ...prev,
+            modalidadDeCompra: +ultimaModalidad
+          }));
+
+          dispatch(setModalidadCompraActions(+ultimaModalidad));
+
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            html: `Ocurrió un error al registrar la nueva modalidad.<br>
+                           <strong>Error:</strong> ${error}`,
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+            customClass: { popup: "custom-border" },
+          });
+        }
+      }
+    }
+  };
   //------------------------------Tabla Modal(Resumen)--------------------------------------//
   // Lógica de Paginación actualizada 
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -904,57 +988,108 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
 
               </div>
               {/* Modalidad de Compra */}
-              <div className="mb-1">
-                <label className="fw-semibold">
+              {/* Modalidad de Compra */}
+              <div className="mb-2">
+                <label className="fw-semibold mb-1">
                   Modalidad de Compra *
                 </label>
-                <select
-                  aria-label="modalidadDeCompra"
-                  className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.modalidadDeCompra ? "is-invalid" : ""}`}
-                  name="modalidadDeCompra"
-                  onChange={handleChange}
-                  value={Inventario.modalidadDeCompra}
-                >
-                  <option value="">Seleccionar</option>
-                  {comboModalidad.map((traeModalidad) => (
-                    <option
-                      key={traeModalidad.codigo}
-                      value={traeModalidad.codigo}
-                    >
-                      {traeModalidad.descripcion}
+
+                <div className="input-group">
+                  <select
+                    aria-label="modalidadDeCompra"
+                    className={`${loadingModalidadCompra ? "form-control border-end-0" : "form-select"}
+                    ${isDarkMode ? "bg-dark text-light border-secondary" : ""}
+                    ${error.modalidadDeCompra ? "is-invalid" : ""}`}
+                    name="modalidadDeCompra"
+                    onChange={handleChange}
+                    onClick={handleCargarMCompra}   // opcional si cargas bajo demanda
+                    value={Inventario.modalidadDeCompra}
+
+                  >
+                    <option value="">
+                      {loadingModalidadCompra
+                        ? "Cargando modalidades…"
+                        : "Seleccione una modalidad"}
                     </option>
-                  ))}
-                </select>
+
+                    {comboModalidad.map((traeModalidad) => (
+                      <option
+                        key={traeModalidad.codigo}
+                        value={traeModalidad.codigo}
+                      >
+                        {traeModalidad.descripcion}
+                      </option>
+                    ))}
+
+                    {/* opción Otros */}
+                    <option value="-1">Otros</option>
+                  </select>
+
+                  {/* Spinner integrado */}
+                  {loadingModalidadCompra && (
+                    <span
+                      className="input-group-text border-start-0"
+                      style={{
+                        backgroundColor: isDarkMode ? "#212529" : "rgb(233, 236, 239)",
+                        border: "1px solid",
+                        borderColor: isDarkMode ? "#6c757d" : "#dee2e6",
+                      }}
+                    >
+                      <Spinner
+                        animation="border"
+                        size="sm"
+                        variant={isDarkMode ? "light" : "primary"}
+                      />
+                    </span>
+                  )}
+                </div>
+
                 {error.modalidadDeCompra && (
-                  <div className="invalid-feedback fw-semibold">
+                  <div className="invalid-feedback d-block fw-semibold">
                     {error.modalidadDeCompra}
                   </div>
                 )}
-              </div>
-              {showInputReducer && (
-                <div className="mb-1">
-                  <input
-                    aria-label="otraModalidad"
-                    type="text"
-                    className={`form-control ${isDarkMode ? "bg-secondary text-light border-secondary" : ""} ${error.otraModalidad ? "is-invalid" : ""}`}
-                    name="otraModalidad"
-                    placeholder="Especifique otro"
-                    onChange={handleChange}
-                    value={Inventario.otraModalidad || ""}
-                  />
-                  {error.otraModalidad && (
-                    <div className="invalid-feedback fw-semibold">
-                      {error.otraModalidad}
+
+                {/* Input Otra Modalidad */}
+                {showInput && (
+                  <div className="d-flex mt-1">
+                    <div className="w-100">
+                      <input
+                        aria-label="otraModalidad"
+                        type="text"
+                        className={`form-control
+          ${isDarkMode ? "bg-secondary text-light border-secondary" : ""}
+          ${error.otraModalidad ? "is-invalid" : ""}`}
+                        name="otraModalidad"
+                        placeholder="Especifique otro"
+                        onChange={handleChange}
+                        value={Inventario.otraModalidad || ""}
+                      />
                     </div>
-                  )}
-                </div>
-              )}
+
+                    {/* Botón opcional para registrar */}
+                    <Button
+                      variant={isDarkMode ? "secondary" : "primary"}
+                      className="ms-1"
+                      onClick={handleRegistrarModalidad}
+                    >
+                      +
+                    </Button>
+                  </div>
+                )}
+
+                {error.otraModalidad && (
+                  <div className="invalid-feedback fw-semibold d-block">
+                    {error.otraModalidad}
+                  </div>
+                )}
+              </div>
             </Col>
           </Row>
 
           <div className="rounded d-flex justify-content-end m-2">
 
-            <button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
+            <button type="submit" disabled={showInput === true} className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  m-1`}>
               Siguiente
             </button>
           </div>
@@ -1287,4 +1422,6 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   obtenerRecepcionActions,
   obtenerServicioNombreActions,
+  comboModalidadesActions,
+  registrarModalidadActions
 })(DatosInventario);

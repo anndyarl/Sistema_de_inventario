@@ -1,61 +1,41 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   REGISTRAR_SERVICIO_REQUEST,
   REGISTRAR_SERVICIO_SUCCESS,
   REGISTRAR_SERVICIO_FAIL,
 } from "../types";
-import { LOGOUT } from "../../auth/types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const registrarMantenedorServiciosActions = (formModal: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const registrarMantenedorServiciosActions = (formModal: Record<string, any>) => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-    if (!formModal || Object.keys(formModal).length === 0) {
-      // console.error("El objeto datosInventario está vacío.");
-      return false;
-    }
-    const body = JSON.stringify(formModal);
+  if (!formModal || Object.keys(formModal).length === 0) {
+    return false;
+  }
+  const body = JSON.stringify(formModal);
 
-    dispatch({ type: REGISTRAR_SERVICIO_REQUEST });
+  dispatch({ type: REGISTRAR_SERVICIO_REQUEST });
 
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearServicios`, body, config);
+  try {
+    const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearServicios`, body);
 
-      if (res.status === 200) {
-        dispatch({
-          type: REGISTRAR_SERVICIO_SUCCESS
-        });
-        return true;
-      } else {
-        dispatch({
-          type: REGISTRAR_SERVICIO_FAIL,
-          error:
-            "No se pudo registrar los datos ingresados. Por favor, intente nuevamente.",
-        });
-        return false;
-      }
-    } catch (err: any) {
+    if (res.status === 200) {
+      dispatch({
+        type: REGISTRAR_SERVICIO_SUCCESS
+      });
+      return true;
+    } else {
       dispatch({
         type: REGISTRAR_SERVICIO_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo registrar los datos ingresados. Por favor, intente nuevamente.",
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: REGISTRAR_SERVICIO_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
-    dispatch({ type: LOGOUT });
     return false;
   }
 };

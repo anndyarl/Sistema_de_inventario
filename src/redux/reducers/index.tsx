@@ -91,7 +91,6 @@ import obtieneVisadoCompletoReducers from "./Altas/EstadoFirmas/obtieneVisadoCom
 import listaEstadoFirmasReducers from "./Altas/FirmarAltas/listaEstadoFirmasReducers";
 import listaEstadoReducers from "./Altas/EstadoFirmas/listaEstadoReducers";
 import listaEstadoVisadoresReducers from "./Altas/EstadoFirmas/listaEstadoVisadoresReducers";
-import datosTrasladoRegistradoReducers from "./Traslados/datosTrasladoRegistradoReducers";
 import listaInventarioBuscarReducers from "./Inventario/BuscarInventario/listaInventarioBuscarReducers";
 import setSidebarCollapsedReducer from "./Otros/setSidebarCollapsedReducer";
 import obtenerInventarioQRReducers from "./Inventario/obtenerInventarioQRReducers";

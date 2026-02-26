@@ -1,57 +1,41 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   OBTENER_EXCLUIDOS_REQUEST,
   OBTENER_EXCLUIDOS_SUCCESS,
   OBTENER_EXCLUIDOS_FAIL,
 } from "./types"
+import axiosInstance from "../../../services/axiosConfig";
 
-export const obtenerListaExcluidosActions = (fDesde: string, fHasta: string, nresolucion: string) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const obtenerListaExcluidosActions = (fDesde: string, fHasta: string, nresolucion: string) => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+  dispatch({ type: OBTENER_EXCLUIDOS_REQUEST });
 
-    dispatch({ type: OBTENER_EXCLUIDOS_REQUEST });
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBodegaExcluido?fDesde=${fDesde}&fHasta=${fHasta}&nresolucion=${nresolucion}`);
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBodegaExcluido?fDesde=${fDesde}&fHasta=${fHasta}&nresolucion=${nresolucion}`, config);
-
-      if (res.status === 200) {
-        if (res.data?.length) {
-          dispatch({
-            type: OBTENER_EXCLUIDOS_SUCCESS,
-            payload: res.data,
-          });
-          return true;
-        } else {
-          return false;
-        }
-      } else {
+    if (res.status === 200) {
+      if (res.data?.length) {
         dispatch({
-          type: OBTENER_EXCLUIDOS_FAIL,
-          error:
-            "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
+          type: OBTENER_EXCLUIDOS_SUCCESS,
+          payload: res.data,
         });
+        return true;
+      } else {
         return false;
       }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    } else {
       dispatch({
         type: OBTENER_EXCLUIDOS_FAIL,
-        error: "Error en la solicitud. Por favor, intente nuevamente.",
+        error:
+          "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
       });
       return false;
     }
-  } else {
+  } catch (err) {
+    console.error("Error en la solicitud:", err);
     dispatch({
       type: OBTENER_EXCLUIDOS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud. Por favor, intente nuevamente.",
     });
     return false;
   }

@@ -1,43 +1,30 @@
-import axios from "axios";
 import {
   COMBO_PROVEEDORES_REQUEST,
   COMBO_PROVEEDORES_SUCCESS,
   COMBO_PROVEEDORES_FAIL
 } from "../types";
 import { Dispatch } from "redux";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener servicio
-export const comboProveedorActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+export const comboProveedorActions = () => async (dispatch: Dispatch): Promise<boolean> => {
 
-    dispatch({ type: COMBO_PROVEEDORES_REQUEST });
+  dispatch({ type: COMBO_PROVEEDORES_REQUEST });
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeListaProveedores`, config);
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraeListaProveedores`);
 
-      if (res.status === 200) {
-        dispatch({
-          type: COMBO_PROVEEDORES_SUCCESS,
-          payload: res.data,
-        });
-        return true;
-      } else {
-        dispatch({ type: COMBO_PROVEEDORES_FAIL });
-        return false;
-      }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    if (res.status === 200) {
+      dispatch({
+        type: COMBO_PROVEEDORES_SUCCESS,
+        payload: res.data,
+      });
+      return true;
+    } else {
       dispatch({ type: COMBO_PROVEEDORES_FAIL });
       return false;
     }
-  } else {
+  } catch (err) {
+    console.error("Error en la solicitud:", err);
     dispatch({ type: COMBO_PROVEEDORES_FAIL });
     return false;
   }

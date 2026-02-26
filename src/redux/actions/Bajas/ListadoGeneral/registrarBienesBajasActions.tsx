@@ -1,45 +1,27 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   REGISTRAR_BIENES_BAJAS_REQUEST,
   REGISTRAR_BIENES_BAJAS_SUCCESS,
   REGISTRAR_BIENES_BAJAS_FAIL,
 } from "./../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
 export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, esP_NOMBRE: string, establ_corr: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-    const body = JSON.stringify(activos);
-    dispatch({ type: REGISTRAR_BIENES_BAJAS_REQUEST });
+  const body = JSON.stringify(activos);
+  dispatch({ type: REGISTRAR_BIENES_BAJAS_REQUEST });
 
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearBienesBajas`, body, config);
+  try {
+    const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearBienesBajas`, body);
 
-      if (res.status === 200) {
-        if (res.data?.length) {
-          dispatch({
-            type: REGISTRAR_BIENES_BAJAS_SUCCESS,
-            payload: res.data
-          });
-          return true;
-        } else {
-          dispatch({
-            type: REGISTRAR_BIENES_BAJAS_FAIL,
-            error:
-              "No se pudo registrar la baja seleccionada. Por favor, intente nuevamente.",
-          });
-          return false;
-        }
-      }
-      else {
+    if (res.status === 200) {
+      if (res.data?.length) {
+        dispatch({
+          type: REGISTRAR_BIENES_BAJAS_SUCCESS,
+          payload: res.data
+        });
+        return true;
+      } else {
         dispatch({
           type: REGISTRAR_BIENES_BAJAS_FAIL,
           error:
@@ -47,18 +29,19 @@ export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO
         });
         return false;
       }
-    } catch (err: any) {
+    }
+    else {
       dispatch({
         type: REGISTRAR_BIENES_BAJAS_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo registrar la baja seleccionada. Por favor, intente nuevamente.",
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: REGISTRAR_BIENES_BAJAS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return false;
   }

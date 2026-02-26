@@ -1,56 +1,41 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   RECHAZAR_ALTA_REQUEST,
   RECHAZAR_ALTA_SUCCESS,
   RECHAZAR_ALTA_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const rechazarAltaActions = (documento: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const rechazarAltaActions = (documento: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-    const body = JSON.stringify(documento);
+  const body = JSON.stringify(documento);
 
-    dispatch({ type: RECHAZAR_ALTA_REQUEST });
+  dispatch({ type: RECHAZAR_ALTA_REQUEST });
 
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/RechazarAlta`, body, config);
-      // console.log("Se ha registrado", res);
-      if (res.status === 200) {
-        dispatch({
-          type: RECHAZAR_ALTA_SUCCESS,
-          payload: res.data
-        });
-        return true;
-      } else {
-        dispatch({
-          type: RECHAZAR_ALTA_FAIL,
-          error:
-            "No se pudo rechazar la alta seleccionada. Por favor, intente nuevamente.",
-        });
-        return false;
-      }
-    } catch (err: any) {
+  try {
+    const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/RechazarAlta`, body);
+
+    if (res.status === 200) {
+      dispatch({
+        type: RECHAZAR_ALTA_SUCCESS,
+        payload: res.data
+      });
+      return true;
+    } else {
       dispatch({
         type: RECHAZAR_ALTA_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo rechazar la alta seleccionada. Por favor, intente nuevamente.",
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: RECHAZAR_ALTA_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
+
     return false;
   }
+
 };

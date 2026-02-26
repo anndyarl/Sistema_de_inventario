@@ -1,59 +1,43 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   LISTADO_GENERAL_BAJAS_REQUEST,
   LISTADO_GENERAL_BAJAS_SUCCESS,
   LISTADO_GENERAL_BAJAS_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-export const listaAltasdesdeBajasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token;
+export const listaAltasdesdeBajasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+  dispatch({ type: LISTADO_GENERAL_BAJAS_REQUEST });
 
-    dispatch({ type: LISTADO_GENERAL_BAJAS_REQUEST });
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBajas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altasCorr=${altasCorr}&establ_corr=${establ_corr}`);
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeBajas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altasCorr=${altasCorr}&establ_corr=${establ_corr}`, config);
-
-      if (res.status === 200) {
-        if (res.data?.length) {
-          dispatch({
-            type: LISTADO_GENERAL_BAJAS_SUCCESS,
-            payload: res.data,
-          });
-          return true;
-        } else {
-          dispatch({
-            type: LISTADO_GENERAL_BAJAS_FAIL,
-            error: "Listado sin información"
-          });
-          return false;
-        }
+    if (res.status === 200) {
+      if (res.data?.length) {
+        dispatch({
+          type: LISTADO_GENERAL_BAJAS_SUCCESS,
+          payload: res.data,
+        });
+        return true;
       } else {
         dispatch({
           type: LISTADO_GENERAL_BAJAS_FAIL,
-          error: "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
+          error: "Listado sin información"
         });
         return false;
       }
-    } catch (err: any) {
+    } else {
       dispatch({
         type: LISTADO_GENERAL_BAJAS_FAIL,
-        error: "Error en la solicitud:", err,
+        error: "No se pudo obtener el listado de altas. Por favor, intente nuevamente.",
       });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: LISTADO_GENERAL_BAJAS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return false;
   }

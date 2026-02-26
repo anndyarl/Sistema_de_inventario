@@ -1,5 +1,4 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   LISTA_INDICADORES_REQUEST,
   LISTA_UTM_SUCCESS,
@@ -9,6 +8,7 @@ import {
   LISTA_IPC_SUCCESS,
   LISTA_INDICADORES_FAIL,
 } from "./types";
+import axiosInstance from "../../../services/axiosConfig";
 
 export const indicadoresActions = () => async (dispatch: Dispatch): Promise<boolean> => {
   dispatch({ type: LISTA_INDICADORES_REQUEST });
@@ -16,16 +16,12 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
   let res;
 
   try {
-    // 1️⃣ Intentar API principal
     try {
-      res = await axios.get("https://mindicador.cl/api", { timeout: 5000 });
-      // console.log("Datos obtenidos desde mindicador");
+      res = await axiosInstance.get("https://mindicador.cl/api", { timeout: 5000 });
+      console.log("Datos obtenidos desde mindicador");
     } catch (error) {
-      // console.warn("mindicador no respondió, intentando con findic...");
-
-      // 2️⃣ Fallback a API secundaria
-      res = await axios.get("https://findic.cl/api", { timeout: 5000 });
-      // console.log("Datos obtenidos desde findic");
+      res = await axiosInstance.get("https://findic.cl/api", { timeout: 5000 });
+      console.log("Datos obtenidos desde findic");
     }
 
     const utm = res.data.utm;
@@ -45,7 +41,6 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
       throw new Error("Respuesta no válida");
     }
   } catch (err) {
-    console.error("Error en ambas APIs:", err);
     dispatch({
       type: LISTA_INDICADORES_FAIL,
       error: "No se pudieron obtener los indicadores desde ninguna fuente.",

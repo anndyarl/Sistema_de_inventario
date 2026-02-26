@@ -1,6 +1,5 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import { ListaRemates } from './BienesRematados';
-import { Container } from 'react-bootstrap';
 import ssmso_logo from "../../../assets/img/SSMSO-LOGO.png"
 
 const FONT_SIZES = {

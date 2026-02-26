@@ -1,50 +1,32 @@
-import axios from 'axios';
 import {
   COMBO_SER_DEP_MODIFICAR_REQUEST,
   COMBO_SER_DEP_MODIFICAR_SUCCESS,
   COMBO_SER_DEP_MODIFICAR_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
+import axiosInstance from '../../../../services/axiosConfig';
 
+export const comboSerDepActions = (establ_corr: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
-// Acción para obtener COMBO_SER_DEP_MODIFICAR
-export const comboSerDepActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
-  if (token) {
-    const config = {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      },
-    };
+  dispatch({ type: COMBO_SER_DEP_MODIFICAR_REQUEST });
 
-    dispatch({ type: COMBO_SER_DEP_MODIFICAR_REQUEST });
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeServicioDependenciaInv?establ_corr=${establ_corr}`);
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeServicioDependenciaInv?establ_corr=${establ_corr}`, config);
-
-      if (res.status === 200) {
-        dispatch({
-          type: COMBO_SER_DEP_MODIFICAR_SUCCESS,
-          payload: res.data
-        });
-        return true;
-      } else {
-        dispatch({ type: COMBO_SER_DEP_MODIFICAR_FAIL });
-        return false;
-      }
-    } catch (err: any) {
+    if (res.status === 200) {
       dispatch({
-        type: COMBO_SER_DEP_MODIFICAR_FAIL,
-        error: "Error en la solicitud:", err,
+        type: COMBO_SER_DEP_MODIFICAR_SUCCESS,
+        payload: res.data
       });
-      // dispatch({ type: LOGOUT });
+      return true;
+    } else {
+      dispatch({ type: COMBO_SER_DEP_MODIFICAR_FAIL });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: COMBO_SER_DEP_MODIFICAR_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return false;
   }

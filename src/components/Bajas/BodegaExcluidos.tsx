@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import MenuBajas from "../Menus/MenuBajas.tsx";
 import { Helmet } from "react-helmet-async";
-import { Eraser, Paperclip, Plus, Search, Trash } from "react-bootstrap-icons";
+import { Eraser, Paperclip, Search, Trash } from "react-bootstrap-icons";
 import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/ListadoGeneral/obtenerListaExcluidosActions.tsx";
 import { quitarBodegaExcluidosActions } from "../../redux/actions/Bajas/BodegaExcluidos/quitarBodegaExcluidosActions.tsx";
 import { excluirBajasActions } from "../../redux/actions/Bajas/BodegaExcluidos/excluirBajasActions.tsx";
@@ -69,7 +69,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const elementosPorPagina = Paginacion.nPaginacion;
   const [anexos, setAnexos] = useState<File[]>([]);
-  const [nombreDocumento, setNombreDocumento] = useState<string>("");
+  // const [nombreDocumento, setNombreDocumento] = useState<string>("");
 
   //----------------Estado de archivo adjuntos ---------------//
   const inputRef = useRef<HTMLInputElement>(null);
@@ -237,9 +237,6 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         nombre: archivo.name,
         contenido
       });
-
-      setNombreDocumento(archivo.name);//Guardo el nombre del documento adjunto
-      // console.log("archivo.name", archivo.name);
     }
 
     return resultado;
@@ -267,6 +264,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
       setMostrarModalAdjunto(false);
       setLoadingRegistro(true);
       const anexosBase64 = await convertirArchivosABase64(anexos);
+
       if (anexos.length > 2) {
         Swal.fire({
           icon: "warning",
@@ -300,7 +298,7 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         Entidad,
         Adjuntos
       };
-      // console.log(Formulario);
+
       const resultado = await excluirBajasActions(RemateConAdjuntos);
       if (resultado) {
         Swal.fire({
@@ -991,7 +989,9 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
             <div className="mb-1">
               <label htmlFor="observaciones" className="fw-semibold">
                 Observaciones
+
               </label>
+
               <textarea
                 className={`form-control ${error.observaciones ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                 aria-label="observaciones"

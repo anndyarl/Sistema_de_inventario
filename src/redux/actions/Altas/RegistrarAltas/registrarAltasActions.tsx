@@ -1,56 +1,39 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   REGISTRAR_ALTAS_REQUEST,
   REGISTRAR_ALTAS_SUCCESS,
   REGISTRAR_ALTAS_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const registrarAltasActions = (activos: { AF_CLAVE: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const registrarAltasActions = (activos: { AF_CLAVE: number }[]) => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-    const body = JSON.stringify(activos);
+  const body = JSON.stringify(activos);
 
-    dispatch({ type: REGISTRAR_ALTAS_REQUEST });
+  dispatch({ type: REGISTRAR_ALTAS_REQUEST });
 
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearAltas`, body, config);
-      // console.log("Se ha registrado", res);
-      if (res.status === 200) {
-        dispatch({
-          type: REGISTRAR_ALTAS_SUCCESS,
-          payload: res.data
-        });
-        return true;
-      } else {
-        dispatch({
-          type: REGISTRAR_ALTAS_FAIL,
-          error:
-            "No se pudo anular la alta seleccionada. Por favor, intente nuevamente.",
-        });
-        return false;
-      }
-    } catch (err: any) {
+  try {
+    const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearAltas`, body);
+
+    if (res.status === 200) {
+      dispatch({
+        type: REGISTRAR_ALTAS_SUCCESS,
+        payload: res.data
+      });
+      return true;
+    } else {
       dispatch({
         type: REGISTRAR_ALTAS_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo anular la alta seleccionada. Por favor, intente nuevamente.",
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: REGISTRAR_ALTAS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return false;
   }
-};
+}

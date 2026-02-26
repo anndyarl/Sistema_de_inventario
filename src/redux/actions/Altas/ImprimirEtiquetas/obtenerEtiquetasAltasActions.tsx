@@ -1,26 +1,17 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   ETIQUETAS_ALTAS_REQUEST,
   ETIQUETAS_ALTAS_SUCCESS,
   ETIQUETAS_ALTAS_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const obtenerEtiquetasAltasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    },
-  };
+export const obtenerEtiquetasAltasActions = (fDesde: string, fHasta: string, establ_corr: number, altasCorr: number, af_codigo_generico: string, dep_corr: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
   dispatch({ type: ETIQUETAS_ALTAS_REQUEST });
 
   try {
-    const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/DatosEtiquetas?fDesde=${fDesde}&fHasta=${fHasta}&establ_corr=${establ_corr}&altasCorr=${altasCorr}&af_codigo_generico=${af_codigo_generico}&dep_corr=${dep_corr}`, config);
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/DatosEtiquetas?fDesde=${fDesde}&fHasta=${fHasta}&establ_corr=${establ_corr}&altasCorr=${altasCorr}&af_codigo_generico=${af_codigo_generico}&dep_corr=${dep_corr}`);
     if (res.status === 200) {
       if (res.data?.length) {
         dispatch({

@@ -2,8 +2,12 @@ import axios from "axios";
 import { store } from "../store";
 import { refreshTokenAction } from "../redux/actions/auth/authActions";
 
+// ✅ AGREGAR Content-Type en la creación
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_CSRF_API_URL,
+  headers: {
+    'Content-Type': 'application/json', // 👈 ESTO ES CRÍTICO
+  },
 });
 
 let isRefreshing = false;
@@ -26,75 +30,97 @@ axiosInstance.interceptors.request.use(
     const state = store.getState();
     const token = state.loginReducer?.token;
     
-    if (token) {
+    if (token) {      
       config.headers.Authorization = `Bearer ${token}`;
-    //   console.log("Enviando petición con token:", token.substring(0, 20) + "...");
+      console.log("📤 Enviando petición con token:", token.substring(0, 20) + "...");
+      
+      // Decodificar token para ver expiración (debug)
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log("⏰ Token expira:", new Date(payload.exp * 1000).toLocaleTimeString());
+      } catch (e) {
+        console.log("⚠️ No se pudo decodificar el token");
+      }
     }
+    
+    // ✅ Asegurar headers necesarios
     config.headers.Accept = "application/json";
+    // El Content-Type ya viene de la configuración base
+    
+    console.log("📋 Headers enviados:", {
+      'Content-Type': config.headers['Content-Type'],
+      'Authorization': config.headers.Authorization ? 'Bearer xxx...' : 'no token',
+      'Accept': config.headers.Accept
+    });
+    
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Interceptor de respuestas
+// Interceptor de respuestas (igual que tenías)
 axiosInstance.interceptors.response.use(
   (response) => {
-    // console.log("Respuesta exitosa:", response.status);
+    console.log("✅ Respuesta exitosa:", response.status);
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
-    // console.log("Error en respuesta:", {
-    //   status: error.response?.status,
-    //   url: originalRequest.url,
-    //   data: error.response?.data,
-    //   hora: new Date().toLocaleTimeString()
-    // });
+    
+    // 🔍 DIAGNÓSTICO DEL ERROR
+    console.log("🔴 Error interceptado:", {
+      tipo: error.code || "desconocido",
+      mensaje: error.message,
+      status: error.response?.status,
+      url: originalRequest?.url,
+      hora: new Date().toLocaleTimeString(),
+      esErrorRed: !error.response,
+      esCORS: error.message.includes('CORS')
+    });
 
-    // Si no es 401 o ya se intentó refrescar
-    if (error.response?.status !== 401 || originalRequest._retry) {
-    //   console.log("Token expirado, intentando refresh...");
+    // 🚨 Caso 1: Error de RED
+    if (!error.response) {
+      console.log("❌ Error de red - No se puede conectar al servidor");
+      if (error.message.includes('CORS')) {
+        console.log("🚫 Error CORS - Revisar configuración del backend");
+      }
       return Promise.reject(error);
     }
-    // console.log("Iniciando refresh token - Hora:", new Date().toLocaleTimeString());
 
-    // Si ya está refrescando, encolar
-    if (isRefreshing) {
-    //   console.log("Refresh en curso, encolando petición");
-      return new Promise((resolve, reject) => {
-        failedQueue.push({ resolve, reject });
-      })
-        .then(token => {
-        //   console.log("Petición encolada procesada con nuevo token");
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return axiosInstance(originalRequest);
+    // 🚨 Caso 2: Error 401 (token expirado)
+    if (error.response.status === 401 && !originalRequest._retry) {
+      console.log("🔄 Token 401 detectado - Iniciando refresh...");
+      
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
         })
-        .catch(err => Promise.reject(err));
+          .then(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return axiosInstance(originalRequest);
+          })
+          .catch(err => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const newToken = await store.dispatch(refreshTokenAction() as any);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        processQueue(null, newToken);
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
 
-    originalRequest._retry = true;
-    isRefreshing = true;
-
-    try {
-    //   console.log("Ejecutando refreshTokenAction...");
-      const newToken = await store.dispatch(refreshTokenAction() as any);
-      
-    //   console.log("Refresh completado - Nuevo token:", newToken.substring(0, 20) + "...");
-    //   console.log("Hora refresh:", new Date().toLocaleTimeString());
-      
-      originalRequest.headers.Authorization = `Bearer ${newToken}`;
-      processQueue(null, newToken);
-      
-    //   console.log("Reintentando petición original...");
-      return axiosInstance(originalRequest);
-      
-    } catch (refreshError) {
-    //   console.log("Falló el refresh token:", refreshError);
-      processQueue(refreshError, null);
-      return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
-    }
+    // 🚨 Caso 3: Otros errores
+    console.log(`❌ Error ${error.response.status} - No se intenta refresh`);
+    return Promise.reject(error);
   }
 );
 

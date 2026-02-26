@@ -6,7 +6,6 @@ import {
   OBTENER_UNIDADES_FAIL,
 } from "../types";
 
-// Acción para obtener la recepción por número
 export const obtenerUnidadesActions = () => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
   const token = getState().loginReducer.token; //token está en el estado de autenticación
 

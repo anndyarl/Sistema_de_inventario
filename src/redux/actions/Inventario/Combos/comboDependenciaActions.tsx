@@ -1,41 +1,30 @@
-import axios from "axios";
+
 import {
   DEPENDENCIA_REQUEST,
   DEPENDENCIA_SUCCESS,
   DEPENDENCIA_FAIL,
 } from "../types";
 import { Dispatch } from "redux";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener servicio
+export const comboDependenciaActions = (serCorr: string) => async (dispatch: Dispatch) => {
 
-export const comboDependenciaActions = (serCorr: string) => async (dispatch: Dispatch, getState: any) => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+  dispatch({ type: DEPENDENCIA_REQUEST });
 
-    dispatch({ type: DEPENDENCIA_REQUEST });
-    // const serCorr = 0; // O cualquier otro valor dinámico
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/traeDependencias?ser_corr=${serCorr}`, config);
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/traeDependencias?ser_corr=${serCorr}`);
 
-      if (res.status === 200) {
-        dispatch({
-          type: DEPENDENCIA_SUCCESS,
-          payload: res.data,
-        });
-      } else {
-        dispatch({ type: DEPENDENCIA_FAIL });
-      }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    if (res.status === 200) {
+      dispatch({
+        type: DEPENDENCIA_SUCCESS,
+        payload: res.data,
+      });
+    } else {
       dispatch({ type: DEPENDENCIA_FAIL });
     }
-  } else {
+  } catch (err) {
+    console.error("Error en la solicitud:", err);
     dispatch({ type: DEPENDENCIA_FAIL });
   }
+
 };

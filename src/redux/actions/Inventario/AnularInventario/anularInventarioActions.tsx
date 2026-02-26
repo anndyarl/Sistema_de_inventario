@@ -1,56 +1,38 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   ANULAR_INVENTARIO_REQUEST,
   ANULAR_INVENTARIO_SUCCESS,
   ANULAR_INVENTARIO_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const anularInventarioActions = (aF_CLAVE: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const anularInventarioActions = (aF_CLAVE: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
+  dispatch({ type: ANULAR_INVENTARIO_REQUEST });
 
-    dispatch({ type: ANULAR_INVENTARIO_REQUEST });
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/AnulaInventario?aF_CLAVE=${aF_CLAVE}`);
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/AnulaInventario?aF_CLAVE=${aF_CLAVE}`, config);
-
-      if (res.status === 200) {
-        dispatch({
-          type: ANULAR_INVENTARIO_SUCCESS,
-          payload: res.data,
-        });
-        return true;
-      } else {
-        dispatch({
-          type: ANULAR_INVENTARIO_FAIL,
-          error:
-            "No se pudo anular el inventario. Por favor, intente nuevamente.",
-        });
-        return false;
-      }
-
-    } catch (err: any) {
-      console.error("Error en la solicitud:", err);
+    if (res.status === 200) {
+      dispatch({
+        type: ANULAR_INVENTARIO_SUCCESS,
+        payload: res.data,
+      });
+      return true;
+    } else {
       dispatch({
         type: ANULAR_INVENTARIO_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo anular el inventario. Por favor, intente nuevamente.",
       });
-      // dispatch({ type: LOGOUT });
       return false;
     }
-  } else {
+
+  } catch (err: any) {
+    console.error("Error en la solicitud:", err);
     dispatch({
       type: ANULAR_INVENTARIO_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return false;
   }

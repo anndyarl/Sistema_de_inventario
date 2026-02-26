@@ -1163,7 +1163,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   : "bg-primary bg-opacity-10 text-primary border-none"
                 }`}
               >
-                <p>Se han agregado <strong >{activosFijos.length}</strong> bienes. </p>
+                Se {activosFijos.length > 1 ? "han" : "ha"} agregado <strong>{activosFijos.length}</strong>  {activosFijos.length > 1 ? "bienes" : "bien"}.
 
               </div>
               <Modal.Header className={`modal-header`}>
@@ -1558,7 +1558,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             {/* Mensaje */}
             <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
             >
-              Se han trasladado <strong>{listaSalidaTraslados.length}</strong> bienes correctamente.
+              Se {listaSalidaTraslados.length > 1 ? "han" : "ha"} trasladado <strong>{listaSalidaTraslados.length}</strong>  {listaSalidaTraslados.length > 1 ? "bienes" : "bien"} correctamente.
             </div>
             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
               <Modal.Title className="fw-semibold">Resumen de Traslados</Modal.Title>

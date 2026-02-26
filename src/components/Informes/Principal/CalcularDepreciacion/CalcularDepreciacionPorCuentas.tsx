@@ -21,7 +21,6 @@ import { ListaActivosFijos } from "./CalcularDepreciacion";
 import Draggable from "react-draggable";
 import { TablaGenerica } from "../../../Utils/TablaGenerica";
 import { PageSizeSelector } from "../../../Utils/PageSizeSelector";
-import { BusquedaTabla } from "../../../Utils/BusquedaTabla";
 
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");

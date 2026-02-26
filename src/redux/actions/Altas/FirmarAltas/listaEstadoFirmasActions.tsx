@@ -1,61 +1,44 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   LISTA_ESTADO_FIRMAS_REQUEST,
   LISTA_ESTADO_FIRMAS_SUCCESS,
   LISTA_ESTADO_FIRMAS_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const listaEstadoFirmasActions = (altas_corr: number) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
+export const listaEstadoFirmasActions = (altas_corr: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+  dispatch({ type: LISTA_ESTADO_FIRMAS_REQUEST });
 
-    dispatch({ type: LISTA_ESTADO_FIRMAS_REQUEST });
-
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEstadoFirmaAltas?altas_corr=${altas_corr}`, config);
-      if (res.status === 200) {
-        if (res.data?.length) {
-          dispatch({
-            type: LISTA_ESTADO_FIRMAS_SUCCESS,
-            payload: res.data,
-          });
-          return true;
-        } else {
-          dispatch({
-            type: LISTA_ESTADO_FIRMAS_FAIL,
-            error:
-              "No se pudo obtener los datos solicitados. Por favor, intente nuevamente.",
-          });
-          return false;
-        }
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEstadoFirmaAltas?altas_corr=${altas_corr}`);
+    if (res.status === 200) {
+      if (res.data?.length) {
+        dispatch({
+          type: LISTA_ESTADO_FIRMAS_SUCCESS,
+          payload: res.data,
+        });
+        return true;
       } else {
         dispatch({
           type: LISTA_ESTADO_FIRMAS_FAIL,
           error:
-            "No se pudo obtener el listado. Por favor, intente nuevamente.",
+            "No se pudo obtener los datos solicitados. Por favor, intente nuevamente.",
         });
         return false;
       }
-    } catch (err: any) {
+    } else {
       dispatch({
         type: LISTA_ESTADO_FIRMAS_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo obtener el listado. Por favor, intente nuevamente.",
       });
       return false;
     }
-  } else {
+  } catch (err: any) {
     dispatch({
       type: LISTA_ESTADO_FIRMAS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return false;
   }

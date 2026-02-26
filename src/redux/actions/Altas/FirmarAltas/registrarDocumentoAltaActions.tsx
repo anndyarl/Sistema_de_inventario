@@ -1,65 +1,49 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   VISADO_ALTAS_REQUEST,
   VISADO_ALTAS_SUCCESS,
   VISADO_ALTAS_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener la recepción por número
-export const registrarDocumentoAltaActions = (documento: any) => async (dispatch: Dispatch, getState: any): Promise<number | null> => {
-  const token = getState().loginReducer.token;
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-    const body = JSON.stringify(documento);
+export const registrarDocumentoAltaActions = (documento: any) => async (dispatch: Dispatch): Promise<number | null> => {
 
-    dispatch({ type: VISADO_ALTAS_REQUEST });
+  const body = JSON.stringify(documento);
 
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CreaDocumentoAlta`, body, config);
+  dispatch({ type: VISADO_ALTAS_REQUEST });
 
-      if (res.status === 200) {
-        if (res.data != -1) {
-          dispatch({
-            type: VISADO_ALTAS_SUCCESS,
-            payload: res.data
-          });
-          return res.data;
-        } else {
-          dispatch({
-            type: VISADO_ALTAS_FAIL,
-            error:
-              "Hubo un error en el servidor",
-          });
-          return null;
-        }
-      }
-      else {
+  try {
+    const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/CreaDocumentoAlta`, body);
+
+    if (res.status === 200) {
+      if (res.data != -1) {
+        dispatch({
+          type: VISADO_ALTAS_SUCCESS,
+          payload: res.data
+        });
+        return res.data;
+      } else {
         dispatch({
           type: VISADO_ALTAS_FAIL,
           error:
-            "No se pudo enviar la solicitud de visado. Por favor, intente nuevamente.",
+            "Hubo un error en el servidor",
         });
         return null;
       }
-
-    } catch (err: any) {
+    }
+    else {
       dispatch({
         type: VISADO_ALTAS_FAIL,
-        error: "Error en la solicitud:", err,
+        error:
+          "No se pudo enviar la solicitud de visado. Por favor, intente nuevamente.",
       });
-      // dispatch({ type: LOGOUT });
       return null;
     }
-  } else {
+
+  } catch (err: any) {
     dispatch({
       type: VISADO_ALTAS_FAIL,
-      error: "No se encontró un token de autenticación válido.",
+      error: "Error en la solicitud:", err,
     });
     return null;
   }

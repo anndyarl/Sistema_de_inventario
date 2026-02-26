@@ -1,67 +1,51 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
     POST_FORMULARIO_TRASLADO_REQUEST,
     POST_FORMULARIO_TRASLADO_SUCCESS,
     POST_FORMULARIO_TRASLADO_FAIL,
 } from "../../../Traslados/types";
+import axiosInstance from "../../../../../services/axiosConfig";
 
-// Acción para enviar el formulario
-export const registroTrasladoMultipleActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
-    const token = getState().loginReducer.token; // Token está en el estado de autenticación
-    if (token) {
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        };
-        // Verifica si `datosInventario` tiene datos antes de enviar
-        if (!FormularioTraslado || Object.keys(FormularioTraslado).length === 0) {
-            // console.error("El objeto datosInventario está vacío.");
-            return false;
-        }
-        const body = JSON.stringify(FormularioTraslado);
 
-        dispatch({ type: POST_FORMULARIO_TRASLADO_REQUEST });
+export const registroTrasladoMultipleActions = (FormularioTraslado: Record<string, any>) => async (dispatch: Dispatch): Promise<boolean> => {
 
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/ReporteFSD_traslado`, body, config);
+    if (!FormularioTraslado || Object.keys(FormularioTraslado).length === 0) {
+        return false;
+    }
+    const body = JSON.stringify(FormularioTraslado);
 
-            if (response.status === 200) {
-                if (response.data?.length) {
-                    dispatch({
-                        type: POST_FORMULARIO_TRASLADO_SUCCESS,
-                        payload: response.data
-                    });
-                    return true;
-                }
-                else {
-                    dispatch({
-                        type: POST_FORMULARIO_TRASLADO_FAIL,
-                        error: "No se pudo registrar. Por favor, intente nuevamente.",
-                    });
-                    return false;
-                }
+    dispatch({ type: POST_FORMULARIO_TRASLADO_REQUEST });
+
+    try {
+        const response = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/ReporteFSD_traslado`, body);
+
+        if (response.status === 200) {
+            if (response.data?.length) {
+                dispatch({
+                    type: POST_FORMULARIO_TRASLADO_SUCCESS,
+                    payload: response.data
+                });
+                return true;
             }
             else {
                 dispatch({
                     type: POST_FORMULARIO_TRASLADO_FAIL,
-                    error: "No se pudo obtener registrar. Por favor, intente nuevamente.",
+                    error: "No se pudo registrar. Por favor, intente nuevamente.",
                 });
                 return false;
             }
-        } catch (err: any) {
+        }
+        else {
             dispatch({
                 type: POST_FORMULARIO_TRASLADO_FAIL,
-                error: "Error en la solicitud:", err,
+                error: "No se pudo obtener registrar. Por favor, intente nuevamente.",
             });
             return false;
         }
-    } else {
+    } catch (err: any) {
         dispatch({
             type: POST_FORMULARIO_TRASLADO_FAIL,
-            error: "No se encontró un token de autenticación válido.",
+            error: "Error en la solicitud:", err,
         });
         return false;
     }

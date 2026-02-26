@@ -518,7 +518,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     //   comboProveedorActions(value);
     // }
     if (name === "IDMODALIDADCOMPRA") { //modalidadDeCompra
-      if (value === "7") {
+      if (value === "OTRO") {
         newValue = parseFloat(value) || 0;
         dispatch(setModalidadCompraActions(newValue as number));
         setShowInput(true);
@@ -1589,7 +1589,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                             {m.descripcion}
                           </option>
                         ))}
-                        <option value="7">Otros</option>
+                        <option value="OTRO">Otros</option>
                       </select>
 
                       {/* SPINNER INTEGRADO */}
@@ -1624,6 +1624,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           <input
                             aria-label="OTRA_MODALIDAD"
                             type="text"
+                            disabled={tieneAlta}
                             className={`form-control 
                           ${isDarkMode ? "bg-secondary text-light border-secondary" : ""}
                           ${error.IDMODALIDADCOMPRA ? "is-invalid" : ""}`}
@@ -1645,7 +1646,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                             variant="primary"
                             onClick={handleRegistrarModalidad}
                             className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
-                            disabled={isDisabled}
+                            disabled={tieneAlta}
                           >
                             <Plus
                               className={classNames("flex-shrink-0", "h-5 w-5")}

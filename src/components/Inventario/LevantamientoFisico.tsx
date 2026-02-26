@@ -971,7 +971,7 @@ const mapStateToProps = (state: RootState) => ({
     isDarkMode: state.darkModeReducer.isDarkMode,
     comboEspecies: state.comboEspeciesBienReducers.comboEspecies,
     comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
-    listaSalidaTraslados: state.datosTrasladoRegistradoReducers.listaSalidaTraslados
+    listaSalidaTraslados: state.listadoTrasladosReducers.listadoTraslados
 });
 
 export default connect(mapStateToProps, {

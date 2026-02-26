@@ -202,6 +202,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
       onDetalleSeleccionado(newValue as number);
       setDetalleSeleccionado(newValue as number);
       setFilasSeleccionadas([]);
+      console.log("detalles", newValue);
     }
 
   };

@@ -1,36 +1,23 @@
-import axios from "axios";
 import { ESTABLECIMIENTO_REQUEST, ESTABLECIMIENTO_SUCCESS, ESTABLECIMIENTO_FAIL } from "../types";
 import { Dispatch } from "redux";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener servicio
-export const comboEstablecimientoActions = (establ_corr: number) => async (dispatch: Dispatch, getState: any) => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+export const comboEstablecimientoActions = (establ_corr: number) => async (dispatch: Dispatch) => {
 
-    dispatch({ type: ESTABLECIMIENTO_REQUEST });
+  dispatch({ type: ESTABLECIMIENTO_REQUEST });
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraEstablecimientos?establ_corr=${establ_corr}`, config);
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/comboTraEstablecimientos?establ_corr=${establ_corr}`);
 
-      if (res.status === 200) {
-        dispatch({
-          type: ESTABLECIMIENTO_SUCCESS,
-          payload: res.data,
-        });
-      } else {
-        dispatch({ type: ESTABLECIMIENTO_FAIL });
-      }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    if (res.status === 200) {
+      dispatch({
+        type: ESTABLECIMIENTO_SUCCESS,
+        payload: res.data,
+      });
+    } else {
       dispatch({ type: ESTABLECIMIENTO_FAIL });
     }
-  } else {
+  } catch (err) {
     dispatch({ type: ESTABLECIMIENTO_FAIL });
   }
 };

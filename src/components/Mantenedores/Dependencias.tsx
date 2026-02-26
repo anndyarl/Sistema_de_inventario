@@ -1,12 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Button, Spinner, Modal, Row, Col, Form } from "react-bootstrap";
+import { Button, Spinner, Modal, Row, Col, } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import { Helmet } from "react-helmet-async";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
-import { Plus, Search } from "react-bootstrap-icons";
+import { Plus, } from "react-bootstrap-icons";
 import { SERVICIO } from "../Inventario/RegistrarInventario/DatosCuenta.tsx";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
 import { Objeto } from "../Navegacion/Profile.tsx";

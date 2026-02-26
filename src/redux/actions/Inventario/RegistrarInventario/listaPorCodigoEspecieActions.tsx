@@ -1,40 +1,28 @@
-import axios from "axios";
 import {
   LISTADO_ESPECIES_BIEN_REQUEST,
   LISTADO_ESPECIES_BIEN_SUCCESS,
   LISTADO_ESPECIES_BIEN_FAIL,
 } from "../types";
 import { Dispatch } from "redux";
+import axiosInstance from "../../../../services/axiosConfig";
 
-// Acción para obtener servicio
-export const listaPorCodigoEspecieActions = (esp_codigo: string) => async (dispatch: Dispatch, getState: any) => {
-  const token = getState().loginReducer.token; //token está en el estado de autenticación
-  if (token) {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    };
+export const listaPorCodigoEspecieActions = (esp_codigo: string) => async (dispatch: Dispatch) => {
 
-    dispatch({ type: LISTADO_ESPECIES_BIEN_REQUEST });
+  dispatch({ type: LISTADO_ESPECIES_BIEN_REQUEST });
 
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEspeciePorCodigo?esp_codigo=${esp_codigo}`, config);
+  try {
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeEspeciePorCodigo?esp_codigo=${esp_codigo}`);
 
-      if (res.status === 200) {
-        dispatch({
-          type: LISTADO_ESPECIES_BIEN_SUCCESS,
-          payload: res.data,
-        });
-      } else {
-        dispatch({ type: LISTADO_ESPECIES_BIEN_FAIL });
-      }
-    } catch (err) {
-      console.error("Error en la solicitud:", err);
+    if (res.status === 200) {
+      dispatch({
+        type: LISTADO_ESPECIES_BIEN_SUCCESS,
+        payload: res.data,
+      });
+    } else {
       dispatch({ type: LISTADO_ESPECIES_BIEN_FAIL });
     }
-  } else {
+  } catch (err) {
+    console.error("Error en la solicitud:", err);
     dispatch({ type: LISTADO_ESPECIES_BIEN_FAIL });
   }
 };

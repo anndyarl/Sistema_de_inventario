@@ -38,7 +38,7 @@ export function TablaGenerica<T extends Record<string, any>>({
     seleccionable = false,
     filasSeleccionadas = [],
     onSeleccionarFila,
-    onSeleccionarTodos,
+    // onSeleccionarTodos,
     indiceInicio = 0
 }: TablaGenericaProps<T>) {
 
@@ -113,11 +113,11 @@ export function TablaGenerica<T extends Record<string, any>>({
     };
 
     // Verificar si todas las filas de la página están seleccionadas
-    const todasSeleccionadas = seleccionable &&
-        data.length > 0 &&
-        data.every((_, index) =>
-            filasSeleccionadas.includes((indiceInicio + index).toString())
-        );
+    // const todasSeleccionadas = seleccionable &&
+    //     data.length > 0 &&
+    //     data.every((_, index) =>
+    //         filasSeleccionadas.includes((indiceInicio + index).toString())
+    //     );
 
     return (
         <div className="table-responsive">
@@ -138,6 +138,7 @@ export function TablaGenerica<T extends Record<string, any>>({
                                     cursor: col.disableSort ? 'default' : 'pointer',
                                     userSelect: 'none'
                                 }}
+                                className='text-nowrap'
                                 onClick={() => !col.disableSort && handleSort(col.key)}
                                 title={col.disableSort ? '' : "Haz clic para ordenar"}
                             >
