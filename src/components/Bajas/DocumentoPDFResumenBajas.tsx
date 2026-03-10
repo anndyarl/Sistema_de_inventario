@@ -159,6 +159,28 @@ const styles = StyleSheet.create({
         fontSize: FONT_SIZES.md,
         color: COLORS.grayMedium,
     },
+    /* ===== GRID INFORMACIÓN ===== */
+    headerGrid: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+
+    column: {
+        width: "32%",
+    },
+
+    label: {
+        fontSize: 7,
+        // fontWeight: "bold",
+        color: "#000",
+        margin: 2,
+    },
+
+    value: {
+        fontSize: 7,
+        color: "#555",
+        marginBottom: 5,
+    },
     /* =======================
        TABLE (NO TOCAR)
     ======================= */
@@ -321,6 +343,14 @@ const DocumentoPDFResumenBajas = ({ listaSalidaBajas }: { listaSalidaBajas: List
                     </Text>
                 </View>
 
+                <View style={styles.headerGrid} fixed>
+                    {/* Columna  */}
+                    <View style={styles.column}>
+                        <Text style={styles.label}>Cantidad: {listaSalidaBajas.length}</Text>
+
+                    </View>
+                </View>
+
                 {/* Tabla */}
                 <View style={styles.table}>
                     {/* Cabecera de la tabla */}
@@ -337,7 +367,7 @@ const DocumentoPDFResumenBajas = ({ listaSalidaBajas }: { listaSalidaBajas: List
                     {/* Fila de datos */}
                     {listaSalidaBajas.map((lista, idx) => (
                         <View style={styles.tableRow} key={idx}>
-                            <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CLAVE}</Text>
+                            <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
                             <Text style={[styles.tableCell, styles.colEspecie]}>{lista.esP_NOMBRE}</Text>
                             <Text style={[styles.tableCell, styles.colMarca]}>{lista.deT_MARCA}</Text>
                             <Text style={[styles.tableCell, styles.colModelo]}>{lista.deT_MODELO}</Text>

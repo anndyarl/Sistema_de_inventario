@@ -81,14 +81,14 @@ const styles = StyleSheet.create({
     },
 
     label: {
-        fontSize: 8,
-        fontWeight: "bold",
+        fontSize: 7,
+        // fontWeight: "bold",
         color: "#000",
-        margin: 1,
+        margin: 2,
     },
 
     value: {
-        fontSize: 8,
+        fontSize: 7,
         color: "#555",
         marginBottom: 5,
     },
@@ -197,7 +197,7 @@ const DocumentoCuentasPDF = ({ row, totalRes, totalDep, totalDepAnual, totalMont
                 </View>
                 <Text style={styles.tituloDocumento}>Informe de Cálculo de Depreciación por Cuentas</Text>
 
-                <View style={styles.headerGrid}>
+                <View style={styles.headerGrid} fixed>
                     {/* Columna  */}
                     <View style={styles.column}>
                         <Text style={styles.label}>Cantidad: {row.length}</Text>

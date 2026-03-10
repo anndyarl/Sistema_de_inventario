@@ -112,6 +112,7 @@ import listaActivosFijosPorCuentasReducers from "./Informes/Principal/CalcularDe
 import obtenerInventarioTraspasoReducers from "./Traspasos/obtenerInventarioTraspasoReducers";
 import listaSalidaTraspasosReducers from "./Traspasos/listaSalidaTraspasosReducers";
 import listaSalidaTrasladosReducers from "./Traslados/datosTrasladoRegistradoReducers";
+import preferenciasReducers from "./Configuracion/preferenciasReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -213,6 +214,8 @@ const appReducer = combineReducers({
   setSidebarCollapsedReducer,
   //Versionamiento
   listaVersionamientoReducers,
+  //Tiempo de sesion
+  preferenciasReducers,
 
   //Informes
   comboServicioInformeReducers,
@@ -279,6 +282,7 @@ const rootReducer = (state: any, action: any) => {
       listaConsultaInventarioEspeciesReducers,
       listaVersionamientoReducers,
       obtenerUnidadesReducers,
+      preferenciasReducers
       // comboCuentasInformeReducers
     } = state || {};
 
@@ -309,6 +313,7 @@ const rootReducer = (state: any, action: any) => {
       listaConsultaInventarioEspeciesReducers,
       listaVersionamientoReducers,
       obtenerUnidadesReducers,
+      preferenciasReducers
       // comboCuentasInformeReducers
     };
   }

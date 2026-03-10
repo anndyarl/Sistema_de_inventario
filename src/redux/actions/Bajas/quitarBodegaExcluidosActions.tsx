@@ -1,5 +1,4 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   QUITAR_BODEGA_EXCLUIDOS_REQUEST,
   QUITAR_BODEGA_EXCLUIDOS_SUCCESS,

@@ -7,6 +7,7 @@ interface Column<T> {
     key: keyof T
     header: React.ReactNode
     render?: (value: any, item: T) => React.ReactNode
+    cellClassName?: string;
     disableSort?: boolean // Añadimos esta propiedad opcional
 }
 
@@ -121,7 +122,7 @@ export function TablaGenerica<T extends Record<string, any>>({
 
     return (
         <div className="table-responsive">
-            <table className={`table ${isDarkMode ? 'table-dark' : 'table-hover table-striped'}`}>
+            <table className={`table table-sm super-small ${isDarkMode ? 'table-dark' : 'table-hover table-striped'}`}>
                 <thead>
                     <tr>
                         {/* Columna de checkbox para selección múltiple - ESTA NO ESTÁ EN columns */}
@@ -190,7 +191,7 @@ export function TablaGenerica<T extends Record<string, any>>({
                                     ))}
 
                                     {onEdit && (
-                                        <td className="text-center">
+                                        <td className="text-center text-nowrap">
                                             <Button
                                                 size="sm"
                                                 variant="outline-primary"

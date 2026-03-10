@@ -1,7 +1,7 @@
 import React from "react"
 import { RootState } from "../../store";
 import { connect } from "react-redux";
-import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
+import { limpiarDataActions } from "../../redux/actions/Configuracion/preferenciasActions";
 import Swal from "sweetalert2";
 
 interface Props {

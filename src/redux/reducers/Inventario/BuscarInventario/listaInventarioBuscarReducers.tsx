@@ -32,7 +32,7 @@ const listaInventarioBuscarReducers = (state = initialState, action: any) => {
         ...state,
         loading: false,
         error: action.error,
-        listaInventarioBuscar: []
+        // listaInventarioBuscar: []
       };
     default:
       return state;

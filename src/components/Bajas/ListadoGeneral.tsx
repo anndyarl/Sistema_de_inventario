@@ -22,6 +22,7 @@ import { obtenerListaExcluidosActions } from "../../redux/actions/Bajas/obtenerL
 export interface ListaBajas {
   bajaS_CORR: string;
   aF_CLAVE: number;
+  aF_CODIGO_GENERICO: string;
   id: number;
   vutiL_RESTANTE: number;
   vutiL_AGNOS: number;
@@ -55,7 +56,7 @@ interface DatosBajas {
 
 const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, registrarBienesBajasActions, obtenerListaExcluidosActions, listadoGeneralBajas, listaSalidaBajas, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
-  const [__, setLoadingRegistro] = useState(false);
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [error, setError] = useState<Partial<ListaBajas>>({});
   const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
   const [busquedaCodigoGenerico, setBusquedaCodigoGenerico] = useState("");
@@ -382,7 +383,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
         setLoadingRegistro(true);
         //   // Crear un array de objetos con aF_CLAVE y nombre
         const FormularioBajas = seleccionados.map((item) => ({
-          aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+          aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO.toString(),
           aF_CLAVE: item.aF_CLAVE,
           usuariO_MOD: objeto.IdCredencial.toString(),
           ctA_COD: item.ctA_COD,
@@ -1103,7 +1104,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                     {elementosActuales1.length > 0 ? (
                       elementosActuales1.map((item, index) => (
                         <tr key={index}>
-                          <td className="text-center">{item.aF_CLAVE || 'N/A'}</td>
+                          <td className="text-center">{item.aF_CODIGO_GENERICO || 'N/A'}</td>
                           <td className="text-center">{item.esP_NOMBRE || 'N/A'}</td>
                           <td className="text-center">{item.deT_MARCA || 'N/A'}</td>
                           <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
@@ -1151,7 +1152,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
               )}
             </Modal.Body>
           </Modal>
-          {loading && (
+          {loadingRegistro && (
             <div
               className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
               style={{

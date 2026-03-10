@@ -13,7 +13,7 @@ import MenuTraspasos from "../Menus/MenuTraspasos.tsx";
 import { registrarMantenedorDependenciasActions } from "../../redux/actions/Mantenedores/Dependencias/registrarMantenedorDependenciasActions.tsx";
 import { recibeTraspasoActions } from "../../redux/actions/Traspasos/recibeTraspasoActions.tsx";
 import { listadoTraspasosRecibidosActions } from "../../redux/actions/Traspasos/listadoTraspasosRecibidosActions.tsx";
-import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions.tsx";
+import { limpiarDataActions } from "../../redux/actions/Configuracion/preferenciasActions.tsx";
 import { listadoTraspasosEnviadosActions } from "../../redux/actions/Traspasos/listadoTraspasosEnviadosActions.tsx";
 import { obtenerAdjuntosActions } from "../../redux/actions/Traspasos/obtenerAdjuntosActions.tsx";
 interface FechasProps {
@@ -75,7 +75,8 @@ interface GeneralProps {
 const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActions, listadoTraspasosRecibidosActions, recibeTraspasoActions, limpiarDataActions, obtenerAdjuntosActions, listadoTraspasos, listadoTraspasosRecibidos, listadoTraspasosAdjuntos, token, isDarkMode, objeto }) => {
   const [loadingEnviados, setLoadingEnviados] = useState(false);
   const [loadingRecibidos, setLoadingRecibidos] = useState(false);
-  const [error, setError] = useState<Partial<FechasProps> & {}>({});
+  const [errorEnviados, setErrorEnviados] = useState<Partial<FechasProps> & {}>({});
+  const [errorRecibidos, setErrorRecibidos] = useState<Partial<FechasProps> & {}>({});
   const [___, setEsCreador] = useState(false);
   const [estadoRecibido, setEstadoRecibido] = useState<number>(0);
   const [estadoEnviado, setEstadoEnviado] = useState<number>(0);
@@ -141,12 +142,53 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   //------------------------------ Fin ------------------------------------//
 
-  const validate = () => {
+  const validateEnviados = () => {
     let tempErrors: Partial<any> & {} = {};
-    if (ListaEnviados.fDesde > ListaEnviados.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
-    if (ListaRecibidos.fDesde > ListaRecibidos.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
 
-    setError(tempErrors);
+    // Validar que si hay fecha de inicio, fHasta haber fecha de término
+    if (ListaEnviados.fDesde && !ListaEnviados.fHasta) {
+      tempErrors.fHasta = "Debe ingresar una fecha de término.";
+    }
+
+    // Validar que si hay fecha de término, debe haber fecha de inicio
+    if (!ListaEnviados.fDesde && ListaEnviados.fHasta) {
+      tempErrors.fDesde = "Debe ingresar una fecha de inicio.";
+    }
+
+    // Si ambas fechas están presentes, validar el rango
+    if (ListaEnviados.fDesde && ListaEnviados.fHasta) {
+      if (ListaEnviados.fDesde > ListaEnviados.fHasta) {
+        tempErrors.fDesde = "La fecha de inicio no puede ser mayor a la fecha de término.";
+        tempErrors.fHasta = "La fecha de término no puede ser menor a la fecha de inicio.";
+      }
+    }
+
+    setErrorEnviados(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const validateRecibidos = () => {
+    let tempErrors: Partial<any> & {} = {};
+
+    // Validar que si hay fecha de inicio, fHasta haber fecha de término   
+    if (ListaRecibidos.fDesde && !ListaRecibidos.fHasta) {
+      tempErrors.fHasta = "Debe ingresar una fecha de término.";
+    }
+
+    // Validar que si hay fecha de término, debe haber fecha de inicio  
+    if (!ListaRecibidos.fDesde && ListaRecibidos.fHasta) {
+      tempErrors.fDesde = "Debe ingresar una fecha de inicio.";
+    }
+
+    // Si ambas fechas están presentes, validar el rango   
+    if (ListaRecibidos.fDesde && ListaRecibidos.fHasta) {
+      if (ListaRecibidos.fDesde > ListaRecibidos.fHasta) {
+        tempErrors.fDesde = "La fecha de inicio no puede ser mayor a la fecha de término.";
+        tempErrors.fHasta = "La fecha de término no puede ser menor a la fecha de inicio.";
+      }
+    }
+
+    setErrorRecibidos(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
 
@@ -296,17 +338,15 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   const handleBuscarEnviados = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+
+    if (!validateEnviados()) {
+      setLoadingEnviados(false);
+      return;
+    }
     let resultado = false;
-    setLoadingEnviados(true);
+
     resultado = await listadoTraspasosEnviadosActions(ListaEnviados.fDesde, ListaEnviados.fHasta, ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
-    if (ListaEnviados.fDesde != "" || ListaEnviados.fHasta != "") {
-      if (validate()) {
-        resultado = await listadoTraspasosEnviadosActions(ListaEnviados.fDesde, ListaEnviados.fHasta, ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
-      }
-    }
-    else {
-      resultado = await listadoTraspasosEnviadosActions("", "", ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
-    }
+
 
     if (!resultado) {
       Swal.fire({
@@ -332,17 +372,13 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
   const handleBuscarRecibidos = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+    if (!validateRecibidos()) {
+      setLoadingRecibidos(false);
+      return;
+    }
     let resultado = false;
-    setLoadingRecibidos(true);
+
     resultado = await listadoTraspasosRecibidosActions(ListaRecibidos.fDesde, ListaRecibidos.fHasta, ListaRecibidos.af_codigo_generico, ListaRecibidos.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaRecibidos.paS_ESTADO_RECIBE);
-    if (ListaRecibidos.fDesde != "" || ListaRecibidos.fHasta != "") {
-      if (validate()) {
-        resultado = await listadoTraspasosRecibidosActions(ListaRecibidos.fDesde, ListaRecibidos.fHasta, ListaRecibidos.af_codigo_generico, ListaRecibidos.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaRecibidos.paS_ESTADO_RECIBE);
-      }
-    }
-    else {
-      resultado = await listadoTraspasosRecibidosActions("", "", ListaRecibidos.af_codigo_generico, ListaRecibidos.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaRecibidos.paS_ESTADO_RECIBE);
-    }
 
     if (!resultado) {
       Swal.fire({
@@ -703,7 +739,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <input
                             aria-label="Fecha Desde"
                             type="date"
-                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${errorEnviados.fDesde ? "is-invalid" : ""}`}
                             name="fDesde"
                             onChange={handleChangeEnviados}
                             onKeyDown={(e) => {
@@ -715,7 +751,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
                         </div>
-                        {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                        {errorEnviados.fDesde && <div className="invalid-feedback d-block">{errorEnviados.fDesde}</div>}
                       </div>
 
                       <div className="flex-grow-1">
@@ -724,7 +760,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <input
                             aria-label="Fecha Hasta"
                             type="date"
-                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${errorEnviados.fHasta ? "is-invalid" : ""}`}
                             name="fHasta"
                             onChange={handleChangeEnviados}
                             onKeyDown={(e) => {
@@ -736,7 +772,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
                         </div>
-                        {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+                        {errorEnviados.fHasta && <div className="invalid-feedback d-block">{errorEnviados.fHasta}</div>}
 
                       </div>
                       <small className="fw-semibold">Filtre los resultados por fecha de Traspasos.</small>
@@ -1014,7 +1050,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <input
                             aria-label="Fecha Desde"
                             type="date"
-                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fDesde ? "is-invalid" : ""}`}
+                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${errorRecibidos.fDesde ? "is-invalid" : ""}`}
                             name="fDesde"
                             onChange={handleChangeRecibidos}
                             onKeyDown={(e) => {
@@ -1026,7 +1062,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
                         </div>
-                        {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
+                        {errorRecibidos.fDesde && <div className="invalid-feedback d-block">{errorRecibidos.fDesde}</div>}
                       </div>
 
                       <div className="flex-grow-1">
@@ -1035,7 +1071,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <input
                             aria-label="Fecha Hasta"
                             type="date"
-                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fHasta ? "is-invalid" : ""}`}
+                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${errorRecibidos.fHasta ? "is-invalid" : ""}`}
                             name="fHasta"
                             onChange={handleChangeRecibidos}
                             onKeyDown={(e) => {
@@ -1047,7 +1083,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                           />
                         </div>
-                        {error.fHasta && <div className="invalid-feedback d-block">{error.fHasta}</div>}
+                        {errorRecibidos.fHasta && <div className="invalid-feedback d-block">{errorRecibidos.fHasta}</div>}
 
                       </div>
                       <small className="fw-semibold">Filtre los resultados por fecha de Traspasos.</small>

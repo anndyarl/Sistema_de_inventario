@@ -27,7 +27,12 @@ const listaEstadoReducers = (state = initialState, action: any) => {
                 listaEstado: action.payload,
             };
         case LISTA_ESTADO_FAIL:
-            return { ...state, loading: false, error: action.error };
+            return {
+                ...state,
+                loading: false,
+                listaEstado: [],
+                error: action.error
+            };
         default:
             return state;
     }

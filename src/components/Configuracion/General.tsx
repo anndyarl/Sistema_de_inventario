@@ -1,11 +1,11 @@
-import React, { useState } from "react"
+import React from "react"
 import { connect, useDispatch } from "react-redux";
 import { darkModeActions } from "../../redux/actions/Otros/darkModeActions";
 import { motion } from "framer-motion";
 import { Moon, Sun } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { logout } from "../../redux/actions/auth/authActions";
-import { setMostrarNPaginacionActions } from "../../redux/actions/Otros/mostrarNPaginacionActions";
+// import { setMostrarNPaginacionActions } from "../../redux/actions/Otros/mostrarNPaginacionActions";
 import { Navigate } from "react-router-dom";
 
 interface Props {
@@ -14,9 +14,9 @@ interface Props {
     nPaginacion: number; //número de paginas establecido desde preferencias
     origenLogin: number;
 }
-const General: React.FC<Props> = ({ isDarkMode, nPaginacion, origenLogin }) => {
+const General: React.FC<Props> = ({ isDarkMode, origenLogin }) => {
     const dispatch = useDispatch();
-
+    // const [aumentarTiempo, setAutmentarTiempo] = useState(Number);
     const onToggleDarkMode = (e: React.FormEvent<HTMLButtonElement>) => {
         e.preventDefault();
         dispatch(darkModeActions());
@@ -35,25 +35,26 @@ const General: React.FC<Props> = ({ isDarkMode, nPaginacion, origenLogin }) => {
             return <Navigate to="/" />;
         }
     };
-    const [_, setPaginacion] = useState({
-        paginacion: ""
-    });
+    // const [_, setPaginacion] = useState({
+    //     paginacion: ""
+    // });
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        // Convierte `value` a número
-        let newValue: string | number = ["paginacion"].includes(name)
-            ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
-            : value;
+    // const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    //     const { name, value } = e.target;
+    //     // Convierte `value` a número
+    //     let newValue: string | number = ["paginacion"].includes(name)
+    //         ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+    //         : value;
 
-        setPaginacion((prevState) => ({
-            ...prevState,
-            [name]: newValue,
-        }));
-        if (name === "paginacion") {
-            dispatch(setMostrarNPaginacionActions(newValue as number));
-        }
-    };
+    //     setPaginacion((prevState) => ({
+    //         ...prevState,
+    //         [name]: newValue,
+    //     }));
+    //     if (name === "paginacion") {
+    //         dispatch(setMostrarNPaginacionActions(newValue as number));
+    //     }
+    // };
+
     return (
         <>
             <div className="d-flex border-bottom justify-content-between align-items-center p-2">
@@ -87,7 +88,7 @@ const General: React.FC<Props> = ({ isDarkMode, nPaginacion, origenLogin }) => {
                     </div>
                 </div>
             </div>
-            <div className="d-flex justify-content-between align-items-center border-bottom p-3">
+            {/* <div className="d-flex justify-content-between align-items-center border-bottom p-3">
                 <h6 className="fw-normal m-0">Tamaño máximo de la página</h6>
                 <div className="d-flex align-items-center">
                     <p className="fw-semibold mb-0 me-2">Mostrar</p>
@@ -104,7 +105,7 @@ const General: React.FC<Props> = ({ isDarkMode, nPaginacion, origenLogin }) => {
                     </select>
                     <p className="fw-semibold mb-0">conversaciones por página</p>
                 </div>
-            </div>
+            </div> */}
             <div className="d-flex border-bottom justify-content-between align-items-center p-2">
                 <p className="fw-normal">Cerrar sesión</p>
                 <button onClick={handleLogout} type="button" className={`btn ${isDarkMode ? "btn-outline-light" : "btn-outline-secondary"} `}>

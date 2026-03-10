@@ -80,14 +80,14 @@ const styles = StyleSheet.create({
     },
 
     label: {
-        fontSize: 8,
-        fontWeight: "bold",
+        fontSize: 7,
+        // fontWeight: "bold",
         color: "#000",
-        margin: 1,
+        margin: 2,
     },
 
     value: {
-        fontSize: 8,
+        fontSize: 7,
         color: "#555",
         marginBottom: 5,
     },
@@ -248,11 +248,11 @@ const DocumentoPDFServicioDependencia = ({ row, Firma }: { row: ListaFolioServic
                         <Text style={styles.value}>{row[0]?.dependencia}</Text>
 
                         <Text style={styles.label}>Fecha:</Text>
-                        <Text style={styles.value}>{row[0]?.dependencia}</Text>
+                        <Text style={styles.value}>{row[0]?.aF_FINGRESO}</Text>
                     </View>
                 </View>
 
-                <View style={styles.headerGrid}>
+                <View style={styles.headerGrid} fixed>
                     {/* Columna  */}
                     <View style={styles.column}>
                         <Text style={styles.label}>Cantidad: {row.length}</Text>

@@ -8,7 +8,7 @@ import {
   LISTA_IPC_SUCCESS,
   LISTA_INDICADORES_FAIL,
 } from "./types";
-import axiosInstance from "../../../services/axiosConfig";
+import axios from "axios";
 
 export const indicadoresActions = () => async (dispatch: Dispatch): Promise<boolean> => {
   dispatch({ type: LISTA_INDICADORES_REQUEST });
@@ -17,10 +17,10 @@ export const indicadoresActions = () => async (dispatch: Dispatch): Promise<bool
 
   try {
     try {
-      res = await axiosInstance.get("https://mindicador.cl/api", { timeout: 5000 });
+      res = await axios.get("https://mindicador.cl/api", { timeout: 5000 });
       console.log("Datos obtenidos desde mindicador");
     } catch (error) {
-      res = await axiosInstance.get("https://findic.cl/api", { timeout: 5000 });
+      res = await axios.get("https://findic.cl/api", { timeout: 5000 });
       console.log("Datos obtenidos desde findic");
     }
 

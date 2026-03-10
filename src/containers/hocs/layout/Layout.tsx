@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { type ReactNode, useState } from "react"
+import { type ReactNode, useState, useMemo } from "react"
 import { connect, useDispatch } from "react-redux"
 import type { RootState } from "../../../redux/reducers"
 import Sidebar from "../../../components/Navegacion/Sidebar"
@@ -19,106 +19,84 @@ import { AnimatePresence, motion } from "framer-motion"
 import Footer from "../../../components/Navegacion/Footer.js"
 import { listaVersionamientoActions } from "../../../redux/actions/Configuracion/listaVersionamientoActions.js"
 import { setSidebarCollapsedActions } from "../../../redux/actions/Otros/setSidebarCollapsedActions.js"
-// import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MobileBar from "../../../components/Navegacion/MobileBar.js"
 import Profile from "../../../components/Navegacion/Profile.js"
+
+// Constantes para tiempos de sesión (en milisegundos)
+export const TIEMPOS_SESION = {
+  30: {
+    minutos: 30,
+    mensaje: 30 * 60 * 1000, // 1,800,000 ms (30 minutos)
+    cerrar: 31 * 60 * 1000    // 1,860,000 ms (31 minutos)
+  },
+  40: {
+    minutos: 40,
+    mensaje: 40 * 60 * 1000, // 2,400,000 ms (40 minutos)
+    cerrar: 41 * 60 * 1000    // 2,460,000 ms (41 minutos)
+  },
+  60: {
+    minutos: 60,
+    mensaje: 60 * 60 * 1000, // 3,600,000 ms (60 minutos)
+    cerrar: 61 * 60 * 1000    // 3,660,000 ms (61 minutos)
+  }
+} as const;
+
+// Helper para obtener tiempos de sesión
+export const getTiemposSesion = (minutos: number) => {
+  return TIEMPOS_SESION[minutos as keyof typeof TIEMPOS_SESION] || TIEMPOS_SESION[30];
+};
 
 interface LayoutProps {
   children: ReactNode;
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
   isSidebarCollapsed: boolean;
+  tiempoSesion: number; // Viene de Redux con el valor persistido
+  activo?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, isSidebarCollapsed }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
+const Layout: React.FC<LayoutProps> = ({
+  children,
+  isDarkMode,
+  isAuthenticated,
+  isSidebarCollapsed,
+  tiempoSesion,
+  activo
+}) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
   const toggleSidebarCollapse = () => {
-    setSidebarCollapsed(!sidebarCollapsed)
     dispatch(setSidebarCollapsedActions());
+  };
+
+  // Obtener tiempos en milisegundos basados en la configuración persistida de Redux
+  const { mensaje, cerrar } = useMemo(() => {
+    return getTiemposSesion(tiempoSesion);
+  }, [tiempoSesion]);
+
+  // Hook de auto logout con los tiempos calculados
+  useAutoLogout(mensaje, cerrar);
+
+  // Redireccionar si no está autenticado
+  if (isAuthenticated === false) {
+    return <Navigate to="/" />;
   }
-
-  useAutoLogout(3.3e6, 3.6e6);
-  // useAutoLogout(5000, 10000);
-
-  if (isAuthenticated == false) {
-    return <Navigate to="/" />
-  }
-
-  // useEffect(() => {
-  //   if (!isAuthenticated) return;
-
-  //   const socket = new WebSocket("ws://localhost:5076/ws/notificaciones");
-
-  //   socket.onopen = () => {
-  //     console.log("WebSocket conectado desde Layout");
-  //     socket.send("Alta"); // Solo si quieres
-  //   };
-
-  //   socket.onmessage = (event) => {
-  //     console.log("WebSocket mensaje recibido:", event.data);
-
-  //     if (event.data.includes("alta_creada")) {
-  //       toast(
-  //         <div>
-  //           <p>Se ha creado una nueva alta</p>
-  //           <button
-  //             onClick={() => {                // Acción que quieras ejecutar
-  //               console.log("Botón clickeado");
-  //               toast.dismiss(); // Cierra el toast
-  //               navigate("/Altas/FirmarAltas");
-  //             }}
-  //             style={{
-  //               marginTop: "5px",
-  //               background: "#007bff",
-  //               color: "white",
-  //               border: "none",
-  //               padding: "5px 10px",
-  //               borderRadius: "4px",
-  //               cursor: "pointer"
-  //             }}
-  //           >
-  //             Ver detalles
-  //           </button>
-  //         </div>,
-  //         {
-  //           autoClose: false, // No se cierra automáticamente
-  //           position: "bottom-right"
-  //         }
-  //       );
-  //     }
-
-  //   };
-
-  //   socket.onclose = () => {
-  //     console.log("🔌 WebSocket cerrado");
-  //   };
-
-  //   socket.onerror = (error) => {
-  //     console.error("WebSocket error:", error);
-  //   };
-
-  //   return () => {
-  //     socket.close();
-  //   };
-  // }, [isAuthenticated]);
-
 
   const sidebarVariants = {
     hidden: { x: "-100%", opacity: 0 },
     visible: { x: 0, opacity: 1 },
     exit: { x: "-100%", opacity: 0 },
-  }
+  };
 
   const sidebarTransition = {
     type: "tween",
     ease: "easeInOut",
     duration: 0.01,
-  }
+  };
 
   return (
     <div className={`d-flex min-vh-100 ${isDarkMode ? "darkModePrincipal" : ""}`}>
@@ -138,57 +116,57 @@ const Layout: React.FC<LayoutProps> = ({ children, isDarkMode, isAuthenticated, 
             transition={sidebarTransition}
             className={`d-md-none min-vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"}`}
           >
-            <Sidebar
-              isCollapsed={false}
-              onToggleCollapse={() => { }}
-            />
+            <Sidebar isCollapsed={false} onToggleCollapse={() => { }} />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Contenedor principal */}
-      <div id="page-content-wrapper" className="d-flex flex-column">
+      <div id="page-content-wrapper" className="d-flex flex-column w-100">
         {/* Navbar (móvil) */}
         <div className={`d-flex justify-content-around align-content-center shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
           <button className="p-3 navbar-toggler" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
-            {sidebarOpen ? <X size={35} className={`${isDarkMode ? "text-white" : ""}`} /> : <List size={35} className={`${isDarkMode ? "text-white" : ""}`} />}
+            {sidebarOpen ?
+              <X size={35} className={`${isDarkMode ? "text-white" : ""}`} /> :
+              <List size={35} className={`${isDarkMode ? "text-white" : ""}`} />
+            }
           </button>
           <Navbar />
-          <Profile />
+          <Profile activo={activo} />
         </div>
 
         {/* Navbar (escritorio) */}
         <div className={`d-none d-md-flex justify-content-end align-content-center ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
           <Navbar />
-          <Profile />
+          <Profile activo={activo} />
         </div>
 
-        {/* Contenido (ocupa el espacio entre Navbar y Footer) */}
+        {/* Contenido principal */}
         <div className="flex-grow-1">
           <Container fluid>
             {children}
           </Container>
         </div>
 
-        {/* Footer siempre al final */}
-        <div className={`d-none d-md-block  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
-          <Footer />
+        {/* Footer */}
+        <div className={`d-none d-md-block ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+          <Footer activo={activo} />
         </div>
-        {/* MobileBar solo visible en móviles */}
+
+        {/* MobileBar */}
         <MobileBar />
       </div>
-      {/* <ToastContainer position="bottom-right" autoClose={60000} /> */}
     </div>
-  )
-}
+  );
+};
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   isDarkMode: state.darkModeReducer.isDarkMode,
   isSidebarCollapsed: state.setSidebarCollapsedReducer.isSidebarCollapsed,
-  token: state.loginReducer.token,
-})
+  tiempoSesion: state.preferenciasReducers?.tiempoSesion || 30, // Valor persistido de Redux
+});
 
 export default connect(mapStateToProps, {
   listaVersionamientoActions,
-})(Layout)
+})(Layout);

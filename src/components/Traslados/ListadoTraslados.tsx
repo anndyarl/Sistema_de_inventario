@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Col, Pagination, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Row, Spinner } from "react-bootstrap";
 import { RootState } from "../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout.tsx";
@@ -12,6 +12,8 @@ import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
 import { CircleFill, Eraser, Search } from "react-bootstrap-icons";
+import { TablaGenerica } from "../Utils/TablaGenerica.tsx";
+import { PageSizeSelector } from "../Utils/PageSizeSelector.tsx";
 
 interface FechasProps {
   fDesde: string;
@@ -61,36 +63,43 @@ interface GeneralProps {
 const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, listadoTraslados, token, isDarkMode, objeto }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
-  // const [_, setFilaSeleccionada] = useState<string[]>([]);
+
+  // Estados para ordenamiento
+  const [sortColumn, setSortColumn] = useState<keyof listadoTraslados | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [paginaActual, setPaginaActual] = useState(1);
-  const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-  const elementosPorPagina = Paginacion.nPaginacion;
-  // Lógica de Paginación actualizada
-  const indiceUltimoElemento = paginaActual * elementosPorPagina;
-  const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => listadoTraslados.slice(indicePrimerElemento, indiceUltimoElemento),
-    [listadoTraslados, indicePrimerElemento, indiceUltimoElemento]
-  );
-  // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-  const totalPaginas = Array.isArray(listadoTraslados)
-    ? Math.ceil(listadoTraslados.length / elementosPorPagina)
-    : 0;
-  const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
-
-  const validate = () => {
-    let tempErrors: Partial<any> & {} = {};
-    if (ListadoTraslado.fDesde > ListadoTraslado.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
-
-    setError(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
-
+  const [pageSize, setPageSize] = useState(10);
   const [ListadoTraslado, setListadoTraslado] = useState({
     fDesde: "",
     fHasta: "",
     tras_corr: 0,
     af_codigo_generico: ""
   });
+
+  const validate = () => {
+    let tempErrors: Partial<any> & {} = {};
+
+    // Validar que si hay fecha de inicio, fHasta haber fecha de término
+    if (ListadoTraslado.fDesde && !ListadoTraslado.fHasta) {
+      tempErrors.fHasta = "Debe ingresar una fecha de término.";
+    }
+
+    // Validar que si hay fecha de término, debe haber fecha de inicio
+    if (!ListadoTraslado.fDesde && ListadoTraslado.fHasta) {
+      tempErrors.fDesde = "Debe ingresar una fecha de inicio.";
+    }
+
+    // Si ambas fechas están presentes, validar el rango
+    if (ListadoTraslado.fDesde && ListadoTraslado.fHasta) {
+      if (ListadoTraslado.fDesde > ListadoTraslado.fHasta) {
+        tempErrors.fDesde = "La fecha de inicio no puede ser mayor a la fecha de término.";
+        tempErrors.fHasta = "La fecha de término no puede ser menor a la fecha de inicio.";
+      }
+    }
+
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const listaAuto = async () => {
     if (token) {
@@ -122,6 +131,11 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
     listaAuto()
   }, [listadoTrasladosActions, token, listadoTraslados.length]); // Asegúrate de incluir dependencias relevantes
 
+  useEffect(() => {
+    setPaginaActual(1);
+  }, []);
+
+
   const handleLimpiar = () => {
     setListadoTraslado((prevListadoTraslado) => ({
       ...prevListadoTraslado,
@@ -150,25 +164,18 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
       [name]: newValue,
     }));
 
-    setPaginacion((prevState) => ({
-      ...prevState,
-      [name]: newValue,
-    }));
   };
 
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+
+    if (!validate()) {
+      setLoading(false);
+      return;
+    }
     let resultado = false;
-    setLoading(true);
+
     resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
-    if (ListadoTraslado.fDesde != "" || ListadoTraslado.fHasta != "") {
-      if (validate()) {
-        resultado = await listadoTrasladosActions(ListadoTraslado.fDesde, ListadoTraslado.fHasta, ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
-      }
-    }
-    else {
-      resultado = await listadoTrasladosActions("", "", ListadoTraslado.af_codigo_generico, ListadoTraslado.tras_corr, objeto.Roles[0].codigoEstablecimiento);
-    }
 
     if (!resultado) {
       Swal.fire({
@@ -187,83 +194,117 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
-      paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
 
   };
 
+  // PASO 1: Primero ordenamos TODOS los datos según la columna seleccionada
+  const datosOrdenados = useMemo(() => {
+    if (!sortColumn) return listadoTraslados;
 
+    return [...listadoTraslados].sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
 
-  // const setSeleccionaFila = (index: number) => {
-  //   setMostrarModal(index); //Abre modal del indice seleccionado
-  //   setFilaSeleccionada((prev) =>
-  //     prev.includes(index.toString())
-  //       ? prev.filter((rowIndex) => rowIndex !== index.toString())
-  //       : [...prev, index.toString()]
-  //   );
-  // };
+      // Manejar valores numéricos
+      if (!isNaN(Number(aValue)) && !isNaN(Number(bValue))) {
+        return sortDirection === 'asc'
+          ? Number(aValue) - Number(bValue)
+          : Number(bValue) - Number(aValue);
+      }
 
-  // const handleCerrarModal = (index: number) => {
-  //   setFilaSeleccionada((prevSeleccionadas) =>
-  //     prevSeleccionadas.filter((fila) => fila !== index.toString())
-  //   );
-  //   setMostrarModal(null); //Cierra modal del indice seleccionado
-  // };
+      // Manejar valores de texto
+      const aString = aValue?.toString() || '';
+      const bString = bValue?.toString() || '';
 
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   if (validate()) {
+      return sortDirection === 'asc'
+        ? aString.localeCompare(bString)
+        : bString.localeCompare(aString);
+    });
+  }, [listadoTraslados, sortColumn, sortDirection]);
 
-  //     const result = await Swal.fire({
-  //       icon: "info",
-  //       title: "Registrar",
-  //       text: "Confirme para registrar una nueva dependencia",
-  //       showDenyButton: false,
-  //       showCancelButton: true,
-  //       confirmButtonText: "Confirmar",
-  //       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //       color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //       confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //       customClass: {
-  //         popup: "custom-border", // Clase personalizada para el borde
-  //       }
-  //     });
-  //     if (result.isConfirmed) {
-  //       const resultado = await registrarMantenedorDependenciasActions(Mantenedor);
-  //       console.log(Mantenedor);
-  //       if (resultado) {
-  //         Swal.fire({
-  //           icon: "success",
-  //           title: "Registro Exitoso",
-  //           text: "Se ha agregado una nueva dependencia",
-  //           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //           customClass: {
-  //             popup: "custom-border", // Clase personalizada para el borde
-  //           }
-  //         });
-  //         listadoTrasladosActions();
-  //         setFilaSeleccionada([]);
+  // PASO 3: Paginación (para la vista, NO para la exportación)
+  const totalRegistros = listadoTraslados.length;
+  const totalPaginas = Math.ceil(totalRegistros / pageSize);
+  const indiceInicio = (paginaActual - 1) * pageSize;
+  const indiceFin = indiceInicio + pageSize;
 
-  //       } else {
-  //         Swal.fire({
-  //           icon: "error",
-  //           title: ":'(",
-  //           text: "Hubo un problema al registrar",
-  //           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-  //           color: `${isDarkMode ? "#ffffff" : "000000"}`,
-  //           confirmButtonColor: `${isDarkMode ? "#007bff" : "444"}`,
-  //           customClass: {
-  //             popup: "custom-border", // Clase personalizada para el borde
-  //           }
-  //         });
-  //       }
-  //     }
-  //   }
-  // };
+  // Para la vista usamos los datos ordenados pero paginados
+  const elementosActuales = useMemo(() => {
+    return datosOrdenados.slice(indiceInicio, indiceFin);
+  }, [datosOrdenados, indiceInicio, indiceFin]);
 
+  // Función para manejar el ordenamiento
+  const handleSort = (column: keyof listadoTraslados, direction: 'asc' | 'desc') => {
+    setSortColumn(column);
+    setSortDirection(direction);
+    // No reseteamos la selección al ordenar
+  };
+
+  // Primero, define la función de formateo de usuario fuera del componente o en un utils
+  const formatearUsuario = (usuario: string): string => {
+    return usuario === '62511' ? 'Andy Riquelme' :
+      usuario === '18124' ? 'Rodrigo Toledo' :
+        usuario === 'JCASTILLO' || usuario === 'jcastillo' || usuario === '1770' ? 'Jaime Castillo' :
+          usuario === 'DROJASP' || usuario === 'drojasp' || usuario === '66098' ? 'Daniel Rojas' :
+            usuario === '1234567' || usuario === '18667' ? 'Felipe Almonte' :
+              usuario === 'JVARGAS' || usuario === 'jvargas' || usuario === '6405' ? 'Jonathan Vargas' :
+                usuario === 'GFARIAS' || usuario === 'gfarias' || usuario === '888' ? 'Gabriela Farias' :
+                  usuario === '61870' ? 'Elena Navarro' :
+                    usuario === '68321' ? 'Ivan Acevedo' :
+                      usuario === '67234' ? 'Ignacio Avilés' :
+                        usuario === '6601' ? 'Benjamin Bulboa' :
+                          usuario === '67404' ? 'Ademir Pindea' :
+                            usuario === '21479' ? 'Nelsn Quiroz' :
+                              usuario === '66098' ? 'Daniel Rojas' :
+                                usuario === 'KREYESD' || usuario === 'kreyesd' || usuario === '66099' ? 'Katherine Reyes' :
+                                  usuario;
+  };
+
+  // Definición de las columnas
+  const columnas = [
+    { key: 'aF_CODIGO_GENERICO' as keyof listadoTraslados, header: 'N° Inventario' },
+    { key: 'n_TRASLADO' as keyof listadoTraslados, header: 'N° Traslado' },
+    { key: 'traS_FECHA' as keyof listadoTraslados, header: 'Fecha Traslado' },
+    { key: 'esP_NOMBRE' as keyof listadoTraslados, header: 'Especie' },
+    {
+      key: 'seR_NOMBRE_ORIGEN' as keyof listadoTraslados,
+      header: (
+        <>
+          Ubicación Origen
+          <CircleFill className="flex-shrink-0 h-5 w-5 mx-3 text-warning" aria-hidden="true" />
+        </>
+      ),
+      render: (_: any, item: listadoTraslados) => `${item.seR_NOMBRE_ORIGEN} ${item.deP_NOMBRE_ORIGEN}`
+    },
+    {
+      key: 'seR_NOMBRE_DESTINO' as keyof listadoTraslados,
+      header: (
+        <>
+          Ubicación Actual
+          <CircleFill className="flex-shrink-0 h-5 w-5 mx-3 text-success" aria-hidden="true" />
+        </>
+      ),
+      render: (_: any, item: listadoTraslados) => `${item.seR_NOMBRE_DESTINO} ${item.deP_NOMBRE_DESTINO}`
+    },
+    { key: 'traS_MEMO_REF' as keyof listadoTraslados, header: 'Memo de Referencia' },
+    { key: 'traS_FECHA_MEMO' as keyof listadoTraslados, header: 'Fecha Memo' },
+    {
+      key: 'usuariO_CREA' as keyof listadoTraslados,
+      header: 'Usuario Crea',
+      render: (value: string) => formatearUsuario(value)
+    },
+    {
+      key: 'traS_OBS' as keyof listadoTraslados,
+      header: 'Observaciones',
+      render: (value: string) => parseInt(value) == 0 ? "Sin observaciones" : value
+    },
+    { key: 'traS_NOM_ENTREGA' as keyof listadoTraslados, header: 'Nombre Entrega' },
+    { key: 'traS_NOM_RECIBE' as keyof listadoTraslados, header: 'Nombre Recibe' },
+    { key: 'traS_NOM_AUTORIZA' as keyof listadoTraslados, header: 'Nombre Autoriza' },
+    { key: 'traS_ESTADO_AF' as keyof listadoTraslados, header: 'Estado' }
+  ];
   return (
     <Layout>
       <Helmet>
@@ -391,156 +432,101 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, lis
           </Col>
         </Row>
 
+        {/* Controles de página y exportación */}
         <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-          {/* Tamaño de página */}
           <Col xs={12} lg="auto">
             {listadoTraslados.length > 10 && (
-              <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                  Tamaño de página:
-                </label>
-                <select
-                  aria-label="Seleccionar tamaño de página"
-                  className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                  name="nPaginacion"
-                  onChange={handleChange}
-                  value={Paginacion.nPaginacion}
-                >
-                  {[10, 15, 20, 25, 50, 100].map((val) => (
-                    <option key={val} value={val}>{val}</option>
-                  ))}
-                </select>
-              </div>
+              <PageSizeSelector
+                pageSize={pageSize}
+                total={listadoTraslados.length}
+                totalFiltrados={totalRegistros}
+                onChange={(size) => setPageSize(size)}
+                isDarkMode={isDarkMode}
+              />
             )}
           </Col>
         </Row>
 
+        {/* Tabla con selección */}
         {loading ? (
-          <>
-            <SkeletonLoader rowCount={elementosPorPagina} />
-          </>
+          <SkeletonLoader rowCount={10} />
         ) : (
-          <>
-            {listadoTraslados.length > 0 ? (
-              <>
-                <div className='table-responsive'>
-                  <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                    <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                      <tr>
-                        {/* <th scope="col"></th> */}
-                        <th scope="col" className="text-nowrap">N° Inventario</th>
-                        <th scope="col" className="text-nowrap">N° Traslado</th>
-                        <th scope="col" className="text-nowrap">Fecha Traslado</th>
-                        <th scope="col" className="text-nowrap">Especie</th>
-                        <th scope="col" className="text-nowrap">Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                        <th scope="col" className="text-nowrap">Ubicación Actual<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                        <th scope="col" className="text-nowrap">Memo de Referencia</th>
-                        <th scope="col" className="text-nowrap">Fecha Memo</th>
-                        <th scope="col" className="text-nowrap">Usuario Crea</th>
-                        <th scope="col" className="text-nowrap">Observaciones</th>
-                        <th scope="col" className="text-nowrap">Nombre Entrega</th>
-                        <th scope="col" className="text-nowrap">Nombre Recibe</th>
-                        <th scope="col" className="text-nowrap">Nombre Autoriza</th>
-                        <th scope="col" className="text-nowrap">Estado</th>
-                        {/* <th scope="col" className="text-nowrap text-center">Usuario Crea</th> */}
-                        {/* <th scope="col" className="text-nowrap text-center">Tipo Traslado</th> */}
+          <TablaGenerica<listadoTraslados>
+            data={elementosActuales}
+            columns={columnas}
+            isDarkMode={isDarkMode}
+            onSortChange={handleSort}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+          />
+        )}
 
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {elementosActuales.map((Lista, index) => {
-                        let indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                        return (
-                          <tr key={indexReal}>
-                            {/* <td>
-                        <Form.Check
-                          type="checkbox"
-                          onChange={() => setSeleccionaFila(indexReal)}
-                          checked={filasSeleccionada.includes((indexReal).toString())}
-                        />
-                        </td> */}
-                            <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                            <td className="text-nowrap">{Lista.n_TRASLADO}</td>
-                            <td className="text-nowrap">{Lista.traS_FECHA}</td>
-                            <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                            <td className="text-nowrap">{Lista.seR_NOMBRE_ORIGEN + " " + Lista.deP_NOMBRE_ORIGEN}</td>
-                            <td className="text-nowrap">{Lista.seR_NOMBRE_DESTINO + " " + Lista.deP_NOMBRE_DESTINO}</td>
-                            <td className="text-nowrap">{Lista.traS_MEMO_REF}</td>
-                            <td className="text-nowrap">{Lista.traS_FECHA_MEMO}</td>
-                            <td className="text-nowrap">{
-                              Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
-                                Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
-                                  Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === '1770' ? 'Jaime Castillo' :
-                                    Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
-                                      Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
-                                        Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === '6405' ? 'Jonathan Vargas' :
-                                          Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === '888' ? 'Gabriela Farias' :
-                                            Lista.usuariO_CREA === '61870' ? 'Elena Navarro' :
-                                              Lista.usuariO_CREA === '68321' ? 'Ivan Acevedo' :
-                                                Lista.usuariO_CREA === '67234' ? 'Ignacio Avilés' :
-                                                  Lista.usuariO_CREA === '6601' ? 'Benjamin Bulboa' :
-                                                    Lista.usuariO_CREA === '67404' ? 'Ademir Pindea' :
-                                                      Lista.usuariO_CREA === '21479' ? 'Nelsn Quiroz' :
-                                                        Lista.usuariO_CREA === '66098' ? 'Daniel Rojas' :
-                                                          Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+        {/* Paginador */}
+        {totalPaginas > 1 && (
+          <div className="mt-3">
+            <ul className="pagination pagination-sm justify-content-center">
+              <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setPaginaActual(1)}
+                >
+                  Primera
+                </button>
+              </li>
+              <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setPaginaActual(paginaActual - 1)}
+                >
+                  Anterior
+                </button>
+              </li>
 
+              {Array.from({ length: Math.min(20, totalPaginas) }, (_, i) => {
+                let pageNum;
+                if (totalPaginas <= 20) {
+                  pageNum = i + 1;
+                } else if (paginaActual <= 3) {
+                  pageNum = i + 1;
+                } else if (paginaActual >= totalPaginas - 2) {
+                  pageNum = totalPaginas - 19 + i;
+                } else {
+                  pageNum = paginaActual - 2 + i;
+                }
 
-                            }</td>
-                            <td className="text-nowrap">{parseInt(Lista.traS_OBS) == 0 ? "Sin observaciones" : Lista.traS_OBS}</td>
-                            <td className="text-nowrap">{Lista.traS_NOM_ENTREGA}</td>
-                            <td className="text-nowrap">{Lista.traS_NOM_RECIBE}</td>
-                            <td className="text-nowrap">{Lista.traS_NOM_AUTORIZA}</td>
-                            <td className="text-nowrap">{Lista.traS_ESTADO_AF}</td>
-                            {/* <td className="text-nowrap">{Lista.usuariO_CREA}</td> */}
-                            {/* <td className="text-nowrap">{Lista.traS_CO_REAL == 1 ? "En Comodato" : "Traspaso Real"}</td> */}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                {/* Paginador */}
-                <div className="paginador-container position-relative z-0">
-                  <Pagination className="paginador-scroll ">
-                    <Pagination.First
-                      onClick={() => paginar(1)}
-                      disabled={paginaActual === 1}
+                return (
+                  <li
+                    key={pageNum}
+                    className={`page-item ${paginaActual === pageNum ? "active" : ""}`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaActual(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
+                  </li>
+                );
+              })}
 
-                    />
-                    <Pagination.Prev
-                      onClick={() => paginar(paginaActual - 1)}
-                      disabled={paginaActual === 1}
-                    />
-
-                    {Array.from({ length: totalPaginas }, (_, i) => (
-                      <Pagination.Item
-                        key={i + 1}
-                        active={i + 1 === paginaActual}
-                        onClick={() => paginar(i + 1)}
-
-                      >
-                        {i + 1} {/* adentro de aqui esta page-link */}
-                      </Pagination.Item>
-                    ))}
-                    <Pagination.Next
-                      onClick={() => paginar(paginaActual + 1)}
-                      disabled={paginaActual === totalPaginas}
-
-                    />
-                    <Pagination.Last
-                      onClick={() => paginar(totalPaginas)}
-                      disabled={paginaActual === totalPaginas}
-
-                    />
-                  </Pagination>
-                </div>
-              </>
-            ) : (
-              <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                No hay resultados para mostrar.
-              </p>
-            )}
-          </>
+              <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setPaginaActual(paginaActual + 1)}
+                >
+                  Siguiente
+                </button>
+              </li>
+              <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setPaginaActual(totalPaginas)}
+                >
+                  Última
+                </button>
+              </li>
+            </ul>
+          </div>
         )}
       </div>
     </Layout >

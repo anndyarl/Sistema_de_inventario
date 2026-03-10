@@ -25,7 +25,7 @@ import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAl
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { rechazarAltaActions } from "../../../redux/actions/Altas/EstadoFirmas/rechazarAltaAcions";
-import { limpiarDataActions } from "../../../redux/actions/Configuracion/limparDataActions";
+import { limpiarDataActions } from "../../../redux/actions/Configuracion/preferenciasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
 import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
@@ -34,6 +34,8 @@ import { comboCuentaModificarActions } from "../../../redux/actions/Inventario/C
 import { comboSerDepActions } from "../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
 import { anularInventarioActions } from "../../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import { consultaFirmaVisadoresActions } from "../../../redux/actions/Altas/EstadoFirmas/consultaFirmaVisadoresActions";
+import { TablaGenerica } from "../../Utils/TablaGenerica";
+import { PageSizeSelector } from "../../Utils/PageSizeSelector";
 
 export interface ListaEstadoFirmas {
     idocumento: number;
@@ -56,7 +58,7 @@ export interface ListaEstadoVisadores {
 
 interface ListaAltas {
     aF_CLAVE: number,
-    ninv: string,
+    aF_CODIGO_GENERICO: string,
     altaS_CORR: number,
     aF_NUM_FAC: string,
     aF_OCO_NUMERO_REF: string,
@@ -84,7 +86,7 @@ interface DatosBajas {
     comboEspecies: ListaEspecie[];
     comboCuenta: CUENTA[];
     comboSerDep: SERVICIO_DEPENDENCIA[];
-    listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+    listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, idocumento: number, establ_corr: number) => Promise<boolean>;
     listadoDeEspeciesBienActions: (establ_corr: number, IDBIEN: number, esP_CODIGO: string, esp_NOMBRE: string) => Promise<boolean>;
     listaEstadoActions: (
         altasCorr: number,
@@ -130,10 +132,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [mostrarModalVisadores, setMostrarModalVisadores] = useState(false);
     const [mostrarModalModificar, setMostrarModalModificar] = useState(false);
 
-    const [paginaActual, setPaginaActual] = useState(1);
-    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-    const elementosPorPagina = Paginacion.nPaginacion;
-
     const [paginaActualModificar, setPaginaActualModificar] = useState(1);
     const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
     const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
@@ -142,7 +140,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [PaginacionEspecies, setPaginacionEspecies] = useState({ nPaginacionEspecies: 10 });
     const elementosPorPaginaEspecies = PaginacionEspecies.nPaginacionEspecies;
 
-    const [__, setElementoSeleccionadoVisado] = useState<ListaEstadoFirmas[]>([]);
+    const [elementoSeleccionadoVisado, setElementoSeleccionadoVisado] = useState<ListaEstadoFirmas[]>([]);
     const [___, setEditarCampo] = useState<string | null>(null);
 
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
@@ -180,6 +178,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [loadingEspecie, setLoadingEspecie] = useState(false);
     const [indiceEditar, setIndiceEditar] = useState<number | null>(null);
 
+    // Estados para ordenamiento
+    const [sortColumn, setSortColumn] = useState<keyof ListaEstadoFirmas | null>(null);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [paginaActual, setPaginaActual] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [Buscar, setBuscar] = useState({
         altaS_CORR: 0,
         idDocumento: 0,
@@ -235,8 +238,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         esp_NOMBRE: ""
     });
 
-
-
     const servicioOptions = comboSerDep.map((item) => ({
         value: item.deP_CORR,
         label: item.descripcion,
@@ -259,11 +260,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setBuscar((prevState) => ({
             ...prevState,
             [name]: value.replace(/^0+/, "")
-        }));
-
-        setPaginacion((prevState) => ({
-            ...prevState,
-            [name]: value,
         }));
 
         setPaginacionModificar((prevState) => ({
@@ -401,7 +397,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             resultado = await listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
             setLoading(false); //Finaliza estado de carga
         } else {
-            paginar(1);
             setLoading(false); //Finaliza estado de carga
         }
     };
@@ -412,7 +407,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         if (!resultado) {
             setLoadingRefresh(false);
         } else {
-            paginar(1);
             setLoadingRefresh(false);
         }
     };
@@ -472,12 +466,18 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
 
         // Solo copia cuando el modal está abierto y hay datos nuevos
+
+
         if (mostrarModalModificar && listaAltasRegistradas.length > 0) {
             setInventarioModificar(
                 listaAltasRegistradas.map(item => ({ ...item }))
             );
             setLoadingModificar(false);
         }
+        else {
+            setInventarioModificar([]);
+        }
+
         listaAuto();
         if (!documentoByte64) return;
         const tipo = detectarTipo(documentoByte64);
@@ -494,6 +494,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     // Efecto para el seguimiento automático del estado de firmas una vez se ha enviado a visar el documento
     useEffect(() => {
+
         if (!dataSeguimientoEstadoFirma?.idocumento) return;
 
         let interval: NodeJS.Timeout;
@@ -553,17 +554,34 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         return "png"; // fallback
     };
 
-    const handleObtenerVisado = useCallback((index: number, idocumento: number) => {
+    const handleObtenerVisado = useCallback((idocumento: number) => {
         setMostrarModal(true);
-        setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== index));
-        obtieneVisadoCompletoActions(idocumento); // solo dispara la acción
+        setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== idocumento));
+        obtieneVisadoCompletoActions(idocumento);
     }, []);
 
-    const handleObtenerEstadoVisadores = useCallback((index: number, idocumento: number) => {
-        setMostrarModalEstado(true);
-        setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== index));
-        listaEstadoVisadoresActions(idocumento);
-    }, []);
+    const handleObtenerEstadoVisadores = useCallback(async (idocumento: number) => {
+        try {
+            // Llamar a la accion y esperar el resultado
+            const resultado = await listaEstadoVisadoresActions(idocumento);
+
+            // Si hay datos, mostrar el modal
+            if (resultado && resultado.length > 0) {
+                setMostrarModalEstado(true);
+            } else {
+                Swal.fire({
+                    icon: "info",
+                    title: "No disponible",
+                    text: "El detalle de los visadores no está disponible, ya que esta alta fue gestionada desde el sistema anterior.",
+                    background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                    color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                    confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                });
+            }
+        } catch (error) {
+            console.error("Error al obtener estado de visadores:", error);
+        }
+    }, [listaEstadoVisadoresActions, isDarkMode]);
 
     const handleBlur = () => {
         setEditarCampo(null);
@@ -989,13 +1007,13 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setAltaInventario(updatedState);
     }, [AltaInventario, datosFirmas, objeto]);
 
-    const handleAbrirModalModificar = async (altaS_CORR: number) => {
+    const handleAbrirModalModificar = async (altaS_CORR: number, idocumento: number) => {
         setMostrarModalModificar(true); //Abre modal modificar
         setLoadingModificar(true); //Carga skeletor tabla
         setHabilitarModificar(true); //deshabilita boton modificar
         setHabilitarVisado(true); //deshabilita boton visado
         setEstadoRechazado(false); //quita mensaje de rechazo idocumento
-        await listaAltasRegistradasActions("", "", "", altaS_CORR, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
+        await listaAltasRegistradasActions("", "", "", altaS_CORR, idocumento, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
         paginarModificar(1); //muestra la primera pagina
         setLoadingModificar(false); //para la carga de Skeletor
     };
@@ -1004,6 +1022,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setMostrarModalModificar(false);
         setFilasSeleccionadas([]);
     };
+
 
     const handleModificarSubmit = async () => {
         let mensajeHtml = "";
@@ -1499,13 +1518,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             const FormularioBajas = seleccionados.map(item => ({
                 aF_CLAVE: item.aF_CLAVE,
                 altaS_CORR: item.altaS_CORR,
+                idocumento: item.idocumento
             }));
 
             try {
                 // Anular todos en serie
                 for (const i of FormularioBajas) {
                     await anularInventarioActions(i.aF_CLAVE);
-                    listaAltasRegistradasActions("", "", "", i.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
+                    listaAltasRegistradasActions("", "", "", i.altaS_CORR, i.idocumento, objeto.Roles[0].codigoEstablecimiento);
                     setFilasSeleccionadas([]);
                     setHabilitarVisado(false);
                     handleRefrescar();
@@ -1592,14 +1612,48 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             AltaInventario.ajustarFirma === true ? firmaInventarioSeleccionada : false
 
     //Listado estado visadores
-    const indiceUltimoElemento = paginaActual * elementosPorPagina;
-    const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(
-        () => listaEstado.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listaEstado, indicePrimerElemento, indiceUltimoElemento]
-    );
-    const totalPaginas = Math.ceil(listaEstado.length / elementosPorPagina);
-    const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+    // PASO 1: Primero ordenamos TODOS los datos según la columna seleccionada
+    const datosOrdenados = useMemo(() => {
+        if (!sortColumn) return listaEstado;
+
+        return [...listaEstado].sort((a, b) => {
+            const aValue = a[sortColumn];
+            const bValue = b[sortColumn];
+
+            // Manejar valores numéricos
+            if (!isNaN(Number(aValue)) && !isNaN(Number(bValue))) {
+                return sortDirection === 'asc'
+                    ? Number(aValue) - Number(bValue)
+                    : Number(bValue) - Number(aValue);
+            }
+
+            // Manejar valores de texto
+            const aString = aValue?.toString() || '';
+            const bString = bValue?.toString() || '';
+
+            return sortDirection === 'asc'
+                ? aString.localeCompare(bString)
+                : bString.localeCompare(aString);
+        });
+    }, [listaEstado, sortColumn, sortDirection]);
+
+    // PASO 3: Paginación (para la vista, NO para la exportación)
+    const totalRegistros = listaEstado.length;
+    const totalPaginas = Math.ceil(totalRegistros / pageSize);
+    const indiceInicio = (paginaActual - 1) * pageSize;
+    const indiceFin = indiceInicio + pageSize;
+
+    // Para la vista usamos los datos ordenados pero paginados
+    const elementosActuales = useMemo(() => {
+        return datosOrdenados.slice(indiceInicio, indiceFin);
+    }, [datosOrdenados, indiceInicio, indiceFin]);
+
+    // Función para manejar el ordenamiento
+    const handleSort = (column: keyof ListaEstadoFirmas, direction: 'asc' | 'desc') => {
+        setSortColumn(column);
+        setSortDirection(direction);
+        // No reseteamos la selección al ordenar
+    };
 
     //Listado modificar
     const indiceUltimoElementoModificar = paginaActualModificar * elementosPorPaginaModificar;
@@ -1620,6 +1674,97 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     );
     const totalPaginasEspecies = Math.ceil(listaEspecie.length / elementosPorPaginaEspecies);
     const paginarEspecies = (numeroPaginaEspecies: number) => setPaginaActualEspecies(numeroPaginaEspecies);
+
+    const columnas = [
+        {
+            key: 'idocumento' as keyof ListaEstadoFirmas,
+            header: 'N° DOCUMENTO',
+            className: 'text-center',
+            cellClassName: 'text-nowrap text-center'
+        },
+        {
+            key: 'altaS_CORR' as keyof ListaEstadoFirmas,
+            header: 'Nº Alta',
+            className: 'text-center',
+            cellClassName: 'text-nowrap text-center'
+        },
+        {
+            key: 'estado' as keyof ListaEstadoFirmas,
+            header: 'Estado Solicitud',
+            className: 'text-center',
+            cellClassName: 'text-center w-30',
+            render: (value: number, item: ListaEstadoFirmas) => (
+                <Button
+                    onClick={() => handleObtenerEstadoVisadores(item.idocumento)}
+                    variant="light"
+                    size="sm"
+                    className={`rounded border-0 fw-semibold  
+                    ${value === 0 ? "bg-warning text-white" :
+                            value === 1 ? "bg-success text-white" :
+                                value === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
+                >
+                    {value === 0 && "Enviada"}
+                    {value === 1 && "Firmada"}
+                    {value === 2 && "Rechazada"}
+                    <Eye className="mx-2" width={18} height={18} />
+                </Button>
+            )
+        },
+        {
+            key: 'fecha' as keyof ListaEstadoFirmas,
+            header: 'Última Actualización',
+            className: 'text-center',
+            cellClassName: 'text-center',
+            render: (value: string) => value === "0" ? "-" : value
+        },
+        {
+            key: 'accion' as keyof ListaEstadoFirmas,
+            header: 'Acción',
+            className: 'text-start',
+            cellClassName: 'text-nowrap',
+            headerStyle: { position: 'sticky', left: 0, zIndex: 3 },
+            cellStyle: { position: 'sticky', left: 0, zIndex: 1 },
+            disableSort: true,
+            render: (_: any, item: ListaEstadoFirmas) => (
+                <>
+                    {item.estado === 1 ? (
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
+                        >
+                            <Button
+                                type="button"
+                                className="fw-semibold mx-1"
+                                onClick={() => handleObtenerVisado(item.idocumento)}
+                            >
+                                Ver
+                                <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                            </Button>
+                        </OverlayTrigger>
+                    ) : (
+                        <Button
+                            type="button"
+                            className="fw-semibold mx-1"
+                            disabled
+                        >
+                            Ver
+                            <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                        </Button>
+                    )}
+
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        className="fw-semibold mx-1"
+                        onClick={() => handleAbrirModalModificar(item.altaS_CORR, item.idocumento)}
+                    >
+                        Modificar
+                        <PencilFill className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                    </Button>
+                </>
+            )
+        }
+    ];
 
     return (
         <Layout>
@@ -1726,145 +1871,102 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                 </div>
                             </Col>
                         </Row>
-                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
-                            {/* Tamaño de página */}
+                        {/* Controles de página y exportación */}
+                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
                             <Col xs={12} lg="auto">
                                 {listaEstado.length > 10 && (
-                                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                        <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                            Tamaño de página:
-                                        </label>
-                                        <select
-                                            aria-label="Seleccionar tamaño de página"
-                                            className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                            name="nPaginacion"
-                                            onChange={handleChange}
-                                            value={Paginacion.nPaginacion}
-                                        >
-                                            {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                <option key={val} value={val}>
-                                                    {val}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <PageSizeSelector
+                                        pageSize={pageSize}
+                                        total={listaEstado.length}
+                                        totalFiltrados={totalRegistros}
+                                        onChange={(size) => setPageSize(size)}
+                                        isDarkMode={isDarkMode}
+                                    />
                                 )}
                             </Col>
                         </Row>
 
-                        {/* Tabla*/}
-                        {loading || loadingRefresh ? (
-                            <SkeletonLoader rowCount={elementosPorPagina} />
+                        {/* Tabla con selección */}
+                        {loading ? (
+                            <SkeletonLoader rowCount={10} />
                         ) : (
-                            <>
-                                {listaEstado.length > 0 ? (
-                                    <>
-                                        <div className="table-responsive">
-                                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
-                                                    <tr>
-                                                        <th scope="col" className="text-center">N° DOCUMENTO</th>
-                                                        <th scope="col" className="text-center">Nº Alta</th>
-                                                        <th scope="col" className="text-center">Estado Solicitud</th>
-                                                        <th scope="col" className="text-center">Última Actualización</th>
-                                                        <th scope="col" className="text-start">Acción</th>
-
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {elementosActuales.map((Lista, index) => {
-                                                        // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                        return (
-                                                            <tr key={index}>
-                                                                <td className="text-nowrap text-center">{Lista.idocumento}</td>
-                                                                <td className="text-nowrap text-center">{Lista.altaS_CORR}</td>
-                                                                <td className="text-center w-30">
-                                                                    <Button
-                                                                        onClick={() => handleObtenerEstadoVisadores(index, Lista.idocumento)}
-                                                                        variant="light"
-                                                                        size="sm"
-                                                                        className={`rounded border-0 fw-semibold  
-                                                                  ${Lista.estado === 0 ? "bg-warning text-white" :
-                                                                                Lista.estado === 1 ? "bg-success text-white" :
-                                                                                    Lista.estado === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
-                                                                    >
-                                                                        {Lista.estado === 0 && "Enviada"}
-                                                                        {Lista.estado === 1 && "Firmada"}
-                                                                        {Lista.estado === 2 && "Rechazada"}
-                                                                        <Eye className="mx-2" width={18} height={18} />
-                                                                    </Button>
-                                                                </td>
-                                                                <td className="text-center">{Lista.fecha === "0" ? "-" : Lista.fecha}</td>
-                                                                <td
-                                                                    className="text-nowrap"
-                                                                    style={{
-                                                                        position: 'sticky',
-                                                                        left: 0,
-                                                                    }}>
-
-                                                                    {Lista.estado === 1 ? (
-                                                                        <>
-                                                                            <OverlayTrigger
-                                                                                placement="right"
-                                                                                overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
-                                                                            >
-                                                                                <Button type="button" className="fw-semibold mx-1"
-                                                                                    onClick={() => handleObtenerVisado(index, Lista.idocumento)}
-                                                                                >
-                                                                                    Ver
-                                                                                    < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                                </Button>
-                                                                            </OverlayTrigger>
-                                                                        </>
-                                                                    ) : (
-                                                                        <Button type="button" className="fw-semibold mx-1" disabled>
-                                                                            Ver
-                                                                            < Eye className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                        </Button>
-                                                                    )}
-
-                                                                    <Button type="button" variant="secondary" className="fw-semibold mx-1"
-                                                                        onClick={() => handleAbrirModalModificar(Lista.altaS_CORR)}
-                                                                    // disabled
-
-                                                                    >
-                                                                        Modificar
-                                                                        <PencilFill className={"flex-shrink-0 h-5 w-5 ms-1"} aria-hidden="true" />
-                                                                    </Button>
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        {/* Paginador */}
-                                        <div className="paginador-container position-relative z-0">
-                                            <Pagination className="paginador-scroll">
-                                                <Pagination.First onClick={() => paginar(1)} disabled={paginaActual === 1} />
-                                                <Pagination.Prev onClick={() => paginar(paginaActual - 1)} disabled={paginaActual === 1} />
-                                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                                    <Pagination.Item
-                                                        key={i + 1}
-                                                        active={i + 1 === paginaActual}
-                                                        onClick={() => paginar(i + 1)}
-                                                    >
-                                                        {i + 1}
-                                                    </Pagination.Item>
-                                                ))}
-                                                <Pagination.Next onClick={() => paginar(paginaActual + 1)} disabled={paginaActual === totalPaginas} />
-                                                <Pagination.Last onClick={() => paginar(totalPaginas)} disabled={paginaActual === totalPaginas} />
-                                            </Pagination>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                                        No hay resultados para mostrar.
-                                    </p>
-                                )}
-                            </>
+                            <TablaGenerica<ListaEstadoFirmas>
+                                data={elementosActuales}
+                                columns={columnas}
+                                isDarkMode={isDarkMode}
+                                onSortChange={handleSort}
+                                sortColumn={sortColumn}
+                                sortDirection={sortDirection}
+                            />
                         )}
 
+                        {/* Paginador */}
+                        {totalPaginas > 1 && (
+                            <div className="mt-3">
+                                <ul className="pagination pagination-sm justify-content-center">
+                                    <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(1)}
+                                        >
+                                            Primera
+                                        </button>
+                                    </li>
+                                    <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(paginaActual - 1)}
+                                        >
+                                            Anterior
+                                        </button>
+                                    </li>
+
+                                    {Array.from({ length: Math.min(20, totalPaginas) }, (_, i) => {
+                                        let pageNum;
+                                        if (totalPaginas <= 20) {
+                                            pageNum = i + 1;
+                                        } else if (paginaActual <= 3) {
+                                            pageNum = i + 1;
+                                        } else if (paginaActual >= totalPaginas - 2) {
+                                            pageNum = totalPaginas - 19 + i;
+                                        } else {
+                                            pageNum = paginaActual - 2 + i;
+                                        }
+
+                                        return (
+                                            <li
+                                                key={pageNum}
+                                                className={`page-item ${paginaActual === pageNum ? "active" : ""}`}
+                                            >
+                                                <button
+                                                    className="page-link"
+                                                    onClick={() => setPaginaActual(pageNum)}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+
+                                    <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(paginaActual + 1)}
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </li>
+                                    <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(totalPaginas)}
+                                        >
+                                            Última
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -1976,7 +2078,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     )}
 
                     {loadingModificar ? (
-                        <SkeletonLoader rowCount={elementosPorPagina} />
+                        <SkeletonLoader rowCount={elementosPorPaginaModificar} />
                     ) : (
                         <>
                             <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-end">
@@ -2083,6 +2185,39 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         </Button>
                                     </div>
                                 </Col>
+
+                            </Row>
+                            <Row className="g-3 mb-2 mt-2">
+                                {/* Tarjeta de Nº Documento */}
+                                <Col md={4}>
+                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} position-relative`}>
+                                        <small className="text-muted d-block mb-1">Nº Documento</small>
+                                        <h5 className="mb-0 fw-bold d-flex align-items-center">
+                                            {listaAltasRegistradas[0]?.idocumento ?? "-"}
+                                            {listaAltasRegistradas[0]?.idocumento === 441154 && (
+                                                <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.65rem' }}>
+                                                    Registrado desde Sistema antiguo
+                                                </span>
+                                            )}
+                                        </h5>
+                                    </div>
+                                </Col>
+
+                                {/* Tarjeta de Nº Alta */}
+                                <Col md={4}>
+                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                        <small className="d-block mb-1">Nº Alta</small>
+                                        <h5 className="mb-0 fw-bold">{listaAltasRegistradas[0]?.altaS_CORR ?? "-"}</h5>
+                                    </div>
+                                </Col>
+
+                                {/* Tarjeta de Fecha Alta */}
+                                <Col md={4}>
+                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                        <small className="d-block mb-1">Fecha Alta</small>
+                                        <h5 className="mb-0 fw-bold">{listaAltasRegistradas[0]?.fechA_ALTA ?? "-"}</h5>
+                                    </div>
+                                </Col>
                             </Row>
                             <div className="table-responsive">
                                 <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
@@ -2098,9 +2233,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     checked={filasSeleccionadas.length === elementosActualesModificar.length && elementosActualesModificar.length > 0}
                                                 />
                                             </th>
-                                            <th scope="col" className="text-nowrap">N° Inventario</th>
-                                            <th scope="col" className="text-nowrap">N° Alta</th>
-                                            <th scope="col" className="text-nowrap">Fecha Alta</th>
+                                            <th scope="col" className="text-nowrap">Nº Inventario</th>
                                             <th scope="col" className="text-nowrap">Nº Factura</th>
                                             <th scope="col" className="text-nowrap">Servicio/Dependencia</th>
                                             <th scope="col" className="text-nowrap">Orden de Compra</th>
@@ -2127,9 +2260,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             onChange={() => setSeleccionaFilas(Lista)}
                                                         />
                                                     </td>
-                                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                                    <td className="text-nowrap" >{Lista.altaS_CORR}</td>
-                                                    <td className="text-nowrap" >{Lista.fechA_ALTA}</td>
+                                                    <td className="text-nowrap" >{Lista.aF_CODIGO_GENERICO}</td>
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
@@ -3158,7 +3289,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                     disabled={paginaActualEspecies === totalPaginasEspecies}
                                 />
                                 <Pagination.Last
-                                    onClick={() => paginar(totalPaginasEspecies)}
+                                    onClick={() => paginarEspecies(totalPaginasEspecies)}
                                     disabled={paginaActualEspecies === totalPaginasEspecies}
                                 />
                             </Pagination>

@@ -7,6 +7,7 @@ import {
   REFRESH_TOKEN_SUCCESS,
 } from './types';
 import { Dispatch } from 'redux';
+import axiosInstance from '../../../services/axiosConfig';
 
 export const authActions = (usuario: string, password: string) => async (dispatch: Dispatch): Promise<boolean> => {
   const config = {
@@ -23,7 +24,7 @@ export const authActions = (usuario: string, password: string) => async (dispatc
   dispatch({ type: LOGIN_REQUEST });
 
   try {
-    const res = await axios.post(`${import.meta.env.VITE_CSRF_API_LOGIN}`, body, config);
+    const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_LOGIN}`, body, config);
 
     if (res.status === 200) {
       const accessToken = res.data.accessToken;

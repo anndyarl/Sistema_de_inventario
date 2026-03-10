@@ -1,9 +1,8 @@
-import axios from 'axios';
 import {
   VALIDA_PORTAL_REQUEST,
   VALIDA_PORTAL_SUCCESS,
   VALIDA_PORTAL_FAIL,
-  LOGOUT, // <-- Añadido
+  LOGOUT,
 } from './types';
 import { Dispatch } from 'redux';
 import axiosInstance from '../../../services/axiosConfig';

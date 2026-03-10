@@ -23,10 +23,11 @@ interface Props {
   isDarkMode: boolean;
   listaVersionamientoActions: () => void;
   listaVersionamiento: ListaVersionamiento[];
+  activo?: string;
 
 }
 
-const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamiento, isDarkMode }) => {
+const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamiento, isDarkMode, activo }) => {
   const pageVariants = {
     // initial: { opacity: 0, scale: 0.98 },
     // in: { opacity: 1, scale: 1 },
@@ -36,8 +37,9 @@ const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamien
 
 
   useEffect(() => {
-    if (listaVersionamiento.length === 0) { listaVersionamientoActions() }
-
+    if (listaVersionamiento.length === 0) {
+      listaVersionamientoActions()
+    }
 
   }, [listaVersionamiento, listaVersionamientoActions])
 
@@ -64,7 +66,7 @@ const Inicio: React.FC<Props> = ({ listaVersionamientoActions, listaVersionamien
   ];
 
   return (
-    <Layout>
+    <Layout activo={activo}>
       <Helmet>
         <title>Inicio</title>
       </Helmet>

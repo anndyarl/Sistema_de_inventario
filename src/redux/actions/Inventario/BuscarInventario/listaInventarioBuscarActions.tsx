@@ -7,16 +7,16 @@ import {
 import axiosInstance from "../../../../services/axiosConfig";
 
 export const listaInventarioBuscarActions = (af_codigo_generico: string, FechaInicio: string,
-  FechaTermino: string, deP_CORR: number, esP_CODIGO: string, nrecepcion: string, marca: string,
+  FechaTermino: string, seR_CORR: number, deP_CORR: number, esP_CODIGO: string, nrecepcion: string, marca: string,
   modelo: string, serie: string, order_compra: string, altaS_CORR: number, estabL_CORR: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
     dispatch({ type: LISTA_INVENTARIO_BUSCAR_REQUEST });
 
     try {
-      const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventarioBuscar?af_codigo_generico=${af_codigo_generico}&altaS_CORR=${altaS_CORR}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}&deP_CORR=${deP_CORR}&esP_CODIGO=${esP_CODIGO}&nrecepcion=${nrecepcion}&marca=${marca}&modelo=${modelo}&serie=${serie}&order_compra=${order_compra}&estabL_CORR=${estabL_CORR}`);
+      const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventarioBuscar?af_codigo_generico=${af_codigo_generico}&altaS_CORR=${altaS_CORR}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}&seR_CORR=${seR_CORR}&deP_CORR=${deP_CORR}&esP_CODIGO=${esP_CODIGO}&nrecepcion=${nrecepcion}&marca=${marca}&modelo=${modelo}&serie=${serie}&order_compra=${order_compra}&estabL_CORR=${estabL_CORR}`);
 
       if (res.status === 200) {
-        if (res.data?.length) {
+        if (res.data?.length > 0) {
           dispatch({
             type: LISTA_INVENTARIO_BUSCAR_SUCCESS,
             payload: res.data,

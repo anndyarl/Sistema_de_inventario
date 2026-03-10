@@ -47,6 +47,7 @@ import { FormInventario } from "./FormInventario";
 import { CUENTA, DEPENDENCIA } from "./DatosCuenta";
 import { IndicadoresProps, Objeto } from "../../Navegacion/Profile";
 import { listaAltasActions } from "../../../redux/actions/Altas/RegistrarAltas/listaAltasActions";
+import { listaInventarioAnularActions } from "../../../redux/actions/Inventario/AnularInventario/listaInventarioAnularActions";
 // Props del formulario
 export interface ActivoFijo {
   id: string;
@@ -81,6 +82,7 @@ interface DatosActivoFijoProps {
   onReset: () => void; // vuelve a al componente Datos_inventario
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
+  listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
 
   datosTablaActivoFijo: ActivoFijo[];
@@ -116,6 +118,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   onReset,
   registrarFormInventarioActions,
   listaAltasActions,
+  listaInventarioAnularActions,
   montoRecepcion,
   datosTablaActivoFijo,
   formInventario,
@@ -743,6 +746,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           if (resultado) {
             //Va a la api ra obtener el ultimo registro recien ingrsado
             listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+            listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
             // funcionObtieneMaxRegistro();
             dispatch(setNRecepcionActions(0));
             dispatch(setFechaRecepcionActions(""));
@@ -1392,5 +1396,6 @@ const mapStateToProps = (state: RootState) => ({
 export default connect(mapStateToProps, {
   registrarFormInventarioActions,
   listaAltasActions,
+  listaInventarioAnularActions
   // setServicioDependencias
 })(DatosActivoFijo);

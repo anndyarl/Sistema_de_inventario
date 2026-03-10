@@ -5,3 +5,9 @@ export const limpiarDataActions = () => async (dispatch: Dispatch): Promise<bool
     dispatch({ type: "LIMPIAR_DATA" });
     return true;
 };
+
+
+export const setTiempoSesionActions = (timepoSesion: number) => ({
+    type: 'SET_TIEMPO_SESSION',
+    payload: timepoSesion,
+});

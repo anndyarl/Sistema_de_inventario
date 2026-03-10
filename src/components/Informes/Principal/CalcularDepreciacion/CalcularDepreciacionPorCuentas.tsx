@@ -82,10 +82,25 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
-        // Validación para N° de Recepción (debe ser un número)
-        if (!Inventario.fDesde) tempErrors.fDesde = "La Fecha de Inicio es obligatoria.";
-        if (!Inventario.fHasta) tempErrors.fHasta = "La Fecha de Término es obligatoria.";
-        if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha no cumple con el rango de busqueda";
+
+        // Validar que si hay fecha de inicio, debe haber fecha de término
+        if (Inventario.fDesde && !Inventario.fHasta) {
+            tempErrors.fDesde = "Debe ingresar una fecha de término.";
+        }
+
+        // Validar que si hay fecha de término, debe haber fecha de inicio
+        if (!Inventario.fDesde && Inventario.fHasta) {
+            tempErrors.fDesde = "Debe ingresar una fecha de inicio.";
+        }
+
+        // Si ambas fechas están presentes, validar el rango
+        if (Inventario.fDesde && Inventario.fHasta) {
+            if (Inventario.fDesde > Inventario.fHasta) {
+                tempErrors.fDesde = "La fecha de inicio no puede ser mayor a la fecha de término.";
+                tempErrors.fHasta = "La fecha de término no puede ser menor a la fecha de inicio.";
+            }
+        }
+
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -150,39 +165,19 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         setSortDirectionCalculados(direction);
     };
 
-    const handleBuscar = async () => {
+    const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLElement>) => {
+        e.preventDefault();
         setLoadingBuscar(true);
-        // Limpiar los activos seleccionados antes de enviar los nuevos datos
+        setError({});
+        let resultado = false;
 
-        const tieneFechas = Inventario.fDesde !== "" && Inventario.fHasta !== "";
-
-        // Caso 1: no hay ningún filtro
-        if (!tieneFechas) {
-            Swal.fire({
-                icon: "warning",
-                title: "Por favor, filtre por alguna opción",
-                confirmButtonText: "Ok",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: {
-                    popup: "custom-border",
-                }
-            });
+        if (!validate()) {
             setLoadingBuscar(false);
             setMostrarModalNoCalculados(false);
             return;
         }
 
-        // Caso 2: si hay fechas, validar antes de continuar
-        if (tieneFechas && !validate()) {
-            setLoadingBuscar(false);
-            setMostrarModalNoCalculados(false);
-            return;
-        }
-
-        // Llama al backend
-        const resultado = await listaActivosFijosPorCuentasActions("", Inventario.fDesde, Inventario.fHasta, "", objeto.Roles[0].codigoEstablecimiento);
+        resultado = await listaActivosFijosPorCuentasActions("", Inventario.fDesde, Inventario.fHasta, "", objeto.Roles[0].codigoEstablecimiento);
 
         if (!resultado) {
             Swal.fire({
@@ -204,17 +199,20 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
         setLoadingBuscar(false);
     };
 
-    const handleBuscarCasr = async () => {
-        setloadingBuscarCasr(true);
 
-        // Llama al backend
-        const resultado = await listaActivosCasrActions(
-            "",
-            Inventario.fDesde,
-            Inventario.fHasta,
-            "",
-            objeto.Roles[0].codigoEstablecimiento
-        );
+    const handleBuscarCasr = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLElement>) => {
+        e.preventDefault();
+        setloadingBuscarCasr(true);
+        setError({});
+        let resultado = false;
+
+        if (!validate()) {
+            setloadingBuscarCasr(false);
+            setMostrarModalNoCalculados(false);
+            return;
+        }
+
+        resultado = await listaActivosCasrActions("", Inventario.fDesde, Inventario.fHasta, "", objeto.Roles[0].codigoEstablecimiento);
 
         if (!resultado) {
             Swal.fire({
@@ -905,6 +903,11 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                 <div className="d-flex flex-column gap-2 mt-4">
                                     <Button
                                         onClick={handleBuscar}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                handleBuscar(e);
+                                            }
+                                        }}
                                         variant={`${isDarkMode ? "secondary" : "primary"}`}
                                         className="w-100"
                                     // disabled={loading}
@@ -934,6 +937,11 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                                     <div className="d-flex flex-column gap-2 mt-4">
                                         <Button
                                             onClick={handleBuscarCasr}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleBuscarCasr(e);
+                                                }
+                                            }}
                                             variant={`${isDarkMode ? "secondary" : "warning"}`}
                                             className="w-100"
                                         // disabled={loading}
@@ -1412,7 +1420,7 @@ const CalcularDepreciacionPorCuentas: React.FC<DatosAltas> = ({ listaActivosFijo
                             )}
                             {/* Paginador */}
                             {totalPaginasCalculadas > 1 && (
-                                <div className="paginador-scroll mt-3">
+                                <div className="mt-3">
                                     <ul className="pagination pagination-sm justify-content-center">
                                         <li className={`page-item ${paginaActual2 === 1 ? "disabled" : ""}`}>
                                             <button

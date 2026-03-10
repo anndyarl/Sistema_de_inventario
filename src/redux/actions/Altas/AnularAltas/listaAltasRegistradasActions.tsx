@@ -6,12 +6,12 @@ import {
 } from "../types";
 import axiosInstance from "../../../../services/axiosConfig";
 
-export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => async (dispatch: Dispatch): Promise<boolean> => {
+export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, idocumento: number, establ_corr: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
   dispatch({ type: OBTENER_ALTAS_REGISTRADAS_REQUEST });
 
   try {
-    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAltas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altasCorr=${altasCorr}&establ_corr=${establ_corr}`);
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeAltas?fDesde=${fDesde}&fHasta=${fHasta}&af_codigo_generico=${af_codigo_generico}&altasCorr=${altasCorr}&idocumento=${idocumento}&establ_corr=${establ_corr}`);
     if (res.status === 200) {
       if (res.data?.length) {
         dispatch({
@@ -22,8 +22,7 @@ export const listaAltasRegistradasActions = (fDesde: string, fHasta: string, af_
       } else {
         dispatch({
           type: OBTENER_ALTAS_REGISTRADAS_FAIL,
-          error:
-            "Status 200, pero con arreglo de datos vacío",
+          error: "Status 200, pero con arreglo de datos vacío",
         });
         return false;
       }

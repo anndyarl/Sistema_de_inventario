@@ -42,7 +42,7 @@ const listaAltasRegistradasReducers = (state = initialState, action: any) => {
       };
     case OBTENER_ALTAS_REGISTRADAS_FAIL:
       return {
-        ...state, loading: false,
+        ...initialState, loading: false,
         error: action.error,
         listaAltasRegistradas: []
       };

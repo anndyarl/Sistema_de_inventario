@@ -19,7 +19,7 @@ import Select from "react-select";
 import QRCode from "qrcode";
 import { QRCodeSVG } from 'qrcode.react';
 import { comboSerDepActions } from "../../../redux/actions/Inventario/ModificarInventario/comboSerDepActions";
-import { limpiarDataActions } from "../../../redux/actions/Configuracion/limparDataActions";
+import { limpiarDataActions } from "../../../redux/actions/Configuracion/preferenciasActions";
 
 interface FechasProps {
     fDesde: string;

@@ -114,7 +114,7 @@ interface DatosAltas {
 }
 
 const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, listaActivosCasrActions, listaActivosCalculadosActions, comboCuentasInformeActions, listaActivosFijos, listaActivosCalculados, listaActivosNoCalculados, comboCuentasInforme, token, isDarkMode, objeto }) => {
-    const [error, setError] = useState<Partial<ListaActivosFijos> & Partial<FechasProps> & {}>({});
+    const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalNoCalculados, setMostrarModalNoCalculados] = useState(false);
     const [mostrarModalCalcular, setMostrarModalCalcular] = useState(false);
@@ -160,12 +160,28 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
 
     }, [listaActivosFijosActions, comboCuentasInformeActions, token, listaActivosFijos.length, listaActivosNoCalculados.length, listaActivosCalculados]); // Asegúrate de incluir dependencias relevantes
 
+
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
-        // Validación para N° de Recepción (debe ser un número)
-        if (!Inventario.fDesde) tempErrors.fDesde = "La Fecha de Inicio es obligatoria.";
-        if (!Inventario.fHasta) tempErrors.fHasta = "La Fecha de Término es obligatoria.";
-        if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha no cumple con el rango de busqueda";
+
+        // Validar que si hay fecha de inicio, debe haber fecha de término
+        if (Inventario.fDesde && !Inventario.fHasta) {
+            tempErrors.fDesde = "Debe ingresar una fecha de término.";
+        }
+
+        // Validar que si hay fecha de término, debe haber fecha de inicio
+        if (!Inventario.fDesde && Inventario.fHasta) {
+            tempErrors.fDesde = "Debe ingresar una fecha de inicio.";
+        }
+
+        // Si ambas fechas están presentes, validar el rango
+        if (Inventario.fDesde && Inventario.fHasta) {
+            if (Inventario.fDesde > Inventario.fHasta) {
+                tempErrors.fDesde = "La fecha de inicio no puede ser mayor a la fecha de término.";
+                tempErrors.fHasta = "La fecha de término no puede ser menor a la fecha de inicio.";
+            }
+        }
+
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
@@ -208,41 +224,20 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         setInventario((prevMantenedor) => ({ ...prevMantenedor, cta_cod: value }));
     };
 
-    const handleBuscar = async () => {
+    const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLElement>) => {
+        e.preventDefault();
         setLoadingBuscar(true);
-        // Limpiar los activos seleccionados antes de enviar los nuevos datos
+        setError({});
+        let resultado = false;
 
-        const tieneFechas = Inventario.fDesde !== "" && Inventario.fHasta !== "";
-        const tieneCuenta = Inventario.cta_cod && Inventario.cta_cod !== "";
-        const tieneCodigoGenerico = Inventario.af_codigo_generico && Inventario.af_codigo_generico !== "";
-
-        // Caso 1: no hay ningún filtro
-        if (!tieneFechas && !tieneCuenta && !tieneCodigoGenerico) {
-            Swal.fire({
-                icon: "warning",
-                title: "Por favor, filtre por alguna opción",
-                confirmButtonText: "Ok",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-                customClass: {
-                    popup: "custom-border",
-                }
-            });
-            setLoadingBuscar(false);
-            setMostrarModalNoCalculados(false);
-            return;
-        }
-
-        // Caso 2: si hay fechas, validar antes de continuar
-        if (tieneFechas && !validate()) {
+        if (!validate()) {
             setLoadingBuscar(false);
             setMostrarModalNoCalculados(false);
             return;
         }
 
         // Llama al backend
-        const resultado = await listaActivosFijosActions(
+        resultado = await listaActivosFijosActions(
             Inventario.cta_cod,
             Inventario.fDesde,
             Inventario.fHasta,
@@ -270,7 +265,8 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         setLoadingBuscar(false);
     };
 
-    const handleBuscarCasr = async () => {
+    const handleBuscarCasr = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLElement>) => {
+        e.preventDefault();
         setloadingBuscarCasr(true);
 
         // Llama al backend
@@ -778,7 +774,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
         saveAs(new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), fileName);
     };
 
-    // 📂 Función para exportar a Word
+    // Función para exportar a Word
     // const exportarWord = () => {
 
     //     const doc = new Document({
@@ -1001,9 +997,7 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                             value={Inventario.fDesde}
                                             max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                         />
-                                        {error.fDesde && (
-                                            <div className="invalid-feedback d-block">{error.fDesde}</div>
-                                        )}
+                                        {error.fDesde && <div className="invalid-feedback d-block">{error.fDesde}</div>}
                                     </div>
 
                                     <div className="flex-grow-1">
@@ -1088,6 +1082,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                 <div className="d-flex flex-column gap-2 mt-4">
                                     <Button
                                         onClick={handleBuscar}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                handleBuscar(e);
+                                            }
+                                        }}
                                         variant={`${isDarkMode ? "secondary" : "primary"}`}
                                         className="w-100"
                                     // disabled={loading}
@@ -1117,6 +1116,11 @@ const CalcularDepreciacion: React.FC<DatosAltas> = ({ listaActivosFijosActions, 
                                     <div className="d-flex flex-column gap-2 mt-4">
                                         <Button
                                             onClick={handleBuscarCasr}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleBuscarCasr(e);
+                                                }
+                                            }}
                                             variant={`${isDarkMode ? "secondary" : "warning"}`}
                                             className="w-100"
                                         // disabled={loading}

@@ -83,7 +83,7 @@ export interface ListaEstadoFirmas {
 interface DatosBajas {
     listaAltasRegistradas: ListaAltas[];
     comboUnidades: Unidades[];
-    listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+    listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, idocumento: number, establ_corr: number) => Promise<boolean>;
     listaEstadoFirmasActions: (altasCorr: number, idDocumento: number, establ_corr: number) => Promise<boolean>;
     obtenerUnidadesActions: () => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
@@ -239,7 +239,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         if (token) {
             if (listaAltasRegistradas.length === 0) {
                 setLoading(true);
-                const resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+                const resultado = await listaAltasRegistradasActions("", "", "", 0, 0, objeto.Roles[0].codigoEstablecimiento);
                 if (!resultado) {
                     Swal.fire({
                         icon: "warning",
@@ -272,11 +272,29 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
-        if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
+
+        // Validar que si hay fecha de inicio, debe haber fecha de término
+        if (Inventario.fDesde && !Inventario.fHasta) {
+            tempErrors.fDesde = "Debe ingresar una fecha de término.";
+        }
+
+        // Validar que si hay fecha de término, debe haber fecha de inicio
+        if (!Inventario.fDesde && Inventario.fHasta) {
+            tempErrors.fDesde = "Debe ingresar una fecha de inicio.";
+        }
+
+        // Si ambas fechas están presentes, validar el rango
+        if (Inventario.fDesde && Inventario.fHasta) {
+            if (Inventario.fDesde > Inventario.fHasta) {
+                tempErrors.fDesde = "La fecha de inicio no puede ser mayor a la fecha de término.";
+                tempErrors.fHasta = "La fecha de término no puede ser menor a la fecha de inicio.";
+            }
+        }
 
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
+
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -630,14 +648,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 }
             }
             if (firma.iD_UNIDAD === 3) {
-                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.subroganteAbastecimiento = false;
                     setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
                     setNombreSubAbastecimiento("");
                 }
-                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.titularAbastecimiento = false;
@@ -649,13 +667,13 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 //Unidad de Abastecimiento
                 if (firma.iD_UNIDAD === 3) {
 
-                    if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteAbastecimiento = nombreCompleto;
                         updatedState.subroganteAbastecimiento = false;
                         setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubAbastecimiento("");
                     }
-                    if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteAbastecimiento = nombreCompleto;
                         updatedState.titularAbastecimiento = false;
                         setNombreSubAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
@@ -743,16 +761,17 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
         e.preventDefault();
-        let resultado = false;
         setLoading(true);
-        if (Inventario.fDesde != "" || Inventario.fHasta != "") {
-            if (validate()) {
-                resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
-            }
+
+        let resultado = false;
+        // Si ambas fechas están ingresadas, validar    
+        if (!validate()) {
+            setLoading(false);
+            return;
         }
-        else {
-            resultado = await listaAltasRegistradasActions("", "", Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
-        }
+        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, Inventario.altaS_CORR, 0, objeto.Roles[0].codigoEstablecimiento);
+
+
 
         if (!resultado) {
             Swal.fire({
@@ -767,7 +786,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
             setLoading(false); //Finaliza estado de carga
             return;
         } else {

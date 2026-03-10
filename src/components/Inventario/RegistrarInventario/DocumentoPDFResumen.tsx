@@ -97,14 +97,14 @@ const styles = StyleSheet.create({
     },
 
     label: {
-        fontSize: 8,
-        fontWeight: "bold",
+        fontSize: 7,
+        // fontWeight: "bold",
         color: "#000",
-        marginBottom: 1,
+        margin: 2,
     },
 
     value: {
-        fontSize: 8,
+        fontSize: 7,
         color: "#555",
         marginBottom: 5,
     },

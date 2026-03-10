@@ -13,7 +13,7 @@ import { Objeto } from "../Navegacion/Profile";
 import { Helmet } from "react-helmet-async";
 import Select from "react-select";
 // import SkeletonLoader from "../Utils/SkeletonLoader";
-import { limpiarDataActions } from "../../redux/actions/Configuracion/limparDataActions";
+import { limpiarDataActions } from "../../redux/actions/Configuracion/preferenciasActions";
 import { modificarFormInventarioActions } from "../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { comboDetalleActions } from "../../redux/actions/Inventario/Combos/comboDetalleActions";
 import { comboProveedorActions } from "../../redux/actions/Inventario/Combos/comboProveedorActions";
@@ -972,43 +972,53 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         }
       });
       if (result.isConfirmed) {
-        const ultimaModalidad = await registrarModalidadActions(Inventario.OTRA_MODALIDAD);
+        const ultimaModalidad = await registrarModalidadActions(Inventario.OTRA_MODALIDAD.trim());
 
-        if (ultimaModalidad) {
-          Swal.fire({
-            icon: "success",
-            title: "Registro exitoso",
-            text: "Se ha registrado una nueva modalidad",
-            background: isDarkMode ? "#1e1e1e" : "#ffffff",
-            color: isDarkMode ? "#ffffff" : "#000000",
-            confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
-            customClass: { popup: "custom-border" },
-          });
-
-          // Esperar a que el combo tenga el nuevo registro
-          await comboModalidadesActions();
-
-          setShowInput(false);
-
-          setInventario((prev) => ({
-            ...prev,
-            IDMODALIDADCOMPRA: +ultimaModalidad
-          }));
-
-          dispatch(setModalidadCompraActions(+ultimaModalidad));
-
-        } else {
+        if (ultimaModalidad === null) {
           Swal.fire({
             icon: "error",
             title: "Error",
-            html: `Ocurrió un error al registrar la nueva modalidad.<br>
-                         <strong>Error:</strong> ${error}`,
+            text: "Ocurrió un error al registrar la nueva modalidad. Por favor, intente nuevamente.",
             background: isDarkMode ? "#1e1e1e" : "#ffffff",
             color: isDarkMode ? "#ffffff" : "#000000",
             confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
             customClass: { popup: "custom-border" },
           });
+          return;
         }
+        if (ultimaModalidad === -1) {
+          Swal.fire({
+            icon: "warning",
+            title: "Modalidad ya registrada",
+            html: `La modalidad que intenta ingresar ya existe.<br>
+                  Por favor, utilice un nombre diferente.`,
+            background: isDarkMode ? "#1e1e1e" : "#ffffff",
+            color: isDarkMode ? "#ffffff" : "#000000",
+            confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+            customClass: { popup: "custom-border" },
+          });
+          return;
+        }
+
+        Swal.fire({
+          icon: "success",
+          title: "Registro exitoso",
+          text: "Se ha registrado una nueva modalidad",
+          background: isDarkMode ? "#1e1e1e" : "#ffffff",
+          color: isDarkMode ? "#ffffff" : "#000000",
+          confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+          customClass: { popup: "custom-border" },
+        });
+
+        await comboModalidadesActions();
+        setShowInput(false);
+
+        setInventario((prev) => ({
+          ...prev,
+          IDMODALIDADCOMPRA: +ultimaModalidad
+        }));
+
+        dispatch(setModalidadCompraActions(ultimaModalidad));
       }
     }
   };

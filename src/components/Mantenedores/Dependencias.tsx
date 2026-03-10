@@ -278,8 +278,8 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
             {/* Paginador */}
             {/* Paginador */}
             {totalPaginas > 1 && (
-              <div className="paginador-scroll mt-3">
-                <ul className="pagination pagination-sm justify-content-center">
+              <div className="mt-3">
+                <ul className="pagination pagination-sm justify-content-center ">
                   <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                     <button
                       className="page-link"
@@ -297,14 +297,14 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
                     </button>
                   </li>
 
-                  {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                  {Array.from({ length: Math.min(20, totalPaginas) }, (_, i) => {
                     let pageNum;
-                    if (totalPaginas <= 5) {
+                    if (totalPaginas <= 20) {
                       pageNum = i + 1;
                     } else if (paginaActual <= 3) {
                       pageNum = i + 1;
                     } else if (paginaActual >= totalPaginas - 2) {
-                      pageNum = totalPaginas - 4 + i;
+                      pageNum = totalPaginas - 19 + i;
                     } else {
                       pageNum = paginaActual - 2 + i;
                     }

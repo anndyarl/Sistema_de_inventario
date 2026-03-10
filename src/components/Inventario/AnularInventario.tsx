@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Pagination, Button, Spinner } from "react-bootstrap";
+import { Row, Col, Button, Spinner } from "react-bootstrap";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
@@ -13,6 +13,8 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { listaInventarioAnularActions } from "../../redux/actions/Inventario/AnularInventario/listaInventarioAnularActions.tsx";
 import { anularInventarioActions } from "../../redux/actions/Inventario/AnularInventario/anularInventarioActions";
 import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
+import { TablaGenerica } from "../Utils/TablaGenerica.tsx";
+import { PageSizeSelector } from "../Utils/PageSizeSelector.tsx";
 export interface InventarioCompleto {
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
@@ -67,27 +69,45 @@ interface FechasProps {
 const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaAltasActions, listaInventarioAnular, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [loading, setLoading] = useState(false);
-
     const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
-    // const [filasSeleccionadas, setFilasSeleccionadas] = useState<string[]>([]);
+    // Estados para ordenamiento
+    const [sortColumn, setSortColumn] = useState<keyof InventarioCompleto | null>(null);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [paginaActual, setPaginaActual] = useState(1);
-    const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
-    const elementosPorPagina = Paginacion.nPaginacion;
+    const [pageSize, setPageSize] = useState(10);
     const [Inventario, setInventario] = useState({
         af_codigo_generico: "",
         fechaInicio: "",
         fechaTermino: "",
     });
 
+
+
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
-        // Validación para N° de Recepción (debe ser un número)
-        if (!Inventario.fechaInicio) tempErrors.fechaInicio = "La Fecha de Inicio es obligatoria.";
-        if (!Inventario.fechaTermino) tempErrors.fHasta = "La Fecha de Término es obligatoria.";
-        if (Inventario.fechaInicio > Inventario.fechaTermino) tempErrors.fechaInicio = "La fecha no cumple con el rango de busqueda";
+
+        // Validar que si hay fecha de inicio, debe haber fecha de término
+        if (Inventario.fechaInicio && !Inventario.fechaTermino) {
+            tempErrors.fechaTermino = "Debe ingresar una fecha de término.";
+        }
+
+        // Validar que si hay fecha de término, debe haber fecha de inicio
+        if (!Inventario.fechaInicio && Inventario.fechaTermino) {
+            tempErrors.fechaInicio = "Debe ingresar una fecha de inicio.";
+        }
+
+        // Si ambas fechas están presentes, validar el rango
+        if (Inventario.fechaInicio && Inventario.fechaTermino) {
+            if (Inventario.fechaInicio > Inventario.fechaTermino) {
+                tempErrors.fechaInicio = "La fecha de inicio no puede ser mayor a la fecha de término.";
+                tempErrors.fechaTermino = "La fecha de término no puede ser menor a la fecha de inicio.";
+            }
+        }
+
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
+
 
     const listaAuto = async () => {
         if (listaInventarioAnular.length === 0) {
@@ -117,6 +137,10 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
         listaAuto();
     }, [listaInventarioAnularActions, listaInventarioAnular.length]); // Asegúrate de incluir dependencias relevantes
 
+    useEffect(() => {
+        setPaginaActual(1);
+    }, []);
+
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Validación específica para af_codigo_generico: solo permitir números
@@ -127,45 +151,38 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             ...prevState,
             [name]: value,
         }));
-
-        setPaginacion((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-
     };
 
     const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
         e.preventDefault();
-        let resultado = false;
         setLoading(true);
-        //Si las fechas no estan vacias las valida, de lo contrario solo permite filtrar por codigo de la cuenta
-        if (Inventario.fechaTermino != "" && Inventario.fechaInicio != "") {
-            if (validate()) {
-                resultado = await listaInventarioAnularActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, objeto.Roles[0].codigoEstablecimiento);
-            }
+        setError({});
+        let resultado = false;
+
+        // Si ambas fechas están ingresadas, validar    
+        if (!validate()) {
+            setLoading(false);
+            return;
         }
-        else {
-            resultado = await listaInventarioAnularActions(Inventario.af_codigo_generico, "", "", objeto.Roles[0].codigoEstablecimiento);
-        }
+        resultado = await listaInventarioAnularActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, objeto.Roles[0].codigoEstablecimiento);
+
 
         if (!resultado) {
             Swal.fire({
                 icon: "warning",
-                title: "Sin Resultados",
-                text: "No se encontraron resultados para la consulta realizada.",
+                title: "Sin resultados",
+                text: "No se encontraron registros para la búsqueda realizada.",
                 confirmButtonText: "Ok",
-                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-                color: `${isDarkMode ? "#ffffff" : "000000"}`,
-                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
                 customClass: {
-                    popup: "custom-border", // Clase personalizada para el borde
-                }
+                    popup: "custom-border",
+                },
             });
-            setLoading(false); //Finaliza estado de carga
+            setLoading(false);
             return;
         } else {
-            paginar(1);
             setLoading(false); //Finaliza estado de carga
         }
     };
@@ -179,15 +196,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
         }));
     };
 
-    const handleAnular = async (index: number, aF_CLAVE: number, aF_CODIGO_GENERICO: string) => {
-        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== index));
+    const handleAnular = async (aF_CLAVE: number, aF_CODIGO_GENERICO: string) => {
+        setElementoSeleccionado((prev) => prev.filter((_, i) => i !== aF_CLAVE));
         const item = listaInventarioAnular.find((i) => i.aF_CLAVE === aF_CLAVE);
-        // const selectedIndices = filasSeleccionadas.map(Number);
-        // const activosSeleccionados = selectedIndices.map((index) => {
-        //     return {
-        //         aF_CLAVE: listaInventarioAnular[index].aF_CLAVE,
-        //     };
-        // });
         if (item && item.aF_ALTA !== "S") {
 
             const result = await Swal.fire({
@@ -273,19 +284,192 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
     //     }
     // };
 
-    // Lógica de Paginación actualizada
-    const indiceUltimoElemento = paginaActual * elementosPorPagina;
-    const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-    const elementosActuales = useMemo(
-        () =>
-            listaInventarioAnular.slice(indicePrimerElemento, indiceUltimoElemento),
-        [listaInventarioAnular, indicePrimerElemento, indiceUltimoElemento]
-    );
-    // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
-    const totalPaginas = Array.isArray(listaInventarioAnular)
-        ? Math.ceil(listaInventarioAnular.length / elementosPorPagina)
-        : 0;
-    const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
+    // Definición de columnas
+    const columnas = [
+        {
+            key: 'aF_ESTADO_INV' as keyof InventarioCompleto,
+            header: 'Estado',
+            className: 'text-nowrap',
+            cellClassName: 'text-nowrap',
+            render: (value: number) => {
+                if (value === 1) return <span className="badge bg-primary w-100">Sin Alta</span>;
+                if (value === 2) return <span className="badge bg-success w-100">Dado de Alta</span>;
+                if (value === 3) return <span className="badge bg-danger w-100">Dado de Baja</span>;
+                return <span>-</span>;
+            }
+        },
+        {
+            key: 'aF_CODIGO_GENERICO' as keyof InventarioCompleto,
+            header: 'Nº Inventario',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'aF_DESCRIPCION' as keyof InventarioCompleto,
+            header: 'Descripción',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'aF_FINGRESO' as keyof InventarioCompleto,
+            header: 'Fecha',
+            className: 'text-nowrap',
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? "Sin fecha" : value
+        },
+        {
+            key: 'seR_NOMBRE' as keyof InventarioCompleto,
+            header: 'Servicio',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'deP_NOMBRE' as keyof InventarioCompleto,
+            header: 'Dependencia',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'esP_NOMBRE' as keyof InventarioCompleto,
+            header: 'Especie',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'deT_PRECIO' as keyof InventarioCompleto,
+            header: 'Precio',
+            className: 'text-nowrap',
+            cellClassName: 'text-start',
+            render: (value: number) => `$${value?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}`
+        },
+        {
+            key: 'aF_VIDAUTIL' as keyof InventarioCompleto,
+            header: 'Vida Útil',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'origen' as keyof InventarioCompleto,
+            header: 'Origen',
+            className: 'text-nowrap',
+            cellClassName: 'text-start',
+            render: (value: string) => value ? value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase() : "S/N"
+        },
+        {
+            key: 'nrecepcion' as keyof InventarioCompleto,
+            header: 'Nº Recepción',
+            className: 'text-nowrap',
+            cellClassName: 'text-start',
+            render: (value: string) => value || "S/N"
+        },
+        {
+            key: 'ctA_COD' as keyof InventarioCompleto,
+            header: 'Nº Cta',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'aF_OCO_NUMERO_REF' as keyof InventarioCompleto,
+            header: 'Orden de Compra',
+            className: 'text-nowrap',
+            cellClassName: 'text-start'
+        },
+        {
+            key: 'deT_MARCA' as keyof InventarioCompleto,
+            header: 'Marca',
+            className: 'text-nowrap',
+            cellClassName: 'text-start',
+            render: (value: string) => value || "-"
+        },
+        {
+            key: 'deT_MODELO' as keyof InventarioCompleto,
+            header: 'Modelo',
+            className: 'text-nowrap',
+            cellClassName: 'text-start',
+            render: (value: string) => value || "-"
+        },
+        {
+            key: 'deT_SERIE' as keyof InventarioCompleto,
+            header: 'Serie',
+            className: 'text-nowrap',
+            cellClassName: 'text-start',
+            render: (value: string) => value || "-"
+        },
+        {
+            key: 'accion' as keyof InventarioCompleto,
+            header: 'Acción',
+            className: 'text-nowrap sticky-right',
+            cellClassName: 'sticky-right',
+            headerStyle: { position: 'sticky', right: 0, zIndex: 3 },
+            cellStyle: { position: 'sticky', right: 0, zIndex: 1 },
+            render: (_: any, item: InventarioCompleto) => (
+                item.aF_ESTADO_INV !== 1 ? (
+                    <Button
+                        variant="outline-danger"
+                        className="fw-semibold"
+                        size="sm"
+                        disabled
+                    >
+                        Anular
+                    </Button>
+                ) : (
+                    <Button
+                        variant="outline-danger"
+                        className="fw-semibold"
+                        size="sm"
+                        onClick={() => handleAnular(item.aF_CLAVE, item.aF_CODIGO_GENERICO)}
+                    >
+                        Anular
+                    </Button>
+                )
+            )
+        }
+    ];
+
+
+
+    // PASO 1: Primero ordenamos TODOS los datos según la columna seleccionada
+    const datosOrdenados = useMemo(() => {
+        if (!sortColumn) return listaInventarioAnular;
+
+        return [...listaInventarioAnular].sort((a, b) => {
+            const aValue = a[sortColumn];
+            const bValue = b[sortColumn];
+
+            // Manejar valores numéricos
+            if (!isNaN(Number(aValue)) && !isNaN(Number(bValue))) {
+                return sortDirection === 'asc'
+                    ? Number(aValue) - Number(bValue)
+                    : Number(bValue) - Number(aValue);
+            }
+
+            // Manejar valores de texto
+            const aString = aValue?.toString() || '';
+            const bString = bValue?.toString() || '';
+
+            return sortDirection === 'asc'
+                ? aString.localeCompare(bString)
+                : bString.localeCompare(aString);
+        });
+    }, [listaInventarioAnular, sortColumn, sortDirection]);
+
+    // PASO 3: Paginación (para la vista, NO para la exportación)
+    const totalRegistros = listaInventarioAnular.length;
+    const totalPaginas = Math.ceil(totalRegistros / pageSize);
+    const indiceInicio = (paginaActual - 1) * pageSize;
+    const indiceFin = indiceInicio + pageSize;
+
+    // Para la vista usamos los datos ordenados pero paginados
+    const elementosActuales = useMemo(() => {
+        return datosOrdenados.slice(indiceInicio, indiceFin);
+    }, [datosOrdenados, indiceInicio, indiceFin]);
+
+    // Función para manejar el ordenamiento
+    const handleSort = (column: keyof InventarioCompleto, direction: 'asc' | 'desc') => {
+        setSortColumn(column);
+        setSortDirection(direction);
+        // No reseteamos la selección al ordenar
+    };
     return (
         <Layout>
             <Helmet>
@@ -294,293 +478,210 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             <MenuInventario />
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
-                    <form>
-                        <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                            <h3 className="form-title fw-semibold border-bottom p-1">
-                                Anular Inventario
-                            </h3>
-                            <Row className="border rounded p-2 m-2">
-                                <Col lg={3} md={4}>
-                                    <div className="mb-2">
-                                        <div className="flex-grow-1 mb-2">
-                                            <label htmlFor="fechaInicio" className="form-label fw-semibold small">Desde</label>
-                                            <div className="input-group">
-                                                <input
-                                                    aria-label="Fecha Desde"
-                                                    type="date"
-                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
-                                                    name="fechaInicio"
-                                                    onChange={handleChange}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === "Enter") {
-                                                            handleBuscar(e);
-                                                        }
-                                                    }}
-                                                    value={Inventario.fechaInicio}
-                                                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                                                />
-                                            </div>
-                                            {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
-                                        </div>
 
-                                        <div className="flex-grow-1">
-                                            <label htmlFor="fechaTermino" className="form-label fw-semibold small">Hasta</label>
-                                            <div className="input-group">
-                                                <input
-                                                    aria-label="Fecha Hasta"
-                                                    type="date"
-                                                    className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
-                                                    name="fechaTermino"
-                                                    onChange={handleChange}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === "Enter") {
-                                                            handleBuscar(e);
-                                                        }
-                                                    }}
-                                                    value={Inventario.fechaTermino}
-                                                    max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                                                />
-                                            </div>
-                                            {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
-
-                                        </div>
-                                        <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
-                                    </div>
-                                </Col>
-
-                                <Col lg={3} md={4}>
-                                    <div className="mb-2">
-                                        <div className="mb-2">
-                                            <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                    <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                        <h3 className="form-title fw-semibold border-bottom p-1">
+                            Anular Inventario
+                        </h3>
+                        <Row className="border rounded p-2 m-2">
+                            <Col lg={3} md={4}>
+                                <div className="mb-2">
+                                    <div className="flex-grow-1 mb-2">
+                                        <label htmlFor="fechaInicio" className="form-label fw-semibold small">Desde</label>
+                                        <div className="input-group">
                                             <input
-                                                aria-label="af_codigo_generico"
-                                                type="text"
-                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                name="af_codigo_generico"
-                                                placeholder="Ej: 1000000008"
+                                                aria-label="Fecha Desde"
+                                                type="date"
+                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaInicio ? "is-invalid" : ""}`}
+                                                name="fechaInicio"
                                                 onChange={handleChange}
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter") {
                                                         handleBuscar(e);
                                                     }
                                                 }}
-                                                maxLength={12}
-                                                value={Inventario.af_codigo_generico}
+                                                value={Inventario.fechaInicio}
+                                                max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
                                             />
                                         </div>
+                                        {error.fechaInicio && <div className="invalid-feedback d-block">{error.fechaInicio}</div>}
                                     </div>
-                                </Col>
 
-                                <Col lg={1} md={4}>
-                                    <div className="d-flex flex-column gap-2 mt-4">
-                                        <Button
-                                            onClick={handleBuscar}
-                                            variant={`${isDarkMode ? "secondary" : "primary"}`}
-                                            className="w-100"
-                                        // disabled={loading}
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    Buscar
-                                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Buscar
-                                                    <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                                </>
-                                            )}
-                                        </Button>
-
-                                        <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
-                                            Limpiar
-                                            <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                        </Button>
-                                    </div>
-                                </Col>
-                            </Row>
-                            {/* Tamaño de página */}
-                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
-                                {/* Tamaño de página */}
-                                <Col xs={12} lg="auto">
-                                    {listaInventarioAnular.length > 10 && (
-                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                                            <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
-                                                Tamaño de página:
-                                            </label>
-                                            <select
-                                                aria-label="Seleccionar tamaño de página"
-                                                className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                name="nPaginacion"
+                                    <div className="flex-grow-1">
+                                        <label htmlFor="fechaTermino" className="form-label fw-semibold small">Hasta</label>
+                                        <div className="input-group">
+                                            <input
+                                                aria-label="Fecha Hasta"
+                                                type="date"
+                                                className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.fechaTermino ? "is-invalid" : ""}`}
+                                                name="fechaTermino"
                                                 onChange={handleChange}
-                                                value={Paginacion.nPaginacion}
-                                            >
-                                                {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                    <option key={val} value={val}>{val}</option>
-                                                ))}
-                                            </select>
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        handleBuscar(e);
+                                                    }
+                                                }}
+                                                value={Inventario.fechaTermino}
+                                                max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                            />
                                         </div>
-                                    )}
-                                </Col>
-                            </Row>
-                            {/* Tabla*/}
-                            {loading ? (
-                                <>
-                                    <SkeletonLoader rowCount={elementosPorPagina} />
-                                </>
-                            ) : (
-                                <>
-                                    {listaInventarioAnular.length > 0 ? (
-                                        <>
-                                            <div className='skeleton-table table-responsive'>
-                                                {elementosActuales.length > 0 && (
-                                                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                                                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
-                                                            <tr>
-                                                                {/* <th style={{
-                                                position: 'sticky',
-                                                left: 0,
-                                                zIndex: 2
-                                            }}>
-                                                <Form.Check
-                                                    className="check-danger"
-                                                    type="checkbox"
-                                                    onChange={handleSeleccionaTodos}
-                                                    checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                                                />
-                                            </th> */}
-                                                                <th scope="col" className="text-nowrap">Estado</th>
-                                                                <th scope="col" className="text-nowrap">Nº Inventario</th>
-                                                                <th scope="col" className="text-nowrap">Descripción</th>
-                                                                <th scope="col" className="text-nowrap">Fecha</th>
-                                                                <th scope="col" className="text-nowrap">Servicio</th>
-                                                                <th scope="col" className="text-nowrap">Dependencia</th>
-                                                                <th scope="col" className="text-nowrap">Especie</th>
-                                                                <th scope="col" className="text-nowrap">Precio</th>
-                                                                <th scope="col" className="text-nowrap">Vida Útil</th>
-                                                                <th scope="col" className="text-nowrap">Origen</th>
-                                                                <th scope="col" className="text-nowrap">Nº Recepción</th>
-                                                                <th scope="col" className="text-nowrap">Nº Cta</th>
-                                                                <th scope="col" className="text-nowrap">Orden de Compra</th>
-                                                                <th scope="col" className="text-nowrap">Marca</th>
-                                                                <th scope="col" className="text-nowrap">Modelo</th>
-                                                                <th scope="col" className="text-nowrap">Serie</th>
-                                                                <th scope="col" className="text-nowrap" style={{
-                                                                    position: 'sticky',
-                                                                    right: 0,
-                                                                }}>Acción</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {elementosActuales.map((lista, index) => {
-                                                                // const indexReal = indicePrimerElemento + index; // Índice real basado en la página
-                                                                return (
-                                                                    <tr key={index}>
-                                                                        {/* <td style={{ position: 'sticky', left: 0, zIndex: 2 }}>
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            onChange={() => setSeleccionaFilas(indexReal)}
-                                                            checked={filasSeleccionadas.includes(indexReal.toString())}
-                                                        />
-                                                    </td> */}
-                                                                        <td className="text-nowrap">
-                                                                            {lista.aF_ESTADO_INV === 1 ? <span className="badge bg-primary  w-100">Sin Alta</span>
-                                                                                : lista.aF_ESTADO_INV === 2 ? <span className="badge bg-success  w-100">Dado de Alta</span>
-                                                                                    : lista.aF_ESTADO_INV === 3 ? <span className="badge bg-danger  w-100">Dado de Baja</span> : <span>-</span>}
-                                                                        </td>
-                                                                        <td className="text-start">{lista.aF_CODIGO_GENERICO}</td>
-                                                                        <td className="text-start">{lista.aF_DESCRIPCION}</td>
-                                                                        <td className="text-start">{lista.aF_FINGRESO == "" ? "Sin fecha" : lista.aF_FINGRESO}</td>
-                                                                        <td className="text-start">{lista.seR_NOMBRE}</td>
-                                                                        <td className="text-start">{lista.deP_NOMBRE}</td>
-                                                                        <td className="text-start">{lista.esP_NOMBRE}</td>
-                                                                        <td className="text-start">
-                                                                            ${lista.deT_PRECIO?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}</td>
-                                                                        <td className="text-start">{lista.aF_VIDAUTIL}</td>
+                                        {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
 
-                                                                        <td className="text-start">{lista.origen.charAt(0).toUpperCase() + lista.origen.slice(1).toLocaleLowerCase() || "S/N  "}</td>
-                                                                        <td className="text-start">{lista.nrecepcion || "S/N"}</td>
-                                                                        <td className="text-start">{lista.ctA_COD}</td>
-                                                                        <td className="text-start">{lista.aF_OCO_NUMERO_REF}</td>
-                                                                        <td className="text-start">{!lista.deT_MARCA ? "-" : lista.deT_MARCA}</td>
-                                                                        <td className="text-start">{!lista.deT_MODELO ? "-" : lista.deT_MODELO}</td>
-                                                                        <td className="text-start">{!lista.deT_SERIE ? "-" : lista.deT_SERIE}</td>
-                                                                        <td style={{
-                                                                            position: 'sticky',
-                                                                            right: 0
-                                                                        }}>
-                                                                            {lista.aF_ESTADO_INV != 1 ? (
-                                                                                <Button
-                                                                                    variant="outline-danger"
-                                                                                    className="fw-semibold"
-                                                                                    size="sm"
-                                                                                    disabled
-                                                                                >
-                                                                                    Anular
-                                                                                </Button>
-                                                                            ) : (
-                                                                                <Button
-                                                                                    variant="outline-danger"
-                                                                                    className="fw-semibold"
-                                                                                    size="sm"
-                                                                                    onClick={() => handleAnular(index, lista.aF_CLAVE, lista.aF_CODIGO_GENERICO)}
-                                                                                >
-                                                                                    Anular
-                                                                                </Button>
-                                                                            )}
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            })}
-                                                        </tbody>
-                                                    </table>
-                                                )}
-                                            </div>
+                                    </div>
+                                    <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
+                                </div>
+                            </Col>
 
-                                            {/* Paginador */}
-                                            {elementosActuales.length > 0 && (
-                                                <div className="paginador-container position-relative z-0">
-                                                    <Pagination className="paginador-scroll">
-                                                        <Pagination.First
-                                                            onClick={() => paginar(1)}
-                                                            disabled={paginaActual === 1}
-                                                        />
-                                                        <Pagination.Prev
-                                                            onClick={() => paginar(paginaActual - 1)}
-                                                            disabled={paginaActual === 1}
-                                                        />
+                            <Col lg={3} md={4}>
+                                <div className="mb-2">
+                                    <div className="mb-2">
+                                        <label htmlFor="af_codigo_generico" className="form-label fw-semibold small">Nº Inventario</label>
+                                        <input
+                                            aria-label="af_codigo_generico"
+                                            type="text"
+                                            className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="af_codigo_generico"
+                                            placeholder="Ej: 1000000008"
+                                            onChange={handleChange}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleBuscar(e);
+                                                }
+                                            }}
+                                            maxLength={12}
+                                            value={Inventario.af_codigo_generico}
+                                        />
+                                    </div>
+                                </div>
+                            </Col>
 
-                                                        {Array.from({ length: totalPaginas }, (_, i) => (
-                                                            <Pagination.Item
-                                                                key={i + 1}
-                                                                active={i + 1 === paginaActual}
-                                                                onClick={() => paginar(i + 1)}
-                                                            >
-                                                                {i + 1}
-                                                            </Pagination.Item>
-                                                        ))}
-                                                        <Pagination.Next
-                                                            onClick={() => paginar(paginaActual + 1)}
-                                                            disabled={paginaActual === totalPaginas}
-                                                        />
-                                                        <Pagination.Last
-                                                            onClick={() => paginar(totalPaginas)}
-                                                            disabled={paginaActual === totalPaginas}
-                                                        />
-                                                    </Pagination>
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
-                                            No hay resultados para mostrar.
-                                        </p>
-                                    )}
-                                </>
-                            )}
+                            <Col lg={1} md={4}>
+                                <div className="d-flex flex-column gap-2 mt-4">
+                                    <Button
+                                        onClick={handleBuscar}
+                                        variant={`${isDarkMode ? "secondary" : "primary"}`}
+                                        className="w-100"
+                                    // disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                Buscar
+                                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                Buscar
+                                                <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                            </>
+                                        )}
+                                    </Button>
 
-                        </div>
-                    </form>
+                                    <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
+                                        Limpiar
+                                        <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                    </Button>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        {/* Controles de página y exportación */}
+                        <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                            <Col xs={12} lg="auto">
+                                {listaInventarioAnular.length > 10 && (
+                                    <PageSizeSelector
+                                        pageSize={pageSize}
+                                        total={listaInventarioAnular.length}
+                                        totalFiltrados={totalRegistros}
+                                        onChange={(size) => setPageSize(size)}
+                                        isDarkMode={isDarkMode}
+                                    />
+                                )}
+                            </Col>
+                        </Row>
+
+                        {/* Tabla con selección */}
+                        {loading ? (
+                            <SkeletonLoader rowCount={10} />
+                        ) : (
+                            <TablaGenerica<InventarioCompleto>
+                                data={elementosActuales}
+                                columns={columnas}
+                                isDarkMode={isDarkMode}
+                                onSortChange={handleSort}
+                                sortColumn={sortColumn}
+                                sortDirection={sortDirection}
+                            />
+                        )}
+
+                        {/* Paginador */}
+                        {totalPaginas > 1 && (
+                            <div className="mt-3">
+                                <ul className="pagination pagination-sm justify-content-center">
+                                    <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(1)}
+                                        >
+                                            Primera
+                                        </button>
+                                    </li>
+                                    <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(paginaActual - 1)}
+                                        >
+                                            Anterior
+                                        </button>
+                                    </li>
+
+                                    {Array.from({ length: Math.min(20, totalPaginas) }, (_, i) => {
+                                        let pageNum;
+                                        if (totalPaginas <= 20) {
+                                            pageNum = i + 1;
+                                        } else if (paginaActual <= 3) {
+                                            pageNum = i + 1;
+                                        } else if (paginaActual >= totalPaginas - 2) {
+                                            pageNum = totalPaginas - 19 + i;
+                                        } else {
+                                            pageNum = paginaActual - 2 + i;
+                                        }
+
+                                        return (
+                                            <li
+                                                key={pageNum}
+                                                className={`page-item ${paginaActual === pageNum ? "active" : ""}`}
+                                            >
+                                                <button
+                                                    className="page-link"
+                                                    onClick={() => setPaginaActual(pageNum)}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+
+                                    <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(paginaActual + 1)}
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </li>
+                                    <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setPaginaActual(totalPaginas)}
+                                        >
+                                            Última
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+
                 </div>
             </div>
         </Layout >

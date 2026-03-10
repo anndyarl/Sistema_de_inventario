@@ -1,5 +1,4 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
     POST_FORMULARIO_BIENES_REQUEST,
     POST_FORMULARIO_BIENES_SUCCESS,

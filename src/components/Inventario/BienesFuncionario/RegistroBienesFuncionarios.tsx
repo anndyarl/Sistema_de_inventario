@@ -18,7 +18,7 @@ import MenuInventario from "../../Menus/MenuInventario";
 import { setDependenciaBienesFuncionarioActions, setRutBienesFuncionarioActions, setServicioBienesFuncionarioActions, setAfCodigoGenericoActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/datosRegistroBeneficiarioActions";
 import { validate, format } from 'rut.js';
 import { Helmet } from "react-helmet-async";
-import { Objeto } from "../../Navegacion/Profile";
+
 import { listadoBienesFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/listadoBienesFuncionariosActions";
 import { maxBienesFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/maxBienesFuncionariosActions";
 import { Search } from "react-bootstrap-icons";
@@ -27,6 +27,7 @@ import { InventarioCompleto } from "../AnularInventario";
 import { buscarBienesDeFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/buscarBienesDeFuncionariosActions";
 import { useNavigate } from "react-router-dom";
 import { ListadoBienesFuncionarios } from "./ListadoBienesFuncionarios";
+import { Objeto } from "../../Navegacion/Profile";
 
 interface FuncionarioProps {
   rutFuncionario?: string;  // Opcional si no siempre es necesario

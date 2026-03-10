@@ -6,12 +6,13 @@ import {
 } from "./../types";
 import axiosInstance from "../../../../services/axiosConfig";
 
-export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, esP_NOMBRE: string, establ_corr: number }[]) => async (dispatch: Dispatch, getState: any): Promise<boolean> => {
+export const registrarBienesBajasActions = (activos: { aF_CLAVE: number, usuariO_MOD: string, ctA_COD: string, esP_NOMBRE: string, establ_corr: number }[]) => async (dispatch: Dispatch): Promise<boolean> => {
 
   const body = JSON.stringify(activos);
   dispatch({ type: REGISTRAR_BIENES_BAJAS_REQUEST });
 
   try {
+    console.log("body", body);
     const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearBienesBajas`, body);
 
     if (res.status === 200) {
